@@ -25,6 +25,8 @@ public:
 	void Fire();
 
 protected:
+	//BEGIN AAbilitySystemActor Interface
 	virtual void CreateAttributeSets() override;
 	virtual void RegisterAttributeSets() override;
+	//END AAbilitySystemActor Interface
 };

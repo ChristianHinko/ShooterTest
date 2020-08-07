@@ -86,6 +86,11 @@ protected:
 		TSubclassOf<USSGameplayAbility> CharacterRunAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle CharacterRunAbilitySpecHandle;
+
+	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
+		TSubclassOf<USSGameplayAbility> FireAbilityTSub;
+	UPROPERTY(Replicated)
+		FGameplayAbilitySpecHandle FireAbilitySpecHandle;
 #pragma endregion
 
 #pragma region Effects
@@ -168,6 +173,9 @@ protected:
 
 	virtual void OnRunPressed() override;
 	virtual void OnRunReleased() override;
+
+	virtual void OnPrimaryFirePressed() override;
+	virtual void OnPrimaryFireReleased() override;
 
 #pragma endregion
 

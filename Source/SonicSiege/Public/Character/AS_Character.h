@@ -54,12 +54,12 @@ public:
 
 	//	'meta' attributes: ie. "What do we do with this incomming Damage or Healing?" Good solution in place of an ExecutionCalculation
 	/** This Damage attribute is just used for applying negative health mods. Its not a 'persistent' attribute. It is a 'meta' attribute (gets set back to 0 after it modifies Health) */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Damage, Category = "Attributes", meta = (HideFromLevelInfos))	// You can't make a GameplayEffect 'powered' by Damage (Its transient)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Damage, Category = "Attributes", meta = (HideFromLevelInfos))	// You can't make a GameplayEffect 'powered' by Damage (Its transient). HideFromLevelInfos makes the attribute transient
 		FGameplayAttributeData Damage;
 	ATTRIBUTE_ACCESSORS(UAS_Character, Damage)
 
 	/** This Healing attribute is just used for applying positive health mods. Its not a 'persistent' attribute. It is a 'meta' attribute (gets set back to 0 after it modifies Health) */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Healing, Category = "Attributes", meta = (HideFromLevelInfos))	// You can't make a GameplayEffect 'powered' by Damage (Its transient)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Healing, Category = "Attributes", meta = (HideFromLevelInfos))	// You can't make a GameplayEffect 'powered' by Damage (Its transient). HideFromLevelInfos makes the attribute transient
 		FGameplayAttributeData Healing;
 	ATTRIBUTE_ACCESSORS(UAS_Character, Healing)
 #pragma endregion

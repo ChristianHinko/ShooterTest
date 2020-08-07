@@ -11,11 +11,6 @@ AWeapon::AWeapon()
 }
 
 
-void AWeapon::Fire()
-{
-
-}
-
 void AWeapon::CreateAttributeSets()
 {
 	Super::CreateAttributeSets();

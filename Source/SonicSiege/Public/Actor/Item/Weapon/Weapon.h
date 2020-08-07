@@ -22,8 +22,6 @@ public:
 	UPROPERTY()
 		UAS_Weapon* WeaponAttributeSet;
 
-	void Fire();
-
 protected:
 	//BEGIN AAbilitySystemActor Interface
 	virtual void CreateAttributeSets() override;

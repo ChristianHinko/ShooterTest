@@ -5,7 +5,8 @@
 	- UE_LOG(LogAbilitySystemSetup, Error, TEXT("Could'nt grant ability. NewAbility was null"));
 - Add a DECLARE_MULTICAST_DELEGATE(FSetupWithAbilitySystemCompleted); in AbilitySystemCharacter.h.
 	- Also do this kind of thing for the AbilitySystemPawn and AbilitySystemActor
-
+- Fix gameplay ability UE_LOGs
+	- the character run ability logs say jump instead of run
 
 
 

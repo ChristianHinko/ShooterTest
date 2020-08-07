@@ -4,6 +4,8 @@
 #include "Actor/Item/Weapon/Abilities/GA_Fire.h"
 #include "AbilitySystemComponent.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
+#include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
+#include "Abilities/GameplayAbilityTargetActor_SingleLineTrace.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -43,10 +45,35 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	}
 
 
+
+	AGameplayAbilityTargetActor_SingleLineTrace* TargetTraceActor = GetWorld()->SpawnActor<AGameplayAbilityTargetActor_SingleLineTrace>(FActorSpawnParameters());
+	TargetTraceActor->bDebug = true;
+
+	FGameplayAbilityTargetingLocationInfo TargetingLocationInfo = FGameplayAbilityTargetingLocationInfo();
+	TargetingLocationInfo.LocationType = EGameplayAbilityTargetingLocationType::LiteralTransform;
+	TargetingLocationInfo.LiteralTransform = GetAvatarActorFromActorInfo()->GetActorTransform();
+	TargetTraceActor->StartLocation = TargetingLocationInfo;
+
+	UAbilityTask_WaitTargetData* WaitTargetDataActorTask = UAbilityTask_WaitTargetData::WaitTargetDataUsingActor(this, TEXT("WaitTargetDataActorTask"), EGameplayTargetingConfirmation::UserConfirmed, TargetTraceActor);
+	if (!WaitTargetDataActorTask)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitTargetDataActorTask was NULL when trying to activate fire ability. Called CancelAbility()"), *FString(__FUNCTION__));
+		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		return;
+	}
+
+	WaitTargetDataActorTask->ValidData.AddDynamic(this, &UGA_Fire::OnValidData);
+	WaitTargetDataActorTask->ReadyForActivation();
+
 	FireEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, FireEffectTSub.GetDefaultObject(), GetAbilityLevel());
 	UKismetSystemLibrary::PrintString(this, "GA_Fire activated", true, false);
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
+}
+
+void UGA_Fire::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
+{
+
 }
 
 void UGA_Fire::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)

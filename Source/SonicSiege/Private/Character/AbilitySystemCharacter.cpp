@@ -350,7 +350,7 @@ bool AAbilitySystemCharacter::GrantStartingAbilities()
 	CharacterRunAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterRunAbilityTSub, this, EAbilityInputID::Run/*, GetLevel()*/);
 	FireAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(FireAbilityTSub, this, EAbilityInputID::PrimaryFire/*, GetLevel()*/);
 
-	return true;	
+	return true;
 
 	// \/\/\/\/ This should be your first bit of code in your overrided implementation \/\/\/\/
 	// ------------------------------------------------------------------------------------- //

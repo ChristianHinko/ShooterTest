@@ -18,7 +18,7 @@ public:
 	UGA_Fire();
 
 protected:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Effects To Apply")
 		TSubclassOf<UGameplayEffect> FireEffectTSub;
 	FActiveGameplayEffectHandle FireEffectActiveHandle;
 
@@ -27,4 +27,7 @@ protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	//END UGameplayAbility Interface
+
+	UFUNCTION()
+		void OnValidData(const FGameplayAbilityTargetDataHandle& Data);
 };

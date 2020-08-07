@@ -30,7 +30,7 @@ void USSCharacterMovementComponent::InitializeComponent()
 
 void USSCharacterMovementComponent::OnOwningCharacterSetupWithAbilitySystemFinished()
 {
-	//UKismetSystemLibrary::PrintString(this);
+
 	if (OwnerAbilitySystemCharacter)
 	{
 		OwnerSSASC = Cast<USSAbilitySystemComponent>(OwnerAbilitySystemCharacter->GetAbilitySystemComponent());

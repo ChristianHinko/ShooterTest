@@ -19,7 +19,6 @@ void UAS_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, RunAccelaration, COND_None, REPNOTIFY_Always);
 }
 
-//	These are default values BEFORE the default attribute values effect gets applied
 UAS_Character::UAS_Character()
 	: WalkSpeed(300.0f),
 	WalkAcceleration(2000.0f),

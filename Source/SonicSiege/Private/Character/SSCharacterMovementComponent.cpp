@@ -9,25 +9,28 @@
 #include "Character/SSCharacterMovementComponent.h"
 #include "Character/AbilitySystemCharacter.h"
 #include "Character/AS_Character.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 USSCharacterMovementComponent::USSCharacterMovementComponent()
 {
 	
 }
 
-void USSCharacterMovementComponent::BeginPlay()
+void USSCharacterMovementComponent::InitializeComponent()
 {
-	Super::BeginPlay();
+	Super::InitializeComponent();
 
 	OwnerAbilitySystemCharacter = Cast<AAbilitySystemCharacter>(GetPawnOwner());
 	if (OwnerAbilitySystemCharacter)
 	{
+		UKismetSystemLibrary::PrintString(this, "Bindto", true, true);
 		OwnerAbilitySystemCharacter->SetupWithAbilitySystemCompleted.AddUObject(this, &USSCharacterMovementComponent::OnOwningCharacterSetupWithAbilitySystemFinished);
 	}
 }
 
 void USSCharacterMovementComponent::OnOwningCharacterSetupWithAbilitySystemFinished()
 {
+	//UKismetSystemLibrary::PrintString(this);
 	if (OwnerAbilitySystemCharacter)
 	{
 		OwnerSSASC = Cast<USSAbilitySystemComponent>(OwnerAbilitySystemCharacter->GetAbilitySystemComponent());

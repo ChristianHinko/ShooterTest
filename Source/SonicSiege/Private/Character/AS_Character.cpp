@@ -20,10 +20,10 @@ void UAS_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 }
 
 UAS_Character::UAS_Character()
-	: WalkSpeed(600.0f),
-	WalkAcceleration(4000.0f),
-	RunSpeed(1600.0f),
-	RunAccelaration(16000.0f)
+	: WalkSpeed(300.0f),
+	WalkAcceleration(2000.0f),
+	RunSpeed(800.0f),
+	RunAccelaration(8000.0f)
 {
 
 }

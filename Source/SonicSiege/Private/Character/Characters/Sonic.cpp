@@ -9,7 +9,7 @@
 ASonic::ASonic(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	GetMesh()->SetRelativeScale3D(FVector(1.5f, 1.5f, 1.5f));
+	GetMesh()->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));
 
 	GetCapsuleComponent()->SetCapsuleHalfHeight(78.0f);
 

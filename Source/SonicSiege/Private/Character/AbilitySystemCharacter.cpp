@@ -211,6 +211,8 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 		// When posessing this Character always grant the player's ASC his starting abilities
 		GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
 	}
+
+	SetupWithAbilitySystemCompleted.Broadcast();
 }
 #pragma endregion
 

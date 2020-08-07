@@ -22,9 +22,19 @@ void USSCharacterMovementComponent::BeginPlay()
 	OwnerAbilitySystemCharacter = Cast<AAbilitySystemCharacter>(GetPawnOwner());
 	if (OwnerAbilitySystemCharacter)
 	{
+		OwnerAbilitySystemCharacter->SetupWithAbilitySystemCompleted.AddUObject(this, &USSCharacterMovementComponent::OnOwningCharacterSetupWithAbilitySystemFinished);
+	}
+}
+
+void USSCharacterMovementComponent::OnOwningCharacterSetupWithAbilitySystemFinished()
+{
+	if (OwnerAbilitySystemCharacter)
+	{
 		OwnerSSASC = Cast<USSAbilitySystemComponent>(OwnerAbilitySystemCharacter->GetAbilitySystemComponent());
 		CharacterAttributeSet = OwnerAbilitySystemCharacter->GetCharacterAttributeSet();
 	}
+	
+	
 }
 
 

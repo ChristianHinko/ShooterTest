@@ -30,4 +30,6 @@ protected:
 
 	UFUNCTION()
 		void OnValidData(const FGameplayAbilityTargetDataHandle& Data);
+	UFUNCTION()
+		void OnCancelled(const FGameplayAbilityTargetDataHandle& Data);
 };

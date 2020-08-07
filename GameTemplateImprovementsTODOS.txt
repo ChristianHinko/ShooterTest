@@ -5,13 +5,4 @@
 	- UE_LOG(LogAbilitySystemSetup, Error, TEXT("Could'nt grant ability. NewAbility was null"));
 - Add a DECLARE_MULTICAST_DELEGATE(FSetupWithAbilitySystemCompleted); in AbilitySystemCharacter.h.
 	- Also do this kind of thing for the AbilitySystemPawn and AbilitySystemActor
-
-
-
-
-
-
-
-
-
-
+- Allow developer to specify multible DefaultAttributeValues GEs. Good for organization (ie. GE for movement attributes and one for damage attributes)

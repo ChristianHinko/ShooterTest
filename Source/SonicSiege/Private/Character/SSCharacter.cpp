@@ -2,6 +2,7 @@
 
 #include "Character/SSCharacter.h"
 
+#include "Net/UnrealNetwork.h"
 #include "GameFramework/Controller.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -12,6 +13,12 @@
 #include "GameFramework/SpringArmComponent.h"
 
 
+void ASSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ASSCharacter, Inventory, COND_OwnerOnly);
+}
 
 ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<USSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {

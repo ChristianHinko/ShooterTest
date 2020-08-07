@@ -12,6 +12,23 @@ class USkeletalMeshComponent;
 class UCameraComponent;
 class USpringArmComponent;
 class USSCharacterMovementComponent;
+class AItem;
+
+/**
+ *  This should store the info for an Item so we can avoid casting for no reason.
+ */
+USTRUCT()
+struct FItemInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	AItem* Item;
+
+	bool isGun;
+	bool isMelee;
+	bool isGrenade;
+};
 
 
 
@@ -31,6 +48,14 @@ protected:
 		UCameraComponent* FollowCamera;
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 		USpringArmComponent* CameraBoom;
+
+	UPROPERTY(Replicated)
+		TArray<AItem*> Inventory;
+	UPROPERTY(Replicated)
+		AItem* CurrentItem;
+	UPROPERTY(Replicated)
+		AItem* PreviousItem;
+
 
 public:
 	ASSCharacter(const FObjectInitializer& ObjectInitializer);

@@ -45,14 +45,14 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	}
 
 
-
 	AGameplayAbilityTargetActor_SingleLineTrace* TargetTraceActor = GetWorld()->SpawnActor<AGameplayAbilityTargetActor_SingleLineTrace>(FActorSpawnParameters());
 	TargetTraceActor->bDebug = true;
 
-	FGameplayAbilityTargetingLocationInfo TargetingLocationInfo = FGameplayAbilityTargetingLocationInfo();
-	TargetingLocationInfo.LocationType = EGameplayAbilityTargetingLocationType::LiteralTransform;
-	TargetingLocationInfo.LiteralTransform = GetAvatarActorFromActorInfo()->GetActorTransform();
-	TargetTraceActor->StartLocation = TargetingLocationInfo;
+	FGameplayAbilityTargetingLocationInfo StartLocationInfo;
+	StartLocationInfo.LocationType = EGameplayAbilityTargetingLocationType::LiteralTransform;
+	StartLocationInfo.LiteralTransform = GetAvatarActorFromActorInfo()->GetActorTransform();
+	TargetTraceActor->StartLocation = StartLocationInfo;
+	TargetTraceActor->MaxRange = 1000.f;
 
 	UAbilityTask_WaitTargetData* WaitTargetDataActorTask = UAbilityTask_WaitTargetData::WaitTargetDataUsingActor(this, TEXT("WaitTargetDataActorTask"), EGameplayTargetingConfirmation::UserConfirmed, TargetTraceActor);
 	if (!WaitTargetDataActorTask)
@@ -63,6 +63,7 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	}
 
 	WaitTargetDataActorTask->ValidData.AddDynamic(this, &UGA_Fire::OnValidData);
+	WaitTargetDataActorTask->Cancelled.AddDynamic(this, &UGA_Fire::OnCancelled);
 	WaitTargetDataActorTask->ReadyForActivation();
 
 	FireEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, FireEffectTSub.GetDefaultObject(), GetAbilityLevel());
@@ -73,7 +74,11 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 
 void UGA_Fire::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 {
-
+	UKismetSystemLibrary::PrintString(this, "Valid Data!", true, false);
+}
+void UGA_Fire::OnCancelled(const FGameplayAbilityTargetDataHandle& Data)
+{
+	UKismetSystemLibrary::PrintString(this, "Cancelled...", true, false);
 }
 
 void UGA_Fire::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)

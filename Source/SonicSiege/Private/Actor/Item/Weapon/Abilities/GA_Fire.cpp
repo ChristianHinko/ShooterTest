@@ -5,6 +5,8 @@
 #include "AbilitySystemComponent.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
 
+#include "Kismet/KismetSystemLibrary.h"
+
 
 
 UGA_Fire::UGA_Fire()
@@ -42,7 +44,7 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 
 
 	FireEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, FireEffectTSub.GetDefaultObject(), GetAbilityLevel());
-
+	UKismetSystemLibrary::PrintString(this, "GA_Fire activated", true, false);
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
 }

@@ -1,3 +1,17 @@
 - Make CMC read movement values from an attribute set.
+- Make the example ability for the ExampleAbilitySystemCharacter more unusual than GA_Fire because it needs to emphasise that it's a specific ability to that one character.
+- Change the "GetLevel() doesn't exist in this template. Will need to implement one if you want a level system" comment so that it works without it being a template
+- Add a UE_LOG if NewAbility is null in GrantAbility:
+	- UE_LOG(LogAbilitySystemSetup, Error, TEXT("Could'nt grant ability. NewAbility was null"));
 - Add a DECLARE_MULTICAST_DELEGATE(FSetupWithAbilitySystemCompleted); in AbilitySystemCharacter.h.
 	- Also do this kind of thing for the AbilitySystemPawn and AbilitySystemActor
+
+
+
+
+
+
+
+
+
+

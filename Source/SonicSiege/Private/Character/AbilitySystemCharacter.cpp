@@ -28,6 +28,7 @@ void AAbilitySystemCharacter::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	DOREPLIFETIME(AAbilitySystemCharacter, CharacterAttributeSet);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterJumpAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterRunAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, FireAbilitySpecHandle, COND_OwnerOnly);
 	//DOREPLIFETIME(AAbilitySystemCharacter, PlayerAbilitySystemComponent);			//can be helpful for debugging
 }
 
@@ -348,6 +349,7 @@ bool AAbilitySystemCharacter::GrantStartingAbilities()
 	// GetLevel() doesn't exist in this template. Will need to implement one if you want a level system
 	CharacterJumpAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterJumpAbilityTSub, this, EAbilityInputID::Jump/*, GetLevel()*/);
 	CharacterRunAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterRunAbilityTSub, this, EAbilityInputID::Run/*, GetLevel()*/);
+	FireAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(FireAbilityTSub, this, EAbilityInputID::PrimaryFire/*, GetLevel()*/);
 
 	return true;	
 
@@ -439,6 +441,18 @@ void AAbilitySystemCharacter::OnRunPressed()
 	}
 }
 void AAbilitySystemCharacter::OnRunReleased()
+{
+
+}
+
+void AAbilitySystemCharacter::OnPrimaryFirePressed()
+{
+	if (GetAbilitySystemComponent())
+	{
+		GetAbilitySystemComponent()->TryActivateAbility(FireAbilitySpecHandle);
+	}
+}
+void AAbilitySystemCharacter::OnPrimaryFireReleased()
 {
 
 }

@@ -20,7 +20,7 @@
 
 
 
-
+- GASShooter has a custom subclass of AGameplayAbilityTargetActor and a new WaitTargetDataWithReusableActor AbilityTask written from scratch that allows you to reuse a TargetActor without destroying it.
 
 
 

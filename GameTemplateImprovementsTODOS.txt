@@ -1,0 +1,1 @@
+Make CMC read movement values from an attribute set.

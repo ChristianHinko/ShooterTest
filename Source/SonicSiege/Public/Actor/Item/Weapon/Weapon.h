@@ -19,5 +19,12 @@ class SONICSIEGE_API AWeapon : public AItem
 public:
 	AWeapon();
 
-	UAS_Weapon WeaponAttributeSet;
+	UPROPERTY()
+		UAS_Weapon* WeaponAttributeSet;
+
+	void Fire();
+
+protected:
+	virtual void CreateAttributeSets() override;
+	virtual void RegisterAttributeSets() override;
 };

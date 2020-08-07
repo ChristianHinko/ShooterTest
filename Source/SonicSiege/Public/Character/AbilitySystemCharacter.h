@@ -15,7 +15,7 @@ class USSAttributeSet;
 class USSGameplayAbility;
 class UAS_Character;
 
-
+DECLARE_MULTICAST_DELEGATE(FSetupWithAbilitySystemCompleted);
 
 /**
  * A Base GAS class
@@ -74,6 +74,10 @@ public:
 	USSAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 	UAS_Character* GetCharacterAttributeSet() const { return CharacterAttributeSet; }
+
+#pragma region AbilitySystemSetup Delegates
+	FSetupWithAbilitySystemCompleted SetupWithAbilitySystemCompleted;
+#pragma endregion
 
 protected:
 #pragma region Abilities

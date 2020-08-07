@@ -61,6 +61,8 @@ protected:
 	UPROPERTY()
 		UAS_Character* CharacterAttributeSet;
 
+	virtual void OnOwningCharacterSetupWithAbilitySystemFinished();
+
 	//BEGIN CMC Interface
 	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
 	virtual void UpdateFromCompressedFlags(uint8 Flags) override;

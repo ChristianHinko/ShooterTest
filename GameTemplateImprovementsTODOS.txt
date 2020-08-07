@@ -1,1 +1,3 @@
 - Make CMC read movement values from an attribute set.
+- Add a DECLARE_MULTICAST_DELEGATE(FSetupWithAbilitySystemCompleted); in AbilitySystemCharacter.h.
+	- Also do this kind of thing for the AbilitySystemPawn and AbilitySystemActor

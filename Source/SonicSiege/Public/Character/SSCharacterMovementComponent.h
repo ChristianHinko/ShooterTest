@@ -10,6 +10,7 @@
 
 class USSAbilitySystemComponent;
 class UAS_Character;
+class AAbilitySystemCharacter;
 
 DECLARE_MULTICAST_DELEGATE(FCharacterMovementState);
 
@@ -41,6 +42,8 @@ class SONICSIEGE_API USSCharacterMovementComponent : public UCharacterMovementCo
 
 public:
 	USSCharacterMovementComponent();
+
+	virtual void BeginPlay() override;
 	
 	
 	void SetWantsToRun(bool newWantsToRun);
@@ -52,7 +55,9 @@ public:
 
 protected:
 	UPROPERTY()
-		USSAbilitySystemComponent* OwnerASC;
+		AAbilitySystemCharacter* OwnerAbilitySystemCharacter;
+	UPROPERTY()
+		USSAbilitySystemComponent* OwnerSSASC;
 	UPROPERTY()
 		UAS_Character* CharacterAttributeSet;
 

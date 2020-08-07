@@ -5,12 +5,26 @@
 
 #include "GameFramework/Character.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
+#include "AbilitySystem/SSAbilitySystemComponent.h"
 #include "Character/SSCharacterMovementComponent.h"
+#include "Character/AbilitySystemCharacter.h"
 #include "Character/AS_Character.h"
 
 USSCharacterMovementComponent::USSCharacterMovementComponent()
 {
+	
+}
 
+void USSCharacterMovementComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	OwnerAbilitySystemCharacter = Cast<AAbilitySystemCharacter>(GetPawnOwner());
+	if (OwnerAbilitySystemCharacter)
+	{
+		OwnerSSASC = Cast<USSAbilitySystemComponent>(OwnerAbilitySystemCharacter->GetAbilitySystemComponent());
+		CharacterAttributeSet = OwnerAbilitySystemCharacter->GetCharacterAttributeSet();
+	}
 }
 
 

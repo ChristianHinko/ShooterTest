@@ -12,18 +12,18 @@
 
 USSCharacterMovementComponent::USSCharacterMovementComponent()
 {
-	OwnerAbilitySystemCharacter = Cast<AAbilitySystemCharacter>(GetPawnOwner());
-	if (OwnerAbilitySystemCharacter)
-	{
-		OwnerAbilitySystemCharacter->SetupWithAbilitySystemCompleted.AddUObject(this, &USSCharacterMovementComponent::OnOwningCharacterSetupWithAbilitySystemFinished);
-	}
+	
 }
 
 void USSCharacterMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
+	OwnerAbilitySystemCharacter = Cast<AAbilitySystemCharacter>(GetPawnOwner());
+	if (OwnerAbilitySystemCharacter)
+	{
+		OwnerAbilitySystemCharacter->SetupWithAbilitySystemCompleted.AddUObject(this, &USSCharacterMovementComponent::OnOwningCharacterSetupWithAbilitySystemFinished);
+	}
 }
 
 void USSCharacterMovementComponent::OnOwningCharacterSetupWithAbilitySystemFinished()

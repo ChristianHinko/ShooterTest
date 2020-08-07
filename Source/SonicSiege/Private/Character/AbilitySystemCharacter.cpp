@@ -99,6 +99,7 @@ void AAbilitySystemCharacter::OnRep_Controller()
 	}
 }
 
+#include "Kismet/KismetSystemLibrary.h"
 void AAbilitySystemCharacter::SetupWithAbilitySystem()
 {
 	if (IsPlayerControlled())

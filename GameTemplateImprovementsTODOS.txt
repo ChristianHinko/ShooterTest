@@ -7,6 +7,14 @@
 	- Also do this kind of thing for the AbilitySystemPawn and AbilitySystemActor
 - Fix gameplay ability UE_LOGs
 	- the character run ability logs say jump instead of run
+- Allow developer to specify multible DefaultAttributeValues GEs. Good for organization (ie. GE for movement attributes and one for damage attributes)
+
+
+
+
+
+
+
 
 
 

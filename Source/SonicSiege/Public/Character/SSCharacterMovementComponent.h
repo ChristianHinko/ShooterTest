@@ -43,7 +43,8 @@ class SONICSIEGE_API USSCharacterMovementComponent : public UCharacterMovementCo
 public:
 	USSCharacterMovementComponent();
 
-	virtual void BeginPlay() override;
+	//	Don't know for sure if this is the best event to use but works for now
+	virtual void InitializeComponent() override;
 	
 	
 	void SetWantsToRun(bool newWantsToRun);
@@ -61,7 +62,8 @@ protected:
 	UPROPERTY()
 		UAS_Character* CharacterAttributeSet;
 
-	virtual void OnOwningCharacterSetupWithAbilitySystemFinished();
+	UFUNCTION()
+		virtual void OnOwningCharacterSetupWithAbilitySystemFinished();
 
 	//BEGIN CMC Interface
 	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;

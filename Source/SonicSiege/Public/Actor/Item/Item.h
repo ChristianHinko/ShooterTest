@@ -3,17 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Actor/SSActor.h"
+#include "Actor/AbilitySystemActor.h"
 #include "Item.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SONICSIEGE_API AItem : public ASSActor
+class SONICSIEGE_API AItem : public AAbilitySystemActor
 {
 	GENERATED_BODY()
 	
 public:
 	AItem();
+
+
 };

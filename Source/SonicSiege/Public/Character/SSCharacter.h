@@ -14,6 +14,8 @@ class USpringArmComponent;
 class USSCharacterMovementComponent;
 class AItem;
 
+
+
 /**
  *  This should store the info for an Item so we can avoid casting for no reason.
  */
@@ -29,8 +31,6 @@ public:
 	bool isMelee;
 	bool isGrenade;
 };
-
-
 
 /**
  * Base character class (without GAS implementation)

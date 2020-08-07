@@ -5,15 +5,12 @@
 
 #include "GameFramework/Character.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
-
-
+#include "Character/SSCharacterMovementComponent.h"
+#include "Character/AS_Character.h"
 
 USSCharacterMovementComponent::USSCharacterMovementComponent()
 {
-	walkSpeed = 600.0f;
-	runSpeed = 1600.0f;
-	walkAcceleration = 4000.0f;
-	runAccelaration = 16000.0f;
+
 }
 
 
@@ -122,12 +119,17 @@ float USSCharacterMovementComponent::GetMaxSpeed() const
 		}
 		else
 		{
-			if (bWantsToRun)
+			if (!CharacterAttributeSet)
 			{
-				return runSpeed;
+				UE_LOG(LogCharacterMovement, Error, TEXT("CharacterAttributeSet was NULL when trying to return a speed value"));
+				return 0;
 			}
 
-			return walkSpeed;
+			if (bWantsToRun)
+			{
+				return CharacterAttributeSet->GetRunSpeed();
+			}
+			return CharacterAttributeSet->GetWalkSpeed();
 		}
 	}
 	case MOVE_Falling:
@@ -166,12 +168,17 @@ float USSCharacterMovementComponent::GetMaxAcceleration() const
 	case MOVE_Walking:
 	case MOVE_NavWalking:
 	{
-		if (bWantsToRun)
+		if (!CharacterAttributeSet)
 		{
-			return runAccelaration;
+			UE_LOG(LogCharacterMovement, Error, TEXT("CharacterAttributeSet was NULL when trying to return a acceleration value"));
+			return 0;
 		}
 
-		return walkAcceleration;
+		if (bWantsToRun)
+		{
+			return CharacterAttributeSet->GetRunAccelaration();
+		}
+		return CharacterAttributeSet->GetWalkAcceleration();;
 	}
 	case MOVE_Falling:
 		break;

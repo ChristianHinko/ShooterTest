@@ -3,11 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystem/SSAbilitySystemComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "SSCharacterMovementComponent.generated.h"
 
-
+class USSAbilitySystemComponent;
+class UAS_Character;
 
 DECLARE_MULTICAST_DELEGATE(FCharacterMovementState);
 
@@ -49,22 +51,10 @@ public:
 
 
 protected:
-#pragma region Movement Variables
-	//--- If your using GAS in your project you should make these attributes instead of variables in the CMC --- =@REVIEW MARKER@=
-	/** The ground speed when walking */
-	UPROPERTY(EditAnywhere, Category = "Custom Movement Variables|Grounded")
-		float walkSpeed;
-	/** The acceleration when walking */
-	UPROPERTY(EditAnywhere, Category = "Custom Movement Variables|Grounded")
-		float walkAcceleration;
-	/** The ground speed when sprinting */
-	UPROPERTY(EditAnywhere, Category = "Custom Movement Variables|Grounded")
-		float runSpeed;
-	/** The acceleration when sprinting */
-	UPROPERTY(EditAnywhere, Category = "Custom Movement Variables|Grounded")
-		float runAccelaration;
-#pragma endregion
-
+	UPROPERTY()
+		USSAbilitySystemComponent* OwnerASC;
+	UPROPERTY()
+		UAS_Character* CharacterAttributeSet;
 
 	//BEGIN CMC Interface
 	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;

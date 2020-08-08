@@ -5,7 +5,10 @@
 #include "AbilitySystemComponent.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
-#include "Abilities/GameplayAbilityTargetActor_SingleLineTrace.h"
+//#include "Abilities/GameplayAbilityTargetActor_SingleLineTrace.h"
+#include "AbilitySystem/TargetActors/GATA_MultiLineTrace.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "Character/AbilitySystemCharacter.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -44,17 +47,22 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 		return;
 	}
 
+	// take away ammo first
+	FireEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, FireEffectTSub.GetDefaultObject(), GetAbilityLevel());
 
-	AGameplayAbilityTargetActor_SingleLineTrace* TargetTraceActor = GetWorld()->SpawnActor<AGameplayAbilityTargetActor_SingleLineTrace>(FActorSpawnParameters());
-	TargetTraceActor->bDebug = true;
+	// set up target actor info
+	AGATA_MultiLineTrace* TargetTraceActor = GetWorld()->SpawnActor<AGATA_MultiLineTrace>(FActorSpawnParameters());
 
 	FGameplayAbilityTargetingLocationInfo StartLocationInfo;
 	StartLocationInfo.LocationType = EGameplayAbilityTargetingLocationType::LiteralTransform;
 	StartLocationInfo.LiteralTransform = GetAvatarActorFromActorInfo()->GetActorTransform();
 	TargetTraceActor->StartLocation = StartLocationInfo;
-	TargetTraceActor->MaxRange = 1000.f;
+	TargetTraceActor->MaxRange = 100000.f;
+	TargetTraceActor->bDebug = true;
+	TargetTraceActor->maxTraces = 5;
 
-	UAbilityTask_WaitTargetData* WaitTargetDataActorTask = UAbilityTask_WaitTargetData::WaitTargetDataUsingActor(this, TEXT("WaitTargetDataActorTask"), EGameplayTargetingConfirmation::UserConfirmed, TargetTraceActor);
+	// try to make wait target data
+	UAbilityTask_WaitTargetData* WaitTargetDataActorTask = UAbilityTask_WaitTargetData::WaitTargetDataUsingActor(this, TEXT("WaitTargetDataActorTask"), EGameplayTargetingConfirmation::Instant, TargetTraceActor);
 	if (!WaitTargetDataActorTask)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitTargetDataActorTask was NULL when trying to activate fire ability. Called CancelAbility()"), *FString(__FUNCTION__));
@@ -62,19 +70,30 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 		return;
 	}
 
+	// bind to wait target data delegates and activate the task
 	WaitTargetDataActorTask->ValidData.AddDynamic(this, &UGA_Fire::OnValidData);
 	WaitTargetDataActorTask->Cancelled.AddDynamic(this, &UGA_Fire::OnCancelled);
 	WaitTargetDataActorTask->ReadyForActivation();
 
-	FireEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, FireEffectTSub.GetDefaultObject(), GetAbilityLevel());
-	UKismetSystemLibrary::PrintString(this, "GA_Fire activated", true, false);
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
 }
 
 void UGA_Fire::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 {
-	UKismetSystemLibrary::PrintString(this, "Valid Data!", true, false);
+	//TArray<AActor*> Actors = UAbilitySystemBlueprintLibrary::GetAllActorsFromTargetData(Data);
+	//for (int32 i = 0; i < Actors.Num(); i++)
+	//{
+	//	AActor* HitActor = Actors[i];
+	//	if (Cast<AAbilitySystemCharacter>(HitActor))		// maybe check if implements IAbilitySystemInterface instead of this later (so you can apply damage to AbilitySystemActors and pawns and such)
+	//	{
+	//		UKismetSystemLibrary::PrintString(this, HitActor->GetName(), true, false);
+	//	}
+	//	else
+	//	{
+	//		break;
+	//	}
+	//}
 }
 void UGA_Fire::OnCancelled(const FGameplayAbilityTargetDataHandle& Data)
 {

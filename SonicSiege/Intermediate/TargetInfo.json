@@ -1,0 +1,19 @@
+{
+	"Targets": [
+		{
+			"Name": "SonicSiege",
+			"Path": "C:\\Users\\Christian Hinkle\\Documents\\Unreal Projects\\SonicSiege\\SonicSiege\\Source\\SonicSiege.Target.cs",
+			"Type": "Game"
+		},
+		{
+			"Name": "SonicSiegeEditor",
+			"Path": "C:\\Users\\Christian Hinkle\\Documents\\Unreal Projects\\SonicSiege\\SonicSiege\\Source\\SonicSiegeEditor.Target.cs",
+			"Type": "Editor"
+		},
+		{
+			"Name": "SonicSiegeServer",
+			"Path": "C:\\Users\\Christian Hinkle\\Documents\\Unreal Projects\\SonicSiege\\SonicSiege\\Source\\SonicSiegeServer.Target.cs",
+			"Type": "Server"
+		}
+	]
+}

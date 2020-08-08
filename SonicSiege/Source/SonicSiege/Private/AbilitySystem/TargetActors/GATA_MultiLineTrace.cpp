@@ -36,7 +36,7 @@ void AGATA_MultiLineTrace::ConfirmTargetingAndContinue()
 		{
 			float debugLifeTime = 5.f;
 
-			DrawDebugLine(GetWorld(), StartLocation.GetTargetingTransform().GetLocation(), TraceHitResult.Location, FColor(0.f, 255.f, 0.f + (i * 150)), false, debugLifeTime);
+			DrawDebugLine(GetWorld(), StartLocation.GetTargetingTransform().GetLocation(), TraceHitResult.Location, FColor(0.f, 0.f + (i * 90), 255.f), false, debugLifeTime);
 			DrawDebugPoint(GetWorld(), TraceHitResult.Location, 10, FColor(0.f + (i * 90), 255.f - (i * 90), 0.f), false, debugLifeTime);
 		}
 #endif // ENABLE_DRAW_DEBUG

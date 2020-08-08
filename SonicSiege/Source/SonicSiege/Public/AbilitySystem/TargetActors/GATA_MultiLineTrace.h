@@ -31,9 +31,10 @@ public:
 
 	uint8 maxTraces;
 protected:
+	//BEGIN AGameplayAbilityTargetActor_Trace Interface
 	virtual void ConfirmTargetingAndContinue() override;
-	virtual FHitResult PerformTrace(AActor* InSourceActor) override;
+	//virtual FHitResult PerformTrace(AActor* InSourceActor) override;
+	//END AGameplayAbilityTargetActor_Trace Interface
 
-private:
-	AActor* LastHitActor;
+	virtual TArray<FHitResult> PerformMultiTraces(AActor* InSourceActor);
 };

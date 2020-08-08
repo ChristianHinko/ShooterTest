@@ -1,9 +1,0 @@
-{
-	"SourceFiles": [
-		"C:\\Users\\Christian Hinkle\\Documents\\Unreal Projects\\SonicSiege\\SonicSiege\\Source\\SonicSiege\\SonicSiege.Build.cs",
-		"C:\\Users\\Christian Hinkle\\Documents\\Unreal Projects\\SonicSiege\\SonicSiege\\Source\\SonicSiege.Target.cs",
-		"C:\\Users\\Christian Hinkle\\Documents\\Unreal Projects\\SonicSiege\\SonicSiege\\Source\\SonicSiegeEditor.Target.cs",
-		"C:\\Users\\Christian Hinkle\\Documents\\Unreal Projects\\SonicSiege\\SonicSiege\\Source\\SonicSiegeServer.Target.cs"
-	],
-	"EngineVersion": "4.25.1"
-}

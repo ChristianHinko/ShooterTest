@@ -7,7 +7,7 @@
 
 #include "GA_CharacterRun.generated.h"
 
-
+class AAbilitySystemCharacter;
 
 /**
  * This serves as a good demonstration as to how you should go about making Instanced-per-Actor abilities. Or any kind really
@@ -26,14 +26,28 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere)
-		TSubclassOf<UGameplayEffect> RunEffectTSub;	// asset manager we need you D:
-	FActiveGameplayEffectHandle RunEffectActiveHandle;
+		TSubclassOf<UGameplayEffect> StaminaDrainEffectTSub;	// asset manager we need you D:
+	FActiveGameplayEffectHandle StaminaDrainActiveHandle;
+	UPROPERTY()
+		AAbilitySystemCharacter* GASCharacter;
 
 	//BEGIN UGameplayAbility Interface
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	//END UGameplayAbility Interface
+
+	virtual void BeginDestroy() override;
+
+	FTimerHandle TickTimerHandle;
+
+	UFUNCTION()
+		void OnTimerTick();
+
+#pragma region Gameplay Tags
+	FGameplayTag TagOutOfStamina;
+	FGameplayTag TagRunning;
+#pragma endregion
 
 	UFUNCTION()
 		virtual void OnRelease(float TimeHeld);

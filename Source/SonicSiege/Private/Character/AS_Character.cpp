@@ -5,6 +5,8 @@
 
 #include "Net/UnrealNetwork.h"
 #include "GameplayAbilities\Public\GameplayEffectExtension.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "GameplayTags\Classes\BlueprintGameplayTagLibrary.h"
 
 
 void UAS_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -18,9 +20,13 @@ void UAS_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, RunSpeed, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, RunAccelaration, COND_None, REPNOTIFY_Always);
 
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, Health, COND_None, REPNOTIFY_Always);	//    <-----This is how it is done properly for attributes. 
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, MaxHealth, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, Health, COND_None, REPNOTIFY_Always);
 	//	Damage and Healing not replicated since it's a 'meta' attribute
+
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, MaxStamina, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, Stamina, COND_None, REPNOTIFY_Always);
+	//	StaminaDrain and StaminaGain not replicated since it's a 'meta' attribute
 
 }
 
@@ -31,8 +37,13 @@ UAS_Character::UAS_Character()
 	RunSpeed(800.0f),
 	RunAccelaration(8000.0f),
 	MaxHealth(100),
-	Health(GetMaxHealth())
+	Health(GetMaxHealth()),
+	MaxStamina(5),
+	Stamina(GetMaxStamina())
 {
+	TagOutOfStamina = FGameplayTag::RequestGameplayTag(FName("State.Character.OutOfStamina"));
+	
+	
 
 }
 
@@ -41,7 +52,7 @@ bool UAS_Character::PreGameplayEffectExecute(struct FGameplayEffectModCallbackDa
 	Super::PreGameplayEffectExecute(Data);
 
 	FGameplayAttribute AttributeToModify = Data.EvaluatedData.Attribute;
-
+	
 
 
 
@@ -49,13 +60,25 @@ bool UAS_Character::PreGameplayEffectExecute(struct FGameplayEffectModCallbackDa
 	if (AttributeToModify == GetDamageAttribute())
 	{
 		//Handle extra Attribute Modifications here (ie. armor buff, damage vulnerability)
-		
+
 
 	}
 
 	if (AttributeToModify == GetHealingAttribute())
 	{
 		//Handle extra Attribute Modifications here (ie. less healing, extra healing)
+
+
+	}
+
+	if (AttributeToModify == GetStaminaDrainAttribute())
+	{
+
+
+	}
+
+	if (AttributeToModify == GetStaminaGainAttribute())
+	{
 
 
 	}
@@ -71,23 +94,48 @@ void UAS_Character::PostGameplayEffectExecute(const FGameplayEffectModCallbackDa
 
 
 
+
+
+
+
+
+
 	if (ModifiedAttribute == GetDamageAttribute())
 	{
-		// Treat damage as minus health
-		const float damageDone = Damage.GetCurrentValue();
+		const float damageToApply = Damage.GetCurrentValue();
 		SetDamage(0.f);
 
-		SetHealth(FMath::Clamp(GetHealth() - damageDone, 0.f, GetMaxHealth()));
+		SetHealth(FMath::Clamp(GetHealth() - damageToApply, 0.f, GetMaxHealth()));
 
 	}
 
 	if (ModifiedAttribute == GetHealingAttribute())
 	{
-		const float healingDone = Healing.GetCurrentValue();
+		const float healingToApply = Healing.GetCurrentValue();
 		SetHealing(0.f);
 
-		SetHealth(FMath::Clamp(GetHealth() + Healing.GetCurrentValue(), 0.f, GetMaxHealth()));
+		SetHealth(FMath::Clamp(GetHealth() + healingToApply, 0.f, GetMaxHealth()));
 
+	}
+
+	if (ModifiedAttribute == GetStaminaDrainAttribute())
+	{
+		const float staminaToDrain = StaminaDrain.GetCurrentValue();
+		SetStaminaDrain(0.f);
+
+		SetStamina(FMath::Clamp(GetStamina() - staminaToDrain, 0.f, GetMaxStamina()));
+
+		UKismetSystemLibrary::PrintString(this, "Drained: " + FString::SanitizeFloat(staminaToDrain) + "Now at " + FString::SanitizeFloat(GetStamina()), true, true, FLinearColor::Red);
+	}
+
+	if (ModifiedAttribute == GetStaminaGainAttribute())
+	{
+		const float staminaToGain = StaminaGain.GetCurrentValue();
+		SetStaminaGain(0.f);
+
+		SetStamina(FMath::Clamp(GetStamina() + staminaToGain, 0.f, GetMaxStamina()));
+
+		UKismetSystemLibrary::PrintString(this, "Gained: " + FString::SanitizeFloat(staminaToGain) + "Now at " + FString::SanitizeFloat(GetStamina()), true, true, FLinearColor::Green);
 	}
 }
 
@@ -115,21 +163,24 @@ void UAS_Character::OnRep_RunAccelaration(const FGameplayAttributeData& ServerBa
 
 
 
+void UAS_Character::OnRep_MaxHealth(const FGameplayAttributeData& ServerBaseValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Character, MaxHealth, ServerBaseValue);
+}
 void UAS_Character::OnRep_Health(const FGameplayAttributeData& ServerBaseValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Character, Health, ServerBaseValue);
 }
-void UAS_Character::OnRep_Damage(const FGameplayAttributeData& ServerBaseValue)
+
+
+
+void UAS_Character::OnRep_MaxStamina(const FGameplayAttributeData& ServerBaseValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Character, Damage, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Character, MaxStamina, ServerBaseValue);
 }
-void UAS_Character::OnRep_Healing(const FGameplayAttributeData& ServerBaseValue)
+void UAS_Character::OnRep_Stamina(const FGameplayAttributeData& ServerBaseValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Character, Healing, ServerBaseValue);
-}
-void UAS_Character::OnRep_MaxHealth(const FGameplayAttributeData& ServerBaseValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Character, MaxHealth, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Character, Stamina, ServerBaseValue);
 }
 
 

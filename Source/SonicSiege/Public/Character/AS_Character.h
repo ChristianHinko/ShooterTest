@@ -23,6 +23,11 @@ public:
 	// Constructor and default values
 	UAS_Character();
 
+#pragma region Gameplay Tags
+	FGameplayTag TagOutOfStamina;
+#pragma endregion
+
+	
 	// Attributes
 #pragma region Movement Attributes
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_WalkSpeed, Category = "Attributes|Movement")
@@ -74,8 +79,8 @@ public:
 	ATTRIBUTE_ACCESSORS(UAS_Character, Stamina)
 
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromLevelInfos))
-		FGameplayAttributeData StaminaLoss;
-	ATTRIBUTE_ACCESSORS(UAS_Character, StaminaLoss)
+		FGameplayAttributeData StaminaDrain;
+	ATTRIBUTE_ACCESSORS(UAS_Character, StaminaDrain)
 
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromLevelInfos))
 		FGameplayAttributeData StaminaGain;

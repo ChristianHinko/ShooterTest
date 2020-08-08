@@ -5,6 +5,8 @@
 
 #include "Net/UnrealNetwork.h"
 #include "GameplayAbilities\Public\GameplayEffectExtension.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "GameplayTags\Classes\BlueprintGameplayTagLibrary.h"
 
 
 void UAS_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -24,7 +26,7 @@ void UAS_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, MaxStamina, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, Stamina, COND_None, REPNOTIFY_Always);
-	//	StaminaLoss and StaminaGain not replicated since it's a 'meta' attribute
+	//	StaminaDrain and StaminaGain not replicated since it's a 'meta' attribute
 
 }
 
@@ -36,9 +38,12 @@ UAS_Character::UAS_Character()
 	RunAccelaration(8000.0f),
 	MaxHealth(100),
 	Health(GetMaxHealth()),
-	MaxStamina(1000),
+	MaxStamina(5),
 	Stamina(GetMaxStamina())
 {
+	TagOutOfStamina = FGameplayTag::RequestGameplayTag(FName("State.Character.OutOfStamina"));
+	
+	
 
 }
 
@@ -47,9 +52,6 @@ bool UAS_Character::PreGameplayEffectExecute(struct FGameplayEffectModCallbackDa
 	Super::PreGameplayEffectExecute(Data);
 
 	FGameplayAttribute AttributeToModify = Data.EvaluatedData.Attribute;
-
-
-
 	
 
 
@@ -69,7 +71,7 @@ bool UAS_Character::PreGameplayEffectExecute(struct FGameplayEffectModCallbackDa
 
 	}
 
-	if (AttributeToModify == GetStaminaLossAttribute())
+	if (AttributeToModify == GetStaminaDrainAttribute())
 	{
 
 
@@ -116,13 +118,14 @@ void UAS_Character::PostGameplayEffectExecute(const FGameplayEffectModCallbackDa
 
 	}
 
-	if (ModifiedAttribute == GetStaminaLossAttribute())
+	if (ModifiedAttribute == GetStaminaDrainAttribute())
 	{
-		const float staminaToLose = StaminaLoss.GetCurrentValue();
-		SetStaminaLoss(0.f);
+		const float staminaToDrain = StaminaDrain.GetCurrentValue();
+		SetStaminaDrain(0.f);
 
-		SetStamina(FMath::Clamp(GetStamina() - staminaToLose, 0.f, GetMaxStamina()));
+		SetStamina(FMath::Clamp(GetStamina() - staminaToDrain, 0.f, GetMaxStamina()));
 
+		UKismetSystemLibrary::PrintString(this, "Drained: " + FString::SanitizeFloat(staminaToDrain) + "Now at " + FString::SanitizeFloat(GetStamina()), true, true, FLinearColor::Red);
 	}
 
 	if (ModifiedAttribute == GetStaminaGainAttribute())
@@ -132,6 +135,7 @@ void UAS_Character::PostGameplayEffectExecute(const FGameplayEffectModCallbackDa
 
 		SetStamina(FMath::Clamp(GetStamina() + staminaToGain, 0.f, GetMaxStamina()));
 
+		UKismetSystemLibrary::PrintString(this, "Gained: " + FString::SanitizeFloat(staminaToGain) + "Now at " + FString::SanitizeFloat(GetStamina()), true, true, FLinearColor::Green);
 	}
 }
 

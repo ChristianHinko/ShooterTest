@@ -23,7 +23,6 @@ void USSCharacterMovementComponent::InitializeComponent()
 	OwnerAbilitySystemCharacter = Cast<AAbilitySystemCharacter>(GetPawnOwner());
 	if (OwnerAbilitySystemCharacter)
 	{
-		UKismetSystemLibrary::PrintString(this, "Bindto", true, true);
 		OwnerAbilitySystemCharacter->SetupWithAbilitySystemCompleted.AddUObject(this, &USSCharacterMovementComponent::OnOwningCharacterSetupWithAbilitySystemFinished);
 	}
 }

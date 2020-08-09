@@ -59,7 +59,7 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	TargetTraceActor->StartLocation = StartLocationInfo;
 	TargetTraceActor->MaxRange = 100000.f;
 	TargetTraceActor->bDebug = true;
-	TargetTraceActor->maxTraces = 5;
+	TargetTraceActor->maxTraces = 10;
 
 	// try to make wait target data
 	UAbilityTask_WaitTargetData* WaitTargetDataActorTask = UAbilityTask_WaitTargetData::WaitTargetDataUsingActor(this, TEXT("WaitTargetDataActorTask"), EGameplayTargetingConfirmation::Instant, TargetTraceActor);

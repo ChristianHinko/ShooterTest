@@ -89,19 +89,17 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 
 void UGA_Fire::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 {
-	//TArray<AActor*> Actors = UAbilitySystemBlueprintLibrary::GetAllActorsFromTargetData(Data);
-	//for (int32 i = 0; i < Actors.Num(); i++)
-	//{
-	//	AActor* HitActor = Actors[i];
-	//	if (Cast<AAbilitySystemCharacter>(HitActor))		// maybe check if implements IAbilitySystemInterface instead of this later (so you can apply damage to AbilitySystemActors and pawns and such)
-	//	{
-	//		UKismetSystemLibrary::PrintString(this, HitActor->GetName(), true, false);
-	//	}
-	//	else
-	//	{
-	//		break;
-	//	}
-	//}
+	TArray<AActor*> Actors = UAbilitySystemBlueprintLibrary::GetAllActorsFromTargetData(Data);
+	for (int32 i = 0; i < Actors.Num(); i++)
+	{
+		AActor* HitActor = Actors[i];
+		if (AAbilitySystemCharacter* ASChar = Cast<AAbilitySystemCharacter>(HitActor))		// maybe check if implements IAbilitySystemInterface instead of this later (so you can apply damage to AbilitySystemActors and pawns and such)
+		{
+			UKismetSystemLibrary::PrintString(this, "AbilitySystemCharacter: " + ASChar->GetName(), true, false);
+
+
+		}
+	}
 }
 void UGA_Fire::OnCancelled(const FGameplayAbilityTargetDataHandle& Data)
 {

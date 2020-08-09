@@ -22,6 +22,11 @@ protected:
 		TSubclassOf<UGameplayEffect> FireEffectTSub;
 	FActiveGameplayEffectHandle FireEffectActiveHandle;
 
+	UPROPERTY(EditAnywhere, Category = "Target Actor Config")
+		uint8 maxTraces;
+	UPROPERTY(EditAnywhere, Category = "Target Actor Config")
+		TSubclassOf<AActor> ActorClassToCollect;
+
 	//BEGIN UGameplayAbility Interface
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;

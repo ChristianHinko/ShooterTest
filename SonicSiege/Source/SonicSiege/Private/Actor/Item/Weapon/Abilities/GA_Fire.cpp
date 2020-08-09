@@ -17,6 +17,8 @@
 UGA_Fire::UGA_Fire()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Fire")));
+
+	maxTraces = 10;
 }
 
 
@@ -50,7 +52,7 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	// take away ammo first
 	FireEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, FireEffectTSub.GetDefaultObject(), GetAbilityLevel());
 
-	// set up target actor info
+	// set up target actor
 	AGATA_MultiLineTrace* TargetTraceActor = GetWorld()->SpawnActor<AGATA_MultiLineTrace>(FActorSpawnParameters());
 
 	FGameplayAbilityTargetingLocationInfo StartLocationInfo;
@@ -59,7 +61,10 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	TargetTraceActor->StartLocation = StartLocationInfo;
 	TargetTraceActor->MaxRange = 100000.f;
 	TargetTraceActor->bDebug = true;
-	TargetTraceActor->maxTraces = 10;
+
+	TargetTraceActor->maxTraces = maxTraces;
+	TargetTraceActor->ActorClassToCollect = ActorClassToCollect;
+
 
 	// try to make wait target data
 	UAbilityTask_WaitTargetData* WaitTargetDataActorTask = UAbilityTask_WaitTargetData::WaitTargetDataUsingActor(this, TEXT("WaitTargetDataActorTask"), EGameplayTargetingConfirmation::Instant, TargetTraceActor);

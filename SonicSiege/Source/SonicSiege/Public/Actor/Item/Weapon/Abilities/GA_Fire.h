@@ -23,6 +23,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Effects To Apply")
 		TSubclassOf<UGameplayEffect> FireEffectTSub;
 	FActiveGameplayEffectHandle FireEffectActiveHandle;
+	UPROPERTY(EditAnywhere, Category = "Effects To Apply")
+		TSubclassOf<UGameplayEffect> BulletHitEffectTSub;
 
 	UPROPERTY(EditAnywhere, Category = "Target Actor Config")
 		uint8 maxTraces;

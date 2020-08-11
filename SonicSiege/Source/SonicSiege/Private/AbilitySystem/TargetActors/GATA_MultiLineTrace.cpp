@@ -6,13 +6,16 @@
 #include "Abilities/GameplayAbility.h"
 #include "GameFramework/Character.h"
 
-//#include "DrawDebugHelpers.h"
+#include "DrawDebugHelpers.h"
 
 
 
 AGATA_MultiLineTrace::AGATA_MultiLineTrace()
 {
-	maxTraces = 1;
+	ShouldProduceTargetDataOnServer = true;
+
+
+	maxTraces = 3;
 }
 
 
@@ -23,8 +26,7 @@ void AGATA_MultiLineTrace::ConfirmTargetingAndContinue()
 	{
 		return;
 	}
-
-	FGameplayAbilityTargetDataHandle Handle = StartLocation.MakeTargetDataHandleFromHitResults(OwningAbility, PerformMultiTraces/*<ActorClassToCollect>*/(SourceActor));
+	FGameplayAbilityTargetDataHandle Handle = StartLocation.MakeTargetDataHandleFromHitResults(OwningAbility, PerformMultiTraces(SourceActor));
 	TargetDataReadyDelegate.Broadcast(Handle);
 }
 
@@ -61,7 +63,7 @@ TArray<FHitResult> AGATA_MultiLineTrace::PerformMultiTraces(AActor* InSourceActo
 			Params.AddIgnoredActor(HitActor);
 			LastHitActor = HitActor;
 		}
-		else
+		else	// this means we line traced in thin air and hit nothing, break to end unnecesary traces
 		{
 #if ENABLE_DRAW_DEBUG
 			if (bDebug)
@@ -70,7 +72,6 @@ TArray<FHitResult> AGATA_MultiLineTrace::PerformMultiTraces(AActor* InSourceActo
 				float colorAccumulate = i * (maxTraces > 1 ? (255 / (maxTraces - 1)) : 0);
 
 				DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor(0.f, 0.f + colorAccumulate, 255.f), false, debugLifeTime);
-				DrawDebugPoint(GetWorld(), TraceEnd, 10, FColor(0.f, 0.f, 255.f), false, debugLifeTime);
 			}
 #endif // ENABLE_DRAW_DEBUG
 			break;
@@ -90,8 +91,8 @@ TArray<FHitResult> AGATA_MultiLineTrace::PerformMultiTraces(AActor* InSourceActo
 					float debugLifeTime = 5.f;
 					float colorAccumulate = i * (maxTraces > 1 ? (255 / (maxTraces - 1)) : 0);
 
-					DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor(0.f, 0.f + colorAccumulate, 255.f), false, debugLifeTime);
-					DrawDebugPoint(GetWorld(), TraceEnd, 10, FColor(0.f, 0.f, 255.f), false, debugLifeTime);
+					DrawDebugLine(GetWorld(), TraceStart, TraceHitResult.Location, FColor(0.f, 0.f + colorAccumulate, 255.f), false, debugLifeTime);
+					DrawDebugPoint(GetWorld(), TraceHitResult.Location, 10, FColor(0.f, 0.f, 255.f), false, debugLifeTime);
 				}
 #endif // ENABLE_DRAW_DEBUG
 				break;
@@ -105,7 +106,7 @@ TArray<FHitResult> AGATA_MultiLineTrace::PerformMultiTraces(AActor* InSourceActo
 			float colorAccumulate = i * (maxTraces > 1 ? (255 / (maxTraces - 1)) : 0);
 
 			DrawDebugLine(GetWorld(), TraceStart, TraceHitResult.Location, FColor(0.f, 0.f + colorAccumulate, 255.f), false, debugLifeTime);
-			DrawDebugPoint(GetWorld(), TraceHitResult.Location, 10, FColor(0.f + colorAccumulate, 255.f - colorAccumulate, 0.f), false, debugLifeTime);
+			DrawDebugPoint(GetWorld(), TraceHitResult.Location, 10, FColor(0.f + (colorAccumulate * 0.5f), 255.f - colorAccumulate, 0.f), false, debugLifeTime);
 		}
 #endif // ENABLE_DRAW_DEBUG
 

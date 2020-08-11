@@ -12,5 +12,65 @@
 #include "Kismet/KismetSystemLibrary.h"
 
 
+UAT_StaminaRegen::UAT_StaminaRegen()
+{
+	bTickingTask = true;
+	
+}
+
+UAT_StaminaRegen* UAT_StaminaRegen::AT_StaminaRegen(
+	UGameplayAbility* OwningAbility,
+	FName TaskInstanceName)
+{
+	UAT_StaminaRegen* MyObj = NewAbilityTask<UAT_StaminaRegen>(OwningAbility, TaskInstanceName);
 
 
+	return MyObj;
+}
+
+void UAT_StaminaRegen::Activate()
+{
+	if (Ability == nullptr)
+	{
+		return;
+	}
+
+	/*if (AbilitySystemComponent)
+	{
+		const FGameplayAbilityActorInfo* ActorInfo = Ability->GetCurrentActorInfo();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s() called on invalid AbilitySystemComponent"), *FString(__FUNCTION__));
+	}*/
+
+	FTimerDelegate TickTimerDel;
+
+	//Binding the function with specific variables
+	TickTimerDel.BindUFunction(this, TEXT("OnTimerTick"));
+
+	GetWorld()->GetTimerManager().SetTimer(TickTimerHandle, TickTimerDel, 1.f, true, 0.f);
+}
+
+
+void UAT_StaminaRegen::OnTimerTick()
+{
+	if (!Ability)
+	{
+		return;
+	}
+	Ability->applygam
+	Ability->ApplyGameplayEffectToOwner(Ability->GetCurrentAbilitySpecHandle(), Ability->GetCurrentActorInfo(), Ability->GetCurrentActivationInfo(), nullptr, Ability->GetAbilityLevel());
+}
+
+
+void UAT_StaminaRegen::OnDestroy(bool AbilityEnded)
+{
+	// Clear ALL timers that belong to this (Actor) instance.
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+	}
+	Super::OnDestroy(AbilityEnded);
+
+}

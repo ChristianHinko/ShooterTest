@@ -5,6 +5,7 @@
 
 #include "SonicSiege/Private/Utilities/LogCategories.h"
 
+#include "Character/AbilitySystemCharacter.h"
 
 
 USSGameplayAbility::USSGameplayAbility()
@@ -19,7 +20,14 @@ void USSGameplayAbility::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo,
 {
 	Super::OnAvatarSet(ActorInfo, Spec);
 
-	
+	if (ActivateAbilityOnGrant && ActorInfo)
+	{
+		if (ActorInfo->AbilitySystemComponent.Get())
+		{
+			bool ActivatedAbilitySucessfully = ActorInfo->AbilitySystemComponent.Get()->TryActivateAbility(Spec.Handle);
+
+		}
+	}
 }
 
 void USSGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)

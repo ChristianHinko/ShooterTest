@@ -156,7 +156,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 		}
 		// When posessing this Character always grant the player's ASC his starting abilities
 		GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
-
+		GrantNonHandleStartingAbilities();
 
 		// Refresh ASC Actor Info for clients. Server will be refreshed by its AIController/PlayerController when it possesses a new Actor.
 		if (GetLocalRole() != ROLE_Authority) // CLIENT
@@ -211,6 +211,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 		}
 		// When posessing this Character always grant the player's ASC his starting abilities
 		GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
+		GrantNonHandleStartingAbilities();
 	}
 
 	SetupWithAbilitySystemCompleted.Broadcast();
@@ -363,6 +364,25 @@ bool AAbilitySystemCharacter::GrantStartingAbilities()
 					//	We are on authority and have a valid ASC to work with
 	*/					
 	// ------------------------------------------------------------------------------------- //
+}
+
+void AAbilitySystemCharacter::GrantNonHandleStartingAbilities()
+{
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		return;
+	}
+	if (!GetAbilitySystemComponent())
+	{
+		UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Tried to grant NonHandleStartingAbilities on %s but GetAbilitySystemComponent() returned NULL"), *FString(__FUNCTION__), *GetName());
+		return;
+	}
+
+	// GetLevel() doesn't exist in this template. Will need to implement one if you want a level system
+	for (int i = 0; i < NonHandleStartingAbilities.Num(); i++)
+	{
+		GetAbilitySystemComponent()->GrantAbility(NonHandleStartingAbilities[i], this, EAbilityInputID::None, true/*, GetLevel()*/);
+	}
 }
 #pragma endregion
 

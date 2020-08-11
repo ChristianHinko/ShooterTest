@@ -17,9 +17,14 @@ UGA_StaminaRegen::UGA_StaminaRegen()
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerInitiated;
 
 	TagHasMaxStamina = FGameplayTag::RequestGameplayTag(FName("State.Character.HasMaxStamina"));
-	TagRunning = FGameplayTag::RequestGameplayTag(FName("State.Character.Running"));
+	TagIsRunning = FGameplayTag::RequestGameplayTag(FName("State.Character.IsRunning"));
+	TagIsRegeningStamina = FGameplayTag::RequestGameplayTag(FName("State.Character.IsRegeningStamina"));
 
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Passive.StaminaRegen")));
+
+
+
+	TickTimerDel.BindUObject(this, &UGA_StaminaRegen::OnTimerTick);
 }
 
 
@@ -59,21 +64,12 @@ void UGA_StaminaRegen::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s failed to get reference to GASCharacter. Stamina will not regen D:"), *FString(__FUNCTION__));
 		return;
 	}
-
-	// Lets do the logic we want to happen when the ability starts.
-	StaminaRegenTask = UAT_StaminaRegen::AT_StaminaRegen(this, "StaminaRegenProxy");
-	if (StaminaRegenTask)
+	CharacterAttributeSet = GASCharacter->GetCharacterAttributeSet();
+	if (CharacterAttributeSet)
 	{
-		StaminaRegenTask->OnRegenStoppedDueToFillStaminaCompletelyDelegate.AddUObject(this, &UGA_StaminaRegen::OnRegenTaskEnd);
-		StaminaRegenTask->OnRegenStoppedDueToSpecificTagPresenceDelegate.AddUObject(this, &UGA_StaminaRegen::OnRegenTaskEnd);
-		StaminaRegenTask->ReadyForActivation();
-	}
-	else
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s failed to create a StaminaRegenTask. Stamina will not regen D:"), *FString(__FUNCTION__));
-	}
+		ActorInfo->AbilitySystemComponent.Get()->GetGameplayAttributeValueChangeDelegate(CharacterAttributeSet->GetStaminaAttribute()).AddUObject(this, &UGA_StaminaRegen::OnStaminaAttributeChange);
 
-	
+	}
 
 
 
@@ -84,17 +80,23 @@ void UGA_StaminaRegen::OnStaminaAttributeChange(const FOnAttributeChangeData& Da
 	float oldValue = Data.OldValue;
 	float newValue = Data.NewValue;
 
-	if (newValue <= 0.f && oldValue > 0.f)
+	if (oldValue > 0.f && newValue < oldValue && newValue < CharacterAttributeSet->GetMaxStamina())
 	{
 		if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
 		{
-			if (ASC->HasMatchingGameplayTag(TagHasMaxStamina) == false && ASC->HasMatchingGameplayTag(TagRunning) == false)
+			if (ASC->HasMatchingGameplayTag(TagIsRegeningStamina) == false && ASC->HasMatchingGameplayTag(TagHasMaxStamina) == false && ASC->HasMatchingGameplayTag(TagIsRunning) == false)
 			{
 				// Then create new prediction key
 
-
+				GetWorld()->GetTimerManager().SetTimer(TickTimerHandle, TickTimerDel, 1.f, true, 0.f);
 			}
 		}
+		return;
+	}
+
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().IsTimerActive(TickTimerHandle);
 	}
 }
 
@@ -109,11 +111,6 @@ void UGA_StaminaRegen::OnTimerTick()
 {
 	//	TODO: Make sure we apply effect in valid prediction key window
 	ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), StaminaGainEffectTSub.GetDefaultObject(), GetAbilityLevel());
-}
-
-void UGA_StaminaRegen::OnRegenTaskEnd()
-{
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
 
 void UGA_StaminaRegen::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
@@ -134,8 +131,12 @@ void UGA_StaminaRegen::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 
 	// Lets do the logic we want to happen when the ability ends. If you want you can do an async task,
 	// but just make sure you don't call Super::EndAbility until after the task ends (call Super::EndAbility in the task's callback)
-	
-
+	// Clear ALL timers that belong to this (Actor) instance.
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+	}
+	TickTimerDel.Unbind();
 
 
 
@@ -171,6 +172,10 @@ void UGA_StaminaRegen::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 
 void UGA_StaminaRegen::BeginDestroy()
 {
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+	}
 
 	Super::BeginDestroy();
 }

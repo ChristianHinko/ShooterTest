@@ -37,9 +37,4 @@ public:
 			UGameplayAbility* OwningAbility,
 			FName TaskInstanceName);
 
-private:
-	UFUNCTION()
-		void OnTimerTick();
-
-	FTimerHandle TickTimerHandle;
 };

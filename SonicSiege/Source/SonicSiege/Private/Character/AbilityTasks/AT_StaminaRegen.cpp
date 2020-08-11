@@ -43,25 +43,10 @@ void UAT_StaminaRegen::Activate()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("%s() called on invalid AbilitySystemComponent"), *FString(__FUNCTION__));
 	}*/
-
-	FTimerDelegate TickTimerDel;
-
-	//Binding the function with specific variables
-	TickTimerDel.BindUFunction(this, TEXT("OnTimerTick"));
-
-	GetWorld()->GetTimerManager().SetTimer(TickTimerHandle, TickTimerDel, 1.f, true, 0.f);
 }
 
 
-void UAT_StaminaRegen::OnTimerTick()
-{
-	if (!Ability)
-	{
-		return;
-	}
-	Ability->applygam
-	Ability->ApplyGameplayEffectToOwner(Ability->GetCurrentAbilitySpecHandle(), Ability->GetCurrentActorInfo(), Ability->GetCurrentActivationInfo(), nullptr, Ability->GetAbilityLevel());
-}
+
 
 
 void UAT_StaminaRegen::OnDestroy(bool AbilityEnded)

@@ -26,10 +26,13 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere)
-		TSubclassOf<UGameplayEffect> StaminaDrainEffectTSub;	// asset manager we need you D:
-	FActiveGameplayEffectHandle StaminaDrainActiveHandle;
+		TSubclassOf<UGameplayEffect> DrainStaminaFromRunEffectTSub;	// asset manager we need you D:
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<UGameplayEffect> RunningEffectTSub;	// asset manager we need you D:
+	FActiveGameplayEffectHandle RunningEffectActiveHandle;
 	UPROPERTY()
 		AAbilitySystemCharacter* GASCharacter;
+
 
 	//BEGIN UGameplayAbility Interface
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
@@ -40,13 +43,13 @@ protected:
 	virtual void BeginDestroy() override;
 
 	FTimerHandle TickTimerHandle;
+	FTimerDelegate TickTimerDel;
 
 	UFUNCTION()
 		void OnTimerTick();
 
 #pragma region Gameplay Tags
 	FGameplayTag TagOutOfStamina;
-	FGameplayTag TagRunning;
 #pragma endregion
 
 	UFUNCTION()

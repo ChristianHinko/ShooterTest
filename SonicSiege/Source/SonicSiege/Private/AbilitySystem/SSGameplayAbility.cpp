@@ -32,12 +32,14 @@ void USSGameplayAbility::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo,
 
 void USSGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-	if (!HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo))	// If we are a client without a valid prediction key
+	if (NetExecutionPolicy == EGameplayAbilityNetExecutionPolicy::LocalPredicted)
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Ability activated but the client has no valid prediction key"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
-		return;
+		if (!HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo))	// If we are a client without a valid prediction key
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() Ability activated but the client has no valid prediction key"), *FString(__FUNCTION__));
+		}
 	}
+	
 
 
 #pragma region Copied from Super (Blueprint Support)

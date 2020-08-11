@@ -12,6 +12,7 @@
 
 class AAbilitySystemCharacter;
 class UAT_StaminaRegen;
+class UAS_Character;
 
 /**
  * 
@@ -26,13 +27,12 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere)
-		TSubclassOf<UAT_StaminaRegen> StaminaRegenTaskTSub;	// asset manager we need you D:
-	UAT_StaminaRegen* StaminaRegenTask;
-	UPROPERTY(EditAnywhere)
 		TSubclassOf<UGameplayEffect> StaminaGainEffectTSub;	// asset manager we need you D:
 
 	UPROPERTY()
 		AAbilitySystemCharacter* GASCharacter;
+	UPROPERTY()
+		UAS_Character* CharacterAttributeSet;
 
 	//BEGIN UGameplayAbility Interface
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
@@ -43,15 +43,18 @@ protected:
 	//	Don't make this a UFUNCTION because otherwise the struct parameter causes an error
 	void OnStaminaAttributeChange(const FOnAttributeChangeData& Data);
 
-	//	Task Events....
-	void OnTimerTick();
-	void OnRegenTaskEnd();
-	//
-
 	virtual void BeginDestroy() override;
+
+private:
+	UFUNCTION()
+		void OnTimerTick();
+
+	FTimerHandle TickTimerHandle;
+	FTimerDelegate TickTimerDel;
 
 #pragma region Gameplay Tags
 	FGameplayTag TagHasMaxStamina;
-	FGameplayTag TagRunning;
+	FGameplayTag TagIsRunning;
+	FGameplayTag TagIsRegeningStamina;
 #pragma endregion
 };

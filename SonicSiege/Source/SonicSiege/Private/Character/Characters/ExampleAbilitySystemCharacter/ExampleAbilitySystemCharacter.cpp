@@ -5,6 +5,8 @@
 
 #include "Net/UnrealNetwork.h"
 #include "Character/Characters/ExampleAbilitySystemCharacter/AS_ExampleAbilitySystemCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 
 
 
@@ -17,9 +19,23 @@ void AExampleAbilitySystemCharacter::GetLifetimeReplicatedProps(TArray<FLifetime
 	DOREPLIFETIME_CONDITION(AExampleAbilitySystemCharacter, ExampleAbilitySpecHandle, COND_OwnerOnly);
 }
 
+AExampleAbilitySystemCharacter::AExampleAbilitySystemCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	// Don't rotate when the controller rotates. Let that just affect the camera.
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+	// Rotate the character in the movement direction
+	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 
+	// Third person, so let player see mesh
+	GetMesh()->SetOwnerNoSee(false);
 
+	// Configure CameraBoom arm length for third person
+	GetCameraBoom()->TargetArmLength = 300.f;
+}
 
 
 void AExampleAbilitySystemCharacter::CreateAttributeSets()

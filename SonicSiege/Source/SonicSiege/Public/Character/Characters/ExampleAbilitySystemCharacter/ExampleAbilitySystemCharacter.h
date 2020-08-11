@@ -17,6 +17,8 @@ class SONICSIEGE_API AExampleAbilitySystemCharacter : public AAbilitySystemChara
 {
 	GENERATED_BODY()
 	
+public:
+	AExampleAbilitySystemCharacter(const FObjectInitializer& ObjectInitializer);
 
 protected:
 #pragma region Abilities

@@ -81,6 +81,9 @@ public:
 
 protected:
 #pragma region Abilities
+	/** Note: No AbilitySpecHandles are tracked upon grant. These are good for passive abilities. These abilities are assigned EAbilityInputID::None */
+	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
+		TArray<TSubclassOf<USSGameplayAbility>> NonHandleStartingAbilities;
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
 		TSubclassOf<USSGameplayAbility> CharacterJumpAbilityTSub;
 	UPROPERTY(Replicated)
@@ -160,6 +163,8 @@ protected:
 	virtual void CreateAttributeSets();
 	/** Called on the server and client. Override this to register your created AttributeSets (from CreateAttributeSets()) with the ASC. This is if you have more than the default one. (call super in the beginning, then add your own logic) */
 	virtual void RegisterAttributeSets();
+	/*  Grant abilities from NonHandleStartingAbilities. These are good for passive abilities that don't need to be referenced later. They are granted and do not give back an AbilitySpecHandle. */
+	void GrantNonHandleStartingAbilities();
 	/** Called only on server. This is the earliest place you can grant an ability. (If overriding, return false if the Super returnes false, then add your own logic) */
 	virtual bool GrantStartingAbilities();
 

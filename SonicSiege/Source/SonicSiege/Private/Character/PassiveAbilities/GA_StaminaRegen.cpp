@@ -9,23 +9,20 @@
 #include "SonicSiege/Private/Utilities/LogCategories.h"
 #include "Character\AbilitySystemCharacter.h"
 #include "Character\AS_Character.h"
+#include "Character/AbilityTasks/AT_StaminaRegen.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 UGA_StaminaRegen::UGA_StaminaRegen()
 {
-	TagOutOfStamina = FGameplayTag::RequestGameplayTag(FName("State.Character.OutOfStamina"));
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerInitiated;
+
+	TagHasMaxStamina = FGameplayTag::RequestGameplayTag(FName("State.Character.HasMaxStamina"));
 	TagRunning = FGameplayTag::RequestGameplayTag(FName("State.Character.Running"));
 
-
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Run")));
-
-	ActivationBlockedTags.AddTagFast(TagOutOfStamina);
-
-	ActivationOwnedTags.AddTagFast(TagRunning);
-
-
-
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Passive.StaminaRegen")));
 }
+
+
 
 
 bool UGA_StaminaRegen::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
@@ -40,6 +37,7 @@ bool UGA_StaminaRegen::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 
 void UGA_StaminaRegen::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
+	//	This ability only gets activated once and exists throughout the lifetime of the avatar (or at least should exist until the avatar dies).
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 
@@ -50,45 +48,54 @@ void UGA_StaminaRegen::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 	}
 	if (!StaminaGainEffectTSub)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("Effect TSubclassOf empty in %s so this ability was canceled - please fill out Character Run ability blueprint"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s  the efftect StaminaGainEffectTSub was NULL so this ability was canceled - please fill out StaminaGainEffectTSub in the StaminaRegen ability blueprint"), *FString(__FUNCTION__));
 		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
 		return;
 	}
-	USSCharacterMovementComponent* CMC = Cast<USSCharacterMovementComponent>(ActorInfo->MovementComponent);
-	if (!CMC)
+	GASCharacter = Cast<AAbilitySystemCharacter>(GetAvatarActorFromActorInfo());
+	if (!GASCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() CharacterMovementComponent was NULL when trying to run. Called CancelAbility()"), *FString(__FUNCTION__));
 		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s failed to get reference to GASCharacter. Stamina will not regen D:"), *FString(__FUNCTION__));
 		return;
-	}
-	UAbilityTask_WaitInputRelease* InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
-	if (!InputReleasedTask)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
-		return;
-	}
-
-	if (GASCharacter == nullptr)
-	{
-		GASCharacter = Cast<AAbilitySystemCharacter>(GetAvatarActorFromActorInfo());
 	}
 
 	// Lets do the logic we want to happen when the ability starts.
-	//	Make sure we apply effect in valid prediction key window so we make sure the tag also gets applied on the client too
-	//StaminaGainActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, StaminaGainEffectTSub.GetDefaultObject(), GetAbilityLevel());
-	CMC->SetWantsToRun(true);
+	StaminaRegenTask = UAT_StaminaRegen::AT_StaminaRegen(this, "StaminaRegenProxy");
+	if (StaminaRegenTask)
+	{
+		StaminaRegenTask->OnRegenStoppedDueToFillStaminaCompletelyDelegate.AddUObject(this, &UGA_StaminaRegen::OnRegenTaskEnd);
+		StaminaRegenTask->OnRegenStoppedDueToSpecificTagPresenceDelegate.AddUObject(this, &UGA_StaminaRegen::OnRegenTaskEnd);
+		StaminaRegenTask->ReadyForActivation();
+	}
+	else
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s failed to create a StaminaRegenTask. Stamina will not regen D:"), *FString(__FUNCTION__));
+	}
+
+	
 
 
 
+}
+
+void UGA_StaminaRegen::OnStaminaAttributeChange(const FOnAttributeChangeData& Data)
+{
+	float oldValue = Data.OldValue;
+	float newValue = Data.NewValue;
+
+	if (newValue <= 0.f && oldValue > 0.f)
+	{
+		if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+		{
+			if (ASC->HasMatchingGameplayTag(TagHasMaxStamina) == false && ASC->HasMatchingGameplayTag(TagRunning) == false)
+			{
+				// Then create new prediction key
 
 
-	FTimerDelegate TickTimerDel;
-
-	//Binding the function with specific variables
-	TickTimerDel.BindUFunction(this, TEXT("OnTimerTick"));
-
-	GetWorld()->GetTimerManager().SetTimer(TickTimerHandle, TickTimerDel, 1.f, true, 0.f);
+			}
+		}
+	}
 }
 
 
@@ -98,7 +105,16 @@ void UGA_StaminaRegen::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 
 
 
+void UGA_StaminaRegen::OnTimerTick()
+{
+	//	TODO: Make sure we apply effect in valid prediction key window
+	ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), StaminaGainEffectTSub.GetDefaultObject(), GetAbilityLevel());
+}
 
+void UGA_StaminaRegen::OnRegenTaskEnd()
+{
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+}
 
 void UGA_StaminaRegen::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
@@ -118,24 +134,13 @@ void UGA_StaminaRegen::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 
 	// Lets do the logic we want to happen when the ability ends. If you want you can do an async task,
 	// but just make sure you don't call Super::EndAbility until after the task ends (call Super::EndAbility in the task's callback)
-	if (ActorInfo)
-	{
-		USSCharacterMovementComponent* CMC = CastChecked<USSCharacterMovementComponent>(ActorInfo->MovementComponent);
-		if (CMC && ActorInfo->AbilitySystemComponent.Get())
-		{
-			//	We want to group all ending actions for this ability together instead of them having them inside their own NULL checks. We want all our logic running or none of it running
-			CMC->SetWantsToRun(false);
-			ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(StaminaGainActiveHandle);
-		}
-		else
-		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() Either CMC or ActorInfo->AbilitySystemComponent.Get() was NULL when trying to remove StaminaGainActiveHandle and when trying to run CMC->SetWantsToRun(false);"), *FString(__FUNCTION__));
-		}
-	}
-	else
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo was NULL when trying to remove StaminaGainActiveHandle and when trying to run CMC->SetWantsToRun(false);"), *FString(__FUNCTION__));
-	}
+	
+
+
+
+
+
+
 
 
 
@@ -166,13 +171,56 @@ void UGA_StaminaRegen::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 
 void UGA_StaminaRegen::BeginDestroy()
 {
-	Super::BeginDestroy();
 
-	// Alternatively you can clear ALL timers that belong to this (Actor) instance.
-	if (GetWorld())
-	{
-		GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
-	}
+	Super::BeginDestroy();
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+#pragma region Debug Prediction
+if (ActivationInfo.ActivationMode == EGameplayAbilityActivationMode::Authority)
+{
+	UKismetSystemLibrary::PrintString(this, "Authority");
+}
+if (ActivationInfo.ActivationMode == EGameplayAbilityActivationMode::Confirmed)
+{
+	UKismetSystemLibrary::PrintString(this, "Confirmed");
+}
+if (ActivationInfo.ActivationMode == EGameplayAbilityActivationMode::NonAuthority)
+{
+	UKismetSystemLibrary::PrintString(this, "NonAuthority");
+}
+if (ActivationInfo.ActivationMode == EGameplayAbilityActivationMode::Predicting)
+{
+	UKismetSystemLibrary::PrintString(this, "Predicting");
+}
+if (ActivationInfo.ActivationMode == EGameplayAbilityActivationMode::Rejected)
+{
+	UKismetSystemLibrary::PrintString(this, "Rejected");
+}
+
+if (ActivationInfo.GetActivationPredictionKey().IsValidForMorePrediction())
+{
+	UKismetSystemLibrary::PrintString(this, "Valid");
+}
+else
+{
+	UKismetSystemLibrary::PrintString(this, "invalid");
+}
+#pragma endregion
+*/

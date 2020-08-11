@@ -16,8 +16,8 @@
 
 
 
-
-- Implement a way to be able to easily add passive abilities in BP. (4.6.4.1 Passive Abilities)
+- 
+- Implement a way to be able to easily add passive abilities in the character BP. Also modify GrantAbility to be able to activate ability on grant. Also make GTGameplayAbility override OnAvatarSet() to activate the ability if a bool is true
 - Move CMC movement variables to CharacterAttributeSet.h
 - Add CollisionChannels.h or something like that
 - GASShooter has a custom subclass of AGameplayAbilityTargetActor and a new WaitTargetDataWithReusableActor AbilityTask written from scratch that allows you to reuse a TargetActor without destroying it.

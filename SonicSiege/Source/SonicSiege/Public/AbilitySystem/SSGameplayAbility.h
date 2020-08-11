@@ -18,6 +18,7 @@ class SONICSIEGE_API USSGameplayAbility : public UGameplayAbility
 	GENERATED_BODY()
 	
 public:
+	bool ActivateAbilityOnGrant = false;
 	USSGameplayAbility();
 
 	// Epic's comment: Projects may want to initiate passives or do other "BeginPlay" type of logic here.

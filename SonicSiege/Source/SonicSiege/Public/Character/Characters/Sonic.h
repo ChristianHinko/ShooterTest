@@ -17,7 +17,4 @@ class SONICSIEGE_API ASonic : public AAbilitySystemCharacter
 public:
 	ASonic(const FObjectInitializer& ObjectInitializer);
 
-protected:
-	UPROPERTY(VisibleAnywhere, Category = "Character")
-		USkeletalMeshComponent* FaceMesh;
 };

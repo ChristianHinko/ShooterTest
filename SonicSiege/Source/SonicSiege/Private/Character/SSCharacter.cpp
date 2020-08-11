@@ -33,19 +33,15 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer) : Super(
 	HorizontalSensitivity = 45.f;
 	VerticalSensitivity = 45.f;
 
-	// Don't rotate when the controller rotates. Let that just affect the camera.
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
-	bUseControllerRotationRoll = false;
-
 	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 600.f, 0.f);
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.2f;
 
 
 	// Mesh defaults
+	GetMesh()->SetOwnerNoSee(true);
+	GetMesh()->bCastHiddenShadow = true;	// we still want the shadow from the normal mesh
 	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -96.f));
 	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
@@ -53,14 +49,16 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer) : Super(
 	// Create POVMesh
 	POVMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("POVMesh"));
 	POVMesh->SetupAttachment(GetCapsuleComponent());
+	POVMesh->SetOnlyOwnerSee(true);
+	POVMesh->SetCastShadow(false);	// hide the POV mesh shadow because it will probably look weird (we're using the normal mesh's shadow instead)
 	POVMesh->SetRelativeLocation(FVector(0.f, 0.f, -96.f));
 	POVMesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 	POVMesh->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
 
 	// Create CameraBoom
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 300.f;
+	CameraBoom->SetupAttachment(GetCapsuleComponent());
+	CameraBoom->TargetArmLength = 0.f;
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
 	// Create FollowCamera

@@ -10,6 +10,7 @@
 #include "Character/AbilitySystemCharacter.h"
 
 #include "Kismet/KismetSystemLibrary.h"
+#include "Character/AS_Character.h"
 
 
 
@@ -95,9 +96,13 @@ void UGA_Fire::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 		AActor* HitActor = Actors[i];
 		if (AAbilitySystemCharacter* ASChar = Cast<AAbilitySystemCharacter>(HitActor))		// maybe check if implements IAbilitySystemInterface instead of this later (so you can apply damage to AbilitySystemActors and pawns and such)
 		{
-			UKismetSystemLibrary::PrintString(this, "AbilitySystemCharacter: " + ASChar->GetName(), true, false);
+			ApplyGameplayEffectToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(),
+				UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(ASChar), BulletHitEffectTSub, GetAbilityLevel());
 
-
+			if (ASChar->GetCharacterAttributeSet() && ASChar->GetCharacterAttributeSet()->GetHealth())
+			{
+				UKismetSystemLibrary::PrintString(this, ASChar->GetName() + "'s health is now: " + FString::SanitizeFloat(ASChar->GetCharacterAttributeSet()->GetHealth()), true, false);
+			}
 		}
 	}
 }

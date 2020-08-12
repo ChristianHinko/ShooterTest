@@ -380,7 +380,7 @@ void AAbilitySystemCharacter::GrantNonHandleStartingAbilities()
 	// GetLevel() doesn't exist in this template. Will need to implement one if you want a level system
 	for (int i = 0; i < NonHandleStartingAbilities.Num(); i++)
 	{
-		GetAbilitySystemComponent()->GrantAbility(NonHandleStartingAbilities[i], this, EAbilityInputID::None, true/*, GetLevel()*/);
+		GetAbilitySystemComponent()->GrantAbility(NonHandleStartingAbilities[i], this, EAbilityInputID::None/*, GetLevel()*/);
 	}
 }
 #pragma endregion

@@ -22,7 +22,7 @@ UGA_StaminaRegen::UGA_StaminaRegen()
 
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Passive.StaminaRegen")));
 
-
+	ActivateAbilityOnGrant = true;
 
 	TickTimerDel.BindUObject(this, &UGA_StaminaRegen::OnTimerTick);
 }

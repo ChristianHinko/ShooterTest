@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GameplayAbilityTargetActor_Trace.h"
+#include "AbilitySystem/TargetActors/GATA_MultiTrace.h"
 
 #include "GATA_MultiLineTrace.generated.h"
 
@@ -16,7 +16,7 @@
  * This doesn't take into account collision profiles yet
  */
 UCLASS()
-class SONICSIEGE_API AGATA_MultiLineTrace : public AGameplayAbilityTargetActor_Trace
+class SONICSIEGE_API AGATA_MultiLineTrace : public AGATA_MultiTrace
 {
 	GENERATED_BODY()
 

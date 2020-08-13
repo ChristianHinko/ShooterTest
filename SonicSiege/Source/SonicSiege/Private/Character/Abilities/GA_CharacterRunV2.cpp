@@ -18,10 +18,66 @@ UGA_CharacterRunV2::UGA_CharacterRunV2()
 	ActivationBlockedTags.AddTagFast(TagOutOfStamina);
 }
 
+void UGA_CharacterRunV2::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+{
+	Super::OnAvatarSet(ActorInfo, Spec);
+
+	//	Good place to cache references so we don't have to cast every time.
+	if (!ActorInfo)
+	{
+		return;
+	}
+
+	CMC = Cast<USSCharacterMovementComponent>(ActorInfo->MovementComponent);
+	if (!CMC)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL"), *FString(__FUNCTION__));
+	}
+	GASCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor);
+	if (!GASCharacter)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL"), *FString(__FUNCTION__));
+	}
+	CharacterAttributeSet = GASCharacter->GetCharacterAttributeSet();
+	if (!CharacterAttributeSet)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterAttributeSet was NULL"), *FString(__FUNCTION__));
+	}
+	
+	
+}
+
 bool UGA_CharacterRunV2::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
+	//	Returning false in here for checks is better than doing checks in ActivateAbility() since returning false triggers a rollback on the client if Server returns false. In our previous method we called CancelAbility() inside ActivateAbility() if a check didn't pass, which doesn't even cancel it on the remote machine if client since bRespectsRemoteAbilityToCancel most of the time will be false.
 	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 	{
+		return false;
+	}
+
+	if (!DrainStaminaFromRunEffectTSub)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Effect TSubclassOf NULL so returned false - please fill out Character Run ability blueprint"), *FString(__FUNCTION__));
+		return false;
+	}
+	if (!CMC)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+	if (!GASCharacter)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL. Returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+	if (!CharacterAttributeSet)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterAttributeSet was NULL. Returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+	if (GASCharacter->GetCharacterAttributeSet()->GetStamina() <= 0)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Stamina was <= 0 so can't run. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
 
@@ -31,40 +87,6 @@ bool UGA_CharacterRunV2::CanActivateAbility(const FGameplayAbilitySpecHandle Han
 void UGA_CharacterRunV2::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-
-	if (!DrainStaminaFromRunEffectTSub)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("Effect TSubclassOf empty in %s so this ability was canceled - please fill out Character Run ability blueprint"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
-		return;
-	}
-	USSCharacterMovementComponent* CMC = Cast<USSCharacterMovementComponent>(ActorInfo->MovementComponent);
-	if (!CMC)
-	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() CharacterMovementComponent was NULL when trying to run. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
-		return;
-	}
-	UAbilityTask_WaitInputRelease* InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
-	if (!InputReleasedTask)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
-		return;
-	}
-	GASCharacter = Cast<AAbilitySystemCharacter>(GetAvatarActorFromActorInfo());
-	if (!GASCharacter)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL when trying to run. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
-		return;
-	}
-	if (GASCharacter->GetCharacterAttributeSet()->GetStamina() <= 0)
-	{
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
-		return;
-	}
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
@@ -76,19 +98,24 @@ void UGA_CharacterRunV2::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 
 
 	// Lets do the logic we want to happen when the ability starts.
-	//	Make sure we apply effect in valid prediction key window so we make sure the tag also gets applied on the client too
-	CMC->SetWantsToRun(true);
-
+	UAbilityTask_WaitInputRelease* InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
+	if (!InputReleasedTask)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
+		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		return;
+	}
 	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterRunV2::OnRelease);
 	InputReleasedTask->ReadyForActivation();
 
-
+	//	Set to running speed
+	CMC->SetWantsToRun(true);
 }
-
-
 
 void UGA_CharacterRunV2::OnRelease(float TimeHeld)
 {
+	//	Set back to normal speed
+	CMC->SetWantsToRun(false);
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);	// no need to replicate, server runs this too
 }
 

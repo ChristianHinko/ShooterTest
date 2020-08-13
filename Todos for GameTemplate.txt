@@ -15,6 +15,8 @@
 
 
 
+- Change the BAA_ classes to use a Gampelaytask instead. We had a discussion about this in the GAS discord and someone converted it without any weird problems.
+- Move as much checks as you can from AcivateAbility into CanActivateAbility so that we can get activation rollback.
 - In GTGameplayAbility, change implementation for ActivateAbility(). Shouldn't cancel ability if no valid prediction key. Also wrap it in an if check to make sure the NetExecutionPolicy is set to LocalPredicted for that logic to occur.
 - For the Abilities we have, move the if (CommitAbility) check to be the last check
 - Implement a way to be able to easily add passive abilities in the character BP. Also modify GrantAbility to be able to activate ability on grant. Also make GTGameplayAbility override OnAvatarSet() to activate the ability if a bool is true

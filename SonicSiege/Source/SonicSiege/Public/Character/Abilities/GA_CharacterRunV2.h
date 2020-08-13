@@ -7,6 +7,8 @@
 #include "GA_CharacterRunV2.generated.h"
 
 class AAbilitySystemCharacter;
+class USSCharacterMovementComponent;
+class UAS_Character;
 
 /**
  * This serves as a good demonstration as to how you should go about making Instanced-per-Actor abilities. Or any kind really
@@ -28,6 +30,12 @@ protected:
 		TSubclassOf<UGameplayEffect> DrainStaminaFromRunEffectTSub;	// asset manager we need you D:
 	UPROPERTY()
 		AAbilitySystemCharacter* GASCharacter;
+	UPROPERTY()
+		USSCharacterMovementComponent* CMC;
+	UPROPERTY()
+		UAS_Character* CharacterAttributeSet;
+	
+	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 
 
 	//BEGIN UGameplayAbility Interface

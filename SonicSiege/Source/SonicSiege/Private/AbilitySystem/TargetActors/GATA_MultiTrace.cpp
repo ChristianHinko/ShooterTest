@@ -24,6 +24,8 @@ AGATA_MultiTrace::AGATA_MultiTrace(const FObjectInitializer& ObjectInitializer)
 
 	MaxRange = 999999.0f;
 	bTraceAffectsAimPitch = true;
+
+	TraceChannel = ECollisionChannel::ECC_Visibility;
 }
 
 void AGATA_MultiTrace::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -36,12 +38,12 @@ void AGATA_MultiTrace::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void AGATA_MultiTrace::LineTraceWithFilter(FHitResult& OutHitResult, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, FName ProfileName, const FCollisionQueryParams Params)
+void AGATA_MultiTrace::LineTraceWithFilter(FHitResult& OutHitResult, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, ECollisionChannel TraceChannel, const FCollisionQueryParams Params)
 {
 	check(World);
 
 	TArray<FHitResult> HitResults;
-	World->LineTraceMultiByProfile(HitResults, Start, End, ProfileName, Params);
+	World->LineTraceMultiByChannel(HitResults, Start, End, TraceChannel, Params);
 
 	OutHitResult.TraceStart = Start;
 	OutHitResult.TraceEnd = End;
@@ -59,12 +61,35 @@ void AGATA_MultiTrace::LineTraceWithFilter(FHitResult& OutHitResult, const UWorl
 	}
 }
 
-void AGATA_MultiTrace::SweepWithFilter(FHitResult& OutHitResult, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, FName ProfileName, const FCollisionQueryParams Params)
+void AGATA_MultiTrace::LineTraceForAimView(FHitResult& OutHitResult, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, ECollisionChannel TraceChannel, const FCollisionQueryParams Params)
 {
 	check(World);
 
 	TArray<FHitResult> HitResults;
-	World->SweepMultiByProfile(HitResults, Start, End, Rotation, ProfileName, CollisionShape, Params);
+	World->LineTraceMultiByChannel(HitResults, Start, End, TraceChannel, Params);
+
+	OutHitResult.TraceStart = Start;
+	OutHitResult.TraceEnd = End;
+
+	for (int32 HitIdx = 0; HitIdx < HitResults.Num(); ++HitIdx)
+	{
+		const FHitResult& Hit = HitResults[HitIdx];
+
+		if (!Hit.Actor.IsValid() || FilterHandle.FilterPassesForActor(Hit.Actor))
+		{
+			OutHitResult = Hit;
+			OutHitResult.bBlockingHit = true; // treat it as a blocking hit
+			return;
+		}
+	}
+}
+
+void AGATA_MultiTrace::SweepWithFilter(FHitResult& OutHitResult, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, ECollisionChannel TraceChannel, const FCollisionQueryParams Params)
+{
+	check(World);
+
+	TArray<FHitResult> HitResults;
+	World->SweepMultiByChannel(HitResults, Start, End, Rotation, TraceChannel, CollisionShape, Params);
 
 	OutHitResult.TraceStart = Start;
 	OutHitResult.TraceEnd = End;
@@ -102,7 +127,7 @@ void AGATA_MultiTrace::AimWithPlayerController(const AActor* InSourceActor, FCol
 	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, MaxRange, ViewEnd);
 
 	FHitResult HitResult;
-	LineTraceWithFilter(HitResult, InSourceActor->GetWorld(), Filter, ViewStart, ViewEnd, TraceProfile.Name, Params);
+	LineTraceForAimView(HitResult, InSourceActor->GetWorld(), Filter, ViewStart, ViewEnd, TraceChannel, Params);
 
 	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
 

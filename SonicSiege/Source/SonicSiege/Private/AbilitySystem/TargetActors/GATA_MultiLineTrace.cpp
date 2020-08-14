@@ -52,7 +52,7 @@ TArray<FHitResult> AGATA_MultiLineTrace::PerformMultiTraces(AActor* InSourceActo
 	for (uint8 i = 0; i < maxTraces; i++)
 	{
 		FHitResult TraceHitResult;
-		LineTraceWithFilter(TraceHitResult, InSourceActor->GetWorld(), Filter, TraceStart, TraceEnd, TraceProfile.Name, Params);
+		LineTraceWithFilter(TraceHitResult, InSourceActor->GetWorld(), Filter, TraceStart, TraceEnd, TraceChannel, Params);
 
 		// store the hit actor so we can ignore it next iteration
 		if (TraceHitResult.Actor.IsValid())

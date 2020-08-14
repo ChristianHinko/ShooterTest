@@ -23,6 +23,7 @@ void AAbilitySystemActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 // Sets default values
 AAbilitySystemActor::AAbilitySystemActor()
 {
+	SetReplicates(true);
 	// Minimal Mode means that no GameplayEffects will replicate. They will only live on the Server. Attributes, GameplayTags, and GameplayCues will still replicate to us.
 	ActorAbilitySystemComponentReplicationMode = EGameplayEffectReplicationMode::Minimal;
 

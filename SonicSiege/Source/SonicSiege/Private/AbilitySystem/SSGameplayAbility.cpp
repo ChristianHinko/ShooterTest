@@ -25,7 +25,6 @@ void USSGameplayAbility::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo,
 		if (ActorInfo->AbilitySystemComponent.Get())
 		{
 			bool ActivatedAbilitySucessfully = ActorInfo->AbilitySystemComponent.Get()->TryActivateAbility(Spec.Handle);
-
 		}
 	}
 }

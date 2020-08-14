@@ -153,14 +153,16 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 				PlayerAbilitySystemComponent->ForceReplication();
 			}
 		}
-		// When posessing this Character always grant the player's ASC his starting abilities
-		GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
-		GrantNonHandleStartingAbilities();
 
 		// Refresh ASC Actor Info for clients. Server will be refreshed by its AIController/PlayerController when it possesses a new Actor.
 		if (GetLocalRole() != ROLE_Authority) // CLIENT
 		{
 			PlayerAbilitySystemComponent->RefreshAbilityActorInfo();
+		}
+
+		if (IsLocallyControlled())
+		{
+			ServerOnSetupWithAbilitySystemCompletedOnOwningClient();
 		}
 	}
 	else // AI controlled   \/\/
@@ -208,7 +210,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 			// Must call ForceReplication after registering an attribute set(s)
 			AIAbilitySystemComponent->ForceReplication();
 		}
-		// When posessing this Character always grant the player's ASC his starting abilities
+		// When posessing this Character always grant the player's ASC his starting abilities. Also since this is an AI we don't need to wait for client to setup to grant abilities
 		GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
 		GrantNonHandleStartingAbilities();
 	}
@@ -384,6 +386,19 @@ void AAbilitySystemCharacter::GrantNonHandleStartingAbilities()
 	}
 }
 #pragma endregion
+
+bool AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningClient_Validate()
+{
+	return true;
+}
+void AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningClient_Implementation()
+{
+	// When posessing this Character always grant the player's ASC his starting abilities
+	GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
+	GrantNonHandleStartingAbilities();
+
+	OnServerAknowledgeClientSetupAbilitySystem.Broadcast();
+}
 
 #pragma region Input
 void AAbilitySystemCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

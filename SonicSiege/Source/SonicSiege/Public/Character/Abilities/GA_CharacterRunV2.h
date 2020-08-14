@@ -51,5 +51,7 @@ protected:
 #pragma endregion
 
 	UFUNCTION()
+		virtual void OnTimerTick();
+	UFUNCTION()
 		virtual void OnRelease(float TimeHeld);
 };

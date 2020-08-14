@@ -15,6 +15,7 @@
 
 
 
+- Make UAT_RepeatAction
 - Change the BAA_ classes to use a Gampelaytask instead. We had a discussion about this in the GAS discord and someone converted it without any weird problems.
 - Move as much checks as you can from AcivateAbility into CanActivateAbility so that we can get activation rollback.
 - In GTGameplayAbility, change implementation for ActivateAbility(). Shouldn't cancel ability if no valid prediction key. Also wrap it in an if check to make sure the NetExecutionPolicy is set to LocalPredicted for that logic to occur.
@@ -23,6 +24,7 @@
 - Move CMC movement variables to CharacterAttributeSet.h
 - Add CollisionChannels.h or something like that
 - GASShooter has a custom subclass of AGameplayAbilityTargetActor and a new WaitTargetDataWithReusableActor AbilityTask written from scratch that allows you to reuse a TargetActor without destroying it.
-
+- In AbilitySystemActor::AbilitySystemActor() call SetReplicates(true);
+- Modify AbilitySystemCharacter and copy it to the pawn version. Make the server grant the abilities after client is finished setupwithabilitysystem()
 
 

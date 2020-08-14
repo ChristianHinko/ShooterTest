@@ -77,6 +77,7 @@ public:
 
 #pragma region AbilitySystemSetup Delegates
 	FSetupWithAbilitySystemCompleted SetupWithAbilitySystemCompleted;
+	FSetupWithAbilitySystemCompleted OnServerAknowledgeClientSetupAbilitySystem;
 #pragma endregion
 
 protected:
@@ -206,6 +207,9 @@ private:
 	void InitializeAttributes();
 	/** Will apply all effects in EffectsToApplyOnStartup. */
 	void ApplyStartupEffects();
+	/** Notifies server that the client has his ability system all setup. */
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerOnSetupWithAbilitySystemCompletedOnOwningClient();
 
 	/** Indicates that we already created attribute sets and registered them, Initialized the attributes, and applied the startup effects */
 	uint8 bAttributesAndStartupEffectsInitialized : 1;

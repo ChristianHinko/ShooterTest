@@ -9,6 +9,8 @@
 #include "SonicSiege/Private/Utilities/LogCategories.h"
 #include "Character\AbilitySystemCharacter.h"
 #include "Character\AS_Character.h"
+#include "AbilitySystem/AbilityTasks/AT_RepeatAction.h"
+//#include "Abilities\Tasks\AbilityTask_NetworkSyncPoint.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 UGA_CharacterRunV2::UGA_CharacterRunV2()
@@ -21,30 +23,35 @@ UGA_CharacterRunV2::UGA_CharacterRunV2()
 void UGA_CharacterRunV2::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnAvatarSet(ActorInfo, Spec);
-
-	//	Good place to cache references so we don't have to cast every time.
+	
+	//	Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times
 	if (!ActorInfo)
 	{
 		return;
 	}
-
-	CMC = Cast<USSCharacterMovementComponent>(ActorInfo->MovementComponent);
+	if (!ActorInfo->AvatarActor.Get())
+	{
+		return;
+	}
+	
+	
+	CMC = Cast<USSCharacterMovementComponent>(ActorInfo->MovementComponent.Get());
 	if (!CMC)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL"), *FString(__FUNCTION__));
 	}
-	GASCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor);
+	
+	GASCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
 	if (!GASCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL, meaning CharacterAttributeSet will also be NULL"), *FString(__FUNCTION__));
+		return;
 	}
 	CharacterAttributeSet = GASCharacter->GetCharacterAttributeSet();
 	if (!CharacterAttributeSet)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterAttributeSet was NULL"), *FString(__FUNCTION__));
 	}
-	
-	
 }
 
 bool UGA_CharacterRunV2::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
@@ -108,39 +115,58 @@ void UGA_CharacterRunV2::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterRunV2::OnRelease);
 	InputReleasedTask->ReadyForActivation();
 
-	//	Set to running speed
+	//	Create the interval task so we can decrement our stamina every second
+	UAT_RepeatAction* RepeatActionTask = UAT_RepeatAction::RepeatAction(this, 1, true);
+	if (!RepeatActionTask)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() RepeatActionTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
+		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		return;
+	}
+	RepeatActionTask->OnPerformAction.AddDynamic(this, &UGA_CharacterRunV2::OnTimerTick);
+	RepeatActionTask->ReadyForActivation();
+
+	// Both tasks were created successfully. Set to running speed
 	CMC->SetWantsToRun(true);
 }
+
+void UGA_CharacterRunV2::OnTimerTick()
+{
+	// Make a valid prediction key
+	/*UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
+	WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRunV2::OnTimerTick);
+	WaitNetSyncTask->ReadyForActivation();*/
+
+	ENetRole d = GetAvatarActorFromActorInfo()->GetLocalRole();
+
+	if (GetAbilitySystemComponentFromActorInfo()->CanPredict())
+	{
+		UKismetSystemLibrary::PrintString(this, "prediction valid");
+	}
+	else
+	{
+		UKismetSystemLibrary::PrintString(this, "prediction INVALID");
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 void UGA_CharacterRunV2::OnRelease(float TimeHeld)
 {
 	//	Set back to normal speed
 	CMC->SetWantsToRun(false);
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);	// no need to replicate, server runs this too
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void UGA_CharacterRunV2::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
@@ -160,7 +186,10 @@ void UGA_CharacterRunV2::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 
 	// Lets do the logic we want to happen when the ability ends. If you want you can do an async task,
 	// but just make sure you don't call Super::EndAbility until after the task ends (call Super::EndAbility in the task's callback)
+	if (ActivationInfo.ActivationMode == EGameplayAbilityActivationMode::Rejected)
+	{
 
+	}
 
 
 

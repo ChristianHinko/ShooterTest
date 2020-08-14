@@ -58,7 +58,7 @@ public:
 		bool bTraceAffectsAimPitch;
 
 protected:
-	virtual FHitResult PerformTrace(AActor* InSourceActor) PURE_VIRTUAL(AGameplayAbilityTargetActor_Trace, return FHitResult(););
+	virtual TArray<FHitResult> PerformTraces(AActor* InSourceActor) PURE_VIRTUAL(AGATA_MultiTrace, return TArray<FHitResult>(););
 
 	FGameplayAbilityTargetDataHandle MakeTargetData(const FHitResult& HitResult) const;
 

@@ -183,8 +183,8 @@ void AGATA_MultiTrace::Tick(float DeltaSeconds)
 	// very temp - do a mostly hardcoded trace from the source actor
 	if (SourceActor)
 	{
-		FHitResult HitResult = PerformTrace(SourceActor);
-		FVector EndPoint = HitResult.Component.IsValid() ? HitResult.ImpactPoint : HitResult.TraceEnd;
+		TArray<FHitResult> HitResults = PerformTraces(SourceActor);
+		FVector EndPoint = HitResults.Last().Component.IsValid() ? HitResults.Last().ImpactPoint : HitResults.Last().TraceEnd;
 
 #if ENABLE_DRAW_DEBUG
 		if (bDebug)
@@ -204,7 +204,7 @@ void AGATA_MultiTrace::ConfirmTargetingAndContinue()
 	if (SourceActor)
 	{
 		bDebug = false;
-		FGameplayAbilityTargetDataHandle Handle = MakeTargetData(PerformTrace(SourceActor));
+		FGameplayAbilityTargetDataHandle Handle = StartLocation.MakeTargetDataHandleFromHitResults(OwningAbility, PerformTraces(SourceActor));
 		TargetDataReadyDelegate.Broadcast(Handle);
 	}
 }

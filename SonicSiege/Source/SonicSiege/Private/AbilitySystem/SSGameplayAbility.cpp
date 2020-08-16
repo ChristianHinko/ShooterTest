@@ -33,11 +33,17 @@ void USSGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 {
 	if (NetExecutionPolicy == EGameplayAbilityNetExecutionPolicy::LocalPredicted)
 	{
+		// Const cast is a red flag. 
+		FPredictionKey* Key = const_cast<FPredictionKey*>(&ActivationInfo.GetActivationPredictionKey());
+		Key->NewRejectedDelegate().BindUObject(this, &USSGameplayAbility::OnCurrentAbilityPredictionKeyRejected);
+
 		if (!HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo))	// If we are a client without a valid prediction key
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() Ability activated but the client has no valid prediction key"), *FString(__FUNCTION__));
 		}
 	}
+
+
 	
 
 
@@ -65,4 +71,19 @@ void USSGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 		return;
 	}
 #pragma endregion
+}
+
+void USSGameplayAbility::OnCurrentAbilityPredictionKeyRejected()
+{
+	/*UKismetSystemLibrary::PrintString(this, "Prediction Key rejected ", true, true, FLinearColor::Red);
+
+	if (PKey == CurrentActivationInfo.GetActivationPredictionKey())
+	{
+		OnActivationPredictionKeyRejected();
+	}*/
+}
+
+void USSGameplayAbility::OnActivationPredictionKeyRejected()
+{
+
 }

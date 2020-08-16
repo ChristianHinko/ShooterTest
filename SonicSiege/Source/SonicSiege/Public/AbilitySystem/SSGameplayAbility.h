@@ -25,4 +25,9 @@ public:
 	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+
+	virtual void OnCurrentAbilityPredictionKeyRejected(); // Not implemented or hooked up yet
+
+	virtual void OnActivationPredictionKeyRejected(); // Not implemented or hooked up yet
+
 };

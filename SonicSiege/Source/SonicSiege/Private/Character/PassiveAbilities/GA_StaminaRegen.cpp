@@ -127,7 +127,10 @@ void UGA_StaminaRegen::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 		return;
 	}
 
-
+	if (ActivationInfo.ActivationMode == EGameplayAbilityActivationMode::Rejected)
+	{
+		UKismetSystemLibrary::PrintString(this, "Rollback Occured", true, true, FLinearColor::Red);
+	}
 
 	// Lets do the logic we want to happen when the ability ends. If you want you can do an async task,
 	// but just make sure you don't call Super::EndAbility until after the task ends (call Super::EndAbility in the task's callback)

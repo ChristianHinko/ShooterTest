@@ -5,7 +5,7 @@
 #include "AbilitySystemComponent.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
-#include "AbilitySystem/TargetActors/GATA_MultiLineTrace.h"
+#include "AbilitySystem/TargetActors/GATA_LineTrace.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Character/AbilitySystemCharacter.h"
 
@@ -17,9 +17,6 @@
 UGA_Fire::UGA_Fire()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Fire")));
-
-	maxTraces = 10;
-	TraceChannel = ECollisionChannel::ECC_Visibility;
 }
 
 
@@ -56,14 +53,12 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	// set up target actor if not already
 	if (!TargetTraceActor)
 	{
-		TargetTraceActor = GetWorld()->SpawnActor<AGATA_MultiLineTrace>();
+		TargetTraceActor = GetWorld()->SpawnActor<AGATA_LineTrace>();
 		TargetTraceActor->bDestroyOnConfirmation = false;
 		TargetTraceActor->MaxRange = 100000.f;
 		TargetTraceActor->bDebug = true;
 
 		TargetTraceActor->TraceChannel = TraceChannel;
-		TargetTraceActor->maxTraces = maxTraces;			// maybe make this value vary per gun later on
-		TargetTraceActor->ActorClassToCollect = ActorClassToCollect;
 	}
 
 	// update target actor's start location info

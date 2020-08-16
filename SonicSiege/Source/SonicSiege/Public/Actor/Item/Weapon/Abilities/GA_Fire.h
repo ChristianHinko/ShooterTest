@@ -6,7 +6,7 @@
 #include "AbilitySystem/SSGameplayAbility.h"
 #include "GA_Fire.generated.h"
 
-class AGATA_MultiLineTrace;
+class AGATA_LineTrace;
 
 /**
  * 
@@ -27,10 +27,6 @@ protected:
 		TSubclassOf<UGameplayEffect> BulletHitEffectTSub;
 
 	UPROPERTY(EditAnywhere, Category = "Target Actor Config")
-		uint8 maxTraces;
-	UPROPERTY(EditAnywhere, Category = "Target Actor Config")
-		TSubclassOf<AActor> ActorClassToCollect;
-	UPROPERTY(EditAnywhere, Category = "Target Actor Config")
 		TEnumAsByte<ECollisionChannel> TraceChannel;
 
 
@@ -41,7 +37,7 @@ protected:
 	//END UGameplayAbility Interface
 
 	UPROPERTY()
-		AGATA_MultiLineTrace* TargetTraceActor;
+		AGATA_LineTrace* TargetTraceActor;
 
 	UFUNCTION()
 		void OnValidData(const FGameplayAbilityTargetDataHandle& Data);

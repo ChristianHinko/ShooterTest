@@ -11,6 +11,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet\KismetMathLibrary.h"
 
 
 void ASSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -23,7 +24,6 @@ void ASSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<USSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	SSCharacterMovementComponent = Cast<USSCharacterMovementComponent>(GetMovementComponent());
-	//PrimaryActorTick.bCanEverTick = false;
 
 
 	// Set size for collision capsule
@@ -65,6 +65,57 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer) : Super(
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+}
+
+void ASSCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	//float frameHorizontalMouseRate = 0;
+	//float frameVerticalMouseRate = 0;
+	//Cast<APlayerController>(GetController())-> GetInputMouseDelta(frameHorizontalMouseRate, frameVerticalMouseRate);
+	//
+
+	//// Weapon sway
+	//if (POVMesh/* && AbilitySystem && !AbilitySystem->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("WeaponState.ADS")))*/)
+	//{
+	//	FVector CameraSocketLocation = POVMesh->GetSocketTransform(TEXT("CameraBoneSocket"), ERelativeTransformSpace::RTS_ParentBoneSpace).GetLocation();
+	//	FVector FrameMouseRate = FVector(0, -frameHorizontalMouseRate, -frameVerticalMouseRate);
+	//	FVector NewCameraLocation = CameraSocketLocation - (FrameMouseRate * CameraSwayAmount);
+	//	if (GetCameraBoom())
+	//	{
+	//		FVector CurrentCameraLocation = FVector(GetCameraBoom()->GetRelativeTransform().GetLocation());
+
+	//		GetCameraBoom()->SetRelativeLocation(UKismetMathLibrary::VInterpTo(CurrentCameraLocation, NewCameraLocation, DeltaTime, 10));
+	//	}
+
+	//	
+	//}
+	//else
+	//{
+	//	FVector CameraSocketLocation = POVMesh->GetSocketTransform(TEXT("CameraBoneSocket"), ERelativeTransformSpace::RTS_ParentBoneSpace).GetLocation();
+	//	FVector NewCameraLocation = FVector(0, 0, 0);
+	//	if (GetCameraBoom())
+	//	{
+	//		FVector CurrentCameraLocation = FVector(GetCameraBoom()->GetRelativeTransform().GetLocation());
+
+	//		float yaw = CurrentCameraLocation.Y - frameHorizontalMouseRate;
+	//		float pitch = CurrentCameraLocation.Z - frameVerticalMouseRate;
+	//		FVector Sway = FVector(CurrentCameraLocation.X, yaw, pitch);
+
+	//		FVector ADSCameraSwayAmount = CameraSwayAmount + AddedCameraSwayDuringADS;
+
+	//		NewCameraLocation = CameraSocketLocation - (Sway * ADSCameraSwayAmount);
+
+
+
+
+	//		GetCameraBoom()->SetRelativeLocation(UKismetMathLibrary::VInterpTo(CurrentCameraLocation, NewCameraLocation, DeltaTime, 10));
+	//	}
+
+
+
+	//}
 }
 
 

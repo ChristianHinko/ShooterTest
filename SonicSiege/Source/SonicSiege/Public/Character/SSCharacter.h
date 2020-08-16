@@ -40,9 +40,16 @@ protected:
 	UPROPERTY(Replicated)
 		AItem* PreviousItem;
 
+	/*UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
+		FVector CameraSwayAmount;
+	UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
+		FVector AddedCameraSwayDuringADS;*/
+
 
 public:
 	ASSCharacter(const FObjectInitializer& ObjectInitializer);
+
+	virtual void Tick(float DeltaTime) override;
 
 	// Components
 	USkeletalMeshComponent* GetPOVMesh() const { return POVMesh; }

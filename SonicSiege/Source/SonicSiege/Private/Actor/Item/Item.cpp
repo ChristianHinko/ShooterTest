@@ -7,3 +7,8 @@ AItem::AItem()
 {
 
 }
+
+void AItem::OnInteract(APawn* InteractingPawn)
+{
+
+}

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Actor/AbilitySystemActor.h"
+#include "Interfaces/Interactable.h"
 
 #include "Item.generated.h"
 
@@ -35,12 +36,12 @@ public:
  * 
  */
 UCLASS()
-class SONICSIEGE_API AItem : public AAbilitySystemActor
+class SONICSIEGE_API AItem : public AAbilitySystemActor, public IInteractable
 {
 	GENERATED_BODY()
 	
 public:
 	AItem();
 
-
+	virtual void OnInteract(APawn* InteractingPawn) override;
 };

@@ -17,22 +17,6 @@ class AItem;
 
 
 /**
- *  This should store the info for an Item so we can avoid casting for no reason.
- */
-USTRUCT()
-struct FItemInfo
-{
-	GENERATED_USTRUCT_BODY()
-
-public:
-	AItem* Item;
-
-	bool isGun;
-	bool isMelee;
-	bool isGrenade;
-};
-
-/**
  * Base character class (without GAS implementation)
  */
 UCLASS()

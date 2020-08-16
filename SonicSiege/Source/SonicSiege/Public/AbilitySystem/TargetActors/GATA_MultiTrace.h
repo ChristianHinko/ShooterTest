@@ -32,10 +32,10 @@ public:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	/** Traces as normal, but will manually filter all hit actors */
-	static void LineTraceWithFilter(FHitResult& OutHitResult, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, FName ProfileName, const FCollisionQueryParams Params);
-
+	static void LineTraceWithFilter(FHitResult& OutHitResult, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, ECollisionChannel TraceChannel, const FCollisionQueryParams Params);
+	
 	/** Sweeps as normal, but will manually filter all hit actors */
-	static void SweepWithFilter(FHitResult& OutHitResult, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, FName ProfileName, const FCollisionQueryParams Params);
+	static void SweepWithFilter(FHitResult& OutHitResult, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, ECollisionChannel TraceChannel, const FCollisionQueryParams Params);
 
 	void AimWithPlayerController(const AActor* InSourceActor, FCollisionQueryParams Params, const FVector& TraceStart, FVector& OutTraceEnd, bool bIgnorePitch = false) const;
 
@@ -50,15 +50,19 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = Trace)
 		float MaxRange;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = Trace)
+		uint8 maxTraces;
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, config, meta = (ExposeOnSpawn = true), Category = Trace)
-		FCollisionProfileName TraceProfile;
+		TEnumAsByte<ECollisionChannel> TraceChannel;
 
 	// Does the trace affect the aiming pitch
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = Trace)
 		bool bTraceAffectsAimPitch;
 
 protected:
-	virtual TArray<FHitResult> PerformTraces(AActor* InSourceActor) PURE_VIRTUAL(AGATA_MultiTrace, return TArray<FHitResult>(););
+	virtual void PerformMultiLineTraces(TArray<FHitResult>& OutHitResults, AActor* InSourceActor);
+	virtual void PerformMultiSweeps(TArray<FHitResult>& OutHitResults, AActor* InSourceActor);
 
 	FGameplayAbilityTargetDataHandle MakeTargetData(const FHitResult& HitResult) const;
 

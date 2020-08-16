@@ -84,7 +84,7 @@ void USSGameplayAbility::OnCurrentAbilityPredictionKeyRejected()
 	}*/
 }
 
-void USSGameplayAbility::OnActivationPredictionKeyRejected(FPredictionKey PKey)
+void USSGameplayAbility::OnActivationPredictionKeyRejected()
 {
 
 }

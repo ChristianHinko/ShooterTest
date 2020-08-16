@@ -24,6 +24,8 @@ AGATA_MultiTrace::AGATA_MultiTrace(const FObjectInitializer& ObjectInitializer)
 
 	MaxRange = 999999.0f;
 	bTraceAffectsAimPitch = true;
+
+	TraceChannel = ECollisionChannel::ECC_Visibility;
 }
 
 void AGATA_MultiTrace::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -36,17 +38,17 @@ void AGATA_MultiTrace::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void AGATA_MultiTrace::LineTraceWithFilter(FHitResult& OutHitResult, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, FName ProfileName, const FCollisionQueryParams Params)
+void AGATA_MultiTrace::LineTraceWithFilter(FHitResult& OutHitResult, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, ECollisionChannel TraceChannel, const FCollisionQueryParams Params)
 {
 	check(World);
 
 	TArray<FHitResult> HitResults;
-	World->LineTraceMultiByProfile(HitResults, Start, End, ProfileName, Params);
+	World->LineTraceMultiByChannel(HitResults, Start, End, TraceChannel, Params);
 
 	OutHitResult.TraceStart = Start;
 	OutHitResult.TraceEnd = End;
 
-	for (int32 HitIdx = 0; HitIdx < HitResults.Num(); ++HitIdx)
+	for (int32 HitIdx = 0; HitIdx < HitResults.Num(); ++HitIdx)				// find first hit that passes the filter (if any) then treat is as a blocking hit and output it
 	{
 		const FHitResult& Hit = HitResults[HitIdx];
 
@@ -59,12 +61,12 @@ void AGATA_MultiTrace::LineTraceWithFilter(FHitResult& OutHitResult, const UWorl
 	}
 }
 
-void AGATA_MultiTrace::SweepWithFilter(FHitResult& OutHitResult, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, FName ProfileName, const FCollisionQueryParams Params)
+void AGATA_MultiTrace::SweepWithFilter(FHitResult& OutHitResult, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, ECollisionChannel TraceChannel, const FCollisionQueryParams Params)
 {
 	check(World);
 
 	TArray<FHitResult> HitResults;
-	World->SweepMultiByProfile(HitResults, Start, End, Rotation, ProfileName, CollisionShape, Params);
+	World->SweepMultiByChannel(HitResults, Start, End, Rotation, TraceChannel, CollisionShape, Params);
 
 	OutHitResult.TraceStart = Start;
 	OutHitResult.TraceEnd = End;
@@ -102,7 +104,7 @@ void AGATA_MultiTrace::AimWithPlayerController(const AActor* InSourceActor, FCol
 	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, MaxRange, ViewEnd);
 
 	FHitResult HitResult;
-	LineTraceWithFilter(HitResult, InSourceActor->GetWorld(), Filter, ViewStart, ViewEnd, TraceProfile.Name, Params);
+	LineTraceWithFilter(HitResult, InSourceActor->GetWorld(), Filter, ViewStart, ViewEnd, TraceChannel, Params);
 
 	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
 
@@ -183,7 +185,9 @@ void AGATA_MultiTrace::Tick(float DeltaSeconds)
 	// very temp - do a mostly hardcoded trace from the source actor
 	if (SourceActor)
 	{
-		TArray<FHitResult> HitResults = PerformTraces(SourceActor);
+		TArray<FHitResult> HitResults;
+		PerformMultiLineTraces(HitResults, SourceActor);
+
 		FVector EndPoint = HitResults.Last().Component.IsValid() ? HitResults.Last().ImpactPoint : HitResults.Last().TraceEnd;
 
 #if ENABLE_DRAW_DEBUG
@@ -203,8 +207,10 @@ void AGATA_MultiTrace::ConfirmTargetingAndContinue()
 	check(ShouldProduceTargetData());
 	if (SourceActor)
 	{
-		bDebug = false;
-		FGameplayAbilityTargetDataHandle Handle = StartLocation.MakeTargetDataHandleFromHitResults(OwningAbility, PerformTraces(SourceActor));
+		TArray<FHitResult> HitResults;
+		PerformMultiLineTraces(HitResults, SourceActor);
+
+		FGameplayAbilityTargetDataHandle Handle = StartLocation.MakeTargetDataHandleFromHitResults(OwningAbility, HitResults);
 		TargetDataReadyDelegate.Broadcast(Handle);
 	}
 }
@@ -213,4 +219,105 @@ FGameplayAbilityTargetDataHandle AGATA_MultiTrace::MakeTargetData(const FHitResu
 {
 	/** Note: This will be cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
 	return StartLocation.MakeTargetDataHandleFromHitResult(OwningAbility, HitResult);
+}
+
+void AGATA_MultiTrace::PerformMultiLineTraces(TArray<FHitResult>& OutHitResults, AActor* InSourceActor)
+{
+	bool bTraceComplex = false;
+	TArray<AActor*> ActorsToIgnore;
+
+	ActorsToIgnore.Add(InSourceActor);
+
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(AGameplayAbilityTargetActor_SingleLineTrace), bTraceComplex);
+	Params.bReturnPhysicalMaterial = true;
+	Params.AddIgnoredActors(ActorsToIgnore);
+
+	FVector TraceStart = StartLocation.GetTargetingTransform().GetLocation();// InSourceActor->GetActorLocation();
+	FVector TraceEnd;
+	AimWithPlayerController(InSourceActor, Params, TraceStart, TraceEnd);		//Effective on server and launching client only
+
+	// ------------------------------------------------------
+
+	AActor* LastHitActor;
+	for (uint8 i = 0; i < maxTraces; i++)
+	{
+		FHitResult TraceHitResult;
+		LineTraceWithFilter(TraceHitResult, InSourceActor->GetWorld(), Filter, TraceStart, TraceEnd, TraceChannel, Params);
+
+		// store the hit actor so we can ignore it next iteration
+		if (TraceHitResult.Actor.IsValid())
+		{
+			Params.ClearIgnoredActors();
+			Params.AddIgnoredActor(InSourceActor);
+			AActor* HitActor = TraceHitResult.Actor.Get();
+			Params.AddIgnoredActor(HitActor);
+			LastHitActor = HitActor;
+		}
+		else	// this means we line traced in thin air and hit nothing, break to end unnecesary traces
+		{
+#if ENABLE_DRAW_DEBUG
+			if (bDebug)
+			{
+				float debugLifeTime = 5.f;
+				float colorAccumulate = i * (maxTraces > 1 ? (255 / (maxTraces - 1)) : 0);
+
+				DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor(0.f, 0.f + colorAccumulate, 255.f), false, debugLifeTime);
+			}
+#endif // ENABLE_DRAW_DEBUG
+			break;
+		}
+
+		if (TraceHitResult.bBlockingHit)
+		{
+//			if (TraceHitResult.Actor->IsA(ActorClassToCollect))
+//			{
+//				OutHitResults.Add(TraceHitResult);
+//			}
+//			else
+//			{
+//#if ENABLE_DRAW_DEBUG
+//				if (bDebug)
+//				{
+//					float debugLifeTime = 5.f;
+//					float colorAccumulate = i * (maxTraces > 1 ? (255 / (maxTraces - 1)) : 0);
+//
+//					DrawDebugLine(GetWorld(), TraceStart, TraceHitResult.Location, FColor(0.f, 0.f + colorAccumulate, 255.f), false, debugLifeTime);
+//					DrawDebugPoint(GetWorld(), TraceHitResult.Location, 10, FColor(0.f, 0.f, 255.f), false, debugLifeTime);
+//				}
+//#endif // ENABLE_DRAW_DEBUG
+//				break;
+//			}
+		}
+
+#if ENABLE_DRAW_DEBUG
+		if (bDebug)
+		{
+			float debugLifeTime = 5.f;
+			float colorAccumulate = i * (maxTraces > 1 ? (255 / (maxTraces - 1)) : 0);
+
+			DrawDebugLine(GetWorld(), TraceStart, TraceHitResult.Location, FColor(0.f, 0.f + colorAccumulate, 255.f), false, debugLifeTime);
+			DrawDebugPoint(GetWorld(), TraceHitResult.Location, 10, FColor(0.f + (colorAccumulate * 0.5f), 255.f - colorAccumulate, 0.f), false, debugLifeTime);
+		}
+#endif // ENABLE_DRAW_DEBUG
+
+
+		TraceStart = TraceHitResult.ImpactPoint;
+	}
+
+
+
+
+	//if (AGameplayAbilityWorldReticle* LocalReticleActor = ReticleActor.Get())
+	//{
+	//	//const bool bHitActor = (ReturnHitResult.bBlockingHit && (ReturnHitResult.Actor != NULL));
+	//	const bool bHitActor = (OutHitResults.Num() > 0);
+	//	const FVector ReticleLocation = (bHitActor && LocalReticleActor->bSnapToTargetedActor) ? ReturnHitResult.Actor->GetActorLocation() : ReturnHitResult.Location;
+
+	//	LocalReticleActor->SetActorLocation(ReticleLocation);
+	//	LocalReticleActor->SetIsTargetAnActor(bHitActor);
+	//}
+}
+void AGATA_MultiTrace::PerformMultiSweeps(TArray<FHitResult>& OutHitResults, AActor* InSourceActor)
+{
+
 }

@@ -19,6 +19,7 @@ UGA_Fire::UGA_Fire()
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Fire")));
 
 	maxTraces = 10;
+	TraceChannel = ECollisionChannel::ECC_Visibility;
 }
 
 
@@ -60,6 +61,7 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 		TargetTraceActor->MaxRange = 100000.f;
 		TargetTraceActor->bDebug = true;
 
+		TargetTraceActor->TraceChannel = TraceChannel;
 		TargetTraceActor->maxTraces = maxTraces;			// maybe make this value vary per gun later on
 		TargetTraceActor->ActorClassToCollect = ActorClassToCollect;
 	}

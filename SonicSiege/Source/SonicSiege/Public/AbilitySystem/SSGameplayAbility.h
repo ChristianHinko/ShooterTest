@@ -28,6 +28,6 @@ public:
 
 	virtual void OnCurrentAbilityPredictionKeyRejected(); // Not implemented or hooked up yet
 
-	virtual void OnActivationPredictionKeyRejected(FPredictionKey PKey); // Not implemented or hooked up yet
+	virtual void OnActivationPredictionKeyRejected(); // Not implemented or hooked up yet
 
 };

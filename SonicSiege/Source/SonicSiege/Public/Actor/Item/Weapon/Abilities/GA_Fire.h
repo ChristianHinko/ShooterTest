@@ -30,6 +30,8 @@ protected:
 		uint8 maxTraces;
 	UPROPERTY(EditAnywhere, Category = "Target Actor Config")
 		TSubclassOf<AActor> ActorClassToCollect;
+	UPROPERTY(EditAnywhere, Category = "Target Actor Config")
+		TEnumAsByte<ECollisionChannel> TraceChannel;
 
 
 	//BEGIN UGameplayAbility Interface

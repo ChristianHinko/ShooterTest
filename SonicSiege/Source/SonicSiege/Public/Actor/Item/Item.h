@@ -18,7 +18,7 @@ enum class EItemType : uint8
 };
 
 /**
- *  This should store the info for an Item so we can avoid casting for no reason.
+ * This should store the info for an Item so we can avoid casting for no reason.
  */
 USTRUCT()
 struct FItemInfo

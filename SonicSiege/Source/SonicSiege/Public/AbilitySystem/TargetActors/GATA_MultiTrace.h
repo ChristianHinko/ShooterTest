@@ -50,6 +50,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = Trace)
 		float MaxRange;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = Trace)
+		uint8 maxTraces;
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, config, meta = (ExposeOnSpawn = true), Category = Trace)
 		TEnumAsByte<ECollisionChannel> TraceChannel;
 
@@ -58,7 +61,8 @@ public:
 		bool bTraceAffectsAimPitch;
 
 protected:
-	virtual TArray<FHitResult> PerformTraces(AActor* InSourceActor) PURE_VIRTUAL(AGATA_MultiTrace, return TArray<FHitResult>(););
+	virtual void PerformMultiLineTraces(TArray<FHitResult>& OutHitResults, AActor* InSourceActor);
+	virtual void PerformMultiSweeps(TArray<FHitResult>& OutHitResults, AActor* InSourceActor);
 
 	FGameplayAbilityTargetDataHandle MakeTargetData(const FHitResult& HitResult) const;
 

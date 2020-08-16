@@ -10,7 +10,7 @@
 #include "Character\AbilitySystemCharacter.h"
 #include "Character\AS_Character.h"
 #include "AbilitySystem/AbilityTasks/AT_RepeatAction.h"
-//#include "Abilities\Tasks\AbilityTask_NetworkSyncPoint.h"
+#include "Abilities\Tasks\AbilityTask_NetworkSyncPoint.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 UGA_CharacterRunV2::UGA_CharacterRunV2()
@@ -127,18 +127,19 @@ void UGA_CharacterRunV2::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	RepeatActionTask->ReadyForActivation();
 
 	// Both tasks were created successfully. Set to running speed
-	CMC->SetWantsToRun(true);
+	CMC->SetWantsToRun(true);	//	In the case of an activation rollback, EndAbility() will be called which will call CMC->SetWantsToRun(false);
 }
 
 void UGA_CharacterRunV2::OnTimerTick()
 {
 	// Make a valid prediction key
-	/*UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
-	WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRunV2::OnTimerTick);
-	WaitNetSyncTask->ReadyForActivation();*/
+	UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
+	WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRunV2::DecrementStaminaWithValidPredictionKey);
+	WaitNetSyncTask->ReadyForActivation();
+}
 
-	ENetRole d = GetAvatarActorFromActorInfo()->GetLocalRole();
-
+void UGA_CharacterRunV2::DecrementStaminaWithValidPredictionKey()
+{
 	if (GetAbilitySystemComponentFromActorInfo()->CanPredict())
 	{
 		UKismetSystemLibrary::PrintString(this, "prediction valid");
@@ -147,11 +148,24 @@ void UGA_CharacterRunV2::OnTimerTick()
 	{
 		UKismetSystemLibrary::PrintString(this, "prediction INVALID");
 	}
+
+	float staminaCurrentValue = GASCharacter->GetCharacterAttributeSet()->GetStamina();
+	if (staminaCurrentValue > 1)
+	{
+		ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DrainStaminaFromRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
+	}
+	else if (staminaCurrentValue == 1)
+	{
+		ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DrainStaminaFromRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	}
+	else if (staminaCurrentValue <= 0)
+	{
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	}
+
+
 }
-
-
-
-
 
 
 
@@ -163,13 +177,13 @@ void UGA_CharacterRunV2::OnTimerTick()
 
 void UGA_CharacterRunV2::OnRelease(float TimeHeld)
 {
-	//	Set back to normal speed
-	CMC->SetWantsToRun(false);
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
 
 void UGA_CharacterRunV2::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+	//GetAbilitySystemComponentFromActorInfo()->FindAbilitySpecFromHandle(Handle)->ActivationInfo.SetActivationRejected();
+	//ActivationInfo.ActivationMode = EGameplayAbilityActivationMode::Rejected;
 	// Super wraps the whole EndAbility() in IsEndAbilityValid()
 	if (!IsEndAbilityValid(Handle, ActorInfo))
 	{
@@ -186,15 +200,12 @@ void UGA_CharacterRunV2::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 
 	// Lets do the logic we want to happen when the ability ends. If you want you can do an async task,
 	// but just make sure you don't call Super::EndAbility until after the task ends (call Super::EndAbility in the task's callback)
-	if (ActivationInfo.ActivationMode == EGameplayAbilityActivationMode::Rejected)
-	{
-
-	}
+	EndTaskByInstanceName("RepeatAction");
+	CMC->SetWantsToRun(false);	// In case of successful runthrough, stop running. But this will also be called if activation rollback occurrs so we good
 
 
 
-
-
+	
 
 
 
@@ -205,6 +216,7 @@ void UGA_CharacterRunV2::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 	*/
 	// super end ability loops through all tasks and calls OnDestroy; however, this is a virtual function, some tasks may not be destroyed on end ability (this is probably a super rare case tho) (dan says WaitTargetData doesn't end)
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	
 }
 
 

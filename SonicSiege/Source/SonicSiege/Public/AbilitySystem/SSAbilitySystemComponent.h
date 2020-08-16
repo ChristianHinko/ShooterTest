@@ -56,6 +56,8 @@ class SONICSIEGE_API USSAbilitySystemComponent : public UAbilitySystemComponent
 public:
 	USSAbilitySystemComponent();
 
+
+
 	FGameplayAbilitySpecHandle GrantAbility(TSubclassOf<USSGameplayAbility> NewAbility, UObject* InSourceObject, EAbilityInputID inputID, int32 level = 1);
 
 	virtual void TargetConfirmByAbility(UGameplayAbility* AbilityToConfirmTargetOn);

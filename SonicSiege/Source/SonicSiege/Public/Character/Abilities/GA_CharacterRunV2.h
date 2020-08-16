@@ -44,6 +44,9 @@ protected:
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	//END UGameplayAbility Interface
 
+	UFUNCTION()
+		void DecrementStaminaWithValidPredictionKey();
+
 	virtual void BeginDestroy() override;
 
 #pragma region Gameplay Tags

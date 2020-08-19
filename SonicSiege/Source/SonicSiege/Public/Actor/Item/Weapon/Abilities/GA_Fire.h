@@ -6,7 +6,7 @@
 #include "AbilitySystem/SSGameplayAbility.h"
 #include "GA_Fire.generated.h"
 
-class AGATA_LineTrace;
+class AGATA_ScatterTrace;
 
 /**
  * 
@@ -28,6 +28,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Target Actor Config")
 		TEnumAsByte<ECollisionChannel> TraceChannel;
+	UPROPERTY(EditAnywhere, Category = "Target Actor Config")
+		uint8 numberOfLines;
+	UPROPERTY(EditAnywhere, Category = "Target Actor Config")
+		float scatterRadius;
+
 
 
 	//BEGIN UGameplayAbility Interface
@@ -37,7 +42,7 @@ protected:
 	//END UGameplayAbility Interface
 
 	UPROPERTY()
-		AGATA_LineTrace* TargetTraceActor;
+		AGATA_ScatterTrace* TargetTraceActor;
 
 	UFUNCTION()
 		void OnValidData(const FGameplayAbilityTargetDataHandle& Data);

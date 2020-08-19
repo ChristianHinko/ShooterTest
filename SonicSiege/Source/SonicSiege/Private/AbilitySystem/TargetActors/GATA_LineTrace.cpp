@@ -24,7 +24,7 @@ void AGATA_LineTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* In
 
 	// ------------------------------------------------------
 
-	MultiLineTraceWithFilter(OutHitResults, InSourceActor->GetWorld(), Filter, TraceStart, TraceEnd, TraceChannel, Params);
+	LineTraceMultiWithFilter(OutHitResults, InSourceActor->GetWorld(), Filter, TraceStart, TraceEnd, TraceChannel, Params);
 
 	FHitResult LastHitResult = OutHitResults.Num() ? OutHitResults.Last() : FHitResult();
 	//Default to end of trace line if we don't hit anything.

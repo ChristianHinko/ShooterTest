@@ -115,6 +115,57 @@ void AGATA_Trace::AimWithPlayerController(const AActor* InSourceActor, FCollisio
 
 	OutTraceEnd = TraceStart + (AdjustedAimDir * MaxRange);
 }
+void AGATA_Trace::DirWithPlayerController(const AActor* InSourceActor, FCollisionQueryParams Params, const FVector& TraceStart, FVector& OutTraceDir, bool bIgnorePitch) const
+{
+	if (!OwningAbility) // Server and launching client only
+	{
+		return;
+	}
+
+	APlayerController* PC = OwningAbility->GetCurrentActorInfo()->PlayerController.Get();
+	check(PC);
+
+	FVector ViewStart;
+	FRotator ViewRot;
+	PC->GetPlayerViewPoint(ViewStart, ViewRot);
+
+	const FVector ViewDir = ViewRot.Vector();
+	FVector ViewEnd = ViewStart + (ViewDir * MaxRange);
+
+	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, MaxRange, ViewEnd);
+
+	TArray<FHitResult> HitResults;
+	LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), Filter, ViewStart, ViewEnd, TraceChannel, Params);
+	FHitResult HitResult = HitResults.Num() ? HitResults.Last() : FHitResult();		// get the blocking hit
+
+	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
+
+	const FVector AdjustedEnd = (bUseTraceResult) ? HitResult.Location : ViewEnd;
+
+	FVector AdjustedAimDir = (AdjustedEnd - TraceStart).GetSafeNormal();
+	if (AdjustedAimDir.IsZero())
+	{
+		AdjustedAimDir = ViewDir;
+	}
+
+	if (!bTraceAffectsAimPitch && bUseTraceResult)
+	{
+		FVector OriginalAimDir = (ViewEnd - TraceStart).GetSafeNormal();
+
+		if (!OriginalAimDir.IsZero())
+		{
+			// Convert to angles and use original pitch
+			const FRotator OriginalAimRot = OriginalAimDir.Rotation();
+
+			FRotator AdjustedAimRot = AdjustedAimDir.Rotation();
+			AdjustedAimRot.Pitch = OriginalAimRot.Pitch;
+
+			AdjustedAimDir = AdjustedAimRot.Vector();
+		}
+	}
+
+	OutTraceDir = AdjustedAimDir;
+}
 
 bool AGATA_Trace::ClipCameraRayToAbilityRange(FVector CameraLocation, FVector CameraDirection, FVector AbilityCenter, float AbilityRange, FVector& ClippedPosition)
 {

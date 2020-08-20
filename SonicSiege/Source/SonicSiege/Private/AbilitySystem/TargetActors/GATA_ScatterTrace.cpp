@@ -3,7 +3,7 @@
 
 #include "AbilitySystem/TargetActors/GATA_ScatterTrace.h"
 
-#include "GameplayAbility.h"
+#include "Abilities/GameplayAbility.h"
 
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -12,7 +12,7 @@
 
 void AGATA_ScatterTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor)
 {
-	bool bTraceComplex = false;
+	const bool bTraceComplex = false;
 	TArray<AActor*> ActorsToIgnore;
 
 	ActorsToIgnore.Add(InSourceActor);
@@ -21,22 +21,25 @@ void AGATA_ScatterTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor*
 	Params.bReturnPhysicalMaterial = true;
 	Params.AddIgnoredActors(ActorsToIgnore);
 
-	FVector TraceStart = StartLocation.GetTargetingTransform().GetLocation();// InSourceActor->GetActorLocation();
-	FVector TraceEnd;
-	AimWithPlayerController(InSourceActor, Params, TraceStart, TraceEnd);		//Effective on server and launching client only
+	const FVector TraceStart = StartLocation.GetTargetingTransform().GetLocation();// InSourceActor->GetActorLocation();
 
 	// ------------------------------------------------------
 
 	for (uint8 t = 0; t < numberOfLines; t++)
 	{
-		int16 randomSeed = OwningAbility->CurrentActivationInfo.GetActivationPredictionKey().Current;
+		const int16 predKey = OwningAbility->GetCurrentActivationInfo().GetActivationPredictionKey().Current;
+		const int16 randomSeed = predKey - (t * 10000000);		// VERY TEMP
+		const FRandomStream randomStream = FRandomStream(randomSeed);
 
-		float randX = UKismetMathLibrary::RandomFloatInRange(0.f - (scatterRadius * 0.5f), 0.f + (scatterRadius * 0.5f));/*UKismetMathLibrary::RandomFloatInRangeFromStream()*/
-		float randY = UKismetMathLibrary::RandomFloatInRange(0.f - (scatterRadius * 0.5f), 0.f + (scatterRadius * 0.5f));
-		float randZ = UKismetMathLibrary::RandomFloatInRange(0.f - (scatterRadius * 0.5f), 0.f + (scatterRadius * 0.5f));
-		FVector RandomVectorOffset = FVector(randX, randY, randZ);
+		const float coneHalfAngleRadius = FMath::DegreesToRadians(scatterRadius * 0.5f);
 
-		LineTraceMultiWithFilter(OutHitResults, InSourceActor->GetWorld(), Filter, TraceStart, TraceEnd + RandomVectorOffset, TraceChannel, Params);
+		FVector AimDir;
+		DirWithPlayerController(InSourceActor, Params, TraceStart, AimDir);		//Effective on server and launching client only
+		AimDir = randomStream.VRandCone(AimDir, coneHalfAngleRadius);
+
+		const FVector TraceEnd = TraceStart + (AimDir * MaxRange);
+
+		LineTraceMultiWithFilter(OutHitResults, InSourceActor->GetWorld(), Filter, TraceStart, TraceEnd, TraceChannel, Params);
 
 		FHitResult LastHitResult = OutHitResults.Num() ? OutHitResults.Last() : FHitResult();
 		//Default to end of trace line if we don't hit anything.

@@ -8,6 +8,7 @@
 #include "AbilitySystem/TargetActors/GATA_ScatterTrace.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Character/AbilitySystemCharacter.h"
+#include "Utilities/CollisionChannels.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 #include "Character/AS_Character.h"
@@ -17,6 +18,9 @@
 UGA_Fire::UGA_Fire()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Fire")));
+
+
+	TraceChannel = COLLISION_BULLET;
 }
 
 

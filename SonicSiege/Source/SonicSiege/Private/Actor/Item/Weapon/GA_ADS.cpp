@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Actor/Item/Weapon/Abilities/GA_ADS.h"
+#include "Actor/Item/Weapon/GA_ADS.h"
 
 #include "Character/AbilitySystemCharacter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"

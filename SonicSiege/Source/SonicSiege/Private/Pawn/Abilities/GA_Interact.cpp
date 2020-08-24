@@ -9,10 +9,10 @@
 
 UGA_Interact::UGA_Interact()
 {
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.ADS")));
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Interact")));
 
-	TagAimingDownSights = FGameplayTag::RequestGameplayTag(FName("State.Character.IsAimingDownSights"));
-	ActivationOwnedTags.AddTagFast(TagAimingDownSights);
+	//TagAimingDownSights = FGameplayTag::RequestGameplayTag(FName("State.Character.IsAimingDownSights"));
+	//ActivationOwnedTags.AddTagFast(TagAimingDownSights);
 }
 
 

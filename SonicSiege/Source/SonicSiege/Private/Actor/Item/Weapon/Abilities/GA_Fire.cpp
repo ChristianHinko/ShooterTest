@@ -1,13 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Actor/Item/Weapon/GA_Fire.h"
+#include "Actor/Item/Weapon/Abilities/GA_Fire.h"
 #include "AbilitySystemComponent.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
 #include "AbilitySystem/TargetActors/GATA_ScatterTrace.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Character/AbilitySystemCharacter.h"
+#include "Utilities/CollisionChannels.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 #include "Character/AS_Character.h"
@@ -17,6 +18,9 @@
 UGA_Fire::UGA_Fire()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Fire")));
+
+
+	TraceChannel = COLLISION_BULLET;
 }
 
 

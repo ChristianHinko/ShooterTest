@@ -12,9 +12,6 @@
 - In GTCharacter, change the setup attachments to GetCapsuleComponent() instead of RootComponent
 - Git rid of kismetsystemlibrary include in middle of abilitysystemcharacter code
 - Maybe uncomment the PrimaryActorTick.bCanEverTick = false; to more strongly enforce
-
-
-
 - Make UAT_RepeatAction
 - Change the BAA_ classes to use a Gampelaytask instead. We had a discussion about this in the GAS discord and someone converted it without any weird problems.
 - Move as much checks as you can from AcivateAbility into CanActivateAbility so that we can get activation rollback.
@@ -26,5 +23,10 @@
 - GASShooter has a custom subclass of AGameplayAbilityTargetActor and a new WaitTargetDataWithReusableActor AbilityTask written from scratch that allows you to reuse a TargetActor without destroying it.
 - In AbilitySystemActor::AbilitySystemActor() call SetReplicates(true);
 - Modify AbilitySystemCharacter and copy it to the pawn version. Make the server grant the abilities after client is finished setupwithabilitysystem()
+- Add CollisionChannels.h (only public header -no cpp) to the Utilities folder
+
+
+
+
 
 

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Actor/Item/Weapon/Abilities/GA_ADS.h"
+#include "Actor/Item/Weapon/GA_ADS.h"
 
 #include "Character/AbilitySystemCharacter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
@@ -39,30 +39,30 @@ void UGA_ADS::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGa
 		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
 		return;
 	}
-	if (!ADSEffectTSub)
+	/*if (!ADSEffectTSub)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("Effect TSubclassOf empty in %s so this ability was canceled - please fill out Character Jump ability blueprint"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("Effect TSubclassOf empty in %s so this ability was canceled - please fill out ADS ability blueprint"), *FString(__FUNCTION__));
 		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
 		return;
-	}
+	}*/
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	if (!Character)
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Character was NULL when trying to activate jump ability. Called CancelAbility()"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Character was NULL when trying to activate ADS ability. Called CancelAbility()"), *FString(__FUNCTION__));
 		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
 		return;
 	}
 	UAbilityTask_WaitInputRelease* InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
 	if (!InputReleasedTask)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate jump ability. Called CancelAbility()"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate ADS ability. Called CancelAbility()"), *FString(__FUNCTION__));
 		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
 		return;
 	}
 
 	//	Make sure we apply effect in valid prediction key window so we make sure the tag also gets applied on the client too
-	ADSEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, ADSEffectTSub.GetDefaultObject(), GetAbilityLevel());
-	Character->Jump();
+	//ADSEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, ADSEffectTSub.GetDefaultObject(), GetAbilityLevel());
+	//Character->ADS();
 
 	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_ADS::OnRelease);
 	InputReleasedTask->ReadyForActivation();
@@ -98,17 +98,17 @@ void UGA_ADS::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGamepla
 		ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get());
 		if (Character && ActorInfo->AbilitySystemComponent.Get())
 		{
-			Character->StopJumping();
-			ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(ADSEffectActiveHandle);
+			//Character->StopADSing();
+			//ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(ADSEffectActiveHandle);
 		}
 		else
 		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() Couldn't call Character->StopJumping() because Character* was NULL"), *FString(__FUNCTION__));
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() Couldn't call Character->StopADSing() because Character* was NULL"), *FString(__FUNCTION__));
 		}
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo was NULL when trying to remove ADSEffectActiveHande and when trying to call StopJumping on the character"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo was NULL when trying to remove ADSEffectActiveHande and when trying to call StopADSing on the character"), *FString(__FUNCTION__));
 	}
 
 

@@ -8,7 +8,7 @@
 
 #include "Item.generated.h"
 
-
+class USSGameplayAbility;
 
 enum class EItemType : uint8
 {
@@ -44,4 +44,8 @@ public:
 	AItem();
 
 	virtual void OnInteract(APawn* InteractingPawn) override;
+
+	/** Note: Abilities that will be granted to the character while equiped */
+	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
+		TArray<TSubclassOf<USSGameplayAbility>> AbilitiesToGrantPawnOnAddedToInventory;
 };

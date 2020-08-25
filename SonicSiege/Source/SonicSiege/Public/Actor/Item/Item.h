@@ -44,8 +44,9 @@ public:
 	AItem();
 
 	virtual void OnInteract(APawn* InteractingPawn) override;
+	virtual void OffInteract(APawn* InteractingPawn) override;
 
 	/** Note: Abilities that will be granted to the character while equiped */
-	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
+	UPROPERTY(EditAnywhere, Category = "Item|Abilities")
 		TArray<TSubclassOf<USSGameplayAbility>> AbilitiesToGrantPawnOnAddedToInventory;
 };

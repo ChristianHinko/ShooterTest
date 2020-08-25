@@ -12,3 +12,7 @@ void AItem::OnInteract(APawn* InteractingPawn)
 {
 
 }
+void AItem::OffInteract(APawn* InteractingPawn)
+{
+
+}

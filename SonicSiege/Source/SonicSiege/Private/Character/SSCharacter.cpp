@@ -12,6 +12,9 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet\KismetMathLibrary.h"
+#include "Kismet\KismetSystemLibrary.h"
+#include "Utilities/CollisionChannels.h"
+#include "Interfaces/Interactable.h"
 
 
 void ASSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -65,6 +68,10 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer) : Super(
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	InteractChannel = UEngineTypes::ConvertToTraceType(COLLISION_INTERACT);
+	InteractSweepDistance = 10.f;
+	InteractSweepRadius = 2.f;
 }
 
 void ASSCharacter::Tick(float DeltaTime)
@@ -116,6 +123,20 @@ void ASSCharacter::Tick(float DeltaTime)
 
 
 	//}
+
+	//	Eventually make more efficient by reusing some references from commented out code above
+	if (GetWorld() && GetFollowCamera())
+	{
+		FVector StartLocation = GetFollowCamera()->GetComponentLocation();
+		FVector EndLocation = StartLocation + (GetFollowCamera()->GetForwardVector() * InteractSweepDistance);
+		
+		UKismetSystemLibrary::SphereTraceSingle(GetWorld(), StartLocation, EndLocation, InteractSweepRadius, InteractChannel, false, ActorsToNotInteractWith, EDrawDebugTrace::None, InteractSweepHitResult, true);
+		if (InteractSweepHitResult.GetActor() && InteractSweepHitResult.GetActor()->Implements<IInteractable>())
+		{
+
+		}
+	
+	}
 }
 
 

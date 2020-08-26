@@ -33,6 +33,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 		USpringArmComponent* CameraBoom;
 
+	
+
 	UPROPERTY(Replicated)
 		TArray<AItem*> Inventory;
 	UPROPERTY(Replicated)
@@ -59,7 +61,19 @@ public:
 
 	USSCharacterMovementComponent* GetSSCharacterMovementComponent() const { return SSCharacterMovementComponent; }
 
+private:
+	ETraceTypeQuery InteractChannel;
+
 protected:
+		// Try ustilizing our custom trace channel before resorting to this
+	UPROPERTY(EditAnywhere)
+		TArray<AActor*> ActorsToNotInteractWith;
+	UPROPERTY(EditAnywhere)
+		float InteractSweepDistance;
+	UPROPERTY(EditAnywhere)
+		float InteractSweepRadius;
+	FHitResult InteractSweepHitResult;
+
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 

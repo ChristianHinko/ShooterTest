@@ -26,4 +26,5 @@ class SONICSIEGE_API IInteractable
 public:
 	virtual void OnInteract(APawn* InteractingPawn) = 0;
 	virtual void OffInteract(APawn* InteractingPawn) = 0;
+	//virtual void OffInteract(APawn* InteractingPawn) = 0;
 };

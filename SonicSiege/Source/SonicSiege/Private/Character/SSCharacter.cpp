@@ -131,9 +131,9 @@ void ASSCharacter::Tick(float DeltaTime)
 		FVector EndLocation = StartLocation + (GetFollowCamera()->GetForwardVector() * InteractSweepDistance);
 		
 		UKismetSystemLibrary::SphereTraceSingle(GetWorld(), StartLocation, EndLocation, InteractSweepRadius, InteractChannel, false, ActorsToNotInteractWith, EDrawDebugTrace::None, InteractSweepHitResult, true);
-		if (InteractSweepHitResult.GetActor() && InteractSweepHitResult.GetActor()->Implements<IInteractable>())
+		if (IInteractable* Interact = Cast<IInteractable>(InteractSweepHitResult.GetActor()))
 		{
-
+			//Interact->OnInteract
 		}
 	
 	}

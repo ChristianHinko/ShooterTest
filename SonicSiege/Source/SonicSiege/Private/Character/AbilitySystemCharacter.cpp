@@ -29,6 +29,7 @@ void AAbilitySystemCharacter::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterJumpAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterRunAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, FireAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, InteractAbilitySpecHandle, COND_OwnerOnly);
 	//DOREPLIFETIME(AAbilitySystemCharacter, PlayerAbilitySystemComponent);			//can be helpful for debugging
 }
 
@@ -353,6 +354,8 @@ bool AAbilitySystemCharacter::GrantStartingAbilities()
 	CharacterRunAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterRunAbilityTSub, this, EAbilityInputID::Run/*, GetLevel()*/);
 	FireAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(FireAbilityTSub, this, EAbilityInputID::PrimaryFire/*, GetLevel()*/);
 
+	InteractAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractAbilityTSub, this, EAbilityInputID::Interact/*, GetLevel()*/);
+
 	return true;
 
 	// \/\/\/\/ This should be your first bit of code in your overrided implementation \/\/\/\/
@@ -451,6 +454,18 @@ void AAbilitySystemCharacter::OnCancelTargetPressed()
 	GetAbilitySystemComponent()->LocalInputCancel();
 }
 void AAbilitySystemCharacter::OnCancelTargetReleased()
+{
+
+}
+
+void AAbilitySystemCharacter::OnInteractPressed()
+{
+	if (InteractSweepHitResult.bBlockingHit)
+	{
+		GetAbilitySystemComponent()->TryActivateAbility(InteractAbilitySpecHandle, true);
+	}
+}
+void AAbilitySystemCharacter::OnInteractReleased()
 {
 
 }

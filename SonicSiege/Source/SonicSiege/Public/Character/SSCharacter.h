@@ -61,13 +61,13 @@ public:
 
 	USSCharacterMovementComponent* GetSSCharacterMovementComponent() const { return SSCharacterMovementComponent; }
 
-private:
-	ETraceTypeQuery InteractChannel;
 
 protected:
 		// Try ustilizing our custom trace channel before resorting to this
 	UPROPERTY(EditAnywhere)
 		TArray<AActor*> ActorsToNotInteractWith;
+	ETraceTypeQuery InteractChannel;
+	FCollisionQueryParams InteractSweepQueryParams;
 	UPROPERTY(EditAnywhere)
 		float InteractSweepDistance;
 	UPROPERTY(EditAnywhere)

@@ -96,6 +96,11 @@ protected:
 		FGameplayAbilitySpecHandle CharacterRunAbilitySpecHandle;
 
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
+		TSubclassOf<USSGameplayAbility> InteractAbilityTSub;
+	UPROPERTY(Replicated)
+		FGameplayAbilitySpecHandle InteractAbilitySpecHandle;
+
+	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
 		TSubclassOf<USSGameplayAbility> FireAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle FireAbilitySpecHandle;
@@ -177,6 +182,9 @@ protected:
 
 	virtual void OnCancelTargetPressed();
 	virtual void OnCancelTargetReleased();
+
+	virtual void OnInteractPressed() override;
+	virtual void OnInteractReleased() override;
 
 	virtual void OnJumpPressed() override;
 	virtual void OnJumpReleased() override;

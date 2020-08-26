@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSGameplayAbility.h"
-#include "GA_Interact.generated.h"
+#include "GA_CharacterInteractInstant.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SONICSIEGE_API UGA_Interact : public USSGameplayAbility
+class SONICSIEGE_API UGA_CharacterInteractInstant : public USSGameplayAbility
 {
 	GENERATED_BODY()
 
 public:
-	UGA_Interact();
+	UGA_CharacterInteractInstant();
 
 protected:
 	//UPROPERTY(EditAnywhere)
@@ -33,6 +33,6 @@ protected:
 		virtual void OnRelease(float TimeHeld);
 
 #pragma region Gameplay Tags
-	FGameplayTag TagAimingDownSights;
+	//FGameplayTag TagAimingDownSights;
 #pragma endregion
 };

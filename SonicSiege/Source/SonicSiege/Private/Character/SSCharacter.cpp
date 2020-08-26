@@ -69,8 +69,7 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer) : Super(
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	InteractChannel = UEngineTypes::ConvertToTraceType(COLLISION_INTERACT);
-	InteractSweepDistance = 10.f;
+	InteractSweepDistance = 100.f;
 	InteractSweepRadius = 2.f;
 }
 
@@ -125,18 +124,36 @@ void ASSCharacter::Tick(float DeltaTime)
 	//}
 
 	//	Eventually make more efficient by reusing some references from commented out code above
-	if (GetWorld() && GetFollowCamera())
+	if (IsLocallyControlled())
 	{
-		FVector StartLocation = GetFollowCamera()->GetComponentLocation();
-		FVector EndLocation = StartLocation + (GetFollowCamera()->GetForwardVector() * InteractSweepDistance);
-		
-		UKismetSystemLibrary::SphereTraceSingle(GetWorld(), StartLocation, EndLocation, InteractSweepRadius, InteractChannel, false, ActorsToNotInteractWith, EDrawDebugTrace::None, InteractSweepHitResult, true);
-		if (IInteractable* Interact = Cast<IInteractable>(InteractSweepHitResult.GetActor()))
+		if (GetWorld() && GetFollowCamera())
 		{
-			//Interact->OnInteract
+			FVector StartLocation = GetFollowCamera()->GetComponentLocation();
+			FVector EndLocation = StartLocation + (GetFollowCamera()->GetForwardVector() * InteractSweepDistance);
+
+			if (GetWorld())
+			{
+				bool const bHit = GetWorld()->SweepSingleByChannel(InteractSweepHitResult, StartLocation, EndLocation, FQuat::Identity, COLLISION_INTERACT, FCollisionShape::MakeSphere(InteractSweepRadius), InteractSweepQueryParams);
+				if (bHit)
+				{
+					if (IInteractable* Interact = Cast<IInteractable>(InteractSweepHitResult.GetActor()))
+					{
+						if (Interact->bShouldFireSweepEvents)
+						{
+							// Handle calling sweep events for IInteractable
+
+
+
+						}
+					}
+				}
+			}
+
+
+
 		}
-	
 	}
+	
 }
 
 

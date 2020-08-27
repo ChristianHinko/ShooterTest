@@ -6,7 +6,7 @@
 #include "AbilitySystem/SSGameplayAbility.h"
 #include "GA_Fire.generated.h"
 
-class AGATA_ScatterTrace;
+class AGATA_LineTrace;
 
 /**
  * 
@@ -42,7 +42,7 @@ protected:
 	//END UGameplayAbility Interface
 
 	UPROPERTY()
-		AGATA_ScatterTrace* TargetTraceActor;
+		AGATA_LineTrace* TargetTraceActor;
 
 	UFUNCTION()
 		void OnValidData(const FGameplayAbilityTargetDataHandle& Data);

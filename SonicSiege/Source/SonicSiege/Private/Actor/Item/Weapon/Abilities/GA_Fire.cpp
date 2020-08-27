@@ -5,7 +5,7 @@
 #include "AbilitySystemComponent.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
-#include "AbilitySystem/TargetActors/GATA_ScatterTrace.h"
+#include "AbilitySystem/TargetActors/GATA_LineTrace.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Character/AbilitySystemCharacter.h"
 #include "Utilities/CollisionChannels.h"
@@ -57,7 +57,7 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	// set up target actor if not already
 	if (!TargetTraceActor)
 	{
-		TargetTraceActor = GetWorld()->SpawnActor<AGATA_ScatterTrace>();
+		TargetTraceActor = GetWorld()->SpawnActor<AGATA_LineTrace>();
 		TargetTraceActor->bDestroyOnConfirmation = false;
 		TargetTraceActor->MaxRange = 100000.f;
 		TargetTraceActor->bDebug = true;

@@ -40,7 +40,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = Trace)
 		float MaxRange;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, config, meta = (ExposeOnSpawn = true), Category = Trace)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = Trace)
 		TEnumAsByte<ECollisionChannel> TraceChannel;
 
 	// Does the trace affect the aiming pitch

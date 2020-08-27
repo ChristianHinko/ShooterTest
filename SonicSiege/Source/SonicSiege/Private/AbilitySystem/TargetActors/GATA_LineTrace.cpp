@@ -3,13 +3,16 @@
 
 #include "AbilitySystem/TargetActors/GATA_LineTrace.h"
 
+#include "Abilities/GameplayAbility.h"
+
 #include "DrawDebugHelpers.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 
 void AGATA_LineTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor)
 {
-	bool bTraceComplex = false;
+	const bool bTraceComplex = false;
 	TArray<AActor*> ActorsToIgnore;
 
 	ActorsToIgnore.Add(InSourceActor);
@@ -18,56 +21,76 @@ void AGATA_LineTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* In
 	Params.bReturnPhysicalMaterial = true;
 	Params.AddIgnoredActors(ActorsToIgnore);
 
-	FVector TraceStart = StartLocation.GetTargetingTransform().GetLocation();// InSourceActor->GetActorLocation();
-	FVector TraceEnd;
-	AimWithPlayerController(InSourceActor, Params, TraceStart, TraceEnd);		//Effective on server and launching client only
+	const FVector TraceStart = StartLocation.GetTargetingTransform().GetLocation();// InSourceActor->GetActorLocation();
 
 	// ------------------------------------------------------
 
-	LineTraceMultiWithFilter(OutHitResults, InSourceActor->GetWorld(), Filter, TraceStart, TraceEnd, TraceChannel, Params);
-
-	FHitResult LastHitResult = OutHitResults.Num() ? OutHitResults.Last() : FHitResult();
-	//Default to end of trace line if we don't hit anything.
-	if (!LastHitResult.bBlockingHit)
+	for (uint8 t = 0; t < numberOfLines; t++)
 	{
-		LastHitResult.Location = TraceEnd;
-	}
-	//if (AGameplayAbilityWorldReticle* LocalReticleActor = ReticleActor.Get())
-	//{
-	//	const bool bHitActor = (ReturnHitResult.bBlockingHit && (ReturnHitResult.Actor != NULL));
-	//	const FVector ReticleLocation = (bHitActor && LocalReticleActor->bSnapToTargetedActor) ? ReturnHitResult.Actor->GetActorLocation() : ReturnHitResult.Location;
+		// create net-safe random seed stream
+		const int16 predKey = OwningAbility->GetCurrentActivationInfo().GetActivationPredictionKey().Current;
+		const int32 randomSeed = predKey - (t * 100000000000000000);	// use the prediction key as a net safe seed and add a crazy t-based large number so that each bullet has its own randomness per fire (the larger the number multiplied to t, the less likely bullets will follow the same pattern per fire)
+		const FRandomStream randomStream = FRandomStream(randomSeed);
 
-	//	LocalReticleActor->SetActorLocation(ReticleLocation);
-	//	LocalReticleActor->SetIsTargetAnActor(bHitActor);
-	//}
+		// Get direction player is aiming
+		FVector AimDir;
+		DirWithPlayerController(InSourceActor, Params, TraceStart, AimDir);		//Effective on server and launching client only
+
+		// add random offset to AimDir
+		const float coneHalfAngleRadius = FMath::DegreesToRadians(scatterRadius * 0.5f);
+		AimDir = randomStream.VRandCone(AimDir, coneHalfAngleRadius);
+
+		// calculate the end of the trace based off aim dir and max range
+		const FVector TraceEnd = TraceStart + (AimDir * MaxRange);
+
+
+		// perform line trace 
+		LineTraceMultiWithFilter(OutHitResults, InSourceActor->GetWorld(), Filter, TraceStart, TraceEnd, TraceChannel, Params);
+
+
+		FHitResult LastHitResult = OutHitResults.Num() ? OutHitResults.Last() : FHitResult();
+		//Default to end of trace line if we don't hit anything.
+		if (!LastHitResult.bBlockingHit)
+		{
+			LastHitResult.Location = TraceEnd;
+		}
+		//if (AGameplayAbilityWorldReticle* LocalReticleActor = ReticleActor.Get())
+		//{
+		//	const bool bHitActor = (ReturnHitResult.bBlockingHit && (ReturnHitResult.Actor != NULL));
+		//	const FVector ReticleLocation = (bHitActor && LocalReticleActor->bSnapToTargetedActor) ? ReturnHitResult.Actor->GetActorLocation() : ReturnHitResult.Location;
+
+		//	LocalReticleActor->SetActorLocation(ReticleLocation);
+		//	LocalReticleActor->SetIsTargetAnActor(bHitActor);
+		//}
 
 #if ENABLE_DRAW_DEBUG
-	if (bDebug)
-	{
-		float debugLifeTime = 5.f;
-
-		uint8 hitsNum = OutHitResults.Num();
-		if (hitsNum > 0)
+		if (bDebug)
 		{
-			for (uint8 i = 0; i < hitsNum; i++)
+			float debugLifeTime = 5.f;
+
+			uint8 hitsNum = OutHitResults.Num();
+			if (hitsNum > 0)
 			{
-				float colorAccumulate = i * (hitsNum > 1 ? (255 / (hitsNum - 1)) : 0);
+				for (uint8 i = 0; i < hitsNum; i++)
+				{
+					float colorAccumulate = i * (hitsNum > 1 ? (255 / (hitsNum - 1)) : 0);
 
-				FVector FromLocation = i > 0 ? OutHitResults[i - 1].Location : TraceStart;
-				FVector ToLocation = OutHitResults[i].Location;
+					FVector FromLocation = i > 0 ? OutHitResults[i - 1].Location : TraceStart;
+					FVector ToLocation = OutHitResults[i].Location;
 
-				DrawDebugLine(GetWorld(), FromLocation, ToLocation, FColor(0.f, 0.f + colorAccumulate, 255.f), false, debugLifeTime);
-				DrawDebugPoint(GetWorld(), ToLocation, 10, FColor(0.f + (colorAccumulate * 0.5f), 255.f - colorAccumulate, 0.f), false, debugLifeTime);
+					DrawDebugLine(GetWorld(), FromLocation, ToLocation, FColor(0.f, 0.f + colorAccumulate, 255.f), false, debugLifeTime);
+					DrawDebugPoint(GetWorld(), ToLocation, 10, FColor(0.f + (colorAccumulate * 0.5f), 255.f - colorAccumulate, 0.f), false, debugLifeTime);
+				}
+				if (!OutHitResults.Last().bBlockingHit)
+				{
+					DrawDebugLine(GetWorld(), OutHitResults.Last().Location, TraceEnd, FColor(0.f, 0.f + 255.f, 255.f), false, debugLifeTime);
+				}
 			}
-			if (!OutHitResults.Last().bBlockingHit)
+			else
 			{
-				DrawDebugLine(GetWorld(), OutHitResults.Last().Location, TraceEnd, FColor(0.f, 0.f + 255.f, 255.f), false, debugLifeTime);
+				DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor(0.f, 0.f, 255.f), false, debugLifeTime);
 			}
 		}
-		else
-		{
-			DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor(0.f, 0.f, 255.f), false, debugLifeTime);
-		}
-	}
 #endif // ENABLE_DRAW_DEBUG
+	}
 }

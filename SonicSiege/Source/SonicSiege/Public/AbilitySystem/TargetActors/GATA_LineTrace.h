@@ -13,7 +13,13 @@ UCLASS()
 class SONICSIEGE_API AGATA_LineTrace : public AGATA_Trace
 {
 	GENERATED_BODY()
-	
+
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = Scatter)
+		uint8 numberOfLines;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = Scatter)
+		float scatterRadius;
+
 protected:
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor);
 };

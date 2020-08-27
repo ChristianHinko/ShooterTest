@@ -460,7 +460,7 @@ void AAbilitySystemCharacter::OnCancelTargetReleased()
 
 void AAbilitySystemCharacter::OnInteractPressed()
 {
-	if (InteractSweepHitResult.bBlockingHit)
+	if (/*InteractSweepHitResult.bBlockingHit*/ CurrentInteract)
 	{
 		GetAbilitySystemComponent()->TryActivateAbility(InteractAbilitySpecHandle, true);
 	}

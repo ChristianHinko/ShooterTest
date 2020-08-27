@@ -16,15 +16,15 @@ void AItem::OffInteract(APawn* InteractingPawn)
 {
 
 }
-void AItem::OnInteractSweepArrived(APawn* InteractingPawn)
+void AItem::OnInteractSweepInitialHit(APawn* InteractingPawn)
 {
 
 }
-void AItem::InteractSweep(APawn* InteractingPawn)
+void AItem::OnInteractSweepConsecutiveHit(APawn* InteractingPawn)
 {
 
 }
-void AItem::OnInteractSweepLeft(APawn* InteractingPawn)
+void AItem::OnInteractSweepEndHitting(APawn* InteractingPawn)
 {
 
 }

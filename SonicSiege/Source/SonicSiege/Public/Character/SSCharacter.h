@@ -13,7 +13,7 @@ class UCameraComponent;
 class USpringArmComponent;
 class USSCharacterMovementComponent;
 class AItem;
-
+class IInteractable;
 
 
 /**
@@ -73,6 +73,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 		float InteractSweepRadius;
 	FHitResult InteractSweepHitResult;
+
+	IInteractable* CurrentInteract;
+	IInteractable* LastInteract;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 

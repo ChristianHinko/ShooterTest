@@ -45,9 +45,9 @@ public:
 
 	virtual void OnInteract(APawn* InteractingPawn) override;
 	virtual void OffInteract(APawn* InteractingPawn) override;
-	virtual void OnInteractSweepArrived(APawn* InteractingPawn);
-	virtual void InteractSweep(APawn* InteractingPawn);
-	virtual void OnInteractSweepLeft(APawn* InteractingPawn);
+	virtual void OnInteractSweepInitialHit(APawn* InteractingPawn);
+	virtual void OnInteractSweepConsecutiveHit(APawn* InteractingPawn);
+	virtual void OnInteractSweepEndHitting(APawn* InteractingPawn);
 
 	/** Note: Abilities that will be granted to the character while equiped */
 	UPROPERTY(EditAnywhere, Category = "Item|Abilities")

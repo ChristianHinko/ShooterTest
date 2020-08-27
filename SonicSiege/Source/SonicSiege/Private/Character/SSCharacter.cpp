@@ -71,6 +71,8 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer) : Super(
 
 	InteractSweepDistance = 100.f;
 	InteractSweepRadius = 2.f;
+	CurrentInteract = nullptr;
+	LastInteract = nullptr;
 }
 
 void ASSCharacter::Tick(float DeltaTime)
@@ -133,18 +135,34 @@ void ASSCharacter::Tick(float DeltaTime)
 
 			if (GetWorld())
 			{
-				bool const bHit = GetWorld()->SweepSingleByChannel(InteractSweepHitResult, StartLocation, EndLocation, FQuat::Identity, COLLISION_INTERACT, FCollisionShape::MakeSphere(InteractSweepRadius), InteractSweepQueryParams);
-				if (bHit)
+				bool const bBlockingHit = GetWorld()->SweepSingleByChannel(InteractSweepHitResult, StartLocation, EndLocation, FQuat::Identity, COLLISION_INTERACT, FCollisionShape::MakeSphere(InteractSweepRadius), InteractSweepQueryParams);
+				if (bBlockingHit)
 				{
-					if (IInteractable* Interact = Cast<IInteractable>(InteractSweepHitResult.GetActor()))
+					CurrentInteract = Cast<IInteractable>(InteractSweepHitResult.GetActor());
+					if (CurrentInteract)
 					{
-						if (Interact->bShouldFireSweepEvents)
+						if (CurrentInteract->bShouldFireSweepEvents)
 						{
-							// Handle calling sweep events for IInteractable
-
-
-
+							if (CurrentInteract != LastInteract)
+							{
+								CurrentInteract->OnInteractSweepInitialHit(this);
+							}
+							else
+							{
+								CurrentInteract->OnInteractSweepConsecutiveHit(this);
+							}
+							
+							LastInteract = CurrentInteract;
 						}
+					}
+				}
+				else
+				{
+					CurrentInteract = nullptr;
+					if (LastInteract != nullptr)	// If the last frame had something to interact with
+					{
+						LastInteract->OnInteractSweepEndHitting(this);
+						LastInteract = nullptr;
 					}
 				}
 			}
@@ -207,7 +225,10 @@ void ASSCharacter::OnJumpReleased()
 
 void ASSCharacter::OnInteractPressed()
 {
-
+	if (InteractSweepHitResult.bBlockingHit)
+	{
+		
+	}
 }
 void ASSCharacter::OnInteractReleased()
 {

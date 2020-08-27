@@ -27,19 +27,26 @@ void AGATA_ScatterTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor*
 
 	for (uint8 t = 0; t < numberOfLines; t++)
 	{
+		// create net-safe random seed stream
 		const int16 predKey = OwningAbility->GetCurrentActivationInfo().GetActivationPredictionKey().Current;
-		const int16 randomSeed = predKey - (t * 10000000);		// VERY TEMP
+		const int32 randomSeed = predKey - (t * 100000000000000000);	// use the prediction key as a net safe seed and add a crazy t-based large number so that each bullet has its own randomness per fire (the larger the number multiplied to t, the less likely bullets will follow the same pattern per fire)
 		const FRandomStream randomStream = FRandomStream(randomSeed);
 
-		const float coneHalfAngleRadius = FMath::DegreesToRadians(scatterRadius * 0.5f);
-
+		// Get direction player is aiming
 		FVector AimDir;
 		DirWithPlayerController(InSourceActor, Params, TraceStart, AimDir);		//Effective on server and launching client only
+
+		// add random offset to AimDir
+		const float coneHalfAngleRadius = FMath::DegreesToRadians(scatterRadius * 0.5f);
 		AimDir = randomStream.VRandCone(AimDir, coneHalfAngleRadius);
 
+		// calculate the end of the trace based off aim dir and max range
 		const FVector TraceEnd = TraceStart + (AimDir * MaxRange);
 
+
+		// perform line trace 
 		LineTraceMultiWithFilter(OutHitResults, InSourceActor->GetWorld(), Filter, TraceStart, TraceEnd, TraceChannel, Params);
+
 
 		FHitResult LastHitResult = OutHitResults.Num() ? OutHitResults.Last() : FHitResult();
 		//Default to end of trace line if we don't hit anything.

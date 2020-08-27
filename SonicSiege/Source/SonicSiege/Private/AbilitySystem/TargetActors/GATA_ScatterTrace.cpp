@@ -28,8 +28,9 @@ void AGATA_ScatterTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor*
 	for (uint8 t = 0; t < numberOfLines; t++)
 	{
 		const int16 predKey = OwningAbility->GetCurrentActivationInfo().GetActivationPredictionKey().Current;
-		const int16 randomSeed = predKey - (t * 10000000);		// VERY TEMP
+		const int32 randomSeed = predKey - (t * 1000000000);		// VERY TEMP
 		const FRandomStream randomStream = FRandomStream(randomSeed);
+
 
 		const float coneHalfAngleRadius = FMath::DegreesToRadians(scatterRadius * 0.5f);
 

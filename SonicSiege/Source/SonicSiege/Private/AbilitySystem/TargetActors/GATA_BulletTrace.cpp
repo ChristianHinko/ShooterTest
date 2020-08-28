@@ -1,23 +1,36 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/TargetActors/GATA_LineTrace.h"
+#include "AbilitySystem/TargetActors/GATA_BulletTrace.h"
 
 #include "Abilities/GameplayAbility.h"
+#include "Utilities/CollisionChannels.h"
 
 #include "DrawDebugHelpers.h"
-#include "Kismet/KismetMathLibrary.h"
 
 
 
-void AGATA_LineTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor)
+AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	ShouldProduceTargetDataOnServer = true;
+
+	MaxRange = 100000.f;
+	bTraceAffectsAimPitch = true;
+	TraceChannel = COLLISION_BULLET;
+	numberOfLines = 1;
+	//Filter = FGameplayTargetDataFilter()
+}
+
+
+void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor)
 {
 	const bool bTraceComplex = false;
 	TArray<AActor*> ActorsToIgnore;
 
 	ActorsToIgnore.Add(InSourceActor);
 
-	FCollisionQueryParams Params(SCENE_QUERY_STAT(AGATA_LineTrace), bTraceComplex);
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(AGATA_BulletTrace), bTraceComplex);
 	Params.bReturnPhysicalMaterial = true;
 	Params.AddIgnoredActors(ActorsToIgnore);
 

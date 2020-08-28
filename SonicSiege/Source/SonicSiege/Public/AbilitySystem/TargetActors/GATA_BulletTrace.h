@@ -4,17 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/TargetActors/GATA_Trace.h"
-#include "GATA_LineTrace.generated.h"
+#include "GATA_BulletTrace.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SONICSIEGE_API AGATA_LineTrace : public AGATA_Trace
+class SONICSIEGE_API AGATA_BulletTrace : public AGATA_Trace
 {
 	GENERATED_BODY()
 
 public:
+	AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer);
+
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = Scatter)
 		uint8 numberOfLines;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = Scatter)

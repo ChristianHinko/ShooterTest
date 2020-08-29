@@ -73,7 +73,7 @@ void UGA_CharacterInteractInstant::ActivateAbility(const FGameplayAbilitySpecHan
 	if (Interactable)										//-----------------------------------------------------------
 	{														//-----------------------------------------------------------
 															//-----------------------------------------------------------
-	}*/														//-----------------------------------------------------------
+	}*/														
 	/*if (!InteractEffectTSub)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("Effect TSubclassOf empty in %s so this ability was canceled - please fill out Interact ability blueprint"), *FString(__FUNCTION__));

@@ -6,7 +6,7 @@
 #include "AbilitySystem/SSGameplayAbility.h"
 #include "GA_Fire.generated.h"
 
-class AGATA_ScatterTrace;
+class AGATA_BulletTrace;
 
 /**
  * 
@@ -26,14 +26,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Effects To Apply")
 		TSubclassOf<UGameplayEffect> BulletHitEffectTSub;
 
-	UPROPERTY(EditAnywhere, Category = "Target Actor Config")
-		TEnumAsByte<ECollisionChannel> TraceChannel;
-	UPROPERTY(EditAnywhere, Category = "Target Actor Config")
-		uint8 numberOfLines;
-	UPROPERTY(EditAnywhere, Category = "Target Actor Config")
-		float scatterRadius;
-
-
 
 	//BEGIN UGameplayAbility Interface
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
@@ -41,8 +33,11 @@ protected:
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	//END UGameplayAbility Interface
 
+
 	UPROPERTY()
-		AGATA_ScatterTrace* TargetTraceActor;
+		AGATA_BulletTrace* TargetTraceActor;
+	UPROPERTY(EditAnywhere, Category = "TargetActor")
+		TSubclassOf<AGATA_BulletTrace> BulletTraceTargetActor;
 
 	UFUNCTION()
 		void OnValidData(const FGameplayAbilityTargetDataHandle& Data);

@@ -5,6 +5,11 @@
 
 #include "GameFramework/PlayerController.h"
 #include "Abilities/GameplayAbility.h"
+#include "AbilitySystem/TargetActors/GATDF_MultiFilter.h"
+#include "Character/AbilitySystemCharacter.h"
+#include "Pawn/AbilitySystemPawn.h"
+#include "Actor/AbilitySystemActor.h"
+#include "AbilitySystem/SSAbilitySystemBlueprintLibrary.h"
 
 #include "DrawDebugHelpers.h"
 
@@ -21,6 +26,18 @@ AGATA_Trace::AGATA_Trace(const FObjectInitializer& ObjectInitializer)
 	MaxRange = 100000.f;
 	bTraceAffectsAimPitch = true;
 	TraceChannel = ECollisionChannel::ECC_Visibility;
+
+	MultiFilter.bReverseFilter = true;
+	MultiFilter.RequiredActorClasses.Add(AAbilitySystemCharacter::StaticClass());
+	MultiFilter.RequiredActorClasses.Add(AAbilitySystemPawn::StaticClass());
+	MultiFilter.RequiredActorClasses.Add(AAbilitySystemActor::StaticClass());
+}
+void AGATA_Trace::PreInitializeComponents()
+{
+	Super::PreInitializeComponents();
+
+
+	MultiFilterHandle = USSAbilitySystemBlueprintLibrary::MakeMultiFilterHandle(MultiFilter, SourceActor);
 }
 
 
@@ -84,7 +101,8 @@ void AGATA_Trace::AimWithPlayerController(const AActor* InSourceActor, FCollisio
 	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, MaxRange, ViewEnd);
 
 	TArray<FHitResult> HitResults;
-	LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), Filter, ViewStart, ViewEnd, TraceChannel, Params);
+	//LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), Filter, ViewStart, ViewEnd, TraceChannel, Params);
+	LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), MultiFilterHandle, ViewStart, ViewEnd, TraceChannel, Params);
 	FHitResult HitResult = HitResults.Num() ? HitResults.Last() : FHitResult();		// get the blocking hit
 
 	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
@@ -135,7 +153,8 @@ void AGATA_Trace::DirWithPlayerController(const AActor* InSourceActor, FCollisio
 	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, MaxRange, ViewEnd);
 
 	TArray<FHitResult> HitResults;
-	LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), Filter, ViewStart, ViewEnd, TraceChannel, Params);
+	//LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), Filter, ViewStart, ViewEnd, TraceChannel, Params);
+	LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), MultiFilterHandle, ViewStart, ViewEnd, TraceChannel, Params);
 	FHitResult HitResult = HitResults.Num() ? HitResults.Last() : FHitResult();		// get the blocking hit
 
 	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
@@ -186,24 +205,34 @@ bool AGATA_Trace::ClipCameraRayToAbilityRange(FVector CameraLocation, FVector Ca
 	return false;
 }
 
-void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, ECollisionChannel TraceChannel, const FCollisionQueryParams Params)
+//void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, ECollisionChannel TraceChannel, const FCollisionQueryParams Params)
+void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGATDF_MultiFilterHandle MultiFilterHandle, const FVector& Start, const FVector& End, ECollisionChannel TraceChannel, const FCollisionQueryParams Params)
 {
 	check(World);
 
 	World->LineTraceMultiByChannel(OutHitResults, Start, End, TraceChannel, Params);
 
-	//OutHitResult.TraceStart = Start;
-	//OutHitResult.TraceEnd = End;
 
-	for (int32 HitIdx = 0; HitIdx < OutHitResults.Num(); ++HitIdx)				// find first hit that passes the filter (if any) then treat is as a blocking hit and output it
+	//for (int32 HitIdx = 0; HitIdx < OutHitResults.Num(); ++HitIdx)				// find first hit that passes the filter (if any) then treat is as a blocking hit and output it
+	//{
+	//	const FHitResult& Hit = OutHitResults[HitIdx];
+
+	//	if (!Hit.Actor.IsValid() || MultiFilterHandle.FilterPassesForActor(Hit.Actor) == false)
+	//	{
+	//		OutHitResults[HitIdx] = Hit;
+	//		OutHitResults[HitIdx].bBlockingHit = true; // treat it as a blocking hit
+	//	}
+	//}
+
+	for (int32 i = 0; i < OutHitResults.Num(); i++)
 	{
-		const FHitResult& Hit = OutHitResults[HitIdx];
+		const FHitResult Hit = OutHitResults[i];
 
-		if (!Hit.Actor.IsValid() || FilterHandle.FilterPassesForActor(Hit.Actor))
+		const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.Actor);
+		if (!bPassesFilter)
 		{
-			OutHitResults[HitIdx] = Hit;
-			OutHitResults[HitIdx].bBlockingHit = true; // treat it as a blocking hit
-			break;
+			OutHitResults.RemoveAt(i);
+			i--;		// put i back in sync after removal		(this can be weird because on first iteration, this will make i == -1 but it gets fixed next iteration)
 		}
 	}
 }

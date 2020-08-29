@@ -25,7 +25,8 @@
 - Make the server grant the abilities only after client character is spawned (and idealy possessed). Don't do a server RPC to tell server to grant abilities!!!
 - Modify AbilitySystemCharacter and copy it to the pawn version.
 - Add CollisionChannels.h (only public header -no cpp) to the Utilities folder
-
+- Maybe add a GTAbilitySystemBlueprintLibrary
+	- Need this is we want custom GameplayTargetDataFilters
 
 
 

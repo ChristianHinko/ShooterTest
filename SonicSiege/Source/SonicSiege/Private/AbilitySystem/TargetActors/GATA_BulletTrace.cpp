@@ -19,7 +19,6 @@ AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer
 	bTraceAffectsAimPitch = true;
 	TraceChannel = COLLISION_BULLET;
 	numberOfLines = 1;
-	//Filter = FGameplayTargetDataFilter()
 }
 
 
@@ -58,7 +57,7 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 
 
 		// perform line trace 
-		LineTraceMultiWithFilter(OutHitResults, InSourceActor->GetWorld(), Filter, TraceStart, TraceEnd, TraceChannel, Params);
+		LineTraceMultiWithFilter(OutHitResults, InSourceActor->GetWorld(), MultiFilterHandle, TraceStart, TraceEnd, TraceChannel, Params);
 
 
 		FHitResult LastHitResult = OutHitResults.Num() ? OutHitResults.Last() : FHitResult();

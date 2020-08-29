@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSGameplayAbility.h"
-#include "GA_CharacterInteractInstant.generated.h"
+#include "GA_CharacterInteractDuration.generated.h"
 
 class AAbilitySystemCharacter;
 class IInteractable;
@@ -13,22 +13,22 @@ class IInteractable;
  * 
  */
 UCLASS()
-class SONICSIEGE_API UGA_CharacterInteractInstant : public USSGameplayAbility
+class SONICSIEGE_API UGA_CharacterInteractDuration : public USSGameplayAbility
 {
 	GENERATED_BODY()
 
 public:
-	UGA_CharacterInteractInstant();
+	UGA_CharacterInteractDuration();
 
 protected:
 	//UPROPERTY(EditAnywhere)
 	//	TSubclassOf<UGameplayEffect> InteractEffectTSub;	// asset manager we need you D:
 	//FActiveGameplayEffectHandle InteractEffectActiveHandle;
-	
+
 	UPROPERTY()
-		AAbilitySystemCharacter* GASsCharacter;
+		AAbilitySystemCharacter* GASCharacter;
 	//UPROPERTY()
-		IInteractable* Interactable;
+	IInteractable* Interactable;
 
 	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 
@@ -42,4 +42,7 @@ protected:
 #pragma region Gameplay Tags
 	//FGameplayTag TagAimingDownSights;
 #pragma endregion
+
+	UFUNCTION()
+		virtual void OnRelease(float TimeHeld);
 };

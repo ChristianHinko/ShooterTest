@@ -4,7 +4,7 @@
 
 #include "Net/UnrealNetwork.h"
 #include "AbilitySystem/SSGameplayAbility.h"
-#include "GameFramework/Controller.h"
+#include "GameFramework/PlayerController.h"
 #include "Components/InputComponent.h"
 #include "Player/SSPlayerState.h"
 #include "AbilitySystemComponent.h"
@@ -29,7 +29,8 @@ void AAbilitySystemCharacter::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterJumpAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterRunAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, FireAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, InteractAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, InteractInstantAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, InteractDurationAbilitySpecHandle, COND_OwnerOnly);
 	//DOREPLIFETIME(AAbilitySystemCharacter, PlayerAbilitySystemComponent);			//can be helpful for debugging
 }
 
@@ -354,7 +355,8 @@ bool AAbilitySystemCharacter::GrantStartingAbilities()
 	CharacterRunAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterRunAbilityTSub, this, EAbilityInputID::Run/*, GetLevel()*/);
 	FireAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(FireAbilityTSub, this, EAbilityInputID::PrimaryFire/*, GetLevel()*/);
 
-	InteractAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractAbilityTSub, this, EAbilityInputID::Interact/*, GetLevel()*/);
+	InteractInstantAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractInstantAbilityTSub, this, EAbilityInputID::Interact/*, GetLevel()*/);
+	InteractDurationAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractDurationAbilityTSub, this, EAbilityInputID::Interact/*, GetLevel()*/);
 
 	return true;
 
@@ -460,9 +462,10 @@ void AAbilitySystemCharacter::OnCancelTargetReleased()
 
 void AAbilitySystemCharacter::OnInteractPressed()
 {
-	if (/*InteractSweepHitResult.bBlockingHit*/ CurrentInteract)
+	//if (/*InteractSweepHitResult.bBlockingHit*/ CurrentInteract)	// is this variable reliable for this situation? May need to do another cast for an IInteractable
 	{
-		GetAbilitySystemComponent()->TryActivateAbility(InteractAbilitySpecHandle, true);
+		GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle, true);
+		GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle, true);
 	}
 }
 void AAbilitySystemCharacter::OnInteractReleased()

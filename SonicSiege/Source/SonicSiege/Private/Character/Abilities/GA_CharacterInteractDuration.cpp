@@ -1,27 +1,28 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/Abilities/GA_CharacterInteractInstant.h"
+#include "Character/Abilities/GA_CharacterInteractDuration.h"
 
 #include "Character/AbilitySystemCharacter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
 #include "Character/AbilitySystemCharacter.h"
 #include "Interfaces/Interactable.h"
+#include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 
 //temp
 #include "Kismet\KismetSystemLibrary.h"
 
-UGA_CharacterInteractInstant::UGA_CharacterInteractInstant()
+UGA_CharacterInteractDuration::UGA_CharacterInteractDuration()
 {
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.InteractInstant")));
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.InteractDuration")));
 	//TagAimingDownSights = FGameplayTag::RequestGameplayTag(FName("State.Character.IsAimingDownSights"));
 	//ActivationOwnedTags.AddTagFast(TagAimingDownSights);
 
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerOnly;
 }
 
-void UGA_CharacterInteractInstant::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void UGA_CharacterInteractDuration::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnAvatarSet(ActorInfo, Spec);
 
@@ -34,33 +35,32 @@ void UGA_CharacterInteractInstant::OnAvatarSet(const FGameplayAbilityActorInfo* 
 	{
 		return;
 	}
-	//ENetRole f = GetAvatarActorFromActorInfo()->GetLocalRole();
 
-	GASsCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
-	if (!GASsCharacter)
+	GASCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
+	if (!GASCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to setup instant interact ability"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to setup duration interact ability"), *FString(__FUNCTION__));
 		return;
 	}
 }
 
-bool UGA_CharacterInteractInstant::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
-{
+bool UGA_CharacterInteractDuration::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
+{	
 	// Gets called on client as well for ServerOnly abilities ONLY IF bAllowRemoteActivation is true in TryActivateAbility()
 	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 	{
 		return false;
 	}
-	if (ActorInfo && ActorInfo->IsNetAuthority() && !GASsCharacter)
+	if (ActorInfo && ActorInfo->IsNetAuthority() && !GASCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate instant interact ability"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate duration interact ability"), *FString(__FUNCTION__));
 		return false;
 	}
 
 	return true;
 }
 
-void UGA_CharacterInteractInstant::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UGA_CharacterInteractDuration::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
@@ -71,26 +71,41 @@ void UGA_CharacterInteractInstant::ActivateAbility(const FGameplayAbilitySpecHan
 		return;
 	}
 	/*FHitResult OutHit;									// make it so we can replace this with just a variable lookup
-	GASCharacter->ScanForInteractables(Interactable, OutHit);	//-----------------------------------------------------------
+	Character->ScanForInteractables(Interactable, OutHit);	//-----------------------------------------------------------
 	if (Interactable)										//-----------------------------------------------------------
 	{														//-----------------------------------------------------------
 															//-----------------------------------------------------------
-	}*/														
+	}*/
 	/*if (!InteractEffectTSub)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("Effect TSubclassOf empty in %s so this ability was canceled - please fill out Interact ability blueprint"), *FString(__FUNCTION__));
 		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
 		return;
 	}*/
-	
+
 	//	Make sure we apply effect in valid prediction key window so we make sure the tag also gets applied on the client too
 	//InteractEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, InteractEffectTSub.GetDefaultObject(), GetAbilityLevel());
-	//GASCharacter->Interact();
+	//Character->Interact();
+
+	UAbilityTask_WaitInputRelease* InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
+	if (!InputReleasedTask)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate InteractDuration ability. Called CancelAbility()"), *FString(__FUNCTION__));
+		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		return;
+	}
+	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterInteractDuration::OnRelease);
+	InputReleasedTask->ReadyForActivation();
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
 }
 
-void UGA_CharacterInteractInstant::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void UGA_CharacterInteractDuration::OnRelease(float TimeHeld)
+{
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+}
+
+void UGA_CharacterInteractDuration::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	if (!IsEndAbilityValid(Handle, ActorInfo))
 	{
@@ -98,11 +113,11 @@ void UGA_CharacterInteractInstant::EndAbility(const FGameplayAbilitySpecHandle H
 	}
 	if (ScopeLockCount > 0)
 	{
-		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &UGA_CharacterInteractInstant::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
+		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &UGA_CharacterInteractDuration::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
 		return;
 	}
 
-	if (GASsCharacter && ActorInfo->AbilitySystemComponent.Get())
+	if (GASCharacter && ActorInfo->AbilitySystemComponent.Get())
 	{
 		//Character->StopInteracting();
 		//ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(InteractEffectActiveHandle);
@@ -115,3 +130,4 @@ void UGA_CharacterInteractInstant::EndAbility(const FGameplayAbilitySpecHandle H
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
+

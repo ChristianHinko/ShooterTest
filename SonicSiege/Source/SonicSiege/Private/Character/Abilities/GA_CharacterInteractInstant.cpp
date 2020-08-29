@@ -46,11 +46,12 @@ void UGA_CharacterInteractInstant::OnAvatarSet(const FGameplayAbilityActorInfo* 
 
 bool UGA_CharacterInteractInstant::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
+	// Gets called on client as well for ServerOnly abilities ONLY IF bAllowRemoteActivation is true in TryActivateAbility()
 	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 	{
 		return false;
 	}
-	if (!GASsCharacter)
+	if (ActorInfo && ActorInfo->IsNetAuthority() && !GASsCharacter)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate instant interact ability"), *FString(__FUNCTION__));
 		return false;

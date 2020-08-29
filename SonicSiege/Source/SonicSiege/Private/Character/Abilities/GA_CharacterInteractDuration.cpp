@@ -45,12 +45,13 @@ void UGA_CharacterInteractDuration::OnAvatarSet(const FGameplayAbilityActorInfo*
 }
 
 bool UGA_CharacterInteractDuration::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
-{
+{	
+	// Gets called on client as well for ServerOnly abilities ONLY IF bAllowRemoteActivation is true in TryActivateAbility()
 	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 	{
 		return false;
 	}
-	if (!GASCharacter)
+	if (ActorInfo && ActorInfo->IsNetAuthority() && !GASCharacter)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate duration interact ability"), *FString(__FUNCTION__));
 		return false;

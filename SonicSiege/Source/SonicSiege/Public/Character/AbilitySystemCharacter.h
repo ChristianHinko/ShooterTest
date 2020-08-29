@@ -96,9 +96,11 @@ protected:
 		FGameplayAbilitySpecHandle CharacterRunAbilitySpecHandle;
 
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
-		TSubclassOf<USSGameplayAbility> InteractAbilityTSub;
+		TSubclassOf<USSGameplayAbility> InteractInstantAbilityTSub;
 	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle InteractAbilitySpecHandle;
+		FGameplayAbilitySpecHandle InteractInstantAbilitySpecHandle;
+
+
 
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
 		TSubclassOf<USSGameplayAbility> FireAbilityTSub;

@@ -28,12 +28,17 @@ public:
 
 	bool bShouldFireSweepEvents;
 
-	// Called only on server 
-	virtual void OnInteract(APawn* InteractingPawn) = 0;
-	virtual void OffInteract(APawn* InteractingPawn) = 0;
+	virtual void OnInteractInstant(APawn* InteractingPawn) = 0;
+
+	// Called only on server by a server only ability
+	virtual void BeginInteractDuration(APawn* InteractingPawn) = 0;
+	// Called only on server by a server only ability
+	virtual void EndInteractDuration(APawn* InteractingPawn) = 0;
 	
 	// Called on both client and server from a tick (chance that only client calls but server doesn't or vice versa)
 	virtual void OnInteractSweepInitialHit(APawn* InteractingPawn) = 0;
+	// Called on both client and server from a tick (chance that only client calls but server doesn't or vice versa)
 	virtual void OnInteractSweepConsecutiveHit(APawn* InteractingPawn) = 0;
+	// Called on both client and server from a tick (chance that only client calls but server doesn't or vice versa)
 	virtual void OnInteractSweepEndHitting(APawn* InteractingPawn) = 0;
 };

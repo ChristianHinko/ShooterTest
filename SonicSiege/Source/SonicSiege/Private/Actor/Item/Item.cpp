@@ -3,28 +3,36 @@
 
 #include "Actor/Item/Item.h"
 
+#include "Kismet/KismetSystemLibrary.h"
+
 AItem::AItem()
 {
-	bShouldFireSweepEvents;
+	bShouldFireSweepEvents = true;
 }
 
-void AItem::OnInteract(APawn* InteractingPawn)
+void AItem::OnInteractInstant(APawn* InteractingPawn)
 {
-
+	UKismetSystemLibrary::PrintString(this, "OnInteractInstant", true, true, FLinearColor::Yellow);
 }
-void AItem::OffInteract(APawn* InteractingPawn)
+
+void AItem::BeginInteractDuration(APawn* InteractingPawn)
 {
-
+	UKismetSystemLibrary::PrintString(this, "BeginInteractDuration", true, true, FLinearColor::Yellow);
 }
+void AItem::EndInteractDuration(APawn* InteractingPawn)
+{
+	UKismetSystemLibrary::PrintString(this, "EndInteractDuration", true, true, FLinearColor::Yellow);
+}
+
 void AItem::OnInteractSweepInitialHit(APawn* InteractingPawn)
 {
-
+	UKismetSystemLibrary::PrintString(this, "Start", true, true, FLinearColor::Green);
 }
 void AItem::OnInteractSweepConsecutiveHit(APawn* InteractingPawn)
 {
-
+	UKismetSystemLibrary::PrintString(this, "Tick", true, true, FLinearColor::Blue);
 }
 void AItem::OnInteractSweepEndHitting(APawn* InteractingPawn)
 {
-
+	UKismetSystemLibrary::PrintString(this, "End", true, true, FLinearColor::Red);
 }

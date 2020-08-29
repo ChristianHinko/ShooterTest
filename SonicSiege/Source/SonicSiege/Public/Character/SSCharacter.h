@@ -61,13 +61,14 @@ public:
 
 	USSCharacterMovementComponent* GetSSCharacterMovementComponent() const { return SSCharacterMovementComponent; }
 
+	// Uses this specific character's parameters and camera orientation to do a sphere sweep to give a possible interactable. If no interactable detected, returns nullptr
+	void ScanForInteractables(IInteractable*& OutInteractable, FHitResult& OutHit);
 
 protected:
 		// Try ustilizing our custom trace channel before resorting to this
 	UPROPERTY(EditAnywhere)
 		TArray<AActor*> ActorsToNotInteractWith;
 	ETraceTypeQuery InteractChannel;
-	FCollisionQueryParams InteractSweepQueryParams;
 	UPROPERTY(EditAnywhere)
 		float InteractSweepDistance;
 	UPROPERTY(EditAnywhere)

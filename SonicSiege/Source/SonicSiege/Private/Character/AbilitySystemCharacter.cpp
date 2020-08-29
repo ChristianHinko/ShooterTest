@@ -4,7 +4,7 @@
 
 #include "Net/UnrealNetwork.h"
 #include "AbilitySystem/SSGameplayAbility.h"
-#include "GameFramework/Controller.h"
+#include "GameFramework/PlayerController.h"
 #include "Components/InputComponent.h"
 #include "Player/SSPlayerState.h"
 #include "AbilitySystemComponent.h"
@@ -460,7 +460,7 @@ void AAbilitySystemCharacter::OnCancelTargetReleased()
 
 void AAbilitySystemCharacter::OnInteractPressed()
 {
-	if (/*InteractSweepHitResult.bBlockingHit*/ CurrentInteract)
+	if (/*InteractSweepHitResult.bBlockingHit*/ CurrentInteract)	// is this variable reliable for this situation? May need to do another cast for an IInteractable
 	{
 		GetAbilitySystemComponent()->TryActivateAbility(InteractAbilitySpecHandle, true);
 	}

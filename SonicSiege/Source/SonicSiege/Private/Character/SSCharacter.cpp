@@ -3,7 +3,6 @@
 #include "Character/SSCharacter.h"
 
 #include "Net/UnrealNetwork.h"
-#include "GameFramework/Controller.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Character/SSCharacterMovementComponent.h"
@@ -15,6 +14,7 @@
 #include "Kismet\KismetSystemLibrary.h"
 #include "Utilities/CollisionChannels.h"
 #include "Interfaces/Interactable.h"
+#include "GameFramework/PlayerController.h"
 
 
 void ASSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -125,53 +125,50 @@ void ASSCharacter::Tick(float DeltaTime)
 
 	//}
 
-	//	Eventually make more efficient by reusing some references from commented out code above
-	if (IsLocallyControlled())
+	ScanForInteractables(CurrentInteract, InteractSweepHitResult);
+	if (CurrentInteract)
 	{
-		if (GetWorld() && GetFollowCamera())
+		if (CurrentInteract->bShouldFireSweepEvents)
 		{
-			FVector StartLocation = GetFollowCamera()->GetComponentLocation();
-			FVector EndLocation = StartLocation + (GetFollowCamera()->GetForwardVector() * InteractSweepDistance);
-
-			if (GetWorld())
+			if (CurrentInteract != LastInteract)
 			{
-				bool const bBlockingHit = GetWorld()->SweepSingleByChannel(InteractSweepHitResult, StartLocation, EndLocation, FQuat::Identity, COLLISION_INTERACT, FCollisionShape::MakeSphere(InteractSweepRadius), InteractSweepQueryParams);
-				if (bBlockingHit)
-				{
-					CurrentInteract = Cast<IInteractable>(InteractSweepHitResult.GetActor());
-					if (CurrentInteract)
-					{
-						if (CurrentInteract->bShouldFireSweepEvents)
-						{
-							if (CurrentInteract != LastInteract)
-							{
-								CurrentInteract->OnInteractSweepInitialHit(this);
-							}
-							else
-							{
-								CurrentInteract->OnInteractSweepConsecutiveHit(this);
-							}
-							
-							LastInteract = CurrentInteract;
-						}
-					}
-				}
-				else
-				{
-					CurrentInteract = nullptr;
-					if (LastInteract != nullptr)	// If the last frame had something to interact with
-					{
-						LastInteract->OnInteractSweepEndHitting(this);
-						LastInteract = nullptr;
-					}
-				}
+				CurrentInteract->OnInteractSweepInitialHit(this);
 			}
-
-
-
+			else
+			{
+				CurrentInteract->OnInteractSweepConsecutiveHit(this);
+			}
+							
+			LastInteract = CurrentInteract;
+			CurrentInteract = nullptr;
+		}
+	}
+	else
+	{
+		if (LastInteract != nullptr)	// If the last frame had something to interact with
+		{
+			LastInteract->OnInteractSweepEndHitting(this);
+			LastInteract = nullptr;
 		}
 	}
 	
+}
+
+void ASSCharacter::ScanForInteractables(IInteractable*& OutInteractable, FHitResult& OutHit)
+{
+	if (GetWorld() && GetFollowCamera())
+	{
+		FVector StartLocation = GetFollowCamera()->GetComponentLocation();
+		FVector EndLocation = StartLocation + (GetFollowCamera()->GetForwardVector() * InteractSweepDistance);
+
+		const bool bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, StartLocation, EndLocation, FQuat::Identity, COLLISION_INTERACT, FCollisionShape::MakeSphere(InteractSweepRadius), FCollisionQueryParams());
+		if (bBlockingHit)
+		{
+			OutInteractable = Cast<IInteractable>(InteractSweepHitResult.GetActor());
+			return;
+		}
+	}
+	OutInteractable = nullptr;
 }
 
 

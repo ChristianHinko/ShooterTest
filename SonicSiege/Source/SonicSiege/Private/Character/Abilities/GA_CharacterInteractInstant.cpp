@@ -6,6 +6,8 @@
 #include "Character/AbilitySystemCharacter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
+#include "Character/AbilitySystemCharacter.h"
+#include "Interfaces/Interactable.h"
 
 //temp
 #include "Kismet\KismetSystemLibrary.h"
@@ -19,6 +21,27 @@ UGA_CharacterInteractInstant::UGA_CharacterInteractInstant()
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerOnly;
 }
 
+void UGA_CharacterInteractInstant::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+{
+	Super::OnAvatarSet(ActorInfo, Spec);
+
+	//	Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times
+	if (!ActorInfo)
+	{
+		return;
+	}
+	if (!ActorInfo->AvatarActor.Get())
+	{
+		return;
+	}
+
+	Character = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
+	if (!Character)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to setup instant interact ability"), *FString(__FUNCTION__));
+		return;
+	}
+}
 
 bool UGA_CharacterInteractInstant::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
@@ -26,9 +49,11 @@ bool UGA_CharacterInteractInstant::CanActivateAbility(const FGameplayAbilitySpec
 	{
 		return false;
 	}
-
-
-
+	if (!Character)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate instant interact ability"), *FString(__FUNCTION__));
+		return false;
+	}
 
 	return true;
 }
@@ -43,46 +68,24 @@ void UGA_CharacterInteractInstant::ActivateAbility(const FGameplayAbilitySpecHan
 		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
 		return;
 	}
+	/*FHitResult OutHit;									// make it so we can replace this with just a variable lookup
+	Character->ScanForInteractables(Interactable, OutHit);	//-----------------------------------------------------------
+	if (Interactable)										//-----------------------------------------------------------
+	{														//-----------------------------------------------------------
+															//-----------------------------------------------------------
+	}*/														//-----------------------------------------------------------
 	/*if (!InteractEffectTSub)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("Effect TSubclassOf empty in %s so this ability was canceled - please fill out Interact ability blueprint"), *FString(__FUNCTION__));
 		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
 		return;
 	}*/
-	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
-	if (!Character)
-	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Character was NULL when trying to activate Interact ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
-		return;
-	}
-	UAbilityTask_WaitInputRelease* InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
-	if (!InputReleasedTask)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate Interact ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
-		return;
-	}
-
+	
 	//	Make sure we apply effect in valid prediction key window so we make sure the tag also gets applied on the client too
 	//InteractEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, InteractEffectTSub.GetDefaultObject(), GetAbilityLevel());
 	//Character->Interact();
 
-	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterInteractInstant::OnRelease);
-	InputReleasedTask->ReadyForActivation();
-}
-
-void UGA_CharacterInteractInstant::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
-{
-	if (ActorInfo != NULL && ActorInfo->AvatarActor != NULL)
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
-	}
-}
-
-void UGA_CharacterInteractInstant::OnRelease(float TimeHeld)
-{
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);	// no need to replicate, server runs this too
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
 
 void UGA_CharacterInteractInstant::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
@@ -97,22 +100,14 @@ void UGA_CharacterInteractInstant::EndAbility(const FGameplayAbilitySpecHandle H
 		return;
 	}
 
-	if (ActorInfo)
+	if (Character && ActorInfo->AbilitySystemComponent.Get())
 	{
-		ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get());
-		if (Character && ActorInfo->AbilitySystemComponent.Get())
-		{
-			//Character->StopInteracting();
-			//ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(InteractEffectActiveHandle);
-		}
-		else
-		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() Couldn't call Character->StopInteracting() because Character* was NULL"), *FString(__FUNCTION__));
-		}
+		//Character->StopInteracting();
+		//ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(InteractEffectActiveHandle);
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo was NULL when trying to remove InteractEffectActiveHande and when trying to call StopInteracting on the character"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Couldn't call Character->StopInteracting() because Character* was NULL"), *FString(__FUNCTION__));
 	}
 
 

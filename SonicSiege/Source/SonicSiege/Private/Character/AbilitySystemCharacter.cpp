@@ -30,6 +30,7 @@ void AAbilitySystemCharacter::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterRunAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, FireAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, InteractInstantAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, InteractDurationAbilitySpecHandle, COND_OwnerOnly);
 	//DOREPLIFETIME(AAbilitySystemCharacter, PlayerAbilitySystemComponent);			//can be helpful for debugging
 }
 
@@ -355,6 +356,7 @@ bool AAbilitySystemCharacter::GrantStartingAbilities()
 	FireAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(FireAbilityTSub, this, EAbilityInputID::PrimaryFire/*, GetLevel()*/);
 
 	InteractInstantAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractInstantAbilityTSub, this, EAbilityInputID::Interact/*, GetLevel()*/);
+	InteractDurationAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractDurationAbilityTSub, this, EAbilityInputID::Interact/*, GetLevel()*/);
 
 	return true;
 
@@ -460,9 +462,10 @@ void AAbilitySystemCharacter::OnCancelTargetReleased()
 
 void AAbilitySystemCharacter::OnInteractPressed()
 {
-	if (/*InteractSweepHitResult.bBlockingHit*/ CurrentInteract)	// is this variable reliable for this situation? May need to do another cast for an IInteractable
+	//if (/*InteractSweepHitResult.bBlockingHit*/ CurrentInteract)	// is this variable reliable for this situation? May need to do another cast for an IInteractable
 	{
 		GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle, true);
+		GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle, true);
 	}
 }
 void AAbilitySystemCharacter::OnInteractReleased()

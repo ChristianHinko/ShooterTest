@@ -85,6 +85,9 @@ protected:
 	/** Note: No AbilitySpecHandles are tracked upon grant. These are good for passive abilities. These abilities are assigned EAbilityInputID::None */
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
 		TArray<TSubclassOf<USSGameplayAbility>> NonHandleStartingAbilities;
+
+
+
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
 		TSubclassOf<USSGameplayAbility> CharacterJumpAbilityTSub;
 	UPROPERTY(Replicated)
@@ -100,7 +103,10 @@ protected:
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle InteractInstantAbilitySpecHandle;
 
-
+	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
+		TSubclassOf<USSGameplayAbility> InteractDurationAbilityTSub;
+	UPROPERTY(Replicated)
+		FGameplayAbilitySpecHandle InteractDurationAbilitySpecHandle;
 
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
 		TSubclassOf<USSGameplayAbility> FireAbilityTSub;

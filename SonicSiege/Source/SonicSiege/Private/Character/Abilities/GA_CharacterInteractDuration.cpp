@@ -36,8 +36,8 @@ void UGA_CharacterInteractDuration::OnAvatarSet(const FGameplayAbilityActorInfo*
 		return;
 	}
 
-	Character = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
-	if (!Character)
+	GASCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
+	if (!GASCharacter)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to setup duration interact ability"), *FString(__FUNCTION__));
 		return;
@@ -50,7 +50,7 @@ bool UGA_CharacterInteractDuration::CanActivateAbility(const FGameplayAbilitySpe
 	{
 		return false;
 	}
-	if (!Character)
+	if (!GASCharacter)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate duration interact ability"), *FString(__FUNCTION__));
 		return false;
@@ -96,7 +96,7 @@ void UGA_CharacterInteractDuration::ActivateAbility(const FGameplayAbilitySpecHa
 	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterInteractDuration::OnRelease);
 	InputReleasedTask->ReadyForActivation();
 
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
 }
 
 void UGA_CharacterInteractDuration::OnRelease(float TimeHeld)
@@ -116,7 +116,7 @@ void UGA_CharacterInteractDuration::EndAbility(const FGameplayAbilitySpecHandle 
 		return;
 	}
 
-	if (Character && ActorInfo->AbilitySystemComponent.Get())
+	if (GASCharacter && ActorInfo->AbilitySystemComponent.Get())
 	{
 		//Character->StopInteracting();
 		//ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(InteractEffectActiveHandle);

@@ -34,9 +34,10 @@ void UGA_CharacterInteractInstant::OnAvatarSet(const FGameplayAbilityActorInfo* 
 	{
 		return;
 	}
+	//ENetRole f = GetAvatarActorFromActorInfo()->GetLocalRole();
 
-	Character = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
-	if (!Character)
+	GASsCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
+	if (!GASsCharacter)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to setup instant interact ability"), *FString(__FUNCTION__));
 		return;
@@ -49,7 +50,7 @@ bool UGA_CharacterInteractInstant::CanActivateAbility(const FGameplayAbilitySpec
 	{
 		return false;
 	}
-	if (!Character)
+	if (!GASsCharacter)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate instant interact ability"), *FString(__FUNCTION__));
 		return false;
@@ -69,7 +70,7 @@ void UGA_CharacterInteractInstant::ActivateAbility(const FGameplayAbilitySpecHan
 		return;
 	}
 	/*FHitResult OutHit;									// make it so we can replace this with just a variable lookup
-	Character->ScanForInteractables(Interactable, OutHit);	//-----------------------------------------------------------
+	GASCharacter->ScanForInteractables(Interactable, OutHit);	//-----------------------------------------------------------
 	if (Interactable)										//-----------------------------------------------------------
 	{														//-----------------------------------------------------------
 															//-----------------------------------------------------------
@@ -83,9 +84,9 @@ void UGA_CharacterInteractInstant::ActivateAbility(const FGameplayAbilitySpecHan
 	
 	//	Make sure we apply effect in valid prediction key window so we make sure the tag also gets applied on the client too
 	//InteractEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, InteractEffectTSub.GetDefaultObject(), GetAbilityLevel());
-	//Character->Interact();
+	//GASCharacter->Interact();
 
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
 }
 
 void UGA_CharacterInteractInstant::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
@@ -100,7 +101,7 @@ void UGA_CharacterInteractInstant::EndAbility(const FGameplayAbilitySpecHandle H
 		return;
 	}
 
-	if (Character && ActorInfo->AbilitySystemComponent.Get())
+	if (GASsCharacter && ActorInfo->AbilitySystemComponent.Get())
 	{
 		//Character->StopInteracting();
 		//ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(InteractEffectActiveHandle);

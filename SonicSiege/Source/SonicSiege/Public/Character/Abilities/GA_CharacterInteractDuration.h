@@ -26,7 +26,7 @@ protected:
 	//FActiveGameplayEffectHandle InteractEffectActiveHandle;
 
 	UPROPERTY()
-		AAbilitySystemCharacter* Character;
+		AAbilitySystemCharacter* GASCharacter;
 	//UPROPERTY()
 	IInteractable* Interactable;
 

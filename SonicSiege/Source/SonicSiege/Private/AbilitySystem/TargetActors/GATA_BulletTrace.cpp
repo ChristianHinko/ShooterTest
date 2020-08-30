@@ -57,7 +57,7 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 
 
 		// perform line trace 
-		LineTraceMultiWithFilter(OutHitResults, InSourceActor->GetWorld(), MultiFilterHandle, TraceStart, TraceEnd, TraceChannel, Params);
+		LineTraceMultiWithFilter(OutHitResults, InSourceActor->GetWorld(), MultiFilterHandle, TraceStart, TraceEnd, TraceChannel, Params, bDebug);
 
 
 		FHitResult LastHitResult = OutHitResults.Num() ? OutHitResults.Last() : FHitResult();
@@ -74,35 +74,5 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 		//	LocalReticleActor->SetActorLocation(ReticleLocation);
 		//	LocalReticleActor->SetIsTargetAnActor(bHitActor);
 		//}
-
-#if ENABLE_DRAW_DEBUG
-		if (bDebug)
-		{
-			float debugLifeTime = 5.f;
-
-			uint8 hitsNum = OutHitResults.Num();
-			if (hitsNum > 0)
-			{
-				for (uint8 i = 0; i < hitsNum; i++)
-				{
-					float colorAccumulate = i * (hitsNum > 1 ? (255 / (hitsNum - 1)) : 0);
-
-					FVector FromLocation = i > 0 ? OutHitResults[i - 1].Location : TraceStart;
-					FVector ToLocation = OutHitResults[i].Location;
-
-					DrawDebugLine(GetWorld(), FromLocation, ToLocation, FColor(0.f, 0.f + colorAccumulate, 255.f), false, debugLifeTime);
-					DrawDebugPoint(GetWorld(), ToLocation, 10, FColor(0.f + (colorAccumulate * 0.5f), 255.f - colorAccumulate, 0.f), false, debugLifeTime);
-				}
-				if (!OutHitResults.Last().bBlockingHit)
-				{
-					DrawDebugLine(GetWorld(), OutHitResults.Last().Location, TraceEnd, FColor(0.f, 0.f + 255.f, 255.f), false, debugLifeTime);
-				}
-			}
-			else
-			{
-				DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor(0.f, 0.f, 255.f), false, debugLifeTime);
-			}
-		}
-#endif // ENABLE_DRAW_DEBUG
 	}
 }

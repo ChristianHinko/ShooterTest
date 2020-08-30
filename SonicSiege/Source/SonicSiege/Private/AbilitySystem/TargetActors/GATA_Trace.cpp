@@ -101,9 +101,8 @@ void AGATA_Trace::AimWithPlayerController(const AActor* InSourceActor, FCollisio
 	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, MaxRange, ViewEnd);
 
 	TArray<FHitResult> HitResults;
-	//LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), Filter, ViewStart, ViewEnd, TraceChannel, Params);
 	LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), MultiFilterHandle, ViewStart, ViewEnd, TraceChannel, Params);
-	FHitResult HitResult = HitResults.Num() ? HitResults.Last() : FHitResult();		// get the blocking hit
+	FHitResult HitResult = HitResults.Num() ? HitResults.Last() : FHitResult();
 
 	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
 
@@ -153,9 +152,8 @@ void AGATA_Trace::DirWithPlayerController(const AActor* InSourceActor, FCollisio
 	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, MaxRange, ViewEnd);
 
 	TArray<FHitResult> HitResults;
-	//LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), Filter, ViewStart, ViewEnd, TraceChannel, Params);
 	LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), MultiFilterHandle, ViewStart, ViewEnd, TraceChannel, Params);
-	FHitResult HitResult = HitResults.Num() ? HitResults.Last() : FHitResult();		// get the blocking hit
+	FHitResult HitResult = HitResults.Num() ? HitResults.Last() : FHitResult();
 
 	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
 
@@ -205,8 +203,7 @@ bool AGATA_Trace::ClipCameraRayToAbilityRange(FVector CameraLocation, FVector Ca
 	return false;
 }
 
-//void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, ECollisionChannel TraceChannel, const FCollisionQueryParams Params)
-void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGATDF_MultiFilterHandle MultiFilterHandle, const FVector& Start, const FVector& End, ECollisionChannel TraceChannel, const FCollisionQueryParams Params)
+void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGATDF_MultiFilterHandle MultiFilterHandle, const FVector& Start, const FVector& End, ECollisionChannel TraceChannel, const FCollisionQueryParams Params, bool debug)
 {
 	check(World);
 
@@ -235,26 +232,66 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 			i--;		// put i back in sync after removal		(this can be weird because on first iteration, this will make i == -1 but it gets fixed next iteration)
 		}
 	}
+
+#if ENABLE_DRAW_DEBUG
+	if (debug)
+	{
+		const float debugLifeTime = 5.f;
+
+		const uint8 hitsNum = OutHitResults.Num();
+		if (hitsNum > 0)
+		{
+			for (uint8 i = 0; i < hitsNum; i++)
+			{
+				const float colorAccumulate = i * (hitsNum > 1 ? (255 / (hitsNum - 1)) : 0);
+
+				const FVector FromLocation = i > 0 ? OutHitResults[i - 1].Location : Start;
+				const FVector ToLocation = OutHitResults[i].Location;
+
+				DrawDebugLine(World, FromLocation, ToLocation, FColor(0.f, 0.f + colorAccumulate, 255.f), false, debugLifeTime);
+				DrawDebugPoint(World, ToLocation, 10, FColor(0.f + (colorAccumulate * 0.5f), 255.f - colorAccumulate, 0.f), false, debugLifeTime);
+			}
+			if (!OutHitResults.Last().bBlockingHit)
+			{
+				DrawDebugLine(World, OutHitResults.Last().Location, End, FColor(0.f, 0.f + 255.f, 255.f), false, debugLifeTime);
+			}
+		}
+		else
+		{
+			DrawDebugLine(World, Start, End, FColor(0.f, 0.f, 255.f), false, debugLifeTime);
+		}
+	}
+#endif // ENABLE_DRAW_DEBUG
 }
 
-void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGameplayTargetDataFilterHandle FilterHandle, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, ECollisionChannel TraceChannel, const FCollisionQueryParams Params)
+void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGATDF_MultiFilterHandle MultiFilterHandle, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, ECollisionChannel TraceChannel, const FCollisionQueryParams Params, bool debug)
 {
 	check(World);
 
 	World->SweepMultiByChannel(OutHitResults, Start, End, Rotation, TraceChannel, CollisionShape, Params);
 
-	//OutHitResult.TraceStart = Start;
-	//OutHitResult.TraceEnd = End;
 
-	for (int32 HitIdx = 0; HitIdx < OutHitResults.Num(); ++HitIdx)				// find first hit that passes the filter (if any) then treat is as a blocking hit and output it
+	//for (int32 HitIdx = 0; HitIdx < OutHitResults.Num(); ++HitIdx)				// find first hit that passes the filter (if any) then treat is as a blocking hit and output it
+	//{
+	//	const FHitResult& Hit = OutHitResults[HitIdx];
+
+	//	if (!Hit.Actor.IsValid() || FilterHandle.FilterPassesForActor(Hit.Actor))
+	//	{
+	//		OutHitResults[HitIdx] = Hit;
+	//		OutHitResults[HitIdx].bBlockingHit = true; // treat it as a blocking hit
+	//		break;
+	//	}
+	//}
+
+	for (int32 i = 0; i < OutHitResults.Num(); i++)
 	{
-		const FHitResult& Hit = OutHitResults[HitIdx];
+		const FHitResult Hit = OutHitResults[i];
 
-		if (!Hit.Actor.IsValid() || FilterHandle.FilterPassesForActor(Hit.Actor))
+		const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.Actor);
+		if (!bPassesFilter)
 		{
-			OutHitResults[HitIdx] = Hit;
-			OutHitResults[HitIdx].bBlockingHit = true; // treat it as a blocking hit
-			break;
+			OutHitResults.RemoveAt(i);
+			i--;		// put i back in sync after removal		(this can be weird because on first iteration, this will make i == -1 but it gets fixed next iteration)
 		}
 	}
 }

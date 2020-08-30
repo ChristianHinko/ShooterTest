@@ -125,32 +125,36 @@ void ASSCharacter::Tick(float DeltaTime)
 
 	//}
 
-	ScanForInteractables(CurrentInteract, InteractSweepHitResult);
-	if (CurrentInteract)
+	if (HasAuthority() || IsLocallyControlled())	// Don't run for simulated proxies
 	{
-		if (CurrentInteract->bShouldFireSweepEvents)
+		ScanForInteractables(CurrentInteract, InteractSweepHitResult);
+		if (CurrentInteract)
 		{
-			if (CurrentInteract != LastInteract)
+			if (CurrentInteract->bShouldFireSweepEvents)
 			{
-				CurrentInteract->OnInteractSweepInitialHit(this);
+				if (CurrentInteract != LastInteract)
+				{
+					CurrentInteract->OnInteractSweepInitialHit(this);
+				}
+				else
+				{
+					CurrentInteract->OnInteractSweepConsecutiveHit(this);
+				}
+
+				LastInteract = CurrentInteract;
+				//CurrentInteract = nullptr;
 			}
-			else
+		}
+		else
+		{
+			if (LastInteract != nullptr)	// If the last frame had something to interact with
 			{
-				CurrentInteract->OnInteractSweepConsecutiveHit(this);
+				LastInteract->OnInteractSweepEndHitting(this);
+				LastInteract = nullptr;
 			}
-							
-			LastInteract = CurrentInteract;
-			//CurrentInteract = nullptr;
 		}
 	}
-	else
-	{
-		if (LastInteract != nullptr)	// If the last frame had something to interact with
-		{
-			LastInteract->OnInteractSweepEndHitting(this);
-			LastInteract = nullptr;
-		}
-	}
+	
 	
 }
 

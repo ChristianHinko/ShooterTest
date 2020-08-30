@@ -57,11 +57,23 @@ bool UGA_CharacterInteractDuration::CanActivateAbility(const FGameplayAbilitySpe
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate duration interact ability"), *FString(__FUNCTION__));
 			return false;
 		}
+		if (!GASCharacter->CurrentInteract)
+		{
+			if (GASCharacter->CurrentInteract->InteractionMode != EInteractionMode::Duration)
+			{
+				UE_LOG(LogGameplayAbility, Error, TEXT("%s() EInteractionMode was \"Instant\" when trying to activate duration interact ability. Returning false"), *FString(__FUNCTION__));
+				return false;
+			}
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() Server detected nothing to interact with when activating interact ability. Cancelling"), *FString(__FUNCTION__));
+			return false;
+		}
 		if (!InteractEffectTSub)
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("Effect TSubclassOf empty in %s so this ability was canceled - please fill out Interact ability blueprint"), *FString(__FUNCTION__));
 			return false;
 		}
+			
+		
 	}
 
 	return true;
@@ -79,7 +91,7 @@ void UGA_CharacterInteractDuration::ActivateAbility(const FGameplayAbilitySpecHa
 	Interactable = GASCharacter->CurrentInteract;
 	if (!Interactable)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Server detected nothing to interact with when activating interact ability. Cancelling"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Server detected nothing to interact with when activating interact ability. This should be an invalid state. Cancelling"), *FString(__FUNCTION__));
 		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
 		return;
 	}

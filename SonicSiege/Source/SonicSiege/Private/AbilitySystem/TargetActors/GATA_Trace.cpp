@@ -220,19 +220,6 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 	//		OutHitResults[HitIdx].bBlockingHit = true; // treat it as a blocking hit
 	//	}
 	//}
-
-	for (int32 i = 0; i < OutHitResults.Num(); i++)
-	{
-		const FHitResult Hit = OutHitResults[i];
-
-		const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.Actor);
-		if (!bPassesFilter)
-		{
-			OutHitResults.RemoveAt(i);
-			i--;		// put i back in sync after removal		(this can be weird because on first iteration, this will make i == -1 but it gets fixed next iteration)
-		}
-	}
-
 #if ENABLE_DRAW_DEBUG
 	if (debug)
 	{
@@ -262,6 +249,18 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 		}
 	}
 #endif // ENABLE_DRAW_DEBUG
+
+	for (int32 i = 0; i < OutHitResults.Num(); i++)
+	{
+		const FHitResult Hit = OutHitResults[i];
+
+		const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.Actor);
+		if (!bPassesFilter)
+		{
+			OutHitResults.RemoveAt(i);
+			i--;		// put i back in sync after removal		(this can be weird because on first iteration, this will make i == -1 but it gets fixed next iteration)
+		}
+	}
 }
 
 void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGATDF_MultiFilterHandle MultiFilterHandle, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, ECollisionChannel TraceChannel, const FCollisionQueryParams Params, bool debug)
@@ -306,16 +305,8 @@ void AGATA_Trace::Tick(float DeltaSeconds)
 	{
 		TArray<FHitResult> HitResults;
 		PerformTrace(HitResults, SourceActor);
-		FHitResult HitResult = HitResults.Num() ? HitResults.Last() : FHitResult();	// get last blocking hit
+		FHitResult HitResult = HitResults.Num() ? HitResults.Last() : FHitResult();	// get last hit
 		FVector EndPoint = HitResult.Component.IsValid() ? HitResult.ImpactPoint : HitResult.TraceEnd;
-
-#if ENABLE_DRAW_DEBUG
-		if (bDebug)
-		{
-			DrawDebugLine(GetWorld(), SourceActor->GetActorLocation(), EndPoint, FColor::Green, false);
-			DrawDebugSphere(GetWorld(), EndPoint, 16, 10, FColor::Green, false);
-		}
-#endif // ENABLE_DRAW_DEBUG
 
 		SetActorLocationAndRotation(EndPoint, SourceActor->GetActorRotation());
 	}

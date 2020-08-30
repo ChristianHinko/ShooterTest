@@ -6,8 +6,6 @@
 #include "Abilities/GameplayAbility.h"
 #include "Utilities/CollisionChannels.h"
 
-#include "DrawDebugHelpers.h"
-
 
 
 AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer)

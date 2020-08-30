@@ -7,11 +7,11 @@
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
 #include "AbilitySystem/TargetActors/GATA_BulletTrace.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "Character/AbilitySystemCharacter.h"
+#include "Character/SSCharacter.h"
+#include "Camera/CameraComponent.h"
 #include "Utilities/CollisionChannels.h"
 
 #include "Kismet/KismetSystemLibrary.h"
-#include "Character/AS_Character.h"
 
 
 
@@ -63,7 +63,14 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	// update target actor's start location info
 	FGameplayAbilityTargetingLocationInfo StartLocationInfo;
 	StartLocationInfo.LocationType = EGameplayAbilityTargetingLocationType::LiteralTransform;
-	StartLocationInfo.LiteralTransform = GetAvatarActorFromActorInfo()->GetActorTransform();
+	if (ASSCharacter* AvatarCharacter = Cast<ASSCharacter>(GetAvatarActorFromActorInfo()))
+	{
+		StartLocationInfo.LiteralTransform = AvatarCharacter->GetFollowCamera()->GetComponentTransform();
+	}
+	else
+	{
+		StartLocationInfo.LiteralTransform = GetAvatarActorFromActorInfo()->GetActorTransform();
+	}
 	TargetTraceActor->StartLocation = StartLocationInfo;
 
 	// try to make wait target data task
@@ -86,21 +93,7 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 
 void UGA_Fire::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 {
-	TArray<AActor*> Actors = UAbilitySystemBlueprintLibrary::GetAllActorsFromTargetData(Data);
-	for (int32 i = 0; i < Actors.Num(); i++)
-	{
-		AActor* HitActor = Actors[i];
-		if (AAbilitySystemCharacter* ASChar = Cast<AAbilitySystemCharacter>(HitActor))		// maybe check if implements IAbilitySystemInterface instead of this later (so you can apply damage to AbilitySystemActors and pawns and such)
-		{
-			ApplyGameplayEffectToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(),
-				UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(ASChar), BulletHitEffectTSub, GetAbilityLevel());
-
-			if (ASChar->GetCharacterAttributeSet() && ASChar->GetCharacterAttributeSet()->GetHealth())
-			{
-				UKismetSystemLibrary::PrintString(this, ASChar->GetName() + "'s health is now: " + FString::SanitizeFloat(ASChar->GetCharacterAttributeSet()->GetHealth()), true, false);
-			}
-		}
-	}
+	ApplyGameplayEffectToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), Data, BulletHitEffectTSub, GetAbilityLevel());
 }
 void UGA_Fire::OnCancelled(const FGameplayAbilityTargetDataHandle& Data)
 {

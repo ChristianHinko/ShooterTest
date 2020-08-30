@@ -6,6 +6,8 @@
 #include "AbilitySystem/TargetActors/GATA_Trace.h"
 #include "GATA_BulletTrace.generated.h"
 
+//struct FGATDF_MultiFilter;
+
 /**
  * 
  */

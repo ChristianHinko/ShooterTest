@@ -231,11 +231,11 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 				const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.Actor);
 				if (bPassesFilter)
 				{
-					DrawDebugPoint(World, ToLocation, 10, PassesFilterColor, false, debugLifeTime);
+					DrawDebugPoint(World, Hit.ImpactPoint, 10, PassesFilterColor, false, debugLifeTime);
 				}
 				else
 				{
-					DrawDebugPoint(World, ToLocation, 10, TraceColor, false, debugLifeTime);
+					DrawDebugPoint(World, Hit.ImpactPoint, 10, TraceColor, false, debugLifeTime);
 				}
 			}
 			if (OutHitResults.Last().bBlockingHit == false)
@@ -271,19 +271,49 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 
 	World->SweepMultiByChannel(OutHitResults, Start, End, Rotation, TraceChannel, CollisionShape, Params);
 
+	// debug before we remove filtered hit results
+#if ENABLE_DRAW_DEBUG
+	if (debug)
+	{
+		const float debugLifeTime = 5.f;
+		const FColor TraceColor = FColor::Blue;
+		const FColor PassesFilterColor = FColor::Red;
 
-	//for (int32 HitIdx = 0; HitIdx < OutHitResults.Num(); ++HitIdx)				// find first hit that passes the filter (if any) then treat is as a blocking hit and output it
-	//{
-	//	const FHitResult& Hit = OutHitResults[HitIdx];
+		const uint8 hitsNum = OutHitResults.Num();
+		if (hitsNum > 0)
+		{
+			for (int32 i = 0; i < OutHitResults.Num(); i++)
+			{
+				const FHitResult Hit = OutHitResults[i];
+				const FVector FromLocation = i <= 0 ? Start : Hit.TraceStart;
+				const FVector ToLocation = Hit.Location;
 
-	//	if (!Hit.Actor.IsValid() || FilterHandle.FilterPassesForActor(Hit.Actor))
-	//	{
-	//		OutHitResults[HitIdx] = Hit;
-	//		OutHitResults[HitIdx].bBlockingHit = true; // treat it as a blocking hit
-	//		break;
-	//	}
-	//}
+				DrawDebugLine(World, FromLocation, ToLocation, TraceColor, false, debugLifeTime);
 
+				const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.Actor);
+				if (bPassesFilter)
+				{
+					DrawDebugPoint(World, Hit.ImpactPoint, 10, PassesFilterColor, false, debugLifeTime);
+				}
+				else
+				{
+					DrawDebugPoint(World, Hit.ImpactPoint, 10, TraceColor, false, debugLifeTime);
+				}
+			}
+			if (OutHitResults.Last().bBlockingHit == false)
+			{
+				DrawDebugLine(World, OutHitResults.Last().Location, End, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
+			}
+		}
+		else // if we've traced in thin air
+		{
+			DrawDebugLine(World, Start, End, TraceColor, false, debugLifeTime);
+		}
+	}
+#endif // ENABLE_DRAW_DEBUG
+
+
+	// filter out hit results that do not pass filter
 	for (int32 i = 0; i < OutHitResults.Num(); i++)
 	{
 		const FHitResult Hit = OutHitResults[i];

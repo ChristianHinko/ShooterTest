@@ -46,7 +46,9 @@ public:
 	virtual void OnInteractInstant(APawn* InteractingPawn) override;
 
 	virtual void BeginInteractDuration(APawn* InteractingPawn) override;
-	virtual void EndInteractDuration(APawn* InteractingPawn) override;
+	virtual void InteractingTick(APawn* InteractingPawn, float DeltaTime) override;
+	virtual void FinishInteractDuration(APawn* InteractingPawn) override;
+	virtual void CancelledInteractDuration(APawn* InteractingPawn, float interactionTime) override;
 
 	virtual void OnInteractSweepInitialHit(APawn* InteractingPawn);
 	virtual void OnInteractSweepConsecutiveHit(APawn* InteractingPawn);

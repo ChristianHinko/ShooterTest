@@ -7,4 +7,5 @@
 IInteractable::IInteractable()
 {
 	bShouldFireSweepEvents = false;
+	InteractDuration = 5.f;
 }

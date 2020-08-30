@@ -4,10 +4,31 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSGameplayAbility.h"
+#include "Interfaces/Interactable.h"
+
 #include "GA_CharacterInteractDuration.generated.h"
 
 class AAbilitySystemCharacter;
-class IInteractable;
+
+// This enum is used throughout the ability to determine what interface events to call
+//UENUM()
+//enum class EInteractDurationState
+//{
+//	STATE_None,
+//	STATE_BeginInteract,
+//	STATE_InteractTick,
+//	STATE_InteractCancelled,
+//	STATE_FinishInteract
+//};
+
+// This enum is used throughout the ability to determine what interface events to call
+UENUM()
+enum class EInteractEndStatus
+{
+	NOCALL,
+	CallFinishEvent,
+	CallCancelledEvent
+};
 
 /**
  * 
@@ -21,14 +42,16 @@ public:
 	UGA_CharacterInteractDuration();
 
 protected:
-	//UPROPERTY(EditAnywhere)
-	//	TSubclassOf<UGameplayEffect> InteractEffectTSub;	// asset manager we need you D:
-	//FActiveGameplayEffectHandle InteractEffectActiveHandle;
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<UGameplayEffect> InteractEffectTSub;	// asset manager we need you D:
+	FActiveGameplayEffectHandle InteractEffectActiveHandle;
 
 	UPROPERTY()
 		AAbilitySystemCharacter* GASCharacter;
 	//UPROPERTY()
 	IInteractable* Interactable;
+	EInteractEndStatus InteractEndStatus;
+	float timeHeld;
 
 	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 
@@ -40,9 +63,13 @@ protected:
 
 
 #pragma region Gameplay Tags
-	//FGameplayTag TagAimingDownSights;
+
 #pragma endregion
 
 	UFUNCTION()
 		virtual void OnRelease(float TimeHeld);
+	UFUNCTION()
+		virtual void OnTick(float DeltaTime);
+	UFUNCTION()
+		virtual void OnTickFinish();
 };

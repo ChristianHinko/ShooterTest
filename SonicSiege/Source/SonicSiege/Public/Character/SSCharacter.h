@@ -64,6 +64,11 @@ public:
 	// Uses this specific character's parameters and camera orientation to do a sphere sweep to give a possible interactable. If no interactable detected, returns nullptr
 	void ScanForInteractables(IInteractable*& OutInteractable, FHitResult& OutHit);
 
+
+
+	IInteractable* CurrentInteract;
+	IInteractable* LastInteract;
+
 protected:
 		// Try ustilizing our custom trace channel before resorting to this
 	UPROPERTY(EditAnywhere)
@@ -75,8 +80,7 @@ protected:
 		float InteractSweepRadius;
 	FHitResult InteractSweepHitResult;
 
-	IInteractable* CurrentInteract;
-	IInteractable* LastInteract;
+	
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 

@@ -8,6 +8,15 @@
 
 class APawn;
 
+///** Describes interact event */
+//UENUM()
+//enum class EInteract
+//{
+//	StartInteract,
+//	InteractTick,
+//	EndInteract
+//};
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UInteractable : public UInterface
@@ -16,29 +25,38 @@ class UInteractable : public UInterface
 };
 
 /**
- * 
+ *	You can use Gameplay Tags to indicate if something is interacting
  */
 class SONICSIEGE_API IInteractable
 {
 	GENERATED_BODY()
 
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	IInteractable();
 
+	float InteractDuration;
+
 	bool bShouldFireSweepEvents;
 
+	// Interact instant events
 	virtual void OnInteractInstant(APawn* InteractingPawn) = 0;
 
-	// Called only on server by a server only ability
+	// Interact duration events
 	virtual void BeginInteractDuration(APawn* InteractingPawn) = 0;
-	// Called only on server by a server only ability
-	virtual void EndInteractDuration(APawn* InteractingPawn) = 0;
+	virtual void InteractingTick(APawn* InteractingPawn, float DeltaTime) = 0;
+	virtual void FinishInteractDuration(APawn* InteractingPawn) = 0;
+	virtual void CancelledInteractDuration(APawn* InteractingPawn, float interactionTime) = 0;
+
+
+
+
+
+
+
+
 	
-	// Called on both client and server from a tick (chance that only client calls but server doesn't or vice versa)
+	// Sweep events are called on both client and server from character tick (chance that only client calls but server doesn't or vice versa)
 	virtual void OnInteractSweepInitialHit(APawn* InteractingPawn) = 0;
-	// Called on both client and server from a tick (chance that only client calls but server doesn't or vice versa)
 	virtual void OnInteractSweepConsecutiveHit(APawn* InteractingPawn) = 0;
-	// Called on both client and server from a tick (chance that only client calls but server doesn't or vice versa)
 	virtual void OnInteractSweepEndHitting(APawn* InteractingPawn) = 0;
 };

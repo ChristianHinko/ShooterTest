@@ -140,7 +140,7 @@ void ASSCharacter::Tick(float DeltaTime)
 			}
 							
 			LastInteract = CurrentInteract;
-			CurrentInteract = nullptr;
+			//CurrentInteract = nullptr;
 		}
 	}
 	else

@@ -7,19 +7,19 @@
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
 #include "Character/AbilitySystemCharacter.h"
-#include "Interfaces/Interactable.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
+#include "AbilitySystem/AbilityTasks/AT_Ticker.h"
+
 
 //temp
 #include "Kismet\KismetSystemLibrary.h"
 
 UGA_CharacterInteractDuration::UGA_CharacterInteractDuration()
 {
+	bReplicateInputDirectly = true;
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.InteractDuration")));
-	//TagAimingDownSights = FGameplayTag::RequestGameplayTag(FName("State.Character.IsAimingDownSights"));
-	//ActivationOwnedTags.AddTagFast(TagAimingDownSights);
 
-	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerOnly;
+	//NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerOnly;
 }
 
 void UGA_CharacterInteractDuration::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -51,10 +51,18 @@ bool UGA_CharacterInteractDuration::CanActivateAbility(const FGameplayAbilitySpe
 	{
 		return false;
 	}
-	if (ActorInfo && ActorInfo->IsNetAuthority() && !GASCharacter)
+	//if (ActorInfo && ActorInfo->IsNetAuthority())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate duration interact ability"), *FString(__FUNCTION__));
-		return false;
+		if (!GASCharacter)
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate duration interact ability"), *FString(__FUNCTION__));
+			return false;
+		}
+		if (!InteractEffectTSub)
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("Effect TSubclassOf empty in %s so this ability was canceled - please fill out Interact ability blueprint"), *FString(__FUNCTION__));
+			return false;
+		}
 	}
 
 	return true;
@@ -64,44 +72,62 @@ void UGA_CharacterInteractDuration::ActivateAbility(const FGameplayAbilitySpecHa
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	UKismetSystemLibrary::PrintString(this, "Interact ability activated");
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
 		return;
 	}
-	/*FHitResult OutHit;									// make it so we can replace this with just a variable lookup
-	Character->ScanForInteractables(Interactable, OutHit);	//-----------------------------------------------------------
-	if (Interactable)										//-----------------------------------------------------------
-	{														//-----------------------------------------------------------
-															//-----------------------------------------------------------
-	}*/
-	/*if (!InteractEffectTSub)
+	Interactable = GASCharacter->CurrentInteract;
+	if (!Interactable)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("Effect TSubclassOf empty in %s so this ability was canceled - please fill out Interact ability blueprint"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Server detected nothing to interact with when activating interact ability. Cancelling"), *FString(__FUNCTION__));
 		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
 		return;
-	}*/
-
-	//	Make sure we apply effect in valid prediction key window so we make sure the tag also gets applied on the client too
-	//InteractEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, InteractEffectTSub.GetDefaultObject(), GetAbilityLevel());
-	//Character->Interact();
+	}
+	
 
 	UAbilityTask_WaitInputRelease* InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
 	if (!InputReleasedTask)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate InteractDuration ability. Called CancelAbility()"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
 		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
 		return;
 	}
 	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterInteractDuration::OnRelease);
 	InputReleasedTask->ReadyForActivation();
 
-	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
+	UAT_Ticker* TickerTask = UAT_Ticker::Ticker(this, Interactable->InteractDuration);
+	if (!TickerTask)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() TickerTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
+		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		return;
+	}
+	TickerTask->OnTickDelegate.AddDynamic(this, &UGA_CharacterInteractDuration::OnTick);
+	TickerTask->OnFinish.AddDynamic(this, &UGA_CharacterInteractDuration::OnTickFinish);
+	TickerTask->ReadyForActivation();
+
+	InteractEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, InteractEffectTSub.GetDefaultObject(), GetAbilityLevel());
+
+	UKismetSystemLibrary::PrintString(this, "Interact ability activated");
+	Interactable->BeginInteractDuration(GASCharacter);
+}
+
+void UGA_CharacterInteractDuration::OnTick(float DeltaTime)
+{
+	Interactable->InteractingTick(GASCharacter, DeltaTime);
+}
+void UGA_CharacterInteractDuration::OnTickFinish()
+{
+	Interactable->FinishInteractDuration(GASCharacter);
+	InteractEndStatus = EInteractEndStatus::CallFinishEvent;
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
 
 void UGA_CharacterInteractDuration::OnRelease(float TimeHeld)
 {
+	timeHeld = TimeHeld;
+	InteractEndStatus = EInteractEndStatus::CallCancelledEvent;
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
 
@@ -119,8 +145,20 @@ void UGA_CharacterInteractDuration::EndAbility(const FGameplayAbilitySpecHandle 
 
 	if (GASCharacter && ActorInfo->AbilitySystemComponent.Get())
 	{
-		//Character->StopInteracting();
-		//ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(InteractEffectActiveHandle);
+		if (InteractEndStatus == EInteractEndStatus::CallCancelledEvent)
+		{
+			UKismetSystemLibrary::PrintString(this, "Interact ability Cancelled");
+			Interactable->CancelledInteractDuration(GASCharacter, timeHeld);
+		}
+		else if (InteractEndStatus == EInteractEndStatus::CallFinishEvent)
+		{
+			UKismetSystemLibrary::PrintString(this, "Interact ability Finished");
+			Interactable->FinishInteractDuration(GASCharacter);
+		}
+		InteractEndStatus = EInteractEndStatus::NOCALL;
+		timeHeld = 0;
+		
+		ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(InteractEffectActiveHandle);
 	}
 	else
 	{

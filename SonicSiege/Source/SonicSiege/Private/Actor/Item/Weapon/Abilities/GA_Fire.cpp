@@ -5,7 +5,7 @@
 #include "AbilitySystemComponent.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
-#include "AbilitySystem/TargetActors/GATA_BulletTrace.h"
+#include "AbilitySystem/TargetActor/TargetActors/GATA_BulletTrace.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Character/SSCharacter.h"
 #include "Camera/CameraComponent.h"

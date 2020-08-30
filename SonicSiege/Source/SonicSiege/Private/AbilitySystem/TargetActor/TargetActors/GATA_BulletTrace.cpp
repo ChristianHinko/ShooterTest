@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/TargetActors/GATA_BulletTrace.h"
+#include "AbilitySystem/TargetActor/TargetActors/GATA_BulletTrace.h"
 
 #include "Abilities/GameplayAbility.h"
 #include "Utilities/CollisionChannels.h"

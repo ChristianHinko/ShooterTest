@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/TargetActors/GATA_Trace.h"
+#include "AbilitySystem/TargetActor/TargetActors/GATA_Trace.h"
 #include "GATA_BulletTrace.generated.h"
 
 //struct FGATDF_MultiFilter;

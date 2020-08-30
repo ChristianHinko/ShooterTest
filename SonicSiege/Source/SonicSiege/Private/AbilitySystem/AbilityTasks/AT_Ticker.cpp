@@ -7,6 +7,7 @@ UAT_Ticker::UAT_Ticker(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	bTickingTask = true;
+	
 }
 
 
@@ -25,7 +26,6 @@ void UAT_Ticker::Activate()
 	{
 		return;
 	}
-	//GetWorld()->GetTimerManager().SetTimer(TimerHandle_PerformAction, this, &UAT_Ticker::PerformAction, DelayBetweenRepeats, shouldLoop, firstDelay);
 }
 
 void UAT_Ticker::TickTask(float DeltaTime)
@@ -45,14 +45,8 @@ void UAT_Ticker::TickTask(float DeltaTime)
 	}
 }
 
-void UAT_Ticker::OnDurationEnded() const
+void UAT_Ticker::OnDurationEnded()
 {
-	if (!Ability || !AbilitySystemComponent)
-	{
-		return;
-	}
-
-
 	if (!IsPendingKill())
 	{
 		if (ShouldBroadcastAbilityTaskDelegates())
@@ -60,14 +54,13 @@ void UAT_Ticker::OnDurationEnded() const
 			OnFinish.Broadcast();
 		}
 	}
+	EndTask();
 }
 
 
 
 void UAT_Ticker::OnDestroy(bool AbilityIsEnding)
 {
-	GetWorld()->GetTimerManager().ClearTimer(TimerHandle_PerformAction);
-
 	Super::OnDestroy(AbilityIsEnding);
 }
 

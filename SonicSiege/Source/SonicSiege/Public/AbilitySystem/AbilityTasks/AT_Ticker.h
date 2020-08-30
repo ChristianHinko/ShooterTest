@@ -26,11 +26,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 		FDurationEnded OnFinish;
 
-	FString GetDebugString() const override;
 
 	virtual void TickTask(float DeltaTime) override;
 
-	void OnDurationEnded() const;
 
 	/** Start a task that repeats an action or set of actions. */
 	UFUNCTION(BlueprintCallable, Category = "Ability|Tasks", meta = (DisplayName = "Ticker", HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
@@ -38,14 +36,12 @@ public:
 
 	void Activate() override;
 
+	FString GetDebugString() const override;
 protected:
 	float tickDuration;
 	float currentTime;
 
-
-	/** Handle for efficient management of PerformAction timer */
-	FTimerHandle TimerHandle_PerformAction;
-
+	void OnDurationEnded();
 	void OnDestroy(bool AbilityIsEnding) override;
 
 };

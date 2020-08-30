@@ -109,7 +109,6 @@ void UGA_CharacterInteractDuration::ActivateAbility(const FGameplayAbilitySpecHa
 
 	InteractEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, InteractEffectTSub.GetDefaultObject(), GetAbilityLevel());
 
-	UKismetSystemLibrary::PrintString(this, "Interact ability activated");
 	Interactable->BeginInteractDuration(GASCharacter);
 }
 
@@ -119,7 +118,6 @@ void UGA_CharacterInteractDuration::OnTick(float DeltaTime)
 }
 void UGA_CharacterInteractDuration::OnTickFinish()
 {
-	Interactable->FinishInteractDuration(GASCharacter);
 	InteractEndStatus = EInteractEndStatus::CallFinishEvent;
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
@@ -147,12 +145,10 @@ void UGA_CharacterInteractDuration::EndAbility(const FGameplayAbilitySpecHandle 
 	{
 		if (InteractEndStatus == EInteractEndStatus::CallCancelledEvent)
 		{
-			UKismetSystemLibrary::PrintString(this, "Interact ability Cancelled");
 			Interactable->CancelledInteractDuration(GASCharacter, timeHeld);
 		}
 		else if (InteractEndStatus == EInteractEndStatus::CallFinishEvent)
 		{
-			UKismetSystemLibrary::PrintString(this, "Interact ability Finished");
 			Interactable->FinishInteractDuration(GASCharacter);
 		}
 		InteractEndStatus = EInteractEndStatus::NOCALL;

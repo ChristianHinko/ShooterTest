@@ -25,7 +25,7 @@ void AItem::InteractingTick(APawn* InteractingPawn, float DeltaTime)
 }
 void AItem::FinishInteractDuration(APawn* InteractingPawn)
 {
-	UKismetSystemLibrary::PrintString(this, "EndInteractDuration", true, true, FLinearColor::Gray);
+	UKismetSystemLibrary::PrintString(this, "FinishInteractDuration", true, true, FLinearColor::Gray);
 }
 void AItem::CancelledInteractDuration(APawn* InteractingPawn, float interactionTime)
 {

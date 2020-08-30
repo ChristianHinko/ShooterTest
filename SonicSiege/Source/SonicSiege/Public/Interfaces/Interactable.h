@@ -17,6 +17,14 @@ class APawn;
 //	EndInteract
 //};
 
+/** Describes interact event */
+UENUM()
+enum class EInteractionMode
+{
+	Instant,
+	Duration
+};
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UInteractable : public UInterface
@@ -34,6 +42,7 @@ class SONICSIEGE_API IInteractable
 public:
 	IInteractable();
 
+	EInteractionMode InteractionMode;
 	float InteractDuration;
 
 	bool bShouldFireSweepEvents;

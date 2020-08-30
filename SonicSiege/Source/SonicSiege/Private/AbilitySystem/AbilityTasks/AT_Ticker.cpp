@@ -34,6 +34,7 @@ void UAT_Ticker::TickTask(float DeltaTime)
 	if (currentTime >= tickDuration)
 	{
 		OnDurationEnded();
+		return;
 	}
 
 	if (!IsPendingKill())

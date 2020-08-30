@@ -8,6 +8,7 @@
 AItem::AItem()
 {
 	bShouldFireSweepEvents = true;
+	InteractionMode = EInteractionMode::Duration;
 }
 
 void AItem::OnInteractInstant(APawn* InteractingPawn)

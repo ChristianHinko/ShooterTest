@@ -46,12 +46,11 @@ void UGA_CharacterInteractDuration::OnAvatarSet(const FGameplayAbilityActorInfo*
 
 bool UGA_CharacterInteractDuration::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {	
-	// Gets called on client as well for ServerOnly abilities ONLY IF bAllowRemoteActivation is true in TryActivateAbility()
 	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 	{
 		return false;
 	}
-	//if (ActorInfo && ActorInfo->IsNetAuthority())
+	//if (ActorInfo && ActorInfo->IsNetAuthority())		// used to use this when ability was ServerOnly but changed it to LocalPredicted
 	{
 		if (!GASCharacter)
 		{
@@ -124,6 +123,7 @@ void UGA_CharacterInteractDuration::OnTickFinish()
 
 void UGA_CharacterInteractDuration::OnRelease(float TimeHeld)
 {
+	// Not too sure if this will result in only calling the cancel interact function in the interface. Possibility that it might also still call the Interacting function as well (which we don't want)
 	timeHeld = TimeHeld;
 	InteractEndStatus = EInteractEndStatus::CallCancelledEvent;
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
@@ -151,16 +151,16 @@ void UGA_CharacterInteractDuration::EndAbility(const FGameplayAbilitySpecHandle 
 		{
 			Interactable->FinishInteractDuration(GASCharacter);
 		}
-		InteractEndStatus = EInteractEndStatus::NOCALL;
-		timeHeld = 0;
 		
 		ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(InteractEffectActiveHandle);
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Couldn't call Character->StopInteracting() because Character* was NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Couldn't call the end interaction function on interabtable interface because Character* was NULL"), *FString(__FUNCTION__));
 	}
-
+	
+	InteractEndStatus = EInteractEndStatus::NOCALL;
+	timeHeld = 0;
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

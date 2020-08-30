@@ -15,6 +15,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
 #include "Character/AS_Character.h"
+#include "Interfaces/Interactable.h"
 
 //#include "Kismet/KismetSystemLibrary.h"
 
@@ -464,8 +465,15 @@ void AAbilitySystemCharacter::OnInteractPressed()
 {
 	if (/*InteractSweepHitResult.bBlockingHit*/ CurrentInteract)	// is this variable reliable for this situation? May need to do another cast for an IInteractable
 	{
-		//GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle, true);
-		GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
+		if (CurrentInteract->InteractionMode == EInteractionMode::Instant)
+		{
+			GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle, true);
+		}
+		else if (CurrentInteract->InteractionMode == EInteractionMode::Duration)
+		{
+			GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
+		}
+		
 	}
 }
 void AAbilitySystemCharacter::OnInteractReleased()

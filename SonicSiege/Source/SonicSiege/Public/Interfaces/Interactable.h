@@ -42,7 +42,7 @@ class SONICSIEGE_API IInteractable
 public:
 	IInteractable();
 
-	EInteractionMode InteractionMode;
+	EInteractionMode InteractionMode;	// may implement same idea but with GameplayTags later if we find out it's better
 	float InteractDuration;
 
 	bool bShouldFireSweepEvents;

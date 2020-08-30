@@ -22,10 +22,6 @@ UAT_Ticker* UAT_Ticker::Ticker(UGameplayAbility* OwningAbility, float Duration)
 void UAT_Ticker::Activate()
 {
 	currentTime = 0;
-	if (!Ability || !AbilitySystemComponent)
-	{
-		return;
-	}
 }
 
 void UAT_Ticker::TickTask(float DeltaTime)

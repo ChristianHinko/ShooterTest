@@ -13,7 +13,7 @@ UAT_InteractableInterfaceCaller::UAT_InteractableInterfaceCaller(const FObjectIn
 
 }
 
-UAT_InteractableInterfaceCaller* UAT_InteractableInterfaceCaller::InteractableInterfaceCaller(UGameplayAbility* OwningAbility, AAbilitySystemCharacter* GASCharactor, IInteractable* InInteract)
+UAT_InteractableInterfaceCaller* UAT_InteractableInterfaceCaller::InteractableInterfaceCaller(UGameplayAbility* OwningAbility, AAbilitySystemCharacter* GASCharactor, IInteractable*& InInteract)
 {
 	if (!InInteract || !OwningAbility || !GASCharactor)
 	{

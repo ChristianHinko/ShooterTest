@@ -39,7 +39,7 @@ public:
 
 
 	/** Start a task that repeats an action or set of actions. */
-	static UAT_InteractableInterfaceCaller* InteractableInterfaceCaller(UGameplayAbility* OwningAbility, AAbilitySystemCharacter* GASCharactor, IInteractable* InInteract);
+	static UAT_InteractableInterfaceCaller* InteractableInterfaceCaller(UGameplayAbility* OwningAbility, AAbilitySystemCharacter* GASCharactor, IInteractable*& InInteract);
 
 	void Activate() override;
 

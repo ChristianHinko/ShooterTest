@@ -49,13 +49,13 @@ protected:
 
 #pragma endregion
 	UFUNCTION()
-		virtual void OnInteractionBegin();
+		void OnInteractionBegin();
 	UFUNCTION()
-		virtual void OnInteractTick(float DeltaTime, float TimeHeld);
+		void OnInteractTick(float DeltaTime, float TimeHeld);
 	UFUNCTION()
-		virtual void OnRelease(float TimeHeld);
+		void OnRelease(float TimeHeld);
 	UFUNCTION()
-		virtual void OnInteractionSweepMiss(float TimeHeld);
+		void OnInteractionSweepMiss(float TimeHeld);
 	UFUNCTION()
-		virtual void OnInteractCompleted(float TimeHeld);
+		void OnInteractCompleted(float TimeHeld);
 };

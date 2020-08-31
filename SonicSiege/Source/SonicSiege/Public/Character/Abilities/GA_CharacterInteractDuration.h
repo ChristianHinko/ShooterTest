@@ -10,28 +10,8 @@
 
 class AAbilitySystemCharacter;
 
-// This enum is used throughout the ability to determine what interface events to call
-//UENUM()
-//enum class EInteractDurationState
-//{
-//	STATE_None,
-//	STATE_BeginInteract,
-//	STATE_InteractTick,
-//	STATE_InteractCancelled,
-//	STATE_FinishInteract
-//};
-
-// This enum is used throughout the ability to determine what interface events to call
-UENUM()
-enum class EInteractEndStatus
-{
-	NOCALL,
-	CallFinishEvent,
-	CallCancelledEvent
-};
-
 /**
- * 
+ * This ability currently assumes you want duration to start over when stopped mid interaction. Can be implemented though
  */
 UCLASS()
 class SONICSIEGE_API UGA_CharacterInteractDuration : public USSGameplayAbility
@@ -41,6 +21,7 @@ class SONICSIEGE_API UGA_CharacterInteractDuration : public USSGameplayAbility
 public:
 	UGA_CharacterInteractDuration();
 
+	IInteractable* Interactable;
 protected:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<UGameplayEffect> InteractEffectTSub;	// asset manager we need you D:
@@ -48,9 +29,8 @@ protected:
 
 	UPROPERTY()
 		AAbilitySystemCharacter* GASCharacter;
-	//UPROPERTY()
-	IInteractable* Interactable;
-	EInteractEndStatus InteractEndStatus;
+
+	EDurationInteractEndReason InteractEndReason;
 	float timeHeld;
 
 	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
@@ -62,14 +42,18 @@ protected:
 	//END UGameplayAbility Interface
 
 
+
+
+
 #pragma region Gameplay Tags
 
 #pragma endregion
-
+	UFUNCTION()
+		virtual void OnInteractTick(float DeltaTime, float TimeHeld);
 	UFUNCTION()
 		virtual void OnRelease(float TimeHeld);
 	UFUNCTION()
-		virtual void OnTick(float DeltaTime);
+		virtual void OnInteractionSweepMiss(float TimeHeld);
 	UFUNCTION()
-		virtual void OnTickFinish();
+		virtual void OnInteractCompleted(float TimeHeld);
 };

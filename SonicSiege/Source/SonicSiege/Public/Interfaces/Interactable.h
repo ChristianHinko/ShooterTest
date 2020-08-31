@@ -25,6 +25,16 @@ enum class EInteractionMode
 	Duration
 };
 
+/** Describes interact event */
+UENUM()
+enum class EDurationInteractEndReason
+{
+	REASON_Unknown,
+	REASON_InputRelease,
+	REASON_SweepMiss,
+	REASON_SuccessfulInteract
+};
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UInteractable : public UInterface
@@ -43,19 +53,21 @@ public:
 	IInteractable();
 
 	EInteractionMode InteractionMode;	// may implement same idea but with GameplayTags later if we find out it's better
-	float InteractDuration;
+	float interactDuration;
+	// Time to wait between ticks
+	float tickInterval;
+	bool shouldSkipFirstTick;
 
 	bool bShouldFireSweepEvents;
 
 	// Interact instant events
 	virtual void OnInteractInstant(APawn* InteractingPawn) = 0;
 
-	// Interact duration events
-	virtual void BeginInteractDuration(APawn* InteractingPawn) = 0;
-	virtual void InteractingTick(APawn* InteractingPawn, float DeltaTime) = 0;
-	virtual void FinishInteractDuration(APawn* InteractingPawn) = 0;
-	virtual void CancelledInteractDuration(APawn* InteractingPawn, float interactionTime) = 0;
+	// Called during interaction (while interact input is down)
+	virtual void InteractingTick(APawn* InteractingPawn, float DeltaTime, float CurrentInteractionTime) = 0;
+	// Called after you've successfully interacted (frame after the last frame of interaction)
 
+	virtual void OnDurationInteractEnd(APawn* InteractingPawn, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime) = 0;
 
 
 

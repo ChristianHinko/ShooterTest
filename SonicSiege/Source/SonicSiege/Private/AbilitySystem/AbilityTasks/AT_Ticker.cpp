@@ -3,6 +3,8 @@
 
 #include "AbilitySystem/AbilityTasks/AT_Ticker.h"
 
+#include "Character/AbilitySystemCharacter.h"
+
 UAT_Ticker::UAT_Ticker(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -11,25 +13,48 @@ UAT_Ticker::UAT_Ticker(const FObjectInitializer& ObjectInitializer)
 }
 
 
-UAT_Ticker* UAT_Ticker::Ticker(UGameplayAbility* OwningAbility, float Duration)
+UAT_Ticker* UAT_Ticker::Ticker(UGameplayAbility* OwningAbility, AAbilitySystemCharacter* GASCharactor, float Duration, float Interval, bool SkipFirstTick)
 {
 	UAT_Ticker* MyObj = NewAbilityTask<UAT_Ticker>(OwningAbility);
-	MyObj->tickDuration = Duration;
+	MyObj->duration = Duration;
+	MyObj->tickInterval = Interval;
+	MyObj->skipFirstTick = SkipFirstTick;
+	MyObj->GASCharacter = GASCharactor;
 
 	return MyObj;
 }
 
 void UAT_Ticker::Activate()
 {
+
 	currentTime = 0;
+	timeRemaining = duration;
+	continueTimestamp = 0;
 }
 
 void UAT_Ticker::TickTask(float DeltaTime)
 {
-	currentTime = currentTime + DeltaTime;
-	if (currentTime >= tickDuration)
+	if (currentTime >= duration)
 	{
 		OnDurationEnded();
+		return;
+	}
+
+	if ((continueTimestamp == 0) && skipFirstTick)
+	{
+		skipFirstTick = false;
+
+		////
+		currentTime = currentTime + DeltaTime;
+		timeRemaining = timeRemaining - DeltaTime;
+		continueTimestamp = continueTimestamp + tickInterval;
+		////
+		return;
+	}
+	if (currentTime < continueTimestamp)
+	{
+		currentTime = currentTime + DeltaTime;
+		timeRemaining = timeRemaining - DeltaTime;
 		return;
 	}
 
@@ -37,9 +62,15 @@ void UAT_Ticker::TickTask(float DeltaTime)
 	{
 		if (ShouldBroadcastAbilityTaskDelegates())
 		{
-			OnTickDelegate.Broadcast(DeltaTime);
+			OnInteractTickDelegate.Broadcast(DeltaTime, currentTime, timeRemaining);
 		}
 	}
+
+	////
+	currentTime = currentTime + DeltaTime;
+	timeRemaining = timeRemaining - DeltaTime;
+	continueTimestamp = continueTimestamp + tickInterval;
+	////
 }
 
 void UAT_Ticker::OnDurationEnded()
@@ -48,17 +79,10 @@ void UAT_Ticker::OnDurationEnded()
 	{
 		if (ShouldBroadcastAbilityTaskDelegates())
 		{
-			OnFinish.Broadcast();
+			OnInteractCompletedDelegate.Broadcast();
 		}
 	}
 	EndTask();
-}
-
-
-
-void UAT_Ticker::OnDestroy(bool AbilityIsEnding)
-{
-	Super::OnDestroy(AbilityIsEnding);
 }
 
 FString UAT_Ticker::GetDebugString() const

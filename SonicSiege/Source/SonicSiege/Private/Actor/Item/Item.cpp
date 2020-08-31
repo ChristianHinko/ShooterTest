@@ -4,34 +4,37 @@
 #include "Actor/Item/Item.h"
 
 #include "Kismet/KismetSystemLibrary.h"
+#include "Interfaces/Interactable.h"
 
 AItem::AItem()
 {
 	bShouldFireSweepEvents = true;
+	tickInterval = 0;
 	InteractionMode = EInteractionMode::Duration;
 }
 
 void AItem::OnInteractInstant(APawn* InteractingPawn)
 {
-	UKismetSystemLibrary::PrintString(this, "Instant Interact", true, true, FLinearColor::Gray);
+	//UKismetSystemLibrary::PrintString(this, "Instant Interact", true, true, FLinearColor::Gray);
 }
 
-void AItem::BeginInteractDuration(APawn* InteractingPawn)
+
+
+
+void AItem::InteractingTick(APawn* InteractingPawn, float DeltaTime, float CurrentInteractionTime)
 {
-	UKismetSystemLibrary::PrintString(this, "BeginInteractDuration", true, true, FLinearColor::Gray);
+	//UKismetSystemLibrary::PrintString(this, "Interacting a " + FString::SanitizeFloat(interactDuration) + "duration interactable.....\nCurrentTime=" + FString::SanitizeFloat(CurrentInteractionTime), true, true, FLinearColor::Gray);
 }
-void AItem::InteractingTick(APawn* InteractingPawn, float DeltaTime)
+void AItem::OnDurationInteractEnd(APawn* InteractingPawn, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime)
 {
-	UKismetSystemLibrary::PrintString(this, "Interacting", true, true, FLinearColor::Gray);
+	//UKismetSystemLibrary::PrintString(this, "OnDurationInteractEnd", true, true, FLinearColor::Gray);
 }
-void AItem::FinishInteractDuration(APawn* InteractingPawn)
-{
-	UKismetSystemLibrary::PrintString(this, "FinishInteractDuration", true, true, FLinearColor::Gray);
-}
-void AItem::CancelledInteractDuration(APawn* InteractingPawn, float interactionTime)
-{
-	UKismetSystemLibrary::PrintString(this, "CancledInteractDuration", true, true, FLinearColor::Gray);
-}
+
+
+
+
+
+
 
 void AItem::OnInteractSweepInitialHit(APawn* InteractingPawn)
 {

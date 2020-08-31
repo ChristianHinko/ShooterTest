@@ -18,5 +18,5 @@ class SONICSIEGE_API USSAbilitySystemBlueprintLibrary : public UAbilitySystemBlu
 public:
 	/** Create a handle for filtering target data, filling out all fields */
 	UFUNCTION(BlueprintPure, Category = "Filter")
-		static FGATDF_MultiFilterHandle MakeMultiFilterHandle(FGATDF_MultiFilter MultiFilter, AActor* FilterActor);
+		static FGATDF_MultiFilterHandle MakeMultiFilterHandle(FGATDF_MultiFilter MultiFilter/*, AActor* FilterActor*/);
 };

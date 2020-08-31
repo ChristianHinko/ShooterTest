@@ -7,7 +7,7 @@
 
 
 
-FGATDF_MultiFilterHandle USSAbilitySystemBlueprintLibrary::MakeMultiFilterHandle(FGATDF_MultiFilter MultiFilter, AActor* FilterActor)
+FGATDF_MultiFilterHandle USSAbilitySystemBlueprintLibrary::MakeMultiFilterHandle(FGATDF_MultiFilter MultiFilter/*, AActor* FilterActor*/)
 {
 	FGATDF_MultiFilterHandle FilterHandle;
 	FGATDF_MultiFilter* NewFilter = new FGATDF_MultiFilter(MultiFilter);

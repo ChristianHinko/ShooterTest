@@ -39,7 +39,7 @@ void AGATA_Trace::PreInitializeComponents()
 	Super::PreInitializeComponents();
 
 
-	MultiFilterHandle = USSAbilitySystemBlueprintLibrary::MakeMultiFilterHandle(MultiFilter, SourceActor);
+	MultiFilterHandle = USSAbilitySystemBlueprintLibrary::MakeMultiFilterHandle(MultiFilter/*, SourceActor*/);
 }
 
 

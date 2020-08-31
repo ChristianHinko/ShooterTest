@@ -14,6 +14,7 @@ class AAbilitySystemCharacter;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FInteractingTickDelegate, float, DeltaTime, float, CurrentTime);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteractionEndDelegate, float, CurrentTime);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractionBeginDelegate);
 /**
  * 
  */
@@ -25,6 +26,7 @@ class SONICSIEGE_API UAT_InteractableInterfaceCaller : public USSAbilityTask
 public:
 	UAT_InteractableInterfaceCaller(const FObjectInitializer& ObjectInitializer);
 
+	FOnInteractionBeginDelegate OnInteractionBeginDelegate;
 	FInteractingTickDelegate OnInteractTickDelegate;
 	//FOnInteractionEndDelegate OnInputReleaseDelegate   ----The ability will handle input release event for us----
 	FOnInteractionEndDelegate OnInteractionSweepMissDelegate;

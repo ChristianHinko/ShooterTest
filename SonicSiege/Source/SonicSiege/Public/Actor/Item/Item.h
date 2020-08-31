@@ -45,6 +45,7 @@ public:
 
 	virtual void OnInteractInstant(APawn* InteractingPawn) override;
 
+	virtual void OnDurationInteractBegin(APawn* InteractingPawn) override;
 	virtual void InteractingTick(APawn* InteractingPawn, float DeltaTime, float CurrentInteractionTime) override;
 	virtual void OnDurationInteractEnd(APawn* InteractingPawn, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime) override;
 

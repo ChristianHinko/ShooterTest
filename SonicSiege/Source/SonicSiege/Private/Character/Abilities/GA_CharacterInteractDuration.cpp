@@ -106,6 +106,7 @@ void UGA_CharacterInteractDuration::ActivateAbility(const FGameplayAbilitySpecHa
 		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
 		return;
 	}
+	InteractableInterfaceCaller->OnInteractionBeginDelegate.AddDynamic(this, &UGA_CharacterInteractDuration::OnInteractionBegin);
 	InteractableInterfaceCaller->OnInteractTickDelegate.AddDynamic(this, &UGA_CharacterInteractDuration::OnInteractTick);
 	InteractableInterfaceCaller->OnInteractionSweepMissDelegate.AddDynamic(this, &UGA_CharacterInteractDuration::OnInteractionSweepMiss);
 	InteractableInterfaceCaller->OnSuccessfulInteractDelegate.AddDynamic(this, &UGA_CharacterInteractDuration::OnInteractCompleted);
@@ -124,6 +125,10 @@ void UGA_CharacterInteractDuration::ActivateAbility(const FGameplayAbilitySpecHa
 
 
 
+void UGA_CharacterInteractDuration::OnInteractionBegin()
+{
+	Interactable->OnDurationInteractBegin(GASCharacter);
+}
 
 void UGA_CharacterInteractDuration::OnInteractTick(float DeltaTime, float TimeHeld)
 {

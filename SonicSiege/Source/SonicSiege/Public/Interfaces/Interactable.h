@@ -34,7 +34,7 @@ class UInteractable : public UInterface
 };
 
 /**
- *	You can use Gameplay Tags to indicate if something is interacting
+ *	All events are ran from within the interact abilities, besides sweep events.
  */
 class SONICSIEGE_API IInteractable
 {
@@ -53,7 +53,7 @@ public:
 
 
 
-	virtual void OnInteractInstant(APawn* InteractingPawn) = 0;
+	virtual void OnInteractInstant(APawn* InteractingPawn);
 #pragma endregion
 
 
@@ -67,17 +67,19 @@ public:
 #pragma region DurationInteraction
 	// How long the player needs to hold interact input to interact with this interactable
 	float interactDuration;
-	// Time to wait between ticks. Be careful with this... longer wait between ticks means less precision of duration end (might over/undershoot interactDuration).
+	// Time to wait between ticks to help performance. Be careful with this... longer wait between ticks means a less accurate duration end (might over/undershoot interactDuration).
 	float tickInterval;
 	// Lets you make use of InteractingTick event
 	bool shouldInteractableTick;
 	// Skips first call to InteractingTick()
 	bool shouldSkipFirstTick;
 
+	// Called the first frame of interaction (on press interact input)
+	virtual void OnDurationInteractBegin(APawn* InteractingPawn);
 	// Called every frame during a duration interaction (while interact input is down)
-	virtual void InteractingTick(APawn* InteractingPawn, float DeltaTime, float CurrentInteractionTime) = 0;
+	virtual void InteractingTick(APawn* InteractingPawn, float DeltaTime, float CurrentInteractionTime);
 	// Called anytime a duration interaction ends (whatever the reason may be)
-	virtual void OnDurationInteractEnd(APawn* InteractingPawn, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime) = 0;
+	virtual void OnDurationInteractEnd(APawn* InteractingPawn, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime);
 #pragma endregion
 
 
@@ -92,10 +94,10 @@ public:
 	bool bShouldFireSweepEvents;
 
 	// Interaction sweep hit this interactable (a one frame fire)
-	virtual void OnInteractSweepInitialHit(APawn* InteractingPawn) = 0;
+	virtual void OnInteractSweepInitialHit(APawn* InteractingPawn);
 	// Interaction sweep hit this interactable again
-	virtual void OnInteractSweepConsecutiveHit(APawn* InteractingPawn) = 0;
+	virtual void OnInteractSweepConsecutiveHit(APawn* InteractingPawn);
 	// Interaction sweep stopped hitting (a one frame fire)
-	virtual void OnInteractSweepEndHitting(APawn* InteractingPawn) = 0;
+	virtual void OnInteractSweepEndHitting(APawn* InteractingPawn);
 #pragma endregion
 };

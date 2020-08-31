@@ -51,7 +51,12 @@ void UAT_InteractableInterfaceCaller::TickTask(float DeltaTime)
 		OnInteractionSweepMissDelegate.Broadcast(currentTime);
 	}
 
-	if ((continueTimestamp == 0) && skipFirstTick)
+	if (currentTime == 0)
+	{
+		OnInteractionBeginDelegate.Broadcast();
+	}
+
+	if (continueTimestamp == 0 && skipFirstTick)
 	{
 		skipFirstTick = false;
 
@@ -67,7 +72,7 @@ void UAT_InteractableInterfaceCaller::TickTask(float DeltaTime)
 		return;
 	}
 
-	//if (shouldCallTickEvent)
+	if (shouldCallTickEvent)
 	{
 		OnInteractTickDelegate.Broadcast(DeltaTime, currentTime);
 	}

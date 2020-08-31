@@ -11,7 +11,7 @@ AItem::AItem()
 	bShouldFireSweepEvents = true;
 	tickInterval = 0;
 	InteractionMode = EInteractionMode::Duration;
-	shouldInteractableTick = true;
+	//shouldInteractableTick = true;
 }
 
 void AItem::OnInteractInstant(APawn* InteractingPawn)
@@ -21,7 +21,10 @@ void AItem::OnInteractInstant(APawn* InteractingPawn)
 
 
 
-
+void AItem::OnDurationInteractBegin(APawn* InteractingPawn)
+{
+	UKismetSystemLibrary::PrintString(this, "OnDurationInteractBegin", true, true, FLinearColor::Gray);
+}
 void AItem::InteractingTick(APawn* InteractingPawn, float DeltaTime, float CurrentInteractionTime)
 {
 	UKismetSystemLibrary::PrintString(this, "Interacting a " + FString::SanitizeFloat(interactDuration) + "duration interactable.....\nCurrentTime=" + FString::SanitizeFloat(CurrentInteractionTime), true, true, FLinearColor::Gray);

@@ -31,6 +31,8 @@ AGATA_Trace::AGATA_Trace(const FObjectInitializer& ObjectInitializer)
 	MultiFilter.RequiredActorClasses.Add(AAbilitySystemCharacter::StaticClass());
 	MultiFilter.RequiredActorClasses.Add(AAbilitySystemPawn::StaticClass());
 	MultiFilter.RequiredActorClasses.Add(AAbilitySystemActor::StaticClass());
+
+	bDebug = true;
 }
 void AGATA_Trace::PreInitializeComponents()
 {

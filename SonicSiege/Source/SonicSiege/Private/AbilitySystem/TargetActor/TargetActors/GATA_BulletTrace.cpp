@@ -16,7 +16,7 @@ AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer
 	MaxRange = 100000.f;
 	bTraceAffectsAimPitch = true;
 	TraceChannel = COLLISION_BULLET;
-	numberOfLines = 1;
+	numberOfBullets = 1;
 }
 
 
@@ -35,7 +35,7 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 
 	// ------------------------------------------------------
 
-	for (uint8 t = 0; t < numberOfLines; t++)
+	for (uint8 t = 0; t < numberOfBullets; t++)
 	{
 		// create net-safe random seed stream
 		const int16 predKey = OwningAbility->GetCurrentActivationInfo().GetActivationPredictionKey().Current;
@@ -47,7 +47,7 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 		DirWithPlayerController(InSourceActor, Params, TraceStart, AimDir);		//Effective on server and launching client only
 
 		// add random offset to AimDir
-		const float coneHalfAngleRadius = FMath::DegreesToRadians(scatterRadius * 0.5f);
+		const float coneHalfAngleRadius = FMath::DegreesToRadians(bulletSpread * 0.5f);
 		AimDir = randomStream.VRandCone(AimDir, coneHalfAngleRadius);
 
 		// calculate the end of the trace based off aim dir and max range
@@ -56,21 +56,5 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 
 		// perform line trace 
 		LineTraceMultiWithFilter(OutHitResults, InSourceActor->GetWorld(), MultiFilterHandle, TraceStart, TraceEnd, TraceChannel, Params, bDebug);
-
-
-		FHitResult LastHitResult = OutHitResults.Num() ? OutHitResults.Last() : FHitResult();
-		//Default to end of trace line if we don't hit anything.
-		if (!LastHitResult.bBlockingHit)
-		{
-			LastHitResult.Location = TraceEnd;
-		}
-		//if (AGameplayAbilityWorldReticle* LocalReticleActor = ReticleActor.Get())
-		//{
-		//	const bool bHitActor = (ReturnHitResult.bBlockingHit && (ReturnHitResult.Actor != NULL));
-		//	const FVector ReticleLocation = (bHitActor && LocalReticleActor->bSnapToTargetedActor) ? ReturnHitResult.Actor->GetActorLocation() : ReturnHitResult.Location;
-
-		//	LocalReticleActor->SetActorLocation(ReticleLocation);
-		//	LocalReticleActor->SetIsTargetAnActor(bHitActor);
-		//}
 	}
 }

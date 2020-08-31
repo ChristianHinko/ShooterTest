@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbilityTargetActor.h"
-#include "AbilitySystem/TargetActors/GATDF_MultiFilter.h"
+#include "AbilitySystem/TargetActor/GATDF_MultiFilter.h"
 
 #include "GATA_Trace.generated.h"
 

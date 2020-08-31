@@ -46,8 +46,9 @@ public:
 protected:
 
 	float duration;
-	bool skipFirstTick;
 	float tickInterval;
+	bool skipFirstTick;
+	bool shouldCallTickEvent;
 
 	float currentTime;
 	float continueTimestamp;

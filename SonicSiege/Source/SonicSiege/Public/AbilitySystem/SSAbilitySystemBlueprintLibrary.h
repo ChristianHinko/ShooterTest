@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "AbilitySystem/TargetActors/GATDF_MultiFilter.h"
+#include "AbilitySystem/TargetActor/GATDF_MultiFilter.h"
 #include "SSAbilitySystemBlueprintLibrary.generated.h"
 
 /**
@@ -18,5 +18,5 @@ class SONICSIEGE_API USSAbilitySystemBlueprintLibrary : public UAbilitySystemBlu
 public:
 	/** Create a handle for filtering target data, filling out all fields */
 	UFUNCTION(BlueprintPure, Category = "Filter")
-		static FGATDF_MultiFilterHandle MakeMultiFilterHandle(FGATDF_MultiFilter MultiFilter, AActor* FilterActor);
+		static FGATDF_MultiFilterHandle MakeMultiFilterHandle(FGATDF_MultiFilter MultiFilter/*, AActor* FilterActor*/);
 };

@@ -35,7 +35,7 @@
 
 
 
-
+- Add GTGameplayAbilityTargetActor base class and add our own AT_WaitTargetData that uses our base target actor instead
 
 
 

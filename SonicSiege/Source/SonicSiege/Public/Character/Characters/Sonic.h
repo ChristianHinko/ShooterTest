@@ -16,4 +16,7 @@ class SONICSIEGE_API ASonic : public AAbilitySystemCharacter
 	
 public:
 	ASonic(const FObjectInitializer& ObjectInitializer);
+
+protected:
+	virtual void Tick(float DeltaSeconds) override;
 };

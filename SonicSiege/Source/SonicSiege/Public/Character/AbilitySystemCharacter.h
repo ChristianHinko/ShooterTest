@@ -14,6 +14,7 @@ class ASSPlayerState;
 class USSAttributeSet;
 class USSGameplayAbility;
 class UAS_Character;
+class UAS_Health;
 
 DECLARE_MULTICAST_DELEGATE(FSetupWithAbilitySystemCompleted);
 
@@ -74,6 +75,7 @@ public:
 	USSAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 	UAS_Character* GetCharacterAttributeSet() const { return CharacterAttributeSet; }
+	UAS_Health* GetHealthAttributeSet() const { return HealthAttributeSet; }
 
 #pragma region AbilitySystemSetup Delegates
 	FSetupWithAbilitySystemCompleted SetupWithAbilitySystemCompleted;
@@ -215,6 +217,8 @@ private:
 	/** Every character will have this attribute set. This is useful because this gives you a place for common attributes that every character should have. Children can make another attribute set specific to their character (ie. UAS_Demoman, UAS_Ganondorf) */
 	UPROPERTY(Replicated)
 		UAS_Character* CharacterAttributeSet;
+	UPROPERTY(Replicated)
+		UAS_Health* HealthAttributeSet;
 
 
 	/** The function that hooks this Character to the ASC. Calls most functions in this base Character class */

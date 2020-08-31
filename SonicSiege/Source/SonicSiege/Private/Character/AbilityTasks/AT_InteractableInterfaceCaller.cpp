@@ -27,6 +27,7 @@ UAT_InteractableInterfaceCaller* UAT_InteractableInterfaceCaller::InteractableIn
 	MyObj->duration = InInteract->interactDuration;
 	MyObj->tickInterval = InInteract->tickInterval;
 	MyObj->skipFirstTick = InInteract->shouldSkipFirstTick;
+	MyObj->shouldCallTickEvent = InInteract->shouldInteractableTick;
 
 	return MyObj;
 }
@@ -66,7 +67,10 @@ void UAT_InteractableInterfaceCaller::TickTask(float DeltaTime)
 		return;
 	}
 
-	OnInteractTickDelegate.Broadcast(DeltaTime, currentTime);
+	//if (shouldCallTickEvent)
+	{
+		OnInteractTickDelegate.Broadcast(DeltaTime, currentTime);
+	}
 
 	////
 	currentTime = currentTime + DeltaTime;

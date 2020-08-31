@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "AbilitySystem/TargetActors/GATDF_MultiFilter.h"
+#include "AbilitySystem/TargetActor/GATDF_MultiFilter.h"
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------------
 //

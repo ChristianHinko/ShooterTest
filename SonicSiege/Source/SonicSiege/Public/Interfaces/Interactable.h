@@ -67,8 +67,10 @@ public:
 #pragma region DurationInteraction
 	// How long the player needs to hold interact input to interact with this interactable
 	float interactDuration;
-	// Time to wait between ticks
+	// Time to wait between ticks. Be careful with this... longer wait between ticks means less precision of duration end (might over/undershoot interactDuration).
 	float tickInterval;
+	// Lets you make use of InteractingTick event
+	bool shouldInteractableTick;
 	// Skips first call to InteractingTick()
 	bool shouldSkipFirstTick;
 

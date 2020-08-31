@@ -11,6 +11,7 @@ AItem::AItem()
 	bShouldFireSweepEvents = true;
 	tickInterval = 0;
 	InteractionMode = EInteractionMode::Duration;
+	shouldInteractableTick = true;
 }
 
 void AItem::OnInteractInstant(APawn* InteractingPawn)

@@ -15,6 +15,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
 #include "Character/AS_Character.h"
+#include "Actor/AS_Health.h"
 
 //#include "Kismet/KismetSystemLibrary.h"
 
@@ -26,6 +27,7 @@ void AAbilitySystemCharacter::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 
 
 	DOREPLIFETIME(AAbilitySystemCharacter, CharacterAttributeSet);
+	DOREPLIFETIME(AAbilitySystemCharacter, HealthAttributeSet);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterJumpAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterRunAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, FireAbilitySpecHandle, COND_OwnerOnly);
@@ -233,6 +235,15 @@ void AAbilitySystemCharacter::CreateAttributeSets()
 		UE_CLOG((GetLocalRole() == ROLE_Authority), LogAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), *FString(__FUNCTION__), *CharacterAttributeSet->GetName());
 	}
 
+	if (!HealthAttributeSet)
+	{
+		HealthAttributeSet = NewObject<UAS_Health>(this, UAS_Health::StaticClass(), TEXT("HealthAttributeSet"));
+	}
+	else
+	{
+		UE_CLOG((GetLocalRole() == ROLE_Authority), LogAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), *FString(__FUNCTION__), *HealthAttributeSet->GetName());
+	}
+
 
 
 	// Subclasses create extra attribute sets here but only if you want to
@@ -264,6 +275,15 @@ void AAbilitySystemCharacter::RegisterAttributeSets()
 	else
 	{
 		UE_CLOG((GetLocalRole() == ROLE_Authority), LogAbilitySystemSetup, Warning, TEXT("%s() CharacterAttributeSet was either NULL or already added to the character's ASC. Character: %s"), *FString(__FUNCTION__), *GetName());
+	}
+
+	if (HealthAttributeSet && !GetAbilitySystemComponent()->SpawnedAttributes.Contains(HealthAttributeSet))	// If HealthAttributeSet is valid and it's not yet registered with the Character's ASC
+	{
+		GetAbilitySystemComponent()->AddAttributeSetSubobject(HealthAttributeSet);
+	}
+	else
+	{
+		UE_CLOG((GetLocalRole() == ROLE_Authority), LogAbilitySystemSetup, Warning, TEXT("%s() HealthAttributeSet was either NULL or already added to the character's ASC. Character: %s"), *FString(__FUNCTION__), *GetName());
 	}
 
 

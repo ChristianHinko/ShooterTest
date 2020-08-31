@@ -29,7 +29,7 @@ bool UAS_Health::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
 	Super::PreGameplayEffectExecute(Data);
 
 
-	FGameplayAttribute AttributeToModify = Data.EvaluatedData.Attribute;
+	const FGameplayAttribute AttributeToModify = Data.EvaluatedData.Attribute;
 
 
 
@@ -54,7 +54,7 @@ void UAS_Health::PostGameplayEffectExecute(const FGameplayEffectModCallbackData&
 	Super::PostGameplayEffectExecute(Data);
 
 
-	FGameplayAttribute ModifiedAttribute = Data.EvaluatedData.Attribute;
+	const FGameplayAttribute ModifiedAttribute = Data.EvaluatedData.Attribute;
 
 
 

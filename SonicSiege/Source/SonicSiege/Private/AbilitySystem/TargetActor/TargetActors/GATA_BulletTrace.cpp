@@ -17,6 +17,7 @@ AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer
 	bTraceAffectsAimPitch = true;
 	TraceChannel = COLLISION_BULLET;
 	numberOfBullets = 1;
+	bulletSpread = 0.f;
 }
 
 
@@ -37,22 +38,25 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 
 	for (uint8 t = 0; t < numberOfBullets; t++)
 	{
-		// create net-safe random seed stream
-		const int16 predKey = OwningAbility->GetCurrentActivationInfo().GetActivationPredictionKey().Current;
-		const int32 randomSeed = predKey - (t * 100000000000000000);	// use the prediction key as a net safe seed and add a crazy t-based large number so that each bullet has its own randomness per fire (the larger the number multiplied to t, the less likely bullets will follow the same pattern per fire)
-		const FRandomStream randomStream = FRandomStream(randomSeed);
-
-		// Get direction player is aiming
+		// get direction player is aiming
 		FVector AimDir;
 		DirWithPlayerController(InSourceActor, Params, TraceStart, AimDir);		//Effective on server and launching client only
 
-		// add random offset to AimDir
-		const float coneHalfAngleRadius = FMath::DegreesToRadians(bulletSpread * 0.5f);
-		AimDir = randomStream.VRandCone(AimDir, coneHalfAngleRadius);
+		// Calculate new AimDir with random bullet spread offset if needed
+		if (bulletSpread <= SMALL_NUMBER)
+		{
+			// create net-safe random seed stream
+			const int16 predKey = OwningAbility->GetCurrentActivationInfo().GetActivationPredictionKey().Current;
+			const int32 randomSeed = predKey - (t * 100000000000000000);	// use the prediction key as a net safe seed and add a crazy t-based large number so that each bullet has its own randomness per fire (the larger the number multiplied to t, the less likely bullets will follow the same pattern per fire)
+			const FRandomStream randomStream = FRandomStream(randomSeed);
+
+			// add random offset to AimDir
+			const float coneHalfAngleRadius = FMath::DegreesToRadians(bulletSpread * 0.5f);
+			AimDir = randomStream.VRandCone(AimDir, coneHalfAngleRadius);
+		}
 
 		// calculate the end of the trace based off aim dir and max range
 		const FVector TraceEnd = TraceStart + (AimDir * MaxRange);
-
 
 		// perform line trace 
 		LineTraceMultiWithFilter(OutHitResults, InSourceActor->GetWorld(), MultiFilterHandle, TraceStart, TraceEnd, TraceChannel, Params, bDebug);

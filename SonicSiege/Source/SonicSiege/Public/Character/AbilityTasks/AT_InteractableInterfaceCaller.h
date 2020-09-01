@@ -12,9 +12,9 @@
 class AAbilitySystemCharacter;
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FInteractingTickDelegate, float, DeltaTime, float, CurrentTime);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteractionEndDelegate, float, CurrentTime);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractionBeginDelegate);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FInteractingTickDelegate, float, float);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnInteractionEndDelegate, float);
+DECLARE_MULTICAST_DELEGATE(FOnInteractionBeginDelegate);
 /**
  * 
  */

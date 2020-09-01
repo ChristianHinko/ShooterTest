@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSGameplayAbility.h"
+#include "Interfaces/Interactable.h"
+
 #include "GA_CharacterInteractInstant.generated.h"
 
 class AAbilitySystemCharacter;
-class IInteractable;
 
 /**
  * 
@@ -20,15 +21,16 @@ class SONICSIEGE_API UGA_CharacterInteractInstant : public USSGameplayAbility
 public:
 	UGA_CharacterInteractInstant();
 
+	IInteractable* Interactable;
 protected:
-	//UPROPERTY(EditAnywhere)
-	//	TSubclassOf<UGameplayEffect> InteractEffectTSub;	// asset manager we need you D:
-	//FActiveGameplayEffectHandle InteractEffectActiveHandle;
-	
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<UGameplayEffect> InteractEffectTSub;	// asset manager we need you D:
+	FActiveGameplayEffectHandle InteractEffectActiveHandle;
+
 	UPROPERTY()
-		AAbilitySystemCharacter* GASsCharacter;
-	//UPROPERTY()
-		IInteractable* Interactable;
+		AAbilitySystemCharacter* GASCharacter;
+
+	float timeHeld;
 
 	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 
@@ -39,7 +41,20 @@ protected:
 	//END UGameplayAbility Interface
 
 
+
+
+
 #pragma region Gameplay Tags
-	//FGameplayTag TagAimingDownSights;
+
 #pragma endregion
+	UFUNCTION()
+		void OnInteractionBegin();
+	UFUNCTION()
+		void OnInteractTick(float DeltaTime, float TimeHeld);
+	UFUNCTION()
+		void OnRelease(float TimeHeld);
+	UFUNCTION()
+		void OnInteractionSweepMiss(float TimeHeld);
+	UFUNCTION()
+		void OnInteractCompleted(float TimeHeld);
 };

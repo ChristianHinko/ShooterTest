@@ -13,7 +13,8 @@ UENUM()
 enum class EInteractionMode
 {
 	Instant,
-	Duration
+	Duration,
+	InstantAndDuration
 };
 
 /** Describes interact event */

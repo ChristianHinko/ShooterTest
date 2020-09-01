@@ -16,7 +16,7 @@ AItem::AItem()
 
 void AItem::OnInteractInstant(APawn* InteractingPawn)
 {
-	//UKismetSystemLibrary::PrintString(this, "Instant Interact", true, true, FLinearColor::Gray);
+	UKismetSystemLibrary::PrintString(this, "Instant Interact", true, true, FLinearColor::Yellow);
 }
 
 

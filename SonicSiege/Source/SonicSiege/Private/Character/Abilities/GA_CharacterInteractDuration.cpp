@@ -57,9 +57,9 @@ bool UGA_CharacterInteractDuration::CanActivateAbility(const FGameplayAbilitySpe
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Detected nothing to interact with when activating interact duration ability. Cancelling"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (GASCharacter->CurrentInteract->InteractionMode != EInteractionMode::Duration)
+	if ((GASCharacter->CurrentInteract->InteractionMode != EInteractionMode::Duration) && (GASCharacter->CurrentInteract->InteractionMode != EInteractionMode::InstantAndDuration))
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() EInteractionMode was not \"Duration\" when trying to activate duration interact ability. Returning false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() EInteractionMode was not \"Duration\" or \"InstantAndDuration\" when trying to activate duration interact ability. Returning false"), *FString(__FUNCTION__));
 		return false;
 	}
 	if (!InteractEffectTSub)
@@ -106,10 +106,10 @@ void UGA_CharacterInteractDuration::ActivateAbility(const FGameplayAbilitySpecHa
 		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
 		return;
 	}
-	InteractableInterfaceCaller->OnInteractionBeginDelegate.AddDynamic(this, &UGA_CharacterInteractDuration::OnInteractionBegin);
-	InteractableInterfaceCaller->OnInteractTickDelegate.AddDynamic(this, &UGA_CharacterInteractDuration::OnInteractTick);
-	InteractableInterfaceCaller->OnInteractionSweepMissDelegate.AddDynamic(this, &UGA_CharacterInteractDuration::OnInteractionSweepMiss);
-	InteractableInterfaceCaller->OnSuccessfulInteractDelegate.AddDynamic(this, &UGA_CharacterInteractDuration::OnInteractCompleted);
+	InteractableInterfaceCaller->OnInteractionBeginDelegate.AddUObject(this, &UGA_CharacterInteractDuration::OnInteractionBegin);
+	InteractableInterfaceCaller->OnInteractTickDelegate.AddUObject(this, &UGA_CharacterInteractDuration::OnInteractTick);
+	InteractableInterfaceCaller->OnInteractionSweepMissDelegate.AddUObject(this, &UGA_CharacterInteractDuration::OnInteractionSweepMiss);
+	InteractableInterfaceCaller->OnSuccessfulInteractDelegate.AddUObject(this, &UGA_CharacterInteractDuration::OnInteractCompleted);
 	InteractableInterfaceCaller->ReadyForActivation();
 
 

@@ -10,11 +10,11 @@ AItem::AItem()
 {
 	bShouldFireSweepEvents = true;
 	tickInterval = 0;
-	InteractionMode = EInteractionMode::Duration;
+	InteractionMode = EInteractionMode::Instant;
 	//shouldInteractableTick = true;
 }
 
-void AItem::OnInteractInstant(APawn* InteractingPawn)
+void AItem::OnInstantInteract(APawn* InteractingPawn)
 {
 	UKismetSystemLibrary::PrintString(this, "Instant Interact", true, true, FLinearColor::Yellow);
 }

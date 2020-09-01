@@ -43,7 +43,7 @@ class SONICSIEGE_API AItem : public AAbilitySystemActor, public IInteractable
 public:
 	AItem();
 
-	virtual void OnInteractInstant(APawn* InteractingPawn) override;
+	virtual void OnInstantInteract(APawn* InteractingPawn) override;
 
 	virtual void OnDurationInteractBegin(APawn* InteractingPawn) override;
 	virtual void InteractingTick(APawn* InteractingPawn, float DeltaTime, float CurrentInteractionTime) override;

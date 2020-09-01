@@ -54,7 +54,7 @@ public:
 
 
 
-	virtual void OnInteractInstant(APawn* InteractingPawn);
+	virtual void OnInstantInteract(APawn* InteractingPawn);
 #pragma endregion
 
 

@@ -1,19 +1,19 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character\AbilityTasks\AT_InteractableInterfaceCaller.h"
+#include "Character\AbilityTasks\AT_DurationInteractCallbacks.h"
 
 #include "Character/AbilitySystemCharacter.h"
 #include "Utilities/LogCategories.h"
 
-UAT_InteractableInterfaceCaller::UAT_InteractableInterfaceCaller(const FObjectInitializer& ObjectInitializer)
+UAT_DurationInteractCallbacks::UAT_DurationInteractCallbacks(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	bTickingTask = true;
 
 }
 
-UAT_InteractableInterfaceCaller* UAT_InteractableInterfaceCaller::InteractableInterfaceCaller(UGameplayAbility* OwningAbility, AAbilitySystemCharacter* GASCharactor, IInteractable*& InInteract)
+UAT_DurationInteractCallbacks* UAT_DurationInteractCallbacks::InteractableInterfaceCaller(UGameplayAbility* OwningAbility, AAbilitySystemCharacter* GASCharactor, IInteractable*& InInteract)
 {
 	if (!InInteract || !OwningAbility || !GASCharactor)
 	{
@@ -21,7 +21,7 @@ UAT_InteractableInterfaceCaller* UAT_InteractableInterfaceCaller::InteractableIn
 		return nullptr;
 	}
 
-	UAT_InteractableInterfaceCaller* MyObj = NewAbilityTask<UAT_InteractableInterfaceCaller>(OwningAbility);
+	UAT_DurationInteractCallbacks* MyObj = NewAbilityTask<UAT_DurationInteractCallbacks>(OwningAbility);
 	MyObj->GASCharacter = GASCharactor;
 	MyObj->Interact = InInteract;
 	MyObj->duration = InInteract->interactDuration;
@@ -32,13 +32,13 @@ UAT_InteractableInterfaceCaller* UAT_InteractableInterfaceCaller::InteractableIn
 	return MyObj;
 }
 
-void UAT_InteractableInterfaceCaller::Activate()
+void UAT_DurationInteractCallbacks::Activate()
 {
 	currentTime = 0;
 	continueTimestamp = 0;
 }
 
-void UAT_InteractableInterfaceCaller::TickTask(float DeltaTime)
+void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 {
 	if (currentTime >= duration)
 	{
@@ -95,7 +95,7 @@ void UAT_InteractableInterfaceCaller::TickTask(float DeltaTime)
 
 
 
-FString UAT_InteractableInterfaceCaller::GetDebugString() const
+FString UAT_DurationInteractCallbacks::GetDebugString() const
 {
 	return FString::Printf(TEXT("InteractableInterfaceCaller"));
 }

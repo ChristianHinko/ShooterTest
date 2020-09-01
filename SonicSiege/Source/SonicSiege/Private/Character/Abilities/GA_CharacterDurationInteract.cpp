@@ -1,21 +1,21 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/Abilities/GA_CharacterInteractDuration.h"
+#include "Character/Abilities/GA_CharacterDurationInteract.h"
 
 #include "Character/AbilitySystemCharacter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
 #include "Character/AbilitySystemCharacter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
-#include "Character\AbilityTasks\AT_InteractableInterfaceCaller.h"
+#include "Character\AbilityTasks\AT_DurationInteractCallbacks.h"
 
-UGA_CharacterInteractDuration::UGA_CharacterInteractDuration()
+UGA_CharacterDurationInteract::UGA_CharacterDurationInteract()
 {
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.InteractDuration")));
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.DurationInteract")));
 }
 
-void UGA_CharacterInteractDuration::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void UGA_CharacterDurationInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnAvatarSet(ActorInfo, Spec);
 
@@ -37,7 +37,7 @@ void UGA_CharacterInteractDuration::OnAvatarSet(const FGameplayAbilityActorInfo*
 	}
 }
 
-bool UGA_CharacterInteractDuration::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
+bool UGA_CharacterDurationInteract::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {	
 	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 	{
@@ -77,7 +77,7 @@ bool UGA_CharacterInteractDuration::CanActivateAbility(const FGameplayAbilitySpe
 	return true;
 }
 
-void UGA_CharacterInteractDuration::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UGA_CharacterDurationInteract::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
@@ -102,19 +102,19 @@ void UGA_CharacterInteractDuration::ActivateAbility(const FGameplayAbilitySpecHa
 		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
 		return;
 	}
-	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterInteractDuration::OnRelease);
+	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterDurationInteract::OnRelease);
 	InputReleasedTask->ReadyForActivation();
 
-	UAT_InteractableInterfaceCaller* InteractableInterfaceCaller = UAT_InteractableInterfaceCaller::InteractableInterfaceCaller(this, GASCharacter, Interactable);
+	UAT_DurationInteractCallbacks* InteractableInterfaceCaller = UAT_DurationInteractCallbacks::InteractableInterfaceCaller(this, GASCharacter, Interactable);
 	if (!InteractableInterfaceCaller)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InteractableInterfaceCaller was NULL when trying to activate InteractDuration ability. May have been because a NULL Character or Interactable reference was passed in. Called CancelAbility()"), *FString(__FUNCTION__));
 		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
 		return;
 	}
-	InteractableInterfaceCaller->OnInteractTickDelegate.AddUObject(this, &UGA_CharacterInteractDuration::OnInteractTick);
-	InteractableInterfaceCaller->OnInteractionSweepMissDelegate.AddUObject(this, &UGA_CharacterInteractDuration::OnInteractionSweepMiss);
-	InteractableInterfaceCaller->OnSuccessfulInteractDelegate.AddUObject(this, &UGA_CharacterInteractDuration::OnInteractCompleted);
+	InteractableInterfaceCaller->OnInteractTickDelegate.AddUObject(this, &UGA_CharacterDurationInteract::OnInteractTick);
+	InteractableInterfaceCaller->OnInteractionSweepMissDelegate.AddUObject(this, &UGA_CharacterDurationInteract::OnInteractionSweepMiss);
+	InteractableInterfaceCaller->OnSuccessfulInteractDelegate.AddUObject(this, &UGA_CharacterDurationInteract::OnInteractCompleted);
 	InteractableInterfaceCaller->ReadyForActivation();
 
 
@@ -130,13 +130,13 @@ void UGA_CharacterInteractDuration::ActivateAbility(const FGameplayAbilitySpecHa
 
 
 
-void UGA_CharacterInteractDuration::OnInteractTick(float DeltaTime, float TimeHeld)
+void UGA_CharacterDurationInteract::OnInteractTick(float DeltaTime, float TimeHeld)
 {
 	timeHeld = TimeHeld;
 	Interactable->InteractingTick(GASCharacter, DeltaTime, TimeHeld);
 }
 
-void UGA_CharacterInteractDuration::OnRelease(float TimeHeld)
+void UGA_CharacterDurationInteract::OnRelease(float TimeHeld)
 {
 	timeHeld = TimeHeld;
 	InteractEndReason = EDurationInteractEndReason::REASON_InputRelease;
@@ -144,14 +144,14 @@ void UGA_CharacterInteractDuration::OnRelease(float TimeHeld)
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
 
-void UGA_CharacterInteractDuration::OnInteractionSweepMiss(float TimeHeld)
+void UGA_CharacterDurationInteract::OnInteractionSweepMiss(float TimeHeld)
 {
 	timeHeld = TimeHeld;
 	InteractEndReason = EDurationInteractEndReason::REASON_SweepMiss;
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
 
-void UGA_CharacterInteractDuration::OnInteractCompleted(float TimeHeld)
+void UGA_CharacterDurationInteract::OnInteractCompleted(float TimeHeld)
 {
 	timeHeld = TimeHeld;
 	InteractEndReason = EDurationInteractEndReason::REASON_SuccessfulInteract;
@@ -176,7 +176,7 @@ void UGA_CharacterInteractDuration::OnInteractCompleted(float TimeHeld)
 
 
 
-void UGA_CharacterInteractDuration::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void UGA_CharacterDurationInteract::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	if (!IsEndAbilityValid(Handle, ActorInfo))
 	{
@@ -184,7 +184,7 @@ void UGA_CharacterInteractDuration::EndAbility(const FGameplayAbilitySpecHandle 
 	}
 	if (ScopeLockCount > 0)
 	{
-		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &UGA_CharacterInteractDuration::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
+		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &UGA_CharacterDurationInteract::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
 		return;
 	}
 

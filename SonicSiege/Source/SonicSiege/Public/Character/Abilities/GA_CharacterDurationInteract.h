@@ -6,7 +6,7 @@
 #include "AbilitySystem/SSGameplayAbility.h"
 #include "Interfaces/Interactable.h"
 
-#include "GA_CharacterInteractDuration.generated.h"
+#include "GA_CharacterDurationInteract.generated.h"
 
 class AAbilitySystemCharacter;
 
@@ -14,12 +14,12 @@ class AAbilitySystemCharacter;
  * 
  */
 UCLASS()
-class SONICSIEGE_API UGA_CharacterInteractDuration : public USSGameplayAbility
+class SONICSIEGE_API UGA_CharacterDurationInteract : public USSGameplayAbility
 {
 	GENERATED_BODY()
 
 public:
-	UGA_CharacterInteractDuration();
+	UGA_CharacterDurationInteract();
 
 	IInteractable* Interactable;
 protected:

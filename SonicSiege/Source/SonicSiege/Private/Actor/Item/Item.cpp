@@ -11,7 +11,7 @@ AItem::AItem()
 {
 	bShouldFireSweepEvents = true;
 	tickInterval = 0;
-	InteractionMode = EInteractionMode::Duration;
+	InteractionMode = EInteractionMode::Instant;
 	shouldInteractableTick = true;
 }
 

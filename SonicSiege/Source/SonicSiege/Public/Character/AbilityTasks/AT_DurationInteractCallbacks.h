@@ -7,7 +7,7 @@
 #include "Interfaces/Interactable.h"
 #include "UObject/ScriptInterface.h"
 
-#include "AT_InteractableInterfaceCaller.generated.h"
+#include "AT_DurationInteractCallbacks.generated.h"
 
 class AAbilitySystemCharacter;
 
@@ -19,12 +19,12 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnInteractionEndDelegate, float);
  * 
  */
 UCLASS()
-class SONICSIEGE_API UAT_InteractableInterfaceCaller : public USSAbilityTask
+class SONICSIEGE_API UAT_DurationInteractCallbacks : public USSAbilityTask
 {
 	GENERATED_BODY()
 
 public:
-	UAT_InteractableInterfaceCaller(const FObjectInitializer& ObjectInitializer);
+	UAT_DurationInteractCallbacks(const FObjectInitializer& ObjectInitializer);
 
 	//FOnInteractionBeginDelegate OnInteractionBeginDelegate;
 	FInteractingTickDelegate OnInteractTickDelegate;
@@ -39,7 +39,7 @@ public:
 
 
 	/** Start a task that repeats an action or set of actions. */
-	static UAT_InteractableInterfaceCaller* InteractableInterfaceCaller(UGameplayAbility* OwningAbility, AAbilitySystemCharacter* GASCharactor, IInteractable*& InInteract);
+	static UAT_DurationInteractCallbacks* InteractableInterfaceCaller(UGameplayAbility* OwningAbility, AAbilitySystemCharacter* GASCharactor, IInteractable*& InInteract);
 
 	void Activate() override;
 

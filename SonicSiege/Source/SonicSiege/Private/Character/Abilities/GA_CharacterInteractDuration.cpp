@@ -64,6 +64,16 @@ bool UGA_CharacterInteractDuration::CanActivateAbility(const FGameplayAbilitySpe
 		return false;
 	}
 
+
+	// Allow the implementer to create custom conditions before we activate
+	if (GASCharacter->CurrentInteract->CanInteract(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from IInteractable's implementor"), *FString(__FUNCTION__));
+		return false;
+	}
+
+
+
 	return true;
 }
 
@@ -102,7 +112,6 @@ void UGA_CharacterInteractDuration::ActivateAbility(const FGameplayAbilitySpecHa
 		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
 		return;
 	}
-	InteractableInterfaceCaller->OnInteractionBeginDelegate.AddUObject(this, &UGA_CharacterInteractDuration::OnInteractionBegin);
 	InteractableInterfaceCaller->OnInteractTickDelegate.AddUObject(this, &UGA_CharacterInteractDuration::OnInteractTick);
 	InteractableInterfaceCaller->OnInteractionSweepMissDelegate.AddUObject(this, &UGA_CharacterInteractDuration::OnInteractionSweepMiss);
 	InteractableInterfaceCaller->OnSuccessfulInteractDelegate.AddUObject(this, &UGA_CharacterInteractDuration::OnInteractCompleted);
@@ -110,21 +119,16 @@ void UGA_CharacterInteractDuration::ActivateAbility(const FGameplayAbilitySpecHa
 
 
 	InteractEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, InteractEffectTSub.GetDefaultObject(), GetAbilityLevel());
-}
-
-
-
-
-
-
-
-
-
-
-void UGA_CharacterInteractDuration::OnInteractionBegin()
-{
 	Interactable->OnDurationInteractBegin(GASCharacter);
 }
+
+
+
+
+
+
+
+
 
 void UGA_CharacterInteractDuration::OnInteractTick(float DeltaTime, float TimeHeld)
 {

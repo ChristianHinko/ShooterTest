@@ -49,8 +49,6 @@ protected:
 
 #pragma endregion
 	UFUNCTION()
-		void OnInteractionBegin();
-	UFUNCTION()
 		void OnInteractTick(float DeltaTime, float TimeHeld);
 	UFUNCTION()
 		void OnRelease(float TimeHeld);

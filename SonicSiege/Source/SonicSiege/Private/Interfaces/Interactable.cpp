@@ -18,6 +18,7 @@ IInteractable::IInteractable()
 
 
 
+
 void IInteractable::OnInstantInteract(APawn* InteractingPawn)
 {
 }

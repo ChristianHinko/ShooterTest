@@ -5,14 +5,30 @@
 
 #include "Kismet/KismetSystemLibrary.h"
 #include "Interfaces/Interactable.h"
+#include "Character/AbilitySystemCharacter.h"
 
 AItem::AItem()
 {
 	bShouldFireSweepEvents = true;
 	tickInterval = 0;
-	InteractionMode = EInteractionMode::Instant;
-	//shouldInteractableTick = true;
+	InteractionMode = EInteractionMode::Duration;
+	shouldInteractableTick = true;
 }
+
+
+
+
+bool AItem::CanInteract(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
+{
+	return true;
+}
+
+
+
+
+
+
+
 
 void AItem::OnInstantInteract(APawn* InteractingPawn)
 {

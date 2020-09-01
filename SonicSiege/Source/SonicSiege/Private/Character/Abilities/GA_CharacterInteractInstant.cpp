@@ -59,6 +59,16 @@ bool UGA_CharacterInteractInstant::CanActivateAbility(const FGameplayAbilitySpec
 		return false;
 	}
 
+
+	// Allow the implementer to create custom conditions before we activate
+	if (GASCharacter->CurrentInteract->CanInteract(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from IInteractable's implementor"), *FString(__FUNCTION__));
+		return false;
+	}
+
+
+
 	return true;
 }
 

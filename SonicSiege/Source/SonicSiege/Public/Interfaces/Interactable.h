@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "GameplayAbilitySpec.h"
+
 #include "Interactable.generated.h"
 
 class APawn;
@@ -35,7 +37,9 @@ class UInteractable : public UInterface
 };
 
 /**
- *	All events are ran from within the interact abilities, besides sweep events.
+ *	All events are ran from within the interact abilities, besides sweep events. This Interface allows a fast implementation of custom logic for interaction, while still getting the benefits of abilities.
+ *	You can treat these implementations the same way you would do logic in abilities. For instant interactions effects, montages, etc can be rolled back since InstantInteract ability is instant. Since DurationInteract is latent you only get rollback in OnDurationInteractBegin()
+ *	---- Would love to eventually give all callbacks valid predicion keys, that way activation can be rolled back for durration interaction (at least for supported logic ie. Effects). Would also love to implement custom rollback and have a callback for that, but thats a topic on its own ----
  */
 class SONICSIEGE_API IInteractable
 {
@@ -46,14 +50,12 @@ public:
 
 	EInteractionMode InteractionMode;	// may implement same idea but with GameplayTags later if we find out it has benifits
 	
-	
+	// Called from an interact ability's CanActivateAbility(). Gives implementor a chance to do some checks before activated.
+	virtual bool CanInteract(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const = 0;
 
 
 #pragma region InstantInteraction
-	// Interact instant events
-
-
-
+	// Called from ActivateAbility() (valid prediction key)
 	virtual void OnInstantInteract(APawn* InteractingPawn);
 #pragma endregion
 
@@ -75,7 +77,7 @@ public:
 	// Skips first call to InteractingTick()
 	bool shouldSkipFirstTick;
 
-	// Called the first frame of interaction (on press interact input)
+	// Called the first frame of interaction (on press interact input) (valid prediction key)
 	virtual void OnDurationInteractBegin(APawn* InteractingPawn);
 	// Called every frame during a duration interaction (while interact input is down)
 	virtual void InteractingTick(APawn* InteractingPawn, float DeltaTime, float CurrentInteractionTime);

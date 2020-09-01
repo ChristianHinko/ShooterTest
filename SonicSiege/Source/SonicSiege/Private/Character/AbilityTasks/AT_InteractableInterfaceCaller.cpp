@@ -53,7 +53,7 @@ void UAT_InteractableInterfaceCaller::TickTask(float DeltaTime)
 
 	if (currentTime == 0)
 	{
-		OnInteractionBeginDelegate.Broadcast();
+		//OnInteractionBeginDelegate.Broadcast();	Currently handling this in ActivateAbility() instead of here so that we get a free prediction key for the callback
 	}
 
 	if (continueTimestamp == 0 && skipFirstTick)

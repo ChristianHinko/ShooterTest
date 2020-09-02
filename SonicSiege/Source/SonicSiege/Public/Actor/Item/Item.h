@@ -43,8 +43,11 @@ class SONICSIEGE_API AItem : public AAbilitySystemActor, public IInteractable
 public:
 	AItem();
 
-	virtual void OnInteractInstant(APawn* InteractingPawn) override;
+	virtual bool CanInteract(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const override;
 
+	virtual void OnInstantInteract(APawn* InteractingPawn) override;
+
+	virtual void OnDurationInteractBegin(APawn* InteractingPawn) override;
 	virtual void InteractingTick(APawn* InteractingPawn, float DeltaTime, float CurrentInteractionTime) override;
 	virtual void OnDurationInteractEnd(APawn* InteractingPawn, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime) override;
 

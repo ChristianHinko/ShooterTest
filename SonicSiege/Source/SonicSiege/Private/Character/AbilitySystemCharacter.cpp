@@ -487,10 +487,15 @@ void AAbilitySystemCharacter::OnInteractPressed()
 	{
 		if (CurrentInteract->InteractionMode == EInteractionMode::Instant)
 		{
-			GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle, true);
+			GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
 		}
 		else if (CurrentInteract->InteractionMode == EInteractionMode::Duration)
 		{
+			GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
+		}
+		else if (CurrentInteract->InteractionMode == EInteractionMode::InstantAndDuration)
+		{
+			GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
 			GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
 		}
 		

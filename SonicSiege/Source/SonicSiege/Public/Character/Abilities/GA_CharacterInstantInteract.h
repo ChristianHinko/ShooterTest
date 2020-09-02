@@ -4,42 +4,41 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSGameplayAbility.h"
-#include "GA_CharacterInteractInstant.generated.h"
+#include "Interfaces/Interactable.h"
+
+#include "GA_CharacterInstantInteract.generated.h"
 
 class AAbilitySystemCharacter;
-class IInteractable;
 
 /**
  * 
  */
 UCLASS()
-class SONICSIEGE_API UGA_CharacterInteractInstant : public USSGameplayAbility
+class SONICSIEGE_API UGA_CharacterInstantInteract : public USSGameplayAbility
 {
 	GENERATED_BODY()
 
 public:
-	UGA_CharacterInteractInstant();
+	UGA_CharacterInstantInteract();
 
+	IInteractable* Interactable;
 protected:
-	//UPROPERTY(EditAnywhere)
-	//	TSubclassOf<UGameplayEffect> InteractEffectTSub;	// asset manager we need you D:
-	//FActiveGameplayEffectHandle InteractEffectActiveHandle;
-	
 	UPROPERTY()
-		AAbilitySystemCharacter* GASsCharacter;
-	//UPROPERTY()
-		IInteractable* Interactable;
+		AAbilitySystemCharacter* GASCharacter;
 
-	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 
 	//BEGIN UGameplayAbility Interface
+	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	//END UGameplayAbility Interface
 
 
+
+
+
 #pragma region Gameplay Tags
-	//FGameplayTag TagAimingDownSights;
+
 #pragma endregion
 };

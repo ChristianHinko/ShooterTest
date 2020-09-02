@@ -130,7 +130,7 @@ void ASSCharacter::Tick(float DeltaTime)
 
 	if (HasAuthority() || IsLocallyControlled())	// Don't run for simulated proxies
 	{
-		CurrentInteract = ScanForInteractables(InteractSweepHitResult);
+		CurrentInteract = DetectCurrentInteractable(InteractSweepHitResult);
 		if (CurrentInteract)
 		{
 			if (CurrentInteract->bShouldFireSweepEvents)
@@ -163,7 +163,7 @@ void ASSCharacter::Tick(float DeltaTime)
 
 
 
-IInteractable* ASSCharacter::ScanForInteractables(FHitResult& OutHit)
+IInteractable* ASSCharacter::DetectCurrentInteractable(FHitResult& OutHit)
 {
 	// Check if sphere sweep detects blocking hit as an interactable (a blocking hit doesn't necessarily mean the object is collidable. It's can just be collidable to the Interact trace channel).
 	// Also there will only ever be a need to check for the first blocking hit, overlaps don't matter for this.
@@ -216,11 +216,7 @@ void ASSCharacter::OnComponentBeginOverlapCharacterCapsule(UPrimitiveComponent* 
 {
 	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
 	{
-		if (Interactable->GetCanCurrentlyBeInteractedWith())
-		{
-			FrameOverlapInteractables.Push(Interactable);
-
-		}
+		FrameOverlapInteractables.Push(Interactable);
 	}
 }
 void ASSCharacter::OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -233,7 +229,7 @@ void ASSCharacter::OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* Ov
 		}
 		else
 		{
-			UE_LOG(LogTemp, Fatal, TEXT("%s() FrameOverlapInteractables is implemented as a stack but for some reason it wants us to remove not from the top right now"), *FString(__FUNCTION__));
+			UE_LOG(LogTemp, Warning, TEXT("%s() FrameOverlapInteractables is implemented as a stack but for some reason it wants us to remove not from the top right now"), *FString(__FUNCTION__));
 		}
 		
 	}

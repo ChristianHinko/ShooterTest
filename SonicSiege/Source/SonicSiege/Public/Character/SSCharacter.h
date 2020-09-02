@@ -69,7 +69,7 @@ public:
 	 *  3) 
 	 * Uses this specific character's parameters and camera orientation to do a sphere sweep to give a possible interactable. If no interactable detected, returns nullptr
 	 */
-	IInteractable* ScanForInteractables(FHitResult& OutHit);
+	IInteractable* DetectCurrentInteractable(FHitResult& OutHit);
 
 	UFUNCTION()
 		void OnComponentBeginOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

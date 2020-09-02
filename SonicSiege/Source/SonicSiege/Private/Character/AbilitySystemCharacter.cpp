@@ -483,17 +483,17 @@ void AAbilitySystemCharacter::OnCancelTargetReleased()
 
 void AAbilitySystemCharacter::OnInteractPressed()
 {
-	if (/*InteractSweepHitResult.bBlockingHit*/ CurrentInteract)	// is this variable reliable for this situation? May need to do another cast for an IInteractable
+	if (/*InteractSweepHitResult.bBlockingHit*/ CurrentInteract)
 	{
-		if (CurrentInteract->InteractionMode == EInteractionMode::Instant)
+		if (CurrentInteract->GetInteractionMode() == EInteractionMode::Instant)
 		{
 			GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
 		}
-		else if (CurrentInteract->InteractionMode == EInteractionMode::Duration)
+		else if (CurrentInteract->GetInteractionMode() == EInteractionMode::Duration)
 		{
 			GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
 		}
-		else if (CurrentInteract->InteractionMode == EInteractionMode::InstantAndDuration)
+		else if (CurrentInteract->GetInteractionMode() == EInteractionMode::InstantAndDuration)
 		{
 			GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
 			GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);

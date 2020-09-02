@@ -10,15 +10,13 @@
 AItem::AItem()
 {
 	bShouldFireSweepEvents = true;
-	tickInterval = 0;
-	InteractionMode = EInteractionMode::Instant;
-	shouldInteractableTick = true;
+	InteractionMode = EInteractionMode::Duration;
 }
 
 
 
 
-bool AItem::CanInteract(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
+bool AItem::CanActivateInteractAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
 	return true;
 }
@@ -47,7 +45,12 @@ void AItem::InteractingTick(APawn* InteractingPawn, float DeltaTime, float Curre
 }
 void AItem::OnDurationInteractEnd(APawn* InteractingPawn, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime)
 {
-	UKismetSystemLibrary::PrintString(this, "OnDurationInteractEnd", true, true, FLinearColor::Gray);
+	if (DurationInteractEndReason == EDurationInteractEndReason::REASON_SuccessfulInteract)
+	{
+		Destroy();
+		UKismetSystemLibrary::PrintString(this, "OnDurationInteractEnd", true, true, FLinearColor::Gray);
+	}
+	
 }
 
 

@@ -61,19 +61,28 @@ public:
 
 	USSCharacterMovementComponent* GetSSCharacterMovementComponent() const { return SSCharacterMovementComponent; }
 
-	// Uses this specific character's parameters and camera orientation to do a sphere sweep to give a possible interactable. If no interactable detected, returns nullptr
-	void ScanForInteractables(IInteractable*& OutInteractable, FHitResult& OutHit);
+	/**
+	 * 
+	 * Order for determining what the current interactable is:
+	 *	1) First do sphere sweeep to return first blocking hit. 
+	 *  2) If that was NULL, return an interactable overlapping with the capsule component.
+	 *  3) 
+	 * Uses this specific character's parameters and camera orientation to do a sphere sweep to give a possible interactable. If no interactable detected, returns nullptr
+	 */
+	IInteractable* ScanForInteractables(FHitResult& OutHit);
 
+	UFUNCTION()
+		void OnComponentBeginOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+		void OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	TArray<IInteractable*> FrameOverlapInteractables;
 
 	IInteractable* CurrentInteract;
 	IInteractable* LastInteract;
 
 protected:
 		// Try ustilizing our custom trace channel before resorting to this
-	UPROPERTY(EditAnywhere)
-		TArray<AActor*> ActorsToNotInteractWith;
-	ETraceTypeQuery InteractChannel;
 	UPROPERTY(EditAnywhere)
 		float InteractSweepDistance;
 	UPROPERTY(EditAnywhere)

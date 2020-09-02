@@ -59,6 +59,6 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 		const FVector TraceEnd = TraceStart + (AimDir * MaxRange);
 
 		// perform line trace 
-		LineTraceMultiWithFilter(OutHitResults, InSourceActor->GetWorld(), MultiFilterHandle, TraceStart, TraceEnd, TraceChannel, Params, bDebug);
+		LineTraceMultiWithFilter(OutHitResults, InSourceActor->GetWorld(), MultiFilterHandle, TraceStart, TraceEnd, TraceChannel, Params, bAllowMultipleHitsPerActor, bDebug);
 	}
 }

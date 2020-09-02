@@ -46,8 +46,8 @@ void ASonic::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (GetHealthAttributeSet() && GetHealthAttributeSet()->GetHealth())
-	{
-		//UKismetSystemLibrary::PrintString(this, GetName() + ": " + FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
-	}
+	//if (GetHealthAttributeSet() && GetHealthAttributeSet()->GetHealth())
+	//{
+	//	UKismetSystemLibrary::PrintString(this, GetName() + ": " + FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
+	//}
 }

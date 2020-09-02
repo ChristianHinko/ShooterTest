@@ -26,6 +26,7 @@ AGATA_Trace::AGATA_Trace(const FObjectInitializer& ObjectInitializer)
 	MaxRange = 100000.f;
 	bTraceAffectsAimPitch = true;
 	TraceChannel = ECollisionChannel::ECC_Visibility;
+	bAllowMultipleHitsPerActor = false;
 
 	MultiFilter.bReverseFilter = true;
 	MultiFilter.RequiredActorClasses.Add(AAbilitySystemCharacter::StaticClass());
@@ -103,7 +104,7 @@ void AGATA_Trace::AimWithPlayerController(const AActor* InSourceActor, FCollisio
 	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, MaxRange, ViewEnd);
 
 	TArray<FHitResult> HitResults;
-	LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), MultiFilterHandle, ViewStart, ViewEnd, TraceChannel, Params);
+	LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), MultiFilterHandle, ViewStart, ViewEnd, TraceChannel, Params, false, false);
 	FHitResult HitResult = HitResults.Num() ? HitResults.Last() : FHitResult();
 
 	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
@@ -154,7 +155,7 @@ void AGATA_Trace::DirWithPlayerController(const AActor* InSourceActor, FCollisio
 	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, MaxRange, ViewEnd);
 
 	TArray<FHitResult> HitResults;
-	LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), MultiFilterHandle, ViewStart, ViewEnd, TraceChannel, Params);
+	LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), MultiFilterHandle, ViewStart, ViewEnd, TraceChannel, Params, false, false);
 	FHitResult HitResult = HitResults.Num() ? HitResults.Last() : FHitResult();
 
 	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
@@ -205,15 +206,39 @@ bool AGATA_Trace::ClipCameraRayToAbilityRange(FVector CameraLocation, FVector Ca
 	return false;
 }
 
-void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGATDF_MultiFilterHandle MultiFilterHandle, const FVector& Start, const FVector& End, ECollisionChannel TraceChannel, const FCollisionQueryParams Params, bool debug)
+void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGATDF_MultiFilterHandle MultiFilterHandle, const FVector& Start, const FVector& End, const ECollisionChannel TraceChannel, const FCollisionQueryParams Params, const bool inAllowMultipleHitsPerActor, const bool inDebug)
 {
 	check(World);
 
 	World->LineTraceMultiByChannel(OutHitResults, Start, End, TraceChannel, Params);
 
+	// remove duplicate hits on actors
+	if (!inAllowMultipleHitsPerActor)
+	{
+		/*
+			Loop through each hit result and check if the hits infront of it (the hit results less than the pending index) already have its actor.
+			If so, remove the pending hit result because it has the actor that was already hit and is considered a duplicate hit.
+		*/
+		for (int32 pendingIndex = 0; pendingIndex < OutHitResults.Num(); pendingIndex++)
+		{
+			const FHitResult PendingHit = OutHitResults[pendingIndex];
+
+			// check if the hit results that we've looped through so far contains a hit result with this actor already
+			for (int32 comparisonIndex = 0; comparisonIndex < pendingIndex; comparisonIndex++)
+			{
+				if (PendingHit.Actor == OutHitResults[comparisonIndex].Actor)
+				{
+					OutHitResults.RemoveAt(pendingIndex);
+					pendingIndex--;		// put pendingIndex back in sync after removal		(this can be weird because on first iteration, this will make pendingIndex == -1 but it gets fixed next iteration)
+				}
+			}
+		}
+	}
+
+
 	// debug before we remove filtered hit results
 #if ENABLE_DRAW_DEBUG
-	if (debug)
+	if (inDebug)
 	{
 		const float debugLifeTime = 5.f;
 		const FColor TraceColor = FColor::Blue;
@@ -267,15 +292,39 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 	}
 }
 
-void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGATDF_MultiFilterHandle MultiFilterHandle, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, ECollisionChannel TraceChannel, const FCollisionQueryParams Params, bool debug)
+void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGATDF_MultiFilterHandle MultiFilterHandle, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const ECollisionChannel TraceChannel, const FCollisionQueryParams Params, const bool inAllowMultipleHitsPerActor, const bool inDebug)
 {
 	check(World);
 
 	World->SweepMultiByChannel(OutHitResults, Start, End, Rotation, TraceChannel, CollisionShape, Params);
 
+	// remove duplicate hits on actors
+	if (!inAllowMultipleHitsPerActor)
+	{
+		/*
+			Loop through each hit result and check if the hits infront of it (the hit results less than the pending index) already have its actor.
+			If so, remove the pending hit result because it has the actor that was already hit and is considered a duplicate hit.
+		*/
+		for (int32 pendingIndex = 0; pendingIndex < OutHitResults.Num(); pendingIndex++)
+		{
+			const FHitResult PendingHit = OutHitResults[pendingIndex];
+
+			// check if the hit results that we've looped through so far contains a hit result with this actor already
+			for (int32 comparisonIndex = 0; comparisonIndex < pendingIndex; comparisonIndex++)
+			{
+				if (PendingHit.Actor == OutHitResults[comparisonIndex].Actor)
+				{
+					OutHitResults.RemoveAt(pendingIndex);
+					pendingIndex--;		// put pendingIndex back in sync after removal		(this can be weird because on first iteration, this will make pendingIndex == -1 but it gets fixed next iteration)
+				}
+			}
+		}
+	}
+
+
 	// debug before we remove filtered hit results
 #if ENABLE_DRAW_DEBUG
-	if (debug)
+	if (inDebug)
 	{
 		const float debugLifeTime = 5.f;
 		const FColor TraceColor = FColor::Blue;

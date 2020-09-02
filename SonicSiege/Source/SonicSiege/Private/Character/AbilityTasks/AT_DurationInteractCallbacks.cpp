@@ -26,8 +26,8 @@ UAT_DurationInteractCallbacks* UAT_DurationInteractCallbacks::InteractableInterf
 	MyObj->Interact = InInteract;
 	MyObj->duration = InInteract->interactDuration;
 	MyObj->tickInterval = InInteract->tickInterval;
-	MyObj->skipFirstTick = InInteract->shouldSkipFirstTick;
-	MyObj->shouldCallTickEvent = InInteract->shouldInteractableTick;
+	MyObj->skipFirstTick = InInteract->bShouldSkipFirstTick;
+	MyObj->shouldCallTickEvent = InInteract->bShouldInteractableTick;
 
 	return MyObj;
 }

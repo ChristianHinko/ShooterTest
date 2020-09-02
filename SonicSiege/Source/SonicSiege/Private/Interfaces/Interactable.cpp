@@ -6,11 +6,22 @@
 // Add default functionality here for any IInteractable functions that are not pure virtual.
 IInteractable::IInteractable()
 {
+	InteractionMode = EInteractionMode::Instant;
+	bCanCurrentlyBeInteractedWith = true;
 	bShouldFireSweepEvents = false;
 	interactDuration = 5.f;
 	tickInterval = 0;
-	shouldInteractableTick = false;
-	shouldSkipFirstTick = false;
+	bShouldInteractableTick = true;
+	bShouldSkipFirstTick = false;
+}
+
+bool IInteractable::GetCanCurrentlyBeInteractedWith()
+{
+	return bCanCurrentlyBeInteractedWith;
+}
+EInteractionMode IInteractable::GetInteractionMode()
+{
+	return InteractionMode;
 }
 
 

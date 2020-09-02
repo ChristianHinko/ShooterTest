@@ -53,7 +53,12 @@ bool UGA_CharacterInstantInteract::CanActivateAbility(const FGameplayAbilitySpec
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Detected nothing to interact with when activating interact instant ability. Cancelling"), *FString(__FUNCTION__));
 		return false;
 	}
-	if ((GASCharacter->CurrentInteract->InteractionMode != EInteractionMode::Instant) && (GASCharacter->CurrentInteract->InteractionMode != EInteractionMode::InstantAndDuration))
+	if (!GASCharacter->CurrentInteract->GetCanCurrentlyBeInteractedWith())
+	{
+		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Couldn't interact because bCanCurrentlyBeInteractedWith was false"), *FString(__FUNCTION__));
+		return false;
+	}
+	if ((GASCharacter->CurrentInteract->GetInteractionMode() != EInteractionMode::Instant) && (GASCharacter->CurrentInteract->GetInteractionMode() != EInteractionMode::InstantAndDuration))
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() EInteractionMode was not \"Instant\" or \"InstantAndDuration\" when trying to activate instant interact ability. Returning false"), *FString(__FUNCTION__));
 		return false;
@@ -61,7 +66,7 @@ bool UGA_CharacterInstantInteract::CanActivateAbility(const FGameplayAbilitySpec
 
 
 	// Allow the implementer to create custom conditions before we activate
-	if (GASCharacter->CurrentInteract->CanInteract(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
+	if (GASCharacter->CurrentInteract->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from IInteractable's implementor"), *FString(__FUNCTION__));
 		return false;

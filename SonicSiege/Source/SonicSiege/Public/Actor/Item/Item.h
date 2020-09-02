@@ -43,7 +43,7 @@ class SONICSIEGE_API AItem : public AAbilitySystemActor, public IInteractable
 public:
 	AItem();
 
-	virtual bool CanInteract(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const override;
+	virtual bool CanActivateInteractAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const override;
 
 	virtual void OnInstantInteract(APawn* InteractingPawn) override;
 

@@ -33,9 +33,9 @@ public:
 	static bool ClipCameraRayToAbilityRange(FVector CameraLocation, FVector CameraDirection, FVector AbilityCenter, float AbilityRange, FVector& ClippedPosition);
 
 	/** Traces as normal, but will manually filter all hit actors */
-	static void LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGATDF_MultiFilterHandle MultiFilterHandle, const FVector& Start, const FVector& End, ECollisionChannel TraceChannel, const FCollisionQueryParams Params, bool debug = false);
+	static void LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGATDF_MultiFilterHandle MultiFilterHandle, const FVector& Start, const FVector& End, const ECollisionChannel TraceChannel, const FCollisionQueryParams Params, const bool inAllowMultipleHitsPerActor, const bool inDebug);
 	/** Sweeps as normal, but will manually filter all hit actors */
-	static void SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGATDF_MultiFilterHandle MultiFilterHandle, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, ECollisionChannel TraceChannel, const FCollisionQueryParams Params, bool debug = false);
+	static void SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGATDF_MultiFilterHandle MultiFilterHandle, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const ECollisionChannel TraceChannel, const FCollisionQueryParams Params, const bool inAllowMultipleHitsPerActor, const bool inDebug);
 
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
@@ -51,6 +51,12 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
 		FGATDF_MultiFilter MultiFilter;
 	FGATDF_MultiFilterHandle MultiFilterHandle;
+
+	/**
+	 * If true, when a trace overlaps an actor's multiple collisions, those multiple collision hits will add
+	 * that actor to the hitresults multiple times.
+	 */
+	bool bAllowMultipleHitsPerActor;
 
 protected:
 	virtual void PreInitializeComponents() override;

@@ -44,8 +44,8 @@ ASonic::ASonic(const FObjectInitializer& ObjectInitializer)
 
 void ASonic::Tick(float DeltaSeconds)
 {
-	if (GetHealthAttributeSet() && GetHealthAttributeSet()->GetHealth())
-	{
-		UKismetSystemLibrary::PrintString(this, GetName() + ": " + FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
-	}
+	//if (GetHealthAttributeSet() && GetHealthAttributeSet()->GetHealth())
+	//{
+	//	UKismetSystemLibrary::PrintString(this, GetName() + ": " + FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
+	//}
 }

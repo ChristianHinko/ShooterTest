@@ -55,5 +55,9 @@ protected:
 	UFUNCTION()
 		void OnInteractionSweepMiss(float TimeHeld);
 	UFUNCTION()
+		void OnCharacterLeftInteractionOverlap(float TimeHeld);
+	UFUNCTION()
+		void OnNewInteractionPriority(float TimeHeld);
+	UFUNCTION()
 		void OnInteractCompleted(float TimeHeld);
 };

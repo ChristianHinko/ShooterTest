@@ -48,25 +48,25 @@ bool UGA_CharacterInstantInteract::CanActivateAbility(const FGameplayAbilitySpec
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate instant interact ability"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (!GASCharacter->CurrentInteract)
+	if (!GASCharacter->CurrentDetectedInteract)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Detected nothing to interact with when activating interact instant ability. Cancelling"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (!GASCharacter->CurrentInteract->GetCanCurrentlyBeInteractedWith())
+	if (!GASCharacter->CurrentDetectedInteract->GetCanCurrentlyBeInteractedWith())
 	{
 		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Couldn't interact because bCanCurrentlyBeInteractedWith was false"), *FString(__FUNCTION__));
 		return false;
 	}
-	if ((GASCharacter->CurrentInteract->GetInteractionMode() != EInteractionMode::Instant) && (GASCharacter->CurrentInteract->GetInteractionMode() != EInteractionMode::InstantAndDuration))
+	if (!GASCharacter->CurrentDetectedInteract->GetIsInstantInteract())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() EInteractionMode was not \"Instant\" or \"InstantAndDuration\" when trying to activate instant interact ability. Returning false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetIsInstantInteract() returned false"), *FString(__FUNCTION__));
 		return false;
 	}
 
 
 	// Allow the implementer to create custom conditions before we activate
-	if (GASCharacter->CurrentInteract->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
+	if (GASCharacter->CurrentDetectedInteract->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from IInteractable's implementor"), *FString(__FUNCTION__));
 		return false;
@@ -86,7 +86,7 @@ void UGA_CharacterInstantInteract::ActivateAbility(const FGameplayAbilitySpecHan
 		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
 		return;
 	}
-	Interactable = GASCharacter->CurrentInteract;	// Wish I could put this in CanActivateAbiliy() but since it's called on CDO we can't set this reference on this instance
+	Interactable = GASCharacter->CurrentDetectedInteract;	// Wish I could put this in CanActivateAbiliy() but since it's called on CDO we can't set this reference on this instance
 	if (!Interactable)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Server detected nothing to interact with when activating interact instant ability. This should be an invalid state. Cancelling"), *FString(__FUNCTION__));

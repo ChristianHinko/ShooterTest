@@ -36,6 +36,11 @@ void UAT_DurationInteractCallbacks::Activate()
 {
 	currentTime = 0;
 	continueTimestamp = 0;
+	if (Interact->GetDetectType() == EDetectType::TYPE_Overlap)
+	{
+		GASCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.AddUObject(this, &UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable);
+	}
+	
 }
 
 void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
@@ -46,9 +51,12 @@ void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 		return;
 	}
 
-	if (Interact != GASCharacter->CurrentInteract)	// If the character's Interaction sweep doesn't detect the same Interactable we started interacting with
+	if (Interact != GASCharacter->CurrentDetectedInteract)							
 	{
-		OnInteractionSweepMissDelegate.Broadcast(currentTime);
+		if (Interact->GetDetectType() == EDetectType::TYPE_Sweep)		// If the character's Interaction sweep doesn't detect the same Interactable we started interacting with
+		{
+			OnInteractionSweepMissDelegate.Broadcast(currentTime);
+		}
 	}
 
 	if (currentTime == 0)
@@ -81,6 +89,33 @@ void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 	currentTime = currentTime + DeltaTime;
 	continueTimestamp = continueTimestamp + tickInterval;
 	////
+}
+
+void UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable(IInteractable*& InteractableThePawnLeft)
+{
+	if (Interact == InteractableThePawnLeft)
+	{
+		OnCharacterLeftInteractionOverlapDelegate.Broadcast(currentTime);
+	}
+	//if (Interact->GetDetectType() == EDetectType::TYPE_Overlap)
+	//{
+	//	if (GASCharacter->CurrentDetectedInteract == nullptr)
+	//	{
+	//		OnCharacterLeftInteractionOverlapDelegate.Broadcast(currentTime);
+	//	}
+	//	else	// There's a new overlap priority. Didn't really find use for this so commented out
+	//	{
+	//		//OnNewInteractionPriorityDelegate.Broadcast(currentTime);
+	//		if (GASCharacter->CurrentDetectedInteract->GetDetectType() == EDetectType::TYPE_Overlap)
+	//		{
+	//			if (!GASCharacter->FrameOverlapInteractablesStack.Contains(Interact))
+	//			{
+	//				OnCharacterLeftInteractionOverlapDelegate.Broadcast(currentTime);
+	//			}
+	//		}
+
+	//	}
+	//}
 }
 
 

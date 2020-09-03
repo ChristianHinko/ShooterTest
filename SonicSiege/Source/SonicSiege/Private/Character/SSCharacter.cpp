@@ -74,8 +74,8 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer) : Super(
 
 	InteractSweepDistance = 100.f;
 	InteractSweepRadius = 2.f;
-	CurrentInteract = nullptr;
-	LastInteract = nullptr;
+	CurrentDetectedInteract = nullptr;
+	LastDetectedInteract = nullptr;
 }
 
 void ASSCharacter::Tick(float DeltaTime)
@@ -130,29 +130,29 @@ void ASSCharacter::Tick(float DeltaTime)
 
 	if (HasAuthority() || IsLocallyControlled())	// Don't run for simulated proxies
 	{
-		CurrentInteract = DetectCurrentInteractable(InteractSweepHitResult);
-		if (CurrentInteract)
+		CurrentDetectedInteract = DetectCurrentInteractable(InteractSweepHitResult);
+		if (CurrentDetectedInteract)
 		{
-			if (CurrentInteract->bShouldFireSweepEvents)
+			if (CurrentDetectedInteract->bShouldFireSweepEvents)
 			{
-				if (CurrentInteract != LastInteract)
+				if (CurrentDetectedInteract != LastDetectedInteract)
 				{
-					CurrentInteract->OnInteractSweepInitialHit(this);
+					CurrentDetectedInteract->OnInteractSweepInitialHit(this);
 				}
 				else
 				{
-					CurrentInteract->OnInteractSweepConsecutiveHit(this);
+					CurrentDetectedInteract->OnInteractSweepConsecutiveHit(this);
 				}
 
-				LastInteract = CurrentInteract;
+				LastDetectedInteract = CurrentDetectedInteract;
 			}
 		}
 		else
 		{
-			if (LastInteract != nullptr)	// If the last frame had something to interact with
+			if (LastDetectedInteract != nullptr)	// If the last frame had something to interact with
 			{
-				LastInteract->OnInteractSweepEndHitting(this);
-				LastInteract = nullptr;
+				LastDetectedInteract->OnInteractSweepEndHitting(this);
+				LastDetectedInteract = nullptr;
 			}
 		}
 	}
@@ -166,9 +166,7 @@ void ASSCharacter::Tick(float DeltaTime)
 IInteractable* ASSCharacter::DetectCurrentInteractable(FHitResult& OutHit)
 {
 	// Check if sphere sweep detects blocking hit as an interactable (a blocking hit doesn't necessarily mean the object is collidable. It's can just be collidable to the Interact trace channel).
-	// Also there will only ever be a need to check for the first blocking hit, overlaps don't matter for this.
-
-	UKismetSystemLibrary::PrintString(this, "FrameOverlapInteractables.Num() = " + FString::SanitizeFloat(FrameOverlapInteractables.Num()));
+	UKismetSystemLibrary::PrintString(this, "FrameOverlapInteractablesStack.Num() = " + FString::SanitizeFloat(FrameOverlapInteractablesStack.Num()));
 
 	if (GetWorld() && GetFollowCamera())
 	{
@@ -182,6 +180,8 @@ IInteractable* ASSCharacter::DetectCurrentInteractable(FHitResult& OutHit)
 			{
 				if (BlockingHitInteractable->GetCanCurrentlyBeInteractedWith())
 				{
+					BlockingHitInteractable->SetInteractionType(EDetectType::TYPE_Sweep);
+
 					return BlockingHitInteractable;
 				}
 			}
@@ -189,16 +189,25 @@ IInteractable* ASSCharacter::DetectCurrentInteractable(FHitResult& OutHit)
 	}
 
 	// Try to return an interactable that is overlapping with the capsule component. It chooses the most recent one you overlap with (top of the stack). 
-	if (FrameOverlapInteractables.Num() > 0)
+	if (FrameOverlapInteractablesStack.Num() > 0)
 	{
-		for (int i = FrameOverlapInteractables.Num() - 1; i >= 0 ; i--)
+		for (int32 i = FrameOverlapInteractablesStack.Num() - 1; i >= 0 ; i--)
 		{
-			if (FrameOverlapInteractables.IsValidIndex(i) && FrameOverlapInteractables[i])
+			if (FrameOverlapInteractablesStack.IsValidIndex(i))
 			{
-				if (FrameOverlapInteractables[i]->GetCanCurrentlyBeInteractedWith())
+				if (FrameOverlapInteractablesStack[i])
 				{
-					UKismetSystemLibrary::PrintString(this, "Using = " + FString::SanitizeFloat(i), true, true, FLinearColor::Green);
-					return FrameOverlapInteractables[i];
+					if (FrameOverlapInteractablesStack[i]->GetCanCurrentlyBeInteractedWith())
+					{
+
+						UKismetSystemLibrary::PrintString(this, "Using = " + FString::SanitizeFloat(i), true, true, FLinearColor::Green);
+						FrameOverlapInteractablesStack[i]->SetInteractionType(EDetectType::TYPE_Overlap);
+						return FrameOverlapInteractablesStack[i];
+					}
+				}
+				else
+				{
+					FrameOverlapInteractablesStack.RemoveAt(i);
 				}
 			}
 		}
@@ -216,22 +225,19 @@ void ASSCharacter::OnComponentBeginOverlapCharacterCapsule(UPrimitiveComponent* 
 {
 	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
 	{
-		FrameOverlapInteractables.Push(Interactable);
+
+		FrameOverlapInteractablesStack.Push(Interactable);
 	}
 }
 void ASSCharacter::OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
 	{
-		if (FrameOverlapInteractables.Num() > 0 && Interactable == FrameOverlapInteractables.Top())	// Enforce using this TArray as a stack
+		if (FrameOverlapInteractablesStack.Num() > 0)
 		{
-			FrameOverlapInteractables.Pop();
+			FrameOverlapInteractablesStack.RemoveSingle(Interactable);	// Not using pop because there is a chance a character might be interacting with an overlap that isn't the current detected one (meaning it's not at the top of the stack)
+			OnElementRemovedFromFrameOverlapInteractablesStack.Broadcast(Interactable);
 		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("%s() FrameOverlapInteractables is implemented as a stack but for some reason it wants us to remove not from the top right now"), *FString(__FUNCTION__));
-		}
-		
 	}
 }
 

@@ -15,7 +15,7 @@ class USSCharacterMovementComponent;
 class AItem;
 class IInteractable;
 
-
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnFrameOverlapStackChangeDelegate, IInteractable*&);
 /**
  * Base character class (without GAS implementation)
  */
@@ -76,10 +76,13 @@ public:
 	UFUNCTION()
 		void OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	TArray<IInteractable*> FrameOverlapInteractables;
+	// Treated as a stack. Not fully a stack because OnEndOverlap of an interactable we allow removing the element from whatever position it may be
+	TArray<IInteractable*> FrameOverlapInteractablesStack;
 
-	IInteractable* CurrentInteract;
-	IInteractable* LastInteract;
+	IInteractable* CurrentDetectedInteract;
+	IInteractable* LastDetectedInteract;
+
+	FOnFrameOverlapStackChangeDelegate OnElementRemovedFromFrameOverlapInteractablesStack;
 
 protected:
 		// Try ustilizing our custom trace channel before resorting to this

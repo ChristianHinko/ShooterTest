@@ -483,19 +483,14 @@ void AAbilitySystemCharacter::OnCancelTargetReleased()
 
 void AAbilitySystemCharacter::OnInteractPressed()
 {
-	if (/*InteractSweepHitResult.bBlockingHit*/ CurrentInteract)
+	if (CurrentDetectedInteract)
 	{
-		if (CurrentInteract->GetInteractionMode() == EInteractionMode::Instant)
+		if (CurrentDetectedInteract->GetIsInstantInteract())
 		{
 			GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
 		}
-		else if (CurrentInteract->GetInteractionMode() == EInteractionMode::Duration)
+		if (CurrentDetectedInteract->GetIsDurationInteract())
 		{
-			GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
-		}
-		else if (CurrentInteract->GetInteractionMode() == EInteractionMode::InstantAndDuration)
-		{
-			GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
 			GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
 		}
 		

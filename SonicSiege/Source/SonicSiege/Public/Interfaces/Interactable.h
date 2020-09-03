@@ -12,11 +12,10 @@ class APawn;
 
 /** Describes interact event */
 UENUM()
-enum class EInteractionMode
+enum class EDetectType
 {
-	Instant,
-	Duration,
-	InstantAndDuration
+	TYPE_Sweep,				// Character did sweep for an Interactable to find this
+	TYPE_Overlap			// Character checks Interactable overlaps to find this
 };
 
 /** Describes interact event */
@@ -26,6 +25,8 @@ enum class EDurationInteractEndReason
 	REASON_Unknown,				// Used when the interaction ends for any unknown reason
 	REASON_InputRelease,		// Player let go of interact input
 	REASON_SweepMiss,			// Character's Interaction sweep missed. (Can't reach it)
+	REASON_CharacterLeftInteractionOverlap,
+	REASON_NewInteractionOverlapPriority,
 	REASON_SuccessfulInteract	// After you've successfully interacted (Frame after the last frame of interaction)
 };
 
@@ -37,8 +38,10 @@ class UInteractable : public UInterface
 };
 
 /**
+ *	Might seem kind of unclear how to make an actor interactable, but all you have to do is choose a component to react to the interact channel (either Block or Overlap).
  *	As a quick overview: SSCharacter is what determines the CurrentInteractable. This interface is only for responding to any interaction that might occur. The only power this interface has in determining what the CurrentInteractable is is by setting bCanCurrentlyBeInteractedWith. 
- *	All events are ran from within the interact abilities, besides sweep events. This Interface allows a fast implementation of custom logic for interaction, while still getting the benefits of abilities.
+ *	Having more than one component that are supposed to be interacted in different ways can get confusing. Might not work.
+ *  All events are ran from within the interact abilities, besides sweep events. This Interface allows a fast implementation of custom logic for interaction, while still getting the benefits of abilities.
  *	You can treat these implementations the same way you would do logic in abilities. For instant interactions effects, montages, etc can be rolled back since InstantInteract ability is instant. Since DurationInteract is latent you only get rollback in OnDurationInteractBegin()
  *	---- Would love to eventually give all callbacks valid predicion keys, that way activation can be rolled back for durration interaction (at least for supported logic ie. Effects). Would also love to implement custom rollback and have a callback for that, but thats a topic on its own ----
  */
@@ -47,15 +50,30 @@ class SONICSIEGE_API IInteractable
 	GENERATED_BODY()
 
 public:
-	IInteractable();	
+	IInteractable();
 
+	
 	bool GetCanCurrentlyBeInteractedWith();
-	EInteractionMode GetInteractionMode();
+	bool GetIsAutomaticInstantInteract();
+	bool GetIsAutomaticDurationInteract();
+	bool GetIsInstantInteract();
+	bool GetIsDurationInteract();
+	EDetectType GetDetectType();
+	void SetInteractionType(EDetectType NewInteractionType);
 
 	// Called from an interact ability's CanActivateAbility(). Gives implementor a chance to do some checks before activated.
 	virtual bool CanActivateInteractAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const = 0;
 
 	//virtual void OnDidNotActivate();
+
+
+#pragma region AutomaticInteraction
+
+	// Called from ActivateAbility() (valid prediction key)
+	virtual void OnAutomaticInteract(APawn* InteractingPawn);
+#pragma endregion
+
+
 
 
 
@@ -119,11 +137,14 @@ public:
 
 
 
-
-
 protected:
 	// If set to false, character will ignore this interactable and find the next best option for the frame. This is different from returning false in CanActivateInteractAbility() in that this even prevents the player from even having the option to interact (ie. you've already interacted with this). Basicly this completely turns off the interactability until turned back on.
 	bool bCanCurrentlyBeInteractedWith;
-	// How the character should interact with this interactable (which ability to use)
-	EInteractionMode InteractionMode;
+	// Injected variable. Don't change. What the character detected this Interactable to be (set by character not implementor)
+	EDetectType DetectType;
+	
+	bool bIsAutomaticInstantInteract;
+	bool bIsAutomaticDurationInteract;
+	bool bIsInstantInteract;
+	bool bIsDurationInteract;
 };

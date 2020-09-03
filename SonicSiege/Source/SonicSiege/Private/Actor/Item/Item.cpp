@@ -10,7 +10,7 @@
 AItem::AItem()
 {
 	bShouldFireSweepEvents = true;
-	InteractionMode = EInteractionMode::Duration;
+	bIsDurationInteract = true;
 }
 
 

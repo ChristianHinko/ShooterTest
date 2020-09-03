@@ -48,19 +48,19 @@ bool UGA_CharacterDurationInteract::CanActivateAbility(const FGameplayAbilitySpe
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate duration interact ability"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (!GASCharacter->CurrentInteract)
+	if (!GASCharacter->CurrentDetectedInteract)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Detected nothing to interact with when activating interact duration ability. Cancelling"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (!GASCharacter->CurrentInteract->GetCanCurrentlyBeInteractedWith())
+	if (!GASCharacter->CurrentDetectedInteract->GetCanCurrentlyBeInteractedWith())
 	{
 		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Couldn't interact because bCanCurrentlyBeInteractedWith was false"), *FString(__FUNCTION__));
 		return false;
 	}
-	if ((GASCharacter->CurrentInteract->GetInteractionMode() != EInteractionMode::Duration) && (GASCharacter->CurrentInteract->GetInteractionMode() != EInteractionMode::InstantAndDuration))
+	if (!GASCharacter->CurrentDetectedInteract->GetIsDurationInteract())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() EInteractionMode was not \"Duration\" or \"InstantAndDuration\" when trying to activate duration interact ability. Returning false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetIsDurationInteract() returned false"), *FString(__FUNCTION__));
 		return false;
 	}
 	if (!InteractEffectTSub)
@@ -71,7 +71,7 @@ bool UGA_CharacterDurationInteract::CanActivateAbility(const FGameplayAbilitySpe
 
 
 	// Allow the implementer to create custom conditions before we activate
-	if (GASCharacter->CurrentInteract->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
+	if (GASCharacter->CurrentDetectedInteract->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from IInteractable's implementor"), *FString(__FUNCTION__));
 		return false;
@@ -91,7 +91,8 @@ void UGA_CharacterDurationInteract::ActivateAbility(const FGameplayAbilitySpecHa
 		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
 		return;
 	}
-	Interactable = GASCharacter->CurrentInteract;	// Wish I could put this in CanActivateAbiliy() but since it's called on CDO we can't set this reference on this instance
+
+	Interactable = GASCharacter->CurrentDetectedInteract;	// Wish I could put this in CanActivateAbiliy() but since it's called on CDO we can't set this reference on this instance
 	if (!Interactable)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Server detected nothing to interact with when activating interact duration ability. This should be an invalid state. Cancelling"), *FString(__FUNCTION__));
@@ -120,6 +121,8 @@ void UGA_CharacterDurationInteract::ActivateAbility(const FGameplayAbilitySpecHa
 	InteractableInterfaceCaller->OnInteractTickDelegate.AddUObject(this, &UGA_CharacterDurationInteract::OnInteractTick);
 	InteractableInterfaceCaller->OnInteractionSweepMissDelegate.AddUObject(this, &UGA_CharacterDurationInteract::OnInteractionSweepMiss);
 	InteractableInterfaceCaller->OnSuccessfulInteractDelegate.AddUObject(this, &UGA_CharacterDurationInteract::OnInteractCompleted);
+	InteractableInterfaceCaller->OnCharacterLeftInteractionOverlapDelegate.AddUObject(this, &UGA_CharacterDurationInteract::OnCharacterLeftInteractionOverlap);
+	InteractableInterfaceCaller->OnNewInteractionPriorityDelegate.AddUObject(this, &UGA_CharacterDurationInteract::OnNewInteractionPriority);
 	InteractableInterfaceCaller->ReadyForActivation();
 
 
@@ -155,6 +158,26 @@ void UGA_CharacterDurationInteract::OnInteractionSweepMiss(float TimeHeld)
 	InteractEndReason = EDurationInteractEndReason::REASON_SweepMiss;
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
+
+
+
+
+void UGA_CharacterDurationInteract::OnCharacterLeftInteractionOverlap(float TimeHeld)
+{
+	timeHeld = TimeHeld;
+	InteractEndReason = EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap;
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+}
+
+void UGA_CharacterDurationInteract::OnNewInteractionPriority(float TimeHeld)
+{
+	
+	
+	
+}
+
+
+
 
 void UGA_CharacterDurationInteract::OnInteractCompleted(float TimeHeld)
 {
@@ -209,6 +232,14 @@ void UGA_CharacterDurationInteract::EndAbility(const FGameplayAbilitySpecHandle 
 	else if (InteractEndReason == EDurationInteractEndReason::REASON_SweepMiss)
 	{
 		Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_SweepMiss, timeHeld);
+	}
+	else if (InteractEndReason == EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap)
+	{
+		Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap, timeHeld);
+	}
+	else if (InteractEndReason == EDurationInteractEndReason::REASON_NewInteractionOverlapPriority)
+	{
+		Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_NewInteractionOverlapPriority, timeHeld);
 	}
 	else if (InteractEndReason == EDurationInteractEndReason::REASON_SuccessfulInteract)
 	{

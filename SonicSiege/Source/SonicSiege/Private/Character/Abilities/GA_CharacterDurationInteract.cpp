@@ -246,19 +246,6 @@ void UGA_CharacterDurationInteract::EndAbility(const FGameplayAbilitySpecHandle 
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() RemoveActiveGameplayEffect(InteractEffectActiveHandle) failed. AbilitySystemComponent was NULL"), *FString(__FUNCTION__));
 	}
 
-
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-
-
-
-
-
-
-
-
-
-
-
 	// We want to call the events AFTER we know the ability is completely finished
 	if (InteractEndReason == EDurationInteractEndReason::REASON_InputRelease)
 	{
@@ -282,9 +269,24 @@ void UGA_CharacterDurationInteract::EndAbility(const FGameplayAbilitySpecHandle 
 	}
 	/*else
 	{
-		Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_Unknown, timeHeld);		
+		Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_Unknown, timeHeld);
 	}*/
 	InteractEndReason = EDurationInteractEndReason::REASON_Unknown;
 	timeHeld = 0;
+
+
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+
+
+
+
+
+
+
+
+
+
+
+	
 }
 

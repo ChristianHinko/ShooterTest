@@ -47,12 +47,12 @@ FGameplayAbilitySpecHandle USSAbilitySystemComponent::GrantAbility(TSubclassOf<U
 		}
 		else
 		{
-			UE_LOG(LogAbilitySystemSetup, Error, TEXT("Tried granting an already-activatable ability. %s was not granted"), *(AbilityToGive->GetName()));
+			UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Tried granting an already-activatable ability. %s was not granted"), *FString(__FUNCTION__), *(AbilityToGive->GetName()));
 		}
 	}
 	else
 	{
-		UE_LOG(LogAbilitySystemSetup, Error, TEXT("Could'nt grant ability. NewAbility was null"));
+		UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Could'nt grant ability. NewAbility was null"), *FString(__FUNCTION__));
 	}
 	return FGameplayAbilitySpecHandle();
 }

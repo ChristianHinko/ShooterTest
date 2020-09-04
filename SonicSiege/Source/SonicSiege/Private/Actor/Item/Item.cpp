@@ -53,7 +53,7 @@ void AItem::OnDurationInteractEnd(APawn* InteractingPawn, EDurationInteractEndRe
 	if (DurationInteractEndReason == EDurationInteractEndReason::REASON_SuccessfulInteract)
 	{
 		//bCanCurrentlyBeInteractedWith = false;
-		Destroy(); 
+		Destroy();	// Destroying on complete causes that weird problem where (im guessing the next interactable in the stack) doesn't stop ticking if you leave. And completes.
 		//UKismetSystemLibrary::PrintString(this, "OnDurationInteractEnd", true, true, FLinearColor::Gray);
 	}
 	

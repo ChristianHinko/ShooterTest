@@ -48,7 +48,7 @@
 
 
 - AbilitySystemActor "ActorAttributeSet" IS NOT ON EVERY ACTOR". Name misleading
-
+- Update GrantAbility() UELOG to give the function name
 
 
 

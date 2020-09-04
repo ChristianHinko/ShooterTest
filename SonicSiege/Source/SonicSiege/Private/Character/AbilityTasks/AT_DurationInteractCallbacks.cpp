@@ -98,8 +98,10 @@ void UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable(IInteractable*
 {
 	if (Interact == InteractableThePawnLeft)
 	{
-		OnCharacterLeftInteractionOverlapDelegate.Broadcast(currentTime);	// Only gets called on one machine some reason
+		ENetRole d = GASCharacter->GetLocalRole();
+		OnCharacterLeftInteractionOverlapDelegate.Broadcast(currentTime);	// Only gets called on SERVER some reason when the problem described below happens. So thats a hint to that problem. Another hint is that this problem below doesn't happen at all when in single player (listen server)
 		RemoveAllDelegates();
+		//PROBLEM THE SYSTEM IS FACING RN: if 2 or more overlaps in framoverlapsStack and you finish the first, then leave during the next, timer keeps running and eventually completes. This only happens if implementor destroys the first interactable on success event
 	}
 	//if (Interact->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 	//{

@@ -17,8 +17,9 @@
 #include "Character/AS_Character.h"
 #include "Actor/AS_Health.h"
 #include "Interfaces/Interactable.h"
+#include "Utilities/CollisionChannels.h"
 
-//#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 
 
@@ -57,6 +58,135 @@ AAbilitySystemCharacter::AAbilitySystemCharacter(const FObjectInitializer& Objec
 		bShouldHandleAIAbilitySystemSetup = true;
 		AIAbilitySystemComponent->SetReplicationMode(AIAbilitySystemComponentReplicationMode);
 		AIAbilitySystemComponent->SetIsReplicated(true);
+	}
+
+	InteractSweepDistance = 100.f;
+	InteractSweepRadius = 2.f;
+	CurrentDetectedInteract = nullptr;
+	LastDetectedInteract = nullptr;
+
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AAbilitySystemCharacter::OnComponentBeginOverlapCharacterCapsule);
+	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &AAbilitySystemCharacter::OnComponentEndOverlapCharacterCapsule);
+}
+
+void AAbilitySystemCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (HasAuthority() || IsLocallyControlled())	// Don't run for simulated proxies
+	{
+		CurrentDetectedInteract = DetectCurrentInteractable(InteractSweepHitResult);
+		if (CurrentDetectedInteract)
+		{
+			if (CurrentDetectedInteract->bShouldFireSweepEvents)
+			{
+				if (CurrentDetectedInteract != LastDetectedInteract)
+				{
+					CurrentDetectedInteract->OnInteractSweepInitialHit(this);
+				}
+				else
+				{
+					CurrentDetectedInteract->OnInteractSweepConsecutiveHit(this);
+				}
+
+			}
+
+			if (CurrentDetectedInteract->GetIsAutomaticInstantInteract())
+			{
+				GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
+			}
+			if (CurrentDetectedInteract->GetIsAutomaticDurationInteract())
+			{
+				GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
+			}
+
+			LastDetectedInteract = CurrentDetectedInteract;
+		}
+		else
+		{
+			if (LastDetectedInteract != nullptr)	// If the last frame had something to interact with
+			{
+				LastDetectedInteract->OnInteractSweepEndHitting(this);
+				LastDetectedInteract = nullptr;
+			}
+		}
+	}
+
+}
+
+IInteractable* AAbilitySystemCharacter::DetectCurrentInteractable(FHitResult& OutHit)
+{
+	// Check if sphere sweep detects blocking hit as an interactable (a blocking hit doesn't necessarily mean the object is collidable. It's can just be collidable to the Interact trace channel).
+	if (GetWorld() && GetFollowCamera())
+	{
+		FVector StartLocation = GetFollowCamera()->GetComponentLocation();
+		FVector EndLocation = StartLocation + (GetFollowCamera()->GetForwardVector() * InteractSweepDistance);
+
+		const bool bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, StartLocation, EndLocation, FQuat::Identity, COLLISION_INTERACT, FCollisionShape::MakeSphere(InteractSweepRadius), FCollisionQueryParams());
+		if (bBlockingHit)
+		{
+			if (IInteractable* BlockingHitInteractable = Cast<IInteractable>(OutHit.GetActor()))
+			{
+				if (BlockingHitInteractable->GetCanCurrentlyBeInteractedWith())
+				{
+					BlockingHitInteractable->SetInteractionType(EDetectType::DETECTTYPE_Sweeped);
+					return BlockingHitInteractable;
+				}
+			}
+		}
+	}
+
+
+	// Try to return an interactable that is overlapping with the capsule component. It chooses the most recent one you overlap with (top of the stack). 
+	if (FrameOverlapInteractablesStack.Num() > 0)
+	{
+		for (int32 i = FrameOverlapInteractablesStack.Num() - 1; i >= 0; i--)
+		{
+			if (FrameOverlapInteractablesStack.IsValidIndex(i))
+			{
+				if (FrameOverlapInteractablesStack[i])
+				{
+					if (FrameOverlapInteractablesStack[i]->GetCanCurrentlyBeInteractedWith())
+					{
+
+						UKismetSystemLibrary::PrintString(this, "Using = " + FString::SanitizeFloat(i), true, false, FLinearColor::Green);
+						FrameOverlapInteractablesStack[i]->SetInteractionType(EDetectType::DETECTTYPE_Overlapped);
+						return FrameOverlapInteractablesStack[i];
+					}
+				}
+				else
+				{
+					FrameOverlapInteractablesStack.RemoveAt(i);
+				}
+			}
+		}
+	}
+
+
+
+
+
+	// If no blocking or overlap interactables found return NULL
+	return nullptr;
+}
+
+void AAbilitySystemCharacter::OnComponentBeginOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
+	{
+
+		FrameOverlapInteractablesStack.Push(Interactable);
+	}
+}
+void AAbilitySystemCharacter::OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
+	{
+		if (FrameOverlapInteractablesStack.Num() > 0)
+		{
+			FrameOverlapInteractablesStack.RemoveSingle(Interactable);	// Not using pop because there is a chance a character might be interacting with an overlap that isn't the current detected one (meaning it's not at the top of the stack)
+			OnElementRemovedFromFrameOverlapInteractablesStack.Broadcast(Interactable);
+		}
 	}
 }
 
@@ -485,11 +615,11 @@ void AAbilitySystemCharacter::OnInteractPressed()
 {
 	if (CurrentDetectedInteract)
 	{
-		if (CurrentDetectedInteract->GetIsInstantInteract())
+		if (CurrentDetectedInteract->GetIsManualInstantInteract())
 		{
 			GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
 		}
-		if (CurrentDetectedInteract->GetIsDurationInteract())
+		if (CurrentDetectedInteract->GetIsManualDurationInteract())
 		{
 			GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
 		}

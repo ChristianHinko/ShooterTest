@@ -59,5 +59,5 @@ protected:
 	UFUNCTION()
 		void OnNewInteractionPriority(float TimeHeld);
 	UFUNCTION()
-		void OnInteractCompleted(float TimeHeld);
+		void OnSuccessfullInteract(float TimeHeld);
 };

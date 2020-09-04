@@ -35,15 +35,18 @@ public:
 	FOnNewInteractionPriorityDelegate OnNewInteractionPriorityDelegate;
 	FOnInteractionEndDelegate OnSuccessfulInteractDelegate;
 
+	void RemoveAllDelegates();
+
 	UPROPERTY()
 		AAbilitySystemCharacter* GASCharacter;
 
 	virtual void TickTask(float DeltaTime) override;
 
+	FDelegateHandle OnPawnLeftOverlapInteractableDelegateHandle;
 	void OnPawnLeftOverlapInteractable(IInteractable*& InteractableThePawnLeft);
 
 	/** Start a task that repeats an action or set of actions. */
-	static UAT_DurationInteractCallbacks* InteractableInterfaceCaller(UGameplayAbility* OwningAbility, AAbilitySystemCharacter* GASCharactor, IInteractable*& InInteract);
+	static UAT_DurationInteractCallbacks* DurationInteractCallbacks(UGameplayAbility* OwningAbility, AAbilitySystemCharacter* GASCharactor, IInteractable*& InInteract);
 
 	void Activate() override;
 

@@ -13,7 +13,7 @@ UAT_DurationInteractCallbacks::UAT_DurationInteractCallbacks(const FObjectInitia
 
 }
 
-UAT_DurationInteractCallbacks* UAT_DurationInteractCallbacks::InteractableInterfaceCaller(UGameplayAbility* OwningAbility, AAbilitySystemCharacter* GASCharactor, IInteractable*& InInteract)
+UAT_DurationInteractCallbacks* UAT_DurationInteractCallbacks::DurationInteractCallbacks(UGameplayAbility* OwningAbility, AAbilitySystemCharacter* GASCharactor, IInteractable*& InInteract)
 {
 	if (!InInteract || !OwningAbility || !GASCharactor)
 	{
@@ -36,9 +36,9 @@ void UAT_DurationInteractCallbacks::Activate()
 {
 	currentTime = 0;
 	continueTimestamp = 0;
-	if (Interact->GetDetectType() == EDetectType::TYPE_Overlap)
+	if (Interact->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 	{
-		GASCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.AddUObject(this, &UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable);
+		OnPawnLeftOverlapInteractableDelegateHandle = GASCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.AddUObject(this, &UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable);
 	}
 	
 }
@@ -47,15 +47,18 @@ void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 {
 	if (currentTime >= duration)
 	{
+		GASCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.Remove(OnPawnLeftOverlapInteractableDelegateHandle);
 		OnSuccessfulInteractDelegate.Broadcast(currentTime);
+		RemoveAllDelegates();
 		return;
 	}
 
 	if (Interact != GASCharacter->CurrentDetectedInteract)							
 	{
-		if (Interact->GetDetectType() == EDetectType::TYPE_Sweep)		// If the character's Interaction sweep doesn't detect the same Interactable we started interacting with
+		if (Interact->GetDetectType() == EDetectType::DETECTTYPE_Sweeped)		// If the character's Interaction sweep doesn't detect the same Interactable we started interacting with
 		{
 			OnInteractionSweepMissDelegate.Broadcast(currentTime);
+			RemoveAllDelegates();
 		}
 	}
 
@@ -95,9 +98,10 @@ void UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable(IInteractable*
 {
 	if (Interact == InteractableThePawnLeft)
 	{
-		OnCharacterLeftInteractionOverlapDelegate.Broadcast(currentTime);
+		OnCharacterLeftInteractionOverlapDelegate.Broadcast(currentTime);	// Only gets called on one machine some reason
+		RemoveAllDelegates();
 	}
-	//if (Interact->GetDetectType() == EDetectType::TYPE_Overlap)
+	//if (Interact->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 	//{
 	//	if (GASCharacter->CurrentDetectedInteract == nullptr)
 	//	{
@@ -106,7 +110,7 @@ void UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable(IInteractable*
 	//	else	// There's a new overlap priority. Didn't really find use for this so commented out
 	//	{
 	//		//OnNewInteractionPriorityDelegate.Broadcast(currentTime);
-	//		if (GASCharacter->CurrentDetectedInteract->GetDetectType() == EDetectType::TYPE_Overlap)
+	//		if (GASCharacter->CurrentDetectedInteract->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 	//		{
 	//			if (!GASCharacter->FrameOverlapInteractablesStack.Contains(Interact))
 	//			{
@@ -121,6 +125,15 @@ void UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable(IInteractable*
 
 
 
+void UAT_DurationInteractCallbacks::RemoveAllDelegates()
+{
+	OnInteractTickDelegate.Clear();
+	OnInteractionSweepMissDelegate.Clear();
+	OnCharacterLeftInteractionOverlapDelegate.Clear();
+	OnNewInteractionPriorityDelegate.Clear();
+	OnSuccessfulInteractDelegate.Clear();
+}
+
 
 
 
@@ -132,5 +145,5 @@ void UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable(IInteractable*
 
 FString UAT_DurationInteractCallbacks::GetDebugString() const
 {
-	return FString::Printf(TEXT("InteractableInterfaceCaller"));
+	return FString::Printf(TEXT("DurationInteractCallbacks"));
 }

@@ -69,31 +69,10 @@ public:
 	 *  3) 
 	 * Uses this specific character's parameters and camera orientation to do a sphere sweep to give a possible interactable. If no interactable detected, returns nullptr
 	 */
-	IInteractable* DetectCurrentInteractable(FHitResult& OutHit);
-
-	UFUNCTION()
-		void OnComponentBeginOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	UFUNCTION()
-		void OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-	// Treated as a stack. Not fully a stack because OnEndOverlap of an interactable we allow removing the element from whatever position it may be
-	TArray<IInteractable*> FrameOverlapInteractablesStack;
-
-	IInteractable* CurrentDetectedInteract;
-	IInteractable* LastDetectedInteract;
-
-	FOnFrameOverlapStackChangeDelegate OnElementRemovedFromFrameOverlapInteractablesStack;
-
-protected:
-		// Try ustilizing our custom trace channel before resorting to this
-	UPROPERTY(EditAnywhere)
-		float InteractSweepDistance;
-	UPROPERTY(EditAnywhere)
-		float InteractSweepRadius;
-	FHitResult InteractSweepHitResult;
 
 	
 
+protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 

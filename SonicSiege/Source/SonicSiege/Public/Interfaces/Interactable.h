@@ -14,8 +14,9 @@ class APawn;
 UENUM()
 enum class EDetectType
 {
-	TYPE_Sweep,				// Character did sweep for an Interactable to find this
-	TYPE_Overlap			// Character checks Interactable overlaps to find this
+	DETECTTYPE_NotYetDetected,
+	DETECTTYPE_Sweeped,				// Character did sweep for an Interactable to find this
+	DETECTTYPE_Overlapped			// Character checks Interactable overlaps to find this
 };
 
 /** Describes interact event */
@@ -38,12 +39,13 @@ class UInteractable : public UInterface
 };
 
 /**
- *	Might seem kind of unclear how to make an actor interactable, but all you have to do is choose a component to react to the interact channel (either Block or Overlap).
- *	As a quick overview: SSCharacter is what determines the CurrentInteractable. This interface is only for responding to any interaction that might occur. The only power this interface has in determining what the CurrentInteractable is is by setting bCanCurrentlyBeInteractedWith. 
- *	Having more than one component that are supposed to be interacted in different ways can get confusing. Might not work.
+ *	Might seem kind of unclear how to make an actor interactable but that is because the character is what finds interactables and assignes the it an EDetectType. You don't set the EDetectType, it gets set by the character who detected the interactable.
+ *	Basicly you need to make the actor findable to the character (can be done with a Block or Overlap). For blocks, the interaction sweep will hit it and then interaction can happen. For overlaps, the actor will be added to a stack of current interactable overlaps
+ *	and will be prioritized over the previous overlaps since this is the most recent.
+ * 
  *  All events are ran from within the interact abilities, besides sweep events. This Interface allows a fast implementation of custom logic for interaction, while still getting the benefits of abilities.
- *	You can treat these implementations the same way you would do logic in abilities. For instant interactions effects, montages, etc can be rolled back since InstantInteract ability is instant. Since DurationInteract is latent you only get rollback in OnDurationInteractBegin()
- *	---- Would love to eventually give all callbacks valid predicion keys, that way activation can be rolled back for durration interaction (at least for supported logic ie. Effects). Would also love to implement custom rollback and have a callback for that, but thats a topic on its own ----
+ *	You can treat these implementations the same way you would do logic in abilities. For instant interactions effects, montages, etc can be rolled back since InstantInteract ability is instant.
+ *  Since DurationInteract is latent you only get rollback in OnDurationInteractBegin().
  */
 class SONICSIEGE_API IInteractable
 {
@@ -54,10 +56,11 @@ public:
 
 	
 	bool GetCanCurrentlyBeInteractedWith();
+
+	bool GetIsManualInstantInteract();
 	bool GetIsAutomaticInstantInteract();
+	bool GetIsManualDurationInteract();
 	bool GetIsAutomaticDurationInteract();
-	bool GetIsInstantInteract();
-	bool GetIsDurationInteract();
 	EDetectType GetDetectType();
 	void SetInteractionType(EDetectType NewInteractionType);
 
@@ -143,8 +146,13 @@ protected:
 	// Injected variable. Don't change. What the character detected this Interactable to be (set by character not implementor)
 	EDetectType DetectType;
 	
+
+
+	// If set to manual and automatic CanActivateAbility() will return false. Automatic and Manual should maybe be separate abilities
+	//-----------------------------------
+	bool bIsManualInstantInteract;			
 	bool bIsAutomaticInstantInteract;
-	bool bIsAutomaticDurationInteract;
-	bool bIsInstantInteract;
-	bool bIsDurationInteract;
+	bool bIsManualDurationInteract;			
+	bool bIsAutomaticDurationInteract;	
+	//----------------------------------
 };

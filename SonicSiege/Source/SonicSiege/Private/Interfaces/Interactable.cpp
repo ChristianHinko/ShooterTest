@@ -8,8 +8,8 @@ IInteractable::IInteractable()
 {
 	bIsAutomaticInstantInteract = false;
 	bIsAutomaticDurationInteract = false;
-	bIsInstantInteract = false;
-	bIsDurationInteract = false;
+	bIsManualInstantInteract = false;
+	bIsManualDurationInteract = false;
 	bCanCurrentlyBeInteractedWith = true;
 	bShouldFireSweepEvents = false;
 	interactDuration = 5.f;
@@ -18,13 +18,13 @@ IInteractable::IInteractable()
 	bShouldSkipFirstTick = false;
 }
 
-bool IInteractable::GetIsInstantInteract()
+bool IInteractable::GetIsManualInstantInteract()
 {
-	return bIsInstantInteract;
+	return bIsManualInstantInteract;
 }
-bool IInteractable::GetIsDurationInteract()
+bool IInteractable::GetIsManualDurationInteract()
 {
-	return bIsDurationInteract;
+	return bIsManualDurationInteract;
 }
 bool IInteractable::GetCanCurrentlyBeInteractedWith()
 {

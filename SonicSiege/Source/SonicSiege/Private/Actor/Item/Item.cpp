@@ -10,7 +10,11 @@
 AItem::AItem()
 {
 	bShouldFireSweepEvents = true;
-	bIsDurationInteract = true;
+	
+	bIsAutomaticInstantInteract = false;
+	bIsAutomaticDurationInteract = true;
+	bIsManualInstantInteract = false;
+	bIsManualDurationInteract = false;
 }
 
 
@@ -31,24 +35,26 @@ bool AItem::CanActivateInteractAbility(const FGameplayAbilitySpecHandle Handle, 
 void AItem::OnInstantInteract(APawn* InteractingPawn)
 {
 	UKismetSystemLibrary::PrintString(this, "Instant Interact", true, true, FLinearColor::Yellow);
+	Destroy();
 }
 
 
 
 void AItem::OnDurationInteractBegin(APawn* InteractingPawn)
 {
-	UKismetSystemLibrary::PrintString(this, "OnDurationInteractBegin", true, true, FLinearColor::Gray);
+	//UKismetSystemLibrary::PrintString(this, "OnDurationInteractBegin", true, true, FLinearColor::Gray);
 }
 void AItem::InteractingTick(APawn* InteractingPawn, float DeltaTime, float CurrentInteractionTime)
 {
-	UKismetSystemLibrary::PrintString(this, "Interacting a " + FString::SanitizeFloat(interactDuration) + "duration interactable.....\nCurrentTime=" + FString::SanitizeFloat(CurrentInteractionTime), true, true, FLinearColor::Gray);
+	UKismetSystemLibrary::PrintString(this, "Interacting a " + FString::SanitizeFloat(interactDuration) + "duration interactable.....\nCurrentTime=" + FString::SanitizeFloat(CurrentInteractionTime), true, false, FLinearColor::Gray);
 }
 void AItem::OnDurationInteractEnd(APawn* InteractingPawn, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime)
 {
 	if (DurationInteractEndReason == EDurationInteractEndReason::REASON_SuccessfulInteract)
 	{
-		Destroy();
-		UKismetSystemLibrary::PrintString(this, "OnDurationInteractEnd", true, true, FLinearColor::Gray);
+		//bCanCurrentlyBeInteractedWith = false;
+		Destroy(); 
+		//UKismetSystemLibrary::PrintString(this, "OnDurationInteractEnd", true, true, FLinearColor::Gray);
 	}
 	
 }

@@ -46,10 +46,12 @@ void AItem::OnDurationInteractBegin(APawn* InteractingPawn)
 }
 void AItem::InteractingTick(APawn* InteractingPawn, float DeltaTime, float CurrentInteractionTime)
 {
-	UKismetSystemLibrary::PrintString(this, "Interacting a " + FString::SanitizeFloat(interactDuration) + "duration interactable.....\nCurrentTime=" + FString::SanitizeFloat(CurrentInteractionTime), true, false, FLinearColor::Gray);
+	ENetRole role = GetLocalRole();
+	UKismetSystemLibrary::PrintString(this, "CurrentTime=" + FString::SanitizeFloat(CurrentInteractionTime), true, false, FLinearColor::Gray);
 }
 void AItem::OnDurationInteractEnd(APawn* InteractingPawn, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime)
 {
+	ENetRole role = GetLocalRole();
 	if (DurationInteractEndReason == EDurationInteractEndReason::REASON_SuccessfulInteract)
 	{
 		//bCanCurrentlyBeInteractedWith = false;

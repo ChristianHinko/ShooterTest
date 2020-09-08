@@ -118,7 +118,7 @@ void UGA_CharacterDurationInteract::ActivateAbility(const FGameplayAbilitySpecHa
 		InputReleasedTask->ReadyForActivation();
 	}
 	
-
+	ENetRole role = GetAvatarActorFromActorInfo()->GetLocalRole();
 	UAT_DurationInteractCallbacks* DurationInteractCallbacks = UAT_DurationInteractCallbacks::DurationInteractCallbacks(this, GASCharacter, Interactable);
 	if (!DurationInteractCallbacks)
 	{
@@ -230,8 +230,8 @@ void UGA_CharacterDurationInteract::EndAbility(const FGameplayAbilitySpecHandle 
 
 
 
-
-
+	// Endabbility is rn being called twice for server. Once for success and once for end overlap. 
+	InteractEndReason;
 
 
 
@@ -267,10 +267,11 @@ void UGA_CharacterDurationInteract::EndAbility(const FGameplayAbilitySpecHandle 
 	{
 		Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_SuccessfulInteract, timeHeld);
 	}
-	/*else
+	else
 	{
 		Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_Unknown, timeHeld);
-	}*/
+	}
+
 	InteractEndReason = EDurationInteractEndReason::REASON_Unknown;
 	timeHeld = 0;
 

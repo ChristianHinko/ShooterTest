@@ -6,6 +6,8 @@
 #include "Character/AbilitySystemCharacter.h"
 #include "Utilities/LogCategories.h"
 
+#include "Kismet/KismetSystemLibrary.h"
+
 UAT_DurationInteractCallbacks::UAT_DurationInteractCallbacks(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -36,6 +38,7 @@ void UAT_DurationInteractCallbacks::Activate()
 {
 	currentTime = 0;
 	continueTimestamp = 0;
+	ENetRole role = GASCharacter->GetLocalRole();
 	if (Interact->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 	{
 		OnPawnLeftOverlapInteractableDelegateHandle = GASCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.AddUObject(this, &UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable);
@@ -45,6 +48,15 @@ void UAT_DurationInteractCallbacks::Activate()
 
 void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 {
+	if (GASCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.IsBoundToObject(this))
+	{
+		UKismetSystemLibrary::PrintString(this, "bound", true, false);
+	}
+	else
+	{
+		UKismetSystemLibrary::PrintString(this, "NOT bound", true, false);
+	}
+	
 	if (currentTime >= duration)
 	{
 		GASCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.Remove(OnPawnLeftOverlapInteractableDelegateHandle);
@@ -94,14 +106,16 @@ void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 	////
 }
 
-void UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable(IInteractable*& InteractableThePawnLeft)
+// Update: Turns out I was thinking about things in the wrong way. Interactable's OnDurationInteractEnded() should only be called once, not twice (like Success and LeftInteractableOverlap, like the server is doing). So I was thinking the wrong thing this whole time. The server is in the wrong and the client (who is only calling OnDurationInteractEnded() once) is correct. This means server is some reason calling EndAbility() twice. Anyway, after I fix that problem I should make it so that this ability supports the developer calling Destroy() from within OnDurationInteractEnded() with a reason of Success (i think I should)
+void UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable(IInteractable*& InteractableThePawnLeft)	// Somehow this is not being called on the client so client's timer keeps running	
 {
+	ENetRole role = GASCharacter->GetLocalRole();
 	if (Interact == InteractableThePawnLeft)
 	{
 		ENetRole d = GASCharacter->GetLocalRole();
 		OnCharacterLeftInteractionOverlapDelegate.Broadcast(currentTime);	// Only gets called on SERVER some reason when the problem described below happens. So thats a hint to that problem. Another hint is that this problem below doesn't happen at all when in single player (listen server)
-		RemoveAllDelegates();
-		//PROBLEM THE SYSTEM IS FACING RN: if 2 or more overlaps in framoverlapsStack and you finish the first, then leave during the next, timer keeps running and eventually completes. This only happens if implementor destroys the first interactable on success event
+		//RemoveAllDelegates();
+		//PROBLEM THE SYSTEM IS FACING RN: if 2 or more overlaps in framoverlapsStack and you finish the first, then leave during the next, timer keeps running and eventually completes and destroys the interactable. If all interactables are is same position and size the false timer one doesn't get destroyed some reason. This only happens if implementor destroys the first interactable on success event
 	}
 	//if (Interact->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 	//{
@@ -148,4 +162,11 @@ void UAT_DurationInteractCallbacks::RemoveAllDelegates()
 FString UAT_DurationInteractCallbacks::GetDebugString() const
 {
 	return FString::Printf(TEXT("DurationInteractCallbacks"));
+}
+
+void UAT_DurationInteractCallbacks::OnDestroy(bool AbilityEnded)
+{
+	ENetRole d = GASCharacter->GetLocalRole();
+	Super::OnDestroy(AbilityEnded);
+
 }

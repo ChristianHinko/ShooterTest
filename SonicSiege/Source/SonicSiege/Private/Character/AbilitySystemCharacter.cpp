@@ -180,6 +180,7 @@ void AAbilitySystemCharacter::OnComponentBeginOverlapCharacterCapsule(UPrimitive
 }
 void AAbilitySystemCharacter::OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	ENetRole role = GetLocalRole();
 	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
 	{
 		if (FrameOverlapInteractablesStack.Num() > 0)

@@ -52,6 +52,7 @@ public:
 
 	IInteractable* Interact;
 	FString GetDebugString() const override;
+	virtual void OnDestroy(bool AbilityEnded) override;
 protected:
 
 	float duration;

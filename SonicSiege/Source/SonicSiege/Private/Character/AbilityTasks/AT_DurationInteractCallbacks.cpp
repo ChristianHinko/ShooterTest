@@ -48,18 +48,9 @@ void UAT_DurationInteractCallbacks::Activate()
 
 void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 {
-	if (GASCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.IsBoundToObject(this))
-	{
-		UKismetSystemLibrary::PrintString(this, "bound", true, false);
-	}
-	else
-	{
-		UKismetSystemLibrary::PrintString(this, "NOT bound", true, false);
-	}
-	
 	if (currentTime >= duration)
 	{
-		GASCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.Remove(OnPawnLeftOverlapInteractableDelegateHandle);
+		GASCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.Remove(OnPawnLeftOverlapInteractableDelegateHandle);	// Only want 1 callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
 		OnSuccessfulInteractDelegate.Broadcast(currentTime);
 		RemoveAllDelegates();
 		return;
@@ -69,6 +60,8 @@ void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 	{
 		if (Interact->GetDetectType() == EDetectType::DETECTTYPE_Sweeped)		// If the character's Interaction sweep doesn't detect the same Interactable we started interacting with
 		{
+
+			GASCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.Remove(OnPawnLeftOverlapInteractableDelegateHandle);	// Only want 1 callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
 			OnInteractionSweepMissDelegate.Broadcast(currentTime);
 			RemoveAllDelegates();
 		}
@@ -106,6 +99,7 @@ void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 	////
 }
 
+// Update: Fixed the problem with EndAbility() being called twice, but that wasn't the problem of the task on the client remaining to tick.
 // Update: Turns out I was thinking about things in the wrong way. Interactable's OnDurationInteractEnded() should only be called once, not twice (like Success and LeftInteractableOverlap, like the server is doing). So I was thinking the wrong thing this whole time. The server is in the wrong and the client (who is only calling OnDurationInteractEnded() once) is correct. This means server is some reason calling EndAbility() twice. Anyway, after I fix that problem I should make it so that this ability supports the developer calling Destroy() from within OnDurationInteractEnded() with a reason of Success (i think I should)
 void UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable(IInteractable*& InteractableThePawnLeft)	// Somehow this is not being called on the client so client's timer keeps running	
 {

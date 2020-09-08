@@ -230,7 +230,7 @@ void UGA_CharacterDurationInteract::EndAbility(const FGameplayAbilitySpecHandle 
 
 
 
-	// Endabbility is rn being called twice for server. Once for success and once for end overlap. 
+	ENetRole role = GASCharacter->GetLocalRole();
 	InteractEndReason;
 
 

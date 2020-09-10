@@ -50,7 +50,7 @@ void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 {
 	if (currentTime >= duration)
 	{
-		GASCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.Remove(OnPawnLeftOverlapInteractableDelegateHandle);	// Only want 1 callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
+		GASCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.Remove(OnPawnLeftOverlapInteractableDelegateHandle);	// Only want 1 end ability callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
 		OnSuccessfulInteractDelegate.Broadcast(currentTime);
 		RemoveAllDelegates();
 		return;
@@ -61,7 +61,7 @@ void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 		if (Interact->GetDetectType() == EDetectType::DETECTTYPE_Sweeped)		// If the character's Interaction sweep doesn't detect the same Interactable we started interacting with
 		{
 
-			GASCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.Remove(OnPawnLeftOverlapInteractableDelegateHandle);	// Only want 1 callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
+			GASCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.Remove(OnPawnLeftOverlapInteractableDelegateHandle);	// Only want 1 end ability callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
 			OnInteractionSweepMissDelegate.Broadcast(currentTime);
 			RemoveAllDelegates();
 			return;
@@ -101,18 +101,14 @@ void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 	////
 }
 
-// Updtae: Turns out client was actually in the wrong, but only for this specific problem where the timer on the client keeps ticking. This is happening because this event isn't being called on client some reason. Also found another anoying problem. Weird case where ability keeps activating and getting rejected every tick after a successful interact D:
-// Update: Fixed the problem with EndAbility() being called twice, but that wasn't the problem of the task on the client remaining to tick.
-// Update: Turns out I was thinking about things in the wrong way. Interactable's OnDurationInteractEnded() should only be called once, not twice (like Success and LeftInteractableOverlap, like the server is doing). So I was thinking the wrong thing this whole time. The server is in the wrong and the client (who is only calling OnDurationInteractEnded() once) is correct. This means server is some reason calling EndAbility() twice. Anyway, after I fix that problem I should make it so that this ability supports the developer calling Destroy() from within OnDurationInteractEnded() with a reason of Success (i think I should)
 void UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable(IInteractable*& InteractableThePawnLeft)	// Somehow this is not being called on the client so client's timer keeps running	
 {
 	ENetRole role = GASCharacter->GetLocalRole();
 	if (Interact == InteractableThePawnLeft)
 	{
 		ENetRole d = GASCharacter->GetLocalRole();
-		OnCharacterLeftInteractionOverlapDelegate.Broadcast(currentTime);	// Only gets called on SERVER some reason when the problem described below happens. So thats a hint to that problem. Another hint is that this problem below doesn't happen at all when in single player (listen server)
-		//RemoveAllDelegates();
-		//PROBLEM THE SYSTEM IS FACING RN: if 2 or more overlaps in framoverlapsStack and you finish the first, then leave during the next, timer keeps running and eventually completes and destroys the interactable. If all interactables are is same position and size the false timer one doesn't get destroyed some reason. This only happens if implementor destroys the first interactable on success event
+		OnCharacterLeftInteractionOverlapDelegate.Broadcast(currentTime);
+		RemoveAllDelegates();
 	}
 	//if (Interact->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 	//{

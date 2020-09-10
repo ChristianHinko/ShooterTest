@@ -200,7 +200,6 @@ void UGA_CharacterRunV2::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 
 	// Lets do the logic we want to happen when the ability ends. If you want you can do an async task,
 	// but just make sure you don't call Super::EndAbility until after the task ends (call Super::EndAbility in the task's callback)
-	EndTaskByInstanceName("RepeatAction");
 	CMC->SetWantsToRun(false);	// In case of successful runthrough, stop running. But this will also be called if activation rollback occurrs so we good
 
 

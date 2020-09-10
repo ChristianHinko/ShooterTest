@@ -88,17 +88,21 @@ void AAbilitySystemCharacter::Tick(float DeltaTime)
 				{
 					CurrentDetectedInteract->OnInteractSweepConsecutiveHit(this);
 				}
-
 			}
 
-			if (CurrentDetectedInteract->GetIsAutomaticInstantInteract())
+			
+			if (IsLocallyControlled() && GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag("State.Character.IsInteractingDuration")) == false)
 			{
-				GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
+				if (CurrentDetectedInteract->GetIsAutomaticInstantInteract())
+				{
+					GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
+				}
+				if (CurrentDetectedInteract->GetIsAutomaticDurationInteract())
+				{
+					GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
+				}
 			}
-			if (CurrentDetectedInteract->GetIsAutomaticDurationInteract())
-			{
-				GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
-			}
+			
 
 			LastDetectedInteract = CurrentDetectedInteract;
 		}
@@ -174,8 +178,9 @@ void AAbilitySystemCharacter::OnComponentBeginOverlapCharacterCapsule(UPrimitive
 {
 	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
 	{
-
 		FrameOverlapInteractablesStack.Push(Interactable);
+		// Earliest place we can interact with an automatic interactable. May not be best place though for consistancy reasons
+		
 	}
 }
 void AAbilitySystemCharacter::OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)

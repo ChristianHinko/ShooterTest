@@ -90,6 +90,7 @@ bool UGA_CharacterDurationInteract::CanActivateAbility(const FGameplayAbilitySpe
 void UGA_CharacterDurationInteract::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	ENetRole role = GetAvatarActorFromActorInfo()->GetLocalRole();
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
@@ -118,7 +119,6 @@ void UGA_CharacterDurationInteract::ActivateAbility(const FGameplayAbilitySpecHa
 		InputReleasedTask->ReadyForActivation();
 	}
 	
-	ENetRole role = GetAvatarActorFromActorInfo()->GetLocalRole();
 	UAT_DurationInteractCallbacks* DurationInteractCallbacks = UAT_DurationInteractCallbacks::DurationInteractCallbacks(this, GASCharacter, Interactable);
 	if (!DurationInteractCallbacks)
 	{

@@ -13,6 +13,7 @@
 UGA_CharacterDurationInteract::UGA_CharacterDurationInteract()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.DurationInteract")));
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerExecution;
 }
 
 void UGA_CharacterDurationInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -29,6 +30,7 @@ void UGA_CharacterDurationInteract::OnAvatarSet(const FGameplayAbilityActorInfo*
 		return;
 	}
 
+	// Mainly ment for the CDO so it can have a reference to the Character for CanActivateAbility() (since we are an InstancePerExecutionAbility)
 	GASCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
 	if (!GASCharacter)
 	{
@@ -94,7 +96,15 @@ void UGA_CharacterDurationInteract::ActivateAbility(const FGameplayAbilitySpecHa
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+		return;
+	}
+
+	GASCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
+	if (!GASCharacter)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Cast to GASCharacter was NULL when activating duration interact ability"), *FString(__FUNCTION__));
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 		return;
 	}
 
@@ -102,9 +112,10 @@ void UGA_CharacterDurationInteract::ActivateAbility(const FGameplayAbilitySpecHa
 	if (!Interactable)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Server detected nothing to interact with when activating interact duration ability. This should be an invalid state. Cancelling"), *FString(__FUNCTION__));
-		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 		return;
 	}
+	Interactable->InjectDurationInteractOccurring(true);
 	
 	if (!Interactable->GetIsAutomaticDurationInteract())
 	{
@@ -112,7 +123,7 @@ void UGA_CharacterDurationInteract::ActivateAbility(const FGameplayAbilitySpecHa
 		if (!InputReleasedTask)
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate InteractDuration ability. Called CancelAbility()"), *FString(__FUNCTION__));
-			CancelAbility(Handle, ActorInfo, ActivationInfo, false);
+			CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 			return;
 		}
 		InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterDurationInteract::OnRelease);
@@ -123,12 +134,13 @@ void UGA_CharacterDurationInteract::ActivateAbility(const FGameplayAbilitySpecHa
 	if (!DurationInteractCallbacks)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DurationInteractCallbacks was NULL when trying to activate InteractDuration ability. May have been because a NULL Character or Interactable reference was passed in. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 		return;
 	}
 
-	UE_CLOG(GASCharacter->GetLocalRole() == ROLE_Authority, LogGameplayAbility, Error, TEXT("%s() SERVER activating"), *FString(__FUNCTION__));
-	UE_CLOG(GASCharacter->GetLocalRole() == ROLE_AutonomousProxy, LogGameplayAbility, Error, TEXT("%s() client activating"), *FString(__FUNCTION__));
+	UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Valid Start"), *FString(__FUNCTION__));
+	//UE_CLOG(GASCharacter->GetLocalRole() == ROLE_Authority, LogGameplayAbility, Error, TEXT("%s() SERVER activating"), *FString(__FUNCTION__));
+	//UE_CLOG(GASCharacter->GetLocalRole() == ROLE_AutonomousProxy, LogGameplayAbility, Error, TEXT("%s() client activating"), *FString(__FUNCTION__));
 	DurationInteractCallbacks->OnInteractTickDelegate.AddUObject(this, &UGA_CharacterDurationInteract::OnInteractTick);
 	DurationInteractCallbacks->OnInteractionSweepMissDelegate.AddUObject(this, &UGA_CharacterDurationInteract::OnInteractionSweepMiss);
 	DurationInteractCallbacks->OnSuccessfulInteractDelegate.AddUObject(this, &UGA_CharacterDurationInteract::OnSuccessfullInteract);
@@ -230,52 +242,64 @@ void UGA_CharacterDurationInteract::EndAbility(const FGameplayAbilitySpecHandle 
 
 
 
-	ENetRole role = GASCharacter->GetLocalRole();
-	InteractEndReason;
-
-
-
-
-
 	if (ActorInfo->AbilitySystemComponent.Get())
 	{
-		ActorInfo->AbilitySystemComponent.Get()->RemoveActiveGameplayEffect(InteractEffectActiveHandle);
+		if (InteractEffectActiveHandle.IsValid())
+		{
+			ActorInfo->AbilitySystemComponent.Get()->RemoveActiveGameplayEffect(InteractEffectActiveHandle);
+		}
 	}
 	else
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() RemoveActiveGameplayEffect(InteractEffectActiveHandle) failed. AbilitySystemComponent was NULL"), *FString(__FUNCTION__));
 	}
 
-	// We want to call the events AFTER we know the ability is completely finished
-	if (InteractEndReason == EDurationInteractEndReason::REASON_InputRelease)
+	if (bWasCancelled)
 	{
-		Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_InputRelease, timeHeld);
-	}
-	else if (InteractEndReason == EDurationInteractEndReason::REASON_SweepMiss)
-	{
-		Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_SweepMiss, timeHeld);
-	}
-	else if (InteractEndReason == EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap)
-	{
-		Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap, timeHeld);
-	}
-	else if (InteractEndReason == EDurationInteractEndReason::REASON_NewInteractionOverlapPriority)
-	{
-		Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_NewInteractionOverlapPriority, timeHeld);
-	}
-	else if (InteractEndReason == EDurationInteractEndReason::REASON_SuccessfulInteract)
-	{
-		Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_SuccessfulInteract, timeHeld);
+		InteractEndReason = EDurationInteractEndReason::REASON_AbilityCanceled;
+		if (Interactable)	// If there is a valid interactable for this machine (it's ok if not. That may be why it was canceled)
+		{
+			if (InteractEndReason == EDurationInteractEndReason::REASON_AbilityCanceled)
+			{
+				Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_AbilityCanceled, timeHeld);
+			}
+		}
 	}
 	else
 	{
-		Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_Unknown, timeHeld);
+		if (InteractEndReason == EDurationInteractEndReason::REASON_InputRelease)
+		{
+			Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_InputRelease, timeHeld);
+		}
+		else if (InteractEndReason == EDurationInteractEndReason::REASON_SweepMiss)
+		{
+			Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_SweepMiss, timeHeld);
+		}
+		else if (InteractEndReason == EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap)
+		{
+			Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap, timeHeld);
+		}
+		else if (InteractEndReason == EDurationInteractEndReason::REASON_NewInteractionOverlapPriority)
+		{
+			Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_NewInteractionOverlapPriority, timeHeld);
+		}
+		else if (InteractEndReason == EDurationInteractEndReason::REASON_SuccessfulInteract)
+		{
+			Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_SuccessfulInteract, timeHeld);
+		}
+		else
+		{
+			Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_Unknown, timeHeld);
+		}
 	}
-
-	InteractEndReason = EDurationInteractEndReason::REASON_Unknown;
-	timeHeld = 0;
+		
 
 
+
+	if (Interactable)
+	{
+		Interactable->InjectDurationInteractOccurring(false);	// Maybe should do this at the vary start of EndAbility() but well try here for now.
+	}
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 
 

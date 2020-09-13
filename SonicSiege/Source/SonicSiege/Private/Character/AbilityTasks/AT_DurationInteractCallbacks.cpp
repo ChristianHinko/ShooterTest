@@ -25,7 +25,7 @@ UAT_DurationInteractCallbacks* UAT_DurationInteractCallbacks::DurationInteractCa
 
 	UAT_DurationInteractCallbacks* MyObj = NewAbilityTask<UAT_DurationInteractCallbacks>(OwningAbility);
 	MyObj->GASCharacter = GASCharactor;
-	MyObj->Interact = InInteract;
+	MyObj->Interactable = InInteract;
 	MyObj->duration = InInteract->interactDuration;
 	MyObj->tickInterval = InInteract->tickInterval;
 	MyObj->skipFirstTick = InInteract->bShouldSkipFirstTick;
@@ -39,7 +39,7 @@ void UAT_DurationInteractCallbacks::Activate()
 	currentTime = 0;
 	continueTimestamp = 0;
 	ENetRole role = GASCharacter->GetLocalRole();
-	if (Interact->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
+	if (Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 	{
 		OnPawnLeftOverlapInteractableDelegateHandle = GASCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.AddUObject(this, &UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable);
 	}
@@ -56,9 +56,9 @@ void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 		return;
 	}
 
-	if (Interact != GASCharacter->CurrentDetectedInteract)							
+	if (Interactable != GASCharacter->CurrentDetectedInteract)
 	{
-		if (Interact->GetDetectType() == EDetectType::DETECTTYPE_Sweeped)		// If the character's Interaction sweep doesn't detect the same Interactable we started interacting with
+		if (Interactable->GetDetectType() == EDetectType::DETECTTYPE_Sweeped)		// If the character's Interaction sweep doesn't detect the same Interactable we started interacting with
 		{
 
 			GASCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.Remove(OnPawnLeftOverlapInteractableDelegateHandle);	// Only want 1 end ability callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
@@ -66,11 +66,6 @@ void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 			RemoveAllDelegates();
 			return;
 		}
-	}
-
-	if (currentTime == 0)
-	{
-		//OnInteractionBeginDelegate.Broadcast();	Currently handling this in ActivateAbility() instead of here so that we get a free prediction key for the callback
 	}
 
 	if (skipFirstTick && continueTimestamp == 0)
@@ -104,13 +99,13 @@ void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 void UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable(IInteractable*& InteractableThePawnLeft)	// Somehow this is not being called on the client so client's timer keeps running	
 {
 	ENetRole role = GASCharacter->GetLocalRole();
-	if (Interact == InteractableThePawnLeft)
+	if (Interactable == InteractableThePawnLeft)
 	{
 		ENetRole d = GASCharacter->GetLocalRole();
 		OnCharacterLeftInteractionOverlapDelegate.Broadcast(currentTime);
 		RemoveAllDelegates();
 	}
-	//if (Interact->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
+	//if (Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 	//{
 	//	if (GASCharacter->CurrentDetectedInteract == nullptr)
 	//	{
@@ -121,7 +116,7 @@ void UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable(IInteractable*
 	//		//OnNewInteractionPriorityDelegate.Broadcast(currentTime);
 	//		if (GASCharacter->CurrentDetectedInteract->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 	//		{
-	//			if (!GASCharacter->FrameOverlapInteractablesStack.Contains(Interact))
+	//			if (!GASCharacter->FrameOverlapInteractablesStack.Contains(Interactable))
 	//			{
 	//				OnCharacterLeftInteractionOverlapDelegate.Broadcast(currentTime);
 	//			}

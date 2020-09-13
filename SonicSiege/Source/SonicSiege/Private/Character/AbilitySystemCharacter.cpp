@@ -91,13 +91,13 @@ void AAbilitySystemCharacter::Tick(float DeltaTime)
 			}
 
 			
-			if (IsLocallyControlled() && GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag("State.Character.IsInteractingDuration")) == false)
+			if (IsLocallyControlled())
 			{
 				if (CurrentDetectedInteract->GetIsAutomaticInstantInteract())
 				{
 					GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
 				}
-				if (CurrentDetectedInteract->GetIsAutomaticDurationInteract())
+				if (CurrentDetectedInteract->GetIsAutomaticDurationInteract() && CurrentDetectedInteract->GetDurationInteractOccurring() == false)
 				{
 					GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
 				}
@@ -115,7 +115,6 @@ void AAbilitySystemCharacter::Tick(float DeltaTime)
 			}
 		}
 	}
-
 }
 
 IInteractable* AAbilitySystemCharacter::DetectCurrentInteractable(FHitResult& OutHit)
@@ -133,7 +132,7 @@ IInteractable* AAbilitySystemCharacter::DetectCurrentInteractable(FHitResult& Ou
 			{
 				if (BlockingHitInteractable->GetCanCurrentlyBeInteractedWith())
 				{
-					BlockingHitInteractable->SetInteractionType(EDetectType::DETECTTYPE_Sweeped);
+					BlockingHitInteractable->InjectDetectType(EDetectType::DETECTTYPE_Sweeped);
 					return BlockingHitInteractable;
 				}
 			}
@@ -154,7 +153,7 @@ IInteractable* AAbilitySystemCharacter::DetectCurrentInteractable(FHitResult& Ou
 					{
 
 						UKismetSystemLibrary::PrintString(this, "Using = " + FString::SanitizeFloat(i), true, false, FLinearColor::Green);
-						FrameOverlapInteractablesStack[i]->SetInteractionType(EDetectType::DETECTTYPE_Overlapped);
+						FrameOverlapInteractablesStack[i]->InjectDetectType(EDetectType::DETECTTYPE_Overlapped);
 						return FrameOverlapInteractablesStack[i];
 					}
 				}

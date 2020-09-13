@@ -42,7 +42,8 @@ void AItem::OnInstantInteract(APawn* InteractingPawn)
 
 void AItem::OnDurationInteractBegin(APawn* InteractingPawn)
 {
-	//UKismetSystemLibrary::PrintString(this, "OnDurationInteractBegin", true, true, FLinearColor::Gray);
+	//bCanCurrentlyBeInteractedWith = false;
+	UKismetSystemLibrary::PrintString(this, "OnDurationInteractBegin", true, true, FLinearColor::Gray);
 }
 void AItem::InteractingTick(APawn* InteractingPawn, float DeltaTime, float CurrentInteractionTime)
 {

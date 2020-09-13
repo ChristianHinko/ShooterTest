@@ -27,7 +27,8 @@ enum class EDurationInteractEndReason
 	REASON_InputRelease,		// Player let go of interact input
 	REASON_SweepMiss,			// Character's Interaction sweep missed. (Can't reach it)
 	REASON_CharacterLeftInteractionOverlap,
-	REASON_NewInteractionOverlapPriority,
+	REASON_NewInteractionOverlapPriority,	// Not currently being used. May add this feature in the future
+	REASON_AbilityCanceled,					// Used whenever the ability gets canceled (most likely due to one end not having valid variables on activation)
 	REASON_SuccessfulInteract	// After you've successfully interacted (Frame after the last frame of interaction)
 };
 
@@ -54,6 +55,10 @@ class SONICSIEGE_API IInteractable
 public:
 	IInteractable();
 
+	/** WARNING: Implementors don't touch! External use only! */
+	void InjectDetectType(EDetectType newDetectType);
+	/** WARNING: Implementors don't touch! External use only! */
+	void InjectDurationInteractOccurring(bool newDurationInteractOccurring);
 	
 	bool GetCanCurrentlyBeInteractedWith();
 
@@ -61,8 +66,8 @@ public:
 	bool GetIsAutomaticInstantInteract();
 	bool GetIsManualDurationInteract();
 	bool GetIsAutomaticDurationInteract();
+	bool GetDurationInteractOccurring();
 	EDetectType GetDetectType();
-	void SetInteractionType(EDetectType NewInteractionType);
 
 	// Called from an interact ability's CanActivateAbility(). Gives implementor a chance to do some checks before activated.
 	virtual bool CanActivateInteractAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const = 0;
@@ -139,12 +144,12 @@ public:
 
 
 
-
 protected:
 	// If set to false, character will ignore this interactable and find the next best option for the frame. This is different from returning false in CanActivateInteractAbility() in that this even prevents the player from even having the option to interact (ie. you've already interacted with this). Basicly this completely turns off the interactability until turned back on.
 	bool bCanCurrentlyBeInteractedWith;
-	// Injected variable. Don't change. What the character detected this Interactable to be (set by character not implementor)
-	EDetectType DetectType;
+
+
+	
 	
 
 
@@ -155,4 +160,12 @@ protected:
 	bool bIsManualDurationInteract;			
 	bool bIsAutomaticDurationInteract;	
 	//----------------------------------
+
+
+
+private:
+	// Injected variable. Implementors should not touch this
+	bool bDurationInteractOccurring;
+	// Injected variable. What the character detected this Interactable to be. Implementors should not touch this
+	EDetectType DetectType;
 };

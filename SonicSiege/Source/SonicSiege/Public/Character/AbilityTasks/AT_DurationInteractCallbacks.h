@@ -27,7 +27,6 @@ class SONICSIEGE_API UAT_DurationInteractCallbacks : public USSAbilityTask
 public:
 	UAT_DurationInteractCallbacks(const FObjectInitializer& ObjectInitializer);
 
-	//FOnInteractionBeginDelegate OnInteractionBeginDelegate;
 	FInteractingTickDelegate OnInteractTickDelegate;
 	//FOnInteractionEndDelegate OnInputReleaseDelegate   ----The ability will handle input release event for us----
 	FOnInteractionEndDelegate OnInteractionSweepMissDelegate;
@@ -50,7 +49,7 @@ public:
 
 	void Activate() override;
 
-	IInteractable* Interact;
+	IInteractable* Interactable;
 	FString GetDebugString() const override;
 	virtual void OnDestroy(bool AbilityEnded) override;
 protected:

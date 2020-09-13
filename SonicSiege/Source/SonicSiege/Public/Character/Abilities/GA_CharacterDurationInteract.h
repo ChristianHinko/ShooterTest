@@ -11,7 +11,9 @@
 class AAbilitySystemCharacter;
 
 /**
- * 
+ *	TODO: Currently the abilty only does a check if both client and server have an interactable. If one of them don't, it doesn't activate.
+ *  But another check is needed for this system to be fully stable. We need to make another check to see if the client and server have the
+ *  same object as theinteractable.
  */
 UCLASS()
 class SONICSIEGE_API UGA_CharacterDurationInteract : public USSGameplayAbility

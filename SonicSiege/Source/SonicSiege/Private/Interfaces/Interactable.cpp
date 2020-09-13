@@ -18,6 +18,22 @@ IInteractable::IInteractable()
 	bShouldSkipFirstTick = false;
 }
 
+void IInteractable::InjectDurationInteractOccurring(bool newDurationInteractOccurring)
+{
+	bDurationInteractOccurring = newDurationInteractOccurring;
+}
+void IInteractable::InjectDetectType(EDetectType newDetectType)
+{
+	DetectType = newDetectType;
+}
+
+
+
+
+
+
+
+
 bool IInteractable::GetIsManualInstantInteract()
 {
 	return bIsManualInstantInteract;
@@ -38,14 +54,13 @@ bool IInteractable::GetIsAutomaticDurationInteract()
 {
 	return bIsAutomaticDurationInteract;
 }
+bool IInteractable::GetDurationInteractOccurring()
+{
+	return bDurationInteractOccurring;
+}
 EDetectType IInteractable::GetDetectType()
 {
 	return DetectType;
-}
-
-void IInteractable::SetInteractionType(EDetectType NewInteractionType)
-{
-	DetectType = NewInteractionType;
 }
 
 

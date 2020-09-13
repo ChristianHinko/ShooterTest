@@ -12,7 +12,11 @@ AItem::AItem()
 	bWithoutAbilitySystemComponentSubobject = true;
 
 	bShouldFireSweepEvents = true;
-	InteractionMode = EInteractionMode::Duration;
+	
+	bIsAutomaticInstantInteract = false;
+	bIsAutomaticDurationInteract = true;
+	bIsManualInstantInteract = false;
+	bIsManualDurationInteract = false;
 }
 void AItem::PostInitializeComponents()
 {
@@ -29,6 +33,11 @@ bool AItem::CanActivateInteractAbility(const FGameplayAbilitySpecHandle Handle, 
 	return true;
 }
 
+TSubclassOf<UGameplayEffect> AItem::GetInteractableEffectTSub()
+{
+	return nullptr;
+}
+
 
 
 
@@ -39,6 +48,7 @@ bool AItem::CanActivateInteractAbility(const FGameplayAbilitySpecHandle Handle, 
 void AItem::OnInstantInteract(APawn* InteractingPawn)
 {
 	UKismetSystemLibrary::PrintString(this, "Instant Interact", true, false, FLinearColor::Yellow);
+	Destroy();
 }
 
 
@@ -49,14 +59,18 @@ void AItem::OnDurationInteractBegin(APawn* InteractingPawn)
 }
 void AItem::InteractingTick(APawn* InteractingPawn, float DeltaTime, float CurrentInteractionTime)
 {
-	UKismetSystemLibrary::PrintString(this, "Interacting a " + FString::SanitizeFloat(interactDuration) + "duration interactable.....\nCurrentTime=" + FString::SanitizeFloat(CurrentInteractionTime), true, false, FLinearColor::Gray);
+	ENetRole role = GetLocalRole();
+	UKismetSystemLibrary::PrintString(this, GetActorLabel() + " ---->" + FString::SanitizeFloat(CurrentInteractionTime), true, false, FLinearColor::Gray);
 }
+
 void AItem::OnDurationInteractEnd(APawn* InteractingPawn, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime)
 {
+	ENetRole role = GetLocalRole();
 	if (DurationInteractEndReason == EDurationInteractEndReason::REASON_SuccessfulInteract)
 	{
-		Destroy();
-		UKismetSystemLibrary::PrintString(this, "OnDurationInteractEnd", true, false, FLinearColor::Gray);
+		//bCanCurrentlyBeInteractedWith = false;
+		Destroy();	// Destroying on complete causes that weird problem where (im guessing the next interactable in the stack) doesn't stop ticking if you leave. And completes.
+		//UKismetSystemLibrary::PrintString(this, "OnDurationInteractEnd", true, false, FLinearColor::Gray);
 	}
 	
 }

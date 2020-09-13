@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/Abilities/GA_CharacterInstantInteract.h"
+#include "Character/Abilities/Interact/GA_CharacterInstantInteract.h"
 
 #include "Character/AbilitySystemCharacter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
@@ -48,25 +48,30 @@ bool UGA_CharacterInstantInteract::CanActivateAbility(const FGameplayAbilitySpec
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate instant interact ability"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (!GASCharacter->CurrentInteract)
+	if (!GASCharacter->CurrentDetectedInteract)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Detected nothing to interact with when activating interact instant ability. Cancelling"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (!GASCharacter->CurrentInteract->GetCanCurrentlyBeInteractedWith())
+	if (!GASCharacter->CurrentDetectedInteract->GetCanCurrentlyBeInteractedWith())
 	{
 		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Couldn't interact because bCanCurrentlyBeInteractedWith was false"), *FString(__FUNCTION__));
 		return false;
 	}
-	if ((GASCharacter->CurrentInteract->GetInteractionMode() != EInteractionMode::Instant) && (GASCharacter->CurrentInteract->GetInteractionMode() != EInteractionMode::InstantAndDuration))
+	if (!GASCharacter->CurrentDetectedInteract->GetIsManualInstantInteract() && !GASCharacter->CurrentDetectedInteract->GetIsAutomaticInstantInteract())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() EInteractionMode was not \"Instant\" or \"InstantAndDuration\" when trying to activate instant interact ability. Returning false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetIsManualInstantInteract() returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+	if (GASCharacter->CurrentDetectedInteract->GetIsAutomaticInstantInteract() && GASCharacter->CurrentDetectedInteract->GetIsManualInstantInteract())
+	{
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Interactable was set to be both automatic and manual which doesn't make sense. returned false"), *FString(__FUNCTION__));
 		return false;
 	}
 
 
 	// Allow the implementer to create custom conditions before we activate
-	if (GASCharacter->CurrentInteract->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
+	if (GASCharacter->CurrentDetectedInteract->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from IInteractable's implementor"), *FString(__FUNCTION__));
 		return false;
@@ -83,18 +88,41 @@ void UGA_CharacterInstantInteract::ActivateAbility(const FGameplayAbilitySpecHan
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 		return;
 	}
-	Interactable = GASCharacter->CurrentInteract;	// Wish I could put this in CanActivateAbiliy() but since it's called on CDO we can't set this reference on this instance
+	Interactable = GASCharacter->CurrentDetectedInteract;
 	if (!Interactable)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Server detected nothing to interact with when activating interact instant ability. This should be an invalid state. Cancelling"), *FString(__FUNCTION__));
-		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 		return;
 	}
 
-	Interactable->OnInstantInteract(GASCharacter);
+	// Handle what we will do if this interactable is an automatic interact on overlap. If there are other interactables like this that we are currently overlaping with,
+	// we will take care of all of them in one ability (this one) instead of a bunch of ability calls for each one.
+	if (Interactable->GetIsAutomaticInstantInteract() && Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped && GASCharacter->CurrentOverlapInteractablesStack.Num() > 0)
+	{
+		/*if (Interactable->bAllowedInstantInteractActivationCombining)	// Maybe give implementor functionality
+		{*/
+			for (int32 i = GASCharacter->CurrentOverlapInteractablesStack.Num() - 1; i >= 0; i--)
+			{
+				if (GASCharacter->CurrentOverlapInteractablesStack.IsValidIndex(i) && GASCharacter->CurrentOverlapInteractablesStack[i])
+				{
+					if (GASCharacter->CurrentOverlapInteractablesStack[i]->GetIsAutomaticInstantInteract() && Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
+					{
+						GASCharacter->CurrentOverlapInteractablesStack[i]->OnInstantInteract(GASCharacter);
+					}
+				}
+			}
+		//}
+	}
+	else
+	{
+		Interactable->OnInstantInteract(GASCharacter);
+	}
+
+	
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
 }

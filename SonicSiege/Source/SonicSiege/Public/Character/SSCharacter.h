@@ -15,7 +15,7 @@ class USSCharacterMovementComponent;
 class AItem;
 class IInteractable;
 
-
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnFrameOverlapStackChangeDelegate, IInteractable*&);
 /**
  * Base character class (without GAS implementation)
  */
@@ -69,28 +69,10 @@ public:
 	 *  3) 
 	 * Uses this specific character's parameters and camera orientation to do a sphere sweep to give a possible interactable. If no interactable detected, returns nullptr
 	 */
-	IInteractable* ScanForInteractables(FHitResult& OutHit);
-
-	UFUNCTION()
-		void OnComponentBeginOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	UFUNCTION()
-		void OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-	TArray<IInteractable*> FrameOverlapInteractables;
-
-	IInteractable* CurrentInteract;
-	IInteractable* LastInteract;
-
-protected:
-		// Try ustilizing our custom trace channel before resorting to this
-	UPROPERTY(EditAnywhere)
-		float InteractSweepDistance;
-	UPROPERTY(EditAnywhere)
-		float InteractSweepRadius;
-	FHitResult InteractSweepHitResult;
 
 	
 
+protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 

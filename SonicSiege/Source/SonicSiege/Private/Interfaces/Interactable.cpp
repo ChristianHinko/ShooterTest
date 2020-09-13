@@ -6,8 +6,12 @@
 // Add default functionality here for any IInteractable functions that are not pure virtual.
 IInteractable::IInteractable()
 {
-	InteractionMode = EInteractionMode::Instant;
+	bIsAutomaticInstantInteract = false;
+	bIsAutomaticDurationInteract = false;
+	bIsManualInstantInteract = false;
+	bIsManualDurationInteract = false;
 	bCanCurrentlyBeInteractedWith = true;
+	bDurationInteractOccurring = false;
 	bShouldFireSweepEvents = false;
 	interactDuration = 5.f;
 	tickInterval = 0;
@@ -15,15 +19,60 @@ IInteractable::IInteractable()
 	bShouldSkipFirstTick = false;
 }
 
+void IInteractable::InjectDurationInteractOccurring(bool newDurationInteractOccurring)
+{
+	bDurationInteractOccurring = newDurationInteractOccurring;
+}
+void IInteractable::InjectDetectType(EDetectType newDetectType)
+{
+	DetectType = newDetectType;
+}
+
+
+
+
+
+
+
+
+bool IInteractable::GetIsManualInstantInteract()
+{
+	return bIsManualInstantInteract;
+}
+bool IInteractable::GetIsManualDurationInteract()
+{
+	return bIsManualDurationInteract;
+}
 bool IInteractable::GetCanCurrentlyBeInteractedWith()
 {
 	return bCanCurrentlyBeInteractedWith;
 }
-EInteractionMode IInteractable::GetInteractionMode()
+bool IInteractable::GetIsAutomaticInstantInteract()
 {
-	return InteractionMode;
+	return bIsAutomaticInstantInteract;
+}
+bool IInteractable::GetIsAutomaticDurationInteract()
+{
+	return bIsAutomaticDurationInteract;
+}
+bool IInteractable::GetDurationInteractOccurring()
+{
+	return bDurationInteractOccurring;
+}
+EDetectType IInteractable::GetDetectType()
+{
+	return DetectType;
 }
 
+
+
+
+
+
+
+void IInteractable::OnAutomaticInteract(APawn* InteractingPawn)
+{
+}
 
 
 

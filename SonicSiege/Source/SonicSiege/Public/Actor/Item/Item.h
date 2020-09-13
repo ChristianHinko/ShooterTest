@@ -44,6 +44,8 @@ public:
 	AItem();
 
 	virtual bool CanActivateInteractAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const override;
+	virtual TSubclassOf<UGameplayEffect> GetInteractableEffectTSub() override;
+
 
 	virtual void OnInstantInteract(APawn* InteractingPawn) override;
 

@@ -40,7 +40,6 @@ protected:
 	bool shouldLoop;
 	float firstDelay;
 
-	/** Handle for efficient management of PerformAction timer */
 	FTimerHandle TimerHandle_PerformAction;
 
 	void OnDestroy(bool AbilityIsEnding) override;

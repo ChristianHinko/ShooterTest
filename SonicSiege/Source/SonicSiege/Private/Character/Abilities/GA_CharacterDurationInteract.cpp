@@ -23,9 +23,10 @@
  *		- Breaking this off into its own system might be annoying because I still want the flexability to be able to automatic interact with physical objects.
  *		
  * 
- * 5) Bugs to squash (these problems assume our current goal is to interact with them one by one, not all at once. Assuming this because we should probably sort out those bugs before we change it for stability reasons)
- *		- After overlap finishes successfully, a useless timer starts some reason (when activating ability was in Tick for automatics)
- *		- If trying to automatically interact with a sweep object while automatically interacting with an overlap, 2 timers are started with the , the sweep interact will be stopped by the overlap finishing successfully.
+ * 5) Bugs to squash
+ *		- these problems assume our current goal is to interact with them one by one, not all at once. Assuming this because we should probably sort out those bugs before we change it for stability reasons
+ *				- After overlap finishes successfully, a useless timer starts some reason (when activating ability was in Tick for automatics)
+ *				- If trying to automatically interact with a sweep object while automatically interacting with an overlap, 2 timers are started with the , the sweep interact will be stopped by the overlap finishing successfully.
  *		- (Automatic activation called in overlap event) Walking into 2 overlap interactables activates 2 ablities and starts timers, not for both but only for the one in top of stack (technicly this is kinda cool since it's enforcing only interacting with the one with highest priority)
  *				- This can be solved with bDurationInteractOccurring somehow
  *						- Also figure out a way to make bCanCurrentlyBeInteractedWith and bDurationInteractOccurring cleaner and more understandable

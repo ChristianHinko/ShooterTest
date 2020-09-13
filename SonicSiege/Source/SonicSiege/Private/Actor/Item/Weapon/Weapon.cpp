@@ -2,14 +2,36 @@
 
 
 #include "Actor/Item/Weapon/Weapon.h"
+
+#include "Net/UnrealNetwork.h"
 #include "Actor/Item/Weapon/AS_Weapon.h"
+#include "AbilitySystem/TargetActor/TargetActors/GATA_BulletTrace.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
+
+
+
+
+void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+
+	DOREPLIFETIME(AWeapon, FireAbilitySpecHandle);
+}
+
 
 AWeapon::AWeapon()
 {
 
 }
+void AWeapon::BeginPlay()
+{
+	Super::BeginPlay();
 
+
+	BulletTraceTargetActor = GetWorld()->SpawnActor<AGATA_BulletTrace>(BulletTraceTargetActorTSub);
+	BulletTraceTargetActor->bDestroyOnConfirmation = false;
+}
 
 void AWeapon::CreateAttributeSets()
 {
@@ -36,6 +58,19 @@ void AWeapon::RegisterAttributeSets()
 	}
 	else
 	{
-		UE_CLOG((GetLocalRole() == ROLE_Authority), LogWeapon, Warning, TEXT("%s() WeaponAttributeSet was either NULL or already added to the character's ASC. Character: %s"), *FString(__FUNCTION__), *GetName());
+		UE_CLOG((GetLocalRole() == ROLE_Authority), LogWeapon, Warning, TEXT("%s() WeaponAttributeSet was either NULL or already added to the actor's ASC. Actor: %s"), *FString(__FUNCTION__), *GetName());
 	}
+}
+
+bool AWeapon::GrantStartingAbilities()
+{
+	if (Super::GrantStartingAbilities() == false)
+	{
+		return false;	// Did not pass predefined checks
+	}
+	//	We are on authority and have a valid ASC to work with
+
+	FireAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(FireAbilityTSub, this, EAbilityInputID::PrimaryFire/*, GetLevel()*/);
+
+	return true;
 }

@@ -8,9 +8,10 @@
 #include "GameFramework/SpringArmComponent.h"
 
 //#include "GameFramework/CharacterMovementComponent.h"
-//#include "GameFramework/SpringArmComponent.h"
-#include "Kismet/KismetSystemLibrary.h"
-#include "Actor/AS_Health.h"
+//#include "Kismet/KismetSystemLibrary.h"
+//#include "Actor/AS_Health.h"
+
+
 
 ASonic::ASonic(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

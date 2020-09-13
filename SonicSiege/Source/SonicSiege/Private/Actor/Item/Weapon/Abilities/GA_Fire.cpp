@@ -2,13 +2,13 @@
 
 
 #include "Actor/Item/Weapon/Abilities/GA_Fire.h"
+
 #include "AbilitySystemComponent.h"
-#include "SonicSiege/Private/Utilities/LogCategories.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
 #include "AbilitySystem/TargetActor/TargetActors/GATA_BulletTrace.h"
+#include "Actor/Item/Weapon/Weapon.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "Character/SSCharacter.h"
-#include "Camera/CameraComponent.h"
+#include "SonicSiege/Private/Utilities/LogCategories.h"
 #include "Utilities/CollisionChannels.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -22,6 +22,36 @@ UGA_Fire::UGA_Fire()
 
 }
 
+
+void UGA_Fire::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+{
+	Super::OnAvatarSet(ActorInfo, Spec);
+
+
+	// get reference to source weapon that granted this ability
+	SourceWeapon = Cast<AWeapon>(GetCurrentSourceObject());
+	if (!SourceWeapon)
+	{
+		if (GetCurrentSourceObject() == nullptr)
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("Current source object was null in %s(). - Failed to cast fire ability's source object to AWeapon"), *FString(__FUNCTION__));
+		}
+		else
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("Failed to cast fire ability's source object to AWeapon in %s(). Is this ability being given to a non-weapon? (it shouldn't be)"), *FString(__FUNCTION__));
+		}
+			
+		return;
+	}
+
+	// get referance to source weapon's target actor
+	BulletTraceTargetActor = SourceWeapon->GetBulletTraceTargetActor();
+	if (!BulletTraceTargetActor)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s gave us a null bullet trace target actor in %s()"), *SourceWeapon->GetName(), *FString(__FUNCTION__));
+		return;
+	}
+}
 
 bool UGA_Fire::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
@@ -50,31 +80,15 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 		return;
 	}
 
-	// take away ammo first
-	FireEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, FireEffectTSub.GetDefaultObject(), GetAbilityLevel());
 
-	// set up target actor if not already
-	if (!TargetTraceActor)
-	{
-		TargetTraceActor = GetWorld()->SpawnActor<AGATA_BulletTrace>(BulletTraceTargetActor);
-		TargetTraceActor->bDestroyOnConfirmation = false;
-	}
+	// take away ammo first
+	//FireEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, FireEffectTSub.GetDefaultObject(), GetAbilityLevel());			// how do we do this? we want to apply the effect to the weapon but all they have is apply to owner and apply to target
 
 	// update target actor's start location info
-	FGameplayAbilityTargetingLocationInfo StartLocationInfo;
-	StartLocationInfo.LocationType = EGameplayAbilityTargetingLocationType::LiteralTransform;
-	if (ASSCharacter* AvatarCharacter = Cast<ASSCharacter>(GetAvatarActorFromActorInfo()))
-	{
-		StartLocationInfo.LiteralTransform = AvatarCharacter->GetFollowCamera()->GetComponentTransform();
-	}
-	else
-	{
-		StartLocationInfo.LiteralTransform = GetAvatarActorFromActorInfo()->GetActorTransform();
-	}
-	TargetTraceActor->StartLocation = StartLocationInfo;
+	BulletTraceTargetActor->StartLocation = MakeTargetLocationInfoFromOwnerSkeletalMeshComponent(TEXT("None"));		// this will take the actor info's skeletal mesh, maybe make our own in SSGameplayAbility which you can specify a skeletal mesh to use
 
 	// try to make wait target data task
-	UAbilityTask_WaitTargetData* WaitTargetDataActorTask = UAbilityTask_WaitTargetData::WaitTargetDataUsingActor(this, TEXT("WaitTargetDataActorTask"), EGameplayTargetingConfirmation::Instant, TargetTraceActor);
+	UAbilityTask_WaitTargetData* WaitTargetDataActorTask = UAbilityTask_WaitTargetData::WaitTargetDataUsingActor(this, TEXT("WaitTargetDataActorTask"), EGameplayTargetingConfirmation::Instant, BulletTraceTargetActor);
 	if (!WaitTargetDataActorTask)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitTargetDataActorTask was NULL when trying to activate fire ability. Called CancelAbility()"), *FString(__FUNCTION__));

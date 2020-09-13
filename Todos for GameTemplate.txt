@@ -29,22 +29,35 @@
 	- Need this is we want custom GameplayTargetDataFilters
 
 
+- Consider adding confirm and cancel integers to the constructor of FGameplayAbilityInputBinds() in AAbilitySystemCharacter::BindASCInput()
+	- FGameplayAbilityInputBinds(FString("ConfirmTarget"), FString("CancelTarget"), FString("EAbilityInputID"), static_cast<int32>(EAbilityInputID::Confirm), static_cast<int32>(EAbilityInputID::Cancel))
+	- If I remember we chose not to do this because we didn't want confirm and cancel in the EAbilityInputID enum but just review this idea anyways
 
+- Document that AbilitySystemCharacter is not meant to be used as a base class but rather a tool for base classes to use
 
+- Add message log in saved after outputlog
 
-
-
+- Take AS_PlayerState out of AttributeSets folder and delete the folder
 
 - Add GTGameplayAbilityTargetActor base class and add our own AT_WaitTargetData that uses our base target actor instead
 
+- Make ActorAbilitySystemComponent protected rather than private in AbilitySystemActor
+
+- Add bWithoutAbilitySystemComponentAsSubobject and the necessary checks to make it work
+	- Look at SonicSiege's AbilitySystemActor.cpp
+
+- Make SetupWithAbilitySystem(), InitializeAttribute(), and ApplyStartupEffects() protected (rather than private) in the AbilitySystemActor so that if a subclass is using bWithoutAbilitySystemComponentAsSubobject, he can call SetupWithAbilitySystem() on his own.
 
 
+- Get rid of example ability ActorAbilitySpecHandle and ActorAbilityTSub and put it in an ExampleAbilitySystemActor
+	- Or just put a comment above all references to these variables and mention that it's an example ability
+- Get rid of example ability PawnAbilitySpecHandle and PawnAbilityTSub and put it in an ExampleAbilitySystemPawn
+	- Or just put a comment above all references to these variables and mention that it's an example ability
+	- Idk if pawn has this problem but even if it doesn't make an ExampleAbilitySystemPawn with an example ability
 
-
-
-
-
-
+- Fix UE_CLOG in RegisterAttributeSets to be more specific by getting rid of the && condition eliminating the "either" in the log
+	- break it into 2 if statements somehow?
+	- figure out how to make it look clean still
 
 
 - AbilitySystemActor "ActorAttributeSet" IS NOT ON EVERY ACTOR". Name misleading

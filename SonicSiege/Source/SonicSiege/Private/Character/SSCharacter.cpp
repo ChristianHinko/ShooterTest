@@ -168,7 +168,7 @@ IInteractable* ASSCharacter::ScanForInteractables(FHitResult& OutHit)
 	// Check if sphere sweep detects blocking hit as an interactable (a blocking hit doesn't necessarily mean the object is collidable. It's can just be collidable to the Interact trace channel).
 	// Also there will only ever be a need to check for the first blocking hit, overlaps don't matter for this.
 
-	UKismetSystemLibrary::PrintString(this, "FrameOverlapInteractables.Num() = " + FString::SanitizeFloat(FrameOverlapInteractables.Num()));
+	UKismetSystemLibrary::PrintString(this, "FrameOverlapInteractables.Num() = " + FString::SanitizeFloat(FrameOverlapInteractables.Num()), true, false);
 
 	if (GetWorld() && GetFollowCamera())
 	{
@@ -197,7 +197,7 @@ IInteractable* ASSCharacter::ScanForInteractables(FHitResult& OutHit)
 			{
 				if (FrameOverlapInteractables[i]->GetCanCurrentlyBeInteractedWith())
 				{
-					UKismetSystemLibrary::PrintString(this, "Using = " + FString::SanitizeFloat(i), true, true, FLinearColor::Green);
+					UKismetSystemLibrary::PrintString(this, "Using = " + FString::SanitizeFloat(i), true, false, FLinearColor::Green);
 					return FrameOverlapInteractables[i];
 				}
 			}

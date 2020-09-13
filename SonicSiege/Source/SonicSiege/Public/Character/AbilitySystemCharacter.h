@@ -16,6 +16,8 @@ class USSGameplayAbility;
 class UAS_Character;
 class UAS_Health;
 
+
+
 DECLARE_MULTICAST_DELEGATE(FSetupWithAbilitySystemCompleted);
 
 /**
@@ -109,11 +111,6 @@ protected:
 		TSubclassOf<USSGameplayAbility> InteractDurationAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle InteractDurationAbilitySpecHandle;
-
-	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
-		TSubclassOf<USSGameplayAbility> FireAbilityTSub;
-	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle FireAbilitySpecHandle;
 #pragma endregion
 
 #pragma region Effects

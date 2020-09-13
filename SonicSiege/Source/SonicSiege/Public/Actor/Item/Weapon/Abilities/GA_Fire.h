@@ -6,6 +6,7 @@
 #include "AbilitySystem/SSGameplayAbility.h"
 #include "GA_Fire.generated.h"
 
+class AWeapon;
 class AGATA_BulletTrace;
 
 /**
@@ -28,6 +29,7 @@ protected:
 
 
 	//BEGIN UGameplayAbility Interface
+	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
@@ -35,9 +37,9 @@ protected:
 
 
 	UPROPERTY()
-		AGATA_BulletTrace* TargetTraceActor;
-	UPROPERTY(EditAnywhere, Category = "TargetActor")
-		TSubclassOf<AGATA_BulletTrace> BulletTraceTargetActor;
+		AWeapon* SourceWeapon;
+	UPROPERTY()
+		AGATA_BulletTrace* BulletTraceTargetActor;
 
 	UFUNCTION()
 		void OnValidData(const FGameplayAbilityTargetDataHandle& Data);

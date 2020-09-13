@@ -16,25 +16,27 @@ void AAbilitySystemActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 
 
 	DOREPLIFETIME(AAbilitySystemActor, ActorAttributeSet);
-	DOREPLIFETIME_CONDITION(AAbilitySystemActor, ActorAbilitySpecHandle, COND_OwnerOnly);
 	//DOREPLIFETIME(AAbilitySystemActor, ActorAbilitySystemComponent);			//can be helpful for debugging
 }
 
 // Sets default values
 AAbilitySystemActor::AAbilitySystemActor()
 {
-	SetReplicates(true);
-	// Minimal Mode means that no GameplayEffects will replicate. They will only live on the Server. Attributes, GameplayTags, and GameplayCues will still replicate to us.
-	ActorAbilitySystemComponentReplicationMode = EGameplayEffectReplicationMode::Minimal;
+	if (!bWithoutAbilitySystemComponentSubobject)
+	{
+		SetReplicates(true);
+		// Minimal Mode means that no GameplayEffects will replicate. They will only live on the Server. Attributes, GameplayTags, and GameplayCues will still replicate to us.
+		ActorAbilitySystemComponentReplicationMode = EGameplayEffectReplicationMode::Minimal;
+
+		ActorAbilitySystemComponent = CreateDefaultSubobject<USSAbilitySystemComponent>(TEXT("ActorAbilitySystemComponent"));
+		if (ActorAbilitySystemComponent)
+		{
+			ActorAbilitySystemComponent->SetReplicationMode(ActorAbilitySystemComponentReplicationMode);
+			ActorAbilitySystemComponent->SetIsReplicated(true);
+		}
+	}
 
 	bAbilitySystemSetupInitialized = false;
-
-	ActorAbilitySystemComponent = CreateDefaultSubobject<USSAbilitySystemComponent>(TEXT("ActorAbilitySystemComponent"));
-	if (ActorAbilitySystemComponent)
-	{
-		ActorAbilitySystemComponent->SetReplicationMode(ActorAbilitySystemComponentReplicationMode);
-		ActorAbilitySystemComponent->SetIsReplicated(true);
-	}
 }
 
 
@@ -43,7 +45,10 @@ void AAbilitySystemActor::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 
-	SetupWithAbilitySystem();
+	//if (!bAbilitySystemSetupInitialized)		//maybe do this so we dont have to call AAbilitySystemActor::Super::?
+	//{
+		SetupWithAbilitySystem();
+	//}
 }
 
 void AAbilitySystemActor::SetupWithAbilitySystem()
@@ -63,8 +68,11 @@ void AAbilitySystemActor::SetupWithAbilitySystem()
 
 	if (!bAbilitySystemSetupInitialized)
 	{
-		//From my understanding, only needs to be done on server since no player is controlling it
-		ActorAbilitySystemComponent->InitAbilityActorInfo(this, this);
+		if (!bWithoutAbilitySystemComponentSubobject)
+		{
+			//From my understanding, only needs to be done on server since no player is controlling it
+			ActorAbilitySystemComponent->InitAbilityActorInfo(this, this);
+		}
 
 		// Must run these on Server but we run them on client too so that we don't have to wait.. It's how Dan does it so seams legit
 		CreateAttributeSets();
@@ -208,11 +216,7 @@ bool AAbilitySystemActor::GrantStartingAbilities()
 		return false;
 	}
 
-
-	// GetLevel() doesn't exist in this template. Will need to implement one if you want a level system
-	ActorAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(ActorAbilityTSub, this, EAbilityInputID::Interact/*, GetLevel()*/);
-
-	return true;	
+	return true;
 
 	// \/\/\/\/ This should be your first bit of code in your overrided implementation \/\/\/\/
 	// ------------------------------------------------------------------------------------- //

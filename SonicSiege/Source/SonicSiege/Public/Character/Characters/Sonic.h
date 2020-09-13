@@ -6,6 +6,8 @@
 #include "Character/AbilitySystemCharacter.h"
 #include "Sonic.generated.h"
 
+
+
 /**
  * 
  */
@@ -19,4 +21,5 @@ public:
 
 protected:
 	virtual void Tick(float DeltaSeconds) override;
+
 };

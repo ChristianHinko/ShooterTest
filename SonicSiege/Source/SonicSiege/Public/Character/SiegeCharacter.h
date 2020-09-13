@@ -19,4 +19,15 @@ class SONICSIEGE_API ASiegeCharacter : public AAbilitySystemCharacter
 public:
 	ASiegeCharacter(const FObjectInitializer& ObjectInitializer);
 
+protected:
+
+	/*UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
+		FVector CameraSwayAmount;
+	UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
+		FVector AddedCameraSwayDuringADS;*/
+
+	//BEGIN AActor Interface
+	virtual void Tick(float DeltaSeconds) override;
+	//END AActor Interface
+
 };

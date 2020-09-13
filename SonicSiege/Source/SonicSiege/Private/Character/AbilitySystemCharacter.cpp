@@ -91,7 +91,7 @@ void AAbilitySystemCharacter::Tick(float DeltaTime)
 			}
 
 			
-			if (IsLocallyControlled()/* && !GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag("State.Character.IsInteractingDuration")) //Not sure we want this*/)
+			/*if (IsLocallyControlled() && !GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag("State.Character.IsInteractingDuration")))
 			{
 				if (CurrentDetectedInteract->GetIsAutomaticInstantInteract())
 				{
@@ -101,7 +101,7 @@ void AAbilitySystemCharacter::Tick(float DeltaTime)
 				{
 					GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
 				}
-			}
+			}*/
 			
 
 			LastDetectedInteract = CurrentDetectedInteract;
@@ -177,17 +177,17 @@ void AAbilitySystemCharacter::OnComponentBeginOverlapCharacterCapsule(UPrimitive
 {
 	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
 	{
-		//if (HasAuthority() /*&& !GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag("State.Character.IsInteractingDuration"))*/)
-		//{
-		//	if (Interactable->GetIsAutomaticInstantInteract())
-		//	{
-		//		GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
-		//	}
-		//	if (Interactable->GetIsAutomaticDurationInteract() && Interactable->GetDurationInteractOccurring() == false)
-		//	{
-		//		GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
-		//	}
-		//}
+		if (IsLocallyControlled()/* && !GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag("State.Character.IsInteractingDuration")) //Not sure we want this*/)
+		{
+			if (Interactable->GetIsAutomaticInstantInteract())
+			{
+				GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
+			}
+			if (Interactable->GetIsAutomaticDurationInteract() && Interactable->GetDurationInteractOccurring() == false)
+			{
+				GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
+			}
+		}
 		FrameOverlapInteractablesStack.Push(Interactable);
 		// Earliest place we can interact with an automatic interactable. May not be best place though for consistancy reasons
 		

@@ -91,7 +91,7 @@ void AAbilitySystemCharacter::Tick(float DeltaTime)
 			}
 
 			
-			if (IsLocallyControlled())
+			/*if (IsLocallyControlled() && !GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag("State.Character.IsInteractingDuration")))
 			{
 				if (CurrentDetectedInteract->GetIsAutomaticInstantInteract())
 				{
@@ -101,7 +101,7 @@ void AAbilitySystemCharacter::Tick(float DeltaTime)
 				{
 					GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
 				}
-			}
+			}*/
 			
 
 			LastDetectedInteract = CurrentDetectedInteract;
@@ -172,11 +172,22 @@ IInteractable* AAbilitySystemCharacter::DetectCurrentInteractable(FHitResult& Ou
 	// If no blocking or overlap interactables found return NULL
 	return nullptr;
 }
-
+#include "Actor/Item/Item.h"
 void AAbilitySystemCharacter::OnComponentBeginOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
 	{
+		if (HasAuthority() /*&& !GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag("State.Character.IsInteractingDuration"))*/)
+		{
+			if (Interactable->GetIsAutomaticInstantInteract())
+			{
+				GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
+			}
+			if (Interactable->GetIsAutomaticDurationInteract() && Interactable->GetDurationInteractOccurring() == false)
+			{
+				GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
+			}
+		}
 		FrameOverlapInteractablesStack.Push(Interactable);
 		// Earliest place we can interact with an automatic interactable. May not be best place though for consistancy reasons
 		

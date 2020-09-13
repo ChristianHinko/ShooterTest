@@ -10,6 +10,27 @@
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "Character\AbilityTasks\AT_DurationInteractCallbacks.h"
 
+/**
+ * To keep all my thoughts in one place.
+ * 1) Keep system where there can only be one interactable "CurrentDetectedInteractable"
+ *		- Good system but I feel adding more features is breaking it
+ * 2) Give system functionality to be able to interact with multible overlap interactables at once (give implementor the option)
+ *		- Maybe implement this by stepping down the stack and checking if the next interactable is allowed to be activated along with one above it in the stack
+ * 3) Find a home for the automatic interactables (doesn't really belong in this system since there are priority stuff going on with only one interactable allowed
+ *		- All I know is that these must be handled/activated in the OnCapsuleBeginOverlap() event. Otherwise results may be innacurrate
+ *		- Maybe make it a separate ability? Actually kind of makes sense though since we only want to activate it when the server gets the overlap. LocalPredicted called from the server would just be a waste of RPC.
+ *				- If separate ability, should it still belong to interactable system? Making new ability is a good opprotunity to break this off into its own system.
+ *		- Breaking this off into its own system might be annoying because I still want the flexability to be able to automatic interact with physical objects.
+ *		
+ * 
+ * 5) Bugs to squash (these problems assume our current goal is to interact with them one by one, not all at once. Assuming this because we should probably sort out those bugs before we change it for stability reasons)
+ *		- After overlap finishes successfully, a useless timer starts some reason (when activating ability was in Tick for automatics)
+ *		- If trying to automatically interact with a sweep object while automatically interacting with an overlap, 2 timers are started with the , the sweep interact will be stopped by the overlap finishing successfully.
+ *		- (Automatic activation called in overlap event) Walking into 2 overlap interactables activates 2 ablities and starts timers, not for both but only for the one in top of stack (technicly this is kinda cool since it's enforcing only interacting with the one with highest priority)
+ *				- This can be solved with bDurationInteractOccurring somehow
+ *						- Also figure out a way to make bCanCurrentlyBeInteractedWith and bDurationInteractOccurring cleaner and more understandable
+ */
+
 UGA_CharacterDurationInteract::UGA_CharacterDurationInteract()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.DurationInteract")));
@@ -296,14 +317,14 @@ void UGA_CharacterDurationInteract::EndAbility(const FGameplayAbilitySpecHandle 
 
 
 
-	if (Interactable)
-	{
-		Interactable->InjectDurationInteractOccurring(false);	// Maybe should do this at the vary start of EndAbility() but well try here for now.
-	}
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 
 
 
+	if (Interactable)
+	{
+		Interactable->InjectDurationInteractOccurring(false);	// Maybe should do this at the vary start of EndAbility() but well try here for now.
+	}
 
 
 

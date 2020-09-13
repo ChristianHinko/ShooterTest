@@ -11,6 +11,7 @@ IInteractable::IInteractable()
 	bIsManualInstantInteract = false;
 	bIsManualDurationInteract = false;
 	bCanCurrentlyBeInteractedWith = true;
+	bDurationInteractOccurring = false;
 	bShouldFireSweepEvents = false;
 	interactDuration = 5.f;
 	tickInterval = 0;

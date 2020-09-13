@@ -25,6 +25,11 @@ bool AItem::CanActivateInteractAbility(const FGameplayAbilitySpecHandle Handle, 
 	return true;
 }
 
+TSubclassOf<UGameplayEffect> AItem::GetInteractableEffectTSub()
+{
+	return nullptr;
+}
+
 
 
 

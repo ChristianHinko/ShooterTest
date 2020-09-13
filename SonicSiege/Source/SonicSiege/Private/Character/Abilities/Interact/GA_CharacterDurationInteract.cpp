@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/Abilities/GA_CharacterDurationInteract.h"
+#include "Character/Abilities/Interact/GA_CharacterDurationInteract.h"
 
 #include "Character/AbilitySystemCharacter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
@@ -17,7 +17,8 @@
  * 2) Give system functionality to be able to interact with multible overlap interactables at once (give implementor the option)
  *		- Maybe implement this by stepping down the stack and checking if the next interactable is allowed to be activated along with one above it in the stack
  * 3) Find a home for the automatic interactables (doesn't really belong in this system since there are priority stuff going on with only one interactable allowed
- *		- All I know is that these must be handled/activated in the OnCapsuleBeginOverlap() event. Otherwise results may be innacurrate
+ *		- All I know is that these must be handled/activated in the OnCapsuleBeginOverlap() event. Otherwise results may be innacurrate.
+ *				- Maybe do the duration interact with lots of overlaps at once by copying the way instant does it, but then this is instanced per execution which means we'd have some activation wastes. Maybe make this back to instanced per actor?
  *		- Maybe make it a separate ability? Actually kind of makes sense though since we only want to activate it when the server gets the overlap. LocalPredicted called from the server would just be a waste of RPC.
  *				- If separate ability, should it still belong to interactable system? Making new ability is a good opprotunity to break this off into its own system.
  *		- Breaking this off into its own system might be annoying because I still want the flexability to be able to automatic interact with physical objects.

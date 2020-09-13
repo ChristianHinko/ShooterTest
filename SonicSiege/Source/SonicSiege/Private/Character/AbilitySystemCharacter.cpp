@@ -141,25 +141,25 @@ IInteractable* AAbilitySystemCharacter::DetectCurrentInteractable(FHitResult& Ou
 
 
 	// Try to return an interactable that is overlapping with the capsule component. It chooses the most recent one you overlap with (top of the stack). 
-	if (FrameOverlapInteractablesStack.Num() > 0)
+	if (CurrentOverlapInteractablesStack.Num() > 0)
 	{
-		for (int32 i = FrameOverlapInteractablesStack.Num() - 1; i >= 0; i--)
+		for (int32 i = CurrentOverlapInteractablesStack.Num() - 1; i >= 0; i--)
 		{
-			if (FrameOverlapInteractablesStack.IsValidIndex(i))
+			if (CurrentOverlapInteractablesStack.IsValidIndex(i))
 			{
-				if (FrameOverlapInteractablesStack[i])
+				if (CurrentOverlapInteractablesStack[i])
 				{
-					if (FrameOverlapInteractablesStack[i]->GetCanCurrentlyBeInteractedWith())
+					if (CurrentOverlapInteractablesStack[i]->GetCanCurrentlyBeInteractedWith())
 					{
 
 						UKismetSystemLibrary::PrintString(this, "Using = " + FString::SanitizeFloat(i), true, false, FLinearColor::Green);
-						FrameOverlapInteractablesStack[i]->InjectDetectType(EDetectType::DETECTTYPE_Overlapped);
-						return FrameOverlapInteractablesStack[i];
+						CurrentOverlapInteractablesStack[i]->InjectDetectType(EDetectType::DETECTTYPE_Overlapped);
+						return CurrentOverlapInteractablesStack[i];
 					}
 				}
 				else
 				{
-					FrameOverlapInteractablesStack.RemoveAt(i);
+					CurrentOverlapInteractablesStack.RemoveAt(i);
 				}
 			}
 		}
@@ -172,13 +172,14 @@ IInteractable* AAbilitySystemCharacter::DetectCurrentInteractable(FHitResult& Ou
 	// If no blocking or overlap interactables found return NULL
 	return nullptr;
 }
-#include "Actor/Item/Item.h"
+
 void AAbilitySystemCharacter::OnComponentBeginOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
 	{
 		if (IsLocallyControlled()/* && !GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag("State.Character.IsInteractingDuration")) //Not sure we want this*/)
 		{
+			//if ()
 			if (Interactable->GetIsAutomaticInstantInteract())
 			{
 				GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
@@ -188,8 +189,7 @@ void AAbilitySystemCharacter::OnComponentBeginOverlapCharacterCapsule(UPrimitive
 				GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
 			}
 		}
-		FrameOverlapInteractablesStack.Push(Interactable);
-		// Earliest place we can interact with an automatic interactable. May not be best place though for consistancy reasons
+		CurrentOverlapInteractablesStack.Push(Interactable);
 		
 	}
 }
@@ -198,9 +198,9 @@ void AAbilitySystemCharacter::OnComponentEndOverlapCharacterCapsule(UPrimitiveCo
 	ENetRole role = GetLocalRole();
 	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
 	{
-		if (FrameOverlapInteractablesStack.Num() > 0)
+		if (CurrentOverlapInteractablesStack.Num() > 0)
 		{
-			FrameOverlapInteractablesStack.RemoveSingle(Interactable);	// Not using pop because there is a chance a character might be interacting with an overlap that isn't the current detected one (meaning it's not at the top of the stack)
+			CurrentOverlapInteractablesStack.RemoveSingle(Interactable);	// Not using pop because there is a chance a character might be interacting with an overlap that isn't the current detected one (meaning it's not at the top of the stack)
 			OnElementRemovedFromFrameOverlapInteractablesStack.Broadcast(Interactable);
 		}
 	}

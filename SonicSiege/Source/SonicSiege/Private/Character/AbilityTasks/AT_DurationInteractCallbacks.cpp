@@ -116,7 +116,7 @@ void UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable(IInteractable*
 	//		//OnNewInteractionPriorityDelegate.Broadcast(currentTime);
 	//		if (GASCharacter->CurrentDetectedInteract->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 	//		{
-	//			if (!GASCharacter->FrameOverlapInteractablesStack.Contains(Interactable))
+	//			if (!GASCharacter->CurrentOverlapInteractablesStack.Contains(Interactable))
 	//			{
 	//				OnCharacterLeftInteractionOverlapDelegate.Broadcast(currentTime);
 	//			}

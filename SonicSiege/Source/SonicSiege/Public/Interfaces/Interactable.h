@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 #include "GameplayAbilitySpec.h"
+#include "AbilitySystem/SSGameplayAbility.h"
 
 #include "Interactable.generated.h"
 
@@ -55,6 +56,7 @@ class SONICSIEGE_API IInteractable
 public:
 	IInteractable();
 
+	virtual TSubclassOf<UGameplayEffect> GetInteractableEffectTSub() =0;
 	/** WARNING: Implementors don't touch! External use only! */
 	void InjectDetectType(EDetectType newDetectType);
 	/** WARNING: Implementors don't touch! External use only! */
@@ -159,6 +161,13 @@ protected:
 	bool bIsAutomaticInstantInteract;
 	bool bIsManualDurationInteract;			
 	bool bIsAutomaticDurationInteract;	
+
+	//bIsInstancedPerActor;		// All instant interacts could use this easilty. Just sorta weird since to interact with everything at once it loops through the stack in the ability
+	//bIsInstancedPerExecution;	// All durration interacts might just always have to be this
+	//
+	//bIsLocallyPredicted;		// Should only be for manuals
+	//bIsServerInitiated;			// Should be for autos
+	//bIsServerOnly;				// This would be a nice option to have for the implementor
 	//----------------------------------
 
 

@@ -41,8 +41,7 @@
 
 
 
-
-
+- Fix thing where if CMC exceeds save move buffer the character becomes completely in the wrong place and its not accounted for
 
 
 

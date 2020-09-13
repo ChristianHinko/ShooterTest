@@ -78,7 +78,7 @@ public:
 	UAS_Health* GetHealthAttributeSet() const { return HealthAttributeSet; }
 
 	// Treated as a stack. Not fully a stack because OnEndOverlap of an interactable we allow removing the element from whatever position it may be
-	TArray<IInteractable*> FrameOverlapInteractablesStack;
+	TArray<IInteractable*> CurrentOverlapInteractablesStack;
 	FOnFrameOverlapStackChangeDelegate OnElementRemovedFromFrameOverlapInteractablesStack;
 
 	IInteractable* CurrentDetectedInteract;
@@ -156,6 +156,7 @@ protected:
 
 	virtual void Tick(float DeltaTime) override;
 
+	/** Pre_Physics */
 	IInteractable* DetectCurrentInteractable(FHitResult& OutHit);
 
 	//BEGIN APawn Interface

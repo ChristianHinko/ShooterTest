@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/Abilities/GA_CharacterInstantInteract.h"
+#include "Character/Abilities/Interact/GA_CharacterInstantInteract.h"
 
 #include "Character/AbilitySystemCharacter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
@@ -88,31 +88,34 @@ void UGA_CharacterInstantInteract::ActivateAbility(const FGameplayAbilitySpecHan
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 		return;
 	}
-	Interactable = GASCharacter->CurrentDetectedInteract;	// Wish I could put this in CanActivateAbiliy() but since it's called on CDO we can't set this reference on this instance
+	Interactable = GASCharacter->CurrentDetectedInteract;
 	if (!Interactable)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Server detected nothing to interact with when activating interact instant ability. This should be an invalid state. Cancelling"), *FString(__FUNCTION__));
-		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 		return;
 	}
 
 	// Handle what we will do if this interactable is an automatic interact on overlap. If there are other interactables like this that we are currently overlaping with,
 	// we will take care of all of them in one ability (this one) instead of a bunch of ability calls for each one.
-	if (Interactable->GetIsAutomaticInstantInteract() && Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped && GASCharacter->FrameOverlapInteractablesStack.Num() > 0)
+	if (Interactable->GetIsAutomaticInstantInteract() && Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped && GASCharacter->CurrentOverlapInteractablesStack.Num() > 0)
 	{
-		for (int32 i = GASCharacter->FrameOverlapInteractablesStack.Num() - 1; i >= 0; i--)
-		{
-			if (GASCharacter->FrameOverlapInteractablesStack.IsValidIndex(i) && GASCharacter->FrameOverlapInteractablesStack[i])
+		/*if (Interactable->bAllowedInstantInteractActivationCombining)	// Maybe give implementor functionality
+		{*/
+			for (int32 i = GASCharacter->CurrentOverlapInteractablesStack.Num() - 1; i >= 0; i--)
 			{
-				if (GASCharacter->FrameOverlapInteractablesStack[i]->GetIsAutomaticInstantInteract() && Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
+				if (GASCharacter->CurrentOverlapInteractablesStack.IsValidIndex(i) && GASCharacter->CurrentOverlapInteractablesStack[i])
 				{
-					GASCharacter->FrameOverlapInteractablesStack[i]->OnInstantInteract(GASCharacter);
+					if (GASCharacter->CurrentOverlapInteractablesStack[i]->GetIsAutomaticInstantInteract() && Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
+					{
+						GASCharacter->CurrentOverlapInteractablesStack[i]->OnInstantInteract(GASCharacter);
+					}
 				}
 			}
-		}
+		//}
 	}
 	else
 	{

@@ -6,27 +6,25 @@
 #include "AbilitySystem/SSGameplayAbility.h"
 #include "Interfaces/Interactable.h"
 
-#include "GA_CharacterDurationInteract.generated.h"
+#include "GA_CharacterInteract.generated.h"
 
 class AAbilitySystemCharacter;
 
 /**
- *	TODO: Currently the abilty only does a check if both client and server have an interactable. If one of them don't, it doesn't activate.
- *  But another check is needed for this system to be fully stable. We need to make another check to see if the client and server have the
- *  same object as theinteractable.
+ * 
  */
-UCLASS()
-class SONICSIEGE_API UGA_CharacterDurationInteract : public USSGameplayAbility
+UCLASS(Abstract)
+class SONICSIEGE_API UGA_CharacterInteract : public USSGameplayAbility
 {
 	GENERATED_BODY()
 
 public:
-	UGA_CharacterDurationInteract();
+	UGA_CharacterInteract();
 
 	IInteractable* Interactable;
 protected:
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<UGameplayEffect> InteractEffectTSub;	// asset manager we need you D:
+	UPROPERTY()
+		TSubclassOf<UGameplayEffect> InteractEffectTSub;	// Implementor assigns this so we don't need "EditAnywhere"
 	FActiveGameplayEffectHandle InteractEffectActiveHandle;
 
 	UPROPERTY()
@@ -35,6 +33,10 @@ protected:
 	EDurationInteractEndReason InteractEndReason;
 	float timeHeld;
 
+#pragma region Tags
+	FGameplayTag InteractTag;
+#pragma endregion
+
 
 	//BEGIN UGameplayAbility Interface
 	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
@@ -42,24 +44,4 @@ protected:
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	//END UGameplayAbility Interface
-
-
-
-
-
-#pragma region Gameplay Tags
-
-#pragma endregion
-	UFUNCTION()
-		void OnInteractTick(float DeltaTime, float TimeHeld);
-	UFUNCTION()
-		void OnRelease(float TimeHeld);
-	UFUNCTION()
-		void OnInteractionSweepMiss(float TimeHeld);
-	UFUNCTION()
-		void OnCharacterLeftInteractionOverlap(float TimeHeld);
-	UFUNCTION()
-		void OnNewInteractionPriority(float TimeHeld);
-	UFUNCTION()
-		void OnSuccessfullInteract(float TimeHeld);
 };

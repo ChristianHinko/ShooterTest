@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/AbilitySystemCharacter.h"
+#include "Character/SiegeCharacter.h"
 #include "Sonic.generated.h"
 
 
@@ -12,7 +12,7 @@
  * 
  */
 UCLASS()
-class SONICSIEGE_API ASonic : public AAbilitySystemCharacter
+class SONICSIEGE_API ASonic : public ASiegeCharacter
 {
 	GENERATED_BODY()
 	

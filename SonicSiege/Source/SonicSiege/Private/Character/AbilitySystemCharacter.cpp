@@ -8,7 +8,7 @@
 #include "Components/InputComponent.h"
 #include "Player/SSPlayerState.h"
 #include "AbilitySystemComponent.h"
-#include "Player/AttributeSets/AS_PlayerState.h"
+#include "Player/AS_PlayerState.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Camera/CameraComponent.h"

@@ -4,7 +4,7 @@
 #include "Player/SSPlayerState.h"
 
 //#include "AbilitySystem/SSAbilitySystemComponent.h"	// it's compiling without this I think because its included in the header
-#include "Player/AttributeSets/AS_PlayerState.h"
+#include "Player/AS_PlayerState.h"
 
 
 

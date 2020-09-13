@@ -5,7 +5,7 @@
 
 #include "Net/UnrealNetwork.h"
 #include "Player/SSPlayerState.h"
-#include "Player/AttributeSets/AS_PlayerState.h"
+#include "Player/AS_PlayerState.h"
 #include "AbilitySystem/SSGameplayAbility.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
 #include "Pawn/AS_Pawn.h"

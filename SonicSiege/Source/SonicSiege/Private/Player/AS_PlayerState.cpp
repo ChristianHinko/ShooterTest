@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Player/AttributeSets/AS_PlayerState.h"
+#include "Player/AS_PlayerState.h"
 
 #include "Net/UnrealNetwork.h"
 

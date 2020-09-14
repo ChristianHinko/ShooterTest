@@ -11,7 +11,7 @@
 
 class APawn;
 
-/** Describes interact event */
+/** Describes interaction that took place */
 UENUM()
 enum class EDetectType
 {
@@ -20,7 +20,7 @@ enum class EDetectType
 	DETECTTYPE_Overlapped			// Character checks Interactable overlaps to find this
 };
 
-/** Describes interact event */
+/** Describes the reason the interact ended (Called from EndAbility()) */
 UENUM()
 enum class EDurationInteractEndReason
 {
@@ -78,16 +78,6 @@ public:
 	//virtual void OnDidNotActivate();
 
 
-#pragma region AutomaticInteraction
-
-	// Called from ActivateAbility() (valid prediction key)
-	virtual void OnAutomaticInteract(APawn* InteractingPawn);
-#pragma endregion
-
-
-
-
-
 #pragma region InstantInteraction
 
 	// Called from ActivateAbility() (valid prediction key)
@@ -105,7 +95,7 @@ public:
 	// Time to wait between ticks to help performance. Be careful with this... longer wait between ticks means a less accurate duration end (might over/undershoot interactDuration).
 	float tickInterval;
 	// Lets you make use of InteractingTick event
-	bool bShouldInteractableTick;
+	bool bShouldDurationInteractableTick;
 	// Skips first call to InteractingTick()
 	bool bShouldSkipFirstTick;
 	// Called the first frame of interaction (on press interact input) (valid prediction key)

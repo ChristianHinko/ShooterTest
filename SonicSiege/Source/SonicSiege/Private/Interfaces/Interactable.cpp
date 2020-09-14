@@ -15,7 +15,7 @@ IInteractable::IInteractable()
 	bShouldFireSweepEvents = false;
 	interactDuration = 5.f;
 	tickInterval = 0;
-	bShouldInteractableTick = true;
+	bShouldDurationInteractableTick = true;
 	bShouldSkipFirstTick = false;
 }
 
@@ -66,13 +66,6 @@ EDetectType IInteractable::GetDetectType()
 
 
 
-
-
-
-
-void IInteractable::OnAutomaticInteract(APawn* InteractingPawn)
-{
-}
 
 
 

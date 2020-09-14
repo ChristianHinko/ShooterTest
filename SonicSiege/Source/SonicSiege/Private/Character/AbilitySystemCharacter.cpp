@@ -77,12 +77,24 @@ void AAbilitySystemCharacter::Tick(float DeltaTime)
 		CurrentDetectedInteract = DetectCurrentInteractable(InteractSweepHitResult);
 		if (CurrentDetectedInteract)
 		{
-			if (CurrentDetectedInteract->bShouldFireSweepEvents)
+			if (CurrentDetectedInteract != LastDetectedInteract)
 			{
-				if (CurrentDetectedInteract != LastDetectedInteract)
-				{
+				if (CurrentDetectedInteract->bShouldFireSweepEvents)
 					CurrentDetectedInteract->OnInteractSweepInitialHit(this);
-					if (HasAuthority() && CurrentDetectedInteract->GetDetectType() == EDetectType::DETECTTYPE_Sweeped)
+				if (HasAuthority())
+				{
+					if (CurrentDetectedInteract->GetDetectType() == EDetectType::DETECTTYPE_Sweeped)
+					{
+						if (CurrentDetectedInteract->GetIsAutomaticInstantInteract())
+						{
+							GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
+						}
+						if (CurrentDetectedInteract->GetIsAutomaticDurationInteract() && CurrentDetectedInteract->GetDurationInteractOccurring() == false)
+						{
+							GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
+						}
+					}
+					else if (CurrentDetectedInteract->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 					{
 						if (CurrentDetectedInteract->GetIsAutomaticInstantInteract())
 						{
@@ -94,10 +106,11 @@ void AAbilitySystemCharacter::Tick(float DeltaTime)
 						}
 					}
 				}
-				else
-				{
+			}
+			else
+			{
+				if (CurrentDetectedInteract->bShouldFireSweepEvents)
 					CurrentDetectedInteract->OnInteractSweepConsecutiveHit(this);
-				}
 			}
 
 			
@@ -110,7 +123,8 @@ void AAbilitySystemCharacter::Tick(float DeltaTime)
 		{
 			if (LastDetectedInteract != nullptr)	// If the last frame had something to interact with
 			{
-				LastDetectedInteract->OnInteractSweepEndHitting(this);
+				if(LastDetectedInteract->bShouldFireSweepEvents)
+					LastDetectedInteract->OnInteractSweepEndHitting(this);
 				LastDetectedInteract = nullptr;
 			}
 		}
@@ -177,25 +191,11 @@ void AAbilitySystemCharacter::OnComponentBeginOverlapCharacterCapsule(UPrimitive
 {
 	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
 	{
-		if (HasAuthority()) //Not sure we want this*/)
-		{
-			//if ()
-			if (Interactable->GetIsAutomaticInstantInteract())
-			{
-				GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
-			}
-			if (Interactable->GetIsAutomaticDurationInteract() && Interactable->GetDurationInteractOccurring() == false)
-			{
-				GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
-			}
-		}
-		CurrentOverlapInteractablesStack.Push(Interactable);
-		
+		CurrentOverlapInteractablesStack.Push(Interactable);		
 	}
 }
 void AAbilitySystemCharacter::OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	ENetRole role = GetLocalRole();
 	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
 	{
 		if (CurrentOverlapInteractablesStack.Num() > 0)

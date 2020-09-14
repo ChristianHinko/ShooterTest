@@ -29,7 +29,7 @@ UAT_DurationInteractCallbacks* UAT_DurationInteractCallbacks::DurationInteractCa
 	MyObj->duration = InInteract->interactDuration;
 	MyObj->tickInterval = InInteract->tickInterval;
 	MyObj->skipFirstTick = InInteract->bShouldSkipFirstTick;
-	MyObj->shouldCallTickEvent = InInteract->bShouldInteractableTick;
+	MyObj->shouldCallTickEvent = InInteract->bShouldDurationInteractableTick;
 
 	return MyObj;
 }

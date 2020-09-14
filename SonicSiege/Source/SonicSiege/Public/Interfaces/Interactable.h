@@ -56,6 +56,7 @@ class SONICSIEGE_API IInteractable
 public:
 	IInteractable();
 
+	/* This will be applied at the beginning of the ability and removed at the end (an infinite effect) */
 	virtual TSubclassOf<UGameplayEffect> GetInteractableEffectTSub() =0;
 	/** WARNING: Implementors don't touch! External use only! */
 	void InjectDetectType(EDetectType newDetectType);

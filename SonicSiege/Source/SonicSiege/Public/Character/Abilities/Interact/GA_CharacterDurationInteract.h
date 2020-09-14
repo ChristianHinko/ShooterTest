@@ -3,12 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSGameplayAbility.h"
-#include "Interfaces/Interactable.h"
+#include "Character\Abilities\Interact\GA_CharacterInteract.h"
 
 #include "GA_CharacterDurationInteract.generated.h"
-
-class AAbilitySystemCharacter;
 
 /**
  *	TODO: Currently the abilty only does a check if both client and server have an interactable. If one of them don't, it doesn't activate.
@@ -16,22 +13,13 @@ class AAbilitySystemCharacter;
  *  same object as theinteractable.
  */
 UCLASS()
-class SONICSIEGE_API UGA_CharacterDurationInteract : public USSGameplayAbility
+class SONICSIEGE_API UGA_CharacterDurationInteract : public UGA_CharacterInteract
 {
 	GENERATED_BODY()
 
 public:
 	UGA_CharacterDurationInteract();
-
-	IInteractable* Interactable;
 protected:
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<UGameplayEffect> InteractEffectTSub;
-	FActiveGameplayEffectHandle InteractEffectActiveHandle;
-
-	UPROPERTY()
-		AAbilitySystemCharacter* GASCharacter;
-
 	EDurationInteractEndReason InteractEndReason;
 	float timeHeld;
 

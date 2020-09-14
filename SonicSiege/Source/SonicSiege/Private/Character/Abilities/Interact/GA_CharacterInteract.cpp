@@ -45,35 +45,20 @@ bool UGA_CharacterInteract::CanActivateAbility(const FGameplayAbilitySpecHandle 
 	}
 	if (!GASCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when activating an interact ability. Cancelling"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate duration interact ability"), *FString(__FUNCTION__));
 		return false;
 	}
 	if (!GASCharacter->CurrentDetectedInteract)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Detected nothing to interact with when activating an interact ability. Cancelling"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Detected nothing to interact with when activating interact duration ability. Cancelling"), *FString(__FUNCTION__));
 		return false;
 	}
 	if (!GASCharacter->CurrentDetectedInteract->GetCanCurrentlyBeInteractedWith())
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Couldn't interact because bCanCurrentlyBeInteractedWith was false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Couldn't interact because bCanCurrentlyBeInteractedWith was false"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (GASCharacter->CurrentDetectedInteract->GetIsAutomaticDurationInteract() && GASCharacter->CurrentDetectedInteract->GetIsManualDurationInteract())
-	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Interactable was set to be both automatic and manual which doesn't make sense. returned false"), *FString(__FUNCTION__));
-		return false;
-	}
-
-
-	////////////// Allow the implementer to create custom conditions before we activate (may make this specific to the type of interact) ////////////
-	if (GASCharacter->CurrentDetectedInteract->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from IInteractable's implementor"), *FString(__FUNCTION__));
-		return false;
-	}
-
-
-
+	
 	return true;
 }
 
@@ -103,13 +88,16 @@ void UGA_CharacterInteract::ActivateAbility(const FGameplayAbilitySpecHandle Han
 		return;
 	}
 
-	InteractEffectTSub = Interactable->GetInteractableEffectTSub();
-	if (InteractEffectTSub)
-	{
-		InteractEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, InteractEffectTSub.GetDefaultObject(), GetAbilityLevel());
-	}
+	/*Your logic here... ie.
 	
-	Interactable->OnDurationInteractBegin(GASCharacter);
+		//InteractEffectTSub = Interactable->GetInteractableEffectTSub();
+		//if (InteractEffectTSub)
+		//{
+		//	InteractEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, InteractEffectTSub.GetDefaultObject(), GetAbilityLevel());
+		//}
+	
+		//Interactable->OnDurationInteractBegin(GASCharacter);
+	*/
 }
 
 void UGA_CharacterInteract::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)

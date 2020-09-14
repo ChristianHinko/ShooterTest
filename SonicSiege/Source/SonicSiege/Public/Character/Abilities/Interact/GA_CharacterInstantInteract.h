@@ -3,30 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSGameplayAbility.h"
-#include "Interfaces/Interactable.h"
+#include "Character\Abilities\Interact\GA_CharacterInteract.h"
 
 #include "GA_CharacterInstantInteract.generated.h"
-
-class AAbilitySystemCharacter;
 
 /**
  * 
  */
 UCLASS()
-class SONICSIEGE_API UGA_CharacterInstantInteract : public USSGameplayAbility
+class SONICSIEGE_API UGA_CharacterInstantInteract : public UGA_CharacterInteract
 {
 	GENERATED_BODY()
 
 public:
 	UGA_CharacterInstantInteract();
-
-	IInteractable* Interactable;
 protected:
-	UPROPERTY()
-		AAbilitySystemCharacter* GASCharacter;
-
-
 	//BEGIN UGameplayAbility Interface
 	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;

@@ -83,6 +83,17 @@ void AAbilitySystemCharacter::Tick(float DeltaTime)
 				if (CurrentDetectedInteract != LastDetectedInteract)
 				{
 					CurrentDetectedInteract->OnInteractSweepInitialHit(this);
+					if (HasAuthority() && CurrentDetectedInteract->GetDetectType() == EDetectType::DETECTTYPE_Sweeped)
+					{
+						if (CurrentDetectedInteract->GetIsAutomaticInstantInteract())
+						{
+							GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
+						}
+						if (CurrentDetectedInteract->GetIsAutomaticDurationInteract() && CurrentDetectedInteract->GetDurationInteractOccurring() == false)
+						{
+							GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
+						}
+					}
 				}
 				else
 				{
@@ -91,17 +102,7 @@ void AAbilitySystemCharacter::Tick(float DeltaTime)
 			}
 
 			
-			/*if (IsLocallyControlled() && !GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag("State.Character.IsInteractingDuration")))
-			{
-				if (CurrentDetectedInteract->GetIsAutomaticInstantInteract())
-				{
-					GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
-				}
-				if (CurrentDetectedInteract->GetIsAutomaticDurationInteract() && CurrentDetectedInteract->GetDurationInteractOccurring() == false)
-				{
-					GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
-				}
-			}*/
+			
 			
 
 			LastDetectedInteract = CurrentDetectedInteract;
@@ -177,7 +178,7 @@ void AAbilitySystemCharacter::OnComponentBeginOverlapCharacterCapsule(UPrimitive
 {
 	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
 	{
-		if (IsLocallyControlled()/* && !GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag("State.Character.IsInteractingDuration")) //Not sure we want this*/)
+		if (HasAuthority()) //Not sure we want this*/)
 		{
 			//if ()
 			if (Interactable->GetIsAutomaticInstantInteract())

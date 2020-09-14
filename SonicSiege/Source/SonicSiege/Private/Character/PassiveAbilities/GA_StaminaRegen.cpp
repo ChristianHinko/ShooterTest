@@ -129,7 +129,7 @@ void UGA_StaminaRegen::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 
 	if (ActivationInfo.ActivationMode == EGameplayAbilityActivationMode::Rejected)
 	{
-		UKismetSystemLibrary::PrintString(this, "Rollback Occured", true, true, FLinearColor::Red);
+		UKismetSystemLibrary::PrintString(this, "Rollback Occured", true, false, FLinearColor::Red);
 	}
 
 	// Lets do the logic we want to happen when the ability ends. If you want you can do an async task,

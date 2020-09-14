@@ -125,7 +125,7 @@ void UAS_Character::PostGameplayEffectExecute(const FGameplayEffectModCallbackDa
 
 		SetStamina(FMath::Clamp(GetStamina() - staminaToDrain, 0.f, GetMaxStamina()));
 
-		UKismetSystemLibrary::PrintString(this, "Drained: " + FString::SanitizeFloat(staminaToDrain) + "Now at " + FString::SanitizeFloat(GetStamina()), true, true, FLinearColor::Red);
+		UKismetSystemLibrary::PrintString(this, "Drained: " + FString::SanitizeFloat(staminaToDrain) + "Now at " + FString::SanitizeFloat(GetStamina()), true, false, FLinearColor::Red);
 	}
 
 	if (ModifiedAttribute == GetStaminaGainAttribute())
@@ -135,7 +135,7 @@ void UAS_Character::PostGameplayEffectExecute(const FGameplayEffectModCallbackDa
 
 		SetStamina(FMath::Clamp(GetStamina() + staminaToGain, 0.f, GetMaxStamina()));
 
-		UKismetSystemLibrary::PrintString(this, "Gained: " + FString::SanitizeFloat(staminaToGain) + "Now at " + FString::SanitizeFloat(GetStamina()), true, true, FLinearColor::Green);
+		UKismetSystemLibrary::PrintString(this, "Gained: " + FString::SanitizeFloat(staminaToGain) + "Now at " + FString::SanitizeFloat(GetStamina()), true, false, FLinearColor::Green);
 	}
 }
 

@@ -105,7 +105,7 @@ void AGATA_Trace::AimWithPlayerController(const AActor* InSourceActor, FCollisio
 
 	TArray<FHitResult> HitResults;
 	LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), MultiFilterHandle, ViewStart, ViewEnd, TraceChannel, Params, false, false);
-	FHitResult HitResult = HitResults.Num() ? HitResults.Last() : FHitResult();
+	FHitResult HitResult = HitResults.Num() ? HitResults[0] : FHitResult();
 
 	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
 
@@ -156,7 +156,7 @@ void AGATA_Trace::DirWithPlayerController(const AActor* InSourceActor, FCollisio
 
 	TArray<FHitResult> HitResults;
 	LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), MultiFilterHandle, ViewStart, ViewEnd, TraceChannel, Params, false, false);
-	FHitResult HitResult = HitResults.Num() ? HitResults.Last() : FHitResult();
+	FHitResult HitResult = HitResults.Num() ? HitResults[0] : FHitResult();
 
 	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
 

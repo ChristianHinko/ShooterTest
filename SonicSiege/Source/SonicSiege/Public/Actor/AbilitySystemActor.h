@@ -51,16 +51,10 @@ public:
 	UAS_Actor* GetActorAttributeSet() const { return ActorAttributeSet; }
 
 protected:
-	virtual void PostInitializeComponents() override;
+	UPROPERTY(/*Replicated*/)	// Replicated can be helpful for debugging issues
+		USSAbilitySystemComponent* ActorAbilitySystemComponent;
 
-#pragma region Abilities
-	//	--Test Abilities--
-	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
-		TSubclassOf<USSGameplayAbility> ActorAbilityTSub;
-	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle ActorAbilitySpecHandle;
-	//	------------------
-#pragma endregion
+	virtual void PostInitializeComponents() override;
 
 #pragma region Effects
 	/** Default attributes values for a Actor on spawn. This should be an instant GE with the Modifier Op set to Override so you can choose what the Actor's starting attribute values will be on spawn */
@@ -76,28 +70,31 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Config")
 		EGameplayEffectReplicationMode ActorAbilitySystemComponentReplicationMode;
 
+	/** The function that does all the necissary setup to be used with GAS. Calls most functions in this base Actor class */
+	void SetupWithAbilitySystem();
 	/** Called on the server and client. Override this to create new AttributeSets using NewObject(). This is if you have more than the default one. (call super in the beginning, then add your own logic) */
 	virtual void CreateAttributeSets();
 	/** Called on the server and client. Override this to register your created AttributeSets (from CreateAttributeSets()) with the ASC. This is if you have more than the default one. (call super in the beginning, then add your own logic) */
 	virtual void RegisterAttributeSets();
-	/** Called only on server. This is the earliest place you can grant an ability. (If overriding, return false if the Super returnes false, then add your own logic) */
-	virtual bool GrantStartingAbilities();
-private:
-	UPROPERTY(/*Replicated*/)	// Replicated can be helpful for debugging issues
-		USSAbilitySystemComponent* ActorAbilitySystemComponent;
-
-	/** Every actor will have this attribute set. This is useful because this gives you a place for common attributes that every actor should have. Children can make another attribute set specific to their actor (ie. UAS_MachineGun, UAS_PalmTree) */
-	UPROPERTY(Replicated)
-		UAS_Actor* ActorAttributeSet;
-
-
-	/** The function that does all the necissary setup to be used with GAS. Calls most functions in this base Actor class */
-	void SetupWithAbilitySystem();
 	/** Initialize the Actor's attributes using the DefaultAttributeValuesEffect */
 	void InitializeAttributes();
 	/** Will apply all effects in EffectsToApplyOnStartup. */
 	void ApplyStartupEffects();
+	/** Called only on server. This is the earliest place you can grant an ability. (If overriding, return false if the Super returnes false, then add your own logic) */
+	virtual bool GrantStartingAbilities();
 
+	/**
+	 * Set to true if you want this actor to reference another actor's ability system component rather than creating its own. Ex: A weapon with its ActorAbilitySystemComponent set to the player state's ASC.
+	 * Note: This will require some custom work in the subclass. Ex: in our weapon class, in OnRep_Owner() we set the weapon's ActorAbilitySystemComponent to the owner's (casted to an AbilitySystemCharacter) ASC.
+	 * Note: Make sure you set ActorAbilitySystemComponent before SetupWithAbilitySystem() is called. To do this, you will most likely have to override PostInitializeComponents() and call AAbilitySystemActor::Super::PostInitializeComponents(). This
+	 * skips the SetupWithAbilitySystem() and it is your job to call it elsewhere (some time after you set ActorAbilitySystemComponent).
+	 */
+	uint8 bWithoutAbilitySystemComponentSubobject : 1;
+
+private:
+	/** Every actor will have this attribute set. This is useful because this gives you a place for common attributes that every actor should have. Children can make another attribute set specific to their actor (ie. UAS_MachineGun, UAS_PalmTree) */
+	UPROPERTY(Replicated)
+		UAS_Actor* ActorAttributeSet;
 
 	/** Indicates that we already created attribute sets and registered them, Initialized the attributes, and applied the startup effects */
 	uint8 bAbilitySystemSetupInitialized : 1;

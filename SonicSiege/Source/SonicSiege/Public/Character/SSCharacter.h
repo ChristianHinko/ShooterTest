@@ -12,7 +12,6 @@ class USkeletalMeshComponent;
 class UCameraComponent;
 class USpringArmComponent;
 class USSCharacterMovementComponent;
-class AItem;
 class IInteractable;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnFrameOverlapStackChangeDelegate, IInteractable*&);
@@ -33,25 +32,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 		USpringArmComponent* CameraBoom;
 
-	
-
-	UPROPERTY(Replicated)
-		TArray<AItem*> Inventory;
-	UPROPERTY(Replicated)
-		AItem* CurrentItem;
-	UPROPERTY(Replicated)
-		AItem* PreviousItem;
-
-	/*UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
-		FVector CameraSwayAmount;
-	UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
-		FVector AddedCameraSwayDuringADS;*/
-
-
 public:
 	ASSCharacter(const FObjectInitializer& ObjectInitializer);
-
-	virtual void Tick(float DeltaTime) override;
 
 	// Components
 	USkeletalMeshComponent* GetPOVMesh() const { return POVMesh; }
@@ -75,10 +57,8 @@ public:
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
-
 	UPROPERTY()
 		USSCharacterMovementComponent* SSCharacterMovementComponent;
-
 
 
 #pragma region Input Events

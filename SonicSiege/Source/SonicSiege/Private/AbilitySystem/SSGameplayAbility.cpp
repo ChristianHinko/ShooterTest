@@ -75,7 +75,7 @@ void USSGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 
 void USSGameplayAbility::OnCurrentAbilityPredictionKeyRejected()
 {
-	/*UKismetSystemLibrary::PrintString(this, "Prediction Key rejected ", true, true, FLinearColor::Red);
+	/*UKismetSystemLibrary::PrintString(this, "Prediction Key rejected ", true, false, FLinearColor::Red);
 
 	if (PKey == CurrentActivationInfo.GetActivationPredictionKey())
 	{

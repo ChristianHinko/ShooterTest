@@ -8,7 +8,7 @@
 #include "Components/InputComponent.h"
 #include "Player/SSPlayerState.h"
 #include "AbilitySystemComponent.h"
-#include "Player/AttributeSets/AS_PlayerState.h"
+#include "Player/AS_PlayerState.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Camera/CameraComponent.h"
@@ -32,7 +32,6 @@ void AAbilitySystemCharacter::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	DOREPLIFETIME(AAbilitySystemCharacter, HealthAttributeSet);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterJumpAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterRunAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, FireAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, InteractInstantAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, InteractDurationAbilitySpecHandle, COND_OwnerOnly);
 	//DOREPLIFETIME(AAbilitySystemCharacter, PlayerAbilitySystemComponent);			//can be helpful for debugging
@@ -521,7 +520,6 @@ bool AAbilitySystemCharacter::GrantStartingAbilities()
 	// GetLevel() doesn't exist in this template. Will need to implement one if you want a level system
 	CharacterJumpAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterJumpAbilityTSub, this, EAbilityInputID::Jump/*, GetLevel()*/);
 	CharacterRunAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterRunAbilityTSub, this, EAbilityInputID::Run/*, GetLevel()*/);
-	FireAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(FireAbilityTSub, this, EAbilityInputID::PrimaryFire/*, GetLevel()*/);
 
 	InteractInstantAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractInstantAbilityTSub, this, EAbilityInputID::Interact/*, GetLevel()*/);
 	InteractDurationAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractDurationAbilityTSub, this, EAbilityInputID::Interact/*, GetLevel()*/);
@@ -600,7 +598,7 @@ void AAbilitySystemCharacter::BindASCInput()
 			(
 				FString("ConfirmTarget"),		// Name of our confirm input from the project settings
 				FString("CancelTarget"),		// Name of our cancel input from the project settings
-				FString("EAbilityInputID")	// Name of our GAS input enum that gives the names of the rest of our inputs in the project settings
+				FString("EAbilityInputID")		// Name of our GAS input enum that gives the names of the rest of our inputs in the project settings
 			)
 		);
 
@@ -674,10 +672,10 @@ void AAbilitySystemCharacter::OnRunReleased()
 
 void AAbilitySystemCharacter::OnPrimaryFirePressed()
 {
-	if (GetAbilitySystemComponent())
-	{
-		GetAbilitySystemComponent()->TryActivateAbility(FireAbilitySpecHandle);
-	}
+	//if (GetAbilitySystemComponent())
+	//{
+	//	GetAbilitySystemComponent()->TryActivateAbility(CurrentWeapon->FireAbilitySpecHandle);		for when we add inventory system
+	//}
 }
 void AAbilitySystemCharacter::OnPrimaryFireReleased()
 {

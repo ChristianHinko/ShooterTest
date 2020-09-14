@@ -7,6 +7,7 @@
 #include "Weapon.generated.h"
 
 class UAS_Weapon;
+class AGATA_BulletTrace;
 
 /**
  * 
@@ -19,12 +20,33 @@ class SONICSIEGE_API AWeapon : public AItem
 public:
 	AWeapon();
 
+	UAS_Weapon* GetWeaponAttributeSet() const { return WeaponAttributeSet; }
+	AGATA_BulletTrace* GetBulletTraceTargetActor() const { return BulletTraceTargetActor; }
+	FGameplayAbilitySpecHandle GetFireAbilitySpecHandle() const { return FireAbilitySpecHandle; }
+
+protected:
+#pragma region Abilities
+	UPROPERTY(EditAnywhere, Category = "Abilities")
+		TSubclassOf<USSGameplayAbility> FireAbilityTSub;
+	UPROPERTY(Replicated)
+		FGameplayAbilitySpecHandle FireAbilitySpecHandle;
+#pragma endregion
 	UPROPERTY()
 		UAS_Weapon* WeaponAttributeSet;
 
-protected:
+
+	UPROPERTY(EditAnywhere, Category = "Abilities")
+		TSubclassOf<AGATA_BulletTrace> BulletTraceTargetActorTSub;
+	UPROPERTY()
+		AGATA_BulletTrace* BulletTraceTargetActor;
+
+	//BEGIN AActor Interface
+	virtual void BeginPlay() override;
+	//END AActor Interface
+
 	//BEGIN AAbilitySystemActor Interface
 	virtual void CreateAttributeSets() override;
 	virtual void RegisterAttributeSets() override;
+	virtual bool GrantStartingAbilities() override;
 	//END AAbilitySystemActor Interface
 };

@@ -57,7 +57,6 @@ public:
 	virtual void OnInteractSweepConsecutiveHit(APawn* InteractingPawn);
 	virtual void OnInteractSweepEndHitting(APawn* InteractingPawn);
 
-	/** Note: Abilities that will be granted to the character while equiped */
-	UPROPERTY(EditAnywhere, Category = "Item|Abilities")
-		TArray<TSubclassOf<USSGameplayAbility>> AbilitiesToGrantPawnOnAddedToInventory;
+protected:
+	virtual void PostInitializeComponents() override;
 };

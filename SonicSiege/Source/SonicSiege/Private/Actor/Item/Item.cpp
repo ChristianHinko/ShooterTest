@@ -9,12 +9,20 @@
 
 AItem::AItem()
 {
+	bWithoutAbilitySystemComponentSubobject = true;
+
 	bShouldFireSweepEvents = true;
 	
 	bIsAutomaticInstantInteract = false;
 	bIsAutomaticDurationInteract = true;
 	bIsManualInstantInteract = false;
 	bIsManualDurationInteract = false;
+}
+void AItem::PostInitializeComponents()
+{
+	AAbilitySystemActor::Super::PostInitializeComponents();		// skip AAbilitySystemActor's call on SetupWithAbilitySystem()
+
+
 }
 
 
@@ -39,7 +47,7 @@ TSubclassOf<UGameplayEffect> AItem::GetInteractableEffectTSub()
 
 void AItem::OnInstantInteract(APawn* InteractingPawn)
 {
-	UKismetSystemLibrary::PrintString(this, "Instant Interact", true, true, FLinearColor::Yellow);
+	UKismetSystemLibrary::PrintString(this, "Instant Interact", true, false, FLinearColor::Yellow);
 	Destroy();
 }
 
@@ -47,8 +55,7 @@ void AItem::OnInstantInteract(APawn* InteractingPawn)
 
 void AItem::OnDurationInteractBegin(APawn* InteractingPawn)
 {
-	//bCanCurrentlyBeInteractedWith = false;
-	//UKismetSystemLibrary::PrintString(this, "OnDurationInteractBegin", true, true, FLinearColor::Gray);
+	UKismetSystemLibrary::PrintString(this, "OnDurationInteractBegin", true, false, FLinearColor::Gray);
 }
 void AItem::InteractingTick(APawn* InteractingPawn, float DeltaTime, float CurrentInteractionTime)
 {
@@ -63,7 +70,7 @@ void AItem::OnDurationInteractEnd(APawn* InteractingPawn, EDurationInteractEndRe
 	{
 		//bCanCurrentlyBeInteractedWith = false;
 		Destroy();	// Destroying on complete causes that weird problem where (im guessing the next interactable in the stack) doesn't stop ticking if you leave. And completes.
-		//UKismetSystemLibrary::PrintString(this, "OnDurationInteractEnd", true, true, FLinearColor::Gray);
+		//UKismetSystemLibrary::PrintString(this, "OnDurationInteractEnd", true, false, FLinearColor::Gray);
 	}
 	
 }
@@ -76,13 +83,13 @@ void AItem::OnDurationInteractEnd(APawn* InteractingPawn, EDurationInteractEndRe
 
 void AItem::OnInteractSweepInitialHit(APawn* InteractingPawn)
 {
-	//UKismetSystemLibrary::PrintString(this, "Start", true, true, FLinearColor::Green);
+	//UKismetSystemLibrary::PrintString(this, "Start", true, false, FLinearColor::Green);
 }
 void AItem::OnInteractSweepConsecutiveHit(APawn* InteractingPawn)
 {
-	//UKismetSystemLibrary::PrintString(this, "Tick", true, true, FLinearColor::Blue);
+	//UKismetSystemLibrary::PrintString(this, "Tick", true, false, FLinearColor::Blue);
 }
 void AItem::OnInteractSweepEndHitting(APawn* InteractingPawn)
 {
-	//UKismetSystemLibrary::PrintString(this, "End", true, true, FLinearColor::Red);
+	//UKismetSystemLibrary::PrintString(this, "End", true, false, FLinearColor::Red);
 }

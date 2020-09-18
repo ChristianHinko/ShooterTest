@@ -9,7 +9,7 @@
 
 #include "AT_DurationInteractCallbacks.generated.h"
 
-class AAbilitySystemCharacter;
+class ASiegeCharacter;
 
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FInteractingTickDelegate, float, float);
@@ -37,7 +37,7 @@ public:
 	void RemoveAllDelegates();
 
 	UPROPERTY()
-		AAbilitySystemCharacter* GASCharacter;
+		ASiegeCharacter* SiegeCharacter;
 
 	virtual void TickTask(float DeltaTime) override;
 
@@ -45,7 +45,7 @@ public:
 	void OnPawnLeftOverlapInteractable(IInteractable*& InteractableThePawnLeft);
 
 	/** Start a task that repeats an action or set of actions. */
-	static UAT_DurationInteractCallbacks* DurationInteractCallbacks(UGameplayAbility* OwningAbility, AAbilitySystemCharacter* GASCharactor, IInteractable*& InInteract);
+	static UAT_DurationInteractCallbacks* DurationInteractCallbacks(UGameplayAbility* OwningAbility, ASiegeCharacter* SiegeCharacter, IInteractable*& InInteract);
 
 	void Activate() override;
 

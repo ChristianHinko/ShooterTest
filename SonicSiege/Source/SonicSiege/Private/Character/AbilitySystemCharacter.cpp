@@ -16,8 +16,6 @@
 #include "SonicSiege/Private/Utilities/LogCategories.h"
 #include "Character/AS_Character.h"
 #include "Actor/AS_Health.h"
-#include "Interfaces/Interactable.h"
-#include "Utilities/CollisionChannels.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -58,161 +56,13 @@ AAbilitySystemCharacter::AAbilitySystemCharacter(const FObjectInitializer& Objec
 		AIAbilitySystemComponent->SetReplicationMode(AIAbilitySystemComponentReplicationMode);
 		AIAbilitySystemComponent->SetIsReplicated(true);
 	}
-
-	InteractSweepDistance = 100.f;
-	InteractSweepRadius = 2.f;
-	CurrentDetectedInteract = nullptr;
-	LastDetectedInteract = nullptr;
-
-	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AAbilitySystemCharacter::OnComponentBeginOverlapCharacterCapsule);
-	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &AAbilitySystemCharacter::OnComponentEndOverlapCharacterCapsule);
 }
 
 void AAbilitySystemCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (HasAuthority() || IsLocallyControlled())	// Don't run for simulated proxies
-	{
-		CurrentDetectedInteract = ScanForCurrentInteractable(InteractSweepHitResult);
-		if (CurrentDetectedInteract)
-		{
-			if (CurrentDetectedInteract != LastDetectedInteract)
-			{
-
-				if (CurrentDetectedInteract->bShouldFireDetectionEvents)
-					CurrentDetectedInteract->OnInitialDetect(this);
-
-				if (LastDetectedInteract)
-				{
-					if (LastDetectedInteract->bShouldFireDetectionEvents)
-						LastDetectedInteract->OnEndDetect(this);
-				}
-				
-				/*if (HasAuthority())	// Instead of having automatic interactable be activated here, just notify the passive auto interact ability to take care of stuff.
-				{
-					if (CurrentDetectedInteract->GetDetectType() == EDetectType::DETECTTYPE_Sweeped)
-					{
-						if (CurrentDetectedInteract->GetIsAutomaticInstantInteract())
-						{
-							GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
-						}
-						if (CurrentDetectedInteract->GetIsAutomaticDurationInteract() && CurrentDetectedInteract->GetDurationInteractOccurring() == false)
-						{
-							GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
-						}
-					}
-					else if (CurrentDetectedInteract->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
-					{
-						if (CurrentDetectedInteract->GetIsAutomaticInstantInteract())
-						{
-							GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
-						}
-						if (CurrentDetectedInteract->GetIsAutomaticDurationInteract() && CurrentDetectedInteract->GetDurationInteractOccurring() == false)
-						{
-							GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
-						}
-					}
-				}*/
-			}
-			else
-			{
-				if (CurrentDetectedInteract->bShouldFireDetectionEvents)
-					CurrentDetectedInteract->OnConsecutiveDetect(this);
-			}
-
-			
-			
-			
-
-			LastDetectedInteract = CurrentDetectedInteract;
-		}
-		else
-		{
-			if (LastDetectedInteract != nullptr)	// If the last frame had something to interact with
-			{
-				if(LastDetectedInteract->bShouldFireDetectionEvents)
-					LastDetectedInteract->OnEndDetect(this);
-				LastDetectedInteract = nullptr;
-			}
-		}
-	}
-}
-
-IInteractable* AAbilitySystemCharacter::ScanForCurrentInteractable(FHitResult& OutHit)
-{
-	// Check if sphere sweep detects blocking hit as an interactable (a blocking hit doesn't necessarily mean the object is collidable. It's can just be collidable to the Interact trace channel).
-	if (GetWorld() && GetFollowCamera())
-	{
-		FVector StartLocation = GetFollowCamera()->GetComponentLocation();
-		FVector EndLocation = StartLocation + (GetFollowCamera()->GetForwardVector() * InteractSweepDistance);
-
-		const bool bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, StartLocation, EndLocation, FQuat::Identity, COLLISION_INTERACT, FCollisionShape::MakeSphere(InteractSweepRadius), FCollisionQueryParams());
-		if (bBlockingHit)
-		{
-			if (IInteractable* BlockingHitInteractable = Cast<IInteractable>(OutHit.GetActor()))
-			{
-				if (BlockingHitInteractable->GetCanCurrentlyBeInteractedWith())
-				{
-					BlockingHitInteractable->InjectDetectType(EDetectType::DETECTTYPE_Sweeped);
-					return BlockingHitInteractable;
-				}
-			}
-		}
-	}
-
-
-	// Try to return an interactable that is overlapping with the capsule component. It chooses the most recent one you overlap with (top of the stack). 
-	if (CurrentOverlapInteractablesStack.Num() > 0)
-	{
-		for (int32 i = CurrentOverlapInteractablesStack.Num() - 1; i >= 0; i--)
-		{
-			if (CurrentOverlapInteractablesStack.IsValidIndex(i))
-			{
-				if (CurrentOverlapInteractablesStack[i])
-				{
-					if (CurrentOverlapInteractablesStack[i]->GetCanCurrentlyBeInteractedWith())
-					{
-						//UKismetSystemLibrary::PrintString(this, "Using = " + FString::SanitizeFloat(i), true, false, FLinearColor::Green);
-						return CurrentOverlapInteractablesStack[i];
-					}
-				}
-				else
-				{
-					CurrentOverlapInteractablesStack.RemoveAt(i);
-				}
-			}
-		}
-	}
-
-
-
-
-
-	// If no blocking or overlap interactables found return NULL
-	return nullptr;
-}
-
-void AAbilitySystemCharacter::OnComponentBeginOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
-	{
-		// If we knew at this point weather this interactable is the current one, we would be able to fire off a more helpful event in the interface.
-		Interactable->InjectDetectType(EDetectType::DETECTTYPE_Overlapped);
-		CurrentOverlapInteractablesStack.Push(Interactable);
-	}
-}
-void AAbilitySystemCharacter::OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
-	{
-		if (CurrentOverlapInteractablesStack.Num() > 0)
-		{
-			CurrentOverlapInteractablesStack.RemoveSingle(Interactable);	// Not using pop because there is a chance a character might be interacting with an overlap that isn't the current detected one (meaning it's not at the top of the stack)
-			OnElementRemovedFromFrameOverlapInteractablesStack.Broadcast(Interactable);
-			Interactable->InjectDetectType(EDetectType::DETECTTYPE_NotYetDetected);		// Give a value of not detected just in case (maybe implementor is trying something weird where they change how it's detected at runtime)
-		}
-	}
+	
 }
 
 
@@ -637,18 +487,7 @@ void AAbilitySystemCharacter::OnCancelTargetReleased()
 
 void AAbilitySystemCharacter::OnInteractPressed()
 {
-	if (CurrentDetectedInteract)
-	{
-		if (CurrentDetectedInteract->GetIsManualInstantInteract())
-		{
-			GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
-		}
-		if (CurrentDetectedInteract->GetIsManualDurationInteract())
-		{
-			GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
-		}
-		
-	}
+	
 }
 void AAbilitySystemCharacter::OnInteractReleased()
 {
@@ -681,10 +520,7 @@ void AAbilitySystemCharacter::OnRunReleased()
 
 void AAbilitySystemCharacter::OnPrimaryFirePressed()
 {
-	//if (GetAbilitySystemComponent())
-	//{
-	//	GetAbilitySystemComponent()->TryActivateAbility(CurrentWeapon->FireAbilitySpecHandle);		for when we add inventory system
-	//}
+	
 }
 void AAbilitySystemCharacter::OnPrimaryFireReleased()
 {

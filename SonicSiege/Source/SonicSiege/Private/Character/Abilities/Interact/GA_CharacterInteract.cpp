@@ -3,7 +3,7 @@
 
 #include "Character/Abilities/Interact/GA_CharacterInteract.h"
 
-#include "Character/AbilitySystemCharacter.h"
+#include "Character/SiegeCharacter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
 #include "Character/AbilitySystemCharacter.h"
@@ -29,8 +29,8 @@ void UGA_CharacterInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorIn
 		return;
 	}
 
-	GASCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
-	if (!GASCharacter)
+	SiegeCharacter = Cast<ASiegeCharacter>(ActorInfo->AvatarActor.Get());
+	if (!SiegeCharacter)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL"), *FString(__FUNCTION__));
 		return;
@@ -43,17 +43,17 @@ bool UGA_CharacterInteract::CanActivateAbility(const FGameplayAbilitySpecHandle 
 	{
 		return false;
 	}
-	if (!GASCharacter)
+	if (!SiegeCharacter)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate duration interact ability"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (!GASCharacter->CurrentDetectedInteract)
+	if (!SiegeCharacter->CurrentDetectedInteract)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Detected nothing to interact with when activating interact duration ability. Cancelling"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (!GASCharacter->CurrentDetectedInteract->GetCanCurrentlyBeInteractedWith())
+	if (!SiegeCharacter->CurrentDetectedInteract->GetCanCurrentlyBeInteractedWith())
 	{
 		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Couldn't interact because bCanCurrentlyBeInteractedWith was false"), *FString(__FUNCTION__));
 		return false;
@@ -72,15 +72,15 @@ void UGA_CharacterInteract::ActivateAbility(const FGameplayAbilitySpecHandle Han
 		return;
 	}
 
-	GASCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
-	if (!GASCharacter)
+	SiegeCharacter = Cast<ASiegeCharacter>(ActorInfo->AvatarActor.Get());
+	if (!SiegeCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Cast to GASCharacter was NULL when activating an interact ability"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Cast to SiegeCharacter was NULL when activating an interact ability"), *FString(__FUNCTION__));
 		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 		return;
 	}
 
-	Interactable = GASCharacter->CurrentDetectedInteract;
+	Interactable = SiegeCharacter->CurrentDetectedInteract;
 	if (!Interactable)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Server detected nothing to interact with when activating interact duration ability. This should be an invalid state. Cancelling"), *FString(__FUNCTION__));
@@ -96,6 +96,6 @@ void UGA_CharacterInteract::ActivateAbility(const FGameplayAbilitySpecHandle Han
 		//	InteractEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, InteractEffectTSub.GetDefaultObject(), GetAbilityLevel());
 		//}
 	
-		//Interactable->OnDurationInteractBegin(GASCharacter);
+		//Interactable->OnDurationInteractBegin(SiegeCharacter);
 	*/
 }

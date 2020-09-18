@@ -3,7 +3,7 @@
 
 #include "Character/Abilities/Interact/GA_CharacterInstantInteract.h"
 
-#include "Character/AbilitySystemCharacter.h"
+#include "Character/SiegeCharacter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
 #include "Character/AbilitySystemCharacter.h"
@@ -28,7 +28,7 @@ bool UGA_CharacterInstantInteract::CanActivateAbility(const FGameplayAbilitySpec
 	}
 
 	////////////// Allow the implementer to create custom conditions before we activate (may make this specific to the type of interact) ////////////
-	if (GASCharacter->CurrentDetectedInteract->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
+	if (SiegeCharacter->CurrentDetectedInteract->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from IInteractable's implementor"), *FString(__FUNCTION__));
 		return false;
@@ -39,7 +39,7 @@ bool UGA_CharacterInstantInteract::CanActivateAbility(const FGameplayAbilitySpec
 void UGA_CharacterInstantInteract::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	// Valid GASCharacter and Interactable at this point
+	// Valid SiegeCharacter and Interactable at this point
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
@@ -47,7 +47,7 @@ void UGA_CharacterInstantInteract::ActivateAbility(const FGameplayAbilitySpecHan
 		return;
 	}
 
-	Interactable->OnInstantInteract(GASCharacter);
+	Interactable->OnInstantInteract(SiegeCharacter);
 
 	
 

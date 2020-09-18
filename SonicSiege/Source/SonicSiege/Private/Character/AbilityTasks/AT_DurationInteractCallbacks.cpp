@@ -3,7 +3,7 @@
 
 #include "Character\AbilityTasks\AT_DurationInteractCallbacks.h"
 
-#include "Character/AbilitySystemCharacter.h"
+#include "Character/SiegeCharacter.h"
 #include "Utilities/LogCategories.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -15,16 +15,16 @@ UAT_DurationInteractCallbacks::UAT_DurationInteractCallbacks(const FObjectInitia
 
 }
 
-UAT_DurationInteractCallbacks* UAT_DurationInteractCallbacks::DurationInteractCallbacks(UGameplayAbility* OwningAbility, AAbilitySystemCharacter* GASCharactor, IInteractable*& InInteract)
+UAT_DurationInteractCallbacks* UAT_DurationInteractCallbacks::DurationInteractCallbacks(UGameplayAbility* OwningAbility, ASiegeCharacter* SiegeCharacter, IInteractable*& InInteract)
 {
-	if (!InInteract || !OwningAbility || !GASCharactor)
+	if (!InInteract || !OwningAbility || !SiegeCharacter)
 	{
-		UE_LOG(LogGameplayTask, Error, TEXT("%s() InInteract, OwningAbility, or GASCharactor was NULL when trying activate task"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayTask, Error, TEXT("%s() InInteract, OwningAbility, or SiegeCharacter was NULL when trying activate task"), *FString(__FUNCTION__));
 		return nullptr;
 	}
 
 	UAT_DurationInteractCallbacks* MyObj = NewAbilityTask<UAT_DurationInteractCallbacks>(OwningAbility);
-	MyObj->GASCharacter = GASCharactor;
+	MyObj->SiegeCharacter = SiegeCharacter;
 	MyObj->Interactable = InInteract;
 	MyObj->duration = InInteract->interactDuration;
 	MyObj->tickInterval = InInteract->tickInterval;
@@ -38,10 +38,10 @@ void UAT_DurationInteractCallbacks::Activate()
 {
 	currentTime = 0;
 	continueTimestamp = 0;
-	ENetRole role = GASCharacter->GetLocalRole();
+	ENetRole role = SiegeCharacter->GetLocalRole();
 	if (Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 	{
-		OnPawnLeftOverlapInteractableDelegateHandle = GASCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.AddUObject(this, &UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable);
+		OnPawnLeftOverlapInteractableDelegateHandle = SiegeCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.AddUObject(this, &UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable);
 	}
 	
 }
@@ -50,18 +50,18 @@ void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 {
 	if (currentTime >= duration)
 	{
-		GASCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.Clear();	// Only want 1 end ability callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
+		SiegeCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.Clear();	// Only want 1 end ability callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
 		OnSuccessfulInteractDelegate.Broadcast(currentTime);
 		RemoveAllDelegates();
 		return;
 	}
 
-	if (Interactable != GASCharacter->CurrentDetectedInteract)
+	if (Interactable != SiegeCharacter->CurrentDetectedInteract)
 	{
 		if (Interactable->GetDetectType() == EDetectType::DETECTTYPE_Sweeped)		// If the character's Interaction sweep doesn't detect the same Interactable we started interacting with
 		{
 
-			GASCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.Remove(OnPawnLeftOverlapInteractableDelegateHandle);	// Only want 1 end ability callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
+			SiegeCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.Remove(OnPawnLeftOverlapInteractableDelegateHandle);	// Only want 1 end ability callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
 			OnInteractionSweepMissDelegate.Broadcast(currentTime);
 			RemoveAllDelegates();
 			return;
@@ -98,25 +98,25 @@ void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 
 void UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable(IInteractable*& InteractableThePawnLeft)
 {
-	ENetRole role = GASCharacter->GetLocalRole();
+	ENetRole role = SiegeCharacter->GetLocalRole();
 	if (Interactable == InteractableThePawnLeft)
 	{
-		ENetRole d = GASCharacter->GetLocalRole();
+		ENetRole d = SiegeCharacter->GetLocalRole();
 		OnCharacterLeftInteractionOverlapDelegate.Broadcast(currentTime);
 		RemoveAllDelegates();
 	}
 	//if (Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 	//{
-	//	if (GASCharacter->CurrentDetectedInteract == nullptr)
+	//	if (SiegeCharacter->CurrentDetectedInteract == nullptr)
 	//	{
 	//		OnCharacterLeftInteractionOverlapDelegate.Broadcast(currentTime);
 	//	}
 	//	else	// There's a new overlap priority. Didn't really find use for this so commented out
 	//	{
 	//		//OnNewInteractionPriorityDelegate.Broadcast(currentTime);
-	//		if (GASCharacter->CurrentDetectedInteract->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
+	//		if (SiegeCharacter->CurrentDetectedInteract->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 	//		{
-	//			if (!GASCharacter->CurrentOverlapInteractablesStack.Contains(Interactable))
+	//			if (!SiegeCharacter->CurrentOverlapInteractablesStack.Contains(Interactable))
 	//			{
 	//				OnCharacterLeftInteractionOverlapDelegate.Broadcast(currentTime);
 	//			}
@@ -154,7 +154,7 @@ FString UAT_DurationInteractCallbacks::GetDebugString() const
 
 void UAT_DurationInteractCallbacks::OnDestroy(bool AbilityEnded)
 {
-	ENetRole d = GASCharacter->GetLocalRole();
+	ENetRole d = SiegeCharacter->GetLocalRole();
 	Super::OnDestroy(AbilityEnded);
 
 }

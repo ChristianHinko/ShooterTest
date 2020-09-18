@@ -3,10 +3,8 @@
 
 #include "Character\Abilities\Interact\GA_CharacterAutoInteract.h"
 
-#include "Character/AbilitySystemCharacter.h"
-#include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
+#include "Character/SiegeCharacter.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
-#include "Character/AbilitySystemCharacter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "Character\AbilityTasks\AT_DurationInteractCallbacks.h"
 
@@ -51,19 +49,19 @@ void UGA_CharacterAutoInteract::OnAvatarSet(const FGameplayAbilityActorInfo* Act
 //	{
 //		return false;
 //	}
-//	if (!GASCharacter->CurrentDetectedInteract->GetIsManualInstantInteract() && !GASCharacter->CurrentDetectedInteract->GetIsAutomaticInstantInteract())
+//	if (!SiegeCharacter->CurrentDetectedInteract->GetIsManualInstantInteract() && !SiegeCharacter->CurrentDetectedInteract->GetIsAutomaticInstantInteract())
 //	{
 //		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetIsManualInstantInteract() returned false"), *FString(__FUNCTION__));
 //		return false;
 //	}
-//	if (GASCharacter->CurrentDetectedInteract->GetIsAutomaticInstantInteract() && GASCharacter->CurrentDetectedInteract->GetIsManualInstantInteract())
+//	if (SiegeCharacter->CurrentDetectedInteract->GetIsAutomaticInstantInteract() && SiegeCharacter->CurrentDetectedInteract->GetIsManualInstantInteract())
 //	{
 //		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Interactable was set to be both automatic and manual which doesn't make sense. returned false"), *FString(__FUNCTION__));
 //		return false;
 //	}
 //
 //	////////////// Allow the implementer to create custom conditions before we activate (may make this specific to the type of interact) ////////////
-//	if (GASCharacter->CurrentDetectedInteract->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
+//	if (SiegeCharacter->CurrentDetectedInteract->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
 //	{
 //		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from IInteractable's implementor"), *FString(__FUNCTION__));
 //		return false;
@@ -79,19 +77,19 @@ void UGA_CharacterAutoInteract::OnAvatarSet(const FGameplayAbilityActorInfo* Act
 //		return false;
 //	}
 //
-//	if (!GASCharacter->CurrentDetectedInteract->GetIsManualDurationInteract() && !GASCharacter->CurrentDetectedInteract->GetIsAutomaticDurationInteract())
+//	if (!SiegeCharacter->CurrentDetectedInteract->GetIsManualDurationInteract() && !SiegeCharacter->CurrentDetectedInteract->GetIsAutomaticDurationInteract())
 //	{
 //		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetIsManualDurationInteract() returned false"), *FString(__FUNCTION__));
 //		return false;
 //	}
-//	if (GASCharacter->CurrentDetectedInteract->GetIsAutomaticDurationInteract() && GASCharacter->CurrentDetectedInteract->GetIsManualDurationInteract())
+//	if (SiegeCharacter->CurrentDetectedInteract->GetIsAutomaticDurationInteract() && SiegeCharacter->CurrentDetectedInteract->GetIsManualDurationInteract())
 //	{
 //		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Interactable was set to be both automatic and manual which doesn't make sense. returned false"), *FString(__FUNCTION__));
 //		return false;
 //	}
 //
 //	////////////// Allow the implementer to create custom conditions before we activate (may make this specific to the type of interact) ////////////
-//	if (GASCharacter->CurrentDetectedInteract->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
+//	if (SiegeCharacter->CurrentDetectedInteract->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
 //	{
 //		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from IInteractable's implementor"), *FString(__FUNCTION__));
 //		return false;
@@ -103,7 +101,7 @@ void UGA_CharacterAutoInteract::OnAvatarSet(const FGameplayAbilityActorInfo* Act
 //void UGA_CharacterInstantInteract::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 //{
 //	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-//	// Valid GASCharacter and Interactable at this point
+//	// Valid SiegeCharacter and Interactable at this point
 //
 //	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 //	{
@@ -113,17 +111,17 @@ void UGA_CharacterAutoInteract::OnAvatarSet(const FGameplayAbilityActorInfo* Act
 //
 //	// Handle what we will do if this interactable is an automatic interact on overlap. If there are other interactables like this that we are currently overlaping with,
 //	// we will take care of all of them in one ability (this one) instead of a bunch of ability calls for each one.
-//	if (Interactable->GetIsAutomaticInstantInteract() && Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped && GASCharacter->CurrentOverlapInteractablesStack.Num() > 0)
+//	if (Interactable->GetIsAutomaticInstantInteract() && Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped && SiegeCharacter->CurrentOverlapInteractablesStack.Num() > 0)
 //	{
 //		/*if (Interactable->bAllowedInstantInteractActivationCombining)	// Maybe give implementor functionality
 //		{*/
-//		for (int32 i = GASCharacter->CurrentOverlapInteractablesStack.Num() - 1; i >= 0; i--)
+//		for (int32 i = SiegeCharacter->CurrentOverlapInteractablesStack.Num() - 1; i >= 0; i--)
 //		{
-//			if (GASCharacter->CurrentOverlapInteractablesStack.IsValidIndex(i) && GASCharacter->CurrentOverlapInteractablesStack[i])
+//			if (SiegeCharacter->CurrentOverlapInteractablesStack.IsValidIndex(i) && SiegeCharacter->CurrentOverlapInteractablesStack[i])
 //			{
-//				if (GASCharacter->CurrentOverlapInteractablesStack[i]->GetIsAutomaticInstantInteract() && Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
+//				if (SiegeCharacter->CurrentOverlapInteractablesStack[i]->GetIsAutomaticInstantInteract() && Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 //				{
-//					GASCharacter->CurrentOverlapInteractablesStack[i]->OnInstantInteract(GASCharacter);
+//					SiegeCharacter->CurrentOverlapInteractablesStack[i]->OnInstantInteract(SiegeCharacter);
 //				}
 //			}
 //		}
@@ -131,7 +129,7 @@ void UGA_CharacterAutoInteract::OnAvatarSet(const FGameplayAbilityActorInfo* Act
 //	}
 //	else
 //	{
-//		Interactable->OnInstantInteract(GASCharacter);
+//		Interactable->OnInstantInteract(SiegeCharacter);
 //	}
 //
 //
@@ -143,11 +141,11 @@ void UGA_CharacterAutoInteract::OnAvatarSet(const FGameplayAbilityActorInfo* Act
 //void UGA_CharacterAutoInteract::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 //{
 //	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-//	// Valid GASCharacter and Interactable at this point
+//	// Valid SiegeCharacter and Interactable at this point
 //
 //	Interactable->InjectDurationInteractOccurring(true);
 //
-//	UAT_DurationInteractCallbacks* DurationInteractCallbacks = UAT_DurationInteractCallbacks::DurationInteractCallbacks(this, GASCharacter, Interactable);
+//	UAT_DurationInteractCallbacks* DurationInteractCallbacks = UAT_DurationInteractCallbacks::DurationInteractCallbacks(this, SiegeCharacter, Interactable);
 //	if (!DurationInteractCallbacks)
 //	{
 //		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DurationInteractCallbacks was NULL when trying to activate InteractDuration ability. May have been because a NULL Character or Interactable reference was passed in. Called CancelAbility()"), *FString(__FUNCTION__));
@@ -168,7 +166,7 @@ void UGA_CharacterAutoInteract::OnAvatarSet(const FGameplayAbilityActorInfo* Act
 //		InteractEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, InteractEffectTSub.GetDefaultObject(), GetAbilityLevel());
 //	}
 //
-//	Interactable->OnDurationInteractBegin(GASCharacter);
+//	Interactable->OnDurationInteractBegin(SiegeCharacter);
 //}
 
 
@@ -182,7 +180,7 @@ void UGA_CharacterAutoInteract::OnAvatarSet(const FGameplayAbilityActorInfo* Act
 void UGA_CharacterAutoInteract::OnInteractTick(float DeltaTime, float TimeHeld)
 {
 	timeHeld = TimeHeld;
-	Interactable->InteractingTick(GASCharacter, DeltaTime, TimeHeld);
+	Interactable->InteractingTick(SiegeCharacter, DeltaTime, TimeHeld);
 }
 
 void UGA_CharacterAutoInteract::OnRelease(float TimeHeld)
@@ -279,7 +277,7 @@ void UGA_CharacterAutoInteract::OnSuccessfullInteract(float TimeHeld)
 //		{
 //			if (InteractEndReason == EDurationInteractEndReason::REASON_AbilityCanceled)
 //			{
-//				Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_AbilityCanceled, timeHeld);
+//				Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_AbilityCanceled, timeHeld);
 //			}
 //		}
 //	}
@@ -287,27 +285,27 @@ void UGA_CharacterAutoInteract::OnSuccessfullInteract(float TimeHeld)
 //	{
 //		if (InteractEndReason == EDurationInteractEndReason::REASON_InputRelease)
 //		{
-//			Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_InputRelease, timeHeld);
+//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_InputRelease, timeHeld);
 //		}
 //		else if (InteractEndReason == EDurationInteractEndReason::REASON_SweepMiss)
 //		{
-//			Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_SweepMiss, timeHeld);
+//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_SweepMiss, timeHeld);
 //		}
 //		else if (InteractEndReason == EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap)
 //		{
-//			Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap, timeHeld);
+//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap, timeHeld);
 //		}
 //		else if (InteractEndReason == EDurationInteractEndReason::REASON_NewInteractionOverlapPriority)
 //		{
-//			Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_NewInteractionOverlapPriority, timeHeld);
+//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_NewInteractionOverlapPriority, timeHeld);
 //		}
 //		else if (InteractEndReason == EDurationInteractEndReason::REASON_SuccessfulInteract)
 //		{
-//			Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_SuccessfulInteract, timeHeld);
+//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_SuccessfulInteract, timeHeld);
 //		}
 //		else
 //		{
-//			Interactable->OnDurationInteractEnd(GASCharacter, EDurationInteractEndReason::REASON_Unknown, timeHeld);
+//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_Unknown, timeHeld);
 //		}
 //	}
 //

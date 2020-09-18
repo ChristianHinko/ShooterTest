@@ -79,14 +79,6 @@ public:
 	UAS_Character* GetCharacterAttributeSet() const { return CharacterAttributeSet; }
 	UAS_Health* GetHealthAttributeSet() const { return HealthAttributeSet; }
 
-	// Treated as a stack. Not fully a stack because OnEndOverlap of an interactable we allow removing the element from whatever position it may be
-	TArray<IInteractable*> CurrentOverlapInteractablesStack;
-	//TArray<IInteractable*> CurrentTriggerBoxesStack;
-	FOnFrameOverlapStackChangeDelegate OnElementRemovedFromFrameOverlapInteractablesStack;
-
-	IInteractable* CurrentDetectedInteract;
-	IInteractable* LastDetectedInteract;
-
 #pragma region AbilitySystemSetup Delegates
 	FSetupWithAbilitySystemCompleted SetupWithAbilitySystemCompleted;
 	FSetupWithAbilitySystemCompleted OnServerAknowledgeClientSetupAbilitySystem;
@@ -138,24 +130,14 @@ protected:
 		ASSPlayerState* SSPlayerState;
 
 
-	UFUNCTION()
-		void OnComponentBeginOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	UFUNCTION()
-		void OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	
 
 
 
 
-	UPROPERTY(EditAnywhere)
-		float InteractSweepDistance;
-	UPROPERTY(EditAnywhere)
-		float InteractSweepRadius;
-	FHitResult InteractSweepHitResult;
+	
 
 	virtual void Tick(float DeltaTime) override;
-
-	/** Pre_Physics */
-	IInteractable* ScanForCurrentInteractable(FHitResult& OutHit);
 
 	//BEGIN APawn Interface
 	virtual void PossessedBy(AController* NewController) override;

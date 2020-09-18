@@ -48,12 +48,12 @@ bool UGA_CharacterInteract::CanActivateAbility(const FGameplayAbilitySpecHandle 
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate duration interact ability"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (!SiegeCharacter->CurrentDetectedInteract)
+	if (!SiegeCharacter->CurrentPrioritizedInteractable)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Detected nothing to interact with when activating interact duration ability. Cancelling"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (!SiegeCharacter->CurrentDetectedInteract->GetCanCurrentlyBeInteractedWith())
+	if (!SiegeCharacter->CurrentPrioritizedInteractable->GetCanCurrentlyBeInteractedWith())
 	{
 		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Couldn't interact because bCanCurrentlyBeInteractedWith was false"), *FString(__FUNCTION__));
 		return false;
@@ -80,7 +80,7 @@ void UGA_CharacterInteract::ActivateAbility(const FGameplayAbilitySpecHandle Han
 		return;
 	}
 
-	Interactable = SiegeCharacter->CurrentDetectedInteract;
+	Interactable = SiegeCharacter->CurrentPrioritizedInteractable;
 	if (!Interactable)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Server detected nothing to interact with when activating interact duration ability. This should be an invalid state. Cancelling"), *FString(__FUNCTION__));

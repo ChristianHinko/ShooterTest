@@ -72,7 +72,7 @@ public:
 	bool GetDurationInteractOccurring();
 	EDetectType GetDetectType();
 
-	// Called from an interact ability's CanActivateAbility(). Gives implementor a chance to do some checks before activated.
+	// Called from an interact ability's CanActivateAbility(). Gives implementor a chance to do some checks before activated. Only called on manual interacts since auto interacts utilizes a passiva ability to interact
 	virtual bool CanActivateInteractAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const = 0;
 
 	//virtual void OnDidNotActivate();

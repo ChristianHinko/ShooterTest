@@ -14,9 +14,9 @@ AItem::AItem()
 	bShouldFireDetectionEvents = true;
 	
 	bIsAutomaticInstantInteract = false;
-	bIsAutomaticDurationInteract = false;
+	bIsAutomaticDurationInteract = true;
 	bIsManualInstantInteract = false;
-	bIsManualDurationInteract = true;
+	bIsManualDurationInteract = false;
 }
 void AItem::PostInitializeComponents()
 {
@@ -83,13 +83,13 @@ void AItem::OnDurationInteractEnd(APawn* InteractingPawn, EDurationInteractEndRe
 
 void AItem::OnInitialDetect(APawn* InteractingPawn)
 {
-	UKismetSystemLibrary::PrintString(this, GetActorLabel() + " ---->" + "Become CurrentInteract", true, false, FLinearColor::Green, 20);
+	//UKismetSystemLibrary::PrintString(this, GetActorLabel() + " ---->" + "Become CurrentInteract", true, false, FLinearColor::Green, 20);
 }
 void AItem::OnConsecutiveDetect(APawn* InteractingPawn)
 {
-	UKismetSystemLibrary::PrintString(this, GetActorLabel() + " ---->" + "Tick", true, false, FLinearColor::Blue);
+	//UKismetSystemLibrary::PrintString(this, GetActorLabel() + " ---->" + "Tick", true, false, FLinearColor::Blue);
 }
 void AItem::OnEndDetect(APawn* InteractingPawn)
 {
-	UKismetSystemLibrary::PrintString(this, GetActorLabel() + " ---->" + "End being CurrentInteract", true, false, FLinearColor::Red, 20);
+	//UKismetSystemLibrary::PrintString(this, GetActorLabel() + " ---->" + "End being CurrentInteract", true, false, FLinearColor::Red, 20);
 }

@@ -40,68 +40,54 @@ UGA_CharacterAutoInteract::UGA_CharacterAutoInteract()
 void UGA_CharacterAutoInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnAvatarSet(ActorInfo, Spec);
+
+	//	Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times
+	if (!ActorInfo)
+	{
+		return;
+	}
+	if (!ActorInfo->AvatarActor.Get())
+	{
+		return;
+	}
+
+	SiegeCharacter = Cast<ASiegeCharacter>(ActorInfo->AvatarActor.Get());
+	if (!SiegeCharacter)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL"), *FString(__FUNCTION__));
+		return;
+	}
 }
 
-// From InstantInteract
-//bool UGA_CharacterInstantInteract::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
-//{
-//	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
-//	{
-//		return false;
-//	}
-//	if (!SiegeCharacter->CurrentDetectedInteract->GetIsManualInstantInteract() && !SiegeCharacter->CurrentDetectedInteract->GetIsAutomaticInstantInteract())
-//	{
-//		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetIsManualInstantInteract() returned false"), *FString(__FUNCTION__));
-//		return false;
-//	}
-//	if (SiegeCharacter->CurrentDetectedInteract->GetIsAutomaticInstantInteract() && SiegeCharacter->CurrentDetectedInteract->GetIsManualInstantInteract())
-//	{
-//		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Interactable was set to be both automatic and manual which doesn't make sense. returned false"), *FString(__FUNCTION__));
-//		return false;
-//	}
-//
-//	////////////// Allow the implementer to create custom conditions before we activate (may make this specific to the type of interact) ////////////
-//	if (SiegeCharacter->CurrentDetectedInteract->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
-//	{
-//		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from IInteractable's implementor"), *FString(__FUNCTION__));
-//		return false;
-//	}
-//	return true;
-//}
-
 // From DurationInteract
-//bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
+bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+
+
+//if (!SiegeCharacter->CurrentPrioritizedInteractable->GetIsManualDurationInteract() && !SiegeCharacter->CurrentPrioritizedInteractable->GetIsAutomaticDurationInteract())
 //{
-//	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
-//	{
-//		return false;
-//	}
-//
-//	if (!SiegeCharacter->CurrentDetectedInteract->GetIsManualDurationInteract() && !SiegeCharacter->CurrentDetectedInteract->GetIsAutomaticDurationInteract())
-//	{
-//		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetIsManualDurationInteract() returned false"), *FString(__FUNCTION__));
-//		return false;
-//	}
-//	if (SiegeCharacter->CurrentDetectedInteract->GetIsAutomaticDurationInteract() && SiegeCharacter->CurrentDetectedInteract->GetIsManualDurationInteract())
-//	{
-//		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Interactable was set to be both automatic and manual which doesn't make sense. returned false"), *FString(__FUNCTION__));
-//		return false;
-//	}
-//
-//	////////////// Allow the implementer to create custom conditions before we activate (may make this specific to the type of interact) ////////////
-//	if (SiegeCharacter->CurrentDetectedInteract->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
-//	{
-//		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from IInteractable's implementor"), *FString(__FUNCTION__));
-//		return false;
-//	}
-//	return true;
+//	UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetIsManualDurationInteract() returned false"), *FString(__FUNCTION__));
+//	return false;
+//}
+//if (SiegeCharacter->CurrentPrioritizedInteractable->GetIsAutomaticInstantInteract() && SiegeCharacter->CurrentPrioritizedInteractable->GetIsManualInstantInteract())
+//{
+//	UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Interactable was set to be both automatic and manual which doesn't make sense. returned false"), *FString(__FUNCTION__));
+//	return false;
 //}
 
-// Activate ability from instant interact
+ //Activate ability from instant interact
 //void UGA_CharacterInstantInteract::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 //{
 //	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-//	// Valid SiegeCharacter and Interactable at this point
+//	// Valid SiegeCharacter at this point
 //
 //	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 //	{
@@ -133,8 +119,6 @@ void UGA_CharacterAutoInteract::OnAvatarSet(const FGameplayAbilityActorInfo* Act
 //	}
 //
 //
-//
-//	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
 //}
 
 // Activate ability from duration interact
@@ -148,7 +132,7 @@ void UGA_CharacterAutoInteract::OnAvatarSet(const FGameplayAbilityActorInfo* Act
 //	UAT_DurationInteractCallbacks* DurationInteractCallbacks = UAT_DurationInteractCallbacks::DurationInteractCallbacks(this, SiegeCharacter, Interactable);
 //	if (!DurationInteractCallbacks)
 //	{
-//		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DurationInteractCallbacks was NULL when trying to activate InteractDuration ability. May have been because a NULL Character or Interactable reference was passed in. Called CancelAbility()"), *FString(__FUNCTION__));
+//		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DurationInteractCallbacks was NULL when trying to activate an automatic duration interact."), *FString(__FUNCTION__));
 //		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 //		return;
 //	}
@@ -177,55 +161,53 @@ void UGA_CharacterAutoInteract::OnAvatarSet(const FGameplayAbilityActorInfo* Act
 
 
 
-void UGA_CharacterAutoInteract::OnInteractTick(float DeltaTime, float TimeHeld)
-{
-	timeHeld = TimeHeld;
-	Interactable->InteractingTick(SiegeCharacter, DeltaTime, TimeHeld);
-}
-
-void UGA_CharacterAutoInteract::OnRelease(float TimeHeld)
-{
-	timeHeld = TimeHeld;
-	InteractEndReason = EDurationInteractEndReason::REASON_InputRelease;
-
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
-}
-
-void UGA_CharacterAutoInteract::OnInteractionSweepMiss(float TimeHeld)
-{
-	timeHeld = TimeHeld;
-	InteractEndReason = EDurationInteractEndReason::REASON_SweepMiss;
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
-}
-
-
-
-
-void UGA_CharacterAutoInteract::OnCharacterLeftInteractionOverlap(float TimeHeld)
-{
-	timeHeld = TimeHeld;
-	InteractEndReason = EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap;
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
-}
-
-void UGA_CharacterAutoInteract::OnNewInteractionPriority(float TimeHeld)
-{
-
-
-
-}
-
-
-
-
-void UGA_CharacterAutoInteract::OnSuccessfullInteract(float TimeHeld)
-{
-	timeHeld = TimeHeld;
-	InteractEndReason = EDurationInteractEndReason::REASON_SuccessfulInteract;
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
-}
-
-
+//void UGA_CharacterAutoInteract::OnInteractTick(float DeltaTime, float TimeHeld)
+//{
+//	timeHeld = TimeHeld;
+//	Interactable->InteractingTick(SiegeCharacter, DeltaTime, TimeHeld);
+//}
+//
+//void UGA_CharacterAutoInteract::OnRelease(float TimeHeld)
+//{
+//	timeHeld = TimeHeld;
+//	InteractEndReason = EDurationInteractEndReason::REASON_InputRelease;
+//
+//	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+//}
+//
+//void UGA_CharacterAutoInteract::OnInteractionSweepMiss(float TimeHeld)
+//{
+//	timeHeld = TimeHeld;
+//	InteractEndReason = EDurationInteractEndReason::REASON_SweepMiss;
+//	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+//}
+//
+//
+//
+//
+//void UGA_CharacterAutoInteract::OnCharacterLeftInteractionOverlap(float TimeHeld)
+//{
+//	timeHeld = TimeHeld;
+//	InteractEndReason = EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap;
+//	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+//}
+//
+//void UGA_CharacterAutoInteract::OnNewInteractionPriority(float TimeHeld)
+//{
+//
+//
+//
+//}
+//
+//
+//
+//
+//void UGA_CharacterAutoInteract::OnSuccessfullInteract(float TimeHeld)
+//{
+//	timeHeld = TimeHeld;
+//	InteractEndReason = EDurationInteractEndReason::REASON_SuccessfulInteract;
+//	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+//}
 
 
 
@@ -241,6 +223,65 @@ void UGA_CharacterAutoInteract::OnSuccessfullInteract(float TimeHeld)
 
 
 
+
+//void UGA_CharacterAutoInteract::HandleDurationInteractEnded()
+//{
+//	if (ActorInfo->AbilitySystemComponent.Get())
+//	{
+//		if (InteractEffectActiveHandle.IsValid())
+//		{
+//			ActorInfo->AbilitySystemComponent.Get()->RemoveActiveGameplayEffect(InteractEffectActiveHandle);
+//		}
+//	}
+//	else
+//	{
+//		UE_LOG(LogGameplayAbility, Error, TEXT("%s() RemoveActiveGameplayEffect(InteractEffectActiveHandle) failed. AbilitySystemComponent was NULL"), *FString(__FUNCTION__));
+//	}
+//
+//	if (bWasCancelled)
+//	{
+//		InteractEndReason = EDurationInteractEndReason::REASON_AbilityCanceled;
+//		if (Interactable)	// If there is a valid interactable for this machine (it's ok if not. That may be why it was canceled)
+//		{
+//			if (InteractEndReason == EDurationInteractEndReason::REASON_AbilityCanceled)
+//			{
+//				Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_AbilityCanceled, timeHeld);
+//			}
+//		}
+//	}
+//	else
+//	{
+//		if (InteractEndReason == EDurationInteractEndReason::REASON_InputRelease)
+//		{
+//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_InputRelease, timeHeld);
+//		}
+//		else if (InteractEndReason == EDurationInteractEndReason::REASON_SweepMiss)
+//		{
+//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_SweepMiss, timeHeld);
+//		}
+//		else if (InteractEndReason == EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap)
+//		{
+//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap, timeHeld);
+//		}
+//		else if (InteractEndReason == EDurationInteractEndReason::REASON_NewInteractionOverlapPriority)
+//		{
+//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_NewInteractionOverlapPriority, timeHeld);
+//		}
+//		else if (InteractEndReason == EDurationInteractEndReason::REASON_SuccessfulInteract)
+//		{
+//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_SuccessfulInteract, timeHeld);
+//		}
+//		else
+//		{
+//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_Unknown, timeHeld);
+//		}
+//	}
+//
+//	if (Interactable)
+//	{
+//		Interactable->InjectDurationInteractOccurring(false);	// Maybe should do this at the vary start of EndAbility() but well try here for now.
+//	}
+//}
 
 // From DurationInteract
 //void UGA_CharacterAutoInteract::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)

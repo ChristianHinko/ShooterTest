@@ -3,39 +3,42 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/Abilities/Interact/GA_CharacterInteract.h"
+#include "AbilitySystem\SSGameplayAbility.h"
+#include "Interfaces/Interactable.h"
 #include "GA_CharacterAutoInteract.generated.h"
+
+class ASiegeCharacter;
 
 /**
  * 
  */
 UCLASS()
-class SONICSIEGE_API UGA_CharacterAutoInteract : public UGA_CharacterInteract
+class SONICSIEGE_API UGA_CharacterAutoInteract : public USSGameplayAbility
 {
 	GENERATED_BODY()
 
 public:
 	UGA_CharacterAutoInteract();
-protected:
-	EDurationInteractEndReason InteractEndReason;
-	float timeHeld;
 
+	UPROPERTY()
+		ASiegeCharacter* SiegeCharacter;
+
+protected:
 
 	//BEGIN UGameplayAbility Interface
 	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
+	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 	//virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
-	//virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
-	//virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	//END UGameplayAbility Interface
 
 
-
+	void HandleDurationInteractEnded();
 
 
 #pragma region Gameplay Tags
 
 #pragma endregion
-	UFUNCTION()
+	/*UFUNCTION()
 		void OnInteractTick(float DeltaTime, float TimeHeld);
 	UFUNCTION()
 		void OnRelease(float TimeHeld);
@@ -46,5 +49,5 @@ protected:
 	UFUNCTION()
 		void OnNewInteractionPriority(float TimeHeld);
 	UFUNCTION()
-		void OnSuccessfullInteract(float TimeHeld);
+		void OnSuccessfullInteract(float TimeHeld);*/
 };

@@ -56,7 +56,7 @@ void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 		return;
 	}
 
-	if (Interactable != SiegeCharacter->CurrentDetectedInteract)
+	if (Interactable != SiegeCharacter->CurrentPrioritizedInteractable)
 	{
 		if (Interactable->GetDetectType() == EDetectType::DETECTTYPE_Sweeped)		// If the character's Interaction sweep doesn't detect the same Interactable we started interacting with
 		{
@@ -107,14 +107,14 @@ void UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable(IInteractable*
 	}
 	//if (Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 	//{
-	//	if (SiegeCharacter->CurrentDetectedInteract == nullptr)
+	//	if (SiegeCharacter->CurrentPrioritizedInteractable == nullptr)
 	//	{
 	//		OnCharacterLeftInteractionOverlapDelegate.Broadcast(currentTime);
 	//	}
 	//	else	// There's a new overlap priority. Didn't really find use for this so commented out
 	//	{
 	//		//OnNewInteractionPriorityDelegate.Broadcast(currentTime);
-	//		if (SiegeCharacter->CurrentDetectedInteract->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
+	//		if (SiegeCharacter->CurrentPrioritizedInteractable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 	//		{
 	//			if (!SiegeCharacter->CurrentOverlapInteractablesStack.Contains(Interactable))
 	//			{

@@ -6,6 +6,7 @@
 #include "Character/AbilitySystemCharacter.h"
 #include "SiegeCharacter.generated.h"
 
+class IInteractable;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnFrameOverlapStackChangeDelegate, IInteractable*&);
 
@@ -22,11 +23,11 @@ public:
 
 	// Treated as a stack. Not fully a stack because OnEndOverlap of an interactable we allow removing the element from whatever position it may be
 	TArray<IInteractable*> CurrentOverlapInteractablesStack;
-	//TArray<IInteractable*> CurrentTriggerBoxesStack;
+	TArray<IInteractable*> CurrentDetectedInteractables;
 	FOnFrameOverlapStackChangeDelegate OnElementRemovedFromFrameOverlapInteractablesStack;
 
-	IInteractable* CurrentDetectedInteract;
-	IInteractable* LastDetectedInteract;
+	IInteractable* CurrentPrioritizedInteractable;
+	IInteractable* LastPrioritizedInteractable;
 
 protected:
 
@@ -50,7 +51,7 @@ protected:
 	UFUNCTION()
 		void OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	IInteractable* ScanForCurrentInteractable(FHitResult& OutHit);
+	IInteractable* ScanForCurrentPrioritizedInteractable(FHitResult& OutHit);
 
 #pragma region Input Events
 	virtual void OnInteractPressed() override;

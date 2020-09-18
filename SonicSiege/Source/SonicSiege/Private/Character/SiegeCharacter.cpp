@@ -15,8 +15,8 @@ ASiegeCharacter::ASiegeCharacter(const FObjectInitializer& ObjectInitializer)
 {
 	InteractSweepDistance = 100.f;
 	InteractSweepRadius = 2.f;
-	CurrentDetectedInteract = nullptr;
-	LastDetectedInteract = nullptr;
+	CurrentPrioritizedInteractable = nullptr;
+	LastPrioritizedInteractable = nullptr;
 
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ASiegeCharacter::OnComponentBeginOverlapCharacterCapsule);
 	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &ASiegeCharacter::OnComponentEndOverlapCharacterCapsule);
@@ -77,41 +77,41 @@ void ASiegeCharacter::Tick(float DeltaSeconds)
 
 	if (HasAuthority() || IsLocallyControlled())	// Don't run for simulated proxies
 	{
-		CurrentDetectedInteract = ScanForCurrentInteractable(InteractSweepHitResult);
-		if (CurrentDetectedInteract)
+		CurrentPrioritizedInteractable = ScanForCurrentPrioritizedInteractable(InteractSweepHitResult);
+		if (CurrentPrioritizedInteractable)
 		{
-			if (CurrentDetectedInteract != LastDetectedInteract)
+			if (CurrentPrioritizedInteractable != LastPrioritizedInteractable)
 			{
 
-				if (CurrentDetectedInteract->bShouldFireDetectionEvents)
-					CurrentDetectedInteract->OnInitialDetect(this);
+				if (CurrentPrioritizedInteractable->bShouldFireDetectionEvents)
+					CurrentPrioritizedInteractable->OnInitialDetect(this);
 
-				if (LastDetectedInteract)
+				if (LastPrioritizedInteractable)
 				{
-					if (LastDetectedInteract->bShouldFireDetectionEvents)
-						LastDetectedInteract->OnEndDetect(this);
+					if (LastPrioritizedInteractable->bShouldFireDetectionEvents)
+						LastPrioritizedInteractable->OnEndDetect(this);
 				}
 
 				/*if (HasAuthority())	// Instead of having automatic interactable be activated here, just notify the passive auto interact ability to take care of stuff.
 				{
-					if (CurrentDetectedInteract->GetDetectType() == EDetectType::DETECTTYPE_Sweeped)
+					if (CurrentPrioritizedInteractable->GetDetectType() == EDetectType::DETECTTYPE_Sweeped)
 					{
-						if (CurrentDetectedInteract->GetIsAutomaticInstantInteract())
+						if (CurrentPrioritizedInteractable->GetIsAutomaticInstantInteract())
 						{
 							GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
 						}
-						if (CurrentDetectedInteract->GetIsAutomaticDurationInteract() && CurrentDetectedInteract->GetDurationInteractOccurring() == false)
+						if (CurrentPrioritizedInteractable->GetIsAutomaticDurationInteract() && CurrentPrioritizedInteractable->GetDurationInteractOccurring() == false)
 						{
 							GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
 						}
 					}
-					else if (CurrentDetectedInteract->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
+					else if (CurrentPrioritizedInteractable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 					{
-						if (CurrentDetectedInteract->GetIsAutomaticInstantInteract())
+						if (CurrentPrioritizedInteractable->GetIsAutomaticInstantInteract())
 						{
 							GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
 						}
-						if (CurrentDetectedInteract->GetIsAutomaticDurationInteract() && CurrentDetectedInteract->GetDurationInteractOccurring() == false)
+						if (CurrentPrioritizedInteractable->GetIsAutomaticDurationInteract() && CurrentPrioritizedInteractable->GetDurationInteractOccurring() == false)
 						{
 							GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
 						}
@@ -120,29 +120,29 @@ void ASiegeCharacter::Tick(float DeltaSeconds)
 			}
 			else
 			{
-				if (CurrentDetectedInteract->bShouldFireDetectionEvents)
-					CurrentDetectedInteract->OnConsecutiveDetect(this);
+				if (CurrentPrioritizedInteractable->bShouldFireDetectionEvents)
+					CurrentPrioritizedInteractable->OnConsecutiveDetect(this);
 			}
 
 
 
 
 
-			LastDetectedInteract = CurrentDetectedInteract;
+			LastPrioritizedInteractable = CurrentPrioritizedInteractable;
 		}
 		else
 		{
-			if (LastDetectedInteract != nullptr)	// If the last frame had something to interact with
+			if (LastPrioritizedInteractable != nullptr)	// If the last frame had something to interact with
 			{
-				if (LastDetectedInteract->bShouldFireDetectionEvents)
-					LastDetectedInteract->OnEndDetect(this);
-				LastDetectedInteract = nullptr;
+				if (LastPrioritizedInteractable->bShouldFireDetectionEvents)
+					LastPrioritizedInteractable->OnEndDetect(this);
+				LastPrioritizedInteractable = nullptr;
 			}
 		}
 	}
 }
 
-IInteractable* ASiegeCharacter::ScanForCurrentInteractable(FHitResult& OutHit)
+IInteractable* ASiegeCharacter::ScanForCurrentPrioritizedInteractable(FHitResult& OutHit)
 {
 	// Check if sphere sweep detects blocking hit as an interactable (a blocking hit doesn't necessarily mean the object is collidable. It's can just be collidable to the Interact trace channel).
 	if (GetWorld() && GetFollowCamera())
@@ -222,13 +222,13 @@ void ASiegeCharacter::OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent*
 
 void ASiegeCharacter::OnInteractPressed()
 {
-	if (CurrentDetectedInteract)
+	if (CurrentPrioritizedInteractable)
 	{
-		if (CurrentDetectedInteract->GetIsManualInstantInteract())
+		if (CurrentPrioritizedInteractable->GetIsManualInstantInteract())
 		{
 			GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
 		}
-		if (CurrentDetectedInteract->GetIsManualDurationInteract())
+		if (CurrentPrioritizedInteractable->GetIsManualDurationInteract())
 		{
 			GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
 		}

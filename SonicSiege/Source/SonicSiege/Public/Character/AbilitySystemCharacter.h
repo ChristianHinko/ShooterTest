@@ -155,7 +155,7 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 
 	/** Pre_Physics */
-	IInteractable* DetectCurrentInteractable(FHitResult& OutHit);
+	IInteractable* ScanForCurrentInteractable(FHitResult& OutHit);
 
 	//BEGIN APawn Interface
 	virtual void PossessedBy(AController* NewController) override;

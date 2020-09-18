@@ -45,7 +45,7 @@ class UInteractable : public UInterface
  *	Basicly you need to make the actor findable to the character (can be done with a Block or Overlap). For blocks, the interaction sweep will hit it and then interaction can happen. For overlaps, the actor will be added to a stack of current interactable overlaps
  *	and will be prioritized over the previous overlaps since this is the most recent.
  * 
- *  All events are ran from within the interact abilities, besides sweep events. This Interface allows a fast implementation of custom logic for interaction, while still getting the benefits of abilities.
+ *  All events are ran from within the interact abilities, besides detection events. This Interface allows a fast implementation of custom logic for interaction, while still getting the benefits of abilities.
  *	You can treat these implementations the same way you would do logic in abilities. For instant interactions effects, montages, etc can be rolled back since InstantInteract ability is instant.
  *  Since DurationInteract is latent you only get rollback in OnDurationInteractBegin().
  */
@@ -110,28 +110,18 @@ public:
 
 
 
-	// Sweep events are called on both client and server from character tick (chance that only client calls but server doesn't or vice versa)
-#pragma region SweepEvents
-
-	// Allows events to be fired by the character's InteractionSweep
-	bool bShouldFireSweepEvents;
-	// Interaction sweep hit this interactable (a one frame fire)
-	virtual void OnInteractSweepInitialHit(APawn* InteractingPawn);
-	// Interaction sweep hit this interactable again
-	virtual void OnInteractSweepConsecutiveHit(APawn* InteractingPawn);
-	// Interaction sweep stopped hitting (a one frame fire)
-	virtual void OnInteractSweepEndHitting(APawn* InteractingPawn);
+	// Detection events are called on both client and server from character tick (chance that only client calls but server doesn't or vice versa or that they have different interactables when called)
+#pragma region Detection Events
+	// Allows events to be fired by the character's interaction scanner
+	bool bShouldFireDetectionEvents;
+	// This became the player's current interactable
+	virtual void OnInitialDetect(APawn* InteractingPawn);
+	// This remains the player's current interactable
+	virtual void OnConsecutiveDetect(APawn* InteractingPawn);
+	// This is no longer the player's current interactable
+	virtual void OnEndDetect(APawn* InteractingPawn);
 #pragma endregion
 
-	// Overlap events are called on both client and server from character calsule's overlap events (chance that only client calls but server doesn't or vice versa)
-#pragma region OverlapEvents
-
-	// Allows events to be fired from the character capsule's overlap events
-	bool bShouldFireOverlapEvents;
-
-	virtual void OnCharacterCapsuleBeginOverlap(APawn* InteractingPawn);
-	virtual void OnCharacterCapsuleEndOverlap(APawn* InteractingPawn);
-#pragma endregion
 
 
 

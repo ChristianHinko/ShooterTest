@@ -74,13 +74,21 @@ void AAbilitySystemCharacter::Tick(float DeltaTime)
 
 	if (HasAuthority() || IsLocallyControlled())	// Don't run for simulated proxies
 	{
-		CurrentDetectedInteract = DetectCurrentInteractable(InteractSweepHitResult);
+		CurrentDetectedInteract = ScanForCurrentInteractable(InteractSweepHitResult);
 		if (CurrentDetectedInteract)
 		{
 			if (CurrentDetectedInteract != LastDetectedInteract)
 			{
-				if (CurrentDetectedInteract->bShouldFireSweepEvents)
-					CurrentDetectedInteract->OnInteractSweepInitialHit(this);
+
+				if (CurrentDetectedInteract->bShouldFireDetectionEvents)
+					CurrentDetectedInteract->OnInitialDetect(this);
+
+				if (LastDetectedInteract)
+				{
+					if (LastDetectedInteract->bShouldFireDetectionEvents)
+						LastDetectedInteract->OnEndDetect(this);
+				}
+				
 				/*if (HasAuthority())	// Instead of having automatic interactable be activated here, just notify the passive auto interact ability to take care of stuff.
 				{
 					if (CurrentDetectedInteract->GetDetectType() == EDetectType::DETECTTYPE_Sweeped)
@@ -109,8 +117,8 @@ void AAbilitySystemCharacter::Tick(float DeltaTime)
 			}
 			else
 			{
-				if (CurrentDetectedInteract->bShouldFireSweepEvents)
-					CurrentDetectedInteract->OnInteractSweepConsecutiveHit(this);
+				if (CurrentDetectedInteract->bShouldFireDetectionEvents)
+					CurrentDetectedInteract->OnConsecutiveDetect(this);
 			}
 
 			
@@ -123,15 +131,15 @@ void AAbilitySystemCharacter::Tick(float DeltaTime)
 		{
 			if (LastDetectedInteract != nullptr)	// If the last frame had something to interact with
 			{
-				if(LastDetectedInteract->bShouldFireSweepEvents)
-					LastDetectedInteract->OnInteractSweepEndHitting(this);
+				if(LastDetectedInteract->bShouldFireDetectionEvents)
+					LastDetectedInteract->OnEndDetect(this);
 				LastDetectedInteract = nullptr;
 			}
 		}
 	}
 }
 
-IInteractable* AAbilitySystemCharacter::DetectCurrentInteractable(FHitResult& OutHit)
+IInteractable* AAbilitySystemCharacter::ScanForCurrentInteractable(FHitResult& OutHit)
 {
 	// Check if sphere sweep detects blocking hit as an interactable (a blocking hit doesn't necessarily mean the object is collidable. It's can just be collidable to the Interact trace channel).
 	if (GetWorld() && GetFollowCamera())
@@ -192,7 +200,6 @@ void AAbilitySystemCharacter::OnComponentBeginOverlapCharacterCapsule(UPrimitive
 		// If we knew at this point weather this interactable is the current one, we would be able to fire off a more helpful event in the interface.
 		Interactable->InjectDetectType(EDetectType::DETECTTYPE_Overlapped);
 		CurrentOverlapInteractablesStack.Push(Interactable);
-		Interactable->OnCharacterCapsuleBeginOverlap(this);
 	}
 }
 void AAbilitySystemCharacter::OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -203,7 +210,6 @@ void AAbilitySystemCharacter::OnComponentEndOverlapCharacterCapsule(UPrimitiveCo
 		{
 			CurrentOverlapInteractablesStack.RemoveSingle(Interactable);	// Not using pop because there is a chance a character might be interacting with an overlap that isn't the current detected one (meaning it's not at the top of the stack)
 			OnElementRemovedFromFrameOverlapInteractablesStack.Broadcast(Interactable);
-			Interactable->OnCharacterCapsuleEndOverlap(this);
 			Interactable->InjectDetectType(EDetectType::DETECTTYPE_NotYetDetected);		// Give a value of not detected just in case (maybe implementor is trying something weird where they change how it's detected at runtime)
 		}
 	}

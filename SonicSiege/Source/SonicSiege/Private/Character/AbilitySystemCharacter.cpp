@@ -189,6 +189,7 @@ void AAbilitySystemCharacter::OnComponentBeginOverlapCharacterCapsule(UPrimitive
 {
 	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
 	{
+		// If we knew at this point weather this interactable is the current one, we would be able to fire off a more helpful event in the interface.
 		Interactable->InjectDetectType(EDetectType::DETECTTYPE_Overlapped);
 		CurrentOverlapInteractablesStack.Push(Interactable);
 		Interactable->OnCharacterCapsuleBeginOverlap(this);
@@ -203,6 +204,7 @@ void AAbilitySystemCharacter::OnComponentEndOverlapCharacterCapsule(UPrimitiveCo
 			CurrentOverlapInteractablesStack.RemoveSingle(Interactable);	// Not using pop because there is a chance a character might be interacting with an overlap that isn't the current detected one (meaning it's not at the top of the stack)
 			OnElementRemovedFromFrameOverlapInteractablesStack.Broadcast(Interactable);
 			Interactable->OnCharacterCapsuleEndOverlap(this);
+			Interactable->InjectDetectType(EDetectType::DETECTTYPE_NotYetDetected);		// Give a value of not detected just in case (maybe implementor is trying something weird where they change how it's detected at runtime)
 		}
 	}
 }

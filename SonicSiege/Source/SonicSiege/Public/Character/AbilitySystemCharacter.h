@@ -81,6 +81,7 @@ public:
 
 	// Treated as a stack. Not fully a stack because OnEndOverlap of an interactable we allow removing the element from whatever position it may be
 	TArray<IInteractable*> CurrentOverlapInteractablesStack;
+	//TArray<IInteractable*> CurrentTriggerBoxesStack;
 	FOnFrameOverlapStackChangeDelegate OnElementRemovedFromFrameOverlapInteractablesStack;
 
 	IInteractable* CurrentDetectedInteract;

@@ -110,7 +110,7 @@ public:
 
 
 
-// Sweep events are called on both client and server from character tick (chance that only client calls but server doesn't or vice versa)
+	// Sweep events are called on both client and server from character tick (chance that only client calls but server doesn't or vice versa)
 #pragma region SweepEvents
 
 	// Allows events to be fired by the character's InteractionSweep
@@ -121,6 +121,16 @@ public:
 	virtual void OnInteractSweepConsecutiveHit(APawn* InteractingPawn);
 	// Interaction sweep stopped hitting (a one frame fire)
 	virtual void OnInteractSweepEndHitting(APawn* InteractingPawn);
+#pragma endregion
+
+	// Overlap events are called on both client and server from character calsule's overlap events (chance that only client calls but server doesn't or vice versa)
+#pragma region OverlapEvents
+
+	// Allows events to be fired from the character capsule's overlap events
+	bool bShouldFireOverlapEvents;
+
+	virtual void OnCharacterCapsuleBeginOverlap(APawn* InteractingPawn);
+	virtual void OnCharacterCapsuleEndOverlap(APawn* InteractingPawn);
 #pragma endregion
 
 

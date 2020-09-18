@@ -12,7 +12,8 @@ IInteractable::IInteractable()
 	bIsManualDurationInteract = false;
 	bCanCurrentlyBeInteractedWith = true;
 	bDurationInteractOccurring = false;
-	bShouldFireSweepEvents = false;
+	bShouldFireSweepEvents = true;
+	bShouldFireOverlapEvents = true;
 	interactDuration = 5.f;
 	tickInterval = 0;
 	bShouldDurationInteractableTick = true;
@@ -103,5 +104,13 @@ void IInteractable::OnInteractSweepConsecutiveHit(APawn* InteractingPawn)
 {
 }
 void IInteractable::OnInteractSweepEndHitting(APawn* InteractingPawn)
+{
+}
+
+void IInteractable::OnCharacterCapsuleBeginOverlap(APawn* InteractingPawn)
+{
+}
+
+void IInteractable::OnCharacterCapsuleEndOverlap(APawn* InteractingPawn)
 {
 }

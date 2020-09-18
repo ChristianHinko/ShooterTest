@@ -63,7 +63,7 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	SetTickGroup(ETickingGroup::TG_PostPhysics);
+	SetTickGroup(ETickingGroup::TG_PrePhysics);
 }
 
 #pragma region Input

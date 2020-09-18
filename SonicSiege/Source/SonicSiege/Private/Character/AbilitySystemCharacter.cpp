@@ -81,7 +81,7 @@ void AAbilitySystemCharacter::Tick(float DeltaTime)
 			{
 				if (CurrentDetectedInteract->bShouldFireSweepEvents)
 					CurrentDetectedInteract->OnInteractSweepInitialHit(this);
-				if (HasAuthority())
+				/*if (HasAuthority())	// Instead of having automatic interactable be activated here, just notify the passive auto interact ability to take care of stuff.
 				{
 					if (CurrentDetectedInteract->GetDetectType() == EDetectType::DETECTTYPE_Sweeped)
 					{
@@ -105,7 +105,7 @@ void AAbilitySystemCharacter::Tick(float DeltaTime)
 							GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
 						}
 					}
-				}
+				}*/
 			}
 			else
 			{
@@ -165,9 +165,7 @@ IInteractable* AAbilitySystemCharacter::DetectCurrentInteractable(FHitResult& Ou
 				{
 					if (CurrentOverlapInteractablesStack[i]->GetCanCurrentlyBeInteractedWith())
 					{
-
-						UKismetSystemLibrary::PrintString(this, "Using = " + FString::SanitizeFloat(i), true, false, FLinearColor::Green);
-						CurrentOverlapInteractablesStack[i]->InjectDetectType(EDetectType::DETECTTYPE_Overlapped);
+						//UKismetSystemLibrary::PrintString(this, "Using = " + FString::SanitizeFloat(i), true, false, FLinearColor::Green);
 						return CurrentOverlapInteractablesStack[i];
 					}
 				}
@@ -191,7 +189,9 @@ void AAbilitySystemCharacter::OnComponentBeginOverlapCharacterCapsule(UPrimitive
 {
 	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
 	{
-		CurrentOverlapInteractablesStack.Push(Interactable);		
+		Interactable->InjectDetectType(EDetectType::DETECTTYPE_Overlapped);
+		CurrentOverlapInteractablesStack.Push(Interactable);
+		Interactable->OnCharacterCapsuleBeginOverlap(this);
 	}
 }
 void AAbilitySystemCharacter::OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -202,6 +202,7 @@ void AAbilitySystemCharacter::OnComponentEndOverlapCharacterCapsule(UPrimitiveCo
 		{
 			CurrentOverlapInteractablesStack.RemoveSingle(Interactable);	// Not using pop because there is a chance a character might be interacting with an overlap that isn't the current detected one (meaning it's not at the top of the stack)
 			OnElementRemovedFromFrameOverlapInteractablesStack.Broadcast(Interactable);
+			Interactable->OnCharacterCapsuleEndOverlap(this);
 		}
 	}
 }

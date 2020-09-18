@@ -53,9 +53,12 @@ public:
 	virtual void InteractingTick(APawn* InteractingPawn, float DeltaTime, float CurrentInteractionTime) override;
 	virtual void OnDurationInteractEnd(APawn* InteractingPawn, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime) override;
 
-	virtual void OnInteractSweepInitialHit(APawn* InteractingPawn);
-	virtual void OnInteractSweepConsecutiveHit(APawn* InteractingPawn);
-	virtual void OnInteractSweepEndHitting(APawn* InteractingPawn);
+	virtual void OnInteractSweepInitialHit(APawn* InteractingPawn) override;
+	virtual void OnInteractSweepConsecutiveHit(APawn* InteractingPawn) override;
+	virtual void OnInteractSweepEndHitting(APawn* InteractingPawn) override;
+
+	virtual void OnCharacterCapsuleBeginOverlap(APawn* InteractingPawn) override;
+	virtual void OnCharacterCapsuleEndOverlap(APawn* InteractingPawn) override;
 
 protected:
 	virtual void PostInitializeComponents() override;

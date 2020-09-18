@@ -26,16 +26,6 @@ bool UGA_CharacterInstantInteract::CanActivateAbility(const FGameplayAbilitySpec
 	{
 		return false;
 	}
-	if (!GASCharacter->CurrentDetectedInteract->GetIsManualInstantInteract() && !GASCharacter->CurrentDetectedInteract->GetIsAutomaticInstantInteract())
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetIsManualInstantInteract() returned false"), *FString(__FUNCTION__));
-		return false;
-	}
-	if (GASCharacter->CurrentDetectedInteract->GetIsAutomaticInstantInteract() && GASCharacter->CurrentDetectedInteract->GetIsManualInstantInteract())
-	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Interactable was set to be both automatic and manual which doesn't make sense. returned false"), *FString(__FUNCTION__));
-		return false;
-	}
 
 	////////////// Allow the implementer to create custom conditions before we activate (may make this specific to the type of interact) ////////////
 	if (GASCharacter->CurrentDetectedInteract->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
@@ -57,28 +47,7 @@ void UGA_CharacterInstantInteract::ActivateAbility(const FGameplayAbilitySpecHan
 		return;
 	}
 
-	// Handle what we will do if this interactable is an automatic interact on overlap. If there are other interactables like this that we are currently overlaping with,
-	// we will take care of all of them in one ability (this one) instead of a bunch of ability calls for each one.
-	if (Interactable->GetIsAutomaticInstantInteract() && Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped && GASCharacter->CurrentOverlapInteractablesStack.Num() > 0)
-	{
-		/*if (Interactable->bAllowedInstantInteractActivationCombining)	// Maybe give implementor functionality
-		{*/
-			for (int32 i = GASCharacter->CurrentOverlapInteractablesStack.Num() - 1; i >= 0; i--)
-			{
-				if (GASCharacter->CurrentOverlapInteractablesStack.IsValidIndex(i) && GASCharacter->CurrentOverlapInteractablesStack[i])
-				{
-					if (GASCharacter->CurrentOverlapInteractablesStack[i]->GetIsAutomaticInstantInteract() && Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
-					{
-						GASCharacter->CurrentOverlapInteractablesStack[i]->OnInstantInteract(GASCharacter);
-					}
-				}
-			}
-		//}
-	}
-	else
-	{
-		Interactable->OnInstantInteract(GASCharacter);
-	}
+	Interactable->OnInstantInteract(GASCharacter);
 
 	
 

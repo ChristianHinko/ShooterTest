@@ -14,9 +14,9 @@ AItem::AItem()
 	bShouldFireSweepEvents = true;
 	
 	bIsAutomaticInstantInteract = false;
-	bIsAutomaticDurationInteract = true;
+	bIsAutomaticDurationInteract = false;
 	bIsManualInstantInteract = false;
-	bIsManualDurationInteract = false;
+	bIsManualDurationInteract = true;
 }
 void AItem::PostInitializeComponents()
 {
@@ -92,4 +92,19 @@ void AItem::OnInteractSweepConsecutiveHit(APawn* InteractingPawn)
 void AItem::OnInteractSweepEndHitting(APawn* InteractingPawn)
 {
 	//UKismetSystemLibrary::PrintString(this, "End", true, false, FLinearColor::Red);
+}
+#include "Character/AbilitySystemCharacter.h"
+void AItem::OnCharacterCapsuleBeginOverlap(APawn* InteractingPawn)
+{
+	//if (Cast<AAbilitySystemCharacter>(InteractingPawn)->CurrentDetectedInteract == Cast<IInteractable>(this))
+	//{
+		UKismetSystemLibrary::PrintString(this, "Begin Overlap", true, false, FLinearColor::Red);
+	//}
+}
+void AItem::OnCharacterCapsuleEndOverlap(APawn* InteractingPawn)
+{
+	//if (Cast<AAbilitySystemCharacter>(InteractingPawn)->CurrentDetectedInteract == Cast<IInteractable>(this))
+	//{
+		UKismetSystemLibrary::PrintString(this, "End Overlap", true, false, FLinearColor::Red);
+	//}
 }

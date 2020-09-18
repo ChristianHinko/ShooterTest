@@ -12,9 +12,7 @@ class USkeletalMeshComponent;
 class UCameraComponent;
 class USpringArmComponent;
 class USSCharacterMovementComponent;
-class IInteractable;
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnFrameOverlapStackChangeDelegate, IInteractable*&);
 /**
  * Base character class (without GAS implementation)
  */

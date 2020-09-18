@@ -7,6 +7,7 @@
 #include "SiegeCharacter.generated.h"
 
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnFrameOverlapStackChangeDelegate, IInteractable*&);
 
 /**
  *

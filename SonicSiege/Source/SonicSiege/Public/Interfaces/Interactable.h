@@ -11,11 +11,11 @@
 
 class APawn;
 
-/** Describes interaction that took place */
+/** Describes the detection state */
 UENUM()
 enum class EDetectType
 {
-	DETECTTYPE_NotYetDetected,
+	DETECTTYPE_NotDetected,
 	DETECTTYPE_Sweeped,				// Character did sweep for an Interactable to find this
 	DETECTTYPE_Overlapped			// Character checks Interactable overlaps to find this
 };

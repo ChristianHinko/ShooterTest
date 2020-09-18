@@ -213,7 +213,7 @@ void ASiegeCharacter::OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent*
 		{
 			CurrentOverlapInteractablesStack.RemoveSingle(Interactable);	// Not using pop because there is a chance a character might be interacting with an overlap that isn't the current detected one (meaning it's not at the top of the stack)
 			OnElementRemovedFromFrameOverlapInteractablesStack.Broadcast(Interactable);
-			Interactable->InjectDetectType(EDetectType::DETECTTYPE_NotYetDetected);		// Give a value of not detected just in case (maybe implementor is trying something weird where they change how it's detected at runtime)
+			Interactable->InjectDetectType(EDetectType::DETECTTYPE_NotDetected);		// Give a value of not detected just in case (maybe implementor is trying something weird where they change how it's detected at runtime)
 		}
 	}
 }

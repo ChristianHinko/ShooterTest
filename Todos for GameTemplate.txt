@@ -65,5 +65,5 @@
 - AbilitySystemActor "ActorAttributeSet" IS NOT ON EVERY ACTOR". Name misleading
 - Update GrantAbility() UELOG to give the function name
 
-
-
+- Figure out if we should UPROPERTY major objects or not (garbage collection related)
+- Make sure we have parenthesese after all of our function names in out comments (so that we can peek definition on them - without parentheses peek definition doesn't work)

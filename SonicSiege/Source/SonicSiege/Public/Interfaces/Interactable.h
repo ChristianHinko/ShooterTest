@@ -9,7 +9,7 @@
 
 #include "Interactable.generated.h"
 
-class APawn;
+class ASiegeCharacter;
 
 /** Describes the detection state */
 UENUM()
@@ -81,7 +81,7 @@ public:
 #pragma region InstantInteraction
 
 	// Called from ActivateAbility() (valid prediction key)
-	virtual void OnInstantInteract(APawn* InteractingPawn);
+	virtual void OnInstantInteract(ASiegeCharacter* InteractingCharacter);
 #pragma endregion
 
 
@@ -99,11 +99,11 @@ public:
 	// Skips first call to InteractingTick()
 	bool bShouldSkipFirstTick;
 	// Called the first frame of interaction (on press interact input) (valid prediction key)
-	virtual void OnDurationInteractBegin(APawn* InteractingPawn);
+	virtual void OnDurationInteractBegin(ASiegeCharacter* InteractingCharacter);
 	// Called every frame during a duration interaction (while interact input is down)
-	virtual void InteractingTick(APawn* InteractingPawn, float DeltaTime, float CurrentInteractionTime);
+	virtual void InteractingTick(ASiegeCharacter* InteractingCharacter, float DeltaTime, float CurrentInteractionTime);
 	// Called anytime a duration interaction ends (whatever the reason may be)
-	virtual void OnDurationInteractEnd(APawn* InteractingPawn, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime);
+	virtual void OnDurationInteractEnd(ASiegeCharacter* InteractingCharacter, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime);
 #pragma endregion
 
 
@@ -115,11 +115,11 @@ public:
 	// Allows events to be fired by the character's interaction scanner
 	bool bShouldFireDetectionEvents;
 	// This became the player's current interactable
-	virtual void OnInitialDetect(APawn* InteractingPawn);
+	virtual void OnInitialDetect(ASiegeCharacter* InteractingCharacter);
 	// This remains the player's current interactable
-	virtual void OnConsecutiveDetect(APawn* InteractingPawn);
+	virtual void OnConsecutiveDetect(ASiegeCharacter* InteractingCharacter);
 	// This is no longer the player's current interactable
-	virtual void OnEndDetect(APawn* InteractingPawn);
+	virtual void OnEndDetect(ASiegeCharacter* InteractingCharacter);
 #pragma endregion
 
 
@@ -152,6 +152,7 @@ protected:
 	bool bIsAutomaticInstantInteract;
 	bool bIsManualDurationInteract;			
 	bool bIsAutomaticDurationInteract;	
+
 
 	//bIsInstancedPerActor;		// All instant interacts could use this easilty. Just sorta weird since to interact with everything at once it loops through the stack in the ability
 	//bIsInstancedPerExecution;	// All durration interacts might just always have to be this

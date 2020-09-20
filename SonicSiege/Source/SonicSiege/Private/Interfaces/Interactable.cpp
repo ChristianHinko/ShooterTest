@@ -72,7 +72,7 @@ EDetectType IInteractable::GetDetectType()
 
 
 
-void IInteractable::OnInstantInteract(APawn* InteractingPawn)
+void IInteractable::OnInstantInteract(ASiegeCharacter* InteractingCharacter)
 {
 }
 
@@ -81,13 +81,13 @@ void IInteractable::OnInstantInteract(APawn* InteractingPawn)
 
 
 
-void IInteractable::OnDurationInteractBegin(APawn* InteractingPawn)
+void IInteractable::OnDurationInteractBegin(ASiegeCharacter* InteractingCharacter)
 {
 }
-void IInteractable::InteractingTick(APawn* InteractingPawn, float DeltaTime, float CurrentInteractionTime)
+void IInteractable::InteractingTick(ASiegeCharacter* InteractingCharacter, float DeltaTime, float CurrentInteractionTime)
 {
 }
-void IInteractable::OnDurationInteractEnd(APawn* InteractingPawn, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime)
+void IInteractable::OnDurationInteractEnd(ASiegeCharacter* InteractingPawn, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime)
 {
 }
 
@@ -96,12 +96,12 @@ void IInteractable::OnDurationInteractEnd(APawn* InteractingPawn, EDurationInter
 
 
 
-void IInteractable::OnInitialDetect(APawn* InteractingPawn)
+void IInteractable::OnInitialDetect(ASiegeCharacter* InteractingCharacter)
 {
 }
-void IInteractable::OnConsecutiveDetect(APawn* InteractingPawn)
+void IInteractable::OnConsecutiveDetect(ASiegeCharacter* InteractingCharacter)
 {
 }
-void IInteractable::OnEndDetect(APawn* InteractingPawn)
+void IInteractable::OnEndDetect(ASiegeCharacter* InteractingCharacter)
 {
 }

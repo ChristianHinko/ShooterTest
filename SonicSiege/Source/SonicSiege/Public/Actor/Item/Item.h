@@ -47,15 +47,15 @@ public:
 	virtual TSubclassOf<UGameplayEffect> GetInteractableEffectTSub() override;
 
 
-	virtual void OnInstantInteract(APawn* InteractingPawn) override;
+	virtual void OnInstantInteract(ASiegeCharacter* InteractingCharacter) override;
 
-	virtual void OnDurationInteractBegin(APawn* InteractingPawn) override;
-	virtual void InteractingTick(APawn* InteractingPawn, float DeltaTime, float CurrentInteractionTime) override;
-	virtual void OnDurationInteractEnd(APawn* InteractingPawn, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime) override;
+	virtual void OnDurationInteractBegin(ASiegeCharacter* InteractingCharacter) override;
+	virtual void InteractingTick(ASiegeCharacter* InteractingCharacter, float DeltaTime, float CurrentInteractionTime) override;
+	virtual void OnDurationInteractEnd(ASiegeCharacter* InteractingCharacter, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime) override;
 
-	virtual void OnInitialDetect(APawn* InteractingPawn) override;
-	virtual void OnConsecutiveDetect(APawn* InteractingPawn) override;
-	virtual void OnEndDetect(APawn* InteractingPawn) override;
+	virtual void OnInitialDetect(ASiegeCharacter* InteractingCharacter) override;
+	virtual void OnConsecutiveDetect(ASiegeCharacter* InteractingCharacter) override;
+	virtual void OnEndDetect(ASiegeCharacter* InteractingCharacter) override;
 
 protected:
 	virtual void PostInitializeComponents() override;

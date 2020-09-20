@@ -14,9 +14,9 @@ AItem::AItem()
 	bShouldFireDetectionEvents = true;
 	
 	bIsAutomaticInstantInteract = false;
-	bIsAutomaticDurationInteract = true;
+	bIsAutomaticDurationInteract = false;
 	bIsManualInstantInteract = false;
-	bIsManualDurationInteract = false;
+	bIsManualDurationInteract = true;
 }
 void AItem::PostInitializeComponents()
 {
@@ -45,7 +45,7 @@ TSubclassOf<UGameplayEffect> AItem::GetInteractableEffectTSub()
 
 
 
-void AItem::OnInstantInteract(APawn* InteractingPawn)
+void AItem::OnInstantInteract(ASiegeCharacter* InteractingPawn)
 {
 	UKismetSystemLibrary::PrintString(this, "Instant Interact", true, false, FLinearColor::Yellow);
 	Destroy();
@@ -53,17 +53,17 @@ void AItem::OnInstantInteract(APawn* InteractingPawn)
 
 
 
-void AItem::OnDurationInteractBegin(APawn* InteractingPawn)
+void AItem::OnDurationInteractBegin(ASiegeCharacter* InteractingPawn)
 {
 	UKismetSystemLibrary::PrintString(this, "OnDurationInteractBegin", true, false, FLinearColor::Gray);
 }
-void AItem::InteractingTick(APawn* InteractingPawn, float DeltaTime, float CurrentInteractionTime)
+void AItem::InteractingTick(ASiegeCharacter* InteractingPawn, float DeltaTime, float CurrentInteractionTime)
 {
 	ENetRole role = GetLocalRole();
 	UKismetSystemLibrary::PrintString(this, GetActorLabel() + " ---->" + FString::SanitizeFloat(CurrentInteractionTime), true, false, FLinearColor::Gray);
 }
 
-void AItem::OnDurationInteractEnd(APawn* InteractingPawn, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime)
+void AItem::OnDurationInteractEnd(ASiegeCharacter* InteractingPawn, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime)
 {
 	ENetRole role = GetLocalRole();
 	if (DurationInteractEndReason == EDurationInteractEndReason::REASON_SuccessfulInteract)
@@ -81,15 +81,15 @@ void AItem::OnDurationInteractEnd(APawn* InteractingPawn, EDurationInteractEndRe
 
 
 
-void AItem::OnInitialDetect(APawn* InteractingPawn)
+void AItem::OnInitialDetect(ASiegeCharacter* InteractingPawn)
 {
 	//UKismetSystemLibrary::PrintString(this, GetActorLabel() + " ---->" + "Become CurrentInteract", true, false, FLinearColor::Green, 20);
 }
-void AItem::OnConsecutiveDetect(APawn* InteractingPawn)
+void AItem::OnConsecutiveDetect(ASiegeCharacter* InteractingPawn)
 {
 	//UKismetSystemLibrary::PrintString(this, GetActorLabel() + " ---->" + "Tick", true, false, FLinearColor::Blue);
 }
-void AItem::OnEndDetect(APawn* InteractingPawn)
+void AItem::OnEndDetect(ASiegeCharacter* InteractingPawn)
 {
 	//UKismetSystemLibrary::PrintString(this, GetActorLabel() + " ---->" + "End being CurrentInteract", true, false, FLinearColor::Red, 20);
 }

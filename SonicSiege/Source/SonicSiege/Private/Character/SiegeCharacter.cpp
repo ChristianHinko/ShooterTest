@@ -13,8 +13,7 @@
 ASiegeCharacter::ASiegeCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	InteractSweepDistance = 100.f;
-	InteractSweepRadius = 2.f;
+	InteractSweepDistance = 150.f;
 	CurrentPrioritizedInteractable = nullptr;
 	LastPrioritizedInteractable = nullptr;
 
@@ -92,31 +91,7 @@ void ASiegeCharacter::Tick(float DeltaSeconds)
 						LastPrioritizedInteractable->OnEndDetect(this);
 				}
 
-				/*if (HasAuthority())	// Instead of having automatic interactable be activated here, just notify the passive auto interact ability to take care of stuff.
-				{
-					if (CurrentPrioritizedInteractable->GetDetectType() == EDetectType::DETECTTYPE_Sweeped)
-					{
-						if (CurrentPrioritizedInteractable->GetIsAutomaticInstantInteract())
-						{
-							GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
-						}
-						if (CurrentPrioritizedInteractable->GetIsAutomaticDurationInteract() && CurrentPrioritizedInteractable->GetDurationInteractOccurring() == false)
-						{
-							GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
-						}
-					}
-					else if (CurrentPrioritizedInteractable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
-					{
-						if (CurrentPrioritizedInteractable->GetIsAutomaticInstantInteract())
-						{
-							GetAbilitySystemComponent()->TryActivateAbility(InteractInstantAbilitySpecHandle);
-						}
-						if (CurrentPrioritizedInteractable->GetIsAutomaticDurationInteract() && CurrentPrioritizedInteractable->GetDurationInteractOccurring() == false)
-						{
-							GetAbilitySystemComponent()->TryActivateAbility(InteractDurationAbilitySpecHandle);
-						}
-					}
-				}*/
+				// Automatic interact activation might be nice here
 			}
 			else
 			{
@@ -182,7 +157,7 @@ IInteractable* ASiegeCharacter::ScanForCurrentPrioritizedInteractable(FHitResult
 				}
 				else
 				{
-					CurrentOverlapInteractablesStack.RemoveAt(i);
+					CurrentOverlapInteractablesStack.RemoveAt(i);	// (edge case) just remove the useless element
 				}
 			}
 		}

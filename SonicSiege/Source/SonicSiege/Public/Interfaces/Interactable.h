@@ -149,11 +149,12 @@ protected:
 	// If set to manual and automatic CanActivateAbility() will return false. Automatic and Manual should maybe be separate abilities
 	//-----------------------------------
 	bool bIsManualInstantInteract;			
-	bool bIsAutomaticInstantInteract;
+	bool bIsAutomaticInstantInteract;   //Code to make this work is currently not hooked up
 	bool bIsManualDurationInteract;			
-	bool bIsAutomaticDurationInteract;	
+	bool bIsAutomaticDurationInteract;	//Code to make this work is currently not hooked up
 
 
+	// Not yet sure if I want this implemented yet
 	//bIsInstancedPerActor;		// All instant interacts could use this easilty. Just sorta weird since to interact with everything at once it loops through the stack in the ability
 	//bIsInstancedPerExecution;	// All durration interacts might just always have to be this
 	//

@@ -10,6 +10,8 @@
 //#include "GameFramework/CharacterMovementComponent.h"
 //#include "Kismet/KismetSystemLibrary.h"
 //#include "Actor/AS_Health.h"
+#include "ActorComponents/InventoryComponent.h"
+#include "Actor/Weapon/Weapon.h"
 
 
 
@@ -43,6 +45,14 @@ ASonic::ASonic(const FObjectInitializer& ObjectInitializer)
 }
 
 
+void ASonic::BeginPlay()
+{
+	Super::BeginPlay();
+
+	
+	GetWorldTimerManager().SetTimer(MyTimerHandle, this, &ASonic::MyTimerCallback, 10.f, false);
+}
+
 void ASonic::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -51,4 +61,13 @@ void ASonic::Tick(float DeltaSeconds)
 	//{
 	//	UKismetSystemLibrary::PrintString(this, GetName() + ": " + FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
 	//}
+}
+
+
+void ASonic::MyTimerCallback()
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		Inventory->AddWeaponToInventory(MyTestWeapon.GetDefaultObject());
+	}
 }

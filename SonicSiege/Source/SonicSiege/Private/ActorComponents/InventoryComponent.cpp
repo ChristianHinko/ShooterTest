@@ -3,8 +3,18 @@
 
 #include "ActorComponents/InventoryComponent.h"
 
+#include "Net/UnrealNetwork.h"
 #include "Actor/Weapon/Weapon.h"
 
+
+
+void UInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+
+	DOREPLIFETIME(UInventoryComponent, Weapons);
+}
 
 
 void FFASI_Weapon::PreReplicatedRemove(const FFAS_Weapons& InArraySerializer)
@@ -55,6 +65,7 @@ int32 UInventoryComponent::AddWeaponToInventory(AWeapon* Weapon)
 
 	Weapons.Items.Add(WeaponItem);
 	Weapons.MarkArrayDirty();
+	//Weapons.MarkItemDirty(Weapons.Items.Add_GetRef(WeaponItem));
 
 
 

@@ -23,6 +23,8 @@ class AWeapon;
  *			- Use prefix FASI_ and FAS_
  *			- Give FFastArraySerializerItem an index if you wan't to maintain order somehow
  * 3) DO NOT FORGET TO MARK ARRAY DIRTY AND MARK ITEM DIRTY
+ *			- Good to make AddWeapon/RemoveWeapon functions so you can mark array dirty in there so you don't always have to remember to mark array dirty.
+ *			- As far as mark item dirty, you may just have to remember to dirty the item after you alter it
  */
 #pragma region Fast Array
 USTRUCT()

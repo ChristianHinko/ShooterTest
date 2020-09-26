@@ -43,15 +43,23 @@ UInventoryComponent::UInventoryComponent()
 
 
 /////////////////////////////////////////////////////////////////////////// UNTESTED AND NEEDS WORK!!!!! \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
-void UInventoryComponent::AddWeaponToInventory(AWeapon* Weapon)
+int32 UInventoryComponent::AddWeaponToInventory(AWeapon* Weapon)
 {
 	FFASI_Weapon WeaponItem;
 	WeaponItem.Weapon = Weapon;
 
 	Weapons.Items.Add(WeaponItem);
 	Weapons.MarkArrayDirty();
+
+
+
+	// Come up with how to assign right index before returning
+
+
+
+	return WeaponItem.index;
 }
-void UInventoryComponent::RemoveWeaponFromInventory(AWeapon* Weapon)
+bool UInventoryComponent::RemoveWeaponFromInventory(AWeapon* Weapon)
 {
 	for (int32 i = 0; i < Weapons.Items.Num(); ++i)
 	{
@@ -59,7 +67,9 @@ void UInventoryComponent::RemoveWeaponFromInventory(AWeapon* Weapon)
 		{
 			Weapons.Items.RemoveAt(i);
 			Weapons.MarkArrayDirty();
-			break;
+			return true;
 		}
 	}
+
+	return false;
 }

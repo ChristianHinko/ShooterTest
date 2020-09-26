@@ -122,8 +122,8 @@ public:
 	UInventoryComponent();
 
 
-	void AddWeaponToInventory(AWeapon* Weapon);
-	void RemoveWeaponFromInventory(AWeapon* Weapon);
+	int32 AddWeaponToInventory(AWeapon* Weapon);
+	bool RemoveWeaponFromInventory(AWeapon* Weapon);
 
 protected:
 	FFAS_Weapons Weapons;

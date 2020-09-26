@@ -3,11 +3,20 @@
 
 #include "ActorComponents/InventoryComponent.h"
 
+#include "Actor/Weapon/Weapon.h"
 
 
-UInventoryComponent::UInventoryComponent()
+
+void FFASI_Weapon::PreReplicatedRemove(const FFAS_Weapons& InArraySerializer)
 {
-	PrimaryComponentTick.bCanEverTick = false;
+
+}
+void FFASI_Weapon::PostReplicatedAdd(const FFAS_Weapons& InArraySerializer)
+{
+
+}
+void FFASI_Weapon::PostReplicatedChange(const FFAS_Weapons& InArraySerializer)
+{
 
 }
 
@@ -24,15 +33,33 @@ void FFASI_Equipment::PostReplicatedChange(const FFAS_Equipments& InArraySeriali
 
 }
 
-void FFASI_Weapon::PreReplicatedRemove(const FFAS_Weapons& InArraySerializer)
+
+
+UInventoryComponent::UInventoryComponent()
 {
+	PrimaryComponentTick.bCanEverTick = false;
 
 }
-void FFASI_Weapon::PostReplicatedAdd(const FFAS_Weapons& InArraySerializer)
-{
 
+
+/////////////////////////////////////////////////////////////////////////// UNTESTED AND NEEDS WORK!!!!! \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
+void UInventoryComponent::AddWeaponToInventory(AWeapon* Weapon)
+{
+	FFASI_Weapon WeaponItem;
+	WeaponItem.Weapon = Weapon;
+
+	Weapons.Items.Add(WeaponItem);
+	Weapons.MarkArrayDirty();
 }
-void FFASI_Weapon::PostReplicatedChange(const FFAS_Weapons& InArraySerializer)
+void UInventoryComponent::RemoveWeaponFromInventory(AWeapon* Weapon)
 {
-
+	for (int32 i = 0; i < Weapons.Items.Num(); ++i)
+	{
+		if (Weapon == Weapons.Items[i].Weapon)
+		{
+			Weapons.Items.RemoveAt(i);
+			Weapons.MarkArrayDirty();
+			break;
+		}
+	}
 }

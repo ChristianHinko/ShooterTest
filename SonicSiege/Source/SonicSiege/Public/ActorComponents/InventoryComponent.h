@@ -4,17 +4,64 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Runtime/Engine/Classes/Engine/NetSerialization.h"
+#include "Engine/NetSerialization.h"
 
 #include "InventoryComponent.generated.h"
 
 
-class AEquipment;
 class AWeapon;
+class AEquipment;
 
 
 
 #pragma region Fast Array
+USTRUCT()
+struct FFASI_Weapon : public FFastArraySerializerItem
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY()
+		AWeapon* Weapon;
+
+	UPROPERTY()
+		uint8 index;
+
+	void PreReplicatedRemove(const struct FFAS_Weapons& InArraySerializer);
+	void PostReplicatedAdd(const struct FFAS_Weapons& InArraySerializer);
+	void PostReplicatedChange(const struct FFAS_Weapons& InArraySerializer);
+};
+
+USTRUCT()
+struct FFAS_Weapons : public FFastArraySerializer
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY()
+		TArray<FFASI_Weapon> Items;
+
+
+	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms)
+	{
+		return FFastArraySerializer::FastArrayDeltaSerialize<FFASI_Weapon, FFAS_Weapons>(Items, DeltaParms, *this);
+	}
+};
+template<>
+struct TStructOpsTypeTraits<FFAS_Weapons> : public TStructOpsTypeTraitsBase2<FFAS_Weapons>
+{
+	enum
+	{
+		WithNetDeltaSerializer = true,
+	};
+};
+
+
+
+
+
+
+
+
+
 USTRUCT()
 struct FFASI_Equipment : public FFastArraySerializerItem
 {
@@ -27,6 +74,7 @@ struct FFASI_Equipment : public FFastArraySerializerItem
 	void PostReplicatedAdd(const struct FFAS_Equipments& InArraySerializer);
 	void PostReplicatedChange(const struct FFAS_Equipments& InArraySerializer);
 };
+
 USTRUCT()
 struct FFAS_Equipments : public FFastArraySerializer
 {
@@ -49,54 +97,6 @@ struct TStructOpsTypeTraits<FFAS_Equipments> : public TStructOpsTypeTraitsBase2<
 		WithNetDeltaSerializer = true,
 	};
 };
-
-
-
-
-
-
-
-
-
-
-USTRUCT()
-struct FFASI_Weapon : public FFastArraySerializerItem
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY()
-		AWeapon* Weapon;
-
-	UPROPERTY()
-		uint8 index;
-
-	void PreReplicatedRemove(const struct FFAS_Weapons& InArraySerializer);
-	void PostReplicatedAdd(const struct FFAS_Weapons& InArraySerializer);
-	void PostReplicatedChange(const struct FFAS_Weapons& InArraySerializer);
-};
-USTRUCT()
-struct FFAS_Weapons : public FFastArraySerializer
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY()
-		TArray<FFASI_Weapon> Items;
-
-
-	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms)
-	{
-		return FFastArraySerializer::FastArrayDeltaSerialize<FFASI_Weapon, FFAS_Weapons>(Items, DeltaParms, *this);
-	}
-
-};
-template<>
-struct TStructOpsTypeTraits<FFAS_Weapons> : public TStructOpsTypeTraitsBase2<FFAS_Weapons>
-{
-	enum
-	{
-		WithNetDeltaSerializer = true,
-	};
-};
 #pragma endregion
 
 
@@ -109,8 +109,12 @@ public:
 	// Sets default values for this component's properties
 	UInventoryComponent();
 
+
+	void AddWeaponToInventory(AWeapon* Weapon);
+	void RemoveWeaponFromInventory(AWeapon* Weapon);
+
 protected:
-	FFAS_Equipments Equipments;
 	FFAS_Weapons Weapons;
+	FFAS_Equipments Equipments;
 
 };

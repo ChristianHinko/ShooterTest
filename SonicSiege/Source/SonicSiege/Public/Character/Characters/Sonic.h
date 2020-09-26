@@ -6,7 +6,7 @@
 #include "Character/SiegeCharacter.h"
 #include "Sonic.generated.h"
 
-
+class AWeapon;///////// remove this
 
 /**
  * 
@@ -20,6 +20,14 @@ public:
 	ASonic(const FObjectInitializer& ObjectInitializer);
 
 protected:
+	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
+
+
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<AWeapon> MyTestWeapon;
+
+	FTimerHandle MyTimerHandle;
+	void MyTimerCallback();
 
 };

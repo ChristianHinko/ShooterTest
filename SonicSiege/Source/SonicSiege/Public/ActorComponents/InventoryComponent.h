@@ -126,7 +126,8 @@ public:
 	bool RemoveWeaponFromInventory(AWeapon* Weapon);
 
 protected:
-	FFAS_Weapons Weapons;
+	UPROPERTY(Replicated)
+		FFAS_Weapons Weapons;
 	FFAS_Equipments Equipments;
 
 };

@@ -12,6 +12,7 @@
 //#include "Actor/AS_Health.h"
 #include "ActorComponents/InventoryComponent.h"
 #include "Actor/Weapon/Weapon.h"
+#include "Net/UnrealNetwork.h"
 
 
 
@@ -49,7 +50,8 @@ void ASonic::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
+
+	TestWeapon = GetWorld()->SpawnActor<AWeapon>(MyTestWeapon);
 	GetWorldTimerManager().SetTimer(MyTimerHandle, this, &ASonic::MyTimerCallback, 10.f, false);
 }
 
@@ -68,6 +70,6 @@ void ASonic::MyTimerCallback()
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		Inventory->AddWeaponToInventory(MyTestWeapon.GetDefaultObject());
+		Inventory->AddWeaponToInventory(TestWeapon);
 	}
 }

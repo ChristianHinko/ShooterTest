@@ -82,6 +82,9 @@ struct FFASI_Equipment : public FFastArraySerializerItem
 	UPROPERTY()
 		AEquipment* Equipment;
 
+	UPROPERTY()
+		uint8 index;
+
 	void PreReplicatedRemove(const struct FFAS_Equipments& InArraySerializer);
 	void PostReplicatedAdd(const struct FFAS_Equipments& InArraySerializer);
 	void PostReplicatedChange(const struct FFAS_Equipments& InArraySerializer);
@@ -121,7 +124,7 @@ public:
 	// Sets default values for this component's properties
 	UInventoryComponent();
 
-
+	/** Return -1 if not added */
 	int32 AddWeaponToInventory(AWeapon* Weapon);
 	bool RemoveWeaponFromInventory(AWeapon* Weapon);
 

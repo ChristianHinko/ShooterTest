@@ -55,6 +55,11 @@ UInventoryComponent::UInventoryComponent()
 /////////////////////////////////////////////////////////////////////////// UNTESTED AND NEEDS WORK!!!!! \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
 int32 UInventoryComponent::AddWeaponToInventory(AWeapon* Weapon)
 {
+	if (GetOwnerRole() < ROLE_Authority)
+	{
+		return -1;
+	}
+
 	FFASI_Weapon WeaponItem;
 	WeaponItem.Weapon = Weapon;
 
@@ -72,8 +77,13 @@ int32 UInventoryComponent::AddWeaponToInventory(AWeapon* Weapon)
 }
 bool UInventoryComponent::RemoveWeaponFromInventory(AWeapon* Weapon)
 {
-	bool retVal = false;
+	if (GetOwnerRole() < ROLE_Authority)
+	{
+		return false;
+	}
 
+
+	bool retVal = false;
 	for (int32 i = 0; i < Weapons.Items.Num(); ++i)
 	{
 		if (Weapon == Weapons.Items[i].Weapon)

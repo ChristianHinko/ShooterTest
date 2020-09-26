@@ -8,6 +8,8 @@
 
 class IInteractable;
 
+
+
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnFrameOverlapStackChangeDelegate, IInteractable*&);
 
 /**

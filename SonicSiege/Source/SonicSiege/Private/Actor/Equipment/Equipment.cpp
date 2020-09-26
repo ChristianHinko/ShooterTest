@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Actor/Item/Item.h"
+#include "Actor/Equipment/Equipment.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 #include "Interfaces/Interactable.h"
 #include "Character/AbilitySystemCharacter.h"
 
-AItem::AItem()
+AEquipment::AEquipment()
 {
 	bWithoutAbilitySystemComponentSubobject = true;
 
@@ -18,7 +18,7 @@ AItem::AItem()
 	bIsManualInstantInteract = false;
 	bIsManualDurationInteract = true;
 }
-void AItem::PostInitializeComponents()
+void AEquipment::PostInitializeComponents()
 {
 	AAbilitySystemActor::Super::PostInitializeComponents();		// skip AAbilitySystemActor's call on SetupWithAbilitySystem()
 
@@ -28,12 +28,12 @@ void AItem::PostInitializeComponents()
 
 
 
-bool AItem::CanActivateInteractAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
+bool AEquipment::CanActivateInteractAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
 	return true;
 }
 
-TSubclassOf<UGameplayEffect> AItem::GetInteractableEffectTSub()
+TSubclassOf<UGameplayEffect> AEquipment::GetInteractableEffectTSub()
 {
 	return nullptr;
 }
@@ -45,7 +45,7 @@ TSubclassOf<UGameplayEffect> AItem::GetInteractableEffectTSub()
 
 
 
-void AItem::OnInstantInteract(ASiegeCharacter* InteractingPawn)
+void AEquipment::OnInstantInteract(ASiegeCharacter* InteractingPawn)
 {
 	UKismetSystemLibrary::PrintString(this, "Instant Interact", true, false, FLinearColor::Yellow);
 	Destroy();
@@ -53,17 +53,17 @@ void AItem::OnInstantInteract(ASiegeCharacter* InteractingPawn)
 
 
 
-void AItem::OnDurationInteractBegin(ASiegeCharacter* InteractingPawn)
+void AEquipment::OnDurationInteractBegin(ASiegeCharacter* InteractingPawn)
 {
 	UKismetSystemLibrary::PrintString(this, "OnDurationInteractBegin", true, false, FLinearColor::Gray);
 }
-void AItem::InteractingTick(ASiegeCharacter* InteractingPawn, float DeltaTime, float CurrentInteractionTime)
+void AEquipment::InteractingTick(ASiegeCharacter* InteractingPawn, float DeltaTime, float CurrentInteractionTime)
 {
 	ENetRole role = GetLocalRole();
 	UKismetSystemLibrary::PrintString(this, GetActorLabel() + " ---->" + FString::SanitizeFloat(CurrentInteractionTime), true, false, FLinearColor::Gray);
 }
 
-void AItem::OnDurationInteractEnd(ASiegeCharacter* InteractingPawn, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime)
+void AEquipment::OnDurationInteractEnd(ASiegeCharacter* InteractingPawn, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime)
 {
 	ENetRole role = GetLocalRole();
 	if (DurationInteractEndReason == EDurationInteractEndReason::REASON_SuccessfulInteract)
@@ -81,15 +81,15 @@ void AItem::OnDurationInteractEnd(ASiegeCharacter* InteractingPawn, EDurationInt
 
 
 
-void AItem::OnInitialDetect(ASiegeCharacter* InteractingPawn)
+void AEquipment::OnInitialDetect(ASiegeCharacter* InteractingPawn)
 {
 	//UKismetSystemLibrary::PrintString(this, GetActorLabel() + " ---->" + "Become CurrentInteract", true, false, FLinearColor::Green, 20);
 }
-void AItem::OnConsecutiveDetect(ASiegeCharacter* InteractingPawn)
+void AEquipment::OnConsecutiveDetect(ASiegeCharacter* InteractingPawn)
 {
 	//UKismetSystemLibrary::PrintString(this, GetActorLabel() + " ---->" + "Tick", true, false, FLinearColor::Blue);
 }
-void AItem::OnEndDetect(ASiegeCharacter* InteractingPawn)
+void AEquipment::OnEndDetect(ASiegeCharacter* InteractingPawn)
 {
 	//UKismetSystemLibrary::PrintString(this, GetActorLabel() + " ---->" + "End being CurrentInteract", true, false, FLinearColor::Red, 20);
 }

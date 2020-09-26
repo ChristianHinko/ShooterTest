@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Actor/Item/Weapon/Abilities/GA_Fire.h"
+#include "Actor/Weapon/Abilities/GA_Fire.h"
 
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
 #include "AbilitySystem/TargetActor/TargetActors/GATA_BulletTrace.h"
-#include "Actor/Item/Weapon/Weapon.h"
+#include "Actor/Weapon/Weapon.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
 #include "Utilities/CollisionChannels.h"

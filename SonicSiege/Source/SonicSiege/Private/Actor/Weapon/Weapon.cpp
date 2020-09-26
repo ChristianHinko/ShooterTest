@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Actor/Item/Weapon/Weapon.h"
+#include "Actor/Weapon/Weapon.h"
 
 #include "Net/UnrealNetwork.h"
-#include "Actor/Item/Weapon/AS_Weapon.h"
+#include "Actor/Weapon/AS_Weapon.h"
 #include "AbilitySystem/TargetActor/TargetActors/GATA_BulletTrace.h"
 #include "SonicSiege/Private/Utilities/LogCategories.h"
 

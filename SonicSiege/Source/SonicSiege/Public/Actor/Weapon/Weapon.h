@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Actor/Item/Item.h"
+#include "Actor/AbilitySystemActor.h"
 #include "Weapon.generated.h"
 
 class UAS_Weapon;
@@ -13,7 +13,7 @@ class AGATA_BulletTrace;
  * 
  */
 UCLASS()
-class SONICSIEGE_API AWeapon : public AItem
+class SONICSIEGE_API AWeapon : public AAbilitySystemActor
 {
 	GENERATED_BODY()
 	

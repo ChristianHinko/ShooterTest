@@ -6,42 +6,20 @@
 #include "Actor/AbilitySystemActor.h"
 #include "Interfaces/Interactable.h"
 
-#include "Item.generated.h"
+#include "Equipment.generated.h"
 
 class USSGameplayAbility;
-
-enum class EItemType : uint8
-{
-	TYPE_None,
-	TYPE_Gun,
-	TYPE_Melee,
-	TYPE_
-};
-
-/**
- * This should store the info for an Item so we can avoid casting for no reason.
- */
-USTRUCT()
-struct FItemInfo
-{
-	GENERATED_USTRUCT_BODY()
-
-public:
-	AItem* Item;
-
-	EItemType ItemType;
-};
 
 /**
  * 
  */
 UCLASS()
-class SONICSIEGE_API AItem : public AAbilitySystemActor, public IInteractable
+class SONICSIEGE_API AEquipment : public AAbilitySystemActor, public IInteractable
 {
 	GENERATED_BODY()
 	
 public:
-	AItem();
+	AEquipment();
 
 	virtual bool CanActivateInteractAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const override;
 	virtual TSubclassOf<UGameplayEffect> GetInteractableEffectTSub() override;

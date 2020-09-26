@@ -62,6 +62,7 @@ int32 UInventoryComponent::AddWeaponToInventory(AWeapon* Weapon)
 
 
 
+
 	return WeaponItem.index;
 }
 bool UInventoryComponent::RemoveWeaponFromInventory(AWeapon* Weapon)

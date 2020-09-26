@@ -115,6 +115,12 @@ struct TStructOpsTypeTraits<FFAS_Equipments> : public TStructOpsTypeTraitsBase2<
 #pragma endregion
 
 
+
+
+
+
+
+
 UCLASS( ClassGroup=(Siege), meta=(BlueprintSpawnableComponent) )
 class SONICSIEGE_API UInventoryComponent : public UActorComponent
 {

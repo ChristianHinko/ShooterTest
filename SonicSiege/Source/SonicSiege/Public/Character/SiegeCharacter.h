@@ -7,7 +7,7 @@
 #include "SiegeCharacter.generated.h"
 
 class IInteractable;
-
+class UInventoryComponent;
 
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnFrameOverlapStackChangeDelegate, IInteractable*&);
@@ -29,6 +29,8 @@ public:
 
 	IInteractable* CurrentPrioritizedInteractable;
 	IInteractable* LastPrioritizedInteractable;
+
+	UInventoryComponent* Inventory;
 
 protected:
 

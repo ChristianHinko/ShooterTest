@@ -8,6 +8,7 @@
 #include "Interfaces/Interactable.h"
 #include "Utilities/CollisionChannels.h"
 #include "Camera/CameraComponent.h"
+#include "ActorComponents\InventoryComponent.h"
 
 
 ASiegeCharacter::ASiegeCharacter(const FObjectInitializer& ObjectInitializer)
@@ -19,6 +20,8 @@ ASiegeCharacter::ASiegeCharacter(const FObjectInitializer& ObjectInitializer)
 
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ASiegeCharacter::OnComponentBeginOverlapCharacterCapsule);
 	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &ASiegeCharacter::OnComponentEndOverlapCharacterCapsule);
+
+	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
 }
 
 

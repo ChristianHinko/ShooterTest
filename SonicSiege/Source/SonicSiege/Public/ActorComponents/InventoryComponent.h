@@ -21,6 +21,8 @@ class AWeapon;
  *			- Only reason we make a base class is so we can store each item in the FFastArraySerializerItem as a base class object reference (ie. AWeapon* Weapon)
  * 2) Implement a FFastArraySerializerItem and a FFastArraySerializer for this inventory
  *			- Use prefix FASI_ and FAS_
+ *			- Give FFastArraySerializerItem an index if you wan't to maintain order somehow
+ * 3) DO NOT FORGET TO MARK ARRAY DIRTY AND MARK ITEM DIRTY
  */
 #pragma region Fast Array
 USTRUCT()

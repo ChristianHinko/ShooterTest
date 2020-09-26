@@ -61,15 +61,23 @@ int32 UInventoryComponent::AddWeaponToInventory(AWeapon* Weapon)
 }
 bool UInventoryComponent::RemoveWeaponFromInventory(AWeapon* Weapon)
 {
+	bool retVal = false;
+
 	for (int32 i = 0; i < Weapons.Items.Num(); ++i)
 	{
 		if (Weapon == Weapons.Items[i].Weapon)
 		{
+			// The reason we aren't just returning true right here is because this allows it to remove multiple of the same references in the array if there are any
 			Weapons.Items.RemoveAt(i);
-			Weapons.MarkArrayDirty();
-			return true;
+			retVal = true;
 		}
 	}
 
-	return false;
+	// If we removed something, mark the array dirty
+	if (retVal == true)
+	{
+		Weapons.MarkArrayDirty();
+	}
+
+	return retVal;
 }

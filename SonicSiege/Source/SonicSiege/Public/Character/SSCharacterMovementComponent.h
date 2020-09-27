@@ -90,6 +90,10 @@ protected:
 #pragma region Custom Movement Physics
 	virtual void PhysInfiniteAngleWalking(float deltaTime, int32 Iterations);
 #pragma endregion
+
+#pragma region Movement Restrictions
+	uint8 bCanRun : 1;
+#pragma endregion
 };
 
 class FSavedMove_SSCharacter : public FSavedMove_Character

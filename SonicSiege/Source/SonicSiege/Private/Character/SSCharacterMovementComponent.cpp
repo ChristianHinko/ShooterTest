@@ -13,7 +13,7 @@
 
 USSCharacterMovementComponent::USSCharacterMovementComponent()
 {
-	
+	bCanRun = true;
 }
 
 void USSCharacterMovementComponent::InitializeComponent()
@@ -151,7 +151,7 @@ float USSCharacterMovementComponent::GetMaxSpeed() const
 				return 0;
 			}
 
-			if (bWantsToRun)
+			if (bCanRun && bWantsToRun)
 			{
 				return CharacterAttributeSet->GetRunSpeed();
 			}

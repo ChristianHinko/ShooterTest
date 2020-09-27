@@ -42,9 +42,6 @@ class SONICSIEGE_API USSCharacterMovementComponent : public UCharacterMovementCo
 
 public:
 	USSCharacterMovementComponent();
-
-	//	Don't know for sure if this is the best event to use but works for now
-	virtual void InitializeComponent() override;
 	
 	
 	void SetWantsToRun(bool newWantsToRun);
@@ -55,6 +52,9 @@ public:
 
 
 protected:
+	//	Don't know for sure if this is the best event to use but works for now
+	virtual void InitializeComponent() override;
+
 	UPROPERTY()
 		AAbilitySystemCharacter* OwnerAbilitySystemCharacter;
 	UPROPERTY()
@@ -91,7 +91,8 @@ protected:
 	virtual void PhysInfiniteAngleWalking(float deltaTime, int32 Iterations);
 #pragma endregion
 
-	// These bools are intentionally not replicated so that if the client incorrectly has one of them, he will get a correction
+	// These bools are intentionally not replicated and not synced with the client so that if the client incorrectly has one of them, he 
+	// will get a correction
 #pragma region Movement Restrictions
 	void OnCanRunTagChanged(const FGameplayTag Tag, int32 NewCount);
 	uint8 bCanRun : 1;

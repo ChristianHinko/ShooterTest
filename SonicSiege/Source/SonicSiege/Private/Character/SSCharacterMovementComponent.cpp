@@ -32,8 +32,8 @@ void USSCharacterMovementComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
 
-	OwnerSSASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.CanRun"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCanRunTagChanged);
-	
+	//OwnerSSASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.CanRun"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCanRunTagChanged);
+
 	OwnerAbilitySystemCharacter = Cast<AAbilitySystemCharacter>(GetPawnOwner());
 	if (OwnerAbilitySystemCharacter)
 	{
@@ -214,7 +214,7 @@ float USSCharacterMovementComponent::GetMaxAcceleration() const
 			return 0;
 		}
 
-		if (bWantsToRun)
+		if (bCanRun && bWantsToRun)
 		{
 			return CharacterAttributeSet->GetRunAccelaration();
 		}

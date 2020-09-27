@@ -13,7 +13,6 @@
 
 USSCharacterMovementComponent::USSCharacterMovementComponent()
 {
-	OwnerSSASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.CanRun"), EGameplayTagEventType::AnyCountChange).AddUObject(this, &USSCharacterMovementComponent::OnCanRunTagChanged);
 	bCanRun = true;
 }
 
@@ -21,11 +20,11 @@ void USSCharacterMovementComponent::OnCanRunTagChanged(const FGameplayTag Tag, i
 {
 	if (NewCount > 0)	// If CanRun tag present
 	{
-		OnTagAdded.Broadcast(Tag);
+		
 	}
 	else 			    // If CanRun tag not present
 	{
-		OnTagRemoved.Broadcast(Tag);
+		
 	}
 }
 
@@ -33,6 +32,8 @@ void USSCharacterMovementComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
 
+	OwnerSSASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.CanRun"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCanRunTagChanged);
+	
 	OwnerAbilitySystemCharacter = Cast<AAbilitySystemCharacter>(GetPawnOwner());
 	if (OwnerAbilitySystemCharacter)
 	{

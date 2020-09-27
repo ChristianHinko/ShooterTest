@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSGameplayAbility.h"
 
-#include "GA_CharacterRun.generated.h"
+#include "GA_CharacterRunV1.generated.h"
 
 class AAbilitySystemCharacter;
 
@@ -16,12 +16,12 @@ class AAbilitySystemCharacter;
  * This is a nice minimal implementation of the CMC running into the ability system.
  */
 UCLASS()
-class SONICSIEGE_API UGA_CharacterRun : public USSGameplayAbility
+class SONICSIEGE_API UGA_CharacterRunV1 : public USSGameplayAbility
 {
 	GENERATED_BODY()
 
 public:
-	UGA_CharacterRun();
+	UGA_CharacterRunV1();
 
 
 protected:

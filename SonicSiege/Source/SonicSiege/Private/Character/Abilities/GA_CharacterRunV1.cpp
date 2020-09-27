@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/Abilities/GA_CharacterRun.h"
+#include "Character/Abilities/GA_CharacterRunV1.h"
 
 #include "Character/AbilitySystemCharacter.h"
 #include "Character/SSCharacterMovementComponent.h"
@@ -11,7 +11,7 @@
 #include "Character\AS_Character.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-UGA_CharacterRun::UGA_CharacterRun()
+UGA_CharacterRunV1::UGA_CharacterRunV1()
 {
 	TagOutOfStamina = FGameplayTag::RequestGameplayTag(FName("State.Character.OutOfStamina"));
 	
@@ -20,11 +20,11 @@ UGA_CharacterRun::UGA_CharacterRun()
 	
 	ActivationBlockedTags.AddTagFast(TagOutOfStamina);
 	
-	TickTimerDel.BindUObject(this, &UGA_CharacterRun::OnTimerTick);
+	TickTimerDel.BindUObject(this, &UGA_CharacterRunV1::OnTimerTick);
 
 }
 
-bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
+bool UGA_CharacterRunV1::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
 	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 	{
@@ -34,7 +34,7 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 	return true;
 }
 
-void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UGA_CharacterRunV1::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
@@ -86,7 +86,7 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 	CMC->SetWantsToRun(true);
 	RunningEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, RunningEffectTSub.GetDefaultObject(), GetAbilityLevel());
 
-	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterRun::OnRelease);
+	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterRunV1::OnRelease);
 	InputReleasedTask->ReadyForActivation();
 
 	GetWorld()->GetTimerManager().SetTimer(TickTimerHandle, TickTimerDel, 1.f, true, 0.f);
@@ -95,7 +95,7 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 }
 
 //	Somehow we have a valid prediction key here. I guess we don't need a WaitNetSync
-void UGA_CharacterRun::OnTimerTick()
+void UGA_CharacterRunV1::OnTimerTick()
 {
 	if (GASCharacter)
 	{
@@ -122,7 +122,7 @@ void UGA_CharacterRun::OnTimerTick()
 	
 }
 
-void UGA_CharacterRun::OnRelease(float TimeHeld)
+void UGA_CharacterRunV1::OnRelease(float TimeHeld)
 {
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);	// no need to replicate, server runs this too
 }
@@ -150,7 +150,7 @@ void UGA_CharacterRun::OnRelease(float TimeHeld)
 
 
 
-void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void UGA_CharacterRunV1::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	// Super wraps the whole EndAbility() in IsEndAbilityValid()
 	if (!IsEndAbilityValid(Handle, ActorInfo))
@@ -160,7 +160,7 @@ void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 	// Make sure we bind our child class' version of EndAbility() instead of using the Super's version of this part
 	if (ScopeLockCount > 0)
 	{
-		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &UGA_CharacterRun::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
+		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &UGA_CharacterRunV1::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
 		return;
 	}
 
@@ -224,7 +224,7 @@ void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 
 
 
-void UGA_CharacterRun::BeginDestroy()
+void UGA_CharacterRunV1::BeginDestroy()
 {
 	Super::BeginDestroy();
 

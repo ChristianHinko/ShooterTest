@@ -21,11 +21,11 @@ void USSCharacterMovementComponent::OnCanRunTagChanged(const FGameplayTag Tag, i
 {
 	if (NewCount > 0)
 	{
-		OnTagAdded.Broadcast(Tag);
+		bCanRun = true;
 	}
 	else
 	{
-		OnTagRemoved.Broadcast(Tag);
+		bCanRun = false;
 	}
 }
 

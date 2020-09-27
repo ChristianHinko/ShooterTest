@@ -62,8 +62,6 @@ protected:
 	UPROPERTY()
 		UAS_Character* CharacterAttributeSet;
 
-	void OnCanRunTagChanged(const FGameplayTag Tag, int32 NewCount);
-
 	UFUNCTION()
 		virtual void OnOwningCharacterSetupWithAbilitySystemFinished();
 
@@ -95,6 +93,7 @@ protected:
 
 	// These bools are intentionally not replicated so that if the client incorrectly has one of them, he will get a correction
 #pragma region Movement Restrictions
+	void OnCanRunTagChanged(const FGameplayTag Tag, int32 NewCount);
 	uint8 bCanRun : 1;
 #pragma endregion
 };

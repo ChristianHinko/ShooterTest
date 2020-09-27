@@ -67,3 +67,5 @@
 
 - Figure out if we should UPROPERTY major objects or not (garbage collection related)
 - Make sure we have parenthesese after all of our function names in out comments (so that we can peek definition on them - without parentheses peek definition doesn't work)
+
+- Use CanActivateAbility more rather than doing checks in activate ability (if possible) (also look at SS's improved GA_CharacterRun with more checks in CanActivateAbility)

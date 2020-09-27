@@ -54,6 +54,7 @@ public:
 #pragma endregion
 
 
+	void OnCanRunTagChanged(const FGameplayTag Tag, int32 NewCount);
 protected:
 	UPROPERTY()
 		AAbilitySystemCharacter* OwnerAbilitySystemCharacter;
@@ -62,7 +63,6 @@ protected:
 	UPROPERTY()
 		UAS_Character* CharacterAttributeSet;
 
-	void OnCanRunTagChanged(const FGameplayTag Tag, int32 NewCount);
 
 	UFUNCTION()
 		virtual void OnOwningCharacterSetupWithAbilitySystemFinished();

@@ -9,7 +9,6 @@
 #include "Utilities/CollisionChannels.h"
 #include "Camera/CameraComponent.h"
 
-
 ASiegeCharacter::ASiegeCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {

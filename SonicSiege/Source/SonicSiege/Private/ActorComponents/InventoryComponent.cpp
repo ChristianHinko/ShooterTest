@@ -69,10 +69,12 @@ int32 UInventoryComponent::AddWeaponToInventory(AWeapon* Weapon)
 	FFASI_Weapon WeaponItem;
 	WeaponItem.Weapon = Weapon;
 
-	Weapons.Items.Add(WeaponItem);
+	// How we first tried adding
+	Weapons.Items.Add(WeaponItem);	
 	Weapons.MarkArrayDirty();
-	//Weapons.MarkItemDirty(Weapons.Items.Add_GetRef(WeaponItem));
 
+	// Online example way
+	//Weapons.MarkItemDirty(Weapons.Items.Add_GetRef(WeaponItem));
 
 
 	// Come up with how to assign right index before returning

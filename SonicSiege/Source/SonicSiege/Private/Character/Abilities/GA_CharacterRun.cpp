@@ -14,8 +14,6 @@
 UGA_CharacterRun::UGA_CharacterRun()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Run")));
-
-	//ActivationBlockedTags.AddTagFast(TagOutOfStamina);
 }
 
 void UGA_CharacterRun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -73,11 +71,6 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 	if (!CharacterAttributeSet)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterAttributeSet was NULL. Returned false"), *FString(__FUNCTION__));
-		return false;
-	}
-	if (GASCharacter->GetCharacterAttributeSet()->GetStamina() <= 0)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Stamina was <= 0 so can't run. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
 

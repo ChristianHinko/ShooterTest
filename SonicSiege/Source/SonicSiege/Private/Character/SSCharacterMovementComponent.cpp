@@ -13,17 +13,17 @@
 
 USSCharacterMovementComponent::USSCharacterMovementComponent()
 {
-	OwnerSSASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.CanRun"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCanRunTagChanged);
+	OwnerSSASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.CanRun"), EGameplayTagEventType::AnyCountChange).AddUObject(this, &USSCharacterMovementComponent::OnCanRunTagChanged);
 	bCanRun = true;
 }
 
 void USSCharacterMovementComponent::OnCanRunTagChanged(const FGameplayTag Tag, int32 NewCount)
 {
-	if (NewCount > 0)
+	if (NewCount > 0)	// If CanRun tag present
 	{
 		OnTagAdded.Broadcast(Tag);
 	}
-	else
+	else 			    // If CanRun tag not present
 	{
 		OnTagRemoved.Broadcast(Tag);
 	}

@@ -41,7 +41,7 @@ UAS_Character::UAS_Character()
 	MaxStamina(5),
 	Stamina(GetMaxStamina())
 {
-	TagOutOfStamina = FGameplayTag::RequestGameplayTag(FName("State.Character.OutOfStamina"));
+	TagOutOfStamina = FGameplayTag::RequestGameplayTag(FName("Character.State.OutOfStamina"));
 	
 	
 

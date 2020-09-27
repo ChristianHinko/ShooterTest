@@ -92,6 +92,11 @@ protected:
 #pragma region Custom Movement Physics
 	virtual void PhysInfiniteAngleWalking(float deltaTime, int32 Iterations);
 #pragma endregion
+
+	// These bools are intentionally not replicated so that if the client incorrectly has one of them, he will get a correction
+#pragma region Movement Restrictions
+	uint8 bCanRun : 1;
+#pragma endregion
 };
 
 class FSavedMove_SSCharacter : public FSavedMove_Character

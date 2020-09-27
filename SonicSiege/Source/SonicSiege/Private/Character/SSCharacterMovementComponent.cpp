@@ -14,6 +14,7 @@
 USSCharacterMovementComponent::USSCharacterMovementComponent()
 {
 	OwnerSSASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.CanRun"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCanRunTagChanged);
+	bCanRun = true;
 }
 
 void USSCharacterMovementComponent::OnCanRunTagChanged(const FGameplayTag Tag, int32 NewCount)
@@ -163,7 +164,7 @@ float USSCharacterMovementComponent::GetMaxSpeed() const
 				return 0;
 			}
 
-			if (bWantsToRun)
+			if (bCanRun && bWantsToRun)
 			{
 				return CharacterAttributeSet->GetRunSpeed();
 			}

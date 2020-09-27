@@ -9,15 +9,13 @@
 #include "SonicSiege/Private/Utilities/LogCategories.h"
 #include "Character\AbilitySystemCharacter.h"
 #include "Character\AS_Character.h"
-#include "AbilitySystem/AbilityTasks/AT_RepeatAction.h"
-#include "Abilities\Tasks\AbilityTask_NetworkSyncPoint.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 UGA_CharacterRun::UGA_CharacterRun()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Run")));
 
-	ActivationBlockedTags.AddTagFast(TagOutOfStamina);
+	//ActivationBlockedTags.AddTagFast(TagOutOfStamina);
 }
 
 void UGA_CharacterRun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -62,11 +60,6 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 		return false;
 	}
 
-	if (!DrainStaminaFromRunEffectTSub)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Effect TSubclassOf NULL so returned false - please fill out Character Run ability blueprint"), *FString(__FUNCTION__));
-		return false;
-	}
 	if (!CMC)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), *FString(__FUNCTION__));
@@ -115,60 +108,9 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterRun::OnRelease);
 	InputReleasedTask->ReadyForActivation();
 
-	//	Create the interval task so we can decrement our stamina every second
-	UAT_RepeatAction* RepeatActionTask = UAT_RepeatAction::RepeatAction(this, 1, true);
-	if (!RepeatActionTask)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() RepeatActionTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
-		return;
-	}
-	RepeatActionTask->OnPerformAction.AddDynamic(this, &UGA_CharacterRun::OnTimerTick);
-	RepeatActionTask->ReadyForActivation();
-
 	// Both tasks were created successfully. Set to running speed
 	CMC->SetWantsToRun(true);	//	In the case of an activation rollback, EndAbility() will be called which will call CMC->SetWantsToRun(false);
 }
-
-void UGA_CharacterRun::OnTimerTick()
-{
-	// Make a valid prediction key
-	UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
-	WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::DecrementStaminaWithValidPredictionKey);
-	WaitNetSyncTask->ReadyForActivation();
-}
-
-void UGA_CharacterRun::DecrementStaminaWithValidPredictionKey()
-{
-	if (GetAbilitySystemComponentFromActorInfo()->CanPredict())
-	{
-		UKismetSystemLibrary::PrintString(this, "prediction valid");
-	}
-	else
-	{
-		UKismetSystemLibrary::PrintString(this, "prediction INVALID");
-	}
-
-	float staminaCurrentValue = GASCharacter->GetCharacterAttributeSet()->GetStamina();
-	if (staminaCurrentValue > 1)
-	{
-		ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DrainStaminaFromRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
-	}
-	else if (staminaCurrentValue == 1)
-	{
-		ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DrainStaminaFromRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
-	}
-	else if (staminaCurrentValue <= 0)
-	{
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
-	}
-
-
-}
-
-
-
 
 
 
@@ -182,8 +124,6 @@ void UGA_CharacterRun::OnRelease(float TimeHeld)
 
 void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	//GetAbilitySystemComponentFromActorInfo()->FindAbilitySpecFromHandle(Handle)->ActivationInfo.SetActivationRejected();
-	//ActivationInfo.ActivationMode = EGameplayAbilityActivationMode::Rejected;
 	// Super wraps the whole EndAbility() in IsEndAbilityValid()
 	if (!IsEndAbilityValid(Handle, ActorInfo))
 	{

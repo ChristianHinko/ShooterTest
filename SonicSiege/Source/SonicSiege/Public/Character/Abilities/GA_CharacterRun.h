@@ -24,8 +24,6 @@ public:
 
 
 protected:
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<UGameplayEffect> DrainStaminaFromRunEffectTSub;	// asset manager we need you D:
 	UPROPERTY()
 		AAbilitySystemCharacter* GASCharacter;
 	UPROPERTY()
@@ -33,24 +31,19 @@ protected:
 	UPROPERTY()
 		UAS_Character* CharacterAttributeSet;
 
-	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 
 
 	//BEGIN UGameplayAbility Interface
+	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	//END UGameplayAbility Interface
 
-	UFUNCTION()
-		void DecrementStaminaWithValidPredictionKey();
-
 #pragma region Gameplay Tags
-	FGameplayTag TagOutOfStamina;
+
 #pragma endregion
 
-	UFUNCTION()
-		virtual void OnTimerTick();
 	UFUNCTION()
 		virtual void OnRelease(float TimeHeld);
 };

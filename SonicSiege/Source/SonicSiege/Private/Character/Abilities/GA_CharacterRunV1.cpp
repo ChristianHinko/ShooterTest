@@ -16,7 +16,7 @@ UGA_CharacterRunV1::UGA_CharacterRunV1()
 	TagOutOfStamina = FGameplayTag::RequestGameplayTag(FName("State.Character.OutOfStamina"));
 	
 	
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Run")));
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.RunV1")));
 	
 	ActivationBlockedTags.AddTagFast(TagOutOfStamina);
 	

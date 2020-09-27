@@ -11,7 +11,7 @@ UGA_ADS::UGA_ADS()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.ADS")));
 
-	TagAimingDownSights = FGameplayTag::RequestGameplayTag(FName("State.Character.IsAimingDownSights"));
+	TagAimingDownSights = FGameplayTag::RequestGameplayTag(FName("Character.State.IsAimingDownSights"));
 	ActivationOwnedTags.AddTagFast(TagAimingDownSights);
 }
 

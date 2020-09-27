@@ -69,3 +69,7 @@
 - Make sure we have parenthesese after all of our function names in out comments (so that we can peek definition on them - without parentheses peek definition doesn't work)
 
 - Use CanActivateAbility more rather than doing checks in activate ability (if possible) (also look at SS's improved GA_CharacterRun with more checks in CanActivateAbility)
+
+- Change the "State" tags to be sub-categories. The reason for this is because we are going to have a Character category which would make it so that there is a Character category and a State.Character category which is annoying because now you have two character categories
+	- Make State.Character to Character.State
+	- Make State.Player to Player.State

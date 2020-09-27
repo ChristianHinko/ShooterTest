@@ -16,9 +16,9 @@ UGA_StaminaRegen::UGA_StaminaRegen()
 {
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 
-	TagHasMaxStamina = FGameplayTag::RequestGameplayTag(FName("State.Character.HasMaxStamina"));
-	TagIsRunning = FGameplayTag::RequestGameplayTag(FName("State.Character.IsRunning"));
-	TagIsRegeningStamina = FGameplayTag::RequestGameplayTag(FName("State.Character.IsRegeningStamina"));
+	TagHasMaxStamina = FGameplayTag::RequestGameplayTag(FName("Character.State.HasMaxStamina"));
+	TagIsRunning = FGameplayTag::RequestGameplayTag(FName("Character.State.IsRunning"));
+	TagIsRegeningStamina = FGameplayTag::RequestGameplayTag(FName("Character.State.IsRegeningStamina"));
 
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Passive.StaminaRegen")));
 

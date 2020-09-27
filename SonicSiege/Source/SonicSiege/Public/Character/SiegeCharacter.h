@@ -30,7 +30,8 @@ public:
 	IInteractable* CurrentPrioritizedInteractable;
 	IInteractable* LastPrioritizedInteractable;
 
-	UInventoryComponent* Inventory;
+	UPROPERTY(/*Replicated*/)
+		UInventoryComponent* Inventory;
 
 protected:
 

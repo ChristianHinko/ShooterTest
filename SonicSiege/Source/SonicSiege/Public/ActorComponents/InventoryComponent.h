@@ -30,7 +30,7 @@ class AEquipment;
 USTRUCT()
 struct FFASI_Weapon : public FFastArraySerializerItem
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	UPROPERTY()
 		AWeapon* Weapon;
@@ -46,7 +46,7 @@ struct FFASI_Weapon : public FFastArraySerializerItem
 USTRUCT()
 struct FFAS_Weapons : public FFastArraySerializer
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	UPROPERTY()
 		TArray<FFASI_Weapon> Items;
@@ -77,7 +77,7 @@ struct TStructOpsTypeTraits<FFAS_Weapons> : public TStructOpsTypeTraitsBase2<FFA
 USTRUCT()
 struct FFASI_Equipment : public FFastArraySerializerItem
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	UPROPERTY()
 		AEquipment* Equipment;
@@ -93,7 +93,7 @@ struct FFASI_Equipment : public FFastArraySerializerItem
 USTRUCT()
 struct FFAS_Equipments : public FFastArraySerializer
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	UPROPERTY()
 		TArray<FFASI_Equipment> Items;
@@ -138,5 +138,8 @@ protected:
 	UPROPERTY(Replicated)
 		FFAS_Weapons Weapons;
 	FFAS_Equipments Equipments;
+
+
+	//virtual void InitializeComponent() override;
 
 };

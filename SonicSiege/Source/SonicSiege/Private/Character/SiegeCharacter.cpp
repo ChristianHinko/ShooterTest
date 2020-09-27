@@ -3,12 +3,23 @@
 
 #include "Character/SiegeCharacter.h"
 
+//#include "Net/UnrealNetwork.h"
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
 #include "Interfaces/Interactable.h"
 #include "Utilities/CollisionChannels.h"
 #include "Camera/CameraComponent.h"
-#include "ActorComponents\InventoryComponent.h"
+#include "ActorComponents/InventoryComponent.h"
+
+
+
+//void ASiegeCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+//{
+//	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+//
+//
+//	DOREPLIFETIME(ASiegeCharacter, Inventory);
+//}
 
 
 ASiegeCharacter::ASiegeCharacter(const FObjectInitializer& ObjectInitializer)

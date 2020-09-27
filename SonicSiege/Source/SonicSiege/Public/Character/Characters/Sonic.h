@@ -23,6 +23,8 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
+
+	// testing, delete these
 	AWeapon* TestWeapon;
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<AWeapon> MyTestWeapon;

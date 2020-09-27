@@ -50,6 +50,12 @@ UInventoryComponent::UInventoryComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 
 }
+//void UInventoryComponent::InitializeComponent()
+//{
+//	Super::InitializeComponent();
+//
+//	SetIsReplicated(true);
+//}
 
 
 /////////////////////////////////////////////////////////////////////////// UNTESTED AND NEEDS WORK!!!!! \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/

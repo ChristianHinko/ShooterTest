@@ -20,11 +20,11 @@ void USSCharacterMovementComponent::OnCanRunTagChanged(const FGameplayTag Tag, i
 {
 	if (NewCount > 0)	// If CanRun tag present
 	{
-		
+		bCanRun = true;
 	}
 	else 			    // If CanRun tag not present
 	{
-		
+		bCanRun = false;
 	}
 }
 
@@ -211,7 +211,7 @@ float USSCharacterMovementComponent::GetMaxAcceleration() const
 			return 0;
 		}
 
-		if (bWantsToRun)
+		if (bCanRun && bWantsToRun)
 		{
 			return CharacterAttributeSet->GetRunAccelaration();
 		}

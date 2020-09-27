@@ -62,6 +62,8 @@ protected:
 	UPROPERTY()
 		UAS_Character* CharacterAttributeSet;
 
+	void OnCanRunTagChanged(const FGameplayTag Tag, int32 NewCount);
+
 	UFUNCTION()
 		virtual void OnOwningCharacterSetupWithAbilitySystemFinished();
 

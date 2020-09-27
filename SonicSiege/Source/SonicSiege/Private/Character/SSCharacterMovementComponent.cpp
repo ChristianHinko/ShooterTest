@@ -13,7 +13,19 @@
 
 USSCharacterMovementComponent::USSCharacterMovementComponent()
 {
-	
+	OwnerSSASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.CanRun"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCanRunTagChanged);
+}
+
+void USSCharacterMovementComponent::OnCanRunTagChanged(const FGameplayTag Tag, int32 NewCount)
+{
+	if (NewCount > 0)
+	{
+		OnTagAdded.Broadcast(Tag);
+	}
+	else
+	{
+		OnTagRemoved.Broadcast(Tag);
+	}
 }
 
 void USSCharacterMovementComponent::InitializeComponent()

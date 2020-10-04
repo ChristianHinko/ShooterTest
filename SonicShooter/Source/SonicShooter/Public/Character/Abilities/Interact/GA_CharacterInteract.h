@@ -28,7 +28,7 @@ protected:
 	FActiveGameplayEffectHandle InteractEffectActiveHandle;
 
 	UPROPERTY()
-		AShooterCharacter* SiegeCharacter;
+		AShooterCharacter* ShooterCharacter;
 
 	EDurationInteractEndReason InteractEndReason;
 	float timeHeld;

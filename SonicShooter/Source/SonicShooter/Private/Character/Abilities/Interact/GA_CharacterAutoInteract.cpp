@@ -51,8 +51,8 @@ void UGA_CharacterAutoInteract::OnAvatarSet(const FGameplayAbilityActorInfo* Act
 		return;
 	}
 
-	SiegeCharacter = Cast<AShooterCharacter>(ActorInfo->AvatarActor.Get());
-	if (!SiegeCharacter)
+	ShooterCharacter = Cast<AShooterCharacter>(ActorInfo->AvatarActor.Get());
+	if (!ShooterCharacter)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL"), *FString(__FUNCTION__));
 		return;
@@ -72,12 +72,12 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 
 
 
-//if (!SiegeCharacter->CurrentPrioritizedInteractable->GetIsManualDurationInteract() && !SiegeCharacter->CurrentPrioritizedInteractable->GetIsAutomaticDurationInteract())
+//if (!ShooterCharacter->CurrentPrioritizedInteractable->GetIsManualDurationInteract() && !ShooterCharacter->CurrentPrioritizedInteractable->GetIsAutomaticDurationInteract())
 //{
 //	UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetIsManualDurationInteract() returned false"), *FString(__FUNCTION__));
 //	return false;
 //}
-//if (SiegeCharacter->CurrentPrioritizedInteractable->GetIsAutomaticInstantInteract() && SiegeCharacter->CurrentPrioritizedInteractable->GetIsManualInstantInteract())
+//if (ShooterCharacter->CurrentPrioritizedInteractable->GetIsAutomaticInstantInteract() && ShooterCharacter->CurrentPrioritizedInteractable->GetIsManualInstantInteract())
 //{
 //	UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Interactable was set to be both automatic and manual which doesn't make sense. returned false"), *FString(__FUNCTION__));
 //	return false;
@@ -87,7 +87,7 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //void UGA_CharacterInstantInteract::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 //{
 //	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-//	// Valid SiegeCharacter at this point
+//	// Valid ShooterCharacter at this point
 //
 //	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 //	{
@@ -97,17 +97,17 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //
 //	// Handle what we will do if this interactable is an automatic interact on overlap. If there are other interactables like this that we are currently overlaping with,
 //	// we will take care of all of them in one ability (this one) instead of a bunch of ability calls for each one.
-//	if (Interactable->GetIsAutomaticInstantInteract() && Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped && SiegeCharacter->CurrentOverlapInteractablesStack.Num() > 0)
+//	if (Interactable->GetIsAutomaticInstantInteract() && Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped && ShooterCharacter->CurrentOverlapInteractablesStack.Num() > 0)
 //	{
 //		/*if (Interactable->bAllowedInstantInteractActivationCombining)	// Maybe give implementor functionality
 //		{*/
-//		for (int32 i = SiegeCharacter->CurrentOverlapInteractablesStack.Num() - 1; i >= 0; i--)
+//		for (int32 i = ShooterCharacter->CurrentOverlapInteractablesStack.Num() - 1; i >= 0; i--)
 //		{
-//			if (SiegeCharacter->CurrentOverlapInteractablesStack.IsValidIndex(i) && SiegeCharacter->CurrentOverlapInteractablesStack[i])
+//			if (ShooterCharacter->CurrentOverlapInteractablesStack.IsValidIndex(i) && ShooterCharacter->CurrentOverlapInteractablesStack[i])
 //			{
-//				if (SiegeCharacter->CurrentOverlapInteractablesStack[i]->GetIsAutomaticInstantInteract() && Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
+//				if (ShooterCharacter->CurrentOverlapInteractablesStack[i]->GetIsAutomaticInstantInteract() && Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 //				{
-//					SiegeCharacter->CurrentOverlapInteractablesStack[i]->OnInstantInteract(SiegeCharacter);
+//					ShooterCharacter->CurrentOverlapInteractablesStack[i]->OnInstantInteract(ShooterCharacter);
 //				}
 //			}
 //		}
@@ -115,7 +115,7 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //	}
 //	else
 //	{
-//		Interactable->OnInstantInteract(SiegeCharacter);
+//		Interactable->OnInstantInteract(ShooterCharacter);
 //	}
 //
 //
@@ -125,11 +125,11 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //void UGA_CharacterAutoInteract::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 //{
 //	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-//	// Valid SiegeCharacter and Interactable at this point
+//	// Valid ShooterCharacter and Interactable at this point
 //
 //	Interactable->InjectDurationInteractOccurring(true);
 //
-//	UAT_DurationInteractCallbacks* DurationInteractCallbacks = UAT_DurationInteractCallbacks::DurationInteractCallbacks(this, SiegeCharacter, Interactable);
+//	UAT_DurationInteractCallbacks* DurationInteractCallbacks = UAT_DurationInteractCallbacks::DurationInteractCallbacks(this, ShooterCharacter, Interactable);
 //	if (!DurationInteractCallbacks)
 //	{
 //		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DurationInteractCallbacks was NULL when trying to activate an automatic duration interact."), *FString(__FUNCTION__));
@@ -150,7 +150,7 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //		InteractEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, InteractEffectTSub.GetDefaultObject(), GetAbilityLevel());
 //	}
 //
-//	Interactable->OnDurationInteractBegin(SiegeCharacter);
+//	Interactable->OnDurationInteractBegin(ShooterCharacter);
 //}
 
 
@@ -164,7 +164,7 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //void UGA_CharacterAutoInteract::OnInteractTick(float DeltaTime, float TimeHeld)
 //{
 //	timeHeld = TimeHeld;
-//	Interactable->InteractingTick(SiegeCharacter, DeltaTime, TimeHeld);
+//	Interactable->InteractingTick(ShooterCharacter, DeltaTime, TimeHeld);
 //}
 //
 //void UGA_CharacterAutoInteract::OnRelease(float TimeHeld)
@@ -245,7 +245,7 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //		{
 //			if (InteractEndReason == EDurationInteractEndReason::REASON_AbilityCanceled)
 //			{
-//				Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_AbilityCanceled, timeHeld);
+//				Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_AbilityCanceled, timeHeld);
 //			}
 //		}
 //	}
@@ -253,27 +253,27 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //	{
 //		if (InteractEndReason == EDurationInteractEndReason::REASON_InputRelease)
 //		{
-//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_InputRelease, timeHeld);
+//			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_InputRelease, timeHeld);
 //		}
 //		else if (InteractEndReason == EDurationInteractEndReason::REASON_SweepMiss)
 //		{
-//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_SweepMiss, timeHeld);
+//			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_SweepMiss, timeHeld);
 //		}
 //		else if (InteractEndReason == EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap)
 //		{
-//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap, timeHeld);
+//			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap, timeHeld);
 //		}
 //		else if (InteractEndReason == EDurationInteractEndReason::REASON_NewInteractionOverlapPriority)
 //		{
-//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_NewInteractionOverlapPriority, timeHeld);
+//			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_NewInteractionOverlapPriority, timeHeld);
 //		}
 //		else if (InteractEndReason == EDurationInteractEndReason::REASON_SuccessfulInteract)
 //		{
-//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_SuccessfulInteract, timeHeld);
+//			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_SuccessfulInteract, timeHeld);
 //		}
 //		else
 //		{
-//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_Unknown, timeHeld);
+//			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_Unknown, timeHeld);
 //		}
 //	}
 //
@@ -318,7 +318,7 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //		{
 //			if (InteractEndReason == EDurationInteractEndReason::REASON_AbilityCanceled)
 //			{
-//				Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_AbilityCanceled, timeHeld);
+//				Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_AbilityCanceled, timeHeld);
 //			}
 //		}
 //	}
@@ -326,27 +326,27 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //	{
 //		if (InteractEndReason == EDurationInteractEndReason::REASON_InputRelease)
 //		{
-//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_InputRelease, timeHeld);
+//			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_InputRelease, timeHeld);
 //		}
 //		else if (InteractEndReason == EDurationInteractEndReason::REASON_SweepMiss)
 //		{
-//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_SweepMiss, timeHeld);
+//			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_SweepMiss, timeHeld);
 //		}
 //		else if (InteractEndReason == EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap)
 //		{
-//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap, timeHeld);
+//			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap, timeHeld);
 //		}
 //		else if (InteractEndReason == EDurationInteractEndReason::REASON_NewInteractionOverlapPriority)
 //		{
-//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_NewInteractionOverlapPriority, timeHeld);
+//			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_NewInteractionOverlapPriority, timeHeld);
 //		}
 //		else if (InteractEndReason == EDurationInteractEndReason::REASON_SuccessfulInteract)
 //		{
-//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_SuccessfulInteract, timeHeld);
+//			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_SuccessfulInteract, timeHeld);
 //		}
 //		else
 //		{
-//			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_Unknown, timeHeld);
+//			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_Unknown, timeHeld);
 //		}
 //	}
 //

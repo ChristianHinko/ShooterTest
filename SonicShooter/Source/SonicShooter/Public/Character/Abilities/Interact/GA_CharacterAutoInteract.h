@@ -21,7 +21,7 @@ public:
 	UGA_CharacterAutoInteract();
 
 	UPROPERTY()
-		AShooterCharacter* SiegeCharacter;
+		AShooterCharacter* ShooterCharacter;
 
 protected:
 

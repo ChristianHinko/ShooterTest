@@ -7,7 +7,7 @@
 #include "InventoryComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Siege), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Shooter), meta=(BlueprintSpawnableComponent) )
 class SONICSHOOTER_API UInventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()

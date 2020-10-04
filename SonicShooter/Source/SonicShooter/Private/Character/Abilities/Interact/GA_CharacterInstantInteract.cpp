@@ -28,7 +28,7 @@ bool UGA_CharacterInstantInteract::CanActivateAbility(const FGameplayAbilitySpec
 	}
 
 	////////////// Allow the implementer to create custom conditions before we activate (may make this specific to the type of interact) ////////////
-	if (SiegeCharacter->CurrentPrioritizedInteractable->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
+	if (ShooterCharacter->CurrentPrioritizedInteractable->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from IInteractable's implementor"), *FString(__FUNCTION__));
 		return false;
@@ -39,7 +39,7 @@ bool UGA_CharacterInstantInteract::CanActivateAbility(const FGameplayAbilitySpec
 void UGA_CharacterInstantInteract::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	// Valid SiegeCharacter and Interactable at this point
+	// Valid ShooterCharacter and Interactable at this point
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
@@ -47,7 +47,7 @@ void UGA_CharacterInstantInteract::ActivateAbility(const FGameplayAbilitySpecHan
 		return;
 	}
 
-	Interactable->OnInstantInteract(SiegeCharacter);
+	Interactable->OnInstantInteract(ShooterCharacter);
 
 	
 

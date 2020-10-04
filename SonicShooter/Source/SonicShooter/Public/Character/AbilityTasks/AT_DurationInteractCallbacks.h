@@ -37,7 +37,7 @@ public:
 	void RemoveAllDelegates();
 
 	UPROPERTY()
-		AShooterCharacter* SiegeCharacter;
+		AShooterCharacter* ShooterCharacter;
 
 	virtual void TickTask(float DeltaTime) override;
 
@@ -45,7 +45,7 @@ public:
 	void OnPawnLeftOverlapInteractable(IInteractable*& InteractableThePawnLeft);
 
 	/** Start a task that repeats an action or set of actions. */
-	static UAT_DurationInteractCallbacks* DurationInteractCallbacks(UGameplayAbility* OwningAbility, AShooterCharacter* SiegeCharacter, IInteractable*& InInteract);
+	static UAT_DurationInteractCallbacks* DurationInteractCallbacks(UGameplayAbility* OwningAbility, AShooterCharacter* ShooterCharacter, IInteractable*& InInteract);
 
 	void Activate() override;
 

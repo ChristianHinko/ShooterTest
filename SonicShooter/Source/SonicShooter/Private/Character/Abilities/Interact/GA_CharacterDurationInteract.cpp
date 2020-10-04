@@ -29,7 +29,7 @@ bool UGA_CharacterDurationInteract::CanActivateAbility(const FGameplayAbilitySpe
 	}
 
 	////////////// Allow the implementer to create custom conditions before we activate (may make this specific to the type of interact) ////////////
-	if (SiegeCharacter->CurrentPrioritizedInteractable->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
+	if (ShooterCharacter->CurrentPrioritizedInteractable->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from IInteractable's implementor"), *FString(__FUNCTION__));
 		return false;
@@ -40,11 +40,11 @@ bool UGA_CharacterDurationInteract::CanActivateAbility(const FGameplayAbilitySpe
 void UGA_CharacterDurationInteract::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	// Valid SiegeCharacter and Interactable at this point
+	// Valid ShooterCharacter and Interactable at this point
 
 	Interactable->InjectDurationInteractOccurring(true);
 	
-	UAT_DurationInteractCallbacks* DurationInteractCallbacks = UAT_DurationInteractCallbacks::DurationInteractCallbacks(this, SiegeCharacter, Interactable);
+	UAT_DurationInteractCallbacks* DurationInteractCallbacks = UAT_DurationInteractCallbacks::DurationInteractCallbacks(this, ShooterCharacter, Interactable);
 	if (!DurationInteractCallbacks)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DurationInteractCallbacks was NULL when trying to activate InteractDuration ability. May have been because a NULL Character or Interactable reference was passed in. Called CancelAbility()"), *FString(__FUNCTION__));
@@ -75,7 +75,7 @@ void UGA_CharacterDurationInteract::ActivateAbility(const FGameplayAbilitySpecHa
 		InteractEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, InteractEffectTSub.GetDefaultObject(), GetAbilityLevel());
 	}
 
-	Interactable->OnDurationInteractBegin(SiegeCharacter);
+	Interactable->OnDurationInteractBegin(ShooterCharacter);
 }
 
 
@@ -89,7 +89,7 @@ void UGA_CharacterDurationInteract::ActivateAbility(const FGameplayAbilitySpecHa
 void UGA_CharacterDurationInteract::OnInteractTick(float DeltaTime, float TimeHeld)
 {
 	timeHeld = TimeHeld;
-	Interactable->InteractingTick(SiegeCharacter, DeltaTime, TimeHeld);
+	Interactable->InteractingTick(ShooterCharacter, DeltaTime, TimeHeld);
 }
 
 void UGA_CharacterDurationInteract::OnRelease(float TimeHeld)
@@ -186,7 +186,7 @@ void UGA_CharacterDurationInteract::EndAbility(const FGameplayAbilitySpecHandle 
 		{
 			if (InteractEndReason == EDurationInteractEndReason::REASON_AbilityCanceled)
 			{
-				Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_AbilityCanceled, timeHeld);
+				Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_AbilityCanceled, timeHeld);
 			}
 		}
 	}
@@ -194,27 +194,27 @@ void UGA_CharacterDurationInteract::EndAbility(const FGameplayAbilitySpecHandle 
 	{
 		if (InteractEndReason == EDurationInteractEndReason::REASON_InputRelease)
 		{
-			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_InputRelease, timeHeld);
+			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_InputRelease, timeHeld);
 		}
 		else if (InteractEndReason == EDurationInteractEndReason::REASON_SweepMiss)
 		{
-			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_SweepMiss, timeHeld);
+			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_SweepMiss, timeHeld);
 		}
 		else if (InteractEndReason == EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap)
 		{
-			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap, timeHeld);
+			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap, timeHeld);
 		}
 		else if (InteractEndReason == EDurationInteractEndReason::REASON_NewInteractionOverlapPriority)
 		{
-			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_NewInteractionOverlapPriority, timeHeld);
+			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_NewInteractionOverlapPriority, timeHeld);
 		}
 		else if (InteractEndReason == EDurationInteractEndReason::REASON_SuccessfulInteract)
 		{
-			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_SuccessfulInteract, timeHeld);
+			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_SuccessfulInteract, timeHeld);
 		}
 		else
 		{
-			Interactable->OnDurationInteractEnd(SiegeCharacter, EDurationInteractEndReason::REASON_Unknown, timeHeld);
+			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_Unknown, timeHeld);
 		}
 	}
 		

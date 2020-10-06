@@ -73,3 +73,12 @@
 - Change the "State" tags to be sub-categories. The reason for this is because we are going to have a Character category which would make it so that there is a Character category and a State.Character category which is annoying because now you have two character categories
 	- Make State.Character to Character.State
 	- Make State.Player to Player.State
+
+- Add macro fro FLAG_WantsToRun and all necessary custom flags
+- Get rid of forward declaration parameters in cmc
+
+- Get rid of "this oculd be causing the TEnumAsByte warnings" comment in CMC cpp
+
+- Add client rpc system for CMC (that we have in SS) that corrects custom data on the client
+	- Make it adjust bCanRun and stuff
+- Basically copy and paste entire CMC from sonic siege and pick out what you dont want

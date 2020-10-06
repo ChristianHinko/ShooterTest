@@ -22,8 +22,6 @@ void USSCharacterMovementComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
 
-	//OwnerSSASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.CanRun"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCanRunTagChanged);
-
 	OwnerAbilitySystemCharacter = Cast<AAbilitySystemCharacter>(GetPawnOwner());
 	if (OwnerAbilitySystemCharacter)
 	{
@@ -45,14 +43,13 @@ void USSCharacterMovementComponent::OnCanRunTagChanged(const FGameplayTag Tag, i
 
 void USSCharacterMovementComponent::OnOwningCharacterSetupWithAbilitySystemFinished()
 {
-
 	if (OwnerAbilitySystemCharacter)
 	{
 		OwnerSSASC = Cast<USSAbilitySystemComponent>(OwnerAbilitySystemCharacter->GetAbilitySystemComponent());
 		CharacterAttributeSet = OwnerAbilitySystemCharacter->GetCharacterAttributeSet();
 	}
 	
-	
+	OwnerSSASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.CanRun"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCanRunTagChanged);
 }
 
 

@@ -101,16 +101,6 @@ protected:
 		TSubclassOf<USSGameplayAbility> CharacterRunAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle CharacterRunAbilitySpecHandle;
-
-	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
-		TSubclassOf<USSGameplayAbility> InteractInstantAbilityTSub;
-	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle InteractInstantAbilitySpecHandle;
-
-	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
-		TSubclassOf<USSGameplayAbility> InteractDurationAbilityTSub;
-	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle InteractDurationAbilitySpecHandle;
 #pragma endregion
 
 #pragma region Effects

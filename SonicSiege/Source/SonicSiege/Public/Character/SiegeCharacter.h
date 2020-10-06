@@ -8,9 +8,7 @@
 
 class IInteractable;
 class UInventoryComponent;
-
-
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnFrameOverlapStackChangeDelegate, IInteractable*&);
+class UInteractorComponent;
 
 /**
  *
@@ -23,15 +21,22 @@ class SONICSIEGE_API ASiegeCharacter : public AAbilitySystemCharacter
 public:
 	ASiegeCharacter(const FObjectInitializer& ObjectInitializer);
 
-	// Treated as a stack. Not fully a stack because OnEndOverlap of an interactable we allow removing the element from whatever position it may be
-	TArray<IInteractable*> CurrentOverlapInteractablesStack;
-	FOnFrameOverlapStackChangeDelegate OnElementRemovedFromFrameOverlapInteractablesStack;
-
-	IInteractable* CurrentPrioritizedInteractable;
-	IInteractable* LastPrioritizedInteractable;
-
 	UPROPERTY(/*Replicated*/)
 		UInventoryComponent* Inventory;
+	UPROPERTY()
+		UInteractorComponent* Interactor;
+
+#pragma region Abilities
+	UPROPERTY(EditAnywhere, Category = "SiegeCharacterSetup|Abilities")
+		TSubclassOf<USSGameplayAbility> InteractInstantAbilityTSub;
+	UPROPERTY(Replicated)
+		FGameplayAbilitySpecHandle InteractInstantAbilitySpecHandle;
+
+	UPROPERTY(EditAnywhere, Category = "SiegeCharacterSetup|Abilities")
+		TSubclassOf<USSGameplayAbility> InteractDurationAbilityTSub;
+	UPROPERTY(Replicated)
+		FGameplayAbilitySpecHandle InteractDurationAbilitySpecHandle;
+#pragma endregion
 
 protected:
 
@@ -44,18 +49,7 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 	//END AActor Interface
 
-	UPROPERTY(EditAnywhere)
-		float InteractSweepDistance;
-	UPROPERTY(EditAnywhere)
-		float InteractSweepRadius;
-	FHitResult InteractSweepHitResult;
-
-	UFUNCTION()
-		void OnComponentBeginOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	UFUNCTION()
-		void OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-	IInteractable* ScanForCurrentPrioritizedInteractable(FHitResult& OutHit);
+	virtual bool GrantStartingAbilities() override;
 
 #pragma region Input Events
 	virtual void OnInteractPressed() override;

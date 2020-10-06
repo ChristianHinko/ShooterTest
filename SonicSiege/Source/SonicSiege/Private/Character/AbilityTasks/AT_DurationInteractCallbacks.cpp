@@ -5,6 +5,7 @@
 
 #include "Character/SiegeCharacter.h"
 #include "Utilities/LogCategories.h"
+#include "ActorComponents/InteractorComponent.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -41,7 +42,7 @@ void UAT_DurationInteractCallbacks::Activate()
 	ENetRole role = SiegeCharacter->GetLocalRole();
 	if (Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 	{
-		OnPawnLeftOverlapInteractableDelegateHandle = SiegeCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.AddUObject(this, &UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable);
+		OnPawnLeftOverlapInteractableDelegateHandle = SiegeCharacter->Interactor->OnElementRemovedFromFrameOverlapInteractablesStack.AddUObject(this, &UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable);
 	}
 	
 }
@@ -50,18 +51,18 @@ void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 {
 	if (currentTime >= duration)
 	{
-		SiegeCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.Clear();	// Only want 1 end ability callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
+		SiegeCharacter->Interactor->OnElementRemovedFromFrameOverlapInteractablesStack.Clear();	// Only want 1 end ability callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
 		OnSuccessfulInteractDelegate.Broadcast(currentTime);
 		RemoveAllDelegates();
 		return;
 	}
 
-	if (Interactable != SiegeCharacter->CurrentPrioritizedInteractable)
+	if (Interactable != SiegeCharacter->Interactor->CurrentPrioritizedInteractable)
 	{
 		if (Interactable->GetDetectType() == EDetectType::DETECTTYPE_Sweeped)		// If the character's Interaction sweep doesn't detect the same Interactable we started interacting with
 		{
 
-			SiegeCharacter->OnElementRemovedFromFrameOverlapInteractablesStack.Remove(OnPawnLeftOverlapInteractableDelegateHandle);	// Only want 1 end ability callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
+			SiegeCharacter->Interactor->OnElementRemovedFromFrameOverlapInteractablesStack.Remove(OnPawnLeftOverlapInteractableDelegateHandle);	// Only want 1 end ability callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
 			OnInteractionSweepMissDelegate.Broadcast(currentTime);
 			RemoveAllDelegates();
 			return;

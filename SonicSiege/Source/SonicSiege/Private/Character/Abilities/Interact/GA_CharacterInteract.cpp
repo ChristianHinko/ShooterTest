@@ -9,6 +9,7 @@
 #include "Character/AbilitySystemCharacter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "Character\AbilityTasks\AT_DurationInteractCallbacks.h"
+#include "ActorComponents/InteractorComponent.h"
 
 UGA_CharacterInteract::UGA_CharacterInteract()
 {
@@ -45,15 +46,20 @@ bool UGA_CharacterInteract::CanActivateAbility(const FGameplayAbilitySpecHandle 
 	}
 	if (!SiegeCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate duration interact ability"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate interact ability"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (!SiegeCharacter->CurrentPrioritizedInteractable)
+	if (!SiegeCharacter->Interactor)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Detected nothing to interact with when activating interact duration ability. Cancelling"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character's InteractorComponent was NULL when trying to activate interact ability"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (!SiegeCharacter->CurrentPrioritizedInteractable->GetCanCurrentlyBeInteractedWith())
+	if (!SiegeCharacter->Interactor->CurrentPrioritizedInteractable)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Detected nothing to interact with when activating interact ability. Cancelling"), *FString(__FUNCTION__));
+		return false;
+	}
+	if (!SiegeCharacter->Interactor->CurrentPrioritizedInteractable->GetCanCurrentlyBeInteractedWith())
 	{
 		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Couldn't interact because bCanCurrentlyBeInteractedWith was false"), *FString(__FUNCTION__));
 		return false;
@@ -80,7 +86,7 @@ void UGA_CharacterInteract::ActivateAbility(const FGameplayAbilitySpecHandle Han
 		return;
 	}
 
-	Interactable = SiegeCharacter->CurrentPrioritizedInteractable;
+	Interactable = SiegeCharacter->Interactor->CurrentPrioritizedInteractable;
 	if (!Interactable)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Server detected nothing to interact with when activating interact duration ability. This should be an invalid state. Cancelling"), *FString(__FUNCTION__));

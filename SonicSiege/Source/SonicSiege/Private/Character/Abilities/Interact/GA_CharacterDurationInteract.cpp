@@ -9,6 +9,7 @@
 #include "Character/AbilitySystemCharacter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "Character\AbilityTasks\AT_DurationInteractCallbacks.h"
+#include "ActorComponents/InteractorComponent.h"
 
 
 UGA_CharacterDurationInteract::UGA_CharacterDurationInteract()
@@ -29,7 +30,7 @@ bool UGA_CharacterDurationInteract::CanActivateAbility(const FGameplayAbilitySpe
 	}
 
 	////////////// Allow the implementer to create custom conditions before we activate (may make this specific to the type of interact) ////////////
-	if (SiegeCharacter->CurrentPrioritizedInteractable->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
+	if (SiegeCharacter->Interactor->CurrentPrioritizedInteractable->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from IInteractable's implementor"), *FString(__FUNCTION__));
 		return false;

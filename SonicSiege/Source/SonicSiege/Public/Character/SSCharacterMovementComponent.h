@@ -31,6 +31,74 @@ enum ECustomMovementMode																		// should we make this an enum class?
 
 /**
  * Our custom base implementation of the CMC
+ * 
+ *																An overview:
+ * 
+ * 
+ * 
+ * 
+ * 
+ * Movement restrictions:
+ *		- Movement restrictions is a way to expose the CMC for gameplay related code. This is mainly for integration with the Gameplay Ability System.
+ *			- Ex: if a stun grenade hits a character, you would set bCanRun to false for the duration of the stun and
+ *			this would work flawlessly over the network
+ * 
+ *		- All movement restrictions should be correctable by the server (SEE: Custom client adjustment section below).
+ *		
+ * 
+ * 
+ * 
+ * 
+ * Custom client adjustment:
+ *		1) To have custom CMC variables corrected by the server, make your own ClientAdjustPosition unreliable client RPC.
+ *			- Add a parameter for each variable you want the server to correct (a good prefix is "adjusted" for example: bAdjustedCanRun).
+ *			- In your _Implementation, set your correctable CMC variables to their corresponding "adjusted" variables.
+ *				---------------------------------------------------------------------------------------------------
+ *				| Example:
+ *				---------------------------------------------------------------------------------------------------
+ *				|	MyClientAdjustPosition_Implementation(bool bAdjustedCanRun, bool bAdjustedCanJump, float adjustedJumpHeight)
+ *				|	{
+ *  			|		bCanRun = bAdjustedCanRun;
+ *  			|		bCanJump = bAdjustedCanJump;
+ *  			|		jumpHeight = adjustedJumpHeight;
+ *				|	}
+ *				---------------------------------------------------------------------------------------------------
+ * 
+ *		2) Override the ClientAdjustPosition() function
+ *			- NOT THE _IMPLEMENTATION! We want the server to call our RPC not the client.
+ *			- Call the Super, and make it call your client adjust RPC.
+ *			- This is a perfect event to call you custom client adjust RPCs.
+ * 
+ *		- If you have children CMCs and they also want custom client adjustment, they can repeat this process.
+ *			- You may say all of these RPCs are bad and you are correct but the CMC in general is bad, this is the best solution.
+ *				- Ex: if you are 3 levels deep of inheritance witht the CMC, thats 3 client RPCs at once when the client is corrected.
+ * 
+ * 
+ * 
+ * 
+ * 
+ * Integration with GAS:
+ *		- Make heavy use of movement restrictions
+ *			- You probably want a corresponding Gameplay Tag for each movement restriction
+ *			- I would avoid setting the movement restrictions directly
+ *			- Use RegisterGameplayTagEvent with EGameplayTagEventType::NewOrRemoved to have your movement restrictions synced with their gameplay tags
+ * 
+ *		- For movement abilities such as GA_CharacterRun
+ *			- If something goes wrong set the abilities corresponding movement restriction to disable the movement (ex: set bCanRun to false)
+ *				- In CanActivateAbility() whenever you return false, disable the movement
+ *				- In ActivteAbility() anywhere you have CancelAbility(), disable the movement
+ *			- This is an exception to not setting movement restrictions directly		]\]\]][		actually its not maybe use a GE for this
+ *			-				talk about movement restrictions working as rollback			\-\-=\-\-\]-\]-\]\-\-]-\]-\-]\-=]\-=\]-]\-=\]
+ * 
+ * 
+ * 
+ * 
+ *										I realized documenting this is probably a waste of time but its here if you want to finish it:
+ * Steps to make a custom move:
+ *		1) Make a function for activating it (ex: SetWantsToRun)
+ *		2) Make a corresponding compressed movement flag for the move
+ *			- Its good to define a macro representing that flag
+ *		3) 
  */
 UCLASS()
 class SONICSIEGE_API USSCharacterMovementComponent : public UCharacterMovementComponent

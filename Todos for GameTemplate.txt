@@ -82,3 +82,5 @@
 - Add client rpc system for CMC (that we have in SS) that corrects custom data on the client
 	- Make it adjust bCanRun and stuff
 - Basically copy and paste entire CMC from sonic siege and pick out what you dont want
+
+- Rename BlueprintsForTesting to just "testing" or something else

@@ -22,10 +22,13 @@ void UGA_MyAbility::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, cons
 	{
 		return;
 	}
-	if (!ActorInfo->AvatarActor.Get())
+	//AActor* AvatarActor = ActorInfo->AvatarActor.Get();
+	if (!ActorInfo->AvatarActor.Get()/*AvatarActor*/)
 	{
 		return;
 	}
+
+
 
 
 
@@ -40,6 +43,8 @@ bool UGA_MyAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 
 
 
+
+
 	return true;
 }
 
@@ -49,12 +54,15 @@ void UGA_MyAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
 		return;
 	}
 
 
 
+
+
+	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
 }
 
 

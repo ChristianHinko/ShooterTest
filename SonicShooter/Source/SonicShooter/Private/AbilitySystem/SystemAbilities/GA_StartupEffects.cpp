@@ -22,27 +22,24 @@ void UGA_StartupEffects::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo,
 	{
 		return;
 	}
-	if (!ActorInfo->AvatarActor.Get())
+	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
+	if (!AvatarActor)
 	{
 		return;
 	}
-
-	// fix this:
-
-	GASCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
+	
+	GASCharacter = Cast<AAbilitySystemCharacter>(AvatarActor);
 	if (!GASCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL"), *FString(__FUNCTION__));
-		return;
-	}
-
-	GASPawn = Cast<AAbilitySystemPawn>(ActorInfo->AvatarActor.Get());
-	if (!GASPawn)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASPawn was NULL"), *FString(__FUNCTION__));
-		return;
+		GASPawn = Cast<AAbilitySystemPawn>(AvatarActor);
+		if (!GASPawn)
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() failed to cast avatar actor to AAbilitySystemCharacter or AAbilitySystemPawn."), *FString(__FUNCTION__));
+			return;
+		}
 	}
 }
+
 
 bool UGA_StartupEffects::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
@@ -51,9 +48,9 @@ bool UGA_StartupEffects::CanActivateAbility(const FGameplayAbilitySpecHandle Han
 		return false;
 	}
 
-	if (!GASCharacter)
+	if (!GASCharacter && !GASPawn)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() No Character or pawn was found when trying to apply startup effects for the player's new possession. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
 
@@ -70,7 +67,14 @@ void UGA_StartupEffects::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 		return;
 	}
 
+	for (TSubclassOf<UGameplayEffect> EffectTSub : GASCharacter->EffectsToApplyOnStartup)
+	{
+		FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(EffectTSub, GetAbilityLevel());
 
+		ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, EffectSpecHandle);
+	}
+
+	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
 }
 
 
@@ -92,5 +96,4 @@ void UGA_StartupEffects::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-
 }

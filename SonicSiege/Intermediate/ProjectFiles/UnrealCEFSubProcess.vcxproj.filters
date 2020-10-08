@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="..\..\..\..\..\UE4\Engine\Source\Programs\UnrealCEFSubProcess\UnrealCEFSubProcess.Target.cs" />
+    <None Include="..\..\..\..\..\UE4\Engine\Source\Programs\UnrealCEFSubProcess\UnrealCEFSubProcess.Build.cs" />
+    <Filter Include="Private">
+      <UniqueIdentifier>{60056368-0225-4E3F-976D-3F98B053EA72}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\..\..\..\UE4\Engine\Source\Programs\UnrealCEFSubProcess\Private\UnrealCEFSubProcess.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\..\..\UE4\Engine\Source\Programs\UnrealCEFSubProcess\Private\UnrealCEFSubProcess.h">
+      <Filter>Private</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\..\..\..\UE4\Engine\Source\Programs\UnrealCEFSubProcess\Private\UnrealCEFSubProcessApp.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\..\..\UE4\Engine\Source\Programs\UnrealCEFSubProcess\Private\UnrealCEFSubProcessApp.h">
+      <Filter>Private</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\..\..\..\UE4\Engine\Source\Programs\UnrealCEFSubProcess\Private\UnrealCEFSubProcessCallbackRegistry.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\..\..\UE4\Engine\Source\Programs\UnrealCEFSubProcess\Private\UnrealCEFSubProcessCallbackRegistry.h">
+      <Filter>Private</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\..\..\..\UE4\Engine\Source\Programs\UnrealCEFSubProcess\Private\UnrealCEFSubProcessRemoteMethodHandler.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\..\..\UE4\Engine\Source\Programs\UnrealCEFSubProcess\Private\UnrealCEFSubProcessRemoteMethodHandler.h">
+      <Filter>Private</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\..\..\..\UE4\Engine\Source\Programs\UnrealCEFSubProcess\Private\UnrealCEFSubProcessRemoteScripting.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\..\..\UE4\Engine\Source\Programs\UnrealCEFSubProcess\Private\UnrealCEFSubProcessRemoteScripting.h">
+      <Filter>Private</Filter>
+    </ClInclude>
+    <Filter Include="Private\Linux">
+      <UniqueIdentifier>{E4BDAEBF-FF04-44C6-80B6-F55F4A2B7BF8}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\..\..\..\UE4\Engine\Source\Programs\UnrealCEFSubProcess\Private\Linux\UnrealCEFSubProcessLinux.cpp">
+      <Filter>Private\Linux</Filter>
+    </ClCompile>
+    <Filter Include="Private\Mac">
+      <UniqueIdentifier>{E9F1C521-A417-4F0E-8BAD-659050C08D0C}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\..\..\..\UE4\Engine\Source\Programs\UnrealCEFSubProcess\Private\Mac\UnrealCEFSubProcessMac.cpp">
+      <Filter>Private\Mac</Filter>
+    </ClCompile>
+    <Filter Include="Private\Windows">
+      <UniqueIdentifier>{4CAFDA23-73AC-4D27-B661-DF8AA6FFF1C5}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\..\..\..\UE4\Engine\Source\Programs\UnrealCEFSubProcess\Private\Windows\UnrealCEFSubProcessWindows.cpp">
+      <Filter>Private\Windows</Filter>
+    </ClCompile>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{C5E6A2CF-6241-4C5C-BCF0-305363884724}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Mac">
+      <UniqueIdentifier>{6B71DC49-A91D-494E-859C-CABC0AE5D8A6}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\..\..\..\UE4\Engine\Source\Programs\UnrealCEFSubProcess\Resources\Mac\Info.plist">
+      <Filter>Resources\Mac</Filter>
+    </None>
+    <Filter Include="Resources\Windows">
+      <UniqueIdentifier>{C5C83B12-AE9A-4942-815F-2EBE27A2B014}</UniqueIdentifier>
+    </Filter>
+    <Manifest Include="..\..\..\..\..\UE4\Engine\Source\Programs\UnrealCEFSubProcess\Resources\Windows\Debug-UnrealCEFSubProcess-Win32.manifest">
+      <Filter>Resources\Windows</Filter>
+    </Manifest>
+    <Manifest Include="..\..\..\..\..\UE4\Engine\Source\Programs\UnrealCEFSubProcess\Resources\Windows\Debug-UnrealCEFSubProcess-Win64.manifest">
+      <Filter>Resources\Windows</Filter>
+    </Manifest>
+    <Manifest Include="..\..\..\..\..\UE4\Engine\Source\Programs\UnrealCEFSubProcess\Resources\Windows\UnrealCEFSubProcess-Win32.manifest">
+      <Filter>Resources\Windows</Filter>
+    </Manifest>
+    <Manifest Include="..\..\..\..\..\UE4\Engine\Source\Programs\UnrealCEFSubProcess\Resources\Windows\UnrealCEFSubProcess-Win64.manifest">
+      <Filter>Resources\Windows</Filter>
+    </Manifest>
+    <ResourceCompile Include="..\..\..\..\..\UE4\Engine\Source\Programs\UnrealCEFSubProcess\Resources\Windows\UnrealCEFSubProcess.rc">
+      <Filter>Resources\Windows</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

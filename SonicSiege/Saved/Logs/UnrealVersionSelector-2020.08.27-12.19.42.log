@@ -1,0 +1,31 @@
+XXXPlatformFactory.RegisterBuildPlatforms: XXXPlatformSDK using manually installed SDK 1.0.0
+MacPlatformFactory.RegisterBuildPlatforms: UnrealBuildTool.MacPlatformSDK using manually installed SDK
+TVOSPlatformFactory.RegisterBuildPlatforms: UnrealBuildTool.IOSPlatformSDK has no valid SDK
+AndroidPlatformFactory.RegisterBuildPlatforms: UnrealBuildTool.AndroidPlatformSDK has no valid SDK
+HoloLensPlatformFactory.RegisterBuildPlatforms: UnrealBuildTool.HoloLensPlatformSDK using manually installed SDK
+IOSPlatformFactory.RegisterBuildPlatforms: UnrealBuildTool.IOSPlatformSDK has no valid SDK
+LinuxPlatformFactory.RegisterBuildPlatforms: UnrealBuildTool.LinuxPlatformSDK has no valid SDK
+LuminSDKVersionHelper.HasAnySDK: *** Unable to determine MLSDK location ***
+LuminSDKVersionHelper.HasAnySDK: *** Unable to determine MLSDK location ***
+LuminPlatformFactory.RegisterBuildPlatforms: UnrealBuildTool.LuminPlatformSDK has no valid SDK
+WindowsPlatformFactory.RegisterBuildPlatforms: UnrealBuildTool.WindowsPlatformSDK using manually installed SDK
+ProjectFileGenerator.GenerateProjectFiles: Discovering modules, targets and source code for project...
+WindowsPlatform.FindVSInstallDirs: Found Visual Studio installation: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community (Product=Microsoft.VisualStudio.Product.Community, Version=16.6.30204.135, Sort=0)
+WindowsPlatform.FindToolChainDirs: Found Visual Studio toolchain: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.20.27508 (Version=14.20.27519)
+WindowsPlatform.FindToolChainDirs: Found Visual Studio toolchain: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.22.27905 (Version=14.22.27906)
+WindowsPlatform.FindToolChainDirs: Found Visual Studio toolchain: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.24.28314 (Version=14.24.28314)
+WindowsPlatform.FindToolChainDirs: Found Visual Studio toolchain: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.25.28610 (Version=14.25.28610)
+WindowsPlatform.FindToolChainDirs: Found Visual Studio toolchain: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.26.28801 (Version=14.26.28806)
+WindowsPlatform.UpdateCachedWindowsSdks: Found Windows 8.1 SDK at C:\Program Files (x86)\Windows Kits\8.1
+WindowsPlatform.EnumerateSdkRootDirs: Found Windows 10 SDK root at C:\Program Files (x86)\Windows Kits\10 (1)
+WindowsPlatform.EnumerateSdkRootDirs: Found Windows 10 SDK root at C:\Program Files (x86)\Windows Kits\10 (2)
+WindowsPlatform.UpdateCachedWindowsSdks: Found Windows 10 SDK version 10.0.16299.0 at C:\Program Files (x86)\Windows Kits\10
+WindowsPlatform.UpdateCachedWindowsSdks: Found Universal CRT version 10.0.16299.0 at C:\Program Files (x86)\Windows Kits\10
+WindowsPlatform.UpdateCachedWindowsSdks: Found Windows 10 SDK version 10.0.17134.0 at C:\Program Files (x86)\Windows Kits\10
+WindowsPlatform.UpdateCachedWindowsSdks: Found Universal CRT version 10.0.17134.0 at C:\Program Files (x86)\Windows Kits\10
+WindowsPlatform.UpdateCachedWindowsSdks: Found Windows 10 SDK version 10.0.17763.0 at C:\Program Files (x86)\Windows Kits\10
+WindowsPlatform.UpdateCachedWindowsSdks: Found Universal CRT version 10.0.17763.0 at C:\Program Files (x86)\Windows Kits\10
+WindowsPlatform.UpdateCachedWindowsSdks: Found Windows 10 SDK version 10.0.18362.0 at C:\Program Files (x86)\Windows Kits\10
+WindowsPlatform.UpdateCachedWindowsSdks: Found Universal CRT version 10.0.18362.0 at C:\Program Files (x86)\Windows Kits\10
+WindowsPlatform.UpdateCachedWindowsSdks: Found Windows 10 SDK version 10.0.19041.0 at C:\Program Files (x86)\Windows Kits\10
+WindowsPlatform.UpdateCachedWindowsSdks: Found Universal CRT version 10.0.19041.0 at C:\Program Files (x86)\Windows Kits\10

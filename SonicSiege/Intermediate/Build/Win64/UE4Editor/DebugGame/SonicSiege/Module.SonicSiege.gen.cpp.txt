@@ -1,0 +1,270 @@
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\DebugGame\SonicSiege\Definitions.SonicSiege.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/AbilitySystemActor.gen.cpp
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\CoreUObject\Public\UObject/GeneratedCppIncludes.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\CoreUObject\Public\UObject/MetaData.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Actor/AbilitySystemActor.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege\Public\Actor/SSActor.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\SSActor.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\AbilitySystemInterface.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Intermediate\Build\Win64\UE4Editor\Inc\GameplayAbilities\AbilitySystemInterface.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege\Public\AbilitySystem/SSAbilitySystemComponent.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\AbilitySystemComponent.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\GameplayTags\Classes\GameplayTagContainer.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\GameplayTags\GameplayTagContainer.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\AttributeSet.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\Engine/CurveTable.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\Curves/SimpleCurve.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\SimpleCurve.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\CurveTable.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\Engine/DataTable.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Public\DataTableUtils.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\DataTable.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Intermediate\Build\Win64\UE4Editor\Inc\GameplayAbilities\AttributeSet.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\GameplayEffectTypes.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\PhysicalMaterials/PhysicalMaterial.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\Vehicles/TireType.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\TireType.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\PhysicsEngine/PhysicsSettingsEnums.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\PhysicsSettingsEnums.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\PhysicalMaterial.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\AbilitySystemLog.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Public\VisualLogger/VisualLogger.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Public\VisualLogger/VisualLoggerTypes.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Intermediate\Build\Win64\UE4Editor\Inc\GameplayAbilities\GameplayEffectTypes.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\GameplayPrediction.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Intermediate\Build\Win64\UE4Editor\Inc\GameplayAbilities\GameplayPrediction.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\GameplayCueInterface.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Intermediate\Build\Win64\UE4Editor\Inc\GameplayAbilities\GameplayCueInterface.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\GameplayTags\Classes\GameplayTagAssetInterface.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\GameplayTags\GameplayTagAssetInterface.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\GameplayAbilitySpec.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Intermediate\Build\Win64\UE4Editor\Inc\GameplayAbilities\GameplayAbilitySpec.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\GameplayEffect.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\GameplayEffectAggregator.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\ActiveGameplayEffectIterator.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Intermediate\Build\Win64\UE4Editor\Inc\GameplayAbilities\GameplayEffect.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\Abilities/GameplayAbilityTypes.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\Abilities/GameplayAbilityTargetTypes.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Intermediate\Build\Win64\UE4Editor\Inc\GameplayAbilities\GameplayAbilityTargetTypes.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Intermediate\Build\Win64\UE4Editor\Inc\GameplayAbilities\GameplayAbilityTypes.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\GameplayTasks\Classes\GameplayTasksComponent.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\GameplayTasks\Classes\GameplayTaskOwnerInterface.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\GameplayTasks\Public\GameplayTaskTypes.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\GameplayTasks\GameplayTaskOwnerInterface.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\GameplayTasks\Classes\GameplayTask.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\CoreUObject\Public\UObject/WeakInterfacePtr.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\GameplayTasks\GameplayTask.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\GameplayTasks\Classes\GameplayTaskResource.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\GameplayTasks\GameplayTaskResource.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\GameplayTasks\GameplayTasksComponent.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\Abilities/GameplayAbility.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Intermediate\Build\Win64\UE4Editor\Inc\GameplayAbilities\GameplayAbility.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\AbilitySystemReplicationProxyInterface.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Intermediate\Build\Win64\UE4Editor\Inc\GameplayAbilities\AbilitySystemReplicationProxyInterface.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Intermediate\Build\Win64\UE4Editor\Inc\GameplayAbilities\AbilitySystemComponent.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\SSAbilitySystemComponent.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\AbilitySystemActor.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/AbilitySystemCharacter.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Character/AbilitySystemCharacter.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege\Public\Character/SSCharacter.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\GameFramework/Character.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\GameFramework/RootMotionSource.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\RootMotionSource.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\Character.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\SSCharacter.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\AbilitySystemCharacter.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/AbilitySystemPawn.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Pawn/AbilitySystemPawn.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege\Public\Pawn/SSPawn.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\SSPawn.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\AbilitySystemPawn.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/AS_Actor.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Actor/AS_Actor.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege\Public\AbilitySystem/SSAttributeSet.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\SSAttributeSet.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\AS_Actor.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/AS_Character.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Character/AS_Character.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\AS_Character.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/AS_ExampleAbilitySystemCharacter.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Character/Characters/ExampleAbilitySystemCharacter/AS_ExampleAbilitySystemCharacter.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\AS_ExampleAbilitySystemCharacter.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/AS_Health.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Actor/AS_Health.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\AS_Health.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/AS_Pawn.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Pawn/AS_Pawn.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\AS_Pawn.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/AS_PlayerState.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Player/AS_PlayerState.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\AS_PlayerState.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/AS_Weapon.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Actor/Item/Weapon/AS_Weapon.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\AS_Weapon.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/AT_DurationInteractCallbacks.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Character/AbilityTasks/AT_DurationInteractCallbacks.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege\Public\AbilitySystem/SSAbilityTask.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\Abilities/Tasks/AbilityTask.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Intermediate\Build\Win64\UE4Editor\Inc\GameplayAbilities\AbilityTask.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\SSAbilityTask.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege\Public\Interfaces/Interactable.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege\Public\AbilitySystem/SSGameplayAbility.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\SSGameplayAbility.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\Interactable.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\AT_DurationInteractCallbacks.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/AT_PlayMontageAndWaitForEvent.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Character/AbilityTasks/AT_PlayMontageAndWaitForEvent.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\AT_PlayMontageAndWaitForEvent.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/AT_RepeatAction.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/AbilitySystem/AbilityTasks/AT_RepeatAction.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\AT_RepeatAction.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/AT_StaminaRegen.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Character/AbilityTasks/AT_StaminaRegen.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\AT_StaminaRegen.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/AT_Ticker.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/AbilitySystem/AbilityTasks/AT_Ticker.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\AT_Ticker.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/BAA_AttributeChanged.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/AbilitySystem/AsyncListeners/BAA_AttributeChanged.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\Kismet/BlueprintAsyncActionBase.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\BlueprintAsyncActionBase.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\BAA_AttributeChanged.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/BAA_CooldownChanged.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/AbilitySystem/AsyncListeners/BAA_CooldownChanged.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\BAA_CooldownChanged.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/BAA_EffectStackChanged.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/AbilitySystem/AsyncListeners/BAA_EffectStackChanged.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\BAA_EffectStackChanged.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/BAA_GameplayTagAddedRemoved.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/AbilitySystem/AsyncListeners/BAA_GameplayTagAddedRemoved.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\BAA_GameplayTagAddedRemoved.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/ExampleAbilitySystemCharacter.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Character/Characters/ExampleAbilitySystemCharacter/ExampleAbilitySystemCharacter.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\ExampleAbilitySystemCharacter.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/GA_ADS.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Actor/Item/Weapon/Abilities/GA_ADS.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\GA_ADS.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/GA_CharacterAutoInteract.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Character/Abilities/Interact/GA_CharacterAutoInteract.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\GA_CharacterAutoInteract.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/GA_CharacterDurationInteract.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Character/Abilities/Interact/GA_CharacterDurationInteract.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege\Public\Character\Abilities\Interact\GA_CharacterInteract.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\GA_CharacterInteract.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\GA_CharacterDurationInteract.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/GA_CharacterInstantInteract.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Character/Abilities/Interact/GA_CharacterInstantInteract.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\GA_CharacterInstantInteract.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/GA_CharacterInteract.gen.cpp
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/GA_CharacterJump.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Character/Abilities/GA_CharacterJump.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\GA_CharacterJump.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/GA_CharacterJumpStatic.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Character/Abilities/GA_CharacterJumpStatic.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\GA_CharacterJumpStatic.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/GA_CharacterRun.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Character/Abilities/GA_CharacterRun.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\GA_CharacterRun.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/GA_CharacterRunV1.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Character/Abilities/GA_CharacterRunV1.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\GA_CharacterRunV1.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/GA_CharacterRunV2.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Character/Abilities/GA_CharacterRunV2.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\GA_CharacterRunV2.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/GA_Fire.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Actor/Item/Weapon/Abilities/GA_Fire.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\GA_Fire.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/GA_StaminaRegen.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Character/PassiveAbilities/GA_StaminaRegen.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\GA_StaminaRegen.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/GATA_BulletTrace.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/AbilitySystem/TargetActor/TargetActors/GATA_BulletTrace.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege\Public\AbilitySystem/TargetActor/TargetActors/GATA_Trace.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\Abilities/GameplayAbilityTargetActor.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\Abilities/GameplayAbilityWorldReticle.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Intermediate\Build\Win64\UE4Editor\Inc\GameplayAbilities\GameplayAbilityWorldReticle.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\Abilities/GameplayAbilityTargetDataFilter.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Intermediate\Build\Win64\UE4Editor\Inc\GameplayAbilities\GameplayAbilityTargetDataFilter.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Intermediate\Build\Win64\UE4Editor\Inc\GameplayAbilities\GameplayAbilityTargetActor.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege\Public\AbilitySystem/TargetActor/GATDF_MultiFilter.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\GATDF_MultiFilter.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\GATA_Trace.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\GATA_BulletTrace.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/GATA_Trace.gen.cpp
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/GATDF_MultiFilter.gen.cpp
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/Interactable.gen.cpp
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/InventoryComponent.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Actor/Item/InventoryComponent.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\InventoryComponent.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/Item.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Actor/Item/Item.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\Item.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/SiegeCharacter.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Character/SiegeCharacter.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\SiegeCharacter.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/Sonic.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Character/Characters/Sonic.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\Sonic.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/SonicSiege.init.gen.cpp
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/SSAbilitySystemBlueprintLibrary.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/AbilitySystem/SSAbilitySystemBlueprintLibrary.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\AbilitySystemBlueprintLibrary.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Plugins\Runtime\GameplayAbilities\Intermediate\Build\Win64\UE4Editor\Inc\GameplayAbilities\AbilitySystemBlueprintLibrary.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\SSAbilitySystemBlueprintLibrary.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/SSAbilitySystemComponent.gen.cpp
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/SSAbilityTask.gen.cpp
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/SSActor.gen.cpp
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/SSAttributeSet.gen.cpp
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/SSCharacter.gen.cpp
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/SSCharacterMovementComponent.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Character/SSCharacterMovementComponent.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\GameFramework/CharacterMovementComponent.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\AI/Navigation/NavigationAvoidanceTypes.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\NavigationAvoidanceTypes.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Public\AI/RVOAvoidanceInterface.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\RVOAvoidanceInterface.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\GameFramework/PawnMovementComponent.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\GameFramework/NavMovementComponent.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\AI/Navigation/PathFollowingAgentInterface.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\PathFollowingAgentInterface.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\GameFramework/MovementComponent.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\MovementComponent.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\NavMovementComponent.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\PawnMovementComponent.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\Interfaces/NetworkPredictionInterface.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\NetworkPredictionInterface.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\CharacterMovementComponent.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\SSCharacterMovementComponent.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/SSEngineSubsystem.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Engine/SSEngineSubsystem.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\SSEngineSubsystem.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/SSGameMode.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Game/SSGameMode.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\GameFramework/GameMode.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\GameFramework/GameModeBase.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\Engine/ServerStatReplicator.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\ServerStatReplicator.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\GameModeBase.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\GameMode.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\SSGameMode.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/SSGameplayAbility.gen.cpp
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/SSHUD.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/UI/SSHUD.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\GameFramework/HUD.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\GameFramework/HUDHitBox.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\GameFramework/DebugTextInfo.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\DebugTextInfo.generated.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\HUD.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\SSHUD.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/SSPawn.gen.cpp
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/SSPlayerController.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Player/SSPlayerController.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege\Public\Player\SSPlayerState.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Source\Runtime\Engine\Classes\GameFramework/PlayerState.h
+C:\Users\Christian Hinkle\Documents\UE4\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\PlayerState.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\SSPlayerState.generated.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\SSPlayerController.generated.h
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/SSPlayerState.gen.cpp
+C:/Users/Christian Hinkle/Documents/Unreal Projects/SonicSiege/SonicSiege/Intermediate/Build/Win64/UE4Editor/Inc/SonicSiege/Weapon.gen.cpp
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Source\SonicSiege/Public/Actor/Item/Weapon/Weapon.h
+C:\Users\Christian Hinkle\Documents\Unreal Projects\SonicSiege\SonicSiege\Intermediate\Build\Win64\UE4Editor\Inc\SonicSiege\Weapon.generated.h

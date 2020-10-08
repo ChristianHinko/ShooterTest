@@ -1,0 +1,538 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="..\..\SonicSiege.uproject" />
+    <Filter Include="Source">
+      <UniqueIdentifier>{3D3A4935-AB98-4B25-8F7F-C293589A1973}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\SonicSiege.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <None Include="..\..\Source\SonicSiegeEditor.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <None Include="..\..\Source\SonicSiegeServer.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <None Include="..\..\.gitignore" />
+    <Filter Include="Config">
+      <UniqueIdentifier>{83AD521F-DAE7-411F-9412-1E0B2F948532}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Config\DefaultEditor.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultEngine.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultGame.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultGameplayTags.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultInput.ini">
+      <Filter>Config</Filter>
+    </None>
+    <Filter Include="Source\SonicSiege">
+      <UniqueIdentifier>{4510BC0B-3B84-48BD-A4F7-41595E13C14D}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\SonicSiege\SonicSiege.Build.cs">
+      <Filter>Source\SonicSiege</Filter>
+    </None>
+    <Filter Include="Source\SonicSiege\Private">
+      <UniqueIdentifier>{7A671FF5-EB4B-4722-A5B2-AD4141DF0E43}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\SonicSiege.cpp">
+      <Filter>Source\SonicSiege\Private</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\AbilitySystem">
+      <UniqueIdentifier>{E512B3BE-51AF-4D52-AB2C-D276113D70C1}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\AbilitySystem\SSAbilitySystemBlueprintLibrary.cpp">
+      <Filter>Source\SonicSiege\Private\AbilitySystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\AbilitySystem\SSAbilitySystemComponent.cpp">
+      <Filter>Source\SonicSiege\Private\AbilitySystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\AbilitySystem\SSAbilityTask.cpp">
+      <Filter>Source\SonicSiege\Private\AbilitySystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\AbilitySystem\SSAttributeSet.cpp">
+      <Filter>Source\SonicSiege\Private\AbilitySystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\AbilitySystem\SSGameplayAbility.cpp">
+      <Filter>Source\SonicSiege\Private\AbilitySystem</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\AbilitySystem\AbilityTasks">
+      <UniqueIdentifier>{48F3C735-FBAE-44C9-BE79-2BBF3B08C5D1}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\AbilitySystem\AbilityTasks\AT_RepeatAction.cpp">
+      <Filter>Source\SonicSiege\Private\AbilitySystem\AbilityTasks</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\AbilitySystem\AbilityTasks\AT_Ticker.cpp">
+      <Filter>Source\SonicSiege\Private\AbilitySystem\AbilityTasks</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\AbilitySystem\AsyncListeners">
+      <UniqueIdentifier>{CA01187D-529F-4C30-A8BF-48FCA5F0350A}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\AbilitySystem\AsyncListeners\BAA_AttributeChanged.cpp">
+      <Filter>Source\SonicSiege\Private\AbilitySystem\AsyncListeners</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\AbilitySystem\AsyncListeners\BAA_CooldownChanged.cpp">
+      <Filter>Source\SonicSiege\Private\AbilitySystem\AsyncListeners</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\AbilitySystem\AsyncListeners\BAA_EffectStackChanged.cpp">
+      <Filter>Source\SonicSiege\Private\AbilitySystem\AsyncListeners</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\AbilitySystem\AsyncListeners\BAA_GameplayTagAddedRemoved.cpp">
+      <Filter>Source\SonicSiege\Private\AbilitySystem\AsyncListeners</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\AbilitySystem\TargetActor">
+      <UniqueIdentifier>{78553A35-078A-4FC3-A6DB-563B5C01CF41}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\AbilitySystem\TargetActor\GATDF_MultiFilter.cpp">
+      <Filter>Source\SonicSiege\Private\AbilitySystem\TargetActor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\AbilitySystem\TargetActor\SSGameplayAbilityTargetActor.cpp">
+      <Filter>Source\SonicSiege\Private\AbilitySystem\TargetActor</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\AbilitySystem\TargetActor\TargetActors">
+      <UniqueIdentifier>{52C0E851-1E21-4FDE-85CA-24992C4D7172}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\AbilitySystem\TargetActor\TargetActors\GATA_BulletTrace.cpp">
+      <Filter>Source\SonicSiege\Private\AbilitySystem\TargetActor\TargetActors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\AbilitySystem\TargetActor\TargetActors\GATA_Trace.cpp">
+      <Filter>Source\SonicSiege\Private\AbilitySystem\TargetActor\TargetActors</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\Actor">
+      <UniqueIdentifier>{3051FEF3-8F14-48B5-8BEA-6815A6EFC9A0}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Actor\AbilitySystemActor.cpp">
+      <Filter>Source\SonicSiege\Private\Actor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Actor\AS_Actor.cpp">
+      <Filter>Source\SonicSiege\Private\Actor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Actor\AS_Health.cpp">
+      <Filter>Source\SonicSiege\Private\Actor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Actor\SSActor.cpp">
+      <Filter>Source\SonicSiege\Private\Actor</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\Actor\Item">
+      <UniqueIdentifier>{90FC73E7-B1A0-4DC2-BB46-B2B0C39C5188}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Actor\Item\InventoryComponent.cpp">
+      <Filter>Source\SonicSiege\Private\Actor\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Actor\Item\Item.cpp">
+      <Filter>Source\SonicSiege\Private\Actor\Item</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\Actor\Item\Weapon">
+      <UniqueIdentifier>{CD974FF6-50F3-402A-B8EF-25B53BA865BD}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Actor\Item\Weapon\AS_Weapon.cpp">
+      <Filter>Source\SonicSiege\Private\Actor\Item\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Actor\Item\Weapon\Weapon.cpp">
+      <Filter>Source\SonicSiege\Private\Actor\Item\Weapon</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\Actor\Item\Weapon\Abilities">
+      <UniqueIdentifier>{526C2618-6D9E-43EC-B063-814D42531EEC}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Actor\Item\Weapon\Abilities\GA_ADS.cpp">
+      <Filter>Source\SonicSiege\Private\Actor\Item\Weapon\Abilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Actor\Item\Weapon\Abilities\GA_Fire.cpp">
+      <Filter>Source\SonicSiege\Private\Actor\Item\Weapon\Abilities</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\Character">
+      <UniqueIdentifier>{89B00772-ED35-4D77-B505-6C843A7CB37A}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Character\AbilitySystemCharacter.cpp">
+      <Filter>Source\SonicSiege\Private\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Character\AS_Character.cpp">
+      <Filter>Source\SonicSiege\Private\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Character\SiegeCharacter.cpp">
+      <Filter>Source\SonicSiege\Private\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Character\SSCharacter.cpp">
+      <Filter>Source\SonicSiege\Private\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Character\SSCharacterMovementComponent.cpp">
+      <Filter>Source\SonicSiege\Private\Character</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\Character\Abilities">
+      <UniqueIdentifier>{517E2E19-DBEB-4C74-B840-8C76AAFB5BA4}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Character\Abilities\GA_CharacterJump.cpp">
+      <Filter>Source\SonicSiege\Private\Character\Abilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Character\Abilities\GA_CharacterJumpStatic.cpp">
+      <Filter>Source\SonicSiege\Private\Character\Abilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Character\Abilities\GA_CharacterRun.cpp">
+      <Filter>Source\SonicSiege\Private\Character\Abilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Character\Abilities\GA_CharacterRunV1.cpp">
+      <Filter>Source\SonicSiege\Private\Character\Abilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Character\Abilities\GA_CharacterRunV2.cpp">
+      <Filter>Source\SonicSiege\Private\Character\Abilities</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\Character\Abilities\Interact">
+      <UniqueIdentifier>{8F3332F1-F636-4D5A-9F5A-126C8EE911AE}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Character\Abilities\Interact\GA_CharacterAutoInteract.cpp">
+      <Filter>Source\SonicSiege\Private\Character\Abilities\Interact</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Character\Abilities\Interact\GA_CharacterDurationInteract.cpp">
+      <Filter>Source\SonicSiege\Private\Character\Abilities\Interact</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Character\Abilities\Interact\GA_CharacterInstantInteract.cpp">
+      <Filter>Source\SonicSiege\Private\Character\Abilities\Interact</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Character\Abilities\Interact\GA_CharacterInteract.cpp">
+      <Filter>Source\SonicSiege\Private\Character\Abilities\Interact</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\Character\AbilityTasks">
+      <UniqueIdentifier>{1ECC42B7-1E54-49C1-AEC0-638CC3CDD7BC}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Character\AbilityTasks\AT_DurationInteractCallbacks.cpp">
+      <Filter>Source\SonicSiege\Private\Character\AbilityTasks</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Character\AbilityTasks\AT_PlayMontageAndWaitForEvent.cpp">
+      <Filter>Source\SonicSiege\Private\Character\AbilityTasks</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Character\AbilityTasks\AT_StaminaRegen.cpp">
+      <Filter>Source\SonicSiege\Private\Character\AbilityTasks</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\Character\Characters">
+      <UniqueIdentifier>{CFB6002C-CFB9-456E-AABB-88E7E382C29E}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Character\Characters\Sonic.cpp">
+      <Filter>Source\SonicSiege\Private\Character\Characters</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\Character\Characters\ExampleAbilitySystemCharacter">
+      <UniqueIdentifier>{FF69D87B-EC72-4328-96FC-C7FF3443F3F3}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Character\Characters\ExampleAbilitySystemCharacter\AS_ExampleAbilitySystemCharacter.cpp">
+      <Filter>Source\SonicSiege\Private\Character\Characters\ExampleAbilitySystemCharacter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Character\Characters\ExampleAbilitySystemCharacter\ExampleAbilitySystemCharacter.cpp">
+      <Filter>Source\SonicSiege\Private\Character\Characters\ExampleAbilitySystemCharacter</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\Character\PassiveAbilities">
+      <UniqueIdentifier>{1CE3892F-F50F-4405-B187-9F2C56CAD706}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Character\PassiveAbilities\GA_StaminaRegen.cpp">
+      <Filter>Source\SonicSiege\Private\Character\PassiveAbilities</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\Engine">
+      <UniqueIdentifier>{88B8CD1D-0AFF-410B-977D-836B152F269F}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Engine\SSEngineSubsystem.cpp">
+      <Filter>Source\SonicSiege\Private\Engine</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\Game">
+      <UniqueIdentifier>{A02B1B93-1C25-4666-B3D3-CEAE162CDFC9}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Game\SSGameMode.cpp">
+      <Filter>Source\SonicSiege\Private\Game</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\Interfaces">
+      <UniqueIdentifier>{39890733-C4DB-48EA-81DF-AC52F85FDD82}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Interfaces\Interactable.cpp">
+      <Filter>Source\SonicSiege\Private\Interfaces</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\Pawn">
+      <UniqueIdentifier>{B78A17F4-66F4-4835-934B-E6C2B4B5BB15}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Pawn\AbilitySystemPawn.cpp">
+      <Filter>Source\SonicSiege\Private\Pawn</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Pawn\AS_Pawn.cpp">
+      <Filter>Source\SonicSiege\Private\Pawn</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Pawn\SSPawn.cpp">
+      <Filter>Source\SonicSiege\Private\Pawn</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\Player">
+      <UniqueIdentifier>{09948275-B4D8-47F1-AC3B-FEB5AA1ED709}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Player\AS_PlayerState.cpp">
+      <Filter>Source\SonicSiege\Private\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Player\SSPlayerController.cpp">
+      <Filter>Source\SonicSiege\Private\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Player\SSPlayerState.cpp">
+      <Filter>Source\SonicSiege\Private\Player</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\UI">
+      <UniqueIdentifier>{6898B2B8-3A03-47C1-93E0-B15B31635419}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\UI\SSHUD.cpp">
+      <Filter>Source\SonicSiege\Private\UI</Filter>
+    </ClCompile>
+    <Filter Include="Source\SonicSiege\Private\Utilities">
+      <UniqueIdentifier>{C44FD6D8-0108-4E8F-A232-2A3A39264A2F}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SonicSiege\Private\Utilities\LogCategories.cpp">
+      <Filter>Source\SonicSiege\Private\Utilities</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\SonicSiege\Private\Utilities\LogCategories.h">
+      <Filter>Source\SonicSiege\Private\Utilities</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public">
+      <UniqueIdentifier>{74E70D67-9AEB-43F1-99C0-2702B07687A0}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\SonicSiege.h">
+      <Filter>Source\SonicSiege\Public</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\AbilitySystem">
+      <UniqueIdentifier>{BCD3E547-8E74-41C4-8A07-118741A1E82D}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\AbilitySystem\SSAbilitySystemBlueprintLibrary.h">
+      <Filter>Source\SonicSiege\Public\AbilitySystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\AbilitySystem\SSAbilitySystemComponent.h">
+      <Filter>Source\SonicSiege\Public\AbilitySystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\AbilitySystem\SSAbilityTask.h">
+      <Filter>Source\SonicSiege\Public\AbilitySystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\AbilitySystem\SSAttributeSet.h">
+      <Filter>Source\SonicSiege\Public\AbilitySystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\AbilitySystem\SSGameplayAbility.h">
+      <Filter>Source\SonicSiege\Public\AbilitySystem</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\AbilitySystem\AbilityTasks">
+      <UniqueIdentifier>{444E9DDC-AF3E-4032-B4CC-1C178E6B81D9}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\AbilitySystem\AbilityTasks\AT_RepeatAction.h">
+      <Filter>Source\SonicSiege\Public\AbilitySystem\AbilityTasks</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\AbilitySystem\AbilityTasks\AT_Ticker.h">
+      <Filter>Source\SonicSiege\Public\AbilitySystem\AbilityTasks</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\AbilitySystem\AsyncListeners">
+      <UniqueIdentifier>{4D62605D-D4E4-4F76-869E-DC27C932D297}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\AbilitySystem\AsyncListeners\BAA_AttributeChanged.h">
+      <Filter>Source\SonicSiege\Public\AbilitySystem\AsyncListeners</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\AbilitySystem\AsyncListeners\BAA_CooldownChanged.h">
+      <Filter>Source\SonicSiege\Public\AbilitySystem\AsyncListeners</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\AbilitySystem\AsyncListeners\BAA_EffectStackChanged.h">
+      <Filter>Source\SonicSiege\Public\AbilitySystem\AsyncListeners</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\AbilitySystem\AsyncListeners\BAA_GameplayTagAddedRemoved.h">
+      <Filter>Source\SonicSiege\Public\AbilitySystem\AsyncListeners</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\AbilitySystem\TargetActor">
+      <UniqueIdentifier>{6F0DC3B8-2D96-45DC-BADE-6F56B0AC75EA}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\AbilitySystem\TargetActor\GATDF_MultiFilter.h">
+      <Filter>Source\SonicSiege\Public\AbilitySystem\TargetActor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\AbilitySystem\TargetActor\SSGameplayAbilityTargetActor.h">
+      <Filter>Source\SonicSiege\Public\AbilitySystem\TargetActor</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\AbilitySystem\TargetActor\TargetActors">
+      <UniqueIdentifier>{B0BDAE08-A6B8-48B0-AC9F-D5DC2B2E754B}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\AbilitySystem\TargetActor\TargetActors\GATA_BulletTrace.h">
+      <Filter>Source\SonicSiege\Public\AbilitySystem\TargetActor\TargetActors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\AbilitySystem\TargetActor\TargetActors\GATA_Trace.h">
+      <Filter>Source\SonicSiege\Public\AbilitySystem\TargetActor\TargetActors</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\Actor">
+      <UniqueIdentifier>{9F66FAD6-D933-4315-8337-9EE0D65979C5}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Actor\AbilitySystemActor.h">
+      <Filter>Source\SonicSiege\Public\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Actor\AS_Actor.h">
+      <Filter>Source\SonicSiege\Public\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Actor\AS_Health.h">
+      <Filter>Source\SonicSiege\Public\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Actor\SSActor.h">
+      <Filter>Source\SonicSiege\Public\Actor</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\Actor\Item">
+      <UniqueIdentifier>{4188D060-D6C7-407D-84DE-69C5A2CE1AE5}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Actor\Item\InventoryComponent.h">
+      <Filter>Source\SonicSiege\Public\Actor\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Actor\Item\Item.h">
+      <Filter>Source\SonicSiege\Public\Actor\Item</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\Actor\Item\Weapon">
+      <UniqueIdentifier>{8056C5E6-B966-4E9E-B5E1-47D0CD97D19A}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Actor\Item\Weapon\AS_Weapon.h">
+      <Filter>Source\SonicSiege\Public\Actor\Item\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Actor\Item\Weapon\Weapon.h">
+      <Filter>Source\SonicSiege\Public\Actor\Item\Weapon</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\Actor\Item\Weapon\Abilities">
+      <UniqueIdentifier>{C97C07B3-6F60-4B10-87C1-6720D150D7FA}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Actor\Item\Weapon\Abilities\GA_ADS.h">
+      <Filter>Source\SonicSiege\Public\Actor\Item\Weapon\Abilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Actor\Item\Weapon\Abilities\GA_Fire.h">
+      <Filter>Source\SonicSiege\Public\Actor\Item\Weapon\Abilities</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\Character">
+      <UniqueIdentifier>{DF608368-0074-449C-AB71-B62CD55C358F}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Character\AbilitySystemCharacter.h">
+      <Filter>Source\SonicSiege\Public\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Character\AS_Character.h">
+      <Filter>Source\SonicSiege\Public\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Character\SiegeCharacter.h">
+      <Filter>Source\SonicSiege\Public\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Character\SSCharacter.h">
+      <Filter>Source\SonicSiege\Public\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Character\SSCharacterMovementComponent.h">
+      <Filter>Source\SonicSiege\Public\Character</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\Character\Abilities">
+      <UniqueIdentifier>{B85ACB48-1A50-4C19-9384-09EC115C6DB6}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Character\Abilities\GA_CharacterJump.h">
+      <Filter>Source\SonicSiege\Public\Character\Abilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Character\Abilities\GA_CharacterJumpStatic.h">
+      <Filter>Source\SonicSiege\Public\Character\Abilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Character\Abilities\GA_CharacterRun.h">
+      <Filter>Source\SonicSiege\Public\Character\Abilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Character\Abilities\GA_CharacterRunV1.h">
+      <Filter>Source\SonicSiege\Public\Character\Abilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Character\Abilities\GA_CharacterRunV2.h">
+      <Filter>Source\SonicSiege\Public\Character\Abilities</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\Character\Abilities\Interact">
+      <UniqueIdentifier>{0F31EA28-0C5B-4BE2-A7BF-D90F06A9DB15}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Character\Abilities\Interact\GA_CharacterAutoInteract.h">
+      <Filter>Source\SonicSiege\Public\Character\Abilities\Interact</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Character\Abilities\Interact\GA_CharacterDurationInteract.h">
+      <Filter>Source\SonicSiege\Public\Character\Abilities\Interact</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Character\Abilities\Interact\GA_CharacterInstantInteract.h">
+      <Filter>Source\SonicSiege\Public\Character\Abilities\Interact</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Character\Abilities\Interact\GA_CharacterInteract.h">
+      <Filter>Source\SonicSiege\Public\Character\Abilities\Interact</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\Character\AbilityTasks">
+      <UniqueIdentifier>{3731A946-DD4E-4055-8492-C25F50141AA3}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Character\AbilityTasks\AT_DurationInteractCallbacks.h">
+      <Filter>Source\SonicSiege\Public\Character\AbilityTasks</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Character\AbilityTasks\AT_PlayMontageAndWaitForEvent.h">
+      <Filter>Source\SonicSiege\Public\Character\AbilityTasks</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Character\AbilityTasks\AT_StaminaRegen.h">
+      <Filter>Source\SonicSiege\Public\Character\AbilityTasks</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\Character\Characters">
+      <UniqueIdentifier>{B501D8B0-6B98-41A5-8387-3B4AE2224DC9}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Character\Characters\Sonic.h">
+      <Filter>Source\SonicSiege\Public\Character\Characters</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\Character\Characters\ExampleAbilitySystemCharacter">
+      <UniqueIdentifier>{A6ADCAF3-5567-4730-9807-02DB3F71CFA9}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Character\Characters\ExampleAbilitySystemCharacter\AS_ExampleAbilitySystemCharacter.h">
+      <Filter>Source\SonicSiege\Public\Character\Characters\ExampleAbilitySystemCharacter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Character\Characters\ExampleAbilitySystemCharacter\ExampleAbilitySystemCharacter.h">
+      <Filter>Source\SonicSiege\Public\Character\Characters\ExampleAbilitySystemCharacter</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\Character\PassiveAbilities">
+      <UniqueIdentifier>{5914BC49-65A0-47CF-A48B-2075E362B8A6}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Character\PassiveAbilities\GA_StaminaRegen.h">
+      <Filter>Source\SonicSiege\Public\Character\PassiveAbilities</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\Engine">
+      <UniqueIdentifier>{E2F85BDB-8AFD-4EFE-A9D6-EC392EC950E8}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Engine\SSEngineSubsystem.h">
+      <Filter>Source\SonicSiege\Public\Engine</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\Game">
+      <UniqueIdentifier>{BC490759-85A7-49EF-8A0B-11C01381842A}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Game\SSGameMode.h">
+      <Filter>Source\SonicSiege\Public\Game</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\Interfaces">
+      <UniqueIdentifier>{E6670624-245B-4649-A163-D23982594BC1}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Interfaces\Interactable.h">
+      <Filter>Source\SonicSiege\Public\Interfaces</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\Pawn">
+      <UniqueIdentifier>{9A5F55CC-0E97-4EF4-9192-F781ED9D60D8}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Pawn\AbilitySystemPawn.h">
+      <Filter>Source\SonicSiege\Public\Pawn</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Pawn\AS_Pawn.h">
+      <Filter>Source\SonicSiege\Public\Pawn</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Pawn\SSPawn.h">
+      <Filter>Source\SonicSiege\Public\Pawn</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\Player">
+      <UniqueIdentifier>{E1C3A077-1D61-4C95-85A4-7890D488D664}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Player\AS_PlayerState.h">
+      <Filter>Source\SonicSiege\Public\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Player\SSPlayerController.h">
+      <Filter>Source\SonicSiege\Public\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Player\SSPlayerState.h">
+      <Filter>Source\SonicSiege\Public\Player</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\UI">
+      <UniqueIdentifier>{A05E3C50-5D50-41CE-9E77-C34270F617A7}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\UI\SSHUD.h">
+      <Filter>Source\SonicSiege\Public\UI</Filter>
+    </ClInclude>
+    <Filter Include="Source\SonicSiege\Public\Utilities">
+      <UniqueIdentifier>{239B0881-3CB7-4477-8A36-2357097EA299}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Source\SonicSiege\Public\Utilities\CollisionChannels.h">
+      <Filter>Source\SonicSiege\Public\Utilities</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

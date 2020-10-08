@@ -130,7 +130,7 @@ protected:
 		UAS_Character* CharacterAttributeSet;
 
 	UFUNCTION()
-		virtual void OnOwningCharacterSetupWithAbilitySystemFinished();
+		virtual void OnOwningCharacterAbilitySystemReady();
 
 	//BEGIN CMC Interface
 	virtual void UpdateFromCompressedFlags(uint8 Flags) override;
@@ -151,17 +151,16 @@ protected:
 	uint8 bWantsToRun : 1;
 #pragma endregion
 
-	//			TODO: document, talk about this event being good for calling custom client correction rpcs
+	// This is a good event for calling your custom client adjustment RPCs
 	virtual void ClientAdjustPosition(float TimeStamp, FVector NewLoc, FVector NewVel, UPrimitiveComponent* NewBase, FName NewBaseBoneName, bool bHasBase, bool bBaseRelativePosition, uint8 ServerMovementMode) override;
-	UFUNCTION(Unreliable, Client)
-		virtual void SSClientAdjustPosition(bool bAdjustedCanRun);
-	virtual void SSClientAdjustPosition_Implementation(bool bAdjustedCanRun);
+	//UFUNCTION(Unreliable, Client)
+	//	virtual void SSClientAdjustPosition();
+	//virtual void SSClientAdjustPosition_Implementation();
 
-	// These bools are intentionally not replicated and not synced with the client so that if the client incorrectly has one of them, he 
-	// will get a correction									TODO: document --- CORRECT THIS COMMETN
 #pragma region Movement Restrictions
-	void OnCanRunTagChanged(const FGameplayTag Tag, int32 NewCount);
-	uint8 bCanRun : 1;
+	void OnRunDisabledTagChanged(const FGameplayTag Tag, int32 NewCount);
+	/** This bool is only and optimization thing. We dont want to be checking HasMatchingTag every frame in GetMaxSpeed() */
+	uint8 bRunDisabled : 1;
 #pragma endregion
 
 

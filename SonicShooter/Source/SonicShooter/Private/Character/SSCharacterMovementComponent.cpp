@@ -16,7 +16,7 @@
 
 USSCharacterMovementComponent::USSCharacterMovementComponent()
 {
-	bCanRun = true;
+
 }
 void USSCharacterMovementComponent::InitializeComponent()
 {
@@ -25,23 +25,11 @@ void USSCharacterMovementComponent::InitializeComponent()
 	OwnerAbilitySystemCharacter = Cast<AAbilitySystemCharacter>(GetPawnOwner());
 	if (OwnerAbilitySystemCharacter)
 	{
-		OwnerAbilitySystemCharacter->SetupWithAbilitySystemCompleted.AddUObject(this, &USSCharacterMovementComponent::OnOwningCharacterSetupWithAbilitySystemFinished);
+		OwnerAbilitySystemCharacter->AbilitySystemReady.AddUObject(this, &USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady);
 	}
 }
 
-void USSCharacterMovementComponent::OnCanRunTagChanged(const FGameplayTag Tag, int32 NewCount)
-{
-	if (NewCount > 0)	// If CanRun tag present
-	{
-		bCanRun = true;
-	}
-	else 			    // If CanRun tag not present
-	{
-		bCanRun = false;
-	}
-}
-
-void USSCharacterMovementComponent::OnOwningCharacterSetupWithAbilitySystemFinished()
+void USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady()
 {
 	if (OwnerAbilitySystemCharacter)
 	{
@@ -49,7 +37,19 @@ void USSCharacterMovementComponent::OnOwningCharacterSetupWithAbilitySystemFinis
 		CharacterAttributeSet = OwnerAbilitySystemCharacter->GetCharacterAttributeSet();
 	}
 	
-	OwnerSSASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.CanRun"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCanRunTagChanged);
+	OwnerSSASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnRunDisabledTagChanged);
+}
+
+void USSCharacterMovementComponent::OnRunDisabledTagChanged(const FGameplayTag Tag, int32 NewCount)
+{
+	if (NewCount > 0)	// If RunDisabled tag present
+	{
+		bRunDisabled = true;
+	}
+	else 			    // If RunDisabled tag not present
+	{
+		bRunDisabled = false;
+	}
 }
 
 
@@ -142,13 +142,13 @@ void USSCharacterMovementComponent::ClientAdjustPosition(float TimeStamp, FVecto
 	Super::ClientAdjustPosition(TimeStamp, NewLoc, NewVel, NewBase, NewBaseBoneName, bHasBase, bBaseRelativePosition, ServerMovementMode);
 
 
-	SSClientAdjustPosition(bCanRun);
+	//SSClientAdjustPosition();
 }
 
-void USSCharacterMovementComponent::SSClientAdjustPosition_Implementation(bool bAdjustedCanRun)
-{
-	bCanRun = bAdjustedCanRun;
-}
+//void USSCharacterMovementComponent::SSClientAdjustPosition_Implementation()
+//{
+//	
+//}
 #pragma endregion
 
 
@@ -183,7 +183,7 @@ float USSCharacterMovementComponent::GetMaxSpeed() const
 				return 0;
 			}
 
-			if (bCanRun && bWantsToRun)
+			if (bWantsToRun && bRunDisabled == false)
 			{
 				return CharacterAttributeSet->GetRunSpeed();
 			}
@@ -232,7 +232,7 @@ float USSCharacterMovementComponent::GetMaxAcceleration() const
 			return 0;
 		}
 
-		if (bCanRun && bWantsToRun)
+		if (bWantsToRun && bRunDisabled == false)
 		{
 			return CharacterAttributeSet->GetRunAccelaration();
 		}
@@ -285,7 +285,7 @@ void USSCharacterMovementComponent::SetMovementMode(EMovementMode NewMovementMod
 	Super::SetMovementMode(NewMovementMode, NewCustomMode);
 
 
-	CustomMovementMode = static_cast<TEnumAsByte<ECustomMovementMode>>(NewCustomMode);	//legacy? (this oculd be causing the TEnumAsByte warnings)
+	CustomMovementMode = static_cast<TEnumAsByte<ECustomMovementMode>>(NewCustomMode);
 }
 
 void USSCharacterMovementComponent::OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode)

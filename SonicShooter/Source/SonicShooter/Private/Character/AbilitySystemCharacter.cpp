@@ -146,6 +146,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 				// Must call ForceReplication after registering an attribute set(s)
 				PlayerAbilitySystemComponent->ForceReplication();
 			}
+			AbilitySystemReady.Broadcast();					// at this point the asc is safe to use
 			InitializeAttributes();
 			ApplyStartupEffects();
 
@@ -206,6 +207,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 			RegisterAttributeSets();
 			// Must call ForceReplication after registering an attribute set(s)
 			AIAbilitySystemComponent->ForceReplication();
+			AbilitySystemReady.Broadcast();					// at this point the asc is safe to use
 			InitializeAttributes();
 			ApplyStartupEffects();
 

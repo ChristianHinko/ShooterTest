@@ -84,3 +84,5 @@
 - Basically copy and paste entire CMC from sonic siege and pick out what you dont want
 
 - Rename BlueprintsForTesting to just "testing" or something else
+
+- get rid of comment in CMC	"//legacy? (this oculd be causing the TEnumAsByte warnings)"

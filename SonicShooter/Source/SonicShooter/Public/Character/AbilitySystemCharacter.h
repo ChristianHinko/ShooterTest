@@ -18,7 +18,7 @@ class UAS_Health;
 
 
 
-DECLARE_MULTICAST_DELEGATE(FSetupWithAbilitySystemCompleted);
+DECLARE_MULTICAST_DELEGATE(FSetupWithAbilitySystemDelegate);
 
 /**
  * A Base GAS class
@@ -80,8 +80,13 @@ public:
 	UAS_Health* GetHealthAttributeSet() const { return HealthAttributeSet; }
 
 #pragma region AbilitySystemSetup Delegates
-	FSetupWithAbilitySystemCompleted SetupWithAbilitySystemCompleted;
-	FSetupWithAbilitySystemCompleted OnServerAknowledgeClientSetupAbilitySystem;
+	FSetupWithAbilitySystemDelegate SetupWithAbilitySystemCompleted;
+	/**
+	 * This is broadcasted when the ability system is set up but startup effects aren't applied, default attributes aren't initialized, and
+	 * starting abilities aren't granted.
+	 */
+	FSetupWithAbilitySystemDelegate AbilitySystemReady;
+	FSetupWithAbilitySystemDelegate OnServerAknowledgeClientSetupAbilitySystem;			// bad idea, server shouldnt have to wait for client
 #pragma endregion
 
 protected:

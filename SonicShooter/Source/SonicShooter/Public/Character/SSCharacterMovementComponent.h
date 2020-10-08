@@ -35,7 +35,7 @@ enum ECustomMovementMode																		// should we make this an enum class?
  *																An overview:
  * 
  * 
- * 
+ *						OUTDATED DOCUMENTATION
  * 
  * 
  * Movement restrictions:

@@ -93,6 +93,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Effects")
 		TArray<TSubclassOf<UGameplayEffect>> EffectsToApplyOnStartup;
 
+#pragma region Effects
+	/** Default attributes values for a Character on spawn. This should be an instant GE with the Modifier Op set to Override so you can choose what the Character's starting attribute values will be on spawn */
+	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Effects")
+		TSubclassOf<UGameplayEffect> DefaultAttributeValuesEffectTSub;
+#pragma endregion
+
 protected:
 #pragma region Abilities
 	/** Note: No AbilitySpecHandles are tracked upon grant. These are good for passive abilities. These abilities are assigned EAbilityInputID::None */
@@ -100,6 +106,9 @@ protected:
 		TArray<TSubclassOf<USSGameplayAbility>> NonHandleStartingAbilities;
 
 
+
+	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
+		TSubclassOf<USSGameplayAbility> CharacterStartupAbilityTSub;
 
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
 		TSubclassOf<USSGameplayAbility> CharacterJumpAbilityTSub;
@@ -110,12 +119,6 @@ protected:
 		TSubclassOf<USSGameplayAbility> CharacterRunAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle CharacterRunAbilitySpecHandle;
-#pragma endregion
-
-#pragma region Effects
-	/** Default attributes values for a Character on spawn. This should be an instant GE with the Modifier Op set to Override so you can choose what the Character's starting attribute values will be on spawn */
-	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Effects")
-		TSubclassOf<UGameplayEffect> DefaultAttributeValuesEffect;
 #pragma endregion
 
 	/** Decide which replication mode you want for the AIAbilitySystemComponent. Should normally be set to Minimal. Only change if you know what your doing */

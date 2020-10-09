@@ -147,6 +147,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 				PlayerAbilitySystemComponent->ForceReplication();
 			}
 			AbilitySystemReady.Broadcast();					// at this point the asc is safe to use
+
 			InitializeAttributes();
 			ApplyStartupEffects();
 
@@ -164,13 +165,9 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 		}
 
 		// Refresh ASC Actor Info for clients. Server will be refreshed by its AIController/PlayerController when it possesses a new Actor.
-		if (GetLocalRole() != ROLE_Authority) // CLIENT
+		if (IsLocallyControlled()) // CLIENT
 		{
 			PlayerAbilitySystemComponent->RefreshAbilityActorInfo();
-		}
-
-		if (IsLocallyControlled())
-		{
 			ServerOnSetupWithAbilitySystemCompletedOnOwningClient();
 		}
 	}
@@ -228,6 +225,19 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 	SetupWithAbilitySystemCompleted.Broadcast();
 }
 #pragma endregion
+
+bool AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningClient_Validate()
+{
+	return true;
+}
+void AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningClient_Implementation()
+{
+	// When posessing this Character always grant the player's ASC his starting abilities
+	GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
+	GrantNonHandleStartingAbilities();
+
+	OnServerAknowledgeClientSetupAbilitySystem.Broadcast();
+}
 
 #pragma region ASC Setup Helpers
 void AAbilitySystemCharacter::CreateAttributeSets()
@@ -320,7 +330,7 @@ void AAbilitySystemCharacter::InitializeAttributes()
 		UE_LOG(LogAbilitySystemSetup, Error, TEXT("GetAbilitySystemComponent() returned null on %s"), *FString(__FUNCTION__));
 		return;
 	}
-	if (!DefaultAttributeValuesEffect)
+	if (!DefaultAttributeValuesEffectTSub)
 	{
 		UE_LOG(LogAbilitySystemSetup, Warning, TEXT("%s() Missing DefaultAttributeValuesEffect for %s. Please fill DefaultAttributeValuesEffect in the Character's Blueprint."), *FString(__FUNCTION__), *GetName());
 		return;
@@ -331,7 +341,7 @@ void AAbilitySystemCharacter::InitializeAttributes()
 	EffectContextHandle.AddInstigator(this, this);
 	EffectContextHandle.AddSourceObject(this);
 
-	FGameplayEffectSpecHandle NewEffectSpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(DefaultAttributeValuesEffect, 1/*GetLevel()*/, EffectContextHandle);
+	FGameplayEffectSpecHandle NewEffectSpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(DefaultAttributeValuesEffectTSub, 1/*GetLevel()*/, EffectContextHandle);
 	if (NewEffectSpecHandle.IsValid())
 	{
 		GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*NewEffectSpecHandle.Data.Get());
@@ -413,19 +423,6 @@ void AAbilitySystemCharacter::GrantNonHandleStartingAbilities()
 	}
 }
 #pragma endregion
-
-bool AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningClient_Validate()
-{
-	return true;
-}
-void AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningClient_Implementation()
-{
-	// When posessing this Character always grant the player's ASC his starting abilities
-	GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
-	GrantNonHandleStartingAbilities();
-
-	OnServerAknowledgeClientSetupAbilitySystem.Broadcast();
-}
 
 #pragma region Input
 void AAbilitySystemCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

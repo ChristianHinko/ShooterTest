@@ -67,11 +67,46 @@ void UGA_StartupEffects::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 		return;
 	}
 
+
+
+
+
+
+	// Default attributes effect
+	if (GASCharacter->DefaultAttributeValuesEffectTSub)
+	{
+		FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(GASCharacter->DefaultAttributeValuesEffectTSub, GetAbilityLevel());
+		if (EffectSpecHandle.IsValid())
+		{
+			ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, EffectSpecHandle);
+		}
+		else
+		{
+			UE_LOG(LogAbilitySystemSetup, Warning, TEXT("%s() Tried to apply the default attributes effect. Maybe check if you filled out your DefaultAttributeValuesEffect correctly in character Blueprint"), *FString(__FUNCTION__), *GetName());
+		}
+	}
+	else
+	{
+		UE_LOG(LogAbilitySystemSetup, Warning, TEXT("%s() Missing DefaultAttributeValuesEffect for %s. Please fill DefaultAttributeValuesEffect in the Character's Blueprint."), *FString(__FUNCTION__), *GetName());
+	}
+
+	
+
+
+
+
+	// Startup effects
 	for (TSubclassOf<UGameplayEffect> EffectTSub : GASCharacter->EffectsToApplyOnStartup)
 	{
 		FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(EffectTSub, GetAbilityLevel());
-
-		ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, EffectSpecHandle);
+		if (EffectSpecHandle.IsValid())
+		{
+			ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, EffectSpecHandle);
+		}
+		else
+		{
+			UE_LOG(LogAbilitySystemSetup, Warning, TEXT("%s() Tried to apply the startup effect but failed. Maybe check to see if character's startup effects array is setup right"), *FString(__FUNCTION__));
+		}
 	}
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);

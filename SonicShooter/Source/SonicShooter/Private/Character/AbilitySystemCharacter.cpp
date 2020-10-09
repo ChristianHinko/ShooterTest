@@ -148,10 +148,13 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 				// Must call ForceReplication after registering an attribute set(s)
 				PlayerAbilitySystemComponent->ForceReplication();
 			}
-			AbilitySystemReady.Broadcast();					// at this point the asc is safe to use
+			
+			/////////////////////////////////////////////////////////////// Problem lies in this
+			AbilitySystemReady.Broadcast();	// We are binding to events here so that we bind before the startup effects happen, but on the client it binds after we recieve the changes (ie. tag/attribute changes) which is why we aren't getting the tag change events for the startup effects
 
-			InitializeAttributes();
-			ApplyStartupEffects();
+			InitializeAttributes(); // This line does nothing on client
+			ApplyStartupEffects();  // This line does nothing on client
+			///////////////////////////////////////////////////////////////
 
 			bAttributesAndStartupEffectsInitialized = true;
 		}

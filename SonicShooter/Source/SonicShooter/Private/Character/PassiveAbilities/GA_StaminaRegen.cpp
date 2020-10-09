@@ -48,19 +48,19 @@ void UGA_StaminaRegen::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
 		return;
 	}
 	if (!StaminaGainEffectTSub)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s  the efftect StaminaGainEffectTSub was NULL so this ability was canceled - please fill out StaminaGainEffectTSub in the StaminaRegen ability blueprint"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
 		return;
 	}
 	GASCharacter = Cast<AAbilitySystemCharacter>(GetAvatarActorFromActorInfo());
 	if (!GASCharacter)
 	{
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s failed to get reference to GASCharacter. Stamina will not regen D:"), *FString(__FUNCTION__));
 		return;
 	}

@@ -97,7 +97,7 @@ void UGA_CharacterRunV2::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
 		return;
 	}
 
@@ -109,7 +109,7 @@ void UGA_CharacterRunV2::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	if (!InputReleasedTask)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
 		return;
 	}
 	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterRunV2::OnRelease);
@@ -120,7 +120,7 @@ void UGA_CharacterRunV2::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	if (!RepeatActionTask)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() RepeatActionTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
 		return;
 	}
 	RepeatActionTask->OnPerformAction.AddDynamic(this, &UGA_CharacterRunV2::OnTimerTick);

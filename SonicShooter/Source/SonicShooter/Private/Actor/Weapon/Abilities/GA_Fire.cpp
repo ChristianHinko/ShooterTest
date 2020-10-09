@@ -70,13 +70,13 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
 		return;
 	}
 	if (!FireEffectTSub)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("Effect TSubclassOf empty in %s so this ability was canceled - please fill out Fire ability blueprint"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
 		return;
 	}
 
@@ -92,7 +92,7 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	if (!WaitTargetDataActorTask)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitTargetDataActorTask was NULL when trying to activate fire ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
 		return;
 	}
 

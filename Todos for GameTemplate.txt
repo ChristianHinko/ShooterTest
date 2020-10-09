@@ -88,3 +88,5 @@
 - get rid of comment in CMC	"//legacy? (this oculd be causing the TEnumAsByte warnings)"
 
 - Add pktlag comment option in default engine ini
+
+- Change all of the "CurrentActorInfo", "CurrentAvatarActor", and "CurrentActivationInfo" in every activate ability to "ActorInfo", "AvatarActor", "ActivationInfo"

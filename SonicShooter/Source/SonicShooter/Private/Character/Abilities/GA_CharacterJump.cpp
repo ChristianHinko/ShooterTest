@@ -34,27 +34,27 @@ void UGA_CharacterJump::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 		return;
 	}
 	if (!JumpEffectTSub)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("Effect TSubclassOf empty in %s so this ability was canceled - please fill out Character Jump ability blueprint"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 		return;
 	}
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	if (!Character)
 	{
 		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Character was NULL when trying to activate jump ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 		return;
 	}
 	UAbilityTask_WaitInputRelease* InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
 	if (!InputReleasedTask)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate jump ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 		return;
 	}
 

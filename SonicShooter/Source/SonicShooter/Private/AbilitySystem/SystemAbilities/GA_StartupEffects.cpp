@@ -63,7 +63,7 @@ void UGA_StartupEffects::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
 		return;
 	}
 

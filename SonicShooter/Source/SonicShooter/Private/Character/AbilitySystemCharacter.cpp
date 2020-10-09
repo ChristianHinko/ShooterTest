@@ -138,11 +138,13 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 
 		if (!bAttributesAndStartupEffectsInitialized)
 		{
-			// Must run these on Server but we run them on client too so that we don't have to wait.. It's how Dan does it so seams legit
-			CreateAttributeSets();
-			RegisterAttributeSets();
+
+
 			if (GetLocalRole() == ROLE_Authority)
 			{
+				// Moved these attribute set stuff into this check because seems to make more sence. move outside if problems arise
+				CreateAttributeSets();
+				RegisterAttributeSets();
 				// Must call ForceReplication after registering an attribute set(s)
 				PlayerAbilitySystemComponent->ForceReplication();
 			}

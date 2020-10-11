@@ -54,7 +54,7 @@ void UGA_MyAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 		return;
 	}
 

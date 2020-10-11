@@ -22,8 +22,15 @@
 - Add CollisionChannels.h or something like that
 - GASShooter has a custom subclass of AGameplayAbilityTargetActor and a new WaitTargetDataWithReusableActor AbilityTask written from scratch that allows you to reuse a TargetActor without destroying it.
 - In AbilitySystemActor::AbilitySystemActor() call SetReplicates(true);
+
+-------------------------------------
+An ideal solution to these 2 problems would mean the server wouldn't have to wait on the client to finish SetupWithAbilitySystem() (remove the client->server RPC all together) to Grant Abilities.
 - Make the server grant the abilities only after client character is spawned (and idealy possessed). Don't do a server RPC to tell server to grant abilities!!!
 	- Idealy we would want to grant the abilities in SetupWithAbilitySystem() on the server but last time we had it that way, OnAvatarSet() would be called 3 times some reason and give us a null reference.
+- PreApplyStartupEffects in AbilitySystemCharacter/Pawn/Actor is currently server only. We tried to make it also on client but then put it back to server only because it is unpredicatble where it is needed to be broadcasted since the server replicating the effect to the client. The effect replicated to client too fast before it can broadcast to classes can bind to it. Make PreApplyStartupEffects work on client too. (as a quick note, we did not implement this in SonicShooter. We tried but couldn't find any way. But we want to find a solution to this for GameTemplate)
+	- This is needed because we would like to be able to bind to attribute/tag change delegates BEFORE startup effects are applied.
+-------------------------------------
+
 - Modify AbilitySystemCharacter and copy it to the pawn version.
 - Add CollisionChannels.h (only public header -no cpp) to the Utilities folder
 - Maybe add a GTAbilitySystemBlueprintLibrary
@@ -102,8 +109,6 @@
 
 
 
-
-- Make delegate in AbilitySystemCharacter/Pawn/Actor for a place to bind to the ASC's attribute/tag change delegates BEFORE startup effects are applied. Currently we have this already but it only works on the server rn since the effect replicated to client too fast before it can broadcast to classes can bind to it.
 
 
 

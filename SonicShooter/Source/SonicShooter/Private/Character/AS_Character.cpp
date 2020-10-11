@@ -25,7 +25,7 @@ void UAS_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	//	Damage and Healing not replicated since it's a 'meta' attribute
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, MaxStamina, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, Stamina, COND_None, REPNOTIFY_Always);
+	//DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, Stamina, COND_None, REPNOTIFY_Always);
 	//	StaminaDrain and StaminaGain not replicated since it's a 'meta' attribute
 
 }
@@ -33,15 +33,15 @@ void UAS_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 //	These are default values BEFORE the default attribute values effect gets applied
 UAS_Character::UAS_Character()
 	: WalkSpeed(300.0f),
-	WalkAcceleration(2000.0f),
-	RunSpeed(800.0f),
-	RunAccelaration(8000.0f),
+	WalkAcceleration(2048.0f),
+	RunSpeed(600.0f),
+	RunAccelaration(4096.0f),
 	MaxHealth(100),
 	Health(GetMaxHealth()),
 	MaxStamina(5),
-	Stamina(GetMaxStamina())
+	Stamina(GetMaxStamina()),
+	StaminaDrain(1)
 {
-	TagOutOfStamina = FGameplayTag::RequestGameplayTag(FName("Character.State.OutOfStamina"));
 	
 	
 

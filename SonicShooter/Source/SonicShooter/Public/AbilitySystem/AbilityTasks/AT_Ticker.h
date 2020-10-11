@@ -22,9 +22,9 @@ public:
 	UAT_Ticker(const FObjectInitializer& ObjectInitializer);
 
 	UPROPERTY(BlueprintAssignable)
-		FTickDelegate OnInteractTickDelegate;
+		FTickDelegate OnTick;
 	UPROPERTY(BlueprintAssignable)
-		FDurationEnded OnInteractCompletedDelegate;
+		FDurationEnded OnDurationFinish;
 
 	UPROPERTY()
 		AAbilitySystemCharacter* GASCharacter;
@@ -34,7 +34,7 @@ public:
 
 	/** Start a task that repeats an action or set of actions. */
 	UFUNCTION(BlueprintCallable, Category = "Ability|Tasks", meta = (DisplayName = "Ticker", HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
-		static UAT_Ticker* Ticker(UGameplayAbility* OwningAbility, AAbilitySystemCharacter* GASCharactor, float Duration, float Interval, bool skipFirstTick);
+		static UAT_Ticker* Ticker(UGameplayAbility* OwningAbility, float Duration, float Interval, bool skipFirstTick);
 
 	void Activate() override;
 

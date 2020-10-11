@@ -8,8 +8,9 @@
 #include "GameFramework/SpringArmComponent.h"
 
 //#include "GameFramework/CharacterMovementComponent.h"
-//#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 //#include "Actor/AS_Health.h"
+#include "Character/AS_Character.h"
 #include "ActorComponents/InventoryComponent.h"
 #include "Actor/Weapon/Weapon.h"
 #include "Net/UnrealNetwork.h"
@@ -62,6 +63,13 @@ void ASonic::Tick(float DeltaSeconds)
 	//if (GetHealthAttributeSet() && GetHealthAttributeSet()->GetHealth())
 	//{
 	//	UKismetSystemLibrary::PrintString(this, GetName() + ": " + FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
+	//}
+	//if (IsLocallyControlled())
+	//{
+		if (GetCharacterAttributeSet() && GetCharacterAttributeSet()->GetStamina())
+		{
+			UKismetSystemLibrary::PrintString(this, GetCharacterAttributeSet()->GetStaminaAttribute().AttributeName + ": " + FString::SanitizeFloat(GetCharacterAttributeSet()->GetStamina()), true, false);
+		}
 	//}
 }
 

@@ -13,13 +13,12 @@ UAT_Ticker::UAT_Ticker(const FObjectInitializer& ObjectInitializer)
 }
 
 
-UAT_Ticker* UAT_Ticker::Ticker(UGameplayAbility* OwningAbility, AAbilitySystemCharacter* GASCharactor, float Duration, float Interval, bool SkipFirstTick)
+UAT_Ticker* UAT_Ticker::Ticker(UGameplayAbility* OwningAbility, float Duration, float Interval, bool SkipFirstTick)
 {
 	UAT_Ticker* MyObj = NewAbilityTask<UAT_Ticker>(OwningAbility);
 	MyObj->duration = Duration;
 	MyObj->tickInterval = Interval;
 	MyObj->skipFirstTick = SkipFirstTick;
-	MyObj->GASCharacter = GASCharactor;
 
 	return MyObj;
 }
@@ -34,43 +33,50 @@ void UAT_Ticker::Activate()
 
 void UAT_Ticker::TickTask(float DeltaTime)
 {
-	if (currentTime >= duration)
+	if (duration != -1)	// If user set a duration
 	{
-		OnDurationEnded();
-		return;
-	}
+		if (currentTime >= duration)
+		{
+			OnDurationEnded();
+			return;
+		}
 
-	if ((continueTimestamp == 0) && skipFirstTick)
-	{
-		skipFirstTick = false;
+		if ((continueTimestamp == 0) && skipFirstTick)
+		{
+			skipFirstTick = false;
 
-		////
-		currentTime = currentTime + DeltaTime;
-		timeRemaining = timeRemaining - DeltaTime;
-		continueTimestamp = continueTimestamp + tickInterval;
-		////
-		return;
+			////
+			currentTime = currentTime + DeltaTime;
+			timeRemaining = timeRemaining - DeltaTime;
+			continueTimestamp = continueTimestamp + tickInterval;
+			////
+			return;
+		}
+		if (currentTime < continueTimestamp)
+		{
+			currentTime = currentTime + DeltaTime;
+			timeRemaining = timeRemaining - DeltaTime;
+			return;
+		}
 	}
-	if (currentTime < continueTimestamp)
-	{
-		currentTime = currentTime + DeltaTime;
-		timeRemaining = timeRemaining - DeltaTime;
-		return;
-	}
-
+	
 	if (!IsPendingKill())
 	{
 		if (ShouldBroadcastAbilityTaskDelegates())
 		{
-			OnInteractTickDelegate.Broadcast(DeltaTime, currentTime, timeRemaining);
+			OnTick.Broadcast(DeltaTime, currentTime, timeRemaining);
 		}
 	}
 
-	////
+
+
+
 	currentTime = currentTime + DeltaTime;
-	timeRemaining = timeRemaining - DeltaTime;
-	continueTimestamp = continueTimestamp + tickInterval;
-	////
+	if (duration != -1)	// If user set a duration
+	{
+		timeRemaining = timeRemaining - DeltaTime;
+		continueTimestamp = continueTimestamp + tickInterval;
+	}
 }
 
 void UAT_Ticker::OnDurationEnded()
@@ -79,7 +85,7 @@ void UAT_Ticker::OnDurationEnded()
 	{
 		if (ShouldBroadcastAbilityTaskDelegates())
 		{
-			OnInteractCompletedDelegate.Broadcast();
+			OnDurationFinish.Broadcast();
 		}
 	}
 	EndTask();

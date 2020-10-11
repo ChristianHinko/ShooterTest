@@ -55,6 +55,6 @@ private:
 #pragma region Gameplay Tags
 	FGameplayTag TagHasMaxStamina;
 	FGameplayTag TagIsRunning;
-	FGameplayTag TagIsRegeningStamina;
+	//FGameplayTag TagIsRegeningStamina;
 #pragma endregion
 };

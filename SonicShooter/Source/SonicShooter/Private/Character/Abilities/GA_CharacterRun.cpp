@@ -9,7 +9,8 @@
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Character\AbilitySystemCharacter.h"
 #include "Character\AS_Character.h"
-#include "Kismet/KismetSystemLibrary.h"
+
+#include "AbilitySystem\AbilityTasks\AT_Ticker.h"
 
 UGA_CharacterRun::UGA_CharacterRun()
 {
@@ -83,7 +84,7 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 		return;
 	}
 
@@ -95,16 +96,42 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 	if (!InputReleasedTask)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 		return;
 	}
 	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterRun::OnRelease);
 	InputReleasedTask->ReadyForActivation();
 
+	//	Create the interval task so we can decrement our stamina every second
+	UAT_Ticker* Ticker = UAT_Ticker::Ticker(this, -1, 0, false);
+	if (!Ticker)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Ticker was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+		return;
+	}
+	Ticker->OnTick.AddDynamic(this, &UGA_CharacterRun::DecrementStamina);
+	Ticker->ReadyForActivation();
+
 	// Both tasks were created successfully. Set to running speed
 	CMC->SetWantsToRun(true);	//	In the case of an activation rollback, EndAbility() will be called which will call CMC->SetWantsToRun(false);
 }
 
+
+void UGA_CharacterRun::DecrementStamina(float DeltaTime, float currentTime, float timeRemaining)
+{
+
+	float stamina = CharacterAttributeSet->GetStamina();
+	float staminaDrain = CharacterAttributeSet->GetStaminaDrain();
+	if (stamina > 0)
+	{
+		CharacterAttributeSet->SetStamina(stamina - (staminaDrain * DeltaTime));
+	}
+	else
+	{
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
+	}
+}
 
 
 

@@ -24,7 +24,7 @@ public:
 	UAS_Character();
 
 #pragma region Gameplay Tags
-	FGameplayTag TagOutOfStamina;
+	
 #pragma endregion
 
 	
@@ -74,7 +74,7 @@ public:
 		FGameplayAttributeData MaxStamina;
 	ATTRIBUTE_ACCESSORS(UAS_Character, MaxStamina)
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Stamina, Category = "Attributes", meta = (HideFromModifiers))
+	UPROPERTY(BlueprintReadOnly,/* ReplicatedUsing = OnRep_Stamina,*/ Category = "Attributes", meta = (HideFromModifiers))
 		FGameplayAttributeData Stamina;
 	ATTRIBUTE_ACCESSORS(UAS_Character, Stamina)
 

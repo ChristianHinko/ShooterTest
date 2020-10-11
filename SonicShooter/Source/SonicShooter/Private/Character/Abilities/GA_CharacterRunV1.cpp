@@ -13,12 +13,12 @@
 
 UGA_CharacterRunV1::UGA_CharacterRunV1()
 {
-	TagOutOfStamina = FGameplayTag::RequestGameplayTag(FName("Character.State.OutOfStamina"));
+	//TagOutOfStamina = FGameplayTag::RequestGameplayTag(FName("Character.State.OutOfStamina"));
 	
 	
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.RunV1")));
 	
-	ActivationBlockedTags.AddTagFast(TagOutOfStamina);
+	//ActivationBlockedTags.AddTagFast(TagOutOfStamina);
 	
 	TickTimerDel.BindUObject(this, &UGA_CharacterRunV1::OnTimerTick);
 

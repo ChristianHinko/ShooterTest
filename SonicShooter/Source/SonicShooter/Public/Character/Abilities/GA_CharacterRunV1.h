@@ -49,7 +49,7 @@ protected:
 		void OnTimerTick();
 
 #pragma region Gameplay Tags
-	FGameplayTag TagOutOfStamina;
+
 #pragma endregion
 
 	UFUNCTION()

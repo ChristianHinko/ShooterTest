@@ -18,7 +18,7 @@ UGA_StaminaRegen::UGA_StaminaRegen()
 
 	TagHasMaxStamina = FGameplayTag::RequestGameplayTag(FName("Character.State.HasMaxStamina"));
 	TagIsRunning = FGameplayTag::RequestGameplayTag(FName("Character.State.IsRunning"));
-	TagIsRegeningStamina = FGameplayTag::RequestGameplayTag(FName("Character.State.IsRegeningStamina"));
+	//TagIsRegeningStamina = FGameplayTag::RequestGameplayTag(FName("Character.State.IsRegeningStamina"));
 
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Passive.StaminaRegen")));
 
@@ -84,12 +84,12 @@ void UGA_StaminaRegen::OnStaminaAttributeChange(const FOnAttributeChangeData& Da
 	{
 		if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
 		{
-			if (ASC->HasMatchingGameplayTag(TagIsRegeningStamina) == false && ASC->HasMatchingGameplayTag(TagHasMaxStamina) == false && ASC->HasMatchingGameplayTag(TagIsRunning) == false)
-			{
-				// Then create new prediction key
+			//if (ASC->HasMatchingGameplayTag(TagIsRegeningStamina) == false && ASC->HasMatchingGameplayTag(TagHasMaxStamina) == false && ASC->HasMatchingGameplayTag(TagIsRunning) == false)
+			//{
+			//	// Then create new prediction key
 
-				GetWorld()->GetTimerManager().SetTimer(TickTimerHandle, TickTimerDel, 1.f, true, 0.f);
-			}
+			//	GetWorld()->GetTimerManager().SetTimer(TickTimerHandle, TickTimerDel, 1.f, true, 0.f);
+			//}
 		}
 		return;
 	}

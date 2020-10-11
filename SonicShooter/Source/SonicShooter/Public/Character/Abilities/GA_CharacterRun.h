@@ -43,7 +43,8 @@ protected:
 #pragma region Gameplay Tags
 
 #pragma endregion
-
+	UFUNCTION()
+		void DecrementStamina(float DeltaTime, float currentTime, float timeRemaining);
 	UFUNCTION()
 		virtual void OnRelease(float TimeHeld);
 };

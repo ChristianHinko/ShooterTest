@@ -108,9 +108,6 @@ protected:
 
 
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
-		TSubclassOf<USSGameplayAbility> CharacterStartupAbilityTSub;
-
-	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
 		TSubclassOf<USSGameplayAbility> CharacterJumpAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle CharacterJumpAbilitySpecHandle;

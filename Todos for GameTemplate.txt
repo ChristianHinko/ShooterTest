@@ -23,6 +23,7 @@
 - GASShooter has a custom subclass of AGameplayAbilityTargetActor and a new WaitTargetDataWithReusableActor AbilityTask written from scratch that allows you to reuse a TargetActor without destroying it.
 - In AbilitySystemActor::AbilitySystemActor() call SetReplicates(true);
 - Make the server grant the abilities only after client character is spawned (and idealy possessed). Don't do a server RPC to tell server to grant abilities!!!
+	- Idealy we would want to grant the abilities in SetupWithAbilitySystem() on the server but last time we had it that way, OnAvatarSet() would be called 3 times some reason and give us a null reference.
 - Modify AbilitySystemCharacter and copy it to the pawn version.
 - Add CollisionChannels.h (only public header -no cpp) to the Utilities folder
 - Maybe add a GTAbilitySystemBlueprintLibrary

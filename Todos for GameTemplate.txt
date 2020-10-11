@@ -90,4 +90,22 @@
 
 - Add pktlag comment option in default engine ini
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+- Make delegate in AbilitySystemCharacter/Pawn/Actor for a place to bind to the ASC's attribute/tag change delegates BEFORE startup effects are applied. Currently we have this already but it only works on the server rn since the effect replicated to client too fast before it can broadcast to classes can bind to it.
+
+
+
+
 - Change all of the "CurrentActorInfo", "CurrentAvatarActor", and "CurrentActivationInfo" in every activate ability to "ActorInfo", "AvatarActor", "ActivationInfo"

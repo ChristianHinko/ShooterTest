@@ -25,7 +25,7 @@ void USSCharacterMovementComponent::InitializeComponent()
 	OwnerAbilitySystemCharacter = Cast<AAbilitySystemCharacter>(GetPawnOwner());
 	if (OwnerAbilitySystemCharacter)
 	{
-		OwnerAbilitySystemCharacter->AbilitySystemReady.AddUObject(this, &USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady);
+		OwnerAbilitySystemCharacter->PreApplyStartupEffects.AddUObject(this, &USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady);
 	}
 }
 

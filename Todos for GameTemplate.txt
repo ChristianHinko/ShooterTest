@@ -109,3 +109,7 @@
 
 
 - Change all of the "CurrentActorInfo", "CurrentAvatarActor", and "CurrentActivationInfo" in every activate ability to "ActorInfo", "AvatarActor", "ActivationInfo"
+
+
+
+- Add our own WaitNetSync for ServerWait that will stop waiting after a period of time

@@ -49,35 +49,36 @@ enum ECustomMovementMode																		// should we make this an enum class?
  * 
  * 
  * 
- * Custom client adjustment:
- *		1) To have custom CMC variables corrected by the server, make your own ClientAdjustPosition unreliable client RPC.
- *			- Add a parameter for each variable you want the server to correct (a good prefix is "adjusted" for example: bAdjustedCanRun).
- *			- In your _Implementation, set your correctable CMC variables to their corresponding "adjusted" variables.
- *				---------------------------------------------------------------------------------------------------
- *				| Example:
- *				---------------------------------------------------------------------------------------------------
- *				|	MyClientAdjustPosition_Implementation(bool bAdjustedCanRun, bool bAdjustedCanJump, float adjustedJumpHeight)
- *				|	{
- *  			|		bCanRun = bAdjustedCanRun;
- *  			|		bCanJump = bAdjustedCanJump;
- *  			|		jumpHeight = adjustedJumpHeight;
- *				|	}
- *				---------------------------------------------------------------------------------------------------
- * 
- *		2) Override the ClientAdjustPosition() function
- *			- NOT THE _IMPLEMENTATION! We want the server to call our RPC not the client.
- *			- Call the Super, and make it call your client adjust RPC.
- *			- This is a perfect event to call you custom client adjust RPCs.
- * 
- *		- If you have children CMCs and they also want custom client adjustment, they can repeat this process.
- *			- You may say all of these RPCs are bad and you are correct but the CMC in general is bad, this is the best solution.
- *				- Ex: if you are 3 levels deep of inheritance witht the CMC, thats 3 client RPCs at once when the client is corrected.
- * 
- * 
  * 
  * 
  * 
  * Integration with GAS:
+ *		- The Ability System is heavily gameplay related so we need a way for gameplay to affect movement
+ *			- You cannot simply have a run ability that checks stamina like this:
+ *						 															if (has stamina)
+ *						 																CMC->SetWantsToRun(true)
+ * 
+ *				because SetWantsToRun is client authoritative and tells the server to run through the fsavedmove.
+ *					- If the client passes the stamina check on his activation but the server doesn't, then the client will run while the server doesn't causing a
+ *						client correction right?
+ *					- And if the client predictively activates the ability but the server rolls it back, then the rollback will make the client stop running right?
+ *					- Wrong, it doensn't matter, the character is going to run on the server too because the client's SetWantsToRun told the server to do so.
+ *						- SetWantsToRun is client authoritative, once its called it will in turn set the server's WantsToRun as well.
+ * 
+ *			- To fix this we will need a Gameplay Tag that determines whether you can run or not.
+ *				- This tag, when added, will disable running for the CMC (ex: "Character.Movement.RunDisabled").
+ *				- We will have to implement what this tag does deep in the CMC level rather than the ability level.
+ *				- Now whenever you check if bWantsToRun in the CMC, also make sure the owning ASC does not have the RunDisabled tag.
+ *				- Checking if the player has the tag every time is annoying and not efficient.
+ *					- To simplify this, make a corresponding bool for that tag (ex: bRunDisabled)
+ *					- Use the RegisterGameplayTagEvent with EGameplayTagEventType::NewOrRemoved and if the tag count is > 0, that means the tag was added so
+ *						set bRunDisabled = true, else the tag was removed to set bRunDisabled = false.
+ *					- Never touch the bRunDisabled bool, only read from it. And do not make it a client adjustment variable, the Gameplay Tag will replicate so the client will
+ *						always have the correct value.
+ *				
+ * 
+ * 
+ * 
  *		- Make heavy use of movement restrictions
  *			- You probably want a corresponding Gameplay Tag for each movement restriction
  *			- I would avoid setting the movement restrictions directly
@@ -93,7 +94,45 @@ enum ECustomMovementMode																		// should we make this an enum class?
  * 
  * 
  * 
+ * 
+ * 
+ * Custom client adjustment:
+ *		- Client adjustment occurs when the difference between the client and server's position exceed an allowable threshold or when the client and 
+ *			server's movement modes do not match up.
+ *		- Variables to consider puting in a custom client adjustment should be ones that the server only needs to send when a client correction occurs.
+ *			- Therefore you should only consider making a variable a client adjustment variable if it is position related or movement mode related.
+ *			- It is rare to need a custom client adjustment.
+ *				- One of the few cases I can think of is that you may want to make your custom movement mode enum an adjustable variable.
+ * 
+ *		1) To have custom client adjustment variables, make your own ClientAdjustPosition unreliable client RPC.
+ *			- Add a parameter for each variable you want the server to correct (a good prefix is "adjusted" for example: AdjustedCustomMovementMode).
+ *			- In your _Implementation, set your adjustable CMC variables to their corresponding "adjusted" variables.
+ *				---------------------------------------------------------------------------------------------------
+ *				| Example:
+ *				---------------------------------------------------------------------------------------------------
+ *				|	MyClientAdjustPosition_Implementation(uint8 AdjustedCustomMovementMode, FVector AdjustedMyPositionRelatedVariable)
+ *				|	{
+ *  			|		CustomMovementMode = AdjustedCustomMovementMode;
+ *				|		MyPositionRelatedVariable = AdjustedMyPositionRelatedVariable;
+ *				|	}
+ *				---------------------------------------------------------------------------------------------------
+ * 
+ *		2) Override the ClientAdjustPosition() function as an event to call your custom RPCs
+ *			- NOT THE _IMPLEMENTATION! We want the server to call the RPC not the client.
+ *			- Call the Super, and make it call your client adjust RPC.
+ *			- This is a perfect event to call your custom client adjust RPCs.
+ * 
+ *		- If you have children CMCs and they also want custom client adjustment, they can repeat this process.
+ *			- You may say all of these RPCs are bad and you are correct but the CMC in general is bad, this is the best and most clean solution.
+ *				- Ex: if you are 3 levels deep of inheritance witht the CMC, thats 3 client RPCs at once when the client is corrected.
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  *										I realized documenting this is probably a waste of time but its here if you want to finish it:
+ * 
  * Steps to make a custom move:
  *		1) Make a function for activating it (ex: SetWantsToRun)
  *		2) Make a corresponding compressed movement flag for the move
@@ -159,7 +198,7 @@ protected:
 
 #pragma region Movement Restrictions
 	void OnRunDisabledTagChanged(const FGameplayTag Tag, int32 NewCount);
-	/** This bool is only and optimization thing. We dont want to be checking HasMatchingTag every frame in GetMaxSpeed() */
+	/** This bool is only and optimization layer. We dont want to be checking HasMatchingTag every frame in GetMaxSpeed() */
 	uint8 bRunDisabled : 1;
 #pragma endregion
 

@@ -74,6 +74,11 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterAttributeSet was NULL. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
+	//if (/*SourceTags->HasTag(FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled"))*/)
+	//{
+		//UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character.Movement.RunDisabled tag not present. Returned false"), *FString(__FUNCTION__));
+		//return false;
+	//}
 
 	return true;
 }

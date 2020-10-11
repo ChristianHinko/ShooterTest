@@ -75,7 +75,7 @@ enum ECustomMovementMode																		// should we make this an enum class?
  *						set bRunDisabled = true, else the tag was removed to set bRunDisabled = false.
  *					- Never touch the bRunDisabled bool, only read from it. And do not make it a client adjustment variable, the Gameplay Tag will replicate so the client will
  *						always have the correct value.
- *				
+ *																								\][\][\]\']'\]\[]\[			TODO: document
  * 
  * 
  * 

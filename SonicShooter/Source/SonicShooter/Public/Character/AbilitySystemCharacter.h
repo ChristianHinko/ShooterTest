@@ -85,7 +85,7 @@ public:
 	 * This is broadcasted when the ability system is set up but startup effects aren't applied, default attributes aren't initialized, and
 	 * starting abilities aren't granted.
 	 */
-	FSetupWithAbilitySystemDelegate AbilitySystemReady;
+	FSetupWithAbilitySystemDelegate PreApplyStartupEffects;
 	FSetupWithAbilitySystemDelegate OnServerAknowledgeClientSetupAbilitySystem;			// bad idea, server shouldnt have to wait for client
 #pragma endregion
 

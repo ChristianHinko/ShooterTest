@@ -238,6 +238,9 @@ bool AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningCli
 }
 void AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningClient_Implementation()
 {
+	// Wanted to make it clear that THIS IS NOT HOW THINGS SHOULD BE IMPLEMENTED. This RPC makes the server wait on the client to grant the ability which can be bad. Initially I thought the server needed to wait for the client or something, but I no longer think that is the case anymore since solving this race condition by RPCing is basicly the same thing as solving it using a delay node.
+	// Fix in GameTemplate!
+
 	// When posessing this Character always grant the player's ASC his starting abilities
 	GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
 	GrantNonHandleStartingAbilities();

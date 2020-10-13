@@ -31,6 +31,9 @@ protected:
 	UPROPERTY()
 		UAS_Character* CharacterAttributeSet;
 
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<UGameplayEffect> DisableRunEffectTSub;	// asset manager we need you D:
+
 
 
 	//BEGIN UGameplayAbility Interface
@@ -39,6 +42,9 @@ protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	//END UGameplayAbility Interface
+
+	UFUNCTION()
+		void OnStaminaFullyDrained();
 
 #pragma region Gameplay Tags
 	FGameplayTag RunDisabledTag;

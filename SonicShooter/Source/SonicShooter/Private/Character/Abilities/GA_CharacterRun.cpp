@@ -9,14 +9,18 @@
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Character\AbilitySystemCharacter.h"
 #include "Character\AS_Character.h"
-
+#include "Abilities\Tasks\AbilityTask_NetworkSyncPoint.h"
 #include "AbilitySystem\AbilityTasks\AT_Ticker.h"
+
+
 
 UGA_CharacterRun::UGA_CharacterRun()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Run")));
 
 	RunDisabledTag = FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled");
+
+	ActivationBlockedTags.AddTag(RunDisabledTag);
 }
 
 void UGA_CharacterRun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -81,11 +85,6 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo->AbilitySystemComponent was NULL when trying to activate. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (ActorInfo->AbilitySystemComponent.Get()->HasMatchingGameplayTag(RunDisabledTag))
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character.Movement.RunDisabled tag present. Returned false"), *FString(__FUNCTION__));
-		return false;
-	}
 
 	return true;
 }
@@ -138,11 +137,18 @@ void UGA_CharacterRun::DecrementStamina(float DeltaTime, float currentTime, floa
 	}
 	else
 	{
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
+		// Make a valid prediction window
+		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
+		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnStaminaFullyDrained);
+		WaitNetSyncTask->ReadyForActivation();
 	}
 }
 
-
+void UGA_CharacterRun::OnStaminaFullyDrained() 
+{
+	ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DisableRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
+}
 
 
 
@@ -169,7 +175,7 @@ void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 
 	// Lets do the logic we want to happen when the ability ends. If you want you can do an async task,
 	// but just make sure you don't call Super::EndAbility until after the task ends (call Super::EndAbility in the task's callback)
-	CMC->SetWantsToRun(false);	// In case of successful runthrough, stop running. But this will also be called if activation rollback occurrs so we good
+	CMC->SetWantsToRun(false);	// Should we use this? Or should we just let the CMC handle making player stop running by its GetMaxSpeed() function seeing the bRunDisabled bool?
 
 
 

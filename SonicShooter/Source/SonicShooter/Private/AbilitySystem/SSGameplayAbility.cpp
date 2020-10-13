@@ -29,13 +29,23 @@ void USSGameplayAbility::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo,
 	}
 }
 
+bool USSGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+	{
+		return false;
+	}
+
+	return true;
+}
+
 void USSGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	if (NetExecutionPolicy == EGameplayAbilityNetExecutionPolicy::LocalPredicted)
 	{
 		// Const cast is a red flag. 
 		FPredictionKey* Key = const_cast<FPredictionKey*>(&ActivationInfo.GetActivationPredictionKey());
-		Key->NewRejectedDelegate().BindUObject(this, &USSGameplayAbility::OnCurrentAbilityPredictionKeyRejected);
+		Key->NewRejectedDelegate().BindUObject(this, &USSGameplayAbility::OnActivationPredictionKeyRejected);
 
 		if (!HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo))	// If we are a client without a valid prediction key
 		{
@@ -73,15 +83,15 @@ void USSGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 #pragma endregion
 }
 
-void USSGameplayAbility::OnCurrentAbilityPredictionKeyRejected()
-{
-	/*UKismetSystemLibrary::PrintString(this, "Prediction Key rejected ", true, false, FLinearColor::Red);
-
-	if (PKey == CurrentActivationInfo.GetActivationPredictionKey())
-	{
-		OnActivationPredictionKeyRejected();
-	}*/
-}
+//void USSGameplayAbility::OnCurrentAbilityPredictionKeyRejected()
+//{
+//	/*UKismetSystemLibrary::PrintString(this, "Prediction Key rejected ", true, false, FLinearColor::Red);
+//
+//	if (PKey == CurrentActivationInfo.GetActivationPredictionKey())
+//	{
+//		OnActivationPredictionKeyRejected();
+//	}*/
+//}
 
 void USSGameplayAbility::OnActivationPredictionKeyRejected()
 {

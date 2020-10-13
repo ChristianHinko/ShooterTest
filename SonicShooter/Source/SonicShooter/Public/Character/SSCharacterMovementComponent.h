@@ -153,10 +153,6 @@ public:
 	
 	void SetWantsToRun(bool newWantsToRun);
 
-#pragma region Movement Delegates
-	FCharacterMovementState OnWantsToRun;
-#pragma endregion
-
 protected:
 	//	Don't know for sure if this is the best event to use but works for now
 	virtual void InitializeComponent() override;

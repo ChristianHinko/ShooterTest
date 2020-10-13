@@ -57,7 +57,6 @@ void USSCharacterMovementComponent::OnRunDisabledTagChanged(const FGameplayTag T
 void USSCharacterMovementComponent::SetWantsToRun(bool newWantsToRun)
 {
 	bWantsToRun = newWantsToRun;
-	OnWantsToRun.Broadcast();
 }
 #pragma endregion
 

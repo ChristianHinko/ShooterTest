@@ -41,8 +41,9 @@ protected:
 	//END UGameplayAbility Interface
 
 #pragma region Gameplay Tags
-
+	FGameplayTag RunDisabledTag;
 #pragma endregion
+
 	UFUNCTION()
 		void DecrementStamina(float DeltaTime, float currentTime, float timeRemaining);
 	UFUNCTION()

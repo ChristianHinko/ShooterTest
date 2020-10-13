@@ -15,6 +15,8 @@
 UGA_CharacterRun::UGA_CharacterRun()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Run")));
+
+	RunDisabledTag = FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled");
 }
 
 void UGA_CharacterRun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -74,11 +76,16 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterAttributeSet was NULL. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
-	//if (/*SourceTags->HasTag(FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled"))*/)
-	//{
-		//UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character.Movement.RunDisabled tag not present. Returned false"), *FString(__FUNCTION__));
-		//return false;
-	//}
+	if (!ActorInfo->AbilitySystemComponent.Get())
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo->AbilitySystemComponent was NULL when trying to activate. Returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+	/*if (ActorInfo->AbilitySystemComponent.Get()->HasMatchingGameplayTag(RunDisabledTag))
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character.Movement.RunDisabled tag present. Returned false"), *FString(__FUNCTION__));
+		return false;
+	}*/
 
 	return true;
 }
@@ -92,7 +99,6 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 		return;
 	}
-
 
 
 	// Lets do the logic we want to happen when the ability starts.
@@ -120,7 +126,6 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 	// Both tasks were created successfully. Set to running speed
 	CMC->SetWantsToRun(true);	//	In the case of an activation rollback, EndAbility() will be called which will call CMC->SetWantsToRun(false);
 }
-
 
 void UGA_CharacterRun::DecrementStamina(float DeltaTime, float currentTime, float timeRemaining)
 {

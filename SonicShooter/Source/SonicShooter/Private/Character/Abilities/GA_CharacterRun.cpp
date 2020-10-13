@@ -81,11 +81,11 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo->AbilitySystemComponent was NULL when trying to activate. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
-	/*if (ActorInfo->AbilitySystemComponent.Get()->HasMatchingGameplayTag(RunDisabledTag))
+	if (ActorInfo->AbilitySystemComponent.Get()->HasMatchingGameplayTag(RunDisabledTag))
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character.Movement.RunDisabled tag present. Returned false"), *FString(__FUNCTION__));
 		return false;
-	}*/
+	}
 
 	return true;
 }

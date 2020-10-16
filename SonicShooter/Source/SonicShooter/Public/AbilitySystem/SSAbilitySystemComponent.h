@@ -66,6 +66,9 @@ public:
 	/** This override adds a check to see if we should confirm/cancel target actors associated with the InputID on keypress */
 	virtual void BindAbilityActivationToInputComponent(UInputComponent* InputComponent, FGameplayAbilityInputBinds BindInfo) override;
 
+	/** Implementation of ServerTryActivateAbility */
+	virtual void InternalServerTryActivateAbility(FGameplayAbilitySpecHandle AbilityToActivate, bool InputPressed, const FPredictionKey& PredictionKey, const FGameplayEventData* TriggerEventData) override;
+
 	/** Version of function in AbilitySystemGlobals that returns correct type */
 	static USSAbilitySystemComponent* GetAbilitySystemComponentFromActor(const AActor* Actor, bool LookForComponent = false);
 

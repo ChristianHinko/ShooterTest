@@ -173,6 +173,61 @@ void USSAbilitySystemComponent::BindAbilityActivationToInputComponent(UInputComp
 	}
 }
 
+void USSAbilitySystemComponent::InternalServerTryActivateAbility(FGameplayAbilitySpecHandle AbilityToActivate, bool InputPressed, const FPredictionKey& PredictionKey, const FGameplayEventData* TriggerEventData)
+{
+#if WITH_SERVER_CODE
+#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
+	if (DenyClientActivation > 0)
+	{
+		DenyClientActivation--;
+		ClientActivateAbilityFailed(Handle, PredictionKey.Current);
+		return;
+	}
+#endif
+
+	ABILITYLIST_SCOPE_LOCK();
+
+	FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(Handle);
+	if (!Spec)
+	{
+		// Can potentially happen in race conditions where client tries to activate ability that is removed server side before it is received.
+		ABILITY_LOG(Display, TEXT("InternalServerTryActivateAbility. Rejecting ClientActivation of ability with invalid SpecHandle!"));
+		ClientActivateAbilityFailed(Handle, PredictionKey.Current);
+		return;
+	}
+
+	// Consume any pending target info, to clear out cancels from old executions
+	ConsumeAllReplicatedData(Handle, PredictionKey);
+
+	FScopedPredictionWindow ScopedPredictionWindow(this, PredictionKey);
+
+	const UGameplayAbility* AbilityToActivate = Spec->Ability;
+
+	ensure(AbilityToActivate);
+	ensure(AbilityActorInfo.IsValid());
+
+	SCOPE_CYCLE_COUNTER(STAT_AbilitySystemComp_ServerTryActivate);
+	SCOPE_CYCLE_UOBJECT(Ability, AbilityToActivate);
+
+	UGameplayAbility* InstancedAbility = nullptr;
+	Spec->InputPressed = true;
+
+	// Attempt to activate the ability (server side) and tell the client if it succeeded or failed.
+	if (InternalTryActivateAbility(Handle, PredictionKey, &InstancedAbility, nullptr, TriggerEventData))
+	{
+		// TryActivateAbility handles notifying the client of success
+	}
+	else
+	{
+		ABILITY_LOG(Display, TEXT("InternalServerTryActivateAbility. Rejecting ClientActivation of %s. InternalTryActivateAbility failed: %s"), *GetNameSafe(Spec->Ability), *InternalTryActivateAbilityFailureTags.ToStringSimple());
+		ClientActivateAbilityFailed(Handle, PredictionKey.Current);
+		Spec->InputPressed = false;
+
+		MarkAbilitySpecDirty(*Spec);
+	}
+#endif
+}
+
 /* 
 										--- Our thought process here that took us few hours to decide what to do ---
 													relates to AAbilitySystemCharacter::BindASCInput()

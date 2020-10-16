@@ -173,7 +173,23 @@ void USSAbilitySystemComponent::BindAbilityActivationToInputComponent(UInputComp
 	}
 }
 
-void USSAbilitySystemComponent::InternalServerTryActivateAbility(FGameplayAbilitySpecHandle AbilityToActivate, bool InputPressed, const FPredictionKey& PredictionKey, const FGameplayEventData* TriggerEventData)
+///////////////////////////////////////////////////////////////////////////////////// source copy
+
+#include "AbilitySystemStats.h"
+DECLARE_CYCLE_STAT(TEXT("AbilitySystemComp ServerTryActivate"), STAT_AbilitySystemComp_ServerTryActivate, STATGROUP_AbilitySystem);
+
+
+#if !UE_BUILD_SHIPPING
+int32 DenyClientActivation = 0;
+static FAutoConsoleVariableRef CVarDenyClientActivation(
+	TEXT("AbilitySystem.DenyClientActivations"),
+	DenyClientActivation,
+	TEXT("Make server deny the next X ability activations from clients. For testing misprediction."),
+	ECVF_Default
+);
+#endif // !UE_BUILD_SHIPPING
+
+void USSAbilitySystemComponent::InternalServerTryActivateAbility(FGameplayAbilitySpecHandle Handle, bool InputPressed, const FPredictionKey& PredictionKey, const FGameplayEventData* TriggerEventData)
 {
 #if WITH_SERVER_CODE
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
@@ -181,6 +197,7 @@ void USSAbilitySystemComponent::InternalServerTryActivateAbility(FGameplayAbilit
 	{
 		DenyClientActivation--;
 		ClientActivateAbilityFailed(Handle, PredictionKey.Current);
+		// SERVER REJECT EVENT here
 		return;
 	}
 #endif
@@ -193,6 +210,7 @@ void USSAbilitySystemComponent::InternalServerTryActivateAbility(FGameplayAbilit
 		// Can potentially happen in race conditions where client tries to activate ability that is removed server side before it is received.
 		ABILITY_LOG(Display, TEXT("InternalServerTryActivateAbility. Rejecting ClientActivation of ability with invalid SpecHandle!"));
 		ClientActivateAbilityFailed(Handle, PredictionKey.Current);
+		// SERVER REJECT EVENT here
 		return;
 	}
 
@@ -224,9 +242,12 @@ void USSAbilitySystemComponent::InternalServerTryActivateAbility(FGameplayAbilit
 		Spec->InputPressed = false;
 
 		MarkAbilitySpecDirty(*Spec);
+		// SERVER REJECT EVENT here
 	}
 #endif
 }
+
+/////////////////////////////////////////////////////////////////////////////////////// END source copy
 
 /* 
 										--- Our thought process here that took us few hours to decide what to do ---

@@ -197,7 +197,9 @@ void USSAbilitySystemComponent::InternalServerTryActivateAbility(FGameplayAbilit
 	{
 		DenyClientActivation--;
 		ClientActivateAbilityFailed(Handle, PredictionKey.Current);
-		// SERVER REJECT EVENT here
+
+		ActivateAbilityFailed(Handle, PredictionKey.Current);				// call server ability failed event
+
 		return;
 	}
 #endif
@@ -210,7 +212,9 @@ void USSAbilitySystemComponent::InternalServerTryActivateAbility(FGameplayAbilit
 		// Can potentially happen in race conditions where client tries to activate ability that is removed server side before it is received.
 		ABILITY_LOG(Display, TEXT("InternalServerTryActivateAbility. Rejecting ClientActivation of ability with invalid SpecHandle!"));
 		ClientActivateAbilityFailed(Handle, PredictionKey.Current);
-		// SERVER REJECT EVENT here
+
+		ActivateAbilityFailed(Handle, PredictionKey.Current);				// call server ability failed event
+
 		return;
 	}
 
@@ -239,12 +243,23 @@ void USSAbilitySystemComponent::InternalServerTryActivateAbility(FGameplayAbilit
 	{
 		ABILITY_LOG(Display, TEXT("InternalServerTryActivateAbility. Rejecting ClientActivation of %s. InternalTryActivateAbility failed: %s"), *GetNameSafe(Spec->Ability), *InternalTryActivateAbilityFailureTags.ToStringSimple());
 		ClientActivateAbilityFailed(Handle, PredictionKey.Current);
+
+		ActivateAbilityFailed(Handle, PredictionKey.Current);				// call server ability failed event
+
 		Spec->InputPressed = false;
 
 		MarkAbilitySpecDirty(*Spec);
-		// SERVER REJECT EVENT here
 	}
 #endif
+}
+
+void USSAbilitySystemComponent::ActivateAbilityFailed(FGameplayAbilitySpecHandle Handle, int16 PredictionKey)
+{
+	//// Tell anything else listening that this was rejected
+	//if (PredictionKey > 0)
+	//{
+	//	FPredictionKeyDelegates::BroadcastRejectedDelegate(PredictionKey);
+	//}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////// END source copy

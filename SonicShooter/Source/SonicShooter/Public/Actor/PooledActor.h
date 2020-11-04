@@ -44,7 +44,7 @@ public:
 	virtual void LifeSpanExpired() override;
 private:
 	UPROPERTY()
-		TArray<TWeakObjectPtr<AActor>> Pooled;
+		TArray<TWeakObjectPtr<APooledActor>> Pooled;
 
 	bool CanRetrace = false;
 	static APooledActor* GetFromPool(UWorld* World, UClass* BulletClass);

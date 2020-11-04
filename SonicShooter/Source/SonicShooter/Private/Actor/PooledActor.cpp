@@ -3,6 +3,16 @@
 
 #include "Actor\PooledActor.h"
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
+
+
+void APooledActor::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME_CONDITION(APooledActor, Velocity, COND_InitialOnly);
+	DOREPLIFETIME_CONDITION(APooledActor, RandomStream, COND_InitialOnly);
+}
+
 
 // Sets default values
 APooledActor::APooledActor()

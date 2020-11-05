@@ -150,7 +150,7 @@ class SONICSHOOTER_API USSCharacterMovementComponent : public UCharacterMovement
 public:
 	USSCharacterMovementComponent();
 	
-	
+	/** This is client authoritative. So calling this will always make the character run (on both client and server). Very insecure */
 	void SetWantsToRun(bool newWantsToRun);
 
 protected:

@@ -94,7 +94,7 @@ An ideal solution to these 2 problems would mean the server wouldn't have to wai
 - Rename BlueprintsForTesting to just "testing" or something else
 
 - get rid of comment in CMC	"//legacy? (this oculd be causing the TEnumAsByte warnings)"
-
+- Fix CMC->SetWantsToRun(True/False) being client authoritative. Same with all movement things.
 - Add pktlag comment option in default engine ini
 
 

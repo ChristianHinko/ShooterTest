@@ -20,7 +20,7 @@ UGA_CharacterRun::UGA_CharacterRun()
 
 	RunDisabledTag = FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled");
 
-	ActivationBlockedTags.AddTag(RunDisabledTag);
+	ActivationBlockedTags.AddTag(RunDisabledTag);	// This isn't the singular thing stopping you from running. The CMC is what listens for the presence of the RunDisabledTag and blocks running. This check just saves an ability activation.
 }
 
 void UGA_CharacterRun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -70,6 +70,16 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
+	//if (!CMC->IsMovingOnGround())
+	//{
+	//	UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was not on ground. Returned false"), *FString(__FUNCTION__));
+	//	return false;
+	//}
+	//if (!CMC->veloc > 0)
+	//{
+	//	UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was not going fast enough in foward direction. Returned false"), *FString(__FUNCTION__));
+	//	return false;
+	//}
 	if (!GASCharacter)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL. Returned false"), *FString(__FUNCTION__));

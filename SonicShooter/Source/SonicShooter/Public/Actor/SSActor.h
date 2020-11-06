@@ -10,22 +10,43 @@
 
 
 /**
- * Base actor class (without GAS implemeted)
+ *  Pooling:
+	If pooling is used, the CDO stores the pooled actors in TArray<TWeakObjectPtr<ASSActor>> Pooled
+	 Another few things to note :
+		1) Deactivate means it takes it out of the worldand puts it in the pool
+			-Also EndPlay() gets called when this happens
+		2) Recycle means it reactivates(brings it back into the world)
+			-BeginPlay() will be called every time this happens
  */
 UCLASS()
 class SONICSHOOTER_API ASSActor : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
+
+
+public:
 	ASSActor();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Pooling")
+		bool EnablePooling = true;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Debug")
+		bool DebugPooling;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Pooling")
+		int MaxPoolSize = 50;
 
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	//pooling
+	UFUNCTION(BlueprintAuthorityOnly, BlueprintCallable, Category = "Pooling")
+		void Deactivate();
+	UFUNCTION(NetMulticast, Reliable)
+		void ReactivationBroadcast(FVector_NetQuantize NewLocation, FVector NewVelocity, AActor* BulletOwner, APawn* BulletInstigator);
+	UFUNCTION(NetMulticast, Reliable)
+		void DeactivationBroadcast();
+	virtual void LifeSpanExpired() override;
+private:
+	UPROPERTY()
+		TArray<TWeakObjectPtr<ASSActor>> Pooled;
 
+	static ASSActor* GetFromPool(UWorld* World, UClass* BulletClass);
+	static ASSActor* SpawnOrReactivate(UWorld* World, TSubclassOf<class ASSActor> BulletClass, const FTransform& Transform, FVector BulletVelocity, AActor* BulletOwner, APawn* BulletInstigator);
+	void DeativateToPool();
 };

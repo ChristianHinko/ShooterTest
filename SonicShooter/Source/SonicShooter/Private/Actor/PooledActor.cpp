@@ -6,13 +6,6 @@
 #include "Net/UnrealNetwork.h"
 
 
-void APooledActor::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME_CONDITION(APooledActor, Velocity, COND_InitialOnly);
-	DOREPLIFETIME_CONDITION(APooledActor, RandomStream, COND_InitialOnly);
-}
-
 
 // Sets default values
 APooledActor::APooledActor()
@@ -29,7 +22,7 @@ void APooledActor::Deactivate()
 	{ 
 		return;
 	}
-	this->DeativateToPool();
+	this->DeativateToPool();	// Doesn't a multicast already call on server as well?
 	DeactivationBroadcast();
 }
 
@@ -103,12 +96,8 @@ APooledActor* APooledActor::SpawnOrReactivate(UWorld* World, TSubclassOf<class A
 		Recycled->SetOwner(BulletOwner);
 		Recycled->SetInstigator(BulletInstigator);
 		Recycled->SetActorTransform(Transform);
-		Recycled->Velocity = BulletVelocity;
 		Recycled->SetActorHiddenInGame(Default->IsHidden());
 		Recycled->SetActorTickEnabled(true);
-		Recycled->CanRetrace = false;
-		Recycled->IgnoredActors = Default->IgnoredActors;
-		Recycled->SafeDelay = Default->SafeDelay;
 		Recycled->SetLifeSpan(Default->InitialLifeSpan);
 		if (!Recycled->HasActorBegunPlay()) 
 		{ 
@@ -126,8 +115,6 @@ APooledActor* APooledActor::SpawnOrReactivate(UWorld* World, TSubclassOf<class A
 	else
 	{
 		bullet = Cast<APooledActor>(World->SpawnActorDeferred<APooledActor>(BulletClass, Transform, BulletOwner, BulletInstigator));
-		bullet->RandomStream.GenerateNewSeed();
-		bullet->Velocity = BulletVelocity;
 		UGameplayStatics::FinishSpawningActor(bullet, Transform);
 #ifdef WITH_EDITOR
 		if (bullet->DebugPooling)
@@ -149,13 +136,9 @@ void APooledActor::ReactivationBroadcast_Implementation(FVector_NetQuantize NewL
 		SetInstigator(BulletInstigator);
 
 		SetActorLocation(UGameplayStatics::RebaseZeroOriginOntoLocal(GetWorld(), NewLocation));
-		Velocity = NewVelocity;
-		CanRetrace = false;
 
 		SetActorHiddenInGame(Default->IsHidden());
 		SetActorTickEnabled(true);
-		SafeDelay = Default->SafeDelay;
-		OwnerSafe = Default->SafeLaunch;
 		BeginPlay();
 	}
 }

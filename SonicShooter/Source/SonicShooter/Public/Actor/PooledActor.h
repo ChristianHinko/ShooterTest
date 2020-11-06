@@ -6,6 +6,16 @@
 #include "GameFramework/Actor.h"
 #include "PooledActor.generated.h"
 
+
+/**
+ * The reason the pool needs to exist on the actor is because the pool is supposed to exist on its CDO.
+ * Another few things to note:
+ *	1) Deactivate means it takes it out of the world and puts it in the pool
+ *		- Also EndPlay() gets called when this happens
+ *	2) Recycle means it reactivates (brings it back into the world)
+ *		- BeginPlay() will be called every time this happens
+ * 
+ */
 UCLASS()
 class SONICSHOOTER_API APooledActor : public AActor
 {

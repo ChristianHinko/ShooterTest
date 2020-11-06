@@ -25,7 +25,10 @@ APooledActor::APooledActor()
 void APooledActor::Deactivate()
 {
 	//server only
-	if (!HasAuthority()) { return; }
+	if (!HasAuthority()) 
+	{ 
+		return;
+	}
 	this->DeativateToPool();
 	DeactivationBroadcast();
 }
@@ -107,7 +110,10 @@ APooledActor* APooledActor::SpawnOrReactivate(UWorld* World, TSubclassOf<class A
 		Recycled->IgnoredActors = Default->IgnoredActors;
 		Recycled->SafeDelay = Default->SafeDelay;
 		Recycled->SetLifeSpan(Default->InitialLifeSpan);
-		if (!Recycled->HasActorBegunPlay()) { Recycled->BeginPlay(); }
+		if (!Recycled->HasActorBegunPlay()) 
+		{ 
+			Recycled->BeginPlay();
+		}
 		Recycled->ReactivationBroadcast(UGameplayStatics::RebaseLocalOriginOntoZero(Recycled->GetWorld(), Transform.GetLocation()), BulletVelocity, BulletOwner, BulletInstigator);
 #ifdef WITH_EDITOR
 		if (Recycled->DebugPooling)

@@ -106,7 +106,7 @@ ASSActor* ASSActor::SpawnOrReactivate(UWorld* World, TSubclassOf<class ASSActor>
 #ifdef WITH_EDITOR
 		if (Recycled->DebugPooling)
 		{
-			GEngine->AddOnScreenDebugMessage(0, 2, FColor::Green, TEXT("Recycling pooled bullet"));
+			GEngine->AddOnScreenDebugMessage(0, 2, FColor::Green, TEXT("Recycling pooled actor"));
 		}
 #endif
 		return Recycled;
@@ -118,7 +118,7 @@ ASSActor* ASSActor::SpawnOrReactivate(UWorld* World, TSubclassOf<class ASSActor>
 #ifdef WITH_EDITOR
 		if (bullet->DebugPooling)
 		{
-			GEngine->AddOnScreenDebugMessage(0, 2, FColor::Orange, TEXT("Spawning new bullet"));
+			GEngine->AddOnScreenDebugMessage(0, 2, FColor::Orange, TEXT("Spawning new actor"));
 		}
 #endif
 		return bullet;
@@ -179,7 +179,7 @@ void ASSActor::DeativateToPool()
 #ifdef WITH_EDITOR
 		if (DebugPooling)
 		{
-			GEngine->AddOnScreenDebugMessage(2, 2, FColor::White, FString("Bullet pooled: ") + FString::FromInt(Pool->Pooled.Num()));
+			GEngine->AddOnScreenDebugMessage(2, 2, FColor::White, FString("Actor pooled: ") + FString::FromInt(Pool->Pooled.Num()));
 		}
 #endif
 	}

@@ -8,7 +8,6 @@
 #include "SSActor.generated.h"
 
 
-
 /**
  *  Pooling:
 	If pooling is used, the CDO stores the pooled actors in TArray<TWeakObjectPtr<ASSActor>> Pooled
@@ -27,26 +26,9 @@ class SONICSHOOTER_API ASSActor : public AActor
 public:
 	ASSActor();
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Pooling")
-		bool EnablePooling = true;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Debug")
-		bool DebugPooling;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Pooling")
-		int MaxPoolSize = 50;
+	void OnPooled();
+	void OnUnpooled();
 
-	//pooling
-	UFUNCTION(BlueprintAuthorityOnly, BlueprintCallable, Category = "Pooling")
-		void Deactivate();
-	UFUNCTION(NetMulticast, Reliable)
-		void ReactivationBroadcast(FVector_NetQuantize NewLocation, FVector NewVelocity, AActor* BulletOwner, APawn* BulletInstigator);
-	UFUNCTION(NetMulticast, Reliable)
-		void DeactivationBroadcast();
-	virtual void LifeSpanExpired() override;
-private:
-	UPROPERTY()
-		TArray<TWeakObjectPtr<ASSActor>> Pooled;
-
-	static ASSActor* GetFromPool(UWorld* World, UClass* BulletClass);
-	static ASSActor* SpawnOrReactivate(UWorld* World, TSubclassOf<class ASSActor> BulletClass, const FTransform& Transform, FVector BulletVelocity, AActor* BulletOwner, APawn* BulletInstigator);
-	void DeativateToPool();
+	void StartLogic();
+	void EndLogic();
 };

@@ -358,17 +358,17 @@ bool USSCharacterMovementComponent::IsMovingForward(float degreeTolerance)
 	FVector CharacterNormalizedVel = CharacterOwner->GetVelocity();
 	CharacterNormalizedVel.Normalize();
 	FVector CharacterFwd = CharacterOwner->GetActorForwardVector();
-	float howFwdWeAreMovingPercentage = FVector::DotProduct(CharacterNormalizedVel, CharacterFwd);
+	float dotProd = FVector::DotProduct(CharacterNormalizedVel, CharacterFwd);
 
+	
 
+	//float cmpVal = acosf(dotProd);	// we need to find the cmpVal
 
-
-
-
-	if (howFwdWeAreMovingPercentage > .9f/*degreeTolerance should go here but don't know how to calculate it yet*/)
+	if (dotProd > .9f/*cmpVal should go here but don't know how to calculate it yet*/)
 	{
 		return true;
 	}
+
 
 	return false;
 }

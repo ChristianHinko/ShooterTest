@@ -153,7 +153,7 @@ public:
 	/** This is client authoritative. So calling this will always make the character run (on both client and server). Very insecure */
 	void SetWantsToRun(bool newWantsToRun);
 
-	bool IsMovingForward(float degreeTolerance = .75f);
+	bool IsMovingForward(float degreeTolerance = 99.f);
 
 protected:
 	//	Don't know for sure if this is the best event to use but works for now

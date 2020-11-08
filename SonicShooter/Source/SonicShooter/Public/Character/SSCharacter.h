@@ -32,7 +32,10 @@ protected:
 
 public:
 	ASSCharacter(const FObjectInitializer& ObjectInitializer);
-
+	
+	
+	float fowardInputAxis;
+	float rightInputAxis;
 	// Components
 	USkeletalMeshComponent* GetPOVMesh() const { return POVMesh; }
 	USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -41,14 +44,6 @@ public:
 
 	USSCharacterMovementComponent* GetSSCharacterMovementComponent() const { return SSCharacterMovementComponent; }
 
-	/**
-	 * 
-	 * Order for determining what the current interactable is:
-	 *	1) First do sphere sweeep to return first blocking hit. 
-	 *  2) If that was NULL, return an interactable overlapping with the capsule component.
-	 *  3) 
-	 * Uses this specific character's parameters and camera orientation to do a sphere sweep to give a possible interactable. If no interactable detected, returns nullptr
-	 */
 
 	
 
@@ -58,7 +53,7 @@ protected:
 	UPROPERTY()
 		USSCharacterMovementComponent* SSCharacterMovementComponent;
 
-
+	
 #pragma region Input Events
 	//Actions
 	virtual void OnJumpPressed();

@@ -9,8 +9,6 @@
 #include "ActorComponents/InventoryComponent.h"
 #include "ActorComponents/InteractorComponent.h"
 
-#include "Kismet/KismetSystemLibrary.h"
-
 void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -48,7 +46,6 @@ bool AShooterCharacter::GrantStartingAbilities()
 void AShooterCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
 
 	//float frameHorizontalMouseRate = 0;
 	//float frameVerticalMouseRate = 0;

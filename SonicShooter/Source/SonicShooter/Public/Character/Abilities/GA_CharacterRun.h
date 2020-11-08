@@ -45,7 +45,7 @@ protected:
 
 	UFUNCTION()
 		void OnTick(float DeltaTime, float currentTime, float timeRemaining);
-	bool ShouldBeAbleToRun();
+	bool ShouldBeAbleToRun() const;
 
 	UFUNCTION()
 		void OnStaminaFullyDrained();

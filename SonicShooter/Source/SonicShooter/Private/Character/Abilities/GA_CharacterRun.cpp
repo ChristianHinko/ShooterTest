@@ -80,9 +80,9 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (GASCharacter->IsLocallyControlled() && GASCharacter->fowardInputAxis < .1f)		// Client can easily hack to pass this check if we keep it this way. Only client has input values and he could forge it if he hacks
+	if (!ShouldBeAbleToRun())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was not holding forward. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was not moving forward. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
 
@@ -144,21 +144,21 @@ void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRema
 	float stamina = CharacterAttributeSet->GetStamina();
 	float staminaDrain = CharacterAttributeSet->GetStaminaDrain();
 
-	//if (stamina <= 0)
-	//{
-	//	// No more stamina so make a valid prediction window and stop the running
-	//	UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
-	//	WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnStaminaFullyDrained);
-	//	WaitNetSyncTask->ReadyForActivation();
-	//}
-	//else if (!ShouldBeAbleToRun())
-	//{
-	//	// Wasn't able to run so make a valid prediction window and stop the running
-	//	UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
-	//	WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnWasNotAbleToRun);
-	//	WaitNetSyncTask->ReadyForActivation();
-	//}
-	//else
+	if (stamina <= 0)
+	{
+		// No more stamina so make a valid prediction window and stop the running
+		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
+		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnStaminaFullyDrained);
+		WaitNetSyncTask->ReadyForActivation();
+	}
+	else if (!ShouldBeAbleToRun())
+	{
+		// Wasn't able to run so make a valid prediction window and stop the running
+		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
+		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnWasNotAbleToRun);
+		WaitNetSyncTask->ReadyForActivation();
+	}
+	else
 	{
 		// We passed the checks, so decrement stamina and keep going
 		CharacterAttributeSet->SetStamina(stamina - (staminaDrain * DeltaTime));
@@ -239,19 +239,27 @@ void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 
 
 
-bool UGA_CharacterRun::ShouldBeAbleToRun()
+bool UGA_CharacterRun::ShouldBeAbleToRun() const
 {
-	if (GASCharacter->fowardInputAxis < .1f)
+	//if (GASCharacter->fowardInputAxis < .1f)	// This just is here so we might be able to return false earlier before we do expensive calculations.
+	//{
+	//	return false;
+	//}
+
+
+	ENetRole dsdf = GASCharacter->GetLocalRole();
+
+	FVector CharacterFwd = GASCharacter->GetActorForwardVector();
+	FVector CharacterNormalizedVel = GASCharacter->GetVelocity();// CMC->GetLastInputVector() worked but it was always 0 on the server
+	CharacterNormalizedVel.Normalize();
+	float calculatedFwdVelocity = FVector::DotProduct(CharacterNormalizedVel, CharacterFwd);
+	if (calculatedFwdVelocity < .5f)
 	{
-		return false;
+		return false;		// Character was not moving forward when trying to run
 	}
-	if (GASCharacter->IsLocallyControlled())
-	{
-		if (GASCharacter->fowardInputAxis < .1f)		// Client can easily hack to pass this check if we keep it this way. Only client has input values and he could forge it if he hacks
-		{
-			return false;
-		}
-	}
+
+
+
 
 	return true;
 }

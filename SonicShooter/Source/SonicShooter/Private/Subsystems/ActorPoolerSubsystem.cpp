@@ -4,6 +4,7 @@
 #include "Subsystems/ActorPoolerSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Actor/SSActor.h"
+#include "Interfaces/Poolable.h"
 
 
 UActorPoolerSubsystem::UActorPoolerSubsystem()
@@ -11,16 +12,17 @@ UActorPoolerSubsystem::UActorPoolerSubsystem()
 
 }
 
-ASSActor* UActorPoolerSubsystem::GetFromPool(UClass* BulletClass)
+ASSActor* UActorPoolerSubsystem::GetFromPool(UClass* ActorClass)
 {
 	UWorld* World = GetWorld();
 
-	
+
 	//find first of correct class;
 	bool CleanupRequired = false;
 
 	int32 FoundIndex = Pooled.IndexOfByPredicate(
-		[&](auto InItem) {
+		[&](auto InItem) 
+		{
 			if (InItem.IsValid() && InItem->GetWorld() == World)
 			{
 				return true;
@@ -42,12 +44,10 @@ ASSActor* UActorPoolerSubsystem::GetFromPool(UClass* BulletClass)
 	if (CleanupRequired)
 	{
 #ifdef WITH_EDITOR
-		if (DebugPooling)
-		{
-			GEngine->AddOnScreenDebugMessage(2, 2, FColor::White, TEXT("Invalid reference in pool, cleaning up"));
-		}
+		GEngine->AddOnScreenDebugMessage(2, 2, FColor::White, TEXT("Invalid reference in pool, cleaning up"));
 #endif
-		Pooled.RemoveAll([&](auto InItem) {
+		Pooled.RemoveAll([&](auto InItem) 
+		{
 			if (InItem.IsValid() && InItem->GetWorld() == World)
 			{
 				return false;
@@ -56,59 +56,64 @@ ASSActor* UActorPoolerSubsystem::GetFromPool(UClass* BulletClass)
 			{
 				return true;
 			}
-			});
+		});
 	}
 
 	return(Found.Get());
 }
 
-ASSActor* UActorPoolerSubsystem::SpawnOrReactivate(TSubclassOf<class ASSActor> BulletClass, const FTransform& Transform, FVector BulletVelocity, AActor* BulletOwner, APawn* BulletInstigator)
+ASSActor* UActorPoolerSubsystem::SpawnOrReactivate(TSubclassOf<ASSActor> ActorClass, AActor* ActorOwner, APawn* ActorInstigator, const FTransform& Transform)
 {
 	UWorld* World = GetWorld();
 
-	ASSActor* Recycled = GetFromPool(BulletClass);
+	ASSActor* Recycled = GetFromPool(ActorClass);
 
 	if (Recycled)
 	{
-		ASSActor* Default = Cast<ASSActor>(BulletClass->GetDefaultObject());
+		ASSActor* Default = Cast<ASSActor>(ActorClass->GetDefaultObject());
 
-		Recycled->SetOwner(BulletOwner);
-		Recycled->SetInstigator(BulletInstigator);
+		Recycled->SetOwner(ActorOwner);
+		Recycled->SetInstigator(ActorInstigator);
 		Recycled->SetActorTransform(Transform);
 		Recycled->SetActorHiddenInGame(Default->IsHidden());
 		Recycled->SetActorTickEnabled(true);
 		Recycled->SetLifeSpan(Default->InitialLifeSpan);
 
 
-		Recycled->OnUnpooled();
-		Recycled->StartLogic();
-#ifdef WITH_EDITOR
-		/*if (Recycled->DebugPooling)
+
+		if (IPoolable* Poolable = Cast<IPoolable>(Recycled))
 		{
-			GEngine->AddOnScreenDebugMessage(0, 2, FColor::Green, TEXT("OnUnpooled pooled actor"));
-		}*/
+			Poolable->OnUnpooled();
+			Poolable->StartLogic();
+#ifdef WITH_EDITOR
+			if (Poolable->bDebugPooling)
+			{
+				GEngine->AddOnScreenDebugMessage(0, 2, FColor::Green, TEXT("OnUnpooled pooled actor"));
+			}
 #endif
+		}
+
 		return Recycled;
 	}
 	else
 	{
 		ASSActor* NewActor;
-		NewActor = Cast<ASSActor>(World->SpawnActorDeferred<ASSActor>(BulletClass, Transform, BulletOwner, BulletInstigator));
+		NewActor = Cast<ASSActor>(World->SpawnActorDeferred<ASSActor>(ActorClass, Transform, ActorOwner, ActorInstigator));
 		UGameplayStatics::FinishSpawningActor(NewActor, Transform);
-		NewActor->StartLogic();
-#ifdef WITH_EDITOR
-		/*if (NewActor->DebugPooling)
+		if (IPoolable* Poolable = Cast<IPoolable>(NewActor))
 		{
-			GEngine->AddOnScreenDebugMessage(0, 2, FColor::Orange, TEXT("Spawning new actor"));
-		}*/
+			Poolable->StartLogic();
+
+#ifdef WITH_EDITOR
+			if (Poolable->bDebugPooling)
+			{
+				GEngine->AddOnScreenDebugMessage(0, 2, FColor::Orange, TEXT("Spawning new actor"));
+			}
 #endif
+		}
+
 		return NewActor;
 	}
-}
-
-void UActorPoolerSubsystem::LifeSpanExpired()
-{
-	//Deactivate();
 }
 
 void UActorPoolerSubsystem::DeativateToPool(ASSActor* ActorToDeactivate)
@@ -117,34 +122,35 @@ void UActorPoolerSubsystem::DeativateToPool(ASSActor* ActorToDeactivate)
 	{
 		return;
 	}
-
-	if (EnablePooling)
+	IPoolable* Poolable = Cast<IPoolable>(ActorToDeactivate);
+	if (!Poolable)
 	{
-		ActorToDeactivate->SetActorHiddenInGame(true);
-		ActorToDeactivate->SetActorTickEnabled(false);
-		Pooled.Add(ActorToDeactivate);
+		return;
+	}
 
 
-		ActorToDeactivate->OnPooled();
-		ActorToDeactivate->EndLogic();
+	ActorToDeactivate->SetActorHiddenInGame(true);
+	ActorToDeactivate->SetActorTickEnabled(false);
+	Pooled.Add(ActorToDeactivate);
 
-		if (Pooled.Num() > MaxPoolSize)
-		{
-			ASSActor* Oldest = (Pooled[0].Get());
-			Pooled.RemoveAtSwap(0);
-			if (Oldest) { Oldest->Destroy(); }
+
+	Poolable->OnPooled();
+	Poolable->EndLogic();
+
+	if (Pooled.Num() > MaxPoolSize)
+	{
+		ASSActor* Oldest = (Pooled[0].Get());
+		Pooled.RemoveAtSwap(0);
+		if (Oldest) 
+		{ 
+			Oldest->Destroy(); 
 		}
+	}
 
 #ifdef WITH_EDITOR
-		if (DebugPooling)
-		{
-			GEngine->AddOnScreenDebugMessage(2, 2, FColor::White, FString("Actor pooled: ") + FString::FromInt(Pooled.Num()));
-		}
-#endif
-	}
-	else
+	if (Poolable->bDebugPooling)
 	{
-		ActorToDeactivate->EndLogic();
-		ActorToDeactivate->Destroy();
+		GEngine->AddOnScreenDebugMessage(2, 2, FColor::White, FString("Actor pooled: ") + FString::FromInt(Pooled.Num()));
 	}
+#endif
 }

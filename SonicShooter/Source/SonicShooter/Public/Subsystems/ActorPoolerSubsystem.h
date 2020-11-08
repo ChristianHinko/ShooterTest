@@ -24,18 +24,13 @@ public:
 	UActorPoolerSubsystem();
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Pooling")
-		bool EnablePooling = true;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Debug")
-		bool DebugPooling;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Pooling")
 		int MaxPoolSize = 50;
 
-	virtual void LifeSpanExpired();
 private:
 	UPROPERTY()
 		TArray<TWeakObjectPtr<ASSActor>> Pooled;
 
 	ASSActor* GetFromPool(UClass* BulletClass);
-	ASSActor* SpawnOrReactivate(TSubclassOf<class ASSActor> BulletClass, const FTransform& Transform, FVector BulletVelocity, AActor* BulletOwner, APawn* BulletInstigator);
+	ASSActor* SpawnOrReactivate(TSubclassOf<ASSActor> ActorClass, AActor* ActorOwner, APawn* ActorInstigator, const FTransform& Transform);
 	void DeativateToPool(ASSActor* ActorToDeactivate);
 };

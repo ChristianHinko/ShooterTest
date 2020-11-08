@@ -26,9 +26,4 @@ class SONICSHOOTER_API ASSActor : public AActor
 public:
 	ASSActor();
 
-	void OnPooled();
-	void OnUnpooled();
-
-	void StartLogic();
-	void EndLogic();
 };

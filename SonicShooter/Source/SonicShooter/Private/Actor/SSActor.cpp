@@ -7,25 +7,3 @@ ASSActor::ASSActor()
 {
 
 }
-
-
-
-void ASSActor::OnUnpooled()
-{
-
-}
-void ASSActor::OnPooled()
-{
-
-}
-
-
-
-void ASSActor::EndLogic()
-{
-
-}
-void ASSActor::StartLogic()
-{
-
-}

@@ -32,6 +32,11 @@ AExampleAbilitySystemCharacter::AExampleAbilitySystemCharacter(const FObjectInit
 
 	// Third person, so let player see mesh
 	GetMesh()->SetOwnerNoSee(false);
+	GetMesh()->AlwaysLoadOnClient = true;
+
+	
+	POVMesh->AlwaysLoadOnServer = false;
+	POVMesh->AlwaysLoadOnClient = false;
 
 	// Configure CameraBoom arm length for third person
 	GetCameraBoom()->TargetArmLength = 300.f;

@@ -38,6 +38,7 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 
 	// Mesh defaults
 	GetMesh()->SetOwnerNoSee(true);
+	GetMesh()->AlwaysLoadOnClient = false; // Maybe do this (the client doesn't need to load the TP mesh)
 	GetMesh()->bCastHiddenShadow = true;	// we still want the shadow from the normal mesh
 	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -96.f));
 	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
@@ -46,8 +47,16 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	// Create POVMesh
 	POVMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("POVMesh"));
 	POVMesh->SetupAttachment(GetCapsuleComponent());
+	POVMesh->SetOwnerNoSee(false);
 	POVMesh->SetOnlyOwnerSee(true);
 	POVMesh->SetCastShadow(false);	// hide the POV mesh shadow because it will probably look weird (we're using the normal mesh's shadow instead)
+	POVMesh->AlwaysLoadOnServer = false;
+	POVMesh->AlwaysLoadOnClient = true;
+	POVMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPose;
+	POVMesh->PrimaryComponentTick.TickGroup = TG_PrePhysics;
+	POVMesh->SetCollisionProfileName(TEXT("CharacterMesh"));
+	POVMesh->SetGenerateOverlapEvents(false);
+	POVMesh->SetCanEverAffectNavigation(false);
 	POVMesh->SetRelativeLocation(FVector(0.f, 0.f, -96.f));
 	POVMesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 	POVMesh->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));

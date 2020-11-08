@@ -144,21 +144,21 @@ void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRema
 	float stamina = CharacterAttributeSet->GetStamina();
 	float staminaDrain = CharacterAttributeSet->GetStaminaDrain();
 
-	if (stamina <= 0)
-	{
-		// No more stamina so make a valid prediction window and stop the running
-		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
-		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnStaminaFullyDrained);
-		WaitNetSyncTask->ReadyForActivation();
-	}
-	else if (!ShouldBeAbleToRun())
-	{
-		// Wasn't able to run so make a valid prediction window and stop the running
-		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
-		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnWasNotAbleToRun);
-		WaitNetSyncTask->ReadyForActivation();
-	}
-	else
+	//if (stamina <= 0)
+	//{
+	//	// No more stamina so make a valid prediction window and stop the running
+	//	UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
+	//	WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnStaminaFullyDrained);
+	//	WaitNetSyncTask->ReadyForActivation();
+	//}
+	//else if (!ShouldBeAbleToRun())
+	//{
+	//	// Wasn't able to run so make a valid prediction window and stop the running
+	//	UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
+	//	WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnWasNotAbleToRun);
+	//	WaitNetSyncTask->ReadyForActivation();
+	//}
+	//else
 	{
 		// We passed the checks, so decrement stamina and keep going
 		CharacterAttributeSet->SetStamina(stamina - (staminaDrain * DeltaTime));
@@ -246,21 +246,7 @@ bool UGA_CharacterRun::ShouldBeAbleToRun() const
 	//	return false;
 	//}
 
-
-	ENetRole dsdf = GASCharacter->GetLocalRole();
-
-	FVector CharacterFwd = GASCharacter->GetActorForwardVector();
-	FVector CharacterNormalizedVel = GASCharacter->GetVelocity();// CMC->GetLastInputVector() worked but it was always 0 on the server
-	CharacterNormalizedVel.Normalize();
-	float calculatedFwdVelocity = FVector::DotProduct(CharacterNormalizedVel, CharacterFwd);
-	if (calculatedFwdVelocity < .5f)
-	{
-		return false;		// Character was not moving forward when trying to run
-	}
-
-
-
-
-	return true;
+	// Maybe we shouldn't be only using this function. Maybe we should do some more checks first
+	return CMC->IsMovingForward();
 }
 

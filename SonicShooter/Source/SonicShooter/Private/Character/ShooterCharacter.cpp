@@ -8,6 +8,7 @@
 #include "AbilitySystemComponent.h"
 #include "ActorComponents/InventoryComponent.h"
 #include "ActorComponents/InteractorComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -28,6 +29,11 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
 	Interactor = CreateDefaultSubobject<UInteractorComponent>(TEXT("Interactor"));
 
+
+	if (GetCharacterMovement())
+	{
+		GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
+	}
 }
 
 bool AShooterCharacter::GrantStartingAbilities()

@@ -18,7 +18,7 @@ UGA_CharacterCrouch::UGA_CharacterCrouch()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Crouch")));
 
-	//ActivationBlockedTags.AddTag(RunDisabledTag);
+	//ActivationBlockedTags.AddTag(CrouchDisabledTag);
 }
 
 void UGA_CharacterCrouch::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -101,15 +101,15 @@ void UGA_CharacterCrouch::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	UAbilityTask_WaitInputRelease* InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
 	if (!InputReleasedTask)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate crouch ability. Called CancelAbility()"), *FString(__FUNCTION__));
 		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 		return;
 	}
 	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterCrouch::OnRelease);
 	InputReleasedTask->ReadyForActivation();
 
-	// Both tasks were created successfully. Set to running speed
-	//CMC->SetWantsToRun(true);	//	In the case of an activation rollback, EndAbility() will be called which will call CMC->SetWantsToRun(false);
+	
+	GASCharacter->Crouch();
 }
 
 
@@ -135,33 +135,10 @@ void UGA_CharacterCrouch::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 
 
 
-	/**
-	 * Currently if the server's CanActivateAbility() returns false, it will end the client's predictive activation.
-	 * So when this line gets hit, it will force the client to stop running if the server didn't run the ability.
-	 * So in a sense the run is not 100% client authoritative since the server forces you to stop when its CanActivateAbility() returns false,
-	 * however, SetWantsToRun(true) is client authoritative so for the time that the client is predicting (before its EndAbility gets called), the
-	 * character will run (even on the server). This is a vulnerability we need to eventually fix since the client can do a large packet lag (such as 2000ms)
-	 * and now he can run for 2 seconds on the server before being stopped D: Also the client could do a hack and find the SetWantsToRun() function in memory
-	 * and run it by itself (outside the run ablity) and now the client won't get stopped D:
-	 * Basicly we need to have SetWantsToRun() not be client authoritative and that would fix everything. Otherwise there are lots of vulnerabilities.
-	 *
-	 * Also to possibly save some debugging time, we've already tried and we found we can't visualize this in a test because AbilitySystem.DenyClientActivations 1
-	 * doesn't allow CanActivateAbility() to run on the server as it rejects it before it even gets there.
-	 */
-	//CMC->SetWantsToRun(false);	// Should we use this? Or should we just let the CMC handle making player stop running by its GetMaxSpeed() function seeing the bRunDisabled bool?
+
+	GASCharacter->UnCrouch();
 
 
 
-
-
-
-
-	//Now call the Super to finish ending the ability.
-	/*
-		IMPORTANT: If part of your gameplay logic in EndAbility() uses an async task, make sure you wait until the task is completed before you call Super::EndAbility.
-		Otherwise the task may not complete. Call Super::EndAbility inside the task's OnComplete delegate.
-	*/
-	// super end ability loops through all tasks and calls OnDestroy; however, this is a virtual function, some tasks may not be destroyed on end ability (this is probably a super rare case tho) (dan says WaitTargetData doesn't end)
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-
 }

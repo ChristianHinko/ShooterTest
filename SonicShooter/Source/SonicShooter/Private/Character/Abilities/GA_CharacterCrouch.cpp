@@ -16,7 +16,7 @@
 
 UGA_CharacterCrouch::UGA_CharacterCrouch()
 {
-	//AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Crouch")));
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Crouch")));
 
 	//ActivationBlockedTags.AddTag(RunDisabledTag);
 }

@@ -70,12 +70,12 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
-	//if (!CMC->IsMovingOnGround())
-	//{
-	//	UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was not on ground. Returned false"), *FString(__FUNCTION__));
-	//	return false;
-	//}
-	//if (!CMC->veloc > 0)
+	if (!CMC->IsMovingOnGround())
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was not on ground. Returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+	//if (!CMC-> > 0)
 	//{
 	//	UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was not going fast enough in foward direction. Returned false"), *FString(__FUNCTION__));
 	//	return false;

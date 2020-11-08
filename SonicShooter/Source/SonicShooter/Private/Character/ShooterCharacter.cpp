@@ -9,6 +9,7 @@
 #include "ActorComponents/InventoryComponent.h"
 #include "ActorComponents/InteractorComponent.h"
 
+#include "Kismet/KismetSystemLibrary.h"
 
 void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -26,6 +27,7 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 {
 	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
 	Interactor = CreateDefaultSubobject<UInteractorComponent>(TEXT("Interactor"));
+
 }
 
 bool AShooterCharacter::GrantStartingAbilities()

@@ -4,21 +4,16 @@
 #include "Character/Abilities/GA_CharacterCrouch.h"
 
 #include "Character/AbilitySystemCharacter.h"
-#include "Character/SSCharacterMovementComponent.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Character\AbilitySystemCharacter.h"
 #include "Character\AS_Character.h"
-#include "Abilities\Tasks\AbilityTask_NetworkSyncPoint.h"
-#include "AbilitySystem\AbilityTasks\AT_Ticker.h"
 
 
 
 UGA_CharacterCrouch::UGA_CharacterCrouch()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Crouch")));
-
-	//ActivationBlockedTags.AddTag(CrouchDisabledTag);
 }
 
 void UGA_CharacterCrouch::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -35,12 +30,6 @@ void UGA_CharacterCrouch::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo
 		return;
 	}
 
-
-	CMC = Cast<USSCharacterMovementComponent>(ActorInfo->MovementComponent.Get());
-	if (!CMC)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL"), *FString(__FUNCTION__));
-	}
 
 	GASCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
 	if (!GASCharacter)
@@ -62,11 +51,6 @@ bool UGA_CharacterCrouch::CanActivateAbility(const FGameplayAbilitySpecHandle Ha
 		return false;
 	}
 
-	if (!CMC)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), *FString(__FUNCTION__));
-		return false;
-	}
 	if (!GASCharacter)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL. Returned false"), *FString(__FUNCTION__));
@@ -108,7 +92,8 @@ void UGA_CharacterCrouch::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterCrouch::OnRelease);
 	InputReleasedTask->ReadyForActivation();
 
-	
+	CrouchingEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, CrouchingEffectTSub.GetDefaultObject(), GetAbilityLevel());
+
 	GASCharacter->Crouch();
 }
 
@@ -137,6 +122,10 @@ void UGA_CharacterCrouch::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 
 
 	GASCharacter->UnCrouch();
+
+
+	ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(CrouchingEffectActiveHandle);
+
 
 
 

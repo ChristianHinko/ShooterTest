@@ -10,8 +10,6 @@
 #include "ActorComponents/InteractorComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-#include "Kismet/KismetSystemLibrary.h"
-
 void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -92,7 +90,6 @@ void AShooterCharacter::OnStartCrouch(float HeightAdjust, float ScaledHeightAdju
 void AShooterCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
 
 	//float frameHorizontalMouseRate = 0;
 	//float frameVerticalMouseRate = 0;

@@ -75,16 +75,19 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was not on ground. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
-	//if (!CMC-> > 0)
-	//{
-	//	UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was not going fast enough in foward direction. Returned false"), *FString(__FUNCTION__));
-	//	return false;
-	//}
 	if (!GASCharacter)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
+	if (!ShouldBeAbleToRun())
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was not moving forward. Returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+
+
+
 	if (!CharacterAttributeSet)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterAttributeSet was NULL. Returned false"), *FString(__FUNCTION__));
@@ -129,43 +132,61 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 		return;
 	}
-	Ticker->OnTick.AddDynamic(this, &UGA_CharacterRun::DecrementStamina);
+	Ticker->OnTick.AddDynamic(this, &UGA_CharacterRun::OnTick);
 	Ticker->ReadyForActivation();
 
 	// Both tasks were created successfully. Set to running speed
 	CMC->SetWantsToRun(true);	//	In the case of an activation rollback, EndAbility() will be called which will call CMC->SetWantsToRun(false);
 }
 
-void UGA_CharacterRun::DecrementStamina(float DeltaTime, float currentTime, float timeRemaining)
+void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRemaining)
 {
-
 	float stamina = CharacterAttributeSet->GetStamina();
 	float staminaDrain = CharacterAttributeSet->GetStaminaDrain();
-	if (stamina > 0)
+
+	//if (stamina <= 0)
+	//{
+	//	// No more stamina so make a valid prediction window and stop the running
+	//	UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
+	//	WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnStaminaFullyDrained);
+	//	WaitNetSyncTask->ReadyForActivation();
+	//}
+	//else if (!ShouldBeAbleToRun())
+	//{
+	//	// Wasn't able to run so make a valid prediction window and stop the running
+	//	UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
+	//	WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnWasNotAbleToRun);
+	//	WaitNetSyncTask->ReadyForActivation();
+	//}
+	//else
 	{
+		// We passed the checks, so decrement stamina and keep going
 		CharacterAttributeSet->SetStamina(stamina - (staminaDrain * DeltaTime));
 	}
-	else
-	{
-		// Make a valid prediction window
-		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
-		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnStaminaFullyDrained);
-		WaitNetSyncTask->ReadyForActivation();
-	}
 }
+
+
+
 
 void UGA_CharacterRun::OnStaminaFullyDrained() 
 {
 	ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DisableRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }
-
-
-
+void UGA_CharacterRun::OnWasNotAbleToRun()
+{
+	ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DisableRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
+}
 void UGA_CharacterRun::OnRelease(float TimeHeld)
 {
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
+
+
+
+
+
 
 void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
@@ -213,3 +234,19 @@ void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 
 }
+
+
+
+
+
+bool UGA_CharacterRun::ShouldBeAbleToRun() const
+{
+	//if (GASCharacter->fowardInputAxis < .1f)	// This just is here so we might be able to return false earlier before we do expensive calculations.
+	//{
+	//	return false;
+	//}
+
+	// Maybe we shouldn't be only using this function. Maybe we should do some more checks first
+	return CMC->IsMovingForward();
+}
+

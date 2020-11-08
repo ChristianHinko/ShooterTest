@@ -188,6 +188,7 @@ void ASSCharacter::OnRunReleased()
 //Axis
 void ASSCharacter::MoveForward(float Value)
 {
+	fowardInputAxis = Value;
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
 		// find out which way is forward
@@ -201,6 +202,7 @@ void ASSCharacter::MoveForward(float Value)
 }
 void ASSCharacter::MoveRight(float Value)
 {
+	rightInputAxis = Value;
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
 		// find out which way is right

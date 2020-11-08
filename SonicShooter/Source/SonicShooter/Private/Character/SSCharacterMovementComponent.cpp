@@ -343,3 +343,33 @@ FSavedMovePtr FNetworkPredictionData_Client_SSCharacter::AllocateNewMove()
 	return FSavedMovePtr(new FSavedMove_SSCharacter());
 }
 #pragma endregion
+
+
+#pragma region MovementHelpers
+bool USSCharacterMovementComponent::IsMovingForward(float degreeTolerance)
+{
+	/**
+	 * At dot product 0.7 you are looking at a 45 degrees angle
+	 * For 25 degrees tolerance use > 0.9
+	 * 0.99 gives you 8 degrees of tolerance
+	 * 
+	 * ACOS(dot product) is the formula. Incidentally, it's the formula to find the angle between two vectors
+	 */
+	FVector CharacterNormalizedVel = CharacterOwner->GetVelocity();
+	CharacterNormalizedVel.Normalize();
+	FVector CharacterFwd = CharacterOwner->GetActorForwardVector();
+	float dotProd = FVector::DotProduct(CharacterNormalizedVel, CharacterFwd);
+
+	
+
+	//float cmpVal = acosf(dotProd);	// we need to find the cmpVal
+
+	if (dotProd > .9f/*cmpVal should go here but don't know how to calculate it yet*/)
+	{
+		return true;
+	}
+
+
+	return false;
+}
+#pragma endregion

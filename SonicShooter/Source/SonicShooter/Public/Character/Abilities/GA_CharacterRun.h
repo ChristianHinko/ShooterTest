@@ -44,14 +44,18 @@ protected:
 	//END UGameplayAbility Interface
 
 	UFUNCTION()
+		void OnTick(float DeltaTime, float currentTime, float timeRemaining);
+	bool ShouldBeAbleToRun() const;
+
+	UFUNCTION()
 		void OnStaminaFullyDrained();
+	UFUNCTION()
+		void OnWasNotAbleToRun();
 
 #pragma region Gameplay Tags
 	FGameplayTag RunDisabledTag;
 #pragma endregion
 
-	UFUNCTION()
-		void DecrementStamina(float DeltaTime, float currentTime, float timeRemaining);
 	UFUNCTION()
 		virtual void OnRelease(float TimeHeld);
 };

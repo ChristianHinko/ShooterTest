@@ -263,7 +263,7 @@ void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 
 
 
-bool UGA_CharacterRun::ShouldBeAbleToRun() const
+bool UGA_CharacterRun::ShouldBeAbleToRun() const	// This is really annoying rn because you have to be very careful with turning to make sure you don't stop running
 {
 	//if (GASCharacter->fowardInputAxis < .1f)	// This just is here so we might be able to return false earlier before we do expensive calculations.
 	//{

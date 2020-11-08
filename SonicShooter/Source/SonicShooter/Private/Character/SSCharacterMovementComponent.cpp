@@ -364,7 +364,7 @@ bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/)
 
 	//float cmpVal = acosf(dotProd);	// we need to find the cmpVal
 
-	if (dotProd > .999f/*cmpVal should go here but don't know how to calculate it yet*/)
+	if (dotProd > .99f/*cmpVal should go here but don't know how to calculate it yet*/)
 	{
 		return true;
 	}

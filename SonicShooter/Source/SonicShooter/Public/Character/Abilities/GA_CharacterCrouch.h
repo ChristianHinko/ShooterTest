@@ -7,7 +7,6 @@
 #include "GA_CharacterCrouch.generated.h"
 
 class AAbilitySystemCharacter;
-class USSCharacterMovementComponent;
 class UAS_Character;
 /**
  * 
@@ -22,15 +21,14 @@ public:
 
 
 protected:
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<UGameplayEffect> CrouchingEffectTSub;	// asset manager we need you D:
+	FActiveGameplayEffectHandle CrouchingEffectActiveHandle;
+
 	UPROPERTY()
 		AAbilitySystemCharacter* GASCharacter;
 	UPROPERTY()
-		USSCharacterMovementComponent* CMC;
-	UPROPERTY()
 		UAS_Character* CharacterAttributeSet;
-
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<UGameplayEffect> DisableRunEffectTSub;	// asset manager we need you D:
 
 
 

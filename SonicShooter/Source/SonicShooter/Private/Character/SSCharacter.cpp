@@ -75,7 +75,7 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	// Default to first person
 	bFirstPerson = true;
 
-	crouchSpeed = 100.f;
+	crouchSpeed = 200.f;
 }
 void ASSCharacter::PostInitializeComponents()
 {
@@ -224,7 +224,7 @@ void ASSCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
 		CameraBoomRelativeLocation.Z -= HeightAdjust;
 
 		// Store where our camera should be. This is our goal that we will smooth to
-		crouchToHeight = DefaultSSChar->CameraBoom->GetRelativeLocation().Z + HeightAdjust;
+		crouchToHeight = DefaultSSChar->CameraBoom->GetRelativeLocation().Z;
 	}
 
 

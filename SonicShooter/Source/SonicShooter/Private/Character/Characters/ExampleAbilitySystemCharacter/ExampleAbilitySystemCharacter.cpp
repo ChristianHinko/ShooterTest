@@ -22,24 +22,7 @@ void AExampleAbilitySystemCharacter::GetLifetimeReplicatedProps(TArray<FLifetime
 AExampleAbilitySystemCharacter::AExampleAbilitySystemCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	// Don't rotate when the controller rotates. Let that just affect the camera.
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
-	bUseControllerRotationRoll = false;
-	// Rotate the character in the movement direction
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-
-
-	// Third person, so let player see mesh
-	GetMesh()->SetOwnerNoSee(false);
-	GetMesh()->AlwaysLoadOnClient = true;
-
-	
-	POVMesh->AlwaysLoadOnServer = false;
-	POVMesh->AlwaysLoadOnClient = false;
-
-	// Configure CameraBoom arm length for third person
-	GetCameraBoom()->TargetArmLength = 300.f;
+	SetFirstPerson(false);
 }
 
 

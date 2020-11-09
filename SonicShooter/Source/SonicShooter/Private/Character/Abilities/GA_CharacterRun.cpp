@@ -241,7 +241,7 @@ void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 
 bool UGA_CharacterRun::ShouldBeAbleToRun() const
 {
-	//if (GASCharacter->fowardInputAxis < .1f)	// This just is here so we might be able to return false earlier before we do expensive calculations.
+	//if (GASCharacter->GetForwardInputAxis < .1f)	// This just is here so we might be able to return false earlier before we do expensive calculations.
 	//{
 	//	return false;
 	//}

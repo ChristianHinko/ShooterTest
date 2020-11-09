@@ -32,10 +32,7 @@ protected:
 
 public:
 	ASSCharacter(const FObjectInitializer& ObjectInitializer);
-	
-	
-	float fowardInputAxis;
-	float rightInputAxis;
+
 	// Components
 	USkeletalMeshComponent* GetPOVMesh() const { return POVMesh; }
 	USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -45,15 +42,24 @@ public:
 	USSCharacterMovementComponent* GetSSCharacterMovementComponent() const { return SSCharacterMovementComponent; }
 
 
-	
+	bool GetFirstPerson() const { return bFirstPerson; }
+	void SetFirstPerson(bool newFirstPerson);
+
+	UPROPERTY(EditAnywhere, Category = "First Person")
+		float thirdPersonCameraArmLength;
+
+	float GetForwardInputAxis() const { return forwardInputAxis; }
+	float GetRightInputAxis() const { return rightInputAxis; }
+
 
 protected:
+	virtual void PostInitializeComponents() override;
+
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	UPROPERTY()
 		USSCharacterMovementComponent* SSCharacterMovementComponent;
 
-	
 #pragma region Input Events
 	//Actions
 	virtual void OnJumpPressed();
@@ -90,8 +96,16 @@ protected:
 	virtual void VerticalLook(float Rate);
 #pragma endregion
 
+	float forwardInputAxis;
+	float rightInputAxis;
+
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	float HorizontalSensitivity;
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	float VerticalSensitivity;
+
+private:
+
+	UPROPERTY(EditAnywhere, Category = "First Person")
+		uint8 bFirstPerson : 1;
 };

@@ -15,6 +15,8 @@
 #include "Interfaces/Interactable.h"
 #include "GameFramework/PlayerController.h"
 
+#include "Kismet/KismetSystemLibrary.h"
+
 
 
 ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
@@ -81,6 +83,15 @@ void ASSCharacter::PostInitializeComponents()
 	SetFirstPerson(bFirstPerson);
 }
 
+void ASSCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	CrouchTickFunction.Target = this;
+	CrouchTickFunction.RegisterTickFunction(GetLevel());
+	CrouchTickFunction.SetTickFunctionEnable(false);
+}
+
 void ASSCharacter::SetFirstPerson(bool newFirstPerson)
 {
 	if (newFirstPerson == true)
@@ -137,8 +148,9 @@ void ASSCharacter::OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust)
 		BaseTranslationOffset.Z = DefaultChar->GetBaseTranslationOffset().Z + HeightAdjust;
 	}
 
-	// Do the same for our POVMesh
 	const ASSCharacter* DefaultSSChar = GetDefault<ASSCharacter>(GetClass());
+
+	// Do the same for our POVMesh
 	if (POVMesh && DefaultSSChar->POVMesh)
 	{
 		FVector& MeshRelativeLocation = POVMesh->GetRelativeLocation_DirectMutable();
@@ -159,6 +171,9 @@ void ASSCharacter::OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust)
 
 	// Call BP event
 	K2_OnStartCrouch(HeightAdjust, ScaledHeightAdjust);
+
+
+	CrouchTickFunction.SetTickFunctionEnable(true);
 }
 
 void ASSCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
@@ -181,8 +196,9 @@ void ASSCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
 		BaseTranslationOffset.Z = DefaultChar->GetBaseTranslationOffset().Z;
 	}
 
-	// Do the same for our POVMesh
 	const ASSCharacter* DefaultSSChar = GetDefault<ASSCharacter>(GetClass());
+
+	// Do the same for our POVMesh
 	if (POVMesh && DefaultSSChar->POVMesh)
 	{
 		FVector& MeshRelativeLocation = POVMesh->GetRelativeLocation_DirectMutable();
@@ -204,6 +220,14 @@ void ASSCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
 
 	// Call BP event
 	K2_OnEndCrouch(HeightAdjust, ScaledHeightAdjust);
+
+
+	CrouchTickFunction.SetTickFunctionEnable(false);
+}
+
+void ASSCharacter::CrouchTick(float DeltaTime)
+{
+	UKismetSystemLibrary::PrintString(this, "crouch ticking", true, false);
 }
 
 #pragma region Input
@@ -243,6 +267,7 @@ void ASSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAxis("TurnRightRate", this, &ASSCharacter::HorizontalLook);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &ASSCharacter::VerticalLook);
 }
+
 
 //Actions
 void ASSCharacter::OnJumpPressed()
@@ -364,3 +389,17 @@ void ASSCharacter::VerticalLook(float Rate)
 	}
 }
 #pragma endregion
+
+void ASSCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	CrouchTickFunction.UnRegisterTickFunction();
+	CrouchTickFunction.Target = nullptr;
+}
+
+void FCrouchTickFunction::ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent)
+{
+	if (Target)
+	{
+		Target->CrouchTick(DeltaTime);
+	}
+}

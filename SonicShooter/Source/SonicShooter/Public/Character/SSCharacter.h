@@ -13,6 +13,33 @@ class UCameraComponent;
 class USpringArmComponent;
 class USSCharacterMovementComponent;
 
+USTRUCT()
+struct FCrouchTickFunction : public FTickFunction
+{
+	GENERATED_BODY()
+
+
+	//FCrouchTickFunction()
+	//{
+	//	TickGroup = TG_PrePhysics;
+	//	bTickEvenWhenPaused = true;
+	//}
+
+	ASSCharacter* Target;
+
+	virtual void ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent) override;
+
+	//virtual FString DiagnosticMessage() override
+	//{
+	//	return FString(TEXT("FCrouchTickFunction"));
+	//}
+
+	//virtual FName DiagnosticContext(bool bDetailed) override
+	//{
+	//	return FName(TEXT("CrouchTick"));
+	//}
+};
+
 /**
  * Base character class (without GAS implementation)
  */
@@ -57,9 +84,12 @@ public:
 	virtual void OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust) override;
 	virtual void OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust) override;
 
+	void CrouchTick(float DeltaTime);
+
 
 protected:
 	virtual void PostInitializeComponents() override;
+	virtual void BeginPlay() override;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
@@ -69,6 +99,12 @@ protected:
 	/** Whether we are currently in first person. NOTE: ONLY DIRECTLY SET THIS IN THE CONSTRUCTOR OR IN BP otherwise use the setter. */
 	UPROPERTY(EditAnywhere, Category = "First Person")
 		uint8 bFirstPerson : 1;
+
+	FCrouchTickFunction CrouchTickFunction;
+	//FCrouchTickFunction& GetCrouchTickFunction() const { return CrouchTickFunction; }
+
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 
 #pragma region Input Events
 	//Actions
@@ -114,5 +150,13 @@ protected:
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	float VerticalSensitivity;
 
-private:
+};
+
+template<>
+struct TStructOpsTypeTraits<FCrouchTickFunction> : public TStructOpsTypeTraitsBase2<FCrouchTickFunction>
+{
+	enum
+	{
+		WithCopy = false
+	};
 };

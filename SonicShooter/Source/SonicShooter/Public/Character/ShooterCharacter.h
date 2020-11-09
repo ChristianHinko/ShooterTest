@@ -44,6 +44,7 @@ public:
 #pragma endregion
 
 	virtual void OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust) override;
+	virtual void OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust) override;
 
 protected:
 

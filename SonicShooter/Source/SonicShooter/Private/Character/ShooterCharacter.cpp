@@ -87,6 +87,45 @@ void AShooterCharacter::OnStartCrouch(float HeightAdjust, float ScaledHeightAdju
 	K2_OnStartCrouch(HeightAdjust, ScaledHeightAdjust);
 }
 
+void AShooterCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
+{
+	//Super::OnEndCrouch(HeightAdjust, ScaledHeightAdjust);
+
+	RecalculateBaseEyeHeight();
+
+
+	// From Super
+	const ACharacter* DefaultChar = GetDefault<ACharacter>(GetClass());
+	if (GetMesh() && DefaultChar->GetMesh())
+	{
+		FVector& MeshRelativeLocation = GetMesh()->GetRelativeLocation_DirectMutable();
+		MeshRelativeLocation.Z = DefaultChar->GetMesh()->GetRelativeLocation().Z;
+		BaseTranslationOffset.Z = MeshRelativeLocation.Z;
+	}
+	else
+	{
+		BaseTranslationOffset.Z = DefaultChar->GetBaseTranslationOffset().Z;
+	}
+
+	// Do the same for our POVMesh
+	const ASSCharacter* DefaultSSChar = GetDefault<ASSCharacter>(GetClass());
+	if (POVMesh && DefaultSSChar->GetPOVMesh())
+	{
+		FVector& MeshRelativeLocation = POVMesh->GetRelativeLocation_DirectMutable();
+		MeshRelativeLocation.Z = DefaultSSChar->GetPOVMesh()->GetRelativeLocation().Z;
+		BaseTranslationOffset.Z = MeshRelativeLocation.Z;
+	}
+	else
+	{
+		BaseTranslationOffset.Z = DefaultSSChar->GetBaseTranslationOffset().Z;
+	}
+
+
+	// Call BP event
+	K2_OnEndCrouch(HeightAdjust, ScaledHeightAdjust);
+}
+
+
 void AShooterCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);

@@ -235,13 +235,6 @@ void ASSCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
 	CrouchTickFunction.SetTickFunctionEnable(true);
 }
 
-void FCrouchTickFunction::ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent)
-{
-	if (Target)
-	{
-		Target->CrouchTick(DeltaTime);
-	}
-}
 void ASSCharacter::CrouchTick(float DeltaTime)
 {
 	const FVector CameraBoomLoc = CameraBoom->GetRelativeLocation();

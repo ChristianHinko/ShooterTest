@@ -34,12 +34,18 @@ struct FCrouchTickFunction : public FTickFunction
 		// Optimizations:
 
 		bAllowTickOnDedicatedServer = false; // dedicated server shouldn't care about this visual effect
-		//bRunOnAnyThread = true;
+		//bRunOnAnyThread = true; // i want to do this but we set component locations in the tick so we can't
 	}
 
 	ASSCharacter* Target;
 
-	virtual void ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent) override;
+	virtual void ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent) override
+	{
+		if (Target)
+		{
+			Target->CrouchTick(DeltaTime);
+		}
+	}
 
 	virtual FString DiagnosticMessage() override
 	{

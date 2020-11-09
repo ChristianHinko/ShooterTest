@@ -103,7 +103,9 @@ An ideal solution to these 2 problems would mean the server wouldn't have to wai
 
 
 
+- make crouch not affect mesh or camera by override OnStartCrouch and OnEndCrouch
 
+- make smooth camera crouching by using the FCrouchTickFunction and CrouchTick()
 
 
 

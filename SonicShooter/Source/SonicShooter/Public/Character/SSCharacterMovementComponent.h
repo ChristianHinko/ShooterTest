@@ -171,6 +171,7 @@ protected:
 
 	//BEGIN CMC Interface
 	virtual void UpdateFromCompressedFlags(uint8 Flags) override;
+	virtual void UpdateCharacterStateBeforeMovement(float DeltaSeconds) override;
 	virtual void OnMovementUpdated(float deltaTime, const FVector& OldLocation, const FVector& OldVelocity) override;
 	virtual float GetMaxAcceleration() const override;
 	virtual FString GetMovementName() const override;
@@ -181,6 +182,7 @@ protected:
 	//END CMC Interface
 
 	virtual bool CanCrouchInCurrentState() const override;
+	virtual bool CanRunInCurrentState() const;
 
 	//BEGIN UMovementComponent Interface
 	virtual float GetMaxSpeed() const override;
@@ -189,6 +191,9 @@ protected:
 #pragma region Compressed Flags
 	uint8 bWantsToRun : 1;
 #pragma endregion
+
+	/** Whether we are actually running */
+	uint8 bIsRunning : 1;
 
 	// This is a good event for calling your custom client adjustment RPCs
 	virtual void ClientAdjustPosition(float TimeStamp, FVector NewLoc, FVector NewVel, UPrimitiveComponent* NewBase, FName NewBaseBoneName, bool bHasBase, bool bBaseRelativePosition, uint8 ServerMovementMode) override;

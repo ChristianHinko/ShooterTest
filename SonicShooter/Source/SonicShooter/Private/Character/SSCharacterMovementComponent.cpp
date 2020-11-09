@@ -150,6 +150,24 @@ void USSCharacterMovementComponent::ClientAdjustPosition(float TimeStamp, FVecto
 //}
 #pragma endregion
 
+void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float DeltaSeconds)
+{
+	Super::UpdateCharacterStateBeforeMovement(DeltaSeconds);
+
+
+	if (CharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)
+	{
+		if (bIsRunning && (!bWantsToRun || !CanRunInCurrentState()))
+		{
+			bIsRunning = false;
+		}
+		else if (!bIsRunning && bWantsToRun && CanRunInCurrentState())
+		{
+			bIsRunning = true;
+		}
+	}
+}
+
 bool USSCharacterMovementComponent::CanCrouchInCurrentState() const
 {
 	if (!IsMovingOnGround())
@@ -158,6 +176,16 @@ bool USSCharacterMovementComponent::CanCrouchInCurrentState() const
 	}
 
 	return Super::CanCrouchInCurrentState();
+}
+
+bool USSCharacterMovementComponent::CanRunInCurrentState() const
+{
+	if (!IsMovingOnGround())
+	{
+		return false;
+	}
+
+	return true;
 }
 
 
@@ -192,7 +220,7 @@ float USSCharacterMovementComponent::GetMaxSpeed() const
 				return 0;
 			}
 
-			if (bWantsToRun && bRunDisabled == false)
+			if (bIsRunning && bRunDisabled == false)
 			{
 				return CharacterAttributeSet->GetRunSpeed();
 			}
@@ -241,7 +269,7 @@ float USSCharacterMovementComponent::GetMaxAcceleration() const
 			return 0;
 		}
 
-		if (bWantsToRun && bRunDisabled == false)
+		if (bIsRunning && bRunDisabled == false)
 		{
 			return CharacterAttributeSet->GetRunAccelaration();
 		}

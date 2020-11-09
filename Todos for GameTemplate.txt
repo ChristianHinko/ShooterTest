@@ -109,7 +109,7 @@ An ideal solution to these 2 problems would mean the server wouldn't have to wai
 
 
 
-
+- Add CMC system for having a true value for each flag. EX: bIsRunning for bWantsToRun. look at UpdateCharacterStateBeforeMovement()
 
 
 

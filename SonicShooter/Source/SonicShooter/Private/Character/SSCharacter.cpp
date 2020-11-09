@@ -150,6 +150,12 @@ void ASSCharacter::OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust)
 		BaseTranslationOffset.Z = DefaultSSChar->GetBaseTranslationOffset().Z + HeightAdjust;
 	}
 
+	// Do this for the camera too (we don't want the camera teleporting to another Z position)
+	if (CameraBoom && DefaultSSChar->CameraBoom)
+	{
+		FVector& CameraBoomRelativeLocation = CameraBoom->GetRelativeLocation_DirectMutable();
+		CameraBoomRelativeLocation.Z = DefaultSSChar->CameraBoom->GetRelativeLocation().Z + HeightAdjust;
+	}
 
 	// Call BP event
 	K2_OnStartCrouch(HeightAdjust, ScaledHeightAdjust);
@@ -186,6 +192,13 @@ void ASSCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
 	else
 	{
 		BaseTranslationOffset.Z = DefaultSSChar->GetBaseTranslationOffset().Z;
+	}
+
+	// Do this for the camera too (we don't want the camera teleporting to another Z position)
+	if (CameraBoom && DefaultSSChar->CameraBoom)
+	{
+		FVector& CameraBoomRelativeLocation = CameraBoom->GetRelativeLocation_DirectMutable();
+		CameraBoomRelativeLocation.Z = DefaultSSChar->CameraBoom->GetRelativeLocation().Z;
 	}
 
 

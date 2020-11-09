@@ -91,7 +91,6 @@ void ASSCharacter::BeginPlay()
 
 	CrouchTickFunction.Target = this;
 	CrouchTickFunction.RegisterTickFunction(GetLevel());
-	CrouchTickFunction.SetTickFunctionEnable(false);
 }
 
 void ASSCharacter::SetFirstPerson(bool newFirstPerson)
@@ -130,6 +129,7 @@ void ASSCharacter::SetFirstPerson(bool newFirstPerson)
 	bFirstPerson = newFirstPerson;
 }
 
+#pragma region Crouch
 void ASSCharacter::OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust)
 {
 	//Super::OnStartCrouch(HeightAdjust, ScaledHeightAdjust);
@@ -235,6 +235,13 @@ void ASSCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
 	CrouchTickFunction.SetTickFunctionEnable(true);
 }
 
+void FCrouchTickFunction::ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent)
+{
+	if (Target)
+	{
+		Target->CrouchTick(DeltaTime);
+	}
+}
 void ASSCharacter::CrouchTick(float DeltaTime)
 {
 	const FVector CameraBoomLoc = CameraBoom->GetRelativeLocation();
@@ -261,6 +268,7 @@ void ASSCharacter::CrouchTick(float DeltaTime)
 
 	UKismetSystemLibrary::PrintString(this, "crouch ticking;                      " + CameraBoom->GetRelativeLocation().ToString(), true, false);
 }
+#pragma endregion
 
 #pragma region Input
 void ASSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -426,12 +434,4 @@ void ASSCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	CrouchTickFunction.UnRegisterTickFunction();
 	CrouchTickFunction.Target = nullptr;
-}
-
-void FCrouchTickFunction::ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent)
-{
-	if (Target)
-	{
-		Target->CrouchTick(DeltaTime);
-	}
 }

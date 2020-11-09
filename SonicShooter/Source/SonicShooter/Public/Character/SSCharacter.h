@@ -24,7 +24,14 @@ struct FCrouchTickFunction : public FTickFunction
 
 	FCrouchTickFunction()
 	{
-		bAllowTickOnDedicatedServer = false;
+		// This bool doesn't actually do anything for some reason so we have to call SetTickFunctionEnable after
+		bStartWithTickEnabled = false;
+		SetTickFunctionEnable(bStartWithTickEnabled);
+
+
+		// Optimizations:
+
+		bAllowTickOnDedicatedServer = false; // server shouldn't care about this visual effect
 		//bRunOnAnyThread = true;
 	}
 

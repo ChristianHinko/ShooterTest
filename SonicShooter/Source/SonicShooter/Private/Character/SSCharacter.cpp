@@ -75,7 +75,7 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	// Default to first person
 	bFirstPerson = true;
 
-	crouchSpeed = 200.f;
+	crouchSpeed = 100.f;
 }
 void ASSCharacter::PostInitializeComponents()
 {
@@ -239,16 +239,27 @@ void ASSCharacter::CrouchTick(float DeltaTime)
 {
 	const FVector CameraBoomLoc = CameraBoom->GetRelativeLocation();
 	const float crouchFromHeight = CameraBoomLoc.Z;
-	const float interpHeight = FMath::FInterpConstantTo(crouchFromHeight, crouchToHeight, DeltaTime, crouchSpeed);
+	const float interpedHeight = FMath::FInterpConstantTo(crouchFromHeight, crouchToHeight, DeltaTime, crouchSpeed);
 
-	CameraBoom->SetRelativeLocation(FVector(CameraBoomLoc.X, CameraBoomLoc.Y, interpHeight));
-
-	if (interpHeight == crouchToHeight)
+	if (interpedHeight == crouchToHeight)
 	{
+		// We've reached our goal, make this our last tick
 		CrouchTickFunction.SetTickFunctionEnable(false);
 	}
 
-	UKismetSystemLibrary::PrintString(this, "crouch ticking;					" + CameraBoom->GetRelativeLocation().ToString(), true, false);
+	//float interpedHeight = FMath::FInterpTo(crouchFromHeight, crouchToHeight, DeltaTime, crouchSpeed / 10);
+
+	//if (FMath::IsNearlyEqual(interpedHeight, crouchToHeight, KINDA_SMALL_NUMBER * 100))
+	//{
+	//  // We've nearly reached our goal, set our official height and make this our last tick
+	//	interpedHeight = crouchToHeight;
+	//	CrouchTickFunction.SetTickFunctionEnable(false);
+	//}
+
+	CameraBoom->SetRelativeLocation(FVector(CameraBoomLoc.X, CameraBoomLoc.Y, interpedHeight));
+
+
+	UKismetSystemLibrary::PrintString(this, "crouch ticking;                      " + CameraBoom->GetRelativeLocation().ToString(), true, false);
 }
 
 #pragma region Input

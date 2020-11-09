@@ -13,21 +13,34 @@ class UCameraComponent;
 class USpringArmComponent;
 class USSCharacterMovementComponent;
 
+/**
+ * Handles physical animation while crouching/uncrouching
+ */
 USTRUCT()
 struct FCrouchTickFunction : public FTickFunction
 {
 	GENERATED_BODY()
 
 
-	//FCrouchTickFunction()
-	//{
-	//	TickGroup = TG_PrePhysics;
-	//	bTickEvenWhenPaused = true;
-	//}
+	FCrouchTickFunction()
+	{
+		bAllowTickOnDedicatedServer = false;
+		//bRunOnAnyThread = true;
+	}
 
 	ASSCharacter* Target;
 
 	virtual void ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent) override;
+
+	virtual FString DiagnosticMessage() override
+	{
+		return FString(TEXT("FCrouchTickFunction"));
+	}
+
+	virtual FName DiagnosticContext(bool bDetailed) override
+	{
+		return FName(TEXT("ASSCharacter"));
+	}
 };
 
 template<>

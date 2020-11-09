@@ -346,7 +346,7 @@ FSavedMovePtr FNetworkPredictionData_Client_SSCharacter::AllocateNewMove()
 
 
 #pragma region MovementHelpers
-bool USSCharacterMovementComponent::IsMovingForward(float degreeTolerance)
+bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/)
 {
 	/**
 	 * At dot product 0.7 you are looking at a 45 degrees angle
@@ -364,7 +364,7 @@ bool USSCharacterMovementComponent::IsMovingForward(float degreeTolerance)
 
 	//float cmpVal = acosf(dotProd);	// we need to find the cmpVal
 
-	if (dotProd > .9f/*cmpVal should go here but don't know how to calculate it yet*/)
+	if (dotProd > .99f/*cmpVal should go here but don't know how to calculate it yet*/)
 	{
 		return true;
 	}

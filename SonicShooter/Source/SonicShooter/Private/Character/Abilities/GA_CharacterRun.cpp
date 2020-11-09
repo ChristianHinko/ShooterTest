@@ -6,6 +6,7 @@
 #include "Character/AbilitySystemCharacter.h"
 #include "Character/SSCharacterMovementComponent.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
+#include "Abilities/Tasks/AbilityTask_WaitInputPress.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Character\AbilitySystemCharacter.h"
 #include "Character\AS_Character.h"
@@ -124,6 +125,23 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterRun::OnRelease);
 	InputReleasedTask->ReadyForActivation();
 
+
+	InputPressTask = UAbilityTask_WaitInputPress::WaitInputPress(this);
+	if (!InputPressTask)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputPressTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+		return;
+	}
+	InputPressTask->OnPress.AddDynamic(this, &UGA_CharacterRun::OnPress);
+
+
+
+
+
+
+
+
 	//	Create the interval task so we can decrement our stamina every second
 	UAT_Ticker* Ticker = UAT_Ticker::Ticker(this, -1, 0, false);
 	if (!Ticker)
@@ -136,7 +154,7 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 	Ticker->ReadyForActivation();
 
 	// Both tasks were created successfully. Set to running speed
-	CMC->SetWantsToRun(true);	//	In the case of an activation rollback, EndAbility() will be called which will call CMC->SetWantsToRun(false);
+	CMC->SetWantsToRun(true);
 }
 
 void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRemaining)
@@ -144,21 +162,21 @@ void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRema
 	float stamina = CharacterAttributeSet->GetStamina();
 	float staminaDrain = CharacterAttributeSet->GetStaminaDrain();
 
-	//if (stamina <= 0)
-	//{
-	//	// No more stamina so make a valid prediction window and stop the running
-	//	UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
-	//	WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnStaminaFullyDrained);
-	//	WaitNetSyncTask->ReadyForActivation();
-	//}
-	//else if (!ShouldBeAbleToRun())
-	//{
-	//	// Wasn't able to run so make a valid prediction window and stop the running
-	//	UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
-	//	WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnWasNotAbleToRun);
-	//	WaitNetSyncTask->ReadyForActivation();
-	//}
-	//else
+	if (stamina <= 0)
+	{
+		// No more stamina so make a valid prediction window and stop the running
+		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
+		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnStaminaFullyDrained);
+		WaitNetSyncTask->ReadyForActivation();
+	}
+	else if (!ShouldBeAbleToRun())
+	{
+		// Wasn't able to run so make a valid prediction window and stop the running
+		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
+		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnWasNotAbleToRun);
+		WaitNetSyncTask->ReadyForActivation();
+	}
+	else
 	{
 		// We passed the checks, so decrement stamina and keep going
 		CharacterAttributeSet->SetStamina(stamina - (staminaDrain * DeltaTime));
@@ -167,18 +185,24 @@ void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRema
 
 
 
+// Break events
+void UGA_CharacterRun::OnStaminaFullyDrained()		// Break out
+{
+	ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DisableRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
+}
+void UGA_CharacterRun::OnWasNotAbleToRun()			// Break out
+{
+	ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DisableRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
+}
+void UGA_CharacterRun::OnRelease(float TimeHeld)	// Break out
+{
+	//EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);	// This should be uncommented if the player has the hold to run setting on
 
-void UGA_CharacterRun::OnStaminaFullyDrained() 
-{
-	ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DisableRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
+	InputPressTask->ReadyForActivation();
 }
-void UGA_CharacterRun::OnWasNotAbleToRun()
-{
-	ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DisableRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
-}
-void UGA_CharacterRun::OnRelease(float TimeHeld)
+void UGA_CharacterRun::OnPress(float TimeElapsed)	// Break out
 {
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
@@ -239,7 +263,7 @@ void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 
 
 
-bool UGA_CharacterRun::ShouldBeAbleToRun() const
+bool UGA_CharacterRun::ShouldBeAbleToRun() const	// This is really annoying rn because you have to be very careful with turning to make sure you don't stop running
 {
 	//if (GASCharacter->GetForwardInputAxis < .1f)	// This just is here so we might be able to return false earlier before we do expensive calculations.
 	//{

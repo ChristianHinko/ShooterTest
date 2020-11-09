@@ -117,6 +117,82 @@ void ASSCharacter::SetFirstPerson(bool newFirstPerson)
 	bFirstPerson = newFirstPerson;
 }
 
+void ASSCharacter::OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust)
+{
+	//Super::OnStartCrouch(HeightAdjust, ScaledHeightAdjust);
+
+	RecalculateBaseEyeHeight();
+
+
+	// From Super
+	const ACharacter* DefaultChar = GetDefault<ACharacter>(GetClass());
+	if (GetMesh() && DefaultChar->GetMesh())
+	{
+		FVector& MeshRelativeLocation = GetMesh()->GetRelativeLocation_DirectMutable();
+		MeshRelativeLocation.Z = DefaultChar->GetMesh()->GetRelativeLocation().Z + HeightAdjust;
+		BaseTranslationOffset.Z = MeshRelativeLocation.Z;
+	}
+	else
+	{
+		BaseTranslationOffset.Z = DefaultChar->GetBaseTranslationOffset().Z + HeightAdjust;
+	}
+
+	// Do the same for our POVMesh
+	const ASSCharacter* DefaultSSChar = GetDefault<ASSCharacter>(GetClass());
+	if (POVMesh && DefaultSSChar->POVMesh)
+	{
+		FVector& MeshRelativeLocation = POVMesh->GetRelativeLocation_DirectMutable();
+		MeshRelativeLocation.Z = DefaultSSChar->POVMesh->GetRelativeLocation().Z + HeightAdjust;
+		BaseTranslationOffset.Z = MeshRelativeLocation.Z;
+	}
+	else
+	{
+		BaseTranslationOffset.Z = DefaultSSChar->GetBaseTranslationOffset().Z + HeightAdjust;
+	}
+
+
+	// Call BP event
+	K2_OnStartCrouch(HeightAdjust, ScaledHeightAdjust);
+}
+
+void ASSCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
+{
+	//Super::OnEndCrouch(HeightAdjust, ScaledHeightAdjust);
+
+	RecalculateBaseEyeHeight();
+
+
+	// From Super
+	const ACharacter* DefaultChar = GetDefault<ACharacter>(GetClass());
+	if (GetMesh() && DefaultChar->GetMesh())
+	{
+		FVector& MeshRelativeLocation = GetMesh()->GetRelativeLocation_DirectMutable();
+		MeshRelativeLocation.Z = DefaultChar->GetMesh()->GetRelativeLocation().Z;
+		BaseTranslationOffset.Z = MeshRelativeLocation.Z;
+	}
+	else
+	{
+		BaseTranslationOffset.Z = DefaultChar->GetBaseTranslationOffset().Z;
+	}
+
+	// Do the same for our POVMesh
+	const ASSCharacter* DefaultSSChar = GetDefault<ASSCharacter>(GetClass());
+	if (POVMesh && DefaultSSChar->POVMesh)
+	{
+		FVector& MeshRelativeLocation = POVMesh->GetRelativeLocation_DirectMutable();
+		MeshRelativeLocation.Z = DefaultSSChar->POVMesh->GetRelativeLocation().Z;
+		BaseTranslationOffset.Z = MeshRelativeLocation.Z;
+	}
+	else
+	{
+		BaseTranslationOffset.Z = DefaultSSChar->GetBaseTranslationOffset().Z;
+	}
+
+
+	// Call BP event
+	K2_OnEndCrouch(HeightAdjust, ScaledHeightAdjust);
+}
+
 #pragma region Input
 void ASSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {

@@ -54,6 +54,10 @@ public:
 	float GetRightInputAxis() const { return rightInputAxis; }
 
 
+	virtual void OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust) override;
+	virtual void OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust) override;
+
+
 protected:
 	virtual void PostInitializeComponents() override;
 

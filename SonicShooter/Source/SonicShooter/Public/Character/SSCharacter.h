@@ -28,10 +28,12 @@ struct FCrouchTickFunction : public FTickFunction
 		bStartWithTickEnabled = false;
 		SetTickFunctionEnable(bStartWithTickEnabled);
 
+		TickGroup = ETickingGroup::TG_PostPhysics; // the latest tick that occurs before rendering
+
 
 		// Optimizations:
 
-		bAllowTickOnDedicatedServer = false; // server shouldn't care about this visual effect
+		bAllowTickOnDedicatedServer = false; // dedicated server shouldn't care about this visual effect
 		//bRunOnAnyThread = true;
 	}
 

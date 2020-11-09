@@ -43,6 +43,8 @@ public:
 
 
 	bool GetFirstPerson() const { return bFirstPerson; }
+
+	/** Sets bFirstPerson and changes all of the necessary properties to switch to TP/FP. */
 	void SetFirstPerson(bool newFirstPerson);
 
 	UPROPERTY(EditAnywhere, Category = "First Person")
@@ -59,6 +61,10 @@ protected:
 
 	UPROPERTY()
 		USSCharacterMovementComponent* SSCharacterMovementComponent;
+
+	/** Whether we are currently in first person. NOTE: ONLY DIRECTLY SET THIS IN THE CONSTRUCTOR OR IN BP otherwise use the setter. */
+	UPROPERTY(EditAnywhere, Category = "First Person")
+		uint8 bFirstPerson : 1;
 
 #pragma region Input Events
 	//Actions
@@ -105,7 +111,4 @@ protected:
 	float VerticalSensitivity;
 
 private:
-
-	UPROPERTY(EditAnywhere, Category = "First Person")
-		uint8 bFirstPerson : 1;
 };

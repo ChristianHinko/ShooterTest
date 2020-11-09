@@ -39,13 +39,7 @@ struct FCrouchTickFunction : public FTickFunction
 
 	ASSCharacter* Target;
 
-	virtual void ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent) override
-	{
-		if (Target)
-		{
-			Target->CrouchTick(DeltaTime);
-		}
-	}
+	virtual void ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent) override;
 
 	virtual FString DiagnosticMessage() override
 	{

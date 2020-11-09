@@ -180,6 +180,8 @@ protected:
 	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
 	//END CMC Interface
 
+	virtual bool CanCrouchInCurrentState() const override;
+
 	//BEGIN UMovementComponent Interface
 	virtual float GetMaxSpeed() const override;
 	//END UMovementComponent Interface

@@ -150,6 +150,16 @@ void USSCharacterMovementComponent::ClientAdjustPosition(float TimeStamp, FVecto
 //}
 #pragma endregion
 
+bool USSCharacterMovementComponent::CanCrouchInCurrentState() const
+{
+	if (!IsMovingOnGround())
+	{
+		return false;
+	}
+
+	return Super::CanCrouchInCurrentState();
+}
+
 
 void USSCharacterMovementComponent::OnMovementUpdated(float deltaTime, const FVector& OldLocation, const FVector& OldVelocity)
 {

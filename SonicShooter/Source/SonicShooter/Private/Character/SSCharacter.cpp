@@ -74,6 +74,8 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 
 	// Default to first person
 	bFirstPerson = true;
+
+	crouchSpeed = 100.f;
 }
 void ASSCharacter::PostInitializeComponents()
 {
@@ -165,8 +167,12 @@ void ASSCharacter::OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust)
 	// Do this for the camera too (we don't want the camera teleporting to another Z position)
 	if (CameraBoom && DefaultSSChar->CameraBoom)
 	{
+		// The crouch teleports our camera down. We want to do smoothing so we bump it back up here
 		FVector& CameraBoomRelativeLocation = CameraBoom->GetRelativeLocation_DirectMutable();
-		CameraBoomRelativeLocation.Z = DefaultSSChar->CameraBoom->GetRelativeLocation().Z + HeightAdjust;
+		CameraBoomRelativeLocation.Z += HeightAdjust;
+
+		// Store where our camera should be. This is our goal that we will smooth to
+		crouchToHeight = DefaultSSChar->CameraBoom->GetRelativeLocation().Z - HeightAdjust;
 	}
 
 	// Call BP event
@@ -213,8 +219,12 @@ void ASSCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
 	// Do this for the camera too (we don't want the camera teleporting to another Z position)
 	if (CameraBoom && DefaultSSChar->CameraBoom)
 	{
+		// The uncrouch teleports our camera back up. We want to do smoothing so we bump it back down here
 		FVector& CameraBoomRelativeLocation = CameraBoom->GetRelativeLocation_DirectMutable();
-		CameraBoomRelativeLocation.Z = DefaultSSChar->CameraBoom->GetRelativeLocation().Z;
+		CameraBoomRelativeLocation.Z -= HeightAdjust;
+
+		// Store where our camera should be. This is our goal that we will smooth to
+		crouchToHeight = DefaultSSChar->CameraBoom->GetRelativeLocation().Z + HeightAdjust;
 	}
 
 
@@ -222,12 +232,23 @@ void ASSCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
 	K2_OnEndCrouch(HeightAdjust, ScaledHeightAdjust);
 
 
-	CrouchTickFunction.SetTickFunctionEnable(false);
+	CrouchTickFunction.SetTickFunctionEnable(true);
 }
 
 void ASSCharacter::CrouchTick(float DeltaTime)
 {
-	UKismetSystemLibrary::PrintString(this, "crouch ticking", true, false);
+	const FVector CameraBoomLoc = CameraBoom->GetRelativeLocation();
+	const float crouchFromHeight = CameraBoomLoc.Z;
+	const float interpHeight = FMath::FInterpConstantTo(crouchFromHeight, crouchToHeight, DeltaTime, crouchSpeed);
+
+	CameraBoom->SetRelativeLocation(FVector(CameraBoomLoc.X, CameraBoomLoc.Y, interpHeight));
+
+	if (interpHeight == crouchToHeight)
+	{
+		CrouchTickFunction.SetTickFunctionEnable(false);
+	}
+
+	UKismetSystemLibrary::PrintString(this, "crouch ticking;					" + CameraBoom->GetRelativeLocation().ToString(), true, false);
 }
 
 #pragma region Input

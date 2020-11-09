@@ -28,16 +28,15 @@ struct FCrouchTickFunction : public FTickFunction
 	ASSCharacter* Target;
 
 	virtual void ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent) override;
+};
 
-	//virtual FString DiagnosticMessage() override
-	//{
-	//	return FString(TEXT("FCrouchTickFunction"));
-	//}
-
-	//virtual FName DiagnosticContext(bool bDetailed) override
-	//{
-	//	return FName(TEXT("CrouchTick"));
-	//}
+template<>
+struct TStructOpsTypeTraits<FCrouchTickFunction> : public TStructOpsTypeTraitsBase2<FCrouchTickFunction>
+{
+	enum
+	{
+		WithCopy = false
+	};
 };
 
 /**
@@ -100,6 +99,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "First Person")
 		uint8 bFirstPerson : 1;
 
+	float crouchSpeed;
+
 	FCrouchTickFunction CrouchTickFunction;
 	//FCrouchTickFunction& GetCrouchTickFunction() const { return CrouchTickFunction; }
 
@@ -150,13 +151,6 @@ protected:
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	float VerticalSensitivity;
 
-};
-
-template<>
-struct TStructOpsTypeTraits<FCrouchTickFunction> : public TStructOpsTypeTraitsBase2<FCrouchTickFunction>
-{
-	enum
-	{
-		WithCopy = false
-	};
+private:
+	float crouchToHeight;
 };

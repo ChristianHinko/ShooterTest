@@ -22,6 +22,8 @@ UGA_CharacterRun::UGA_CharacterRun()
 	RunDisabledTag = FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled");
 
 	ActivationBlockedTags.AddTag(RunDisabledTag);	// This isn't the singular thing stopping you from running. The CMC is what listens for the presence of the RunDisabledTag and blocks running. This check just saves an ability activation.
+
+	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Crouch"));
 }
 
 void UGA_CharacterRun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -138,7 +140,7 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 
 
 
-
+	RunningEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, RunningEffectTSub.GetDefaultObject(), GetAbilityLevel());
 
 
 
@@ -245,6 +247,7 @@ void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 
 
 
+	ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(RunningEffectActiveHandle);
 
 
 

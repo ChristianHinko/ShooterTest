@@ -24,6 +24,10 @@ public:
 
 
 protected:
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<UGameplayEffect> RunningEffectTSub;	// asset manager we need you D:
+	FActiveGameplayEffectHandle RunningEffectActiveHandle;
+
 	UPROPERTY()
 		AAbilitySystemCharacter* GASCharacter;
 	UPROPERTY()

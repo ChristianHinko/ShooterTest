@@ -14,6 +14,8 @@
 UGA_CharacterCrouch::UGA_CharacterCrouch()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Crouch")));
+
+	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Run"));
 }
 
 void UGA_CharacterCrouch::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)

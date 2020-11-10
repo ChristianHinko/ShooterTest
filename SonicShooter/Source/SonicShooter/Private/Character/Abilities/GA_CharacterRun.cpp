@@ -127,14 +127,14 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 	InputReleasedTask->ReadyForActivation();
 
 
-	//InputPressTask = UAbilityTask_WaitInputPress::WaitInputPress(this);
-	//if (!InputPressTask)
-	//{
-	//	UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputPressTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
-	//	CancelAbility(Handle, ActorInfo, ActivationInfo, true);
-	//	return;
-	//}
-	//InputPressTask->OnPress.AddDynamic(this, &UGA_CharacterRun::OnPress);
+	InputPressTask = UAbilityTask_WaitInputPress::WaitInputPress(this);
+	if (!InputPressTask)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputPressTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+		return;
+	}
+	InputPressTask->OnPress.AddDynamic(this, &UGA_CharacterRun::OnPress);
 
 
 
@@ -206,14 +206,14 @@ void UGA_CharacterRun::OnWasNotAbleToRun()			// Break out
 void UGA_CharacterRun::OnRelease(float TimeHeld)	// Break out
 {
 	InputReleasedTask->EndTask();
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);	// This should be uncommented if the player has the hold to run setting on
+	//EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);	// This should be uncommented if the player has the hold to run setting on
 
-	//InputPressTask->ReadyForActivation();
+	InputPressTask->ReadyForActivation();
 }
 void UGA_CharacterRun::OnPress(float TimeElapsed)	// Break out
 {
 	InputPressTask->EndTask();
-	//EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
 
 
@@ -280,6 +280,11 @@ bool UGA_CharacterRun::ShouldBeAbleToRun() const	// This is really annoying rn b
 	//	return false;
 	//}
 
+	if (!CMC->IsMovingOnGround())
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was not on ground. Returned false"), *FString(__FUNCTION__));
+		return false;
+	}
 	// Maybe we shouldn't be only using this function. Maybe we should do some more checks first
 	return CMC->IsMovingForward();
 }

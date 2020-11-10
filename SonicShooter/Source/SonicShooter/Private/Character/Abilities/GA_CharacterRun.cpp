@@ -69,29 +69,11 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 		return false;
 	}
 
-	if (!CMC)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), *FString(__FUNCTION__));
-		return false;
-	}
-	if (!CMC->IsMovingOnGround())
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was not on ground. Returned false"), *FString(__FUNCTION__));
-		return false;
-	}
 	if (!GASCharacter)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (!ShouldBeAbleToRun())
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was not moving forward. Returned false"), *FString(__FUNCTION__));
-		return false;
-	}
-
-
-
 	if (!CharacterAttributeSet)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterAttributeSet was NULL. Returned false"), *FString(__FUNCTION__));
@@ -100,6 +82,17 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 	if (!ActorInfo->AbilitySystemComponent.Get())
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo->AbilitySystemComponent was NULL when trying to activate. Returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+
+	if (!CMC)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+	if (!ShouldBeAbleToRun())
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShouldBeAbleToRun() returned false. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
 
@@ -118,7 +111,7 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 
 
 	// Lets do the logic we want to happen when the ability starts.
-	UAbilityTask_WaitInputRelease* InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
+	InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
 	if (!InputReleasedTask)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
@@ -145,16 +138,16 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 
 
 
-	// Create the interval task so we can decrement our stamina every second
-	UAT_Ticker* Ticker = UAT_Ticker::Ticker(this, -1, 0, false);
-	if (!Ticker)
+	//	Create the interval task so we can decrement our stamina every second
+	TickerTask = UAT_Ticker::Ticker(this);
+	if (!TickerTask)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Ticker was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() TickerTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
 		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 		return;
 	}
-	Ticker->OnTick.AddDynamic(this, &UGA_CharacterRun::OnTick);
-	Ticker->ReadyForActivation();
+	TickerTask->OnTick.AddDynamic(this, &UGA_CharacterRun::OnTick);
+	TickerTask->ReadyForActivation();
 
 	// Both tasks were created successfully. Set to running speed
 	CMC->SetWantsToRun(true);
@@ -171,6 +164,9 @@ void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRema
 		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
 		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnStaminaFullyDrained);
 		WaitNetSyncTask->ReadyForActivation();
+		TickerTask->EndTask();
+
+		OnStaminaFullyDrained();
 	}
 	else if (!ShouldBeAbleToRun())
 	{
@@ -178,6 +174,9 @@ void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRema
 		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
 		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnWasNotAbleToRun);
 		WaitNetSyncTask->ReadyForActivation();
+		TickerTask->EndTask();
+
+		OnWasNotAbleToRun();
 	}
 	else
 	{
@@ -201,12 +200,14 @@ void UGA_CharacterRun::OnWasNotAbleToRun()			// Break out
 }
 void UGA_CharacterRun::OnRelease(float TimeHeld)	// Break out
 {
+	InputReleasedTask->EndTask();
 	//EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);	// This should be uncommented if the player has the hold to run setting on
 
 	InputPressTask->ReadyForActivation();
 }
 void UGA_CharacterRun::OnPress(float TimeElapsed)	// Break out
 {
+	InputPressTask->EndTask();
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
 
@@ -269,12 +270,11 @@ void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 
 bool UGA_CharacterRun::ShouldBeAbleToRun() const	// This is really annoying rn because you have to be very careful with turning to make sure you don't stop running
 {
-	//if (GASCharacter->GetForwardInputAxis < .1f)	// This just is here so we might be able to return false earlier before we do expensive calculations.
+	//if (GASCharacter->GetForwardInputAxis < .1f)	// Might do something like this here so we might be able to return false earlier before we do expensive calculations. If client hacks to get forge input, it won't help their case since it now has to run the expensive checks
 	//{
 	//	return false;
 	//}
 
-	// Maybe we shouldn't be only using this function. Maybe we should do some more checks first
-	return CMC->IsMovingForward();
+	return CMC->IsMovingOnGround() && CMC->IsMovingForward();
 }
 

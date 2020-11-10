@@ -315,6 +315,11 @@ float USSCharacterMovementComponent::GetMaxAcceleration() const
 
 	return Super::GetMaxAcceleration();
 }
+
+float USSCharacterMovementComponent::GetMaxBrakingDeceleration() const
+{
+	return Super::GetMaxBrakingDeceleration();
+}
 #pragma endregion
 
 #pragma region Movement Mode and Physics
@@ -410,7 +415,16 @@ bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/)
 	 * 
 	 * ACOS(dot product) is the formula. Incidentally, it's the formula to find the angle between two vectors
 	 */
-	FVector CharacterNormalizedVel = CharacterOwner->GetVelocity();
+
+
+
+	FVector acc = CharacterOwner->GetCharacterMovement()->GetCurrentAcceleration();
+	FVector vel = CharacterOwner->GetVelocity();
+
+	// Take acceleration out of the velocity (so that we are only focused on the velocity from this current frame). Doesn't fully fix the problem but it helps for now
+	FVector CharacterNormalizedVel = vel - (vel - acc.GetSafeNormal() * vel.Size()) * FMath::Min(CharacterOwner->GetCharacterMovement()->GroundFriction, 1.f);
+
+	//FVector CharacterNormalizedVel = acc - vel;
 	CharacterNormalizedVel.Normalize();
 	FVector CharacterFwd = CharacterOwner->GetActorForwardVector();
 	float dotProd = FVector::DotProduct(CharacterNormalizedVel, CharacterFwd);

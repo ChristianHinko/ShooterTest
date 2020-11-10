@@ -112,7 +112,8 @@ An ideal solution to these 2 problems would mean the server wouldn't have to wai
 - Add CMC system for having a true value for each flag. EX: bIsRunning for bWantsToRun. look at UpdateCharacterStateBeforeMovement()
 
 
-
+- Make CMC and character return true for can jump if the character is crouched
+- Make GA_CharacterRun cancel GA_Crouch, GA_Crouch cancel GA_CharacterRun, and GA_CharacterJump cancel GA_Crouch
 
 
 - Change all of the "CurrentActorInfo", "CurrentAvatarActor", and "CurrentActivationInfo" in every activate ability to "ActorInfo", "AvatarActor", "ActivationInfo"

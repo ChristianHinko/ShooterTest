@@ -43,8 +43,6 @@ public:
 		FGameplayAbilitySpecHandle CharacterCrouchAbilitySpecHandle;
 #pragma endregion
 
-	virtual void OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust) override;
-
 protected:
 
 	/*UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")

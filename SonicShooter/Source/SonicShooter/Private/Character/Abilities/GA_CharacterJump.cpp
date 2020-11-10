@@ -12,6 +12,9 @@
 UGA_CharacterJump::UGA_CharacterJump()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Jump")));
+
+
+	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Crouch"));
 }
 
 
@@ -23,7 +26,18 @@ bool UGA_CharacterJump::CanActivateAbility(const FGameplayAbilitySpecHandle Hand
 	}
 
 	const AAbilitySystemCharacter* Character = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
-	return Character && Character->CanJump();
+	if (!Character)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL. Returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+	if (!Character->CanJump())
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character's CanJump returned false. Returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+
+	return true;
 }
 
 void UGA_CharacterJump::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)

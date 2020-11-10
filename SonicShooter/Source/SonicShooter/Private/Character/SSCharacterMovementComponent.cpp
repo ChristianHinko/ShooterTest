@@ -150,6 +150,61 @@ void USSCharacterMovementComponent::ClientAdjustPosition(float TimeStamp, FVecto
 //}
 #pragma endregion
 
+void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float DeltaSeconds)
+{
+	Super::UpdateCharacterStateBeforeMovement(DeltaSeconds);
+
+
+	if (CharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)
+	{
+		if (bIsRunning && (!bWantsToRun || !CanRunInCurrentState()))
+		{
+			bIsRunning = false;
+		}
+		else if (!bIsRunning && bWantsToRun && CanRunInCurrentState())
+		{
+			bIsRunning = true;
+		}
+	}
+}
+
+bool USSCharacterMovementComponent::CanAttemptJump() const
+{
+	//Super::CanAttemptJump(); // the super makes it return false when crouched - we don't want this
+
+	if (IsJumpAllowed() == false)
+	{
+		return false;
+	}
+
+	if ((IsMovingOnGround() || IsFalling()) == false) // falling included for double-jump and non-zero jump hold time, but validated by character.
+	{
+		return false;
+	}
+	
+	return true;
+}
+
+bool USSCharacterMovementComponent::CanCrouchInCurrentState() const
+{
+	if (IsMovingOnGround() == false)
+	{
+		return false;
+	}
+
+	return Super::CanCrouchInCurrentState();
+}
+
+bool USSCharacterMovementComponent::CanRunInCurrentState() const
+{
+	if (!IsMovingOnGround())
+	{
+		return false;
+	}
+
+	return true;
+}
+
 
 void USSCharacterMovementComponent::OnMovementUpdated(float deltaTime, const FVector& OldLocation, const FVector& OldVelocity)
 {
@@ -182,7 +237,7 @@ float USSCharacterMovementComponent::GetMaxSpeed() const
 				return 0;
 			}
 
-			if (bWantsToRun && bRunDisabled == false)
+			if (bIsRunning && bRunDisabled == false)
 			{
 				return CharacterAttributeSet->GetRunSpeed();
 			}
@@ -231,7 +286,7 @@ float USSCharacterMovementComponent::GetMaxAcceleration() const
 			return 0;
 		}
 
-		if (bWantsToRun && bRunDisabled == false)
+		if (bIsRunning && bRunDisabled == false)
 		{
 			return CharacterAttributeSet->GetRunAccelaration();
 		}

@@ -181,6 +181,8 @@ protected:
 	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
 	//END CMC Interface
 
+	virtual bool CanAttemptJump() const override;
+
 	virtual bool CanCrouchInCurrentState() const override;
 	virtual bool CanRunInCurrentState() const;
 

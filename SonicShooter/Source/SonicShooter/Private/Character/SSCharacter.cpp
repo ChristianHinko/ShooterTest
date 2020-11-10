@@ -129,6 +129,45 @@ void ASSCharacter::SetFirstPerson(bool newFirstPerson)
 	bFirstPerson = newFirstPerson;
 }
 
+bool ASSCharacter::CanJumpInternal_Implementation() const
+{
+	//return Super::CanJumpInternal_Implementation(); // the super makes it return false when crouched - we don't want this
+
+	//// Ensure the character isn't currently crouched.
+	//bool bCanJump = !bIsCrouched;
+	bool bCanJump = true;
+
+	// Ensure that the CharacterMovement state is valid
+	bCanJump &= GetCharacterMovement()->CanAttemptJump();
+
+	if (bCanJump)
+	{
+		// Ensure JumpHoldTime and JumpCount are valid.
+		if (!bWasJumping || GetJumpMaxHoldTime() <= 0.0f)
+		{
+			if (JumpCurrentCount == 0 && GetCharacterMovement()->IsFalling())
+			{
+				bCanJump = JumpCurrentCount + 1 < JumpMaxCount;
+			}
+			else
+			{
+				bCanJump = JumpCurrentCount < JumpMaxCount;
+			}
+		}
+		else
+		{
+			// Only consider JumpKeyHoldTime as long as:
+			// A) The jump limit hasn't been met OR
+			// B) The jump limit has been met AND we were already jumping
+			const bool bJumpKeyHeld = (bPressedJump && JumpKeyHoldTime < GetJumpMaxHoldTime());
+			bCanJump = bJumpKeyHeld &&
+				((JumpCurrentCount < JumpMaxCount) || (bWasJumping && JumpCurrentCount == JumpMaxCount));
+		}
+	}
+
+	return bCanJump;
+}
+
 #pragma region Crouch
 void ASSCharacter::OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust)
 {

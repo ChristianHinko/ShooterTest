@@ -121,6 +121,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "First Person")
 		uint8 bFirstPerson : 1;
 
+	virtual bool CanJumpInternal_Implementation() const override;
+
 	float crouchSpeed;
 
 	FCrouchTickFunction CrouchTickFunction;

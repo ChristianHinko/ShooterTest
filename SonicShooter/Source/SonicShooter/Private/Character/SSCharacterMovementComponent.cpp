@@ -168,9 +168,26 @@ void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 	}
 }
 
+bool USSCharacterMovementComponent::CanAttemptJump() const
+{
+	//Super::CanAttemptJump(); // the super makes it return false when crouched - we don't want this
+
+	if (IsJumpAllowed() == false)
+	{
+		return false;
+	}
+
+	if ((IsMovingOnGround() || IsFalling()) == false) // falling included for double-jump and non-zero jump hold time, but validated by character.
+	{
+		return false;
+	}
+	
+	return true;
+}
+
 bool USSCharacterMovementComponent::CanCrouchInCurrentState() const
 {
-	if (!IsMovingOnGround())
+	if (IsMovingOnGround() == false)
 	{
 		return false;
 	}

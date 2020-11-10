@@ -13,7 +13,7 @@ UAT_Ticker::UAT_Ticker(const FObjectInitializer& ObjectInitializer)
 }
 
 
-UAT_Ticker* UAT_Ticker::Ticker(UGameplayAbility* OwningAbility, float Duration, float Interval, bool SkipFirstTick)
+UAT_Ticker* UAT_Ticker::Ticker(UGameplayAbility* OwningAbility, bool SkipFirstTick, float Duration, float Interval)
 {
 	UAT_Ticker* MyObj = NewAbilityTask<UAT_Ticker>(OwningAbility);
 	MyObj->duration = Duration;

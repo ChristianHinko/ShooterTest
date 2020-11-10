@@ -360,11 +360,11 @@ bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/)
 	FVector CharacterFwd = CharacterOwner->GetActorForwardVector();
 	float dotProd = FVector::DotProduct(CharacterNormalizedVel, CharacterFwd);
 
-	
+	float degrees = acosf(dotProd);
 
 	//float cmpVal = acosf(dotProd);	// we need to find the cmpVal
 
-	if (dotProd > .99f/*cmpVal should go here but don't know how to calculate it yet*/)
+	if (dotProd > 0.7f/*cmpVal should go here but don't know how to calculate it yet*/)
 	{
 		return true;
 	}

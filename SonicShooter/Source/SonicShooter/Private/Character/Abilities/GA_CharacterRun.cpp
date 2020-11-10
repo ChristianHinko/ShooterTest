@@ -90,14 +90,9 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (!CMC->IsMovingOnGround())
+	if (!ShouldBeAbleToRun())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was not on ground. Returned false"), *FString(__FUNCTION__));
-		return false;
-	}
-	if (!CMC->IsMovingForward())
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was not moving forward. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShouldBeAbleToRun() returned false. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
 
@@ -275,17 +270,11 @@ void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 
 bool UGA_CharacterRun::ShouldBeAbleToRun() const	// This is really annoying rn because you have to be very careful with turning to make sure you don't stop running
 {
-	//if (GASCharacter->GetForwardInputAxis < .1f)	// This just is here so we might be able to return false earlier before we do expensive calculations.
+	//if (GASCharacter->GetForwardInputAxis < .1f)	// Might do something like this here so we might be able to return false earlier before we do expensive calculations. If client hacks to get forge input, it won't help their case since it now has to run the expensive checks
 	//{
 	//	return false;
 	//}
 
-	if (!CMC->IsMovingOnGround())
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was not on ground. Returned false"), *FString(__FUNCTION__));
-		return false;
-	}
-	// Maybe we shouldn't be only using this function. Maybe we should do some more checks first
-	return CMC->IsMovingForward();
+	return CMC->IsMovingOnGround() && CMC->IsMovingForward();
 }
 

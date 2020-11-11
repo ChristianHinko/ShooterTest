@@ -161,22 +161,20 @@ void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRema
 	if (stamina <= 0)
 	{
 		// No more stamina so make a valid prediction window and stop the running
+		TickerTask->EndTask();
+
 		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
 		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnStaminaFullyDrained);
 		WaitNetSyncTask->ReadyForActivation();
-		TickerTask->EndTask();
-
-		OnStaminaFullyDrained();
 	}
 	else if (!ShouldBeAbleToRun())
 	{
 		// Wasn't able to run so make a valid prediction window and stop the running
+		TickerTask->EndTask();
+
 		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
 		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnWasNotAbleToRun);
 		WaitNetSyncTask->ReadyForActivation();
-		TickerTask->EndTask();
-
-		OnWasNotAbleToRun();
 	}
 	else
 	{

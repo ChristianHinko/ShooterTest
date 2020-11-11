@@ -418,22 +418,22 @@ bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/)
 
 
 
-	FVector acc = CharacterOwner->GetCharacterMovement()->GetCurrentAcceleration();
-	FVector vel = CharacterOwner->GetVelocity();
+	const FVector NormaledVelocity = Velocity.GetSafeNormal(); // for comparing while debugging
 
-	// Take acceleration out of the velocity (so that we are only focused on the velocity from this current frame). Doesn't fully fix the problem but it helps for now
-	FVector CharacterNormalizedVel = vel - (vel - acc.GetSafeNormal() * vel.Size()) * FMath::Min(CharacterOwner->GetCharacterMovement()->GroundFriction, 1.f);
 
-	//FVector CharacterNormalizedVel = acc - vel;
-	CharacterNormalizedVel.Normalize();
-	FVector CharacterFwd = CharacterOwner->GetActorForwardVector();
-	float dotProd = FVector::DotProduct(CharacterNormalizedVel, CharacterFwd);
+	const FVector VelocityDisregardingAcceleration = Velocity - (Velocity - Acceleration.GetSafeNormal() * Velocity.Size());
+	const FVector DesiredDir = VelocityDisregardingAcceleration.GetSafeNormal();
+
+	const FVector CharacterFwd = CharacterOwner->GetActorForwardVector();
+
+	const float dotProd = FVector::DotProduct(DesiredDir, CharacterFwd);
+
 
 	float degrees = acosf(dotProd);
 
 	//float cmpVal = acosf(dotProd);	// we need to find the cmpVal
 
-	if (dotProd > 0.7f/*cmpVal should go here but don't know how to calculate it yet*/)
+	if (dotProd > 0.999f/*cmpVal should go here but don't know how to calculate it yet*/)
 	{
 		return true;
 	}

@@ -67,7 +67,6 @@ void UAT_Ticker::TickTask(float DeltaTime)
 	{
 		if (ShouldBroadcastAbilityTaskDelegates())
 		{
-			UKismetSystemLibrary::PrintString(this, "BroadacstTick", true, false);
 			OnTick.Broadcast(DeltaTime, currentTime, timeRemaining);
 		}
 	}

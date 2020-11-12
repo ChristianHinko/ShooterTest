@@ -68,7 +68,8 @@ void ASonic::Tick(float DeltaSeconds)
 	//{
 		//if (GetCharacterAttributeSet() && GetCharacterAttributeSet()->GetStamina())
 		//{
-		//	UKismetSystemLibrary::PrintString(this, GetCharacterAttributeSet()->GetStaminaAttribute().AttributeName + ": " + FString::SanitizeFloat(GetCharacterAttributeSet()->GetStamina()), true, false);
+		UKismetSystemLibrary::PrintString(this, GetCharacterAttributeSet()->GetStaminaAttribute().AttributeName + ": " + FString::SanitizeFloat(GetCharacterAttributeSet()->GetStamina()), true, false);
+
 		//}
 	//}
 }

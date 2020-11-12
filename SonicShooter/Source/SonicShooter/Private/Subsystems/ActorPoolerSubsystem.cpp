@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Actor/SSActor.h"
 #include "Interfaces/Poolable.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 
 UActorPoolerSubsystem::UActorPoolerSubsystem()
@@ -44,7 +45,7 @@ ASSActor* UActorPoolerSubsystem::GetFromPool(UClass* ActorClass)
 	if (CleanupRequired)
 	{
 #ifdef WITH_EDITOR
-		GEngine->AddOnScreenDebugMessage(2, 2, FColor::White, TEXT("Invalid reference in pool, cleaning up"));
+		UKismetSystemLibrary::PrintString(this, "Invalid reference in pool, cleaning up", true, true, FLinearColor::Yellow);
 #endif
 		Pooled.RemoveAll([&](auto InItem) 
 		{
@@ -88,7 +89,7 @@ ASSActor* UActorPoolerSubsystem::SpawnOrReactivate(TSubclassOf<ASSActor> ActorCl
 #ifdef WITH_EDITOR
 			if (Poolable->bDebugPooling)
 			{
-				GEngine->AddOnScreenDebugMessage(0, 2, FColor::Green, TEXT("OnUnpooled pooled actor"));
+				UKismetSystemLibrary::PrintString(this, "OnUnpooled pooled actor", true, true, FLinearColor::Yellow);
 			}
 #endif
 		}
@@ -107,7 +108,7 @@ ASSActor* UActorPoolerSubsystem::SpawnOrReactivate(TSubclassOf<ASSActor> ActorCl
 #ifdef WITH_EDITOR
 			if (Poolable->bDebugPooling)
 			{
-				GEngine->AddOnScreenDebugMessage(0, 2, FColor::Orange, TEXT("Spawning new actor"));
+				UKismetSystemLibrary::PrintString(this, "Spawning new actor", true, true, FLinearColor::Yellow);
 			}
 #endif
 		}
@@ -150,7 +151,7 @@ void UActorPoolerSubsystem::DeativateToPool(ASSActor* ActorToDeactivate)
 #ifdef WITH_EDITOR
 	if (Poolable->bDebugPooling)
 	{
-		GEngine->AddOnScreenDebugMessage(2, 2, FColor::White, FString("Actor pooled: ") + FString::FromInt(Pooled.Num()));
+		UKismetSystemLibrary::PrintString(this, "Actor pooled" + FString::FromInt(Pooled.Num()), true, true, FLinearColor::Yellow);
 	}
 #endif
 }

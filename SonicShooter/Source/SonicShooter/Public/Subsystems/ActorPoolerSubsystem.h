@@ -31,6 +31,9 @@ private:
 		TArray<TWeakObjectPtr<ASSActor>> Pooled;
 
 	ASSActor* GetFromPool(UClass* BulletClass);
-	ASSActor* SpawnOrReactivate(TSubclassOf<ASSActor> ActorClass, AActor* ActorOwner, APawn* ActorInstigator, const FTransform& Transform);
-	void DeativateToPool(ASSActor* ActorToDeactivate);
+
+	UFUNCTION(BlueprintCallable)
+		ASSActor* SpawnOrReactivate(TSubclassOf<ASSActor> ActorClass, AActor* ActorOwner, APawn* ActorInstigator, const FTransform& Transform);
+	UFUNCTION(BlueprintCallable)
+		void DeativateToPool(ASSActor* ActorToDeactivate);
 };

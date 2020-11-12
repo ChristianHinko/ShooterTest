@@ -66,11 +66,10 @@ void ASonic::Tick(float DeltaSeconds)
 	//}
 	//if (IsLocallyControlled())
 	//{
-		//if (GetCharacterAttributeSet() && GetCharacterAttributeSet()->GetStamina())
-		//{
-		UKismetSystemLibrary::PrintString(this, GetCharacterAttributeSet()->GetStaminaAttribute().AttributeName + ": " + FString::SanitizeFloat(GetCharacterAttributeSet()->GetStamina()), true, false);
-
-		//}
+		if (GetCharacterAttributeSet() && GetCharacterAttributeSet()->GetStamina())
+		{
+			UKismetSystemLibrary::PrintString(this, GetCharacterAttributeSet()->GetStaminaAttribute().AttributeName + ": " + FString::SanitizeFloat(GetCharacterAttributeSet()->GetStamina()), true, false);
+		}
 	//}
 }
 

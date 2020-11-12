@@ -10,7 +10,7 @@
 
 UActorPoolerSubsystem::UActorPoolerSubsystem()
 {
-
+	maxPoolSize = 10;
 }
 
 ASSActor* UActorPoolerSubsystem::GetFromPool(UClass* ActorClass)
@@ -138,7 +138,7 @@ void UActorPoolerSubsystem::DeativateToPool(ASSActor* ActorToDeactivate)
 	Poolable->OnPooled();
 	Poolable->EndLogic();
 
-	if (Pooled.Num() > MaxPoolSize)
+	if (Pooled.Num() > maxPoolSize)
 	{
 		ASSActor* Oldest = (Pooled[0].Get());
 		Pooled.RemoveAtSwap(0);

@@ -24,7 +24,7 @@ public:
 	UActorPoolerSubsystem();
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Pooling")
-		int MaxPoolSize = 50;
+		int maxPoolSize;
 
 private:
 	UPROPERTY()

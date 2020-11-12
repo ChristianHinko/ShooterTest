@@ -98,6 +98,10 @@ ASSActor* UActorPoolerSubsystem::SpawnOrReactivate(TSubclassOf<ASSActor> ActorCl
 	}
 	else
 	{
+		//if (Cast<IPoolable>(ActorClass.GetDefaultObject()))	Try to find a way to see if the actor class implements IPoolable before creating it
+		//{
+		//	return NULL;
+		//}
 		ASSActor* NewActor;
 		NewActor = Cast<ASSActor>(World->SpawnActorDeferred<ASSActor>(ActorClass, Transform, ActorOwner, ActorInstigator));
 		UGameplayStatics::FinishSpawningActor(NewActor, Transform);

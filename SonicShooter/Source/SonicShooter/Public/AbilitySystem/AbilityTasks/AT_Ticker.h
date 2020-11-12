@@ -38,6 +38,7 @@ public:
 
 	void Activate() override;
 
+	void RemoveAllDelegates();
 	FString GetDebugString() const override;
 protected:
 	float duration;

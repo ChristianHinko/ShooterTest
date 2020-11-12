@@ -5,6 +5,8 @@
 
 #include "Character/AbilitySystemCharacter.h"
 
+#include "Kismet/KismetSystemLibrary.h"
+
 UAT_Ticker::UAT_Ticker(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -38,6 +40,7 @@ void UAT_Ticker::TickTask(float DeltaTime)
 		if (currentTime >= duration)
 		{
 			OnDurationEnded();
+			RemoveAllDelegates();
 			return;
 		}
 
@@ -64,6 +67,7 @@ void UAT_Ticker::TickTask(float DeltaTime)
 	{
 		if (ShouldBroadcastAbilityTaskDelegates())
 		{
+			UKismetSystemLibrary::PrintString(this, "BroadacstTick", true, false);
 			OnTick.Broadcast(DeltaTime, currentTime, timeRemaining);
 		}
 	}
@@ -89,6 +93,12 @@ void UAT_Ticker::OnDurationEnded()
 		}
 	}
 	EndTask();
+}
+
+void UAT_Ticker::RemoveAllDelegates()
+{
+	OnTick.Clear();
+	OnDurationFinish.Clear();
 }
 
 FString UAT_Ticker::GetDebugString() const

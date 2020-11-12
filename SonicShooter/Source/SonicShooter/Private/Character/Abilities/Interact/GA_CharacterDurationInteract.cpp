@@ -98,14 +98,14 @@ void UGA_CharacterDurationInteract::OnRelease(float TimeHeld)
 	timeHeld = TimeHeld;
 	InteractEndReason = EDurationInteractEndReason::REASON_InputRelease;
 
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);		// We don't replicate this end ability because both server and client should have this triggered
 }
 
 void UGA_CharacterDurationInteract::OnInteractionSweepMiss(float TimeHeld)
 {
 	timeHeld = TimeHeld;
 	InteractEndReason = EDurationInteractEndReason::REASON_SweepMiss;
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }
 
 
@@ -115,7 +115,7 @@ void UGA_CharacterDurationInteract::OnCharacterLeftInteractionOverlap(float Time
 {
 	timeHeld = TimeHeld;
 	InteractEndReason = EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap;
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }
 
 void UGA_CharacterDurationInteract::OnNewInteractionPriority(float TimeHeld)
@@ -132,7 +132,7 @@ void UGA_CharacterDurationInteract::OnSuccessfullInteract(float TimeHeld)
 {
 	timeHeld = TimeHeld;
 	InteractEndReason = EDurationInteractEndReason::REASON_SuccessfulInteract;
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }
 
 

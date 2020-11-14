@@ -22,9 +22,6 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-
-	virtual ASSActor* GetSSActor() override;
-
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

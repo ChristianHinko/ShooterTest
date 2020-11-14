@@ -8,7 +8,6 @@ AMyPooledActor::AMyPooledActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	bDebugPooling = true;
 }
 
 // Called when the game starts or when spawned
@@ -16,11 +15,6 @@ void AMyPooledActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
-}
-
-ASSActor* AMyPooledActor::GetSSActor()
-{
-	return this;
 }
 
 // Called every frame

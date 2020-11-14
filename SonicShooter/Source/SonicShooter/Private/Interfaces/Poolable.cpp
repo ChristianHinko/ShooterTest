@@ -6,18 +6,18 @@
 // Add default functionality here for any IPoolable functions that are not pure virtual.
 IPoolable::IPoolable()
 {
-	bDebugPooling = false;
+	bIsCurentlyInPool = false;
 }
 
 
 
 void IPoolable::OnUnpooled()
 {
-
+	bIsCurentlyInPool = false;
 }
 void IPoolable::OnPooled()
 {
-
+	bIsCurentlyInPool = true;
 }
 
 

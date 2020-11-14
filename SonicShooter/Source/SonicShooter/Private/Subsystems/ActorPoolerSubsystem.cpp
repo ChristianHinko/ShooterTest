@@ -1,19 +1,20 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Subsystems/ActorPoolerSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Actor/SSActor.h"
 #include "Interfaces/Poolable.h"
+#include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 
 UActorPoolerSubsystem::UActorPoolerSubsystem()
 {
-	maxPoolSize = 10;
+	maxPoolSize = 2;
+	bDebugPooling = false;
 }
 
-ASSActor* UActorPoolerSubsystem::GetFromPool(UClass* ActorClass)
+ASSActor* UActorPoolerSubsystem::GetFromPool()
 {
 	UWorld* World = GetWorld();
 
@@ -67,7 +68,7 @@ ASSActor* UActorPoolerSubsystem::SpawnOrReactivate(TSubclassOf<ASSActor> ActorCl
 {
 	UWorld* World = GetWorld();
 
-	ASSActor* Recycled = GetFromPool(ActorClass);
+	ASSActor* Recycled = GetFromPool();
 
 	if (Recycled)
 	{
@@ -78,6 +79,7 @@ ASSActor* UActorPoolerSubsystem::SpawnOrReactivate(TSubclassOf<ASSActor> ActorCl
 		Recycled->SetActorTransform(Transform);
 		Recycled->SetActorHiddenInGame(Default->IsHidden());
 		Recycled->SetActorTickEnabled(true);
+		Recycled->SetActorEnableCollision(true);
 		Recycled->SetLifeSpan(Default->InitialLifeSpan);
 
 
@@ -87,9 +89,9 @@ ASSActor* UActorPoolerSubsystem::SpawnOrReactivate(TSubclassOf<ASSActor> ActorCl
 			Poolable->OnUnpooled();
 			Poolable->StartLogic();
 #ifdef WITH_EDITOR
-			if (Poolable->bDebugPooling)
+			if (bDebugPooling)
 			{
-				UKismetSystemLibrary::PrintString(this, "OnUnpooled pooled actor", true, true, FLinearColor::Yellow);
+				UKismetSystemLibrary::PrintString(this, "OnUnpooled pooled actor: " + Recycled->GetActorLabel(), true, true, FLinearColor::Yellow);
 			}
 #endif
 		}
@@ -98,10 +100,12 @@ ASSActor* UActorPoolerSubsystem::SpawnOrReactivate(TSubclassOf<ASSActor> ActorCl
 	}
 	else
 	{
-		//if (Cast<IPoolable>(ActorClass.GetDefaultObject()))	Try to find a way to see if the actor class implements IPoolable before creating it
-		//{
-		//	return NULL;
-		//}
+		if (!Cast<IPoolable>(ActorClass.GetDefaultObject()))
+		{
+			UE_LOG(LogPooling, Error, TEXT("%s() Caller passed in actor that doesn't implement IPoolable... Returning nullptr"), *FString(__FUNCTION__));
+			return nullptr;
+		}
+
 		ASSActor* NewActor;
 		NewActor = Cast<ASSActor>(World->SpawnActorDeferred<ASSActor>(ActorClass, Transform, ActorOwner, ActorInstigator));
 		UGameplayStatics::FinishSpawningActor(NewActor, Transform);
@@ -110,9 +114,9 @@ ASSActor* UActorPoolerSubsystem::SpawnOrReactivate(TSubclassOf<ASSActor> ActorCl
 			Poolable->StartLogic();
 
 #ifdef WITH_EDITOR
-			if (Poolable->bDebugPooling)
+			if (bDebugPooling)
 			{
-				UKismetSystemLibrary::PrintString(this, "Spawning new actor", true, true, FLinearColor::Yellow);
+				UKismetSystemLibrary::PrintString(this, "Spawned new actor: " + NewActor->GetActorLabel(), true, true, FLinearColor::Yellow);
 			}
 #endif
 		}
@@ -132,10 +136,16 @@ void UActorPoolerSubsystem::DeativateToPool(ASSActor* ActorToDeactivate)
 	{
 		return;
 	}
+	if (Poolable->bIsCurentlyInPool)
+	{
+		UE_LOG(LogPooling, Error, TEXT("%s() Tried to deactivate to pool but already is in pool"), *FString(__FUNCTION__));
+		return;
+	}
 
 
 	ActorToDeactivate->SetActorHiddenInGame(true);
 	ActorToDeactivate->SetActorTickEnabled(false);
+	ActorToDeactivate->SetActorEnableCollision(false);
 	Pooled.Add(ActorToDeactivate);
 
 
@@ -148,14 +158,37 @@ void UActorPoolerSubsystem::DeativateToPool(ASSActor* ActorToDeactivate)
 		Pooled.RemoveAtSwap(0);
 		if (Oldest) 
 		{ 
-			Oldest->Destroy(); 
+			Oldest->Destroy();
+#ifdef WITH_EDITOR
+			if (bDebugPooling)
+			{
+				UKismetSystemLibrary::PrintString(this, "Destroyed oldest object in pool to create more pool space: Pooled.Num() = " + FString::FromInt(Pooled.Num()), true, true, FLinearColor::Gray);
+			}
+#endif
 		}
 	}
 
 #ifdef WITH_EDITOR
-	if (Poolable->bDebugPooling)
+	if (bDebugPooling)
 	{
-		UKismetSystemLibrary::PrintString(this, "Actor pooled" + FString::FromInt(Pooled.Num()), true, true, FLinearColor::Yellow);
+		UKismetSystemLibrary::PrintString(this, "Actor: " + ActorToDeactivate->GetActorLabel() + " pooled: Pooled.Num() = " + FString::FromInt(Pooled.Num()), true, true, FLinearColor::Yellow);
 	}
 #endif
+}
+
+
+
+
+
+
+
+
+int32 UActorPoolerSubsystem::GetCurrentPoolSize()
+{
+	return Pooled.Num();
+}
+
+bool UActorPoolerSubsystem::IsPoolFull()
+{
+	return (Pooled.Num() / maxPoolSize) == 1;
 }

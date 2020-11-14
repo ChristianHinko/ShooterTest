@@ -8,13 +8,16 @@
 
 class ASSActor;
 /**
-	A few things to note:
-		1) Deactivate means it takes it out of the world and puts it in the pool
-			-Also EndPlay() gets called when this happens
-		2) Recycle means it reactivates(brings it back into the world)
-			-BeginPlay() will be called every time this happens
+	A good example to reference if you ever need to pool a specific type.
+	Every pool in your game should be on a different subsystem.
+	This code could be used exactly how it is if you just need a pool of type ASSActor.
+	If you need a pool of differnt type just swap out all ASSActor types to your desired type.
+	I would suggest not using a naming convention like for example USSCharacterPoolerSubsystem
+	because if you want another pool of the same type you will need to call the new subsystem
+	something different. Like USSCharacterPoolerSubsystem1 or something. 
+	But honestly do what you want.
  */
-UCLASS()
+UCLASS() //UCLASS(Abstract)	// This class is abstract because this is only an example of how you would make a pooler subsystem. We don't want this instantiated at runtime
 class SONICSHOOTER_API UActorPoolerSubsystem : public UWorldSubsystem
 {
 	GENERATED_BODY()
@@ -23,17 +26,24 @@ class SONICSHOOTER_API UActorPoolerSubsystem : public UWorldSubsystem
 public:
 	UActorPoolerSubsystem();
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Pooling")
+	UPROPERTY(BlueprintReadWrite, Category = "Pooling|Variables")
 		int maxPoolSize;
+	UPROPERTY(BlueprintReadWrite, Category = "Pooling|Variables")
+		uint8 bDebugPooling : 1;
 
 private:
-	UPROPERTY()
-		TArray<TWeakObjectPtr<ASSActor>> Pooled;
+	TArray<TWeakObjectPtr<ASSActor>> Pooled;
 
-	ASSActor* GetFromPool(UClass* BulletClass);
+	ASSActor* GetFromPool();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Pooling|Functions")
 		ASSActor* SpawnOrReactivate(TSubclassOf<ASSActor> ActorClass, AActor* ActorOwner, APawn* ActorInstigator, const FTransform& Transform);
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Pooling|Functions")
 		void DeativateToPool(ASSActor* ActorToDeactivate);
+
+
+	UFUNCTION(BlueprintPure, Category = "Pooling|Helpers")
+		int32 GetCurrentPoolSize();
+	UFUNCTION(BlueprintPure, Category = "Pooling|Helpers")
+		bool IsPoolFull();
 };

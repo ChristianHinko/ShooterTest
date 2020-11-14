@@ -90,11 +90,6 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (!ShouldBeAbleToRun())
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShouldBeAbleToRun() returned false. Returned false"), *FString(__FUNCTION__));
-		return false;
-	}
 
 	return true;
 }
@@ -155,30 +150,31 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 
 void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRemaining)
 {
-	float stamina = CharacterAttributeSet->GetStamina();
-	float staminaDrain = CharacterAttributeSet->GetStaminaDrain();
-
-	if (stamina <= 0)
+	if (CharacterAttributeSet->GetStamina() <= 0)
 	{
-		// No more stamina so make a valid prediction window and stop the running
 		TickerTask->EndTask();
 
 		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
 		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnStaminaFullyDrained);
 		WaitNetSyncTask->ReadyForActivation();
 	}
-	else if (!ShouldBeAbleToRun())
+	else if (!CMC->IsMovingForward() /** more checks */ )	// Wants to stop running
 	{
-		// Wasn't able to run so make a valid prediction window and stop the running
 		TickerTask->EndTask();
 
 		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
-		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnWasNotAbleToRun);
+		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnWantsToStopRunning);
 		WaitNetSyncTask->ReadyForActivation();
+	}
+	else if (!CMC->IsMovingOnGround() /** Some more checks here that make you not able to run but doesn't deactivate the ability */ ) // Player wants to run but things are stopping him from doing so
+	{
+
 	}
 	else
 	{
 		// We passed the checks, so decrement stamina and keep going
+		float stamina = CharacterAttributeSet->GetStamina();
+		float staminaDrain = CharacterAttributeSet->GetStaminaDrain();
 		CharacterAttributeSet->SetStamina(stamina - (staminaDrain * DeltaTime));
 	}
 }
@@ -191,7 +187,7 @@ void UGA_CharacterRun::OnStaminaFullyDrained()		// Break out
 	ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DisableRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }
-void UGA_CharacterRun::OnWasNotAbleToRun()			// Break out
+void UGA_CharacterRun::OnWantsToStopRunning()			// Break out
 {
 	ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DisableRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
@@ -265,14 +261,4 @@ void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 
 
 
-
-bool UGA_CharacterRun::ShouldBeAbleToRun() const	// This is really annoying rn because you have to be very careful with turning to make sure you don't stop running
-{
-	//if (GASCharacter->GetForwardInputAxis < .1f)	// Might do something like this here so we might be able to return false earlier before we do expensive calculations. If client hacks to get forge input, it won't help their case since it now has to run the expensive checks
-	//{
-	//	return false;
-	//}
-
-	return CMC->IsMovingOnGround() && CMC->IsMovingForward();
-}
 

@@ -90,6 +90,10 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
+	if (!RunAbilityCanBeActive())
+	{
+		return false;
+	}
 
 	return true;
 }
@@ -150,33 +154,42 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 
 void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRemaining)
 {
-	if (CharacterAttributeSet->GetStamina() <= 0)
+	if (RunAbilityCanBeActive())
 	{
-		TickerTask->EndTask();
+		if (CMC->IsMovingOnGround())
+		{
+			if (CharacterAttributeSet->GetStamina() > 0)
+			{
+				float stamina = CharacterAttributeSet->GetStamina();
+				float staminaDrain = CharacterAttributeSet->GetStaminaDrain();
 
-		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
-		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnStaminaFullyDrained);
-		WaitNetSyncTask->ReadyForActivation();
-	}
-	else if (!CMC->IsMovingForward() /** more checks */ )	// Wants to stop running
-	{
-		TickerTask->EndTask();
+				CharacterAttributeSet->SetStamina(stamina - (staminaDrain * DeltaTime));
+			}
+			else
+			{
+				TickerTask->EndTask();
 
-		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
-		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnWantsToStopRunning);
-		WaitNetSyncTask->ReadyForActivation();
-	}
-	else if (!CMC->IsMovingOnGround() /** Some more checks here that make you not able to run but doesn't deactivate the ability */ ) // Player wants to run but things are stopping him from doing so
-	{
+				UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
+				WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnStaminaFullyDrained);
+				WaitNetSyncTask->ReadyForActivation();
+			}
+		}
+		
+		// If reach here, run ability stays active but does nothing this frame
+
+
 
 	}
 	else
 	{
-		// We passed the checks, so decrement stamina and keep going
-		float stamina = CharacterAttributeSet->GetStamina();
-		float staminaDrain = CharacterAttributeSet->GetStaminaDrain();
-		CharacterAttributeSet->SetStamina(stamina - (staminaDrain * DeltaTime));
+		TickerTask->EndTask();
+
+		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
+		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnRunAbilityShouldNotBeActive);
+		WaitNetSyncTask->ReadyForActivation();
 	}
+	
+	
 }
 
 
@@ -187,7 +200,7 @@ void UGA_CharacterRun::OnStaminaFullyDrained()		// Break out
 	ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DisableRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }
-void UGA_CharacterRun::OnWantsToStopRunning()			// Break out
+void UGA_CharacterRun::OnRunAbilityShouldNotBeActive()		// Break out
 {
 	ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DisableRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
@@ -261,4 +274,14 @@ void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 
 
 
+bool UGA_CharacterRun::RunAbilityCanBeActive() const
+{
+	if (!CMC->IsMovingForward())
+	{
+		return false;
+	}
 
+
+
+	return true;
+}

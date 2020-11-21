@@ -198,6 +198,10 @@ bool USSCharacterMovementComponent::CanCrouchInCurrentState() const
 
 bool USSCharacterMovementComponent::CanRunInCurrentState() const
 {
+	if (IsCrouching())
+	{
+		return false;
+	}
 	if (!IsMovingOnGround())
 	{
 		return false;

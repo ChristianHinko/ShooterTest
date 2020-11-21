@@ -156,7 +156,7 @@ void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRema
 {
 	if (RunAbilityCanBeActive())
 	{
-		if (CMC->IsMovingOnGround())
+		if (CMC->CanRunInCurrentState())
 		{
 			if (CharacterAttributeSet->GetStamina() > 0)
 			{
@@ -174,8 +174,13 @@ void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRema
 				WaitNetSyncTask->ReadyForActivation();
 			}
 		}
+		else
+		{
+			// If reach here, run ability stays active but does nothing this frame
+
+
+		}
 		
-		// If reach here, run ability stays active but does nothing this frame
 
 
 

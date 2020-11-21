@@ -153,7 +153,13 @@ public:
 	/** This is client authoritative. So calling this will always make the character run (on both client and server). Very insecure */
 	void SetWantsToRun(bool newWantsToRun);
 
+	//BEGIN CMC Interface
+	virtual bool CanAttemptJump() const override;
+
+	virtual bool CanCrouchInCurrentState() const override;
+	virtual bool CanRunInCurrentState() const;
 	bool IsMovingForward(/*float degreeTolerance = 99.f*/);
+	//END CMC Interface
 
 protected:
 	//	Don't know for sure if this is the best event to use but works for now
@@ -182,10 +188,6 @@ protected:
 	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
 	//END CMC Interface
 
-	virtual bool CanAttemptJump() const override;
-
-	virtual bool CanCrouchInCurrentState() const override;
-	virtual bool CanRunInCurrentState() const;
 
 	//BEGIN UMovementComponent Interface
 	virtual float GetMaxSpeed() const override;

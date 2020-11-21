@@ -81,6 +81,7 @@ protected:
 public:
 	ASSCharacter(const FObjectInitializer& ObjectInitializer);
 
+
 	// Components
 	USkeletalMeshComponent* GetPOVMesh() const { return POVMesh; }
 	USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

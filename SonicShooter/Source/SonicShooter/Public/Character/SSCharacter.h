@@ -7,6 +7,7 @@
 
 #include "SSCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCrouchDelegate);
 
 class USkeletalMeshComponent;
 class UCameraComponent;
@@ -81,6 +82,7 @@ protected:
 public:
 	ASSCharacter(const FObjectInitializer& ObjectInitializer);
 
+	FCrouchDelegate OnCrouchEndDelegate;
 
 	// Components
 	USkeletalMeshComponent* GetPOVMesh() const { return POVMesh; }

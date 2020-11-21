@@ -40,6 +40,8 @@ void UGA_CharacterCrouch::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL, meaning CharacterAttributeSet will also be NULL"), *FString(__FUNCTION__));
 		return;
 	}
+	GASCharacter->OnCrouchEndDelegate.AddDynamic(this, &UGA_CharacterCrouch::OnCrouchEnd);
+
 	CharacterAttributeSet = GASCharacter->GetCharacterAttributeSet();
 	if (!CharacterAttributeSet)
 	{
@@ -104,8 +106,15 @@ void UGA_CharacterCrouch::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 
 void UGA_CharacterCrouch::OnRelease(float TimeHeld)
 {
+	GASCharacter->UnCrouch();
+}
+
+void UGA_CharacterCrouch::OnCrouchEnd()		// We only want to end the ability if we are for real not crouching anymore
+{
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
+
+
 
 void UGA_CharacterCrouch::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {

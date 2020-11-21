@@ -44,5 +44,7 @@ protected:
 #pragma endregion
 
 	UFUNCTION()
-		virtual void OnRelease(float TimeHeld);
+		void OnRelease(float TimeHeld);
+	UFUNCTION()
+		void OnCrouchEnd();
 };

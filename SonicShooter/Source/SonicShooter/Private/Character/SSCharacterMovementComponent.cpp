@@ -417,23 +417,47 @@ bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/)
 	 */
 
 
+	const FVector CharacterFwd = CharacterOwner->GetActorForwardVector();
 
-	const FVector NormaledVelocity = Velocity.GetSafeNormal(); // for comparing while debugging
+
+	const FVector input = ConsumeInputVector();
+
+
+	ASSCharacter* AC = Cast<ASSCharacter>(CharacterOwner);
+	FVector wantToDir;
+	//if (PawnOwner->GetLocalRole() == ROLE_Authority)
+	//{
+	//	wantToDir = Acceleration;
+	//	wantToDir.Normalize();
+	//}
+	//else
+	//{
+	//	////wantToDir = FVector(AC->GetForwardInputAxis(), AC->GetRightInputAxis(), 0.f);
+	//	//
+	//	//wantToDir = (CharacterOwner->GetActorForwardVector() * AC->GetForwardInputAxis()) + (CharacterOwner->GetActorRightVector() * AC->GetRightInputAxis());
+	//	//
+	//	////wantToDir = wantToDir;
+	//	//wantToDir.Normalize();
+
+	//	wantToDir = Acceleration;
+	//	wantToDir.Normalize();
+	//}
+
+	wantToDir = Acceleration;
+	wantToDir.Normalize();
 
 
 	const FVector VelocityDisregardingAcceleration = Velocity - (Velocity - Acceleration.GetSafeNormal() * Velocity.Size());
 	const FVector DesiredDir = VelocityDisregardingAcceleration.GetSafeNormal();
 
-	const FVector CharacterFwd = CharacterOwner->GetActorForwardVector();
-
-	const float dotProd = FVector::DotProduct(DesiredDir, CharacterFwd);
-
+	//const float dotProd = FVector::DotProduct(DesiredDir, CharacterFwd);
+	const float dotProd = FVector::DotProduct(wantToDir, CharacterFwd);
 
 	float degrees = acosf(dotProd);
 
 	//float cmpVal = acosf(dotProd);	// we need to find the cmpVal
 
-	if (dotProd > 0.999f/*cmpVal should go here but don't know how to calculate it yet*/)
+	if (dotProd > 0.7f/*cmpVal should go here but don't know how to calculate it yet*/)
 	{
 		return true;
 	}

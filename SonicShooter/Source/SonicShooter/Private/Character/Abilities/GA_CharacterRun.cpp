@@ -94,7 +94,7 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShouldBeAbleToRun() returned false. Returned false"), *FString(__FUNCTION__));
 		return false;
-	}
+	} // actually get rid of this check. bWantsToRun should still be true but just make CanRunInCurrentState() return false
 
 	return true;
 }

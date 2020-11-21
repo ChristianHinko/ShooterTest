@@ -51,12 +51,12 @@ protected:
 
 	UFUNCTION()
 		void OnTick(float DeltaTime, float currentTime, float timeRemaining);
-	bool ShouldBeAbleToRun() const;
 
 	UFUNCTION()
 		void OnStaminaFullyDrained();
 	UFUNCTION()
-		void OnWasNotAbleToRun();
+		void OnRunAbilityShouldNotBeActive();
+	bool RunAbilityCanBeActive() const;
 
 #pragma region Gameplay Tags
 	FGameplayTag RunDisabledTag;

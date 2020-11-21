@@ -90,9 +90,8 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (!ShouldBeAbleToRun())
+	if (!RunAbilityCanBeActive())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShouldBeAbleToRun() returned false. Returned false"), *FString(__FUNCTION__));
 		return false;
 	} // actually get rid of this check. bWantsToRun should still be true but just make CanRunInCurrentState() return false
 
@@ -155,32 +154,42 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 
 void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRemaining)
 {
-	float stamina = CharacterAttributeSet->GetStamina();
-	float staminaDrain = CharacterAttributeSet->GetStaminaDrain();
-
-	if (stamina <= 0)
+	if (RunAbilityCanBeActive())
 	{
-		// No more stamina so make a valid prediction window and stop the running
-		TickerTask->EndTask();
+		if (CMC->IsMovingOnGround())
+		{
+			if (CharacterAttributeSet->GetStamina() > 0)
+			{
+				float stamina = CharacterAttributeSet->GetStamina();
+				float staminaDrain = CharacterAttributeSet->GetStaminaDrain();
 
-		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
-		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnStaminaFullyDrained);
-		WaitNetSyncTask->ReadyForActivation();
-	}
-	else if (!ShouldBeAbleToRun())
-	{
-		// Wasn't able to run so make a valid prediction window and stop the running
-		TickerTask->EndTask();
+				CharacterAttributeSet->SetStamina(stamina - (staminaDrain * DeltaTime));
+			}
+			else
+			{
+				TickerTask->EndTask();
 
-		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
-		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnWasNotAbleToRun);
-		WaitNetSyncTask->ReadyForActivation();
+				UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
+				WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnStaminaFullyDrained);
+				WaitNetSyncTask->ReadyForActivation();
+			}
+		}
+		
+		// If reach here, run ability stays active but does nothing this frame
+
+
+
 	}
 	else
 	{
-		// We passed the checks, so decrement stamina and keep going
-		CharacterAttributeSet->SetStamina(stamina - (staminaDrain * DeltaTime));
+		TickerTask->EndTask();
+
+		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
+		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnRunAbilityShouldNotBeActive);
+		WaitNetSyncTask->ReadyForActivation();
 	}
+	
+	
 }
 
 
@@ -191,7 +200,7 @@ void UGA_CharacterRun::OnStaminaFullyDrained()		// Break out
 	ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DisableRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }
-void UGA_CharacterRun::OnWasNotAbleToRun()			// Break out
+void UGA_CharacterRun::OnRunAbilityShouldNotBeActive()		// Break out
 {
 	ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DisableRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
@@ -265,14 +274,14 @@ void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 
 
 
-
-bool UGA_CharacterRun::ShouldBeAbleToRun() const	// This is really annoying rn because you have to be very careful with turning to make sure you don't stop running
+bool UGA_CharacterRun::RunAbilityCanBeActive() const
 {
-	//if (GASCharacter->GetForwardInputAxis < .1f)	// Might do something like this here so we might be able to return false earlier before we do expensive calculations. If client hacks to get forge input, it won't help their case since it now has to run the expensive checks
-	//{
-	//	return false;
-	//}
+	if (!CMC->IsMovingForward())
+	{
+		return false;
+	}
 
-	return CMC->IsMovingOnGround() && CMC->IsMovingForward();
+
+
+	return true;
 }
-

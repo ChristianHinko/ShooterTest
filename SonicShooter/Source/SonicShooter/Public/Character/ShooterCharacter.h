@@ -40,10 +40,10 @@ public:
 
 protected:
 
-	/*UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
+	UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
 		FVector CameraSwayAmount;
 	UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
-		FVector AddedCameraSwayDuringADS;*/
+		FVector AddedCameraSwayDuringADS;
 
 	//BEGIN AActor Interface
 	virtual void Tick(float DeltaSeconds) override;

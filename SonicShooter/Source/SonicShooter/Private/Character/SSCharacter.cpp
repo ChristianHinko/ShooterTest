@@ -453,18 +453,18 @@ void ASSCharacter::MoveRight(float Value)
 	}
 }
 
-void ASSCharacter::HorizontalLook(float Rate)
+void ASSCharacter::HorizontalLook(float Rate) // TODO: add slight smoothing in courtesy of players with low polling rates on high refresh rate displays
 {
 	if (Rate != 0)
 	{
-		AddControllerYawInput(Rate * HorizontalSensitivity/* * GetWorld()->GetDeltaSeconds()*/); // delta seconds is not needed here for some reason. Idk why but it does the opposite of the expected effect
+		AddControllerYawInput(Rate * HorizontalSensitivity * 0.5/* * GetWorld()->GetDeltaSeconds()*/); // delta seconds is not needed here for some reason. Idk why but it does the opposite of the expected effect
 	}
 }
-void ASSCharacter::VerticalLook(float Rate)
+void ASSCharacter::VerticalLook(float Rate) // TODO: add slight smoothing in courtesy of players with low polling rates on high refresh rate displays
 {
 	if (Rate != 0)
 	{
-		AddControllerPitchInput(Rate * VerticalSensitivity/* * GetWorld()->GetDeltaSeconds()*/); // delta seconds is not needed here for some reason. Idk why but it does the opposite of the expected effect
+		AddControllerPitchInput(Rate * VerticalSensitivity * 0.5/* * GetWorld()->GetDeltaSeconds()*/); // delta seconds is not needed here for some reason. Idk why but it does the opposite of the expected effect
 	}
 }
 #pragma endregion

@@ -9,6 +9,7 @@
 #include "Character/AbilitySystemCharacter.h"
 #include "Character/AS_Character.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Kismet/KismetMathLibrary.h"
 
 //#include "Kismet/KismetSystemLibrary.h"
 
@@ -415,54 +416,19 @@ bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/)
 	 * 
 	 * ACOS(dot product) is the formula. Incidentally, it's the formula to find the angle between two vectors
 	 */
+	
 
+	const FVector ForwardDir = PawnOwner->GetActorForwardVector();
+	const FVector DesiredDir = Acceleration.GetSafeNormal();
 
-	const FVector CharacterFwd = CharacterOwner->GetActorForwardVector();
+	const float forwardDifference = FVector::DotProduct(DesiredDir, ForwardDir);
 
-
-	const FVector input = ConsumeInputVector();
-
-
-	ASSCharacter* AC = Cast<ASSCharacter>(CharacterOwner);
-	FVector wantToDir;
-	//if (PawnOwner->GetLocalRole() == ROLE_Authority)
-	//{
-	//	wantToDir = Acceleration;
-	//	wantToDir.Normalize();
-	//}
-	//else
-	//{
-	//	////wantToDir = FVector(AC->GetForwardInputAxis(), AC->GetRightInputAxis(), 0.f);
-	//	//
-	//	//wantToDir = (CharacterOwner->GetActorForwardVector() * AC->GetForwardInputAxis()) + (CharacterOwner->GetActorRightVector() * AC->GetRightInputAxis());
-	//	//
-	//	////wantToDir = wantToDir;
-	//	//wantToDir.Normalize();
-
-	//	wantToDir = Acceleration;
-	//	wantToDir.Normalize();
-	//}
-
-	wantToDir = Acceleration;
-	wantToDir.Normalize();
-
-
-	const FVector VelocityDisregardingAcceleration = Velocity - (Velocity - Acceleration.GetSafeNormal() * Velocity.Size());
-	const FVector DesiredDir = VelocityDisregardingAcceleration.GetSafeNormal();
-
-	//const float dotProd = FVector::DotProduct(DesiredDir, CharacterFwd);
-	const float dotProd = FVector::DotProduct(wantToDir, CharacterFwd);
-
-	float degrees = acosf(dotProd);
-
-	//float cmpVal = acosf(dotProd);	// we need to find the cmpVal
-
-	if (dotProd > 0.7f/*cmpVal should go here but don't know how to calculate it yet*/)
+	const float degsDiff = UKismetMathLibrary::DegAcos(forwardDifference);
+	if (degsDiff > 45.f + 10.f) // if we are moving 45 degs or more away from our forward vector (plus 10 degs of grace because its messed up right now)
 	{
-		return true;
+		return false;
 	}
 
-
-	return false;
+	return true;
 }
 #pragma endregion

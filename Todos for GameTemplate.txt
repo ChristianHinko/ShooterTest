@@ -99,7 +99,9 @@ An ideal solution to these 2 problems would mean the server wouldn't have to wai
 
 
 
-
+- Take out the " * GetWorld()->GetDeltaSeconds()" in HorizontalLook and VerticalLook and set sensitivities to 1
+	- idk why but the delta seconds has the opposite effect of what you would expect
+	- take the code from the Vertical and Horizontal Look methods in SSCharacter
 
 
 

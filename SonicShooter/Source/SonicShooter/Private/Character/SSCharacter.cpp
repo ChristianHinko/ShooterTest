@@ -29,8 +29,8 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
 	// Set our turn rates for input
-	HorizontalSensitivity = 45.f;
-	VerticalSensitivity = 45.f;
+	HorizontalSensitivity = 1.f;
+	VerticalSensitivity = 1.f;
 
 	// Configure character movement
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 600.f, 0.f);
@@ -457,14 +457,14 @@ void ASSCharacter::HorizontalLook(float Rate)
 {
 	if (Rate != 0)
 	{
-		AddControllerYawInput(Rate * HorizontalSensitivity * GetWorld()->GetDeltaSeconds());
+		AddControllerYawInput(Rate * HorizontalSensitivity/* * GetWorld()->GetDeltaSeconds()*/); // delta seconds is not needed here for some reason. Idk why but it does the opposite of the expected effect
 	}
 }
 void ASSCharacter::VerticalLook(float Rate)
 {
 	if (Rate != 0)
 	{
-		AddControllerPitchInput(Rate * VerticalSensitivity * GetWorld()->GetDeltaSeconds());
+		AddControllerPitchInput(Rate * VerticalSensitivity/* * GetWorld()->GetDeltaSeconds()*/); // delta seconds is not needed here for some reason. Idk why but it does the opposite of the expected effect
 	}
 }
 #pragma endregion

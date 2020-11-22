@@ -17,7 +17,7 @@
 
 USSCharacterMovementComponent::USSCharacterMovementComponent()
 {
-
+	bCanWalkOffLedgesWhenCrouching = true;
 }
 void USSCharacterMovementComponent::InitializeComponent()
 {

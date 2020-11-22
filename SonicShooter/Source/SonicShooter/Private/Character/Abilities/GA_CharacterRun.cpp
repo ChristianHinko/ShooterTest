@@ -17,6 +17,10 @@
 
 UGA_CharacterRun::UGA_CharacterRun()
 {
+	holdToRun = true;
+
+
+
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Run")));
 
 
@@ -119,14 +123,18 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 	InputReleasedTask->ReadyForActivation();
 
 
-	InputPressTask = UAT_WaitInputPressCust::WaitInputPressCust(this);
-	if (!InputPressTask)
+	if (!holdToRun)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputPressTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
-		return;
+		InputPressTask = UAT_WaitInputPressCust::WaitInputPressCust(this);
+		if (!InputPressTask)
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputPressTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
+			CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+			return;
+		}
+		InputPressTask->OnPress.AddDynamic(this, &UGA_CharacterRun::OnPress);
 	}
-	InputPressTask->OnPress.AddDynamic(this, &UGA_CharacterRun::OnPress);
+	
 
 
 
@@ -208,18 +216,25 @@ void UGA_CharacterRun::OnRunAbilityShouldNotBeActive()		// Break out
 	ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DisableRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }
-void UGA_CharacterRun::OnRelease(float TimeHeld)	// Break out
+void UGA_CharacterRun::OnRelease(float TimeHeld)	// Break out if hold to run
 {
-	//EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);	// This should be uncommented if the player has the hold to run setting on
-
-	if (InputReleasedTask->callBackNumber == 1)
+	if (holdToRun)
 	{
-		InputPressTask->ReadyForActivation();
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 	}
+	else
+	{
+		if (InputReleasedTask->callBackNumber == 1)
+		{
+			InputPressTask->ReadyForActivation();
+		}
+	}
+
+	
 }
 void UGA_CharacterRun::OnPress(float TimeElapsed)	// Break out
 {
-	if (CMC->CanRunInCurrentState())	// If we are running (basicly)
+	if (CMC->CanRunInCurrentState())	// If we are running
 	{
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 	}

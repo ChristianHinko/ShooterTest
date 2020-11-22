@@ -53,4 +53,9 @@ protected:
 		void OnRelease(float TimeHeld);
 	UFUNCTION()
 		void OnCrouchEnd();
+
+
+
+
+	bool holdToCrouch;		// Temoprary variable for input
 };

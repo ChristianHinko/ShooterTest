@@ -70,4 +70,9 @@ protected:
 		virtual void OnRelease(float TimeHeld);		
 	UFUNCTION()
 		virtual void OnPress(float TimeElapsed);
+
+
+
+
+	bool holdToRun;		// Temoprary variable for input
 };

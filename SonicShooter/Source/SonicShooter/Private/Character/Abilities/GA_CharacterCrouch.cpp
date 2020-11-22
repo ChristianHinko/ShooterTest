@@ -16,6 +16,10 @@
 
 UGA_CharacterCrouch::UGA_CharacterCrouch()
 {
+	holdToCrouch = false;
+
+
+
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Crouch")));
 
 
@@ -116,20 +120,39 @@ void UGA_CharacterCrouch::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 }
 
 
-void UGA_CharacterCrouch::OnPress(float TimeElapsed)
-{
-	GASCharacter->Crouch();
-}
 
 void UGA_CharacterCrouch::OnRelease(float TimeHeld)
 {
-	GASCharacter->UnCrouch();
+	if (holdToCrouch)
+	{
+		GASCharacter->UnCrouch();
+	}
+
+
 	if (InputReleasedTask->callBackNumber == 1)
 	{
 		InputPressTask->ReadyForActivation();
 	}
 }
 
+void UGA_CharacterCrouch::OnPress(float TimeElapsed)
+{
+	if (holdToCrouch)
+	{
+		GASCharacter->Crouch();	// May seem weird why were crouching here for holds, but this is for saftey (say if your in a forced crouched state and let go and hold again)
+	}
+	else
+	{
+		if (InputPressTask->callBackNumber % 2 != 0)
+		{
+			GASCharacter->UnCrouch();
+		}
+		else
+		{
+			GASCharacter->Crouch();
+		}
+	}
+}
 
 
 

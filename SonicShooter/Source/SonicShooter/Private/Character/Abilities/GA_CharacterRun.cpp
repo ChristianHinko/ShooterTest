@@ -219,7 +219,10 @@ void UGA_CharacterRun::OnRelease(float TimeHeld)	// Break out
 }
 void UGA_CharacterRun::OnPress(float TimeElapsed)	// Break out
 {
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	if (CMC->CanRunInCurrentState())	// If we are running (basicly)
+	{
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	}
 }
 
 

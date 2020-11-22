@@ -8,6 +8,8 @@
 
 class AAbilitySystemCharacter;
 class UAS_Character;
+class UAT_WaitInputPressCust;
+class UAT_WaitInputReleaseCust;
 /**
  * 
  */
@@ -42,7 +44,11 @@ protected:
 #pragma region Gameplay Tags
 
 #pragma endregion
+	UAT_WaitInputPressCust* InputPressTask;
+	UAT_WaitInputReleaseCust* InputReleasedTask;
 
+	UFUNCTION()
+		void OnPress(float TimeElapsed);
 	UFUNCTION()
 		void OnRelease(float TimeHeld);
 	UFUNCTION()

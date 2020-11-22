@@ -5,13 +5,13 @@
 
 #include "Character/AbilitySystemCharacter.h"
 #include "Character/SSCharacterMovementComponent.h"
-#include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
-#include "Abilities/Tasks/AbilityTask_WaitInputPress.h"
+#include "AbilitySystem\AbilityTasks\AT_WaitInputPressCust.h"
+#include "AbilitySystem\AbilityTasks\AT_WaitInputReleaseCust.h"
+#include "AbilitySystem\AbilityTasks\AT_Ticker.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Character\AbilitySystemCharacter.h"
 #include "Character\AS_Character.h"
 #include "Abilities\Tasks\AbilityTask_NetworkSyncPoint.h"
-#include "AbilitySystem\AbilityTasks\AT_Ticker.h"
 
 
 
@@ -108,7 +108,7 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 
 
 	// Lets do the logic we want to happen when the ability starts.
-	InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
+	InputReleasedTask = UAT_WaitInputReleaseCust::WaitInputReleaseCust(this);
 	if (!InputReleasedTask)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
@@ -119,7 +119,7 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 	InputReleasedTask->ReadyForActivation();
 
 
-	InputPressTask = UAbilityTask_WaitInputPress::WaitInputPress(this);
+	InputPressTask = UAT_WaitInputPressCust::WaitInputPressCust(this);
 	if (!InputPressTask)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputPressTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
@@ -210,14 +210,15 @@ void UGA_CharacterRun::OnRunAbilityShouldNotBeActive()		// Break out
 }
 void UGA_CharacterRun::OnRelease(float TimeHeld)	// Break out
 {
-	InputReleasedTask->EndTask();
 	//EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);	// This should be uncommented if the player has the hold to run setting on
 
-	InputPressTask->ReadyForActivation();
+	if (InputReleasedTask->callBackNumber == 1)
+	{
+		InputPressTask->ReadyForActivation();
+	}
 }
 void UGA_CharacterRun::OnPress(float TimeElapsed)	// Break out
 {
-	InputPressTask->EndTask();
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
 

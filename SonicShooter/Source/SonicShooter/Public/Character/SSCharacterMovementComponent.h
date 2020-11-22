@@ -153,7 +153,13 @@ public:
 	/** This is client authoritative. So calling this will always make the character run (on both client and server). Very insecure */
 	void SetWantsToRun(bool newWantsToRun);
 
+	//BEGIN CMC Interface
+	virtual bool CanAttemptJump() const override;
+
+	virtual bool CanCrouchInCurrentState() const override;
+	virtual bool CanRunInCurrentState() const;
 	bool IsMovingForward(/*float degreeTolerance = 99.f*/);
+	//END CMC Interface
 
 	FRotator CurrentRotationRate;
 
@@ -185,10 +191,6 @@ protected:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override; // DO NOT UTILIZE THIS EVENT FOR MOVEMENT
 	//END CMC Interface
 
-	virtual bool CanAttemptJump() const override;
-
-	virtual bool CanCrouchInCurrentState() const override;
-	virtual bool CanRunInCurrentState() const;
 
 	//BEGIN UMovementComponent Interface
 	virtual float GetMaxSpeed() const override;

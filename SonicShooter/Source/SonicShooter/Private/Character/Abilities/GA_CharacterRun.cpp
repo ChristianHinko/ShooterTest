@@ -5,26 +5,28 @@
 
 #include "Character/AbilitySystemCharacter.h"
 #include "Character/SSCharacterMovementComponent.h"
-#include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
-#include "Abilities/Tasks/AbilityTask_WaitInputPress.h"
+#include "AbilitySystem\AbilityTasks\AT_WaitInputPressCust.h"
+#include "AbilitySystem\AbilityTasks\AT_WaitInputReleaseCust.h"
+#include "AbilitySystem\AbilityTasks\AT_Ticker.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Character\AbilitySystemCharacter.h"
 #include "Character\AS_Character.h"
 #include "Abilities\Tasks\AbilityTask_NetworkSyncPoint.h"
-#include "AbilitySystem\AbilityTasks\AT_Ticker.h"
 
 
 
 UGA_CharacterRun::UGA_CharacterRun()
 {
+	holdToRun = true;
+
+
+
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Run")));
 
 
 	RunDisabledTag = FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled");
 
 	ActivationBlockedTags.AddTag(RunDisabledTag);	// This isn't the singular thing stopping you from running. The CMC is what listens for the presence of the RunDisabledTag and blocks running. This check just saves an ability activation.
-
-	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Crouch"));
 }
 
 void UGA_CharacterRun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -110,7 +112,7 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 
 
 	// Lets do the logic we want to happen when the ability starts.
-	InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
+	InputReleasedTask = UAT_WaitInputReleaseCust::WaitInputReleaseCust(this);
 	if (!InputReleasedTask)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
@@ -121,14 +123,18 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 	InputReleasedTask->ReadyForActivation();
 
 
-	InputPressTask = UAbilityTask_WaitInputPress::WaitInputPress(this);
-	if (!InputPressTask)
+	if (!holdToRun)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputPressTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
-		return;
+		InputPressTask = UAT_WaitInputPressCust::WaitInputPressCust(this);
+		if (!InputPressTask)
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputPressTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
+			CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+			return;
+		}
+		InputPressTask->OnPress.AddDynamic(this, &UGA_CharacterRun::OnPress);
 	}
-	InputPressTask->OnPress.AddDynamic(this, &UGA_CharacterRun::OnPress);
+	
 
 
 
@@ -156,7 +162,7 @@ void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRema
 {
 	if (RunAbilityCanBeActive())
 	{
-		if (CMC->IsMovingOnGround())
+		if (CMC->CanRunInCurrentState())
 		{
 			if (CharacterAttributeSet->GetStamina() > 0)
 			{
@@ -174,8 +180,13 @@ void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRema
 				WaitNetSyncTask->ReadyForActivation();
 			}
 		}
+		else
+		{
+			// If reach here, run ability stays active but does nothing this frame
+
+
+		}
 		
-		// If reach here, run ability stays active but does nothing this frame
 
 
 
@@ -205,17 +216,28 @@ void UGA_CharacterRun::OnRunAbilityShouldNotBeActive()		// Break out
 	ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DisableRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }
-void UGA_CharacterRun::OnRelease(float TimeHeld)	// Break out
+void UGA_CharacterRun::OnRelease(float TimeHeld)	// Break out if hold to run
 {
-	InputReleasedTask->EndTask();
-	//EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);	// This should be uncommented if the player has the hold to run setting on
+	if (holdToRun)
+	{
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	}
+	else
+	{
+		if (InputReleasedTask->callBackNumber == 1)
+		{
+			InputPressTask->ReadyForActivation();
+		}
+	}
 
-	InputPressTask->ReadyForActivation();
+	
 }
 void UGA_CharacterRun::OnPress(float TimeElapsed)	// Break out
 {
-	InputPressTask->EndTask();
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	if (CMC->CanRunInCurrentState())	// If we are running
+	{
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	}
 }
 
 

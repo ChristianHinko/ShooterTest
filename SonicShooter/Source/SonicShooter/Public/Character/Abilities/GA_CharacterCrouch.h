@@ -8,6 +8,8 @@
 
 class AAbilitySystemCharacter;
 class UAS_Character;
+class UAT_WaitInputPressCust;
+class UAT_WaitInputReleaseCust;
 /**
  * 
  */
@@ -42,7 +44,18 @@ protected:
 #pragma region Gameplay Tags
 
 #pragma endregion
+	UAT_WaitInputPressCust* InputPressTask;
+	UAT_WaitInputReleaseCust* InputReleasedTask;
 
 	UFUNCTION()
-		virtual void OnRelease(float TimeHeld);
+		void OnPress(float TimeElapsed);
+	UFUNCTION()
+		void OnRelease(float TimeHeld);
+	UFUNCTION()
+		void OnCrouchEnd();
+
+
+
+
+	bool holdToCrouch;		// Temoprary variable for input
 };

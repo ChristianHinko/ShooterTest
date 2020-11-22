@@ -4,15 +4,22 @@
 #include "Character/Abilities/GA_CharacterCrouch.h"
 
 #include "Character/AbilitySystemCharacter.h"
+#include "Abilities/Tasks/AbilityTask_WaitInputPress.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Character\AbilitySystemCharacter.h"
 #include "Character\AS_Character.h"
+#include "AbilitySystem\AbilityTasks\AT_WaitInputPressCust.h"
+#include "AbilitySystem\AbilityTasks\AT_WaitInputReleaseCust.h"
 
 
 
 UGA_CharacterCrouch::UGA_CharacterCrouch()
 {
+	holdToCrouch = false;
+
+
+
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Crouch")));
 
 
@@ -40,6 +47,8 @@ void UGA_CharacterCrouch::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL, meaning CharacterAttributeSet will also be NULL"), *FString(__FUNCTION__));
 		return;
 	}
+	GASCharacter->OnCrouchEndDelegate.AddDynamic(this, &UGA_CharacterCrouch::OnCrouchEnd);
+
 	CharacterAttributeSet = GASCharacter->GetCharacterAttributeSet();
 	if (!CharacterAttributeSet)
 	{
@@ -84,8 +93,18 @@ void UGA_CharacterCrouch::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	}
 
 
+
+	InputPressTask = UAT_WaitInputPressCust::WaitInputPressCust(this, false, true);
+	if (!InputPressTask)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputPressTask was NULL when trying to activate crouch ability. Called CancelAbility()"), *FString(__FUNCTION__));
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+		return;
+	}
+	InputPressTask->OnPress.AddDynamic(this, &UGA_CharacterCrouch::OnPress);
+
 	// Lets do the logic we want to happen when the ability starts.
-	UAbilityTask_WaitInputRelease* InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
+	InputReleasedTask = UAT_WaitInputReleaseCust::WaitInputReleaseCust(this, false, true);
 	if (!InputReleasedTask)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate crouch ability. Called CancelAbility()"), *FString(__FUNCTION__));
@@ -103,6 +122,50 @@ void UGA_CharacterCrouch::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 
 
 void UGA_CharacterCrouch::OnRelease(float TimeHeld)
+{
+	if (holdToCrouch)
+	{
+		GASCharacter->UnCrouch();
+	}
+
+
+	if (InputReleasedTask->callBackNumber == 1)
+	{
+		InputPressTask->ReadyForActivation();
+	}
+}
+
+void UGA_CharacterCrouch::OnPress(float TimeElapsed)
+{
+	if (holdToCrouch)
+	{
+		GASCharacter->Crouch();	// May seem weird why were crouching here for holds, but this is for saftey (say if your in a forced crouched state and let go and hold again)
+	}
+	else
+	{
+		if (InputPressTask->callBackNumber % 2 != 0)
+		{
+			GASCharacter->UnCrouch();
+		}
+		else
+		{
+			GASCharacter->Crouch();
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void UGA_CharacterCrouch::OnCrouchEnd()		// We only want to end the ability if we are FOR REAL not crouching anymore
 {
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
@@ -123,8 +186,6 @@ void UGA_CharacterCrouch::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 
 
 
-
-	GASCharacter->UnCrouch();
 
 
 	ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(CrouchingEffectActiveHandle);

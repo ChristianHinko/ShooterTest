@@ -169,6 +169,13 @@ bool ASSCharacter::CanJumpInternal_Implementation() const
 }
 
 #pragma region Crouch
+bool ASSCharacter::CanCrouch() const
+{
+	//Super::CanCrouch();	// We are taking away the check for if bIsCrouched is false becus
+
+	return GetCharacterMovement() && GetCharacterMovement()->CanEverCrouch() && GetRootComponent() && !GetRootComponent()->IsSimulatingPhysics();
+}
+
 void ASSCharacter::OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust)
 {
 	//Super::OnStartCrouch(HeightAdjust, ScaledHeightAdjust);
@@ -272,6 +279,10 @@ void ASSCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
 
 
 	CrouchTickFunction.SetTickFunctionEnable(true);
+
+
+
+	OnCrouchEndDelegate.Broadcast();	// We currently use this for our movement abilities
 }
 
 void FCrouchTickFunction::ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent)

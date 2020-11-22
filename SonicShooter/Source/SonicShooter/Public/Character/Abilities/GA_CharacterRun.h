@@ -9,9 +9,9 @@
 class AAbilitySystemCharacter;
 class USSCharacterMovementComponent;
 class UAS_Character;
-class UAbilityTask_WaitInputPress;
+class UAT_WaitInputPressCust;
+class UAT_WaitInputReleaseCust;
 class UAT_Ticker;
-class UAbilityTask_WaitInputRelease;
 
 /**
  * 
@@ -62,12 +62,17 @@ protected:
 	FGameplayTag RunDisabledTag;
 #pragma endregion
 
-	UAbilityTask_WaitInputRelease* InputReleasedTask;
+	UAT_WaitInputReleaseCust* InputReleasedTask;
 	UAT_Ticker* TickerTask;
-	UAbilityTask_WaitInputPress* InputPressTask;
+	UAT_WaitInputPressCust* InputPressTask;
 	// We want to give the player option to togle or hold so we will need to do some small rework in future
 	UFUNCTION()
 		virtual void OnRelease(float TimeHeld);		
 	UFUNCTION()
 		virtual void OnPress(float TimeElapsed);
+
+
+
+
+	bool holdToRun;		// Temoprary variable for input
 };

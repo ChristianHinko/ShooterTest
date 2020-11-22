@@ -7,6 +7,7 @@
 
 #include "SSCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCrouchDelegate);
 
 class USkeletalMeshComponent;
 class UCameraComponent;
@@ -81,6 +82,8 @@ protected:
 public:
 	ASSCharacter(const FObjectInitializer& ObjectInitializer);
 
+	FCrouchDelegate OnCrouchEndDelegate;
+
 	// Components
 	USkeletalMeshComponent* GetPOVMesh() const { return POVMesh; }
 	USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -101,7 +104,7 @@ public:
 	float GetForwardInputAxis() const { return forwardInputAxis; }
 	float GetRightInputAxis() const { return rightInputAxis; }
 
-
+	virtual bool CanCrouch() const override;
 	virtual void OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust) override;
 	virtual void OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust) override;
 

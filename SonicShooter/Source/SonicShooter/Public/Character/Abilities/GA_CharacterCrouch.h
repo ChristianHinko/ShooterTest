@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSGameplayAbility.h"
+#include "Console/CVarChangeListenerManager.h"
+
 #include "GA_CharacterCrouch.generated.h"
 
 class AAbilitySystemCharacter;
@@ -41,9 +43,14 @@ protected:
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	//END UGameplayAbility Interface
 
+
 #pragma region Gameplay Tags
 
 #pragma endregion
+	FBoolCVarChangedSignature CVarToggleCrouchChangeDelegate;
+	UFUNCTION()
+		void CVarToggleCrouchChanged(bool newValue);
+	uint8 bToggleOn : 1;
 	UAT_WaitInputPressCust* InputPressTask;
 	UAT_WaitInputReleaseCust* InputReleasedTask;
 
@@ -53,9 +60,4 @@ protected:
 		void OnRelease(float TimeHeld);
 	UFUNCTION()
 		void OnCrouchEnd();
-
-
-
-
-	bool holdToCrouch;		// Temoprary variable for input
 };

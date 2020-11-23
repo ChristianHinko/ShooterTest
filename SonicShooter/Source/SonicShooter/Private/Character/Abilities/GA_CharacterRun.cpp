@@ -17,16 +17,17 @@
 
 UGA_CharacterRun::UGA_CharacterRun()
 {
-	holdToRun = true;
-
-
-
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Run")));
 
 
 	RunDisabledTag = FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled");
 
 	ActivationBlockedTags.AddTag(RunDisabledTag);	// This isn't the singular thing stopping you from running. The CMC is what listens for the presence of the RunDisabledTag and blocks running. This check just saves an ability activation.
+}
+
+void UGA_CharacterRun::CVarToggleRunChanged(bool newValue)
+{
+	bToggleRun = newValue;
 }
 
 void UGA_CharacterRun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -60,6 +61,12 @@ void UGA_CharacterRun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, c
 	if (!CharacterAttributeSet)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterAttributeSet was NULL"), *FString(__FUNCTION__));
+	}
+
+	if (!CVarToggleRunChangeDelegate.IsBound())		// Only want to run this code once
+	{
+		CVarToggleRunChangeDelegate.BindUFunction(this, TEXT("CVarToggleRunChanged"));
+		UCVarChangeListenerManager::AddBoolCVarCallbackStatic(TEXT("input.ToggleRun"), CVarToggleRunChangeDelegate, true);
 	}
 }
 
@@ -123,7 +130,7 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 	InputReleasedTask->ReadyForActivation();
 
 
-	if (!holdToRun)
+	if (bToggleRun)
 	{
 		InputPressTask = UAT_WaitInputPressCust::WaitInputPressCust(this);
 		if (!InputPressTask)
@@ -218,7 +225,7 @@ void UGA_CharacterRun::OnRunAbilityShouldNotBeActive()		// Break out
 }
 void UGA_CharacterRun::OnRelease(float TimeHeld)	// Break out if hold to run
 {
-	if (holdToRun)
+	if (!bToggleRun)
 	{
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 	}
@@ -296,6 +303,7 @@ void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 
 
 
+
 bool UGA_CharacterRun::RunAbilityCanBeActive() const
 {
 	if (!CMC->IsMovingForward())
@@ -307,3 +315,10 @@ bool UGA_CharacterRun::RunAbilityCanBeActive() const
 
 	return true;
 }
+
+
+
+
+
+
+

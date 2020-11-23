@@ -16,14 +16,15 @@
 
 UGA_CharacterCrouch::UGA_CharacterCrouch()
 {
-	holdToCrouch = false;
-
-
-
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Crouch")));
 
 
 	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Run"));
+}
+
+void UGA_CharacterCrouch::CVarToggleCrouchChanged(bool newValue)
+{
+	bToggleOn = newValue;
 }
 
 void UGA_CharacterCrouch::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -53,6 +54,12 @@ void UGA_CharacterCrouch::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo
 	if (!CharacterAttributeSet)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterAttributeSet was NULL"), *FString(__FUNCTION__));
+	}
+
+	if (!CVarToggleCrouchChangeDelegate.IsBound())		// Only want to run this code once
+	{
+		CVarToggleCrouchChangeDelegate.BindUFunction(this, TEXT("CVarToggleCrouchChanged"));
+		UCVarChangeListenerManager::AddBoolCVarCallbackStatic(TEXT("input.ToggleCrouch"), CVarToggleCrouchChangeDelegate, true);
 	}
 }
 
@@ -123,7 +130,7 @@ void UGA_CharacterCrouch::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 
 void UGA_CharacterCrouch::OnRelease(float TimeHeld)
 {
-	if (holdToCrouch)
+	if (!bToggleOn)
 	{
 		GASCharacter->UnCrouch();
 	}
@@ -137,7 +144,7 @@ void UGA_CharacterCrouch::OnRelease(float TimeHeld)
 
 void UGA_CharacterCrouch::OnPress(float TimeElapsed)
 {
-	if (holdToCrouch)
+	if (!bToggleOn)
 	{
 		GASCharacter->Crouch();	// May seem weird why were crouching here for holds, but this is for saftey (say if your in a forced crouched state and let go and hold again)
 	}
@@ -195,3 +202,5 @@ void UGA_CharacterCrouch::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
+
+

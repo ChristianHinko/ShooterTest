@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSGameplayAbility.h"
+#include "Console/CVarChangeListenerManager.h"
+
 #include "GA_CharacterRun.generated.h"
 
 class AAbilitySystemCharacter;
@@ -49,6 +51,7 @@ protected:
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	//END UGameplayAbility Interface
 
+
 	UFUNCTION()
 		void OnTick(float DeltaTime, float currentTime, float timeRemaining);
 
@@ -61,6 +64,10 @@ protected:
 #pragma region Gameplay Tags
 	FGameplayTag RunDisabledTag;
 #pragma endregion
+	FBoolCVarChangedSignature CVarToggleRunChangeDelegate;
+	UFUNCTION()
+		void CVarToggleRunChanged(bool newValue);
+	uint8 bToggleRun : 1;
 
 	UAT_WaitInputReleaseCust* InputReleasedTask;
 	UAT_Ticker* TickerTask;
@@ -71,8 +78,4 @@ protected:
 	UFUNCTION()
 		virtual void OnPress(float TimeElapsed);
 
-
-
-
-	bool holdToRun;		// Temoprary variable for input
 };

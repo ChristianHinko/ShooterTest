@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "Console\CVarChangeListenerManager.h"
+
 #include "SSGameInstance.generated.h"
 
 /**
@@ -13,7 +15,8 @@ UCLASS()
 class SONICSHOOTER_API USSGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
-	
+
+public:
 	virtual void Init() override;
 
 };

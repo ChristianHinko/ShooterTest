@@ -2,10 +2,11 @@
 
 
 #include "Game/SSGameInstance.h"
+#include "AutoSettings/Public/SettingsManager.h"
 
 void USSGameInstance::Init()
 {
-
+	
 
 
 

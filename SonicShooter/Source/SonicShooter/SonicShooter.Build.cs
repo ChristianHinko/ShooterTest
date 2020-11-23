@@ -14,7 +14,8 @@ public class SonicShooter : ModuleRules
 				"InputCore",
 				"GameplayAbilities",
 				"GameplayTags",
-				"GameplayTasks"
+				"GameplayTasks",
+				"AutoSettings"
 			}
 		);
 	}

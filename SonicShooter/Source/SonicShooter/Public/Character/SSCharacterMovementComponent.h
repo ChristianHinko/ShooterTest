@@ -161,6 +161,8 @@ public:
 	bool IsMovingForward(/*float degreeTolerance = 99.f*/);
 	//END CMC Interface
 
+	FRotator CurrentRotationRate;
+
 protected:
 	//	Don't know for sure if this is the best event to use but works for now
 	virtual void InitializeComponent() override;
@@ -186,6 +188,7 @@ protected:
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 	virtual void PhysCustom(float deltaTime, int32 Iterations) override;
 	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override; // DO NOT UTILIZE THIS EVENT FOR MOVEMENT
 	//END CMC Interface
 
 
@@ -218,6 +221,9 @@ protected:
 #pragma region Custom Movement Physics
 	virtual void PhysInfiniteAngleWalking(float deltaTime, int32 Iterations);
 #pragma endregion
+
+private:
+	FRotator PreviousRotation;
 };
 
 

@@ -11,7 +11,7 @@
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Kismet/KismetMathLibrary.h"
 
-//#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 
 
@@ -409,6 +409,17 @@ FSavedMovePtr FNetworkPredictionData_Client_SSCharacter::AllocateNewMove()
 }
 #pragma endregion
 
+void USSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) // DO NOT UTILIZE THIS EVENT FOR MOVEMENT
+{
+	// DO NOT UTILIZE THIS EVENT FOR MOVEMENT
+
+	CurrentRotationRate = (PawnOwner->GetActorRotation() - PreviousRotation) * (DeltaTime * 1000);
+	UKismetSystemLibrary::PrintString(this, CurrentRotationRate.ToString(), true, false);
+
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	PreviousRotation = PawnOwner->GetActorRotation();
+}
 
 #pragma region MovementHelpers
 bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/)
@@ -420,7 +431,9 @@ bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/)
 	 * 
 	 * ACOS(dot product) is the formula. Incidentally, it's the formula to find the angle between two vectors
 	 */
-	
+
+	bool auth = PawnOwner->GetLocalRole() == ROLE_Authority; // for debugging
+
 
 	const FVector ForwardDir = PawnOwner->GetActorForwardVector();
 	const FVector DesiredDir = Acceleration.GetSafeNormal();
@@ -428,7 +441,11 @@ bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/)
 	const float forwardDifference = FVector::DotProduct(DesiredDir, ForwardDir);
 
 	const float degsDiff = UKismetMathLibrary::DegAcos(forwardDifference);
-	if (degsDiff > 45.f + 10.f) // if we are moving 45 degs or more away from our forward vector (plus 10 degs of grace because its messed up right now)
+
+	// TODO: CurrentRotationRate is different on client and server for some reason. It's most of the time zero on the server so the server returns false here a lot
+	const float graceDegs = 1 + FMath::Abs(CurrentRotationRate.Yaw) + FMath::Abs(CurrentRotationRate.Pitch) + FMath::Abs(CurrentRotationRate.Roll); // how much extra degrees of grace should be given based on how fast we are rotating. We need this because the dot product isnt perfect for some reason and gets more inaccurate the faster you rotate
+
+	if (degsDiff > 45.f + graceDegs) // if we are moving 45 degs or more away from our forward vector (plus some grace based on how fast we are rotating)
 	{
 		return false;
 	}

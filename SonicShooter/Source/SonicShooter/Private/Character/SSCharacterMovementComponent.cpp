@@ -17,6 +17,7 @@
 
 USSCharacterMovementComponent::USSCharacterMovementComponent()
 {
+	bCanCrouchJump = false;
 	bCanWalkOffLedgesWhenCrouching = true;
 }
 void USSCharacterMovementComponent::InitializeComponent()
@@ -188,7 +189,7 @@ bool USSCharacterMovementComponent::CanAttemptJump() const
 
 bool USSCharacterMovementComponent::CanCrouchInCurrentState() const
 {
-	if (IsMovingOnGround() == false)
+	if (!bCanCrouchJump && !IsMovingOnGround())
 	{
 		return false;
 	}

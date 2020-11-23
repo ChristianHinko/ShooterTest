@@ -161,7 +161,9 @@ public:
 	bool IsMovingForward(/*float degreeTolerance = 99.f*/);
 	//END CMC Interface
 
+	uint8 bCanCrouchJump : 1;
 	FRotator CurrentRotationRate;
+
 
 protected:
 	//	Don't know for sure if this is the best event to use but works for now

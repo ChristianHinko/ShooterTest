@@ -6,7 +6,8 @@
 
 void USSGameInstance::Init()
 {
-	
+	USettingsManager::RegisterBoolCVarSetting(TEXT("input.ToggleRun"), true, TEXT("Running is a toggle"));
+	USettingsManager::RegisterBoolCVarSetting(TEXT("input.ToggleCrouch"), true, TEXT("Crouching is a toggle"));
 
 
 

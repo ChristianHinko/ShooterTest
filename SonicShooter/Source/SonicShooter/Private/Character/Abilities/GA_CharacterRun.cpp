@@ -22,6 +22,8 @@ UGA_CharacterRun::UGA_CharacterRun()
 
 	RunDisabledTag = FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled");
 
+	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Crouch"));
+
 	ActivationBlockedTags.AddTag(RunDisabledTag);	// This isn't the singular thing stopping you from running. The CMC is what listens for the presence of the RunDisabledTag and blocks running. This check just saves an ability activation.
 }
 
@@ -169,7 +171,7 @@ void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRema
 {
 	if (CMC->IsMovingForward())
 	{
-		if (CMC->IsMovingOnGround())
+		if (CMC->IsMovingOnGround() && CMC->IsCrouching() == false)
 		{
 			if (CharacterAttributeSet->GetStamina() > 0)
 			{
@@ -241,7 +243,7 @@ void UGA_CharacterRun::OnRelease(float TimeHeld)	// Break out if hold to run
 }
 void UGA_CharacterRun::OnPress(float TimeElapsed)	// Break out
 {
-	if (CMC->CanRunInCurrentState())	// If we are running
+	if (CMC->IsMovingForward() && CMC->IsMovingOnGround())	// If we are fulfilng the requirements for the ability to be active
 	{
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 	}

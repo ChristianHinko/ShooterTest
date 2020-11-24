@@ -54,12 +54,12 @@ void UGA_MyAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 
 
-
+	//MyEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, MyEffectTSub.GetDefaultObject(), GetAbilityLevel());
 
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
@@ -74,6 +74,7 @@ void UGA_MyAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	{
 		return;
 	}
+
 	if (ScopeLockCount > 0)
 	{
 		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &UGA_MyAbility::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
@@ -83,7 +84,10 @@ void UGA_MyAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FG
 
 
 
+	//ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(MyEffectActiveHandle);
+
+
+
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-
 }

@@ -158,7 +158,7 @@ public:
 
 	virtual bool CanCrouchInCurrentState() const override;
 	virtual bool CanRunInCurrentState() const;
-	bool IsMovingForward(/*float degreeTolerance = 99.f*/);
+	bool IsMovingForward(/*float degreeTolerance = 99.f*/) const;
 	//END CMC Interface
 
 	uint8 bCanCrouchJump : 1;

@@ -199,11 +199,11 @@ bool USSCharacterMovementComponent::CanCrouchInCurrentState() const
 
 bool USSCharacterMovementComponent::CanRunInCurrentState() const
 {
-	if (IsCrouching())
+	if (!IsMovingOnGround())
 	{
 		return false;
 	}
-	if (!IsMovingOnGround())
+	if (!IsMovingForward())
 	{
 		return false;
 	}
@@ -423,7 +423,7 @@ void USSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 }
 
 #pragma region MovementHelpers
-bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/)
+bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/) const
 {
 	/**
 	 * At dot product 0.7 you are looking at a 45 degrees angle

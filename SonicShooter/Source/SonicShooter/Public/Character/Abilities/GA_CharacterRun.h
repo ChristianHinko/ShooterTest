@@ -59,7 +59,6 @@ protected:
 		void OnStaminaFullyDrained();
 	UFUNCTION()
 		void OnRunAbilityShouldNotBeActive();
-	bool RunAbilityCanBeActive() const;
 
 #pragma region Gameplay Tags
 	FGameplayTag RunDisabledTag;

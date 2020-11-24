@@ -99,10 +99,10 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (!RunAbilityCanBeActive())
+	if (!CMC->IsMovingOnGround() || !CMC->IsMovingForward())
 	{
 		return false;
-	} // actually get rid of this check. bWantsToRun should still be true but just make CanRunInCurrentState() return false
+	}
 
 	return true;
 }
@@ -167,9 +167,29 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 
 void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRemaining)
 {
-	if (RunAbilityCanBeActive())
+	if (CMC->CanRunInCurrentState())
 	{
-		if (CMC->CanRunInCurrentState())
+		if (CharacterAttributeSet->GetStamina() > 0)
+		{
+			float stamina = CharacterAttributeSet->GetStamina();
+			float staminaDrain = CharacterAttributeSet->GetStaminaDrain();
+
+			CharacterAttributeSet->SetStamina(stamina - (staminaDrain * DeltaTime));
+		}
+		else
+		{
+			TickerTask->EndTask();
+
+			UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
+			WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnStaminaFullyDrained);
+			WaitNetSyncTask->ReadyForActivation();
+		}
+	}
+
+
+	if (CMC->IsMovingForward())
+	{
+		if (CMC->IsMovingOnGround())
 		{
 			if (CharacterAttributeSet->GetStamina() > 0)
 			{
@@ -303,18 +323,6 @@ void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 
 
 
-
-bool UGA_CharacterRun::RunAbilityCanBeActive() const
-{
-	if (!CMC->IsMovingForward())
-	{
-		return false;
-	}
-
-
-
-	return true;
-}
 
 
 

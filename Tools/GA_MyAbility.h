@@ -22,7 +22,9 @@ public:
 
 
 protected:
-
+	//UPROPERTY(EditAnywhere)
+	//	TSubclassOf<UGameplayEffect> MyEffectTSub;	// asset manager we need you D:
+	//FActiveGameplayEffectHandle MyEffectActiveHandle;
 
 
 	//BEGIN UGameplayAbility Interface

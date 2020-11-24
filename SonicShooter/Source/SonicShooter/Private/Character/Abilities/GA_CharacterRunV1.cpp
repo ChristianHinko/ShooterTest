@@ -41,40 +41,40 @@ void UGA_CharacterRunV1::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 
 	if (!DrainStaminaFromRunEffectTSub)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("Effect TSubclassOf empty in %s so this ability was canceled - please fill out Character Run ability blueprint"), *FString(__FUNCTION__));
-		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
+		UE_LOG(LogGameplayAbility, Error, TEXT("Effect TSubclassOf empty in %s so this ability was ended - please fill out Character Run ability blueprint"), *FString(__FUNCTION__));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	USSCharacterMovementComponent* CMC = Cast<USSCharacterMovementComponent>(ActorInfo->MovementComponent);
 	if (!CMC)
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() CharacterMovementComponent was NULL when trying to run. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() CharacterMovementComponent was NULL when trying to run. Called EndAbility()"), *FString(__FUNCTION__));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	UAbilityTask_WaitInputRelease* InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
 	if (!InputReleasedTask)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate run ability. Called EndAbility()"), *FString(__FUNCTION__));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	GASCharacter = Cast<AAbilitySystemCharacter>(GetAvatarActorFromActorInfo());
 	if (!GASCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL when trying to run. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL when trying to run. Called EndAbility()"), *FString(__FUNCTION__));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	if (GASCharacter->GetCharacterAttributeSet()->GetStamina() <= 0)
 	{
-		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 

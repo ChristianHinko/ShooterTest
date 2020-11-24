@@ -57,7 +57,7 @@ void UGA_CharacterRunV2::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo,
 
 bool UGA_CharacterRunV2::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
-	//	Returning false in here for checks is better than doing checks in ActivateAbility() since returning false triggers a rollback on the client if Server returns false. In our previous method we called CancelAbility() inside ActivateAbility() if a check didn't pass, which doesn't even cancel it on the remote machine if client since bRespectsRemoteAbilityToCancel most of the time will be false.
+	//	Returning false in here for checks is better than doing checks in ActivateAbility() since returning false triggers a rollback on the client if Server returns false. In our previous method we called EndAbility() inside ActivateAbility() if a check didn't pass, which doesn't even cancel it on the remote machine if client since bRespectsRemoteAbilityToCancel most of the time will be false.
 	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 	{
 		return false;
@@ -98,7 +98,7 @@ void UGA_CharacterRunV2::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 
@@ -109,8 +109,8 @@ void UGA_CharacterRunV2::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	UAbilityTask_WaitInputRelease* InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
 	if (!InputReleasedTask)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate run ability. Called EndAbility()"), *FString(__FUNCTION__));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterRunV2::OnRelease);
@@ -120,8 +120,8 @@ void UGA_CharacterRunV2::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	UAT_RepeatAction* RepeatActionTask = UAT_RepeatAction::RepeatAction(this, 1, true);
 	if (!RepeatActionTask)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() RepeatActionTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() RepeatActionTask was NULL when trying to activate run ability. Called EndAbility()"), *FString(__FUNCTION__));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	RepeatActionTask->OnPerformAction.AddDynamic(this, &UGA_CharacterRunV2::OnTimerTick);

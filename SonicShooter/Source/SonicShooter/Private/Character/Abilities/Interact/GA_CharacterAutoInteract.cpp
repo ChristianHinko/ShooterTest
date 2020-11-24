@@ -91,7 +91,7 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //
 //	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 //	{
-//		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+//      EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 //		return;
 //	}
 //
@@ -133,7 +133,7 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //	if (!DurationInteractCallbacks)
 //	{
 //		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DurationInteractCallbacks was NULL when trying to activate an automatic duration interact."), *FString(__FUNCTION__));
-//		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+//      EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 //		return;
 //	}
 //

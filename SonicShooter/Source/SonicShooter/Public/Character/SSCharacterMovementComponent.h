@@ -87,7 +87,7 @@ enum ECustomMovementMode																		// should we make this an enum class?
  *		- For movement abilities such as GA_CharacterRun
  *			- If something goes wrong set the abilities corresponding movement restriction to disable the movement (ex: set bCanRun to false)
  *				- In CanActivateAbility() whenever you return false, disable the movement
- *				- In ActivteAbility() anywhere you have CancelAbility(), disable the movement
+ *				- In ActivteAbility() anywhere you have EndAbility(), disable the movement
  *			- This is an exception to not setting movement restrictions directly		]\]\]][		actually its not maybe use a GE for this
  *			-				talk about movement restrictions working as rollback			\-\-=\-\-\]-\]-\]\-\-]-\]-\-]\-=]\-=\]-]\-=\]
  * 

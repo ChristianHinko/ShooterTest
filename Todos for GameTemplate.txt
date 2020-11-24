@@ -110,6 +110,9 @@ An ideal solution to these 2 problems would mean the server wouldn't have to wai
 - make smooth camera crouching by using the FCrouchTickFunction and CrouchTick()
 
 
+- Change all CancelAbility()s in our abilities to EndAbility()s because CancelAbility() is meant for external sources while EndAbility() is made to be called by the ability itself.
+- Also ensure that we are replicating the end ability for all of these (for some reason a lot of them weren't)
+
 
 - Add CMC system for having a true value for each flag. EX: bIsRunning for bWantsToRun. look at UpdateCharacterStateBeforeMovement()
 

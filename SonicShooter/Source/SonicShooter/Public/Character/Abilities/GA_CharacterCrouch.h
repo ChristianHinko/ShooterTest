@@ -12,6 +12,7 @@ class AAbilitySystemCharacter;
 class UAS_Character;
 class UAT_WaitInputPressCust;
 class UAT_WaitInputReleaseCust;
+class USSCharacterMovementComponent;
 /**
  * 
  */
@@ -33,6 +34,8 @@ protected:
 		AAbilitySystemCharacter* GASCharacter;
 	UPROPERTY()
 		UAS_Character* CharacterAttributeSet;
+	UPROPERTY()
+		USSCharacterMovementComponent* CMC;
 
 
 
@@ -58,6 +61,4 @@ protected:
 		void OnPress(float TimeElapsed);
 	UFUNCTION()
 		void OnRelease(float TimeHeld);
-	UFUNCTION()
-		void OnCrouchEnd();
 };

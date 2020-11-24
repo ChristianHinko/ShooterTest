@@ -279,10 +279,6 @@ void ASSCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
 
 
 	CrouchTickFunction.SetTickFunctionEnable(true);
-
-
-
-	OnCrouchEndDelegate.Broadcast();	// We currently use this for our movement abilities
 }
 
 void FCrouchTickFunction::ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent)

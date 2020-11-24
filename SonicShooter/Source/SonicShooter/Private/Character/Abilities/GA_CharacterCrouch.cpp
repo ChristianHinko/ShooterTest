@@ -105,7 +105,7 @@ void UGA_CharacterCrouch::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 
@@ -115,8 +115,8 @@ void UGA_CharacterCrouch::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 		InputPressTask = UAT_WaitInputPressCust::WaitInputPressCust(this, false, true);
 		if (!InputPressTask)
 		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputPressTask was NULL when trying to activate crouch ability. Called CancelAbility()"), *FString(__FUNCTION__));
-			CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputPressTask was NULL when trying to activate crouch ability. Called EndAbility()"), *FString(__FUNCTION__));
+			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 			return;
 		}
 		InputPressTask->OnPress.AddDynamic(this, &UGA_CharacterCrouch::OnPress);
@@ -127,8 +127,8 @@ void UGA_CharacterCrouch::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 		InputReleasedTask = UAT_WaitInputReleaseCust::WaitInputReleaseCust(this, false, true);
 		if (!InputReleasedTask)
 		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate crouch ability. Called CancelAbility()"), *FString(__FUNCTION__));
-			CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate crouch ability. Called EndAbility()"), *FString(__FUNCTION__));
+			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 			return;
 		}
 		InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterCrouch::OnRelease);
@@ -177,23 +177,26 @@ void UGA_CharacterCrouch::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 	{
 		return;
 	}
-	// Make sure we bind our child class' version of EndAbility() instead of using the Super's version of this part
-	if (ScopeLockCount > 0)
+
+	// Only actually end the ability if this ability itself ended it (so that if a jump or run cancels this, for example, they won't set bWantsToCrouch to false and end our tasks for us. This allows us
+	// to have it so the ability stays alive although it was cancelled by another). Also let external sources completely end this ability if bToggleOn is on.
+	if (bWasCancelled == false || bToggleOn)
 	{
-		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &UGA_CharacterCrouch::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
-		return;
+		// Make sure we bind our child class' version of EndAbility() instead of using the Super's version of this part
+		if (ScopeLockCount > 0)
+		{
+			WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &UGA_CharacterCrouch::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
+			return;
+		}
+		
+
+
+		GASCharacter->UnCrouch();
+		ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(CrouchingEffectActiveHandle);
+
+
+
+
+		Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 	}
-
-
-
-
-	GASCharacter->UnCrouch();
-	ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(CrouchingEffectActiveHandle);
-
-
-
-
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
-
-

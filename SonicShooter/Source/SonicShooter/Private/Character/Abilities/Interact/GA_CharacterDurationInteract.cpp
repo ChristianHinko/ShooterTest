@@ -49,6 +49,7 @@ void UGA_CharacterDurationInteract::ActivateAbility(const FGameplayAbilitySpecHa
 	if (!DurationInteractCallbacks)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DurationInteractCallbacks was NULL when trying to activate InteractDuration ability. May have been because a NULL Character or Interactable reference was passed in. Called EndAbility()"), *FString(__FUNCTION__));
+		InteractEndReason = EDurationInteractEndReason::REASON_Unknown;
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
@@ -57,6 +58,7 @@ void UGA_CharacterDurationInteract::ActivateAbility(const FGameplayAbilitySpecHa
 	if (!InputReleasedTask)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate InteractDuration ability. Called EndAbility()"), *FString(__FUNCTION__));
+		InteractEndReason = EDurationInteractEndReason::REASON_Unknown;
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
@@ -180,20 +182,15 @@ void UGA_CharacterDurationInteract::EndAbility(const FGameplayAbilitySpecHandle 
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() RemoveActiveGameplayEffect(InteractEffectActiveHandle) failed. AbilitySystemComponent was NULL"), *FString(__FUNCTION__));
 	}
 
-	if (bWasCancelled)
+	
+	if (Interactable)
 	{
-		InteractEndReason = EDurationInteractEndReason::REASON_AbilityCanceled;
-		if (Interactable)	// If there is a valid interactable for this machine (it's ok if not. That may be why it was canceled)
+		// Commented out because right now we don't have a way of knowing if the server rejected the activation
+		/*if (InteractEndReason == EDurationInteractEndReason::REASON_PredictionCorrected)
 		{
-			if (InteractEndReason == EDurationInteractEndReason::REASON_AbilityCanceled)
-			{
-				Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_AbilityCanceled, timeHeld);
-			}
+			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_PredictionCorrected, timeHeld);
 		}
-	}
-	else
-	{
-		if (InteractEndReason == EDurationInteractEndReason::REASON_InputRelease)
+		else*/ if (InteractEndReason == EDurationInteractEndReason::REASON_InputRelease)
 		{
 			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_InputRelease, timeHeld);
 		}

@@ -240,12 +240,12 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //
 //	if (bWasCancelled)
 //	{
-//		InteractEndReason = EDurationInteractEndReason::REASON_AbilityCanceled;
+//		InteractEndReason = EDurationInteractEndReason::REASON_PredictionCorrected;
 //		if (Interactable)	// If there is a valid interactable for this machine (it's ok if not. That may be why it was canceled)
 //		{
-//			if (InteractEndReason == EDurationInteractEndReason::REASON_AbilityCanceled)
+//			if (InteractEndReason == EDurationInteractEndReason::REASON_PredictionCorrected)
 //			{
-//				Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_AbilityCanceled, timeHeld);
+//				Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_PredictionCorrected, timeHeld);
 //			}
 //		}
 //	}
@@ -313,12 +313,12 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //
 //	if (bWasCancelled)
 //	{
-//		InteractEndReason = EDurationInteractEndReason::REASON_AbilityCanceled;
+//		InteractEndReason = EDurationInteractEndReason::REASON_PredictionCorrected;
 //		if (Interactable)	// If there is a valid interactable for this machine (it's ok if not. That may be why it was canceled)
 //		{
-//			if (InteractEndReason == EDurationInteractEndReason::REASON_AbilityCanceled)
+//			if (InteractEndReason == EDurationInteractEndReason::REASON_PredictionCorrected)
 //			{
-//				Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_AbilityCanceled, timeHeld);
+//				Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_PredictionCorrected, timeHeld);
 //			}
 //		}
 //	}

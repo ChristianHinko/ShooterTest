@@ -49,7 +49,6 @@ bool AShooterCharacter::GrantStartingAbilities()
 	return true;
 }
 
-
 void AShooterCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);

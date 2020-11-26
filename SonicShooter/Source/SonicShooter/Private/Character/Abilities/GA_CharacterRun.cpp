@@ -47,29 +47,28 @@ void UGA_CharacterRun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, c
 	}
 
 
-	CMC = Cast<USSCharacterMovementComponent>(ActorInfo->MovementComponent.Get());
-	if (!CMC)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL"), *FString(__FUNCTION__));
-	}
-
 	GASCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
 	if (!GASCharacter)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL, meaning CharacterAttributeSet will also be NULL"), *FString(__FUNCTION__));
 		return;
 	}
+
+	CMC = GASCharacter->GetSSCharacterMovementComponent();
+	if (!CMC)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL"), *FString(__FUNCTION__));
+	}
+
 	CharacterAttributeSet = GASCharacter->GetCharacterAttributeSet();
 	if (!CharacterAttributeSet)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterAttributeSet was NULL"), *FString(__FUNCTION__));
 	}
 
-	if (!CVarToggleRunChangeDelegate.IsBound())		// Only want to run this code once
-	{
-		CVarToggleRunChangeDelegate.BindUFunction(this, TEXT("CVarToggleRunChanged"));
-		UCVarChangeListenerManager::AddBoolCVarCallbackStatic(TEXT("input.ToggleRun"), CVarToggleRunChangeDelegate, true);
-	}
+	CVarToggleRunChangeDelegate.Clear();
+	CVarToggleRunChangeDelegate.BindUFunction(this, TEXT("CVarToggleRunChanged"));
+	UCVarChangeListenerManager::AddBoolCVarCallbackStatic(TEXT("input.ToggleRun"), CVarToggleRunChangeDelegate, true);
 }
 
 bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
@@ -88,6 +87,11 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 	if (!CharacterAttributeSet)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterAttributeSet was NULL. Returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+	if (CharacterAttributeSet->GetStamina() <= 0)
+	{
+		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Not enough stamina to activate. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
 	if (!ActorInfo->AbilitySystemComponent.Get())
@@ -120,38 +124,6 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 	}
 
 
-	// Lets do the logic we want to happen when the ability starts.
-	InputReleasedTask = UAT_WaitInputReleaseCust::WaitInputReleaseCust(this);
-	if (!InputReleasedTask)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate run ability. Called EndAbility()"), *FString(__FUNCTION__));
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
-	}
-	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterRun::OnRelease);
-	InputReleasedTask->ReadyForActivation();
-
-
-	if (bToggleRun)
-	{
-		InputPressTask = UAT_WaitInputPressCust::WaitInputPressCust(this);
-		if (!InputPressTask)
-		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputPressTask was NULL when trying to activate run ability. Called EndAbility()"), *FString(__FUNCTION__));
-			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-			return;
-		}
-		InputPressTask->OnPress.AddDynamic(this, &UGA_CharacterRun::OnPress);
-	}
-	
-
-
-
-
-	RunningEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, RunningEffectTSub.GetDefaultObject(), GetAbilityLevel());
-
-
-
 	//	Create the interval task so we can decrement our stamina every second
 	TickerTask = UAT_Ticker::Ticker(this);
 	if (!TickerTask)
@@ -161,10 +133,43 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 		return;
 	}
 	TickerTask->OnTick.AddDynamic(this, &UGA_CharacterRun::OnTick);
-	TickerTask->ReadyForActivation();
 
-	// Both tasks were created successfully. Set to running speed
+	if (!bToggleRun)
+	{
+		InputReleasedTask = UAT_WaitInputReleaseCust::WaitInputReleaseCust(this);
+		if (!InputReleasedTask)
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate run ability. Called EndAbility()"), *FString(__FUNCTION__));
+			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+			return;
+		}
+		InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterRun::OnRelease);
+	}
+	else
+	{
+		InputPressTask = UAT_WaitInputPressCust::WaitInputPressCust(this, false, true);
+		if (!InputPressTask)
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputPressTask was NULL when trying to activate run ability. Called EndAbility()"), *FString(__FUNCTION__));
+			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+			return;
+		}
+		InputPressTask->OnPress.AddDynamic(this, &UGA_CharacterRun::OnPress);
+	}
+
+
+	if (bToggleRun)
+	{
+		InputPressTask->ReadyForActivation();
+	}
+	else
+	{
+		InputReleasedTask->ReadyForActivation();
+	}
+
 	CMC->SetWantsToRun(true);
+	RunningEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, RunningEffectTSub.GetDefaultObject(), GetAbilityLevel());
+	TickerTask->ReadyForActivation();
 }
 
 void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRemaining)
@@ -215,35 +220,24 @@ void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRema
 
 
 // Break events
-void UGA_CharacterRun::OnStaminaFullyDrained()		// Break out
+void UGA_CharacterRun::OnStaminaFullyDrained()		// Forced break out
 {
 	ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DisableRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }
-void UGA_CharacterRun::OnRunAbilityShouldNotBeActive()		// Break out
+void UGA_CharacterRun::OnRunAbilityShouldNotBeActive()		// Forced break out
 {
 	ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DisableRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }
-void UGA_CharacterRun::OnRelease(float TimeHeld)	// Break out if hold to run
-{
-	if (!bToggleRun)
-	{
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
-	}
-	else
-	{
-		if (InputReleasedTask->callBackNumber == 1)
-		{
-			InputPressTask->ReadyForActivation();
-		}
-	}
 
-	
-}
-void UGA_CharacterRun::OnPress(float TimeElapsed)	// Break out
+void UGA_CharacterRun::OnRelease(float TimeHeld)	// Break out for hold mode
 {
-	if (CMC->IsMovingForward() && CMC->IsMovingOnGround())	// If we are fulfilng the requirements for the ability to be active
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+}
+void UGA_CharacterRun::OnPress(float TimeElapsed)	// Break out for toggle mode
+{
+	if (InputPressTask->callBackNumber == 2 && CMC->IsMovingForward() && CMC->IsMovingOnGround())	// If we are fulfilng the requirements for the ability to be active, but we want to stop running
 	{
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 	}

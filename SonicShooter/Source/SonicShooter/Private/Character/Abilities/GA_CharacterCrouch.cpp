@@ -172,16 +172,16 @@ void UGA_CharacterCrouch::OnPress(float TimeElapsed)
 
 void UGA_CharacterCrouch::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	// Super wraps the whole EndAbility() in IsEndAbilityValid()
-	if (!IsEndAbilityValid(Handle, ActorInfo))
-	{
-		return;
-	}
-
 	// Only actually end the ability if this ability itself ended it (so that if a jump or run cancels this, for example, they won't set bWantsToCrouch to false and end our tasks for us. This allows us
 	// to have it so the ability stays alive although it was cancelled by another). Also let external sources completely end this ability if bToggleOn is on.
 	if (bWasCancelled == false || bToggleOn)
 	{
+		// Super wraps the whole EndAbility() in IsEndAbilityValid()
+		if (!IsEndAbilityValid(Handle, ActorInfo))
+		{
+			return;
+		}
+
 		// Make sure we bind our child class' version of EndAbility() instead of using the Super's version of this part
 		if (ScopeLockCount > 0)
 		{
@@ -191,8 +191,13 @@ void UGA_CharacterCrouch::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 		
 
 
+
+
 		GASCharacter->UnCrouch();
 		ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(CrouchingEffectActiveHandle);
+
+
+
 
 
 

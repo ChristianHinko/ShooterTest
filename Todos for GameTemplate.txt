@@ -67,3 +67,6 @@
 
 - Figure out if we should UPROPERTY major objects or not (garbage collection related)
 - Make sure we have parenthesese after all of our function names in out comments (so that we can peek definition on them - without parentheses peek definition doesn't work)
+
+
+- For the UE4_Mannequin_Skeleton, in RetargetManager, in Set up Rig, set the Select Rig to Humanoid so that we can retarget this skeleton's anims to other skeletons

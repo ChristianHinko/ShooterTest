@@ -60,7 +60,9 @@
 	- figure out how to make it look clean still
 
 - Fix thing where if CMC exceeds save move buffer the character becomes completely in the wrong place and its not accounted for
-
+- Add AT_WaitInputPressCust
+- Add AT_WaitInputReleaseCust
+- Add AT_PlayMontageAndWaitCust
 
 - AbilitySystemActor "ActorAttributeSet" IS NOT ON EVERY ACTOR". Name misleading
 - Update GrantAbility() UELOG to give the function name

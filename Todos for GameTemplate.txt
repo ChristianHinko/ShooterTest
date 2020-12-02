@@ -68,5 +68,12 @@
 - Figure out if we should UPROPERTY major objects or not (garbage collection related)
 - Make sure we have parenthesese after all of our function names in out comments (so that we can peek definition on them - without parentheses peek definition doesn't work)
 
+- Make root folder for GameTemplate and add 3DObjects and Tools as subfolders along side GameTemplate subfolder (the one that has the actual uproject)
+	- Add contents of Tools
 
 - For the UE4_Mannequin_Skeleton, in RetargetManager, in Set up Rig, set the Select Rig to Humanoid so that we can retarget this skeleton's anims to other skeletons
+- Add our EpicSkeleton (our version of the mannequin skeleton)
+	- Including the retargeted mannequin anims and anim bps
+	- Including our version of the mannequin that uses our EpicSkeleton
+- Add EpicSkeleton to the 3DObjects folder
+	- The blend files and the fbx

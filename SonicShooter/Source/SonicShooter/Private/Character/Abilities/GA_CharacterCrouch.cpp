@@ -174,6 +174,7 @@ void UGA_CharacterCrouch::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 {
 	// Only actually end the ability if this ability itself ended it (so that if a jump or run cancels this, for example, they won't set bWantsToCrouch to false and end our tasks for us. This allows us
 	// to have it so the ability stays alive although it was cancelled by another). Also let external sources completely end this ability if bToggleOn is on.
+	// In this game, setting the wantsTo bools actually makes the character do the action (client authoritative), so that is why we only set bWantsToCrouch to false from within the ability
 	if (bWasCancelled == false || bToggleOn)
 	{
 		// Super wraps the whole EndAbility() in IsEndAbilityValid()

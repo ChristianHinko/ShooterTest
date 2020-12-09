@@ -48,7 +48,7 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	POVMesh->SetupAttachment(GetCapsuleComponent());
 	POVMesh->SetOnlyOwnerSee(true);
 	POVMesh->SetCastShadow(false);	// hide the POV mesh shadow because it will probably look weird (we're using the normal mesh's shadow instead)
-	POVMesh->SetRelativeLocation(FVector(0.f, 0.f, -96.f));
+	POVMesh->SetRelativeLocation(FVector(-25.f, 0, -96.f));
 	POVMesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 	POVMesh->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
 

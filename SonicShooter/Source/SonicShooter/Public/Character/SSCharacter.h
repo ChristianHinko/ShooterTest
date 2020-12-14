@@ -7,11 +7,12 @@
 
 #include "SSCharacter.generated.h"
 
-
+class ACharacter;
 class USkeletalMeshComponent;
 class UCameraComponent;
 class USpringArmComponent;
 class USSCharacterMovementComponent;
+class ASSGameState;
 
 /**
  * Base character class (without GAS implementation)
@@ -41,6 +42,8 @@ public:
 
 	USSCharacterMovementComponent* GetSSCharacterMovementComponent() const { return SSCharacterMovementComponent; }
 
+	ASSGameState* SSGameState;
+
 	/**
 	 * 
 	 * Order for determining what the current interactable is:
@@ -51,6 +54,10 @@ public:
 	 */
 
 	
+
+
+	APawn* GetNearestPawn();
+
 
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;

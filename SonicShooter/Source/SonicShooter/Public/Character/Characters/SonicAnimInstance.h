@@ -52,11 +52,6 @@ public:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaTimeX) override;
 
-	UPROPERTY(EditAnywhere)
-		UMaterialInterface* REyeMatRef;
-	UPROPERTY(EditAnywhere)
-		UMaterialInterface* LEyeMatRef;
-
 	UMaterialInstanceDynamic* REyeDynamicMat;
 	UMaterialInstanceDynamic* LEyeDynamicMat;
 

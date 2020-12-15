@@ -9,16 +9,16 @@ USonicAnimInstance::USonicAnimInstance()
 {
 	rEyeLookAtRot = FRotator::ZeroRotator;
 	rEyeLookSpeed = 3;
-	rEyeMaxRollRot = 85;
-	rEyeMaxPitchRot = 85;
-	rEyeMaxYawRot = 85;
+	rEyeMaxRollRot = 185;
+	rEyeMaxPitchRot = 185;
+	rEyeMaxYawRot = 185;
 
 
 	lEyeLookAtRot = FRotator::ZeroRotator;
 	lEyeLookSpeed = 3;
-	lEyeMaxRollRot = 85;
-	lEyeMaxPitchRot = 85;
-	lEyeMaxYawRot = 85;
+	lEyeMaxRollRot = 185;
+	lEyeMaxPitchRot = 185;
+	lEyeMaxYawRot = 185;
 }
 
 void USonicAnimInstance::NativeInitializeAnimation()
@@ -39,18 +39,21 @@ void USonicAnimInstance::NativeUpdateAnimation(float DeltaTimeX)
 	if (OwningShooterCharacter)
 	{
 		rEyeLookAtRot = GetREyeLookAtTargetRot(OwningShooterCharacter->GetNearestPawn(), DeltaTimeX);
+		float lookAmt = 1.5;
+		float uCoordinateOffset = (rEyeLookAtRot.Yaw / 360) * lookAmt;
+		float vCoordinateOffset = (rEyeLookAtRot.Pitch / 360) * lookAmt;
 		if (REyeDynamicMat)
 		{
-			REyeDynamicMat->SetScalarParameterValue(TEXT("U"), rEyeLookAtRot.Yaw / 360);
-			REyeDynamicMat->SetScalarParameterValue(TEXT("V"), rEyeLookAtRot.Pitch / 360);
+			REyeDynamicMat->SetScalarParameterValue(TEXT("U"), uCoordinateOffset);
+			REyeDynamicMat->SetScalarParameterValue(TEXT("V"), vCoordinateOffset);
 
 		}
 
 		lEyeLookAtRot = GetLEyeLookAtTargetRot(OwningShooterCharacter->GetNearestPawn(), DeltaTimeX);
 		if (LEyeDynamicMat)
 		{
-			LEyeDynamicMat->SetScalarParameterValue(TEXT("U"), (lEyeLookAtRot.Yaw / 360)*-1);
-			LEyeDynamicMat->SetScalarParameterValue(TEXT("V"), lEyeLookAtRot.Pitch / 360);
+			LEyeDynamicMat->SetScalarParameterValue(TEXT("U"), (uCoordinateOffset) * -1);	// Texture was mirrored on the x so negate
+			LEyeDynamicMat->SetScalarParameterValue(TEXT("V"), vCoordinateOffset);
 		}
 
 

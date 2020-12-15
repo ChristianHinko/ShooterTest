@@ -49,8 +49,8 @@ void USonicAnimInstance::NativeUpdateAnimation(float DeltaTimeX)
 		lEyeLookAtRot = GetLEyeLookAtTargetRot(OwningShooterCharacter->GetNearestPawn(), DeltaTimeX);
 		if (LEyeDynamicMat)
 		{
-			LEyeDynamicMat->SetScalarParameterValue(TEXT("U"), rEyeLookAtRot.Pitch / 360);
-			LEyeDynamicMat->SetScalarParameterValue(TEXT("V"), rEyeLookAtRot.Yaw / 360);
+			LEyeDynamicMat->SetScalarParameterValue(TEXT("U"), (lEyeLookAtRot.Yaw / 360)*-1);
+			LEyeDynamicMat->SetScalarParameterValue(TEXT("V"), lEyeLookAtRot.Pitch / 360);
 		}
 
 

@@ -7,19 +7,16 @@
 
 USonicAnimInstance::USonicAnimInstance()
 {
-	lookAtTargetRot = FRotator::ZeroRotator;
-	rEyeLookSpeed = 3;
+	LookTarget = nullptr;
+	lookRot = FRotator::ZeroRotator;
+
+	eyeLookSpeed = 3;
+	eyeMaxPitchRot = 85;
+	eyeMaxYawRot = 85;
+
+
 	rEyeLookAtAlpha = 1;
-	rEyeMaxRollRot = 185;
-	rEyeMaxPitchRot = 185;
-	rEyeMaxYawRot = 185;
-
-
-	lEyeLookSpeed = 3;
 	lEyeLookAtAlpha = 1;
-	lEyeMaxRollRot = 185;
-	lEyeMaxPitchRot = 185;
-	lEyeMaxYawRot = 185;
 }
 
 void USonicAnimInstance::NativeInitializeAnimation()
@@ -39,65 +36,72 @@ void USonicAnimInstance::NativeUpdateAnimation(float DeltaTimeX)
 	
 	if (OwningShooterCharacter)
 	{
-		lookAtTargetRot = GetHeadLookAtTargetRot(OwningShooterCharacter->GetNearestPawn(), DeltaTimeX);
-		float uCoordinateOffset = ((lookAtTargetRot.Yaw / 360) * 1.5);
-		float vCoordinateOffset = ((lookAtTargetRot.Pitch / 360) * 1.5);
-		if (REyeDynamicMat && LEyeDynamicMat)
+		LookTarget = OwningShooterCharacter->GetNearestPawn();
+		if (LookTarget)
 		{
-			// Move the eyes by moving their UV coordinates
+			lookRot = Look(LookTarget, DeltaTimeX);
 
-			// Right Eye
-			REyeDynamicMat->SetScalarParameterValue(TEXT("U"), uCoordinateOffset * rEyeLookAtAlpha);
-			REyeDynamicMat->SetScalarParameterValue(TEXT("V"), vCoordinateOffset * rEyeLookAtAlpha);
 
-			// Left Eye
-			LEyeDynamicMat->SetScalarParameterValue(TEXT("U"), (uCoordinateOffset * -1) * lEyeLookAtAlpha);		// Texture was mirrored on the x axis so negate
-			LEyeDynamicMat->SetScalarParameterValue(TEXT("V"), vCoordinateOffset * lEyeLookAtAlpha);
+			if (REyeDynamicMat && LEyeDynamicMat)
+			{
+				float uCoordinateOffset = ((lookRot.Yaw / 360) * 1.5);
+				float vCoordinateOffset = ((lookRot.Pitch / 360) * 1.5);
+
+				// Now move the eyes by moving their UV coordinates
+				// Right Eye
+				REyeDynamicMat->SetScalarParameterValue(TEXT("U"), uCoordinateOffset * rEyeLookAtAlpha);
+				REyeDynamicMat->SetScalarParameterValue(TEXT("V"), vCoordinateOffset * rEyeLookAtAlpha);
+				// Left Eye
+				LEyeDynamicMat->SetScalarParameterValue(TEXT("U"), (uCoordinateOffset * -1) * lEyeLookAtAlpha);		// Texture was mirrored on the x axis so negate
+				LEyeDynamicMat->SetScalarParameterValue(TEXT("V"), vCoordinateOffset * lEyeLookAtAlpha);
+			}
 		}
 
 
 	}
 }
 
-FRotator USonicAnimInstance::GetHeadLookAtTargetRot(AActor* Target, float deltaTime)
+FRotator USonicAnimInstance::Look(AActor* lookTarget, float deltaTime)
 {
-	FRotator retVal = FRotator::ZeroRotator;
-	if (OwningShooterCharacter && Target)
+	if (!lookTarget || !OwningShooterCharacter)
 	{
-		FVector SelfHeadBoneLocation;
-		if (OwningShooterCharacter->GetMesh())
+		return FRotator::ZeroRotator;
+	}
+
+
+
+	FVector SelfHeadBoneLocation;
+	if (OwningShooterCharacter->GetMesh())
+	{
+		SelfHeadBoneLocation = OwningShooterCharacter->GetMesh()->GetSocketLocation(TEXT("head"));
+	}
+	FVector targetLocation;
+	if (AShooterCharacter* ShooterCharacterToLookAt = Cast<AShooterCharacter>(lookTarget))
+	{
+		if (ShooterCharacterToLookAt->GetMesh())
 		{
-			SelfHeadBoneLocation = OwningShooterCharacter->GetMesh()->GetSocketLocation(TEXT("head"));
-		}
-		FVector targetLocation;
-		if (AShooterCharacter* ShooterCharacterToLookAt = Cast<AShooterCharacter>(Target))
-		{
-			if (ShooterCharacterToLookAt->GetMesh())
-			{
-				targetLocation = ShooterCharacterToLookAt->GetMesh()->GetSocketLocation(TEXT("head"));
-			}
-		}
-
-		FRotator OwningCharacterRotation = OwningShooterCharacter->GetActorRotation();
-		FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(SelfHeadBoneLocation, targetLocation);
-
-		FRotator DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(OwningCharacterRotation, LookAtRotation);
-		if (UKismetMathLibrary::Abs(DeltaRotator.Roll) < rEyeMaxRollRot && UKismetMathLibrary::Abs(DeltaRotator.Yaw) < rEyeMaxYawRot)	// If the rEye can rotate this far
-		{
-			FRotator hardLookAtRot = LookAtRotation - OwningCharacterRotation;
-
-			FRotator softLookAtRot = FMath::RInterpTo(lookAtTargetRot, hardLookAtRot, deltaTime, rEyeLookSpeed);
-
-			retVal = softLookAtRot;
-		}
-		else
-		{
-			FRotator softLookAtRot = FMath::RInterpTo(lookAtTargetRot, FRotator::ZeroRotator, deltaTime, rEyeLookSpeed);
-
-			retVal = softLookAtRot;
+			targetLocation = ShooterCharacterToLookAt->GetMesh()->GetSocketLocation(TEXT("head"));
 		}
 	}
 
-	return retVal;
+	FRotator OwningCharacterRotation = OwningShooterCharacter->GetActorRotation();
+	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(SelfHeadBoneLocation, targetLocation);
+
+	FRotator normalizedDeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(OwningCharacterRotation, LookAtRotation);
+
+	FRotator hardLookRot = LookAtRotation - OwningCharacterRotation;
+
+	// Eyes
+	FRotator smoothedLookRot;
+	if (UKismetMathLibrary::Abs(normalizedDeltaRotator.Pitch) < eyeMaxPitchRot && UKismetMathLibrary::Abs(normalizedDeltaRotator.Yaw) < eyeMaxYawRot)	// If the eye can rotate this far
+	{
+		smoothedLookRot = FMath::RInterpTo(lookRot, hardLookRot, deltaTime, eyeLookSpeed);
+	}
+	else
+	{
+		smoothedLookRot = FMath::RInterpTo(lookRot, FRotator::ZeroRotator, deltaTime, eyeLookSpeed);
+	}
+
+	return smoothedLookRot;
 }
 

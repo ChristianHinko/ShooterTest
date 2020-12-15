@@ -15,35 +15,28 @@ class SONICSHOOTER_API USonicAnimInstance : public UShooterCharacterAnimInstance
 	GENERATED_BODY()
 
 protected:
-#pragma region REyeTurning
-	UPROPERTY(BlueprintReadOnly)
-		FRotator lookAtTargetRot;
 
+	AActor* LookTarget;
+
+	UPROPERTY(BlueprintReadOnly)
+		FRotator lookRot;
+
+
+	UPROPERTY(BlueprintReadWrite)
+		float eyeMaxPitchRot;
+	UPROPERTY(BlueprintReadWrite)
+		float eyeMaxYawRot;
+	
 	UPROPERTY(BlueprintReadWrite)
 		float rEyeLookAtAlpha;
 	UPROPERTY(BlueprintReadWrite)
-		float rEyeLookSpeed;
-	UPROPERTY(BlueprintReadWrite)
-		float rEyeMaxRollRot;
-	UPROPERTY(BlueprintReadWrite)
-		float rEyeMaxPitchRot;
-	UPROPERTY(BlueprintReadWrite)
-		float rEyeMaxYawRot;
-#pragma endregion
-#pragma region LEyeTurning
+		float eyeLookSpeed;
+
 	UPROPERTY(BlueprintReadWrite)
 		float lEyeLookAtAlpha;
-	UPROPERTY(BlueprintReadWrite)
-		float lEyeLookSpeed;
-	UPROPERTY(BlueprintReadWrite)
-		float lEyeMaxRollRot;
-	UPROPERTY(BlueprintReadWrite)
-		float lEyeMaxPitchRot;
-	UPROPERTY(BlueprintReadWrite)
-		float lEyeMaxYawRot;
-#pragma endregion
 
-	FRotator GetHeadLookAtTargetRot(AActor* Target, float deltaTime);
+
+	FRotator Look(AActor* lookTarget, float deltaTime);
 
 public:
 	USonicAnimInstance();

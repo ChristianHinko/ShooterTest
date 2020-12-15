@@ -9,7 +9,6 @@ USonicAnimInstance::USonicAnimInstance()
 {
 	rEyeLookAtRot = FRotator::ZeroRotator;
 	rEyeLookSpeed = 3;
-	rEyeLookAtAlpha = .35f;
 	rEyeMaxRollRot = 85;
 	rEyeMaxPitchRot = 85;
 	rEyeMaxYawRot = 85;
@@ -17,7 +16,6 @@ USonicAnimInstance::USonicAnimInstance()
 
 	lEyeLookAtRot = FRotator::ZeroRotator;
 	lEyeLookSpeed = 3;
-	lEyeLookAtAlpha = .35f;
 	lEyeMaxRollRot = 85;
 	lEyeMaxPitchRot = 85;
 	lEyeMaxYawRot = 85;
@@ -33,7 +31,7 @@ void USonicAnimInstance::NativeInitializeAnimation()
 		LEyeDynamicMat = SkelMesh->CreateDynamicMaterialInstance(4);
 	}
 }
-#include "Kismet/KismetSystemLibrary.h"
+
 void USonicAnimInstance::NativeUpdateAnimation(float DeltaTimeX)
 {
 	Super::NativeUpdateAnimation(DeltaTimeX);
@@ -43,12 +41,6 @@ void USonicAnimInstance::NativeUpdateAnimation(float DeltaTimeX)
 		rEyeLookAtRot = GetREyeLookAtTargetRot(OwningShooterCharacter->GetNearestPawn(), DeltaTimeX);
 		if (REyeDynamicMat)
 		{
-			if (OwningShooterCharacter->GetLocalRole() == ENetRole::ROLE_SimulatedProxy)
-			{
-				UKismetSystemLibrary::PrintString(this, "U = " + FString::SanitizeFloat(rEyeLookAtRot.Yaw / 360), true, false, FLinearColor::Green);
-				UKismetSystemLibrary::PrintString(this, "V = " + FString::SanitizeFloat(rEyeLookAtRot.Pitch / 360), true, false);
-			}
-
 			REyeDynamicMat->SetScalarParameterValue(TEXT("U"), rEyeLookAtRot.Yaw / 360);
 			REyeDynamicMat->SetScalarParameterValue(TEXT("V"), rEyeLookAtRot.Pitch / 360);
 
@@ -73,7 +65,7 @@ FRotator USonicAnimInstance::GetREyeLookAtTargetRot(AActor* Target, float deltaT
 		FVector SelfREyeLocation;
 		if (OwningShooterCharacter->GetMesh())
 		{
-			SelfREyeLocation = OwningShooterCharacter->GetMesh()->GetSocketLocation(TEXT("u_EyeRot_R"));
+			SelfREyeLocation = OwningShooterCharacter->GetMesh()->GetSocketLocation(TEXT("head"));
 		}
 		FVector locationToLookAt;
 		if (AShooterCharacter* ShooterCharacterToLookAt = Cast<AShooterCharacter>(Target))
@@ -114,7 +106,7 @@ FRotator USonicAnimInstance::GetLEyeLookAtTargetRot(AActor* Target, float deltaT
 		FVector SelfLEyeLocation;
 		if (OwningShooterCharacter->GetMesh())
 		{
-			SelfLEyeLocation = OwningShooterCharacter->GetMesh()->GetSocketLocation(TEXT("u_EyeRot_L"));
+			SelfLEyeLocation = OwningShooterCharacter->GetMesh()->GetSocketLocation(TEXT("head"));
 		}
 		FVector locationToLookAt;
 		if (AShooterCharacter* ShooterCharacterToLookAt = Cast<AShooterCharacter>(Target))

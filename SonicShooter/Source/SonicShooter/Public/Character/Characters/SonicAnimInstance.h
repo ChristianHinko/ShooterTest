@@ -16,8 +16,9 @@ class SONICSHOOTER_API USonicAnimInstance : public UShooterCharacterAnimInstance
 
 protected:
 #pragma region REyeTurning
-		UPROPERTY(BlueprintReadOnly)
-		FRotator rEyeLookAtRot;
+	UPROPERTY(BlueprintReadOnly)
+		FRotator lookAtTargetRot;
+
 	UPROPERTY(BlueprintReadWrite)
 		float rEyeLookAtAlpha;
 	UPROPERTY(BlueprintReadWrite)
@@ -30,8 +31,6 @@ protected:
 		float rEyeMaxYawRot;
 #pragma endregion
 #pragma region LEyeTurning
-	UPROPERTY(BlueprintReadOnly)
-		FRotator lEyeLookAtRot;
 	UPROPERTY(BlueprintReadWrite)
 		float lEyeLookAtAlpha;
 	UPROPERTY(BlueprintReadWrite)
@@ -44,8 +43,7 @@ protected:
 		float lEyeMaxYawRot;
 #pragma endregion
 
-	FRotator GetREyeLookAtTargetRot(AActor* Target, float deltaTime);
-	FRotator GetLEyeLookAtTargetRot(AActor* Target, float deltaTime);
+	FRotator GetHeadLookAtTargetRot(AActor* Target, float deltaTime);
 
 public:
 	USonicAnimInstance();

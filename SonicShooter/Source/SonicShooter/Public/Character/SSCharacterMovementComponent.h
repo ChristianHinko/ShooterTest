@@ -226,6 +226,7 @@ protected:
 
 private:
 	FRotator PreviousRotation;
+	float timeSinceLastRot;
 };
 
 

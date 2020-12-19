@@ -418,10 +418,41 @@ void USSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 {
 	// DO NOT UTILIZE THIS EVENT FOR MOVEMENT
 
-	CurrentRotationRate = (PawnOwner->GetActorRotation() - PreviousRotation) * (DeltaTime * 1000);
-	UKismetSystemLibrary::PrintString(this, CurrentRotationRate.ToString(), true, false);
+
+
+
+	FRotator CurrentRotation = PawnOwner->GetActorRotation();
+
+	// Update rotation rate only if there has been a change in rotation
+	if (CurrentRotation != PreviousRotation)
+	{
+		CurrentRotationRate = CurrentRotation - PreviousRotation;
+		
+		if (timeSinceLastRot > 0)
+		{
+			// Apply the delta in time since we last rotated to this value
+			CurrentRotationRate *= 1000 / timeSinceLastRot;
+		}
+
+		// Reset our time since
+		timeSinceLastRot = 0;
+	}
+	else
+	{
+		timeSinceLastRot += DeltaTime;
+	}
+
+
+
+
+
 
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+
+
+
+
 
 	PreviousRotation = PawnOwner->GetActorRotation();
 }

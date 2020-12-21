@@ -67,7 +67,7 @@ protected:
 	FBoolCVarChangedSignature CVarToggleRunChangeDelegate;
 	UFUNCTION()
 		void CVarToggleRunChanged(bool newValue);
-	uint8 bToggleRun : 1;
+	uint8 bToggleOn : 1;
 
 	UAT_WaitInputReleaseCust* InputReleasedTask;
 	UAT_Ticker* TickerTask;

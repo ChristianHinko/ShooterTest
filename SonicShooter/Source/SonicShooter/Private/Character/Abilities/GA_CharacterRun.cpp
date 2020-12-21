@@ -29,7 +29,7 @@ UGA_CharacterRun::UGA_CharacterRun()
 
 void UGA_CharacterRun::CVarToggleRunChanged(bool newValue)
 {
-	bToggleRun = newValue;
+	bToggleOn = newValue;
 }
 
 void UGA_CharacterRun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -134,7 +134,7 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 	}
 	TickerTask->OnTick.AddDynamic(this, &UGA_CharacterRun::OnTick);
 
-	if (!bToggleRun)
+	if (!bToggleOn)
 	{
 		InputReleasedTask = UAT_WaitInputReleaseCust::WaitInputReleaseCust(this);
 		if (!InputReleasedTask)
@@ -158,7 +158,7 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 	}
 
 
-	if (bToggleRun)
+	if (bToggleOn)
 	{
 		InputPressTask->ReadyForActivation();
 	}
@@ -196,7 +196,7 @@ void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRema
 		}
 		else
 		{
-			// If reach here, run ability stays active but does nothing this frame
+			// If reach here, run ability stays active because you are trying to run, but can't currently
 
 
 		}
@@ -265,18 +265,18 @@ void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 
 
 	/**
-	 * Currently if the server's CanActivateAbility() returns false, it will end the client's predictive activation.
-	 * So when this line gets hit, it will force the client to stop running if the server didn't run the ability.
-	 * So in a sense the run is not 100% client authoritative since the server forces you to stop when its CanActivateAbility() returns false,
-	 * however, SetWantsToRun(true) is client authoritative so for the time that the client is predicting (before its EndAbility gets called), the
-	 * character will run (even on the server). This is a vulnerability we need to eventually fix since the client can do a large packet lag (such as 2000ms)
-	 * and now he can run for 2 seconds on the server before being stopped D: Also the client could do a hack and find the SetWantsToRun() function in memory
-	 * and run it by itself (outside the run ablity) and now the client won't get stopped D:
-	 * Basicly we need to have SetWantsToRun() not be client authoritative and that would fix everything. Otherwise there are lots of vulnerabilities.
-	 * 
-	 * Also to possibly save some debugging time, we've already tried and we found we can't visualize this in a test because AbilitySystem.DenyClientActivations 1
-	 * doesn't allow CanActivateAbility() to run on the server as it rejects it before it even gets there.
-	 */
+		* Currently if the server's CanActivateAbility() returns false, it will end the client's predictive activation.
+		* So when this line gets hit, it will force the client to stop running if the server didn't run the ability.
+		* So in a sense the run is not 100% client authoritative since the server forces you to stop when its CanActivateAbility() returns false,
+		* however, SetWantsToRun(true) is client authoritative so for the time that the client is predicting (before its EndAbility gets called), the
+		* character will run (even on the server). This is a vulnerability we need to eventually fix since the client can do a large packet lag (such as 2000ms)
+		* and now he can run for 2 seconds on the server before being stopped D: Also the client could do a hack and find the SetWantsToRun() function in memory
+		* and run it by itself (outside the run ablity) and now the client won't get stopped D:
+		* Basicly we need to have SetWantsToRun() not be client authoritative and that would fix everything. Otherwise there are lots of vulnerabilities.
+		*
+		* Also to possibly save some debugging time, we've already tried and we found we can't visualize this in a test because AbilitySystem.DenyClientActivations 1
+		* doesn't allow CanActivateAbility() to run on the server as it rejects it before it even gets there.
+		*/
 	CMC->SetWantsToRun(false);	// Should we use this? Or should we just let the CMC handle making player stop running by its GetMaxSpeed() function seeing the bRunDisabled bool?
 
 
@@ -293,7 +293,6 @@ void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 	*/
 	// super end ability loops through all tasks and calls OnDestroy; however, this is a virtual function, some tasks may not be destroyed on end ability (this is probably a super rare case tho) (dan says WaitTargetData doesn't end)
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-
 }
 
 

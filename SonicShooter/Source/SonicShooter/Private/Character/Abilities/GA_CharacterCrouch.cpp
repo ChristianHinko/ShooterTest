@@ -173,8 +173,11 @@ void UGA_CharacterCrouch::OnPress(float TimeElapsed)
 void UGA_CharacterCrouch::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	// Only actually end the ability if this ability itself ended it (so that if a jump or run cancels this, for example, they won't set bWantsToCrouch to false and end our tasks for us. This allows us
-	// to have it so the ability stays alive although it was cancelled by another). Also let external sources completely end this ability if bToggleOn is on.
+	// to have it so the ability stays alive although it was cancelled by another). This lets the ability stay active for cases where the player is holding the input to activate it (active does not mean you are actually crouching).
+	// Also let external sources completely end this ability if bToggleOn is on.
 	// In this game, setting the wantsTo bools actually makes the character do the action (client authoritative), so that is why we only set bWantsToCrouch to false from within the ability
+
+	// Now that I think about it, this approach might be bad, because if some ability other than jump tries to cancel it, you will stay crouching (i think).
 	if (bWasCancelled == false || bToggleOn)
 	{
 		// Super wraps the whole EndAbility() in IsEndAbilityValid()

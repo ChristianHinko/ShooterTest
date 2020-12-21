@@ -478,12 +478,18 @@ bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/) c
 
 	const float degsDiff = UKismetMathLibrary::DegAcos(forwardDifference);
 
-	// TODO: CurrentRotationRate is different on client and server for some reason. It's most of the time zero on the server so the server returns false here a lot
 	const float graceDegs = 1 + FMath::Abs(CurrentRotationRate.Yaw) + FMath::Abs(CurrentRotationRate.Pitch) + FMath::Abs(CurrentRotationRate.Roll); // how much extra degrees of grace should be given based on how fast we are rotating. We need this because the dot product isnt perfect for some reason and gets more inaccurate the faster you rotate
+
+	UKismetSystemLibrary::PrintString(PawnOwner, FString::SanitizeFloat(graceDegs), true, false);
 
 	if (degsDiff > 45.f + graceDegs) // if we are moving 45 degs or more away from our forward vector (plus some grace based on how fast we are rotating)
 	{
 		return false;
+	}
+
+	if (degsDiff > 160)
+	{
+		int hey = 1;
 	}
 
 	return true;

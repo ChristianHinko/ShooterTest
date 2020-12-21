@@ -24,8 +24,19 @@ class SONICSHOOTER_API USSAttributeSet : public UAttributeSet
 {
 	GENERATED_BODY()
 
+public:
+
+	/**
+	 * For any attributes that have non-hard-set default values, set their default values in here rather than in the constructor.
+	 * This event is called whenever a default attributes effect has been applied.
+	 * 
+	 * @SEE USSAttributeSet's constructor for example constructor and example implementation of this event
+	 */
+	virtual void SetSoftAttributeDefaults() { };
+
 protected:
 	/** Helper function to proportionally adjust the value of an attribute when it's associated max attribute changes. (i.e. When MaxHealth increases, Health increases by an amount that maintains the same percentage as before) */
 	void AdjustAttributeForMaxChange(FGameplayAttributeData& AffectedAttribute, const FGameplayAttributeData& MaxAttribute, float NewMaxValue, const FGameplayAttribute& AffectedAttributeProperty);
 
+	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 };

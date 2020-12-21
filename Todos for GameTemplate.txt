@@ -126,3 +126,7 @@ An ideal solution to these 2 problems would mean the server wouldn't have to wai
 
 
 - Add our own WaitNetSync for ServerWait that will stop waiting after a period of time
+
+- Make a UGameplayEffect_DefaultAttributes and make a virtual SetSoftAttributeDefaults in GTAttributeSet that is called whenever a UGameplayEffect_DefaultAttributes is applied
+	- Copy implementation of SonicShooter (we have nice documentation and stuff)
+	- Make our existing attribute sets implement this workflow

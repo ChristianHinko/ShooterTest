@@ -94,6 +94,7 @@ protected:
 	//	Server only. Handle using 'meta' attributes for modifying 'persistant' attributes. Such as Damage modifying Health
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 
+	virtual void SetSoftAttributeDefaults() override;
 
 	//These OnReps exist to make sure the GAS internal representations are synchronized properly during replication
 	UFUNCTION()

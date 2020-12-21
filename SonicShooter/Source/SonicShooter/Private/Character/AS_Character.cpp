@@ -32,19 +32,28 @@ void UAS_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 
 //	These are default values BEFORE the default attribute values effect gets applied
 UAS_Character::UAS_Character()
-	: WalkSpeed(300.0f),
-	WalkAcceleration(2048.0f),
-	RunSpeed(600.0f),
-	RunAccelaration(4096.0f),
+	: WalkSpeed(300.f),
+	WalkAcceleration(2048.f),
+	RunSpeed(600.f),
+	RunAccelaration(4096.f),
 	MaxHealth(100),
-	Health(GetMaxHealth()),
+	//Health(GetMaxHealth()),
 	MaxStamina(5),
-	Stamina(GetMaxStamina()),
+	//Stamina(GetMaxStamina()),
 	StaminaDrain(1)
 {
-	
+	SetSoftAttributeDefaults();
 	
 
+}
+
+void UAS_Character::SetSoftAttributeDefaults()
+{
+	Super::SetSoftAttributeDefaults();
+
+
+	Health = GetMaxHealth();
+	Stamina = GetMaxStamina();
 }
 
 bool UAS_Character::PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data)

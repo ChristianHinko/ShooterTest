@@ -180,6 +180,7 @@ void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRema
 		{
 			if (CharacterAttributeSet->GetStamina() > 0)
 			{
+
 				float stamina = CharacterAttributeSet->GetStamina();
 				float staminaDrain = CharacterAttributeSet->GetStaminaDrain();
 
@@ -187,6 +188,9 @@ void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRema
 			}
 			else
 			{
+				CharacterAttributeSet->SetStamina(0);
+
+
 				TickerTask->EndTask();
 
 				UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
@@ -198,7 +202,6 @@ void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRema
 		{
 			// If reach here, run ability stays active because you are trying to run, but can't currently
 
-
 		}
 		
 
@@ -207,14 +210,13 @@ void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRema
 	}
 	else
 	{
+
 		TickerTask->EndTask();
 
 		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
 		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnRunAbilityShouldNotBeActive);
 		WaitNetSyncTask->ReadyForActivation();
 	}
-	
-	
 }
 
 

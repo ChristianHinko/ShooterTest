@@ -25,9 +25,9 @@ void UAS_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	//	Damage and Healing not replicated since it's a 'meta' attribute
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, MaxStamina, COND_None, REPNOTIFY_Always);
-	//DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, Stamina, COND_None, REPNOTIFY_Always);
-	//	StaminaDrain and StaminaGain not replicated since it's a 'meta' attribute
 
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, StaminaGain, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, StaminaDrain, COND_None, REPNOTIFY_Always);
 }
 
 //	These are default values BEFORE the default attribute values effect gets applied
@@ -40,7 +40,8 @@ UAS_Character::UAS_Character()
 	//Health(GetMaxHealth()),
 	MaxStamina(5),
 	//Stamina(GetMaxStamina()),
-	StaminaDrain(1)
+	StaminaDrain(1),
+	StaminaGain(1)
 {
 	SetSoftAttributeDefaults();
 	
@@ -54,6 +55,16 @@ void UAS_Character::SetSoftAttributeDefaults()
 
 	Health = GetMaxHealth();
 	Stamina = GetMaxStamina();
+}
+
+void UAS_Character::Tick(float DeltaTime)
+{
+
+}
+
+bool UAS_Character::ShouldTick() const
+{
+	return bShouldTick;
 }
 
 bool UAS_Character::PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data)
@@ -187,9 +198,15 @@ void UAS_Character::OnRep_MaxStamina(const FGameplayAttributeData& ServerBaseVal
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Character, MaxStamina, ServerBaseValue);
 }
-void UAS_Character::OnRep_Stamina(const FGameplayAttributeData& ServerBaseValue)
+
+void UAS_Character::OnRep_StaminaGain(const FGameplayAttributeData& ServerBaseValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Character, Stamina, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Character, StaminaGain, ServerBaseValue);
+}
+
+void UAS_Character::OnRep_StaminaDrain(const FGameplayAttributeData& ServerBaseValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Character, StaminaDrain, ServerBaseValue);
 }
 
 

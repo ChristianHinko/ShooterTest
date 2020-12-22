@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSAttributeSet.h"
 #include "AbilitySystemComponent.h"
+#include "GameplayAbilities/Public/TickableAttributeSetInterface.h"
 
 #include "AS_Character.generated.h"
 
@@ -15,7 +16,7 @@
  * add universal character attributes here.
  */
 UCLASS()
-class SONICSHOOTER_API UAS_Character : public USSAttributeSet
+class SONICSHOOTER_API UAS_Character : public USSAttributeSet, public ITickableAttributeSetInterface
 {
 	GENERATED_BODY()
 	
@@ -74,15 +75,17 @@ public:
 		FGameplayAttributeData MaxStamina;
 	ATTRIBUTE_ACCESSORS(UAS_Character, MaxStamina)
 
-	UPROPERTY(BlueprintReadOnly,/* ReplicatedUsing = OnRep_Stamina,*/ Category = "Attributes", meta = (HideFromModifiers))
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromModifiers))
 		FGameplayAttributeData Stamina;
 	ATTRIBUTE_ACCESSORS(UAS_Character, Stamina)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromLevelInfos))
+	/** How fast your stamina drains while running */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_StaminaDrain, Category = "Attributes")
 		FGameplayAttributeData StaminaDrain;
 	ATTRIBUTE_ACCESSORS(UAS_Character, StaminaDrain)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromLevelInfos))
+	/** How fast your stamina regenerates durring stamina regeneration */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_StaminaGain, Category = "Attributes")
 		FGameplayAttributeData StaminaGain;
 	ATTRIBUTE_ACCESSORS(UAS_Character, StaminaGain)
 #pragma endregion
@@ -93,6 +96,10 @@ protected:
 	virtual bool PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data) override;
 	//	Server only. Handle using 'meta' attributes for modifying 'persistant' attributes. Such as Damage modifying Health
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
+
+	virtual void Tick(float DeltaTime) override;
+	virtual bool ShouldTick() const override;
+	bool bShouldTick;
 
 	virtual void SetSoftAttributeDefaults() override;
 
@@ -111,8 +118,12 @@ protected:
 	UFUNCTION()
 		virtual void OnRep_Health(const FGameplayAttributeData& ServerBaseValue);
 
+
 	UFUNCTION()
 		virtual void OnRep_MaxStamina(const FGameplayAttributeData& ServerBaseValue);
+
 	UFUNCTION()
-		virtual void OnRep_Stamina(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_StaminaGain(const FGameplayAttributeData& ServerBaseValue);
+	UFUNCTION()
+		virtual void OnRep_StaminaDrain(const FGameplayAttributeData& ServerBaseValue);
 };

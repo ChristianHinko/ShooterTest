@@ -11,6 +11,9 @@
 
 
 
+DECLARE_MULTICAST_DELEGATE(FStaminaDelegate)
+
+
 /**
  * This attribute set will be on every character that uses the ability system (using AbilitySystemCharacter)
  * add universal character attributes here.
@@ -84,10 +87,20 @@ public:
 		FGameplayAttributeData StaminaDrain;
 	ATTRIBUTE_ACCESSORS(UAS_Character, StaminaDrain)
 
+	void SetStaminaDraining(bool newStaminaDraining);
+
+	FStaminaDelegate OnStaminaFullyDrained;
+	FStaminaDelegate OnStaminaFullyGained;
+
 	/** How fast your stamina regenerates durring stamina regeneration */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_StaminaGain, Category = "Attributes")
 		FGameplayAttributeData StaminaGain;
 	ATTRIBUTE_ACCESSORS(UAS_Character, StaminaGain)
+
+	/** The time it takes for your stamina to start regening again (the pause) */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_StaminaRegenPause, Category = "Attributes")
+		FGameplayAttributeData StaminaRegenPause;
+	ATTRIBUTE_ACCESSORS(UAS_Character, StaminaRegenPause)
 #pragma endregion
 	
 
@@ -123,7 +136,13 @@ protected:
 		virtual void OnRep_MaxStamina(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
+		virtual void OnRep_StaminaDrain(const FGameplayAttributeData& ServerBaseValue);
+	UFUNCTION()
 		virtual void OnRep_StaminaGain(const FGameplayAttributeData& ServerBaseValue);
 	UFUNCTION()
-		virtual void OnRep_StaminaDrain(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_StaminaRegenPause(const FGameplayAttributeData& ServerBaseValue);
+
+private:
+	bool bStaminaDraining;
+	float timeSinceStaminaDrain;
 };

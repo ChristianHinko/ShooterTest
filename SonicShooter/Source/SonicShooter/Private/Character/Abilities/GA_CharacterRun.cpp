@@ -157,6 +157,8 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 		InputPressTask->OnPress.AddDynamic(this, &UGA_CharacterRun::OnPress);
 	}
 
+	CharacterAttributeSet->OnStaminaFullyDrained.AddUObject(this, &UGA_CharacterRun::OnStaminaFullyDrained);
+
 
 	if (bToggleOn)
 	{
@@ -178,56 +180,43 @@ void UGA_CharacterRun::OnTick(float DeltaTime, float currentTime, float timeRema
 	{
 		if (CMC->IsMovingOnGround() && CMC->IsCrouching() == false)
 		{
-			if (CharacterAttributeSet->GetStamina() > 0)
-			{
-
-				float stamina = CharacterAttributeSet->GetStamina();
-				float staminaDrain = CharacterAttributeSet->GetStaminaDrain();
-
-				CharacterAttributeSet->SetStamina(stamina - (staminaDrain * DeltaTime));
-			}
-			else
-			{
-				CharacterAttributeSet->SetStamina(0);
-
-
-				TickerTask->EndTask();
-
-				UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
-				WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnStaminaFullyDrained);
-				WaitNetSyncTask->ReadyForActivation();
-			}
+			CharacterAttributeSet->SetStaminaDraining(true);
 		}
 		else
 		{
-			// If reach here, run ability stays active because you are trying to run, but can't currently
-
+			// If reach here, run ability stays active (don't stop the ability) because you are trying to run, but can't currently
+			CharacterAttributeSet->SetStaminaDraining(false);
 		}
-		
-
-
-
 	}
 	else
 	{
+		CharacterAttributeSet->SetStaminaDraining(false);
 
 		TickerTask->EndTask();
 
 		UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
-		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnRunAbilityShouldNotBeActive);
+		WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnStoppedMovingForward);
 		WaitNetSyncTask->ReadyForActivation();
 	}
 }
 
 
+void UGA_CharacterRun::OnStaminaFullyDrained()
+{
+	TickerTask->EndTask();
+
+	UAbilityTask_NetworkSyncPoint* WaitNetSyncTask = UAbilityTask_NetworkSyncPoint::WaitNetSync(this, EAbilityTaskNetSyncType::OnlyServerWait);
+	WaitNetSyncTask->OnSync.AddDynamic(this, &UGA_CharacterRun::OnSyncStaminaFullyDrained);
+	WaitNetSyncTask->ReadyForActivation();
+}
 
 // Break events
-void UGA_CharacterRun::OnStaminaFullyDrained()		// Forced break out
+void UGA_CharacterRun::OnSyncStaminaFullyDrained()			// Forced break out
 {
 	ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DisableRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }
-void UGA_CharacterRun::OnRunAbilityShouldNotBeActive()		// Forced break out
+void UGA_CharacterRun::OnStoppedMovingForward()		// Forced break out
 {
 	ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DisableRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
@@ -281,6 +270,7 @@ void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 		*/
 	CMC->SetWantsToRun(false);	// Should we use this? Or should we just let the CMC handle making player stop running by its GetMaxSpeed() function seeing the bRunDisabled bool?
 
+	CharacterAttributeSet->SetStaminaDraining(false);
 
 
 	ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(RunningEffectActiveHandle);

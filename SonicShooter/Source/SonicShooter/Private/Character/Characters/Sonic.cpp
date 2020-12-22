@@ -61,13 +61,13 @@ void ASonic::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 
-	//if (GetHealthAttributeSet() && GetHealthAttributeSet()->GetHealth())
+	//if (GetHealthAttributeSet())
 	//{
 	//	UKismetSystemLibrary::PrintString(this, GetName() + ": " + FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
 	//}
 	//if (IsLocallyControlled())
 	//{
-		if (GetCharacterAttributeSet() && GetCharacterAttributeSet()->GetStamina())
+		if (GetCharacterAttributeSet())
 		{
 			UKismetSystemLibrary::PrintString(this, GetCharacterAttributeSet()->GetStaminaAttribute().AttributeName + ": " + FString::SanitizeFloat(GetCharacterAttributeSet()->GetStamina()), true, false);
 		}

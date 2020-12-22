@@ -480,7 +480,7 @@ bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/) c
 
 	const float graceDegs = 1 + FMath::Abs(CurrentRotationRate.Yaw) + FMath::Abs(CurrentRotationRate.Pitch) + FMath::Abs(CurrentRotationRate.Roll); // how much extra degrees of grace should be given based on how fast we are rotating. We need this because the dot product isnt perfect for some reason and gets more inaccurate the faster you rotate
 
-	UKismetSystemLibrary::PrintString(PawnOwner, FString::SanitizeFloat(graceDegs), true, false);
+	//UKismetSystemLibrary::PrintString(PawnOwner, FString::SanitizeFloat(graceDegs), true, false);
 
 	if (degsDiff > 45.f + graceDegs) // if we are moving 45 degs or more away from our forward vector (plus some grace based on how fast we are rotating)
 	{

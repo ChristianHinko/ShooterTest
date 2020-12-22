@@ -26,8 +26,9 @@ void UAS_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, MaxStamina, COND_None, REPNOTIFY_Always);
 
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, StaminaGain, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, StaminaDrain, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, StaminaGain, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, StaminaRegenPause, COND_None, REPNOTIFY_Always);
 }
 
 //	These are default values BEFORE the default attribute values effect gets applied
@@ -41,7 +42,8 @@ UAS_Character::UAS_Character()
 	MaxStamina(5),
 	//Stamina(GetMaxStamina()),
 	StaminaDrain(1),
-	StaminaGain(1)
+	StaminaGain(1),
+	StaminaRegenPause(2)
 {
 	SetSoftAttributeDefaults();
 	
@@ -59,12 +61,50 @@ void UAS_Character::SetSoftAttributeDefaults()
 
 void UAS_Character::Tick(float DeltaTime)
 {
+	if (bStaminaDraining)
+	{
+		SetStamina(GetStamina() - (GetStaminaDrain() * DeltaTime));
 
+		timeSinceStaminaDrain = 0;
+	}
+	else
+	{
+		timeSinceStaminaDrain += DeltaTime;
+
+		if (timeSinceStaminaDrain >= GetStaminaRegenPause())
+		{
+			SetStamina(GetStamina() + (GetStaminaGain() * DeltaTime));
+		}
+	}
+
+	// Clamp our stamina
+	if (GetStamina() <= 0) // or equal to so that we broadcast also when its zero
+	{
+		ENetRole role = GetOwningActor()->GetLocalRole();
+		// TODO: some reason on fully drained, the server's stamina isn't fully zero (probably a problem with the run ability)
+
+		SetStamina(0);
+		OnStaminaFullyDrained.Broadcast();
+	}
+	if (GetStamina() >= GetMaxStamina()) // or equal to so that we broadcast also when its zero
+	{
+		SetStamina(GetMaxStamina());
+		OnStaminaFullyGained.Broadcast();
+
+		bShouldTick = false; // at this point no stamina logic needs to be performed (we are at full stamina) so we are safe to stop ticking
+	}
 }
 
 bool UAS_Character::ShouldTick() const
 {
 	return bShouldTick;
+}
+
+void UAS_Character::SetStaminaDraining(bool newStaminaDraining)
+{
+	bStaminaDraining = newStaminaDraining;
+
+	bShouldTick = true;
 }
 
 bool UAS_Character::PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data)
@@ -199,14 +239,20 @@ void UAS_Character::OnRep_MaxStamina(const FGameplayAttributeData& ServerBaseVal
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Character, MaxStamina, ServerBaseValue);
 }
 
+void UAS_Character::OnRep_StaminaDrain(const FGameplayAttributeData& ServerBaseValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Character, StaminaDrain, ServerBaseValue);
+}
+
 void UAS_Character::OnRep_StaminaGain(const FGameplayAttributeData& ServerBaseValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Character, StaminaGain, ServerBaseValue);
 }
 
-void UAS_Character::OnRep_StaminaDrain(const FGameplayAttributeData& ServerBaseValue)
+void UAS_Character::OnRep_StaminaRegenPause(const FGameplayAttributeData& ServerBaseValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Character, StaminaDrain, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Character, StaminaRegenPause, ServerBaseValue);
 }
+
 
 

@@ -24,12 +24,17 @@ void UComboBoxSetting::UpdateOptions_Implementation(const TArray<FSettingOption>
 
 	if (IsValid(ComboBox))
 	{
+		const FString SelectedOption = ComboBox->GetSelectedOption();
+		
 		ComboBox->ClearOptions();
 
 		for (FSettingOption Option : InOptions)
 		{
 			ComboBox->AddOption(Option.Label.ToString());
 		}
+
+		// Preserve previously selected value
+		ComboBox->SetSelectedOption(SelectedOption);
 	}
 
 }

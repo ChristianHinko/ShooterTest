@@ -4,7 +4,6 @@
 
 #include "PlayerInputMappings.h"
 #include "Misc/AutoSettingsConfig.h"
-#include "Tickable.h"
 #include "InputMappingManager.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMappingsChangedEvent, APlayerController*, Player);
@@ -13,7 +12,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMappingsChangedEvent, APlayerContro
  * Manages input mapping for players
  */
 UCLASS(Config = Input)
-class AUTOSETTINGS_API UInputMappingManager : public UObject, public FTickableGameObject
+class AUTOSETTINGS_API UInputMappingManager : public UObject
 {
 	GENERATED_BODY()
 	
@@ -106,14 +105,9 @@ public:
 	// Presets and tags are defined in project settings (AutoSettings page)
 	void SetPlayerInputPreset(APlayerController* Player, FGameplayTag PresetTag);
 
+	bool IsPlayerControllerRegistered(APlayerController* PlayerController) const { return RegisteredPlayerControllers.Contains(PlayerController); }
+
 protected:
-	// FTickableGameObject
-	void Tick(float DeltaTime) override;
-
-	// Don't tick CDO
-	bool IsTickable() const override { return !this->HasAnyFlags(RF_ClassDefaultObject); }
-
-	TStatId GetStatId() const override { return TStatId(); }
 
 	virtual void PostInitProperties() override;
 

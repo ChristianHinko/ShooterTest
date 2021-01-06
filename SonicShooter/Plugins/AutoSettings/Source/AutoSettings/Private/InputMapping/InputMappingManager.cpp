@@ -4,6 +4,7 @@
 #include "Engine/World.h"
 #include "Engine/LocalPlayer.h"
 #include "Engine/Engine.h"
+#include "InputMapping/InputMappingUtils.h"
 #include "Misc/AutoSettingsLogs.h"
 #include "Misc/AutoSettingsPlayer.h"
 
@@ -43,6 +44,11 @@ TArray<FInputMappingPreset> UInputMappingManager::GetDefaultInputPresets()
 
 FPlayerInputMappings UInputMappingManager::GetPlayerInputMappingsStatic(APlayerController * Player)
 {
+	if(!FInputMappingUtils::IsValidPlayer(Player, true, "Get Player Input Mappings"))
+	{
+		return FPlayerInputMappings();
+	}
+	
 	return Get()->FindPlayerInputMappings(Player);
 }
 
@@ -73,7 +79,7 @@ void UInputMappingManager::AddPlayerAxisOverrideStatic(APlayerController * Playe
 
 bool UInputMappingManager::InitializePlayerInputOverridesStatic(APlayerController * Player)
 {
-	if (!ensure(Player))
+	if(!FInputMappingUtils::IsValidPlayer(Player, true, "Initialize Player Input Overrides"))
 	{
 		return false;
 	}
@@ -91,12 +97,22 @@ bool UInputMappingManager::InitializePlayerInputOverridesStatic(APlayerControlle
 FInputActionKeyMapping UInputMappingManager::GetPlayerActionMappingStatic(APlayerController* Player, FName ActionName,
 	int32 MappingGroup)
 {
+	if(!FInputMappingUtils::IsValidPlayer(Player, true, "Get Player Action Mapping"))
+	{
+		return FInputActionKeyMapping();
+	}
+	
 	return Get()->GetPlayerActionMapping(Player, ActionName, MappingGroup, FGameplayTag(), true);
 }
 
 FInputAxisKeyMapping UInputMappingManager::GetPlayerAxisMappingStatic(APlayerController* Player, FName AxisName,
 	float Scale, int32 MappingGroup)
 {
+	if(!FInputMappingUtils::IsValidPlayer(Player, true, "Get Player Axis Mapping"))
+	{
+		return FInputAxisKeyMapping();
+	}
+	
 	return Get()->GetPlayerAxisMapping(Player, AxisName, Scale, MappingGroup, FGameplayTag(), true);
 }
 
@@ -188,7 +204,7 @@ void UInputMappingManager::DumpPlayers()
 
 void UInputMappingManager::SetPlayerKeyGroup(APlayerController* Player, FGameplayTag KeyGroup)
 {
-	if(!ensure(IsValid(Player) && IsValid(Player->GetLocalPlayer())))
+	if(!FInputMappingUtils::IsValidPlayer(Player, true, "Set Player Key Group"))
 	{
 		return;
 	}
@@ -211,6 +227,11 @@ void UInputMappingManager::SetPlayerKeyGroup(APlayerController* Player, FGamepla
 
 void UInputMappingManager::AddPlayerActionOverride(APlayerController * Player, const FInputActionKeyMapping& NewMapping, int32 MappingGroup, bool bAnyKeyGroup)
 {
+	if(!FInputMappingUtils::IsValidPlayer(Player, true, "Add Player Action Override"))
+	{
+		return;
+	}
+	
 	UE_LOG(LogAutoSettingsInput, Log, TEXT("InputMappingManager: Adding action override: %s"), *NewMapping.ActionName.ToString());
 
 	FPlayerInputMappings PlayerInputMappings = FindPlayerInputMappings(Player);
@@ -240,6 +261,11 @@ void UInputMappingManager::AddPlayerActionOverride(APlayerController * Player, c
 
 void UInputMappingManager::AddPlayerAxisOverride(APlayerController* Player, const FInputAxisKeyMapping& NewMapping, int32 MappingGroup, bool bAnyKeyGroup)
 {
+	if(!FInputMappingUtils::IsValidPlayer(Player, true, "Add Player Axis Override"))
+	{
+		return;
+	}
+	
 	UE_LOG(LogAutoSettingsInput, Log, TEXT("InputMappingManager: Adding axis override: %s, Scale: %f"), *NewMapping.AxisName.ToString(), NewMapping.Scale);
 
 	FPlayerInputMappings PlayerInputMappings = FindPlayerInputMappings(Player);
@@ -331,6 +357,11 @@ FInputAxisKeyMapping UInputMappingManager::GetPlayerAxisMapping(APlayerControlle
 
 void UInputMappingManager::SetPlayerInputPreset(APlayerController * Player, FInputMappingPreset Preset)
 {
+	if(!FInputMappingUtils::IsValidPlayer(Player, true, "Set Player Input Preset"))
+	{
+		return;
+	}
+	
 	const FString PresetTag = Preset.PresetTag.IsValid() ? Preset.PresetTag.ToString() : "Invalid";
 	UE_LOG(LogAutoSettingsInput, Log, TEXT("Setting input preset for '%s', tag: %s"), *Player->GetHumanReadableName(), *PresetTag);
 	
@@ -356,36 +387,6 @@ void UInputMappingManager::SetPlayerInputPreset(APlayerController* Player, FGame
 	{
 		SetPlayerInputPreset(Player, *FoundPreset);
 	}
-}
-
-void UInputMappingManager::Tick(float DeltaTime)
-{
-	if (GetDefault<UAutoSettingsConfig>()->bAutoInitializePlayerInputOverrides)
-	{
-		// Polling this is a bit dirty, but can't find any engine events that fire when players are added so it'll have to do
-
-		UWorld* World = GetGameWorld();
-
-		if (World)
-		{
-			UGameInstance* GameInstance = World->GetGameInstance();
-			if (GameInstance)
-			{
-				TArray<ULocalPlayer*> Players = GameInstance->GetLocalPlayers();
-				for (ULocalPlayer* Player : Players)
-				{
-					if (APlayerController* PlayerController = Player->GetPlayerController(World))
-					{
-						if (PlayerController->PlayerInput && !RegisteredPlayerControllers.Contains(PlayerController))
-						{
-							RegisterPlayerController(PlayerController);
-						}
-					}
-				}
-			}
-		}
-	}
-
 }
 
 void UInputMappingManager::PostInitProperties()

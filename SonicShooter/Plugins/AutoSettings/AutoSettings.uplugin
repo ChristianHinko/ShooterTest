@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
-	"Version": 26,
-	"VersionName": "1.13",
+	"Version": 28,
+	"VersionName": "1.15",
 	"FriendlyName": "Auto Settings",
 	"Description": "Game options and input binding toolkit",
 	"Category": "Settings",
@@ -10,7 +10,7 @@
 	"DocsURL": "http://autosettings.readthedocs.io",
 	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/7f6a777da2724d4a9a3dd551f03a3ad1",
 	"SupportURL": "https://forums.unrealengine.com/unreal-engine/marketplace/1354733-auto-settings-game-options-and-input-binding-toolkit",
-	"EngineVersion": "4.25.0",
+	"EngineVersion": "4.26.0",
 	"CanContainContent": true,
 	"Installed": true,
 	"Modules": [

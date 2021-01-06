@@ -22,6 +22,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Select Setting")
 	TSubclassOf<USettingOptionFactory> OptionFactory;
 
+	/**
+	 * Call to trigger re-evaluation of Option Factory and reconstruction of available options
+	 * Does not modify the selection even if the selected option is removed
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Select Setting")
+    void RegenerateOptions();
+
 protected:
 
 	virtual void NativePreConstruct() override;

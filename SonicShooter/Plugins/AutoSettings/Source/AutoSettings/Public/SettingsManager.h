@@ -96,6 +96,7 @@ public:
 	static void RegisterStringCVarSettingWithCallback(FName Name, const FString& DefaultValue, const FString& Help, FStringCVarChangedSignature ChangedCallback, bool CallbackImmediately);
 
 	// Auto detect, apply, and save scalability settings
+	// This is the same as calling RunHardwareBenchmark and ApplyHardwareBenchmarkResults on GameUserSettings, except the values are saved with Auto Settings
 	// Note: To change how your project determines which settings to apply from the result, see [ScalabilitySettings] in BaseScalability.ini and override the values in your project's DefaultScalability.ini
 	UFUNCTION(BlueprintCallable, Category = "Settings", meta = (DisplayName = "Auto Detect Settings"))
 	static void AutoDetectSettingsStatic(int32 WorkScale = 10, float CPUMultiplier = 1.0f, float GPUMultiplier = 1.0f);

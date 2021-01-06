@@ -2,6 +2,11 @@
 
 #include "UI/SettingControls/SelectSetting.h"
 
+void USelectSetting::RegenerateOptions()
+{
+	DispatchUpdateOptions(GetCombinedOptions());
+}
+
 void USelectSetting::NativePreConstruct()
 {
 	// Update options before calling super, which updates the selection

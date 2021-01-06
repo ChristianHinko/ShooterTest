@@ -15,6 +15,7 @@ UGA_CharacterJump::UGA_CharacterJump()
 
 
 	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Crouch"));
+	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Run"));
 }
 
 
@@ -29,11 +30,6 @@ bool UGA_CharacterJump::CanActivateAbility(const FGameplayAbilitySpecHandle Hand
 	if (!Character)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL. Returned false"), *FString(__FUNCTION__));
-		return false;
-	}
-	if (!Character->CanJump())
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character's CanJump returned false. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
 

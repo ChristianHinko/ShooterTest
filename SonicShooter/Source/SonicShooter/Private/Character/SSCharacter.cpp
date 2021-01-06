@@ -2,6 +2,7 @@
 
 #include "Character/SSCharacter.h"
 
+#include "Net/UnrealNetwork.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Character/SSCharacterMovementComponent.h"
@@ -10,7 +11,6 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet\KismetMathLibrary.h"
-#include "Kismet\KismetSystemLibrary.h"
 #include "Utilities/CollisionChannels.h"
 #include "Interfaces/Interactable.h"
 #include "GameFramework/PlayerController.h"
@@ -18,6 +18,16 @@
 #include "Kismet/KismetSystemLibrary.h"
 
 
+
+DEFINE_LOG_CATEGORY_STATIC(LogCharacter, Log, All); // for some overriden ACharacter functions
+
+
+void ASSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ASSCharacter, bIsRunning, COND_SimulatedOnly);
+}
 
 ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<USSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -129,6 +139,34 @@ void ASSCharacter::SetFirstPerson(bool newFirstPerson)
 	bFirstPerson = newFirstPerson;
 }
 
+#pragma region Jump
+void ASSCharacter::Jump()
+{
+	if (SSCharacterMovementComponent)
+	{
+		if (GetWorld()->GetTimeSeconds() != FMath::Abs(SSCharacterMovementComponent->timestampWantsToJump)) // if changed
+		{
+			Super::Jump(); // set to true
+
+			SSCharacterMovementComponent->timestampWantsToJump = GetWorld()->GetTimeSeconds();
+		}
+
+	}
+}
+
+void ASSCharacter::StopJumping()
+{
+	if (SSCharacterMovementComponent)
+	{
+		if (GetWorld()->GetTimeSeconds() != FMath::Abs(SSCharacterMovementComponent->timestampWantsToJump)) // if changed
+		{
+			Super::StopJumping(); // set to false
+
+			SSCharacterMovementComponent->timestampWantsToJump = -1 * GetWorld()->GetTimeSeconds();
+		}
+	}
+}
+
 bool ASSCharacter::CanJumpInternal_Implementation() const
 {
 	//return Super::CanJumpInternal_Implementation(); // the super makes it return false when crouched - we don't want this
@@ -167,9 +205,64 @@ bool ASSCharacter::CanJumpInternal_Implementation() const
 
 	return bCanJump;
 }
+#pragma endregion
+
+
+void ASSCharacter::OnRep_IsRunning()
+{
+	if (SSCharacterMovementComponent)
+	{
+		if (bIsRunning)
+		{
+			SSCharacterMovementComponent->SetWantsToRun(true);
+			SSCharacterMovementComponent->Run();
+		}
+		else
+		{
+			SSCharacterMovementComponent->SetWantsToRun(false);
+			SSCharacterMovementComponent->UnRun();
+		}
+		SSCharacterMovementComponent->bNetworkUpdateReceived = true;
+	}
+}
 
 #pragma region Crouch
-bool ASSCharacter::CanCrouch() const
+void ASSCharacter::Crouch(bool bClientSimulation)
+{
+	//Super::Crouch(bClientSimulation);
+
+	if (SSCharacterMovementComponent)
+	{
+		if (SSCharacterMovementComponent->CanEverCrouch())
+		{
+			if (SSCharacterMovementComponent->bWantsToCrouch == false) // if changed
+			{
+				SSCharacterMovementComponent->bWantsToCrouch = true;
+				SSCharacterMovementComponent->timestampWantsToCrouch = GetWorld()->GetTimeSeconds();
+			}
+		}
+#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
+		else
+		{
+			UE_LOG(LogCharacter, Log, TEXT("%s is trying to crouch, but crouching is disabled on this character! (check CharacterMovement NavAgentSettings)"), *GetName());
+		}
+#endif
+	}
+}
+void ASSCharacter::UnCrouch(bool bClientSimulation)
+{
+	if (SSCharacterMovementComponent)
+	{
+		if (SSCharacterMovementComponent->bWantsToCrouch == true) // if changed
+		{
+			Super::UnCrouch(bClientSimulation); // set to false
+
+			SSCharacterMovementComponent->timestampWantsToCrouch = -1 * GetWorld()->GetTimeSeconds();
+		}
+	}
+}
+
+bool ASSCharacter::CanCrouch() const // this function isn't being used anymore
 {
 	//Super::CanCrouch();	// We are taking away the check for if bIsCrouched is false becus
 
@@ -227,7 +320,6 @@ void ASSCharacter::OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust)
 
 	CrouchTickFunction.SetTickFunctionEnable(true);
 }
-
 void ASSCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
 {
 	//Super::OnEndCrouch(HeightAdjust, ScaledHeightAdjust);
@@ -281,8 +373,36 @@ void ASSCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
 	CrouchTickFunction.SetTickFunctionEnable(true);
 }
 
+void ASSCharacter::RecalculateBaseEyeHeight()
+{
+	if (SSCharacterMovementComponent->IsCrouching() == false)
+	{
+		if (Super::StaticClass() == ACharacter::StaticClass())
+		{
+			ACharacter::Super::RecalculateBaseEyeHeight(); // skip ACharacter's implementation
+		}
+		else
+		{
+			Super::RecalculateBaseEyeHeight();
+		}
+
+	}
+	else
+	{
+		BaseEyeHeight = CrouchedEyeHeight;
+	}
+}
+
 void FCrouchTickFunction::ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent)
 {
+	//if (Target && !Target->IsPendingKillOrUnreachable())
+	//{
+	//	if (TickType != LEVELTICK_ViewportsOnly || Target->ShouldTickIfViewportsOnly())
+	//	{
+	//		FScopeCycleCounterUObject ActorScope(Target);
+	//		Target->TickActor(DeltaTime * Target->CustomTimeDilation, TickType, *this);
+	//	}
+	//}
 	if (Target)
 	{
 		Target->CrouchTick(DeltaTime);
@@ -292,27 +412,34 @@ void ASSCharacter::CrouchTick(float DeltaTime)
 {
 	const FVector CameraBoomLoc = CameraBoom->GetRelativeLocation();
 	const float crouchFromHeight = CameraBoomLoc.Z;
-	const float interpedHeight = FMath::FInterpConstantTo(crouchFromHeight, crouchToHeight, DeltaTime, crouchSpeed);
 
-	if (interpedHeight == crouchToHeight)
+	float interpedHeight;
+	if (SSCharacterMovementComponent->GetToggleCrouchEnabled()) // toggle crouch feels better with a linear interp
 	{
-		// We've reached our goal, make this our last tick
-		CrouchTickFunction.SetTickFunctionEnable(false);
+		interpedHeight = FMath::FInterpConstantTo(crouchFromHeight, crouchToHeight, DeltaTime, crouchSpeed);
+
+		if (interpedHeight == crouchToHeight)
+		{
+			// We've reached our goal, make this our last tick
+			CrouchTickFunction.SetTickFunctionEnable(false);
+		}
 	}
+	else // hold to crouch feels better with a smooth interp
+	{
+		interpedHeight = FMath::FInterpTo(crouchFromHeight, crouchToHeight, DeltaTime, crouchSpeed / 10);
 
-	//float interpedHeight = FMath::FInterpTo(crouchFromHeight, crouchToHeight, DeltaTime, crouchSpeed / 10);
-
-	//if (FMath::IsNearlyEqual(interpedHeight, crouchToHeight, KINDA_SMALL_NUMBER * 100))
-	//{
-	//  // We've nearly reached our goal, set our official height and make this our last tick
-	//	interpedHeight = crouchToHeight;
-	//	CrouchTickFunction.SetTickFunctionEnable(false);
-	//}
+		if (FMath::IsNearlyEqual(interpedHeight, crouchToHeight, KINDA_SMALL_NUMBER * 100))
+		{
+			// We've nearly reached our goal, set our official height and make this our last tick
+			interpedHeight = crouchToHeight;
+			CrouchTickFunction.SetTickFunctionEnable(false);
+		} 
+	}
 
 	CameraBoom->SetRelativeLocation(FVector(CameraBoomLoc.X, CameraBoomLoc.Y, interpedHeight));
 
 
-	UKismetSystemLibrary::PrintString(this, "crouch ticking;                      " + CameraBoom->GetRelativeLocation().ToString(), true, false);
+	//UKismetSystemLibrary::PrintString(this, "crouch ticking;                      " + CameraBoom->GetRelativeLocation().ToString(), true, false);
 }
 #pragma endregion
 
@@ -403,11 +530,11 @@ void ASSCharacter::OnReloadReleased()
 
 void ASSCharacter::OnCrouchPressed()
 {
-
+	Crouch();
 }
 void ASSCharacter::OnCrouchReleased()
 {
-
+	UnCrouch();
 }
 
 void ASSCharacter::OnSwitchWeaponPressed()

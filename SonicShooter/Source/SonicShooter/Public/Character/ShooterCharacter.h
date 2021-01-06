@@ -60,6 +60,7 @@ protected:
 	virtual void OnInteractPressed() override;
 
 	virtual void OnCrouchPressed() override;
+	virtual void OnCrouchReleased() override;
 
 	virtual void OnPrimaryFirePressed() override;
 #pragma endregion

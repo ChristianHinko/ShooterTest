@@ -5,14 +5,19 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSAbilitySystemComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Console/CVarChangeListenerManager.h"
 
 #include "SSCharacterMovementComponent.generated.h"
 
+
+class ASSCharacter;
 class USSAbilitySystemComponent;
 class UAS_Character;
 class AAbilitySystemCharacter;
 
-DECLARE_MULTICAST_DELEGATE(FCharacterMovementState);
+
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterMovementWantsToChanged, bool);
 
 
 /**
@@ -150,18 +155,67 @@ class SONICSHOOTER_API USSCharacterMovementComponent : public UCharacterMovement
 public:
 	USSCharacterMovementComponent();
 	
-	/** This is client authoritative. So calling this will always make the character run (on both client and server). Very insecure */
+
+
+	bool GetToggleCrouchEnabled() const { return bToggleCrouchEnabled; }
+	bool GetToggleRunEnabled() const { return bToggleRunEnabled; }
+
+	/**
+	 * Desire cancellations.
+	 * 
+	 * If a movements's toggle mode is enabled, then another movement can cancel the player's desire to do it.
+	 * Ex: If bRunCancelsDesireToRun is true and bToggleRunEnabled is true, then when you crouch, that means
+	 * that you don't want to run. So if you are running and you crouch and uncrouch, you will no longer be running (even though you may be able to).
+	 */
+	uint8 bCrouchCancelsDesireToRun : 1;
+	uint8 bRunCancelsDesireToCrouch : 1;
+	uint8 bJumpCancelsDesireToCrouch : 1;
+	uint8 bJumpCancelsDesireToRun : 1;
+
+
+	/**
+	 * Set WantsTos.
+	 *  
+	 * Is replicated to the server but doesn't actually make the character run. Whether you run or not is also depenent on CanRunInCurrentState which
+	 * is calculated on the local machine (the server and client independently determine whether you actually run or not)
+	 */
 	void SetWantsToRun(bool newWantsToRun);
+	bool GetWantsToRun() const { return bWantsToRun; }
 
-	//BEGIN CMC Interface
+	/**
+	 * Can In Current State.
+	 * 
+	 * Checks on whether you actually can perform moves or not. This gives security to the client->server replicated compressed flags (or WantsTo bools)
+	 */
 	virtual bool CanAttemptJump() const override;
-
+	uint8 bCanCrouchJump : 1;
 	virtual bool CanCrouchInCurrentState() const override;
 	virtual bool CanRunInCurrentState() const;
-	bool IsMovingForward(/*float degreeTolerance = 99.f*/) const;
-	//END CMC Interface
+	
+	/**
+	 * Boolean Timestamps.
+	 * 
+	 * Represent the timestamp the moment wanted to do something.
+	 * If negative, represents the timestamp the moment you stopped wanting to do something.
+	 * And, I guess, if zero, null which is kind of cool.
+	 */
+	float timestampWantsToJump;
+	FCharacterMovementWantsToChanged OnWantsToJumpChanged;
+	float timestampWantsToCrouch;
+	FCharacterMovementWantsToChanged OnWantsToCrouchChanged;
+	float timestampWantsToRun;
+	FCharacterMovementWantsToChanged OnWantsToRunChanged;
 
-	uint8 bCanCrouchJump : 1;
+	/** Whether we are actually running or not */
+	bool IsRunning() const;
+
+	/** Actually makes the character run, should not be called directly and is only public so that replicated character bIsRunning state can call this */
+	virtual void Run();
+	/** Actually makes the character stop running, should not be called directly */
+	virtual void UnRun();
+
+
+
 	FRotator CurrentRotationRate;
 
 
@@ -169,6 +223,8 @@ protected:
 	//	Don't know for sure if this is the best event to use but works for now
 	virtual void InitializeComponent() override;
 
+	UPROPERTY()
+		ASSCharacter* OwnerSSCharacter;
 	UPROPERTY()
 		AAbilitySystemCharacter* OwnerAbilitySystemCharacter;
 	UPROPERTY()
@@ -183,6 +239,8 @@ protected:
 	virtual void UpdateFromCompressedFlags(uint8 Flags) override;
 	virtual void UpdateCharacterStateBeforeMovement(float DeltaSeconds) override;
 	virtual void OnMovementUpdated(float deltaTime, const FVector& OldLocation, const FVector& OldVelocity) override;
+	virtual void UpdateCharacterStateAfterMovement(float DeltaSeconds) override;
+	virtual float GetMaxSpeed() const override;
 	virtual float GetMaxAcceleration() const override;
 	virtual float GetMaxBrakingDeceleration() const override;
 	virtual FString GetMovementName() const override;
@@ -194,19 +252,25 @@ protected:
 	//END CMC Interface
 
 
-	//BEGIN UMovementComponent Interface
-	virtual float GetMaxSpeed() const override;
-	//END UMovementComponent Interface
-
 #pragma region Compressed Flags
 	uint8 bWantsToRun : 1;
 #pragma endregion
 
-	/** Whether we are actually running */
-	uint8 bIsRunning : 1;
+	virtual void OnStaminaFullyDrained();
+
+	/** WARNING: This check does not work on dedicated server */
+	bool IsMovingForward(/*float degreeTolerance = 45.f*/) const;
+
+	virtual void TweakCompressedFlagsBeforeTick();
+
+	virtual bool DoJump(bool bReplayingMoves) override;
+
+	virtual void Crouch(bool bClientSimulation = false) override;
+	virtual void UnCrouch(bool bClientSimulation = false) override;
+
 
 	// This is a good event for calling your custom client adjustment RPCs
-	virtual void ClientAdjustPosition(float TimeStamp, FVector NewLoc, FVector NewVel, UPrimitiveComponent* NewBase, FName NewBaseBoneName, bool bHasBase, bool bBaseRelativePosition, uint8 ServerMovementMode) override;
+	//virtual void ClientAdjustPosition(float TimeStamp, FVector NewLoc, FVector NewVel, UPrimitiveComponent* NewBase, FName NewBaseBoneName, bool bHasBase, bool bBaseRelativePosition, uint8 ServerMovementMode) override;
 	//UFUNCTION(Unreliable, Client)
 	//	virtual void SSClientAdjustPosition();
 	//virtual void SSClientAdjustPosition_Implementation();
@@ -224,9 +288,21 @@ protected:
 	virtual void PhysInfiniteAngleWalking(float deltaTime, int32 Iterations);
 #pragma endregion
 
+#pragma region Input CVars
+	FBoolCVarChangedSignature CVarToggleCrouchChangeDelegate;
+	UFUNCTION()
+		void CVarToggleCrouchChanged(bool newToggleCrouch);
+	uint8 bToggleCrouchEnabled : 1;
+
+	FBoolCVarChangedSignature CVarToggleRunChangeDelegate;
+	UFUNCTION()
+		void CVarToggleRunChanged(bool newToggleRun);
+	uint8 bToggleRunEnabled : 1;
+#pragma endregion
+
 private:
 	FRotator PreviousRotation;
-	float timeSinceLastRot;
+
 };
 
 

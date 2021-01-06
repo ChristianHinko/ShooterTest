@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSGameplayAbility.h"
-#include "Console/CVarChangeListenerManager.h"
 
 #include "GA_CharacterCrouch.generated.h"
 
@@ -33,8 +32,6 @@ protected:
 	UPROPERTY()
 		AAbilitySystemCharacter* GASCharacter;
 	UPROPERTY()
-		UAS_Character* CharacterAttributeSet;
-	UPROPERTY()
 		USSCharacterMovementComponent* CMC;
 
 
@@ -47,13 +44,10 @@ protected:
 	//END UGameplayAbility Interface
 
 
-#pragma region Gameplay Tags
+	void OnWantsToCrouchChanged(bool newWantsToCrouch);
+	FDelegateHandle OnWantsToCrouchChangedDelegateHandle;
 
-#pragma endregion
-	FBoolCVarChangedSignature CVarToggleCrouchChangeDelegate;
-	UFUNCTION()
-		void CVarToggleCrouchChanged(bool newValue);
-	uint8 bToggleOn : 1;
+
 	UAT_WaitInputPressCust* InputPressTask;
 	UAT_WaitInputReleaseCust* InputReleasedTask;
 

@@ -78,9 +78,13 @@ public:
 		FGameplayAttributeData MaxStamina;
 	ATTRIBUTE_ACCESSORS(UAS_Character, MaxStamina)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromModifiers))
+	UPROPERTY(BlueprintReadOnly/*, ReplicatedUsing = OnRep_Stamina*/, Category = "Attributes")
 		FGameplayAttributeData Stamina;
 	ATTRIBUTE_ACCESSORS(UAS_Character, Stamina)
+
+	UFUNCTION(Unreliable, Client)
+		void ClientReplicateStaminaState(float serverStamina, bool serverStaminaDraining);
+	void ClientReplicateStaminaState_Implementation(float serverStamina, bool serverStaminaDraining);
 
 	/** How fast your stamina drains while running */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_StaminaDrain, Category = "Attributes")
@@ -112,7 +116,7 @@ protected:
 
 	virtual void Tick(float DeltaTime) override;
 	virtual bool ShouldTick() const override;
-	bool bShouldTick;
+	virtual void SetShouldTick(bool newShouldTick);
 
 	virtual void SetSoftAttributeDefaults() override;
 
@@ -135,6 +139,9 @@ protected:
 	UFUNCTION()
 		virtual void OnRep_MaxStamina(const FGameplayAttributeData& ServerBaseValue);
 
+	//UFUNCTION()
+	//	virtual void OnRep_Stamina(const FGameplayAttributeData& ServerBaseValue);
+
 	UFUNCTION()
 		virtual void OnRep_StaminaDrain(const FGameplayAttributeData& ServerBaseValue);
 	UFUNCTION()
@@ -143,6 +150,8 @@ protected:
 		virtual void OnRep_StaminaRegenPause(const FGameplayAttributeData& ServerBaseValue);
 
 private:
+	bool bShouldTick;
+
 	bool bStaminaDraining;
 	float timeSinceStaminaDrain;
 };

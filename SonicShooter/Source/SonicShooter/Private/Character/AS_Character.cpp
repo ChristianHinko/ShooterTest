@@ -4,9 +4,12 @@
 #include "Character/AS_Character.h"
 
 #include "Net/UnrealNetwork.h"
-#include "GameplayAbilities\Public\GameplayEffectExtension.h"
+#include "GameplayAbilities/Public/GameplayEffectExtension.h"
+
 #include "Kismet/KismetSystemLibrary.h"
-#include "GameplayTags\Classes\BlueprintGameplayTagLibrary.h"
+//#include "Engine/NetDriver.h"
+//#include "Net/RepLayout.h"
+
 
 
 void UAS_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -26,10 +29,19 @@ void UAS_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, MaxStamina, COND_None, REPNOTIFY_Always);
 
+	//DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, Stamina, COND_Custom, REPNOTIFY_Always);
+
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, StaminaDrain, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, StaminaGain, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Character, StaminaRegenPause, COND_None, REPNOTIFY_Always);
 }
+//void UAS_Character::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) // this is only for AActors and UActorComponents, we will have to do something tricky instead of this
+//{
+//	Super::PreReplication(ChangedPropertyTracker);
+//
+//
+//	DOREPLIFETIME_ACTIVE_OVERRIDE(UAS_Character, Stamina, true);
+//}
 
 //	These are default values BEFORE the default attribute values effect gets applied
 UAS_Character::UAS_Character()
@@ -63,36 +75,81 @@ void UAS_Character::Tick(float DeltaTime)
 {
 	if (bStaminaDraining)
 	{
-		SetStamina(GetStamina() - (GetStaminaDrain() * DeltaTime));
+		timeSinceStaminaDrain = 0; // we are in draining mode, reset our time since drainage
 
-		timeSinceStaminaDrain = 0;
+		if (GetStamina() > 0)
+		{
+			// We are draining
+			SetStamina(GetStamina() - (GetStaminaDrain() * DeltaTime));
+
+			if (GetStamina() < 0)
+			{
+				// We are fully drained
+				SetStamina(0);
+				OnStaminaFullyDrained.Broadcast();
+				bStaminaDraining = false; // break out of draining mode so we can start to regen
+			}
+		}
+		else
+		{
+			// We tried to drain stamina with no stamina left, break out of draining mode to regen
+			bStaminaDraining = false;
+		}
 	}
 	else
 	{
-		timeSinceStaminaDrain += DeltaTime;
+		timeSinceStaminaDrain += DeltaTime; // only accurate while ticking, because this won't be updated if not ticking
 
 		if (timeSinceStaminaDrain >= GetStaminaRegenPause())
 		{
-			SetStamina(GetStamina() + (GetStaminaGain() * DeltaTime));
+			if (GetStamina() < GetMaxStamina())
+			{
+				// We are regening
+				SetStamina(GetStamina() + (GetStaminaGain() * DeltaTime));
+
+				if (GetStamina() > GetMaxStamina())
+				{
+					// We are fully regened
+					SetStamina(GetMaxStamina());
+					OnStaminaFullyGained.Broadcast();
+
+					SetShouldTick(false); // at this point no stamina logic needs to be performed (we are at full stamina) so we are safe to stop ticking
+				}
+			}
+			else
+			{
+				// We tried gaining stamina with full stamina, stop ticking
+				SetShouldTick(false);
+			}
 		}
 	}
-
-	// Clamp our stamina
-	if (GetStamina() <= 0) // or equal to so that we broadcast also when its zero
+}
+void UAS_Character::SetShouldTick(bool newShouldTick)
+{
+	if (bShouldTick != newShouldTick)
 	{
-		ENetRole role = GetOwningActor()->GetLocalRole();
-		// TODO: some reason on fully drained, the server's stamina isn't fully zero (probably a problem with the run ability)
+		bShouldTick = newShouldTick;
 
-		SetStamina(0);
-		OnStaminaFullyDrained.Broadcast();
-	}
-	if (GetStamina() >= GetMaxStamina()) // or equal to so that we broadcast also when its zero
-	{
-		SetStamina(GetMaxStamina());
-		OnStaminaFullyGained.Broadcast();
 
-		bShouldTick = false; // at this point no stamina logic needs to be performed (we are at full stamina) so we are safe to stop ticking
+		//UNetDriver* NetDriver = GetWorld()->GetNetDriver();
+		//IRepChangedPropertyTracker& ChangedPropertyTracker = *(NetDriver->FindOrCreateRepChangedPropertyTracker(this).Get());
+
+		//if (bShouldTick == true)
+		//{
+		//	DOREPLIFETIME_ACTIVE_OVERRIDE(UAS_Character, Stamina, false);
+		//}
+		//else
+		//{
+		//	DOREPLIFETIME_ACTIVE_OVERRIDE(UAS_Character, Stamina, true);
+		//}
 	}
+
+	// Actually semi-replicating stamina (or replicating it at all) is a really bad idea because of how transient it is
+	
+	//if (GetOwningActor()->GetLocalRole() == ROLE_Authority)
+	//{
+	//	ClientReplicateStaminaState(GetStamina(), bStaminaDraining);
+	//}
 }
 
 bool UAS_Character::ShouldTick() const
@@ -100,11 +157,23 @@ bool UAS_Character::ShouldTick() const
 	return bShouldTick;
 }
 
+void UAS_Character::ClientReplicateStaminaState_Implementation(float serverStamina, bool serverStaminaDraining)
+{
+	SetStamina(serverStamina);
+	SetStaminaDraining(serverStaminaDraining);
+
+	UE_LOG(LogTemp, Log, TEXT("client recieved server stamina state"));
+}
+
 void UAS_Character::SetStaminaDraining(bool newStaminaDraining)
 {
-	bStaminaDraining = newStaminaDraining;
+	if (bStaminaDraining != newStaminaDraining)
+	{
+		bStaminaDraining = newStaminaDraining;
 
-	bShouldTick = true;
+		SetShouldTick(true);
+		GetOwningAbilitySystemComponent()->UpdateShouldTick();
+	}
 }
 
 bool UAS_Character::PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data)
@@ -127,18 +196,6 @@ bool UAS_Character::PreGameplayEffectExecute(struct FGameplayEffectModCallbackDa
 	if (AttributeToModify == GetHealingAttribute())
 	{
 		//Handle extra Attribute Modifications here (ie. less healing, extra healing)
-
-
-	}
-
-	if (AttributeToModify == GetStaminaDrainAttribute())
-	{
-
-
-	}
-
-	if (AttributeToModify == GetStaminaGainAttribute())
-	{
 
 
 	}
@@ -176,26 +233,6 @@ void UAS_Character::PostGameplayEffectExecute(const FGameplayEffectModCallbackDa
 
 		SetHealth(FMath::Clamp(GetHealth() + healingToApply, 0.f, GetMaxHealth()));
 
-	}
-
-	if (ModifiedAttribute == GetStaminaDrainAttribute())
-	{
-		const float staminaToDrain = StaminaDrain.GetCurrentValue();
-		SetStaminaDrain(0.f);
-
-		SetStamina(FMath::Clamp(GetStamina() - staminaToDrain, 0.f, GetMaxStamina()));
-
-		UKismetSystemLibrary::PrintString(this, "Drained: " + FString::SanitizeFloat(staminaToDrain) + "Now at " + FString::SanitizeFloat(GetStamina()), true, false, FLinearColor::Red);
-	}
-
-	if (ModifiedAttribute == GetStaminaGainAttribute())
-	{
-		const float staminaToGain = StaminaGain.GetCurrentValue();
-		SetStaminaGain(0.f);
-
-		SetStamina(FMath::Clamp(GetStamina() + staminaToGain, 0.f, GetMaxStamina()));
-
-		UKismetSystemLibrary::PrintString(this, "Gained: " + FString::SanitizeFloat(staminaToGain) + "Now at " + FString::SanitizeFloat(GetStamina()), true, false, FLinearColor::Green);
 	}
 }
 
@@ -238,6 +275,12 @@ void UAS_Character::OnRep_MaxStamina(const FGameplayAttributeData& ServerBaseVal
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Character, MaxStamina, ServerBaseValue);
 }
+
+//void UAS_Character::OnRep_Stamina(const FGameplayAttributeData& ServerBaseValue)
+//{
+//	UKismetSystemLibrary::PrintString(this, "OnRep_Stamina", true, false);
+//	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Character, Stamina, ServerBaseValue);
+//}
 
 void UAS_Character::OnRep_StaminaDrain(const FGameplayAttributeData& ServerBaseValue)
 {

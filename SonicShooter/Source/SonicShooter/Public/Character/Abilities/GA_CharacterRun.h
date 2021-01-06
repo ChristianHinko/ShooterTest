@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSGameplayAbility.h"
-#include "Console/CVarChangeListenerManager.h"
 
 #include "GA_CharacterRun.generated.h"
 
@@ -40,9 +39,6 @@ protected:
 	UPROPERTY()
 		UAS_Character* CharacterAttributeSet;
 
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<UGameplayEffect> DisableRunEffectTSub;	// asset manager we need you D:
-
 
 
 	//BEGIN UGameplayAbility Interface
@@ -53,23 +49,12 @@ protected:
 	//END UGameplayAbility Interface
 
 
-	UFUNCTION()
-		void OnTick(float DeltaTime, float currentTime, float timeRemaining);
-
 	void OnStaminaFullyDrained();
+	FDelegateHandle OnStaminaFullyDrainedDelegateHandle;
 
-	UFUNCTION()
-		void OnSyncStaminaFullyDrained();
-	UFUNCTION()
-		void OnStoppedMovingForward();
+	void OnWantsToRunChanged(bool newWantsToRun);
+	FDelegateHandle OnWantsToRunChangedDelegateHandle;
 
-#pragma region Gameplay Tags
-	FGameplayTag RunDisabledTag;
-#pragma endregion
-	FBoolCVarChangedSignature CVarToggleRunChangeDelegate;
-	UFUNCTION()
-		void CVarToggleRunChanged(bool newValue);
-	uint8 bToggleOn : 1;
 
 	UAT_WaitInputReleaseCust* InputReleasedTask;
 	UAT_Ticker* TickerTask;

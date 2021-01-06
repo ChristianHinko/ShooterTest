@@ -110,6 +110,10 @@ void AShooterCharacter::OnCrouchPressed()
 {
 	GetAbilitySystemComponent()->TryActivateAbility(CharacterCrouchAbilitySpecHandle);
 }
+void AShooterCharacter::OnCrouchReleased()
+{
+
+}
 
 void AShooterCharacter::OnPrimaryFirePressed()
 {

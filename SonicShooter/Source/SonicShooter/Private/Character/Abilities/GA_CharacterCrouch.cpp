@@ -13,6 +13,8 @@
 #include "AbilitySystem\AbilityTasks\AT_WaitInputReleaseCust.h"
 #include "Character/SSCharacterMovementComponent.h"
 
+#include "Kismet/KismetSystemLibrary.h"
+
 
 
 UGA_CharacterCrouch::UGA_CharacterCrouch()
@@ -21,18 +23,14 @@ UGA_CharacterCrouch::UGA_CharacterCrouch()
 
 
 	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Run"));
-}
-
-void UGA_CharacterCrouch::CVarToggleCrouchChanged(bool newValue)
-{
-	bToggleOn = newValue;
+	//NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalOnly;
 }
 
 void UGA_CharacterCrouch::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnAvatarSet(ActorInfo, Spec);
 
-	//	Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times
+	// Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times
 	if (!ActorInfo)
 	{
 		return;
@@ -46,25 +44,13 @@ void UGA_CharacterCrouch::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo
 	GASCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
 	if (!GASCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL, meaning CharacterAttributeSet will also be NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL"), *FString(__FUNCTION__));
 	}
 
 	CMC = GASCharacter->GetSSCharacterMovementComponent();
 	if (!CMC)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL"), *FString(__FUNCTION__));
-	}
-
-	CharacterAttributeSet = GASCharacter->GetCharacterAttributeSet();
-	if (!CharacterAttributeSet)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterAttributeSet was NULL"), *FString(__FUNCTION__));
-	}
-
-	if (!CVarToggleCrouchChangeDelegate.IsBound())		// Only want to run this code once
-	{
-		CVarToggleCrouchChangeDelegate.BindUFunction(this, TEXT("CVarToggleCrouchChanged"));
-		UCVarChangeListenerManager::AddBoolCVarCallbackStatic(TEXT("input.ToggleCrouch"), CVarToggleCrouchChangeDelegate, true);
 	}
 }
 
@@ -85,16 +71,6 @@ bool UGA_CharacterCrouch::CanActivateAbility(const FGameplayAbilitySpecHandle Ha
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
-	if (!CharacterAttributeSet)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterAttributeSet was NULL. Returned false"), *FString(__FUNCTION__));
-		return false;
-	}
-	if (!ActorInfo->AbilitySystemComponent.Get())
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo->AbilitySystemComponent was NULL when trying to activate. Returned false"), *FString(__FUNCTION__));
-		return false;
-	}
 
 	return true;
 }
@@ -103,14 +79,8 @@ void UGA_CharacterCrouch::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
-	}
 
-
-	if (bToggleOn)
+	if (CMC->GetToggleCrouchEnabled())
 	{
 		InputPressTask = UAT_WaitInputPressCust::WaitInputPressCust(this, false, true);
 		if (!InputPressTask)
@@ -120,7 +90,6 @@ void UGA_CharacterCrouch::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 			return;
 		}
 		InputPressTask->OnPress.AddDynamic(this, &UGA_CharacterCrouch::OnPress);
-		InputPressTask->ReadyForActivation();
 	}
 	else
 	{
@@ -132,10 +101,52 @@ void UGA_CharacterCrouch::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 			return;
 		}
 		InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterCrouch::OnRelease);
-		InputReleasedTask->ReadyForActivation();
+	}
 
-		CrouchingEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, CrouchingEffectTSub.GetDefaultObject(), GetAbilityLevel());
-		GASCharacter->Crouch();
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	{
+		bool replicateEndAbility = true;
+		if (ActivationInfo.ActivationMode != EGameplayAbilityActivationMode::Authority)
+		{
+			// Only server->client EndAbility replication
+			replicateEndAbility = false;
+		}
+
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), replicateEndAbility, false);
+		return;
+	}
+	///////////////////////// we've passed the checks ///////////
+
+
+	OnWantsToCrouchChangedDelegateHandle = CMC->OnWantsToCrouchChanged.AddUObject(this, &UGA_CharacterCrouch::OnWantsToCrouchChanged);
+
+
+	if (CMC->GetToggleCrouchEnabled())
+	{
+		InputPressTask->ReadyForActivation();
+	}
+	else
+	{
+		InputReleasedTask->ReadyForActivation();
+	}
+
+	CrouchingEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, CrouchingEffectTSub.GetDefaultObject(), GetAbilityLevel());
+	GASCharacter->Crouch();
+}
+
+
+void UGA_CharacterCrouch::OnWantsToCrouchChanged(bool newWantsToCrouch)
+{
+	if (newWantsToCrouch == false)
+	{
+		bool replicateEndAbility = true;
+		if (GetCurrentActivationInfo().ActivationMode != EGameplayAbilityActivationMode::Authority)
+		{
+			// Only server->client EndAbility replication
+			replicateEndAbility = false;
+		}
+
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), replicateEndAbility, false);
 	}
 }
 
@@ -148,12 +159,7 @@ void UGA_CharacterCrouch::OnRelease(float TimeHeld)
 
 void UGA_CharacterCrouch::OnPress(float TimeElapsed)
 {
-	if (CMC->bWantsToCrouch == false)
-	{
-		CrouchingEffectActiveHandle = ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), CrouchingEffectTSub.GetDefaultObject(), GetAbilityLevel());
-		GASCharacter->Crouch();
-	}
-	else
+	if (InputPressTask->callBackNumber > 1)
 	{
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 	}
@@ -172,13 +178,7 @@ void UGA_CharacterCrouch::OnPress(float TimeElapsed)
 
 void UGA_CharacterCrouch::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	// Only actually end the ability if this ability itself ended it (so that if a jump or run cancels this, for example, they won't set bWantsToCrouch to false and end our tasks for us. This allows us
-	// to have it so the ability stays alive although it was cancelled by another). This lets the ability stay active for cases where the player is holding the input to activate it (active does not mean you are actually crouching).
-	// Also let external sources completely end this ability if bToggleOn is on.
-	// In this game, setting the wantsTo bools actually makes the character do the action (client authoritative), so that is why we only set bWantsToCrouch to false from within the ability
-
-	// Now that I think about it, this approach might be bad, because if some ability other than jump tries to cancel it, you will stay crouching (i think).
-	if (bWasCancelled == false || bToggleOn)
+	if (bWasCancelled == false)
 	{
 		// Super wraps the whole EndAbility() in IsEndAbilityValid()
 		if (!IsEndAbilityValid(Handle, ActorInfo))
@@ -197,6 +197,7 @@ void UGA_CharacterCrouch::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 
 
 
+		CMC->OnWantsToCrouchChanged.Remove(OnWantsToCrouchChangedDelegateHandle);
 		GASCharacter->UnCrouch();
 		ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(CrouchingEffectActiveHandle);
 

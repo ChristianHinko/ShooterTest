@@ -88,6 +88,10 @@ public:
 
 	USSCharacterMovementComponent* GetSSCharacterMovementComponent() const { return SSCharacterMovementComponent; }
 
+	/** Whether we are actually running. Replicated to simulated proxies so that they can simulate server movement */
+	UPROPERTY(ReplicatedUsing=OnRep_IsRunning)
+		uint8 bIsRunning : 1;
+
 
 	bool GetFirstPerson() const { return bFirstPerson; }
 
@@ -100,9 +104,18 @@ public:
 	float GetForwardInputAxis() const { return forwardInputAxis; }
 	float GetRightInputAxis() const { return rightInputAxis; }
 
-	virtual bool CanCrouch() const override;
+	virtual void Jump() override;
+	virtual void StopJumping() override;
+
+	virtual void Crouch(bool bClientSimulation = false) override;
+	virtual void UnCrouch(bool bClientSimulation = false) override;
+
+	virtual bool CanCrouch() const override; // this function isn't being used anymore
 	virtual void OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust) override;
 	virtual void OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust) override;
+
+	virtual void RecalculateBaseEyeHeight() override;
+
 
 	void CrouchTick(float DeltaTime);
 
@@ -121,6 +134,9 @@ protected:
 		uint8 bFirstPerson : 1;
 
 	virtual bool CanJumpInternal_Implementation() const override;
+
+	UFUNCTION()
+		virtual void OnRep_IsRunning();
 
 	float crouchSpeed;
 

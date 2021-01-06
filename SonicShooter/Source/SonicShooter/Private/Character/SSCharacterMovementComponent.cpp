@@ -17,14 +17,42 @@
 
 USSCharacterMovementComponent::USSCharacterMovementComponent()
 {
+	CVarToggleCrouchChangeDelegate.BindUFunction(this, TEXT("CVarToggleCrouchChanged"));
+	UCVarChangeListenerManager::AddBoolCVarCallbackStatic(TEXT("input.ToggleCrouch"), CVarToggleCrouchChangeDelegate, true);
+	
+	CVarToggleRunChangeDelegate.BindUFunction(this, TEXT("CVarToggleRunChanged"));
+	UCVarChangeListenerManager::AddBoolCVarCallbackStatic(TEXT("input.ToggleRun"), CVarToggleRunChangeDelegate, true);
+
+	bCrouchCancelsDesireToRun = true;
+	bRunCancelsDesireToCrouch = true;
+	bJumpCancelsDesireToCrouch = true;
+	bJumpCancelsDesireToRun = false;
+
+
 	bCanCrouchJump = false;
 	bCanWalkOffLedgesWhenCrouching = true;
 }
+
+void USSCharacterMovementComponent::CVarToggleCrouchChanged(bool newToggleCrouch)
+{
+	bToggleCrouchEnabled = newToggleCrouch;
+}
+void USSCharacterMovementComponent::CVarToggleRunChanged(bool newToggleRun)
+{
+	bToggleRunEnabled = newToggleRun;
+}
+
 void USSCharacterMovementComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
 
-	OwnerAbilitySystemCharacter = Cast<AAbilitySystemCharacter>(GetPawnOwner());
+
+	// Get reference to our SSCharacter
+	OwnerSSCharacter = Cast<ASSCharacter>(PawnOwner);
+
+	// Get reference to our AbilitySystemCharacter
+	OwnerAbilitySystemCharacter = Cast<AAbilitySystemCharacter>(OwnerSSCharacter);
+
 	if (OwnerAbilitySystemCharacter)
 	{
 		OwnerAbilitySystemCharacter->PreApplyStartupEffects.AddUObject(this, &USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady);
@@ -38,8 +66,16 @@ void USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady()
 		OwnerSSASC = Cast<USSAbilitySystemComponent>(OwnerAbilitySystemCharacter->GetAbilitySystemComponent());
 		CharacterAttributeSet = OwnerAbilitySystemCharacter->GetCharacterAttributeSet();
 	}
-	
-	OwnerSSASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnRunDisabledTagChanged);
+
+	if (OwnerSSASC)
+	{
+		OwnerSSASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnRunDisabledTagChanged);
+	}
+
+	if (CharacterAttributeSet)
+	{
+		CharacterAttributeSet->OnStaminaFullyDrained.AddUObject(this, &USSCharacterMovementComponent::OnStaminaFullyDrained);
+	}
 }
 
 void USSCharacterMovementComponent::OnRunDisabledTagChanged(const FGameplayTag Tag, int32 NewCount)
@@ -58,9 +94,134 @@ void USSCharacterMovementComponent::OnRunDisabledTagChanged(const FGameplayTag T
 #pragma region Move Requests
 void USSCharacterMovementComponent::SetWantsToRun(bool newWantsToRun)
 {
-	bWantsToRun = newWantsToRun;
+	if (bWantsToRun != newWantsToRun)
+	{
+		bWantsToRun = newWantsToRun;
+
+		if (bWantsToRun == true)
+		{
+			timestampWantsToRun = GetWorld()->GetTimeSeconds();
+		}
+		else
+		{
+			timestampWantsToRun = -1 * GetWorld()->GetTimeSeconds();
+		}
+	}
 }
 #pragma endregion
+
+void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
+{
+	float currentTime = GetWorld()->GetTimeSeconds();
+
+	////////////////////////////////////////////////////////////////////////////// WantsTo Calculations //////////
+	
+	// When calculation whether we want to run or not, modify this. We will
+	// set bWantsToRun to this using SetWantsToRun() at the end of our calculations.
+	// The reason we do this is to avoid messing up timestamps or
+	// calling it multiple times for no reason.
+	bool newWantsToRun = bWantsToRun;
+
+
+	if (CharacterAttributeSet && CharacterAttributeSet->GetStamina() <= 0.f)
+	{
+		// We don't want to run if we are fully out of stamina or else when stamina starts regening we would run right away and be back at zero stamina
+		newWantsToRun = false;
+	}
+
+	bool isMovingForward = IsMovingForward();
+
+	if (!isMovingForward)
+	{
+		newWantsToRun = false; // a client-only check to ensure we are moving forward (i know this is bad, it's not server verified but it's temporary so i guess hackers can run backwards if they want)
+	}
+	if (currentTime == -timestampWantsToRun)
+	{
+		if (bToggleRunEnabled && isMovingForward && !IsMovingOnGround())
+		{
+			// If you're in the air moving forward (only if in toggle mode) you probably still want to run, whether you are
+			// trying to stop or not
+			newWantsToRun = true;
+		}
+	}
+
+	// Call SetWantsToRun() using our calculated value of newWantsToRun
+	SetWantsToRun(newWantsToRun);
+
+	////////////////////////////////////////////////////////////////////////////// Desire Cancellations (for Toggle Modes) //////////
+
+
+	if (currentTime == timestampWantsToJump)
+	{
+		if (bJumpCancelsDesireToCrouch)
+		{
+			if (bToggleCrouchEnabled && bWantsToCrouch)
+			{
+				CharacterOwner->UnCrouch();
+			}
+		}
+		if (bJumpCancelsDesireToRun)
+		{
+			if (GetToggleRunEnabled() && bWantsToRun)
+			{
+				SetWantsToRun(false);
+			}
+		}
+	}
+
+	if (currentTime == timestampWantsToCrouch)
+	{
+		if (bCrouchCancelsDesireToRun)
+		{
+			if (bToggleRunEnabled && GetWantsToRun())
+			{
+				SetWantsToRun(false);
+			}
+		}
+	}
+
+	if (currentTime == timestampWantsToRun)
+	{
+		if (bRunCancelsDesireToCrouch)
+		{
+			if (bToggleCrouchEnabled && bWantsToCrouch)
+			{
+				CharacterOwner->UnCrouch();
+			}
+		}
+	}
+
+
+	////////////////////////////////////////////////////////////////////////////// WantsTo Broadcasts //////////
+	
+
+	if (currentTime == timestampWantsToJump)
+	{
+		OnWantsToJumpChanged.Broadcast(true);
+	}
+	else if (currentTime == -1 * timestampWantsToJump)
+	{
+		OnWantsToJumpChanged.Broadcast(false);
+	}
+
+	if (currentTime == timestampWantsToCrouch)
+	{
+		OnWantsToCrouchChanged.Broadcast(true);
+	}
+	else if (currentTime == -1 * timestampWantsToCrouch)
+	{
+		OnWantsToCrouchChanged.Broadcast(false);
+	}
+
+	if (currentTime == timestampWantsToRun)
+	{
+		OnWantsToRunChanged.Broadcast(true);
+	}
+	else if (currentTime == -1 * timestampWantsToRun)
+	{
+		OnWantsToRunChanged.Broadcast(false);
+	}
+}
 
 #pragma region Saved Move
 void FSavedMove_SSCharacter::Clear()
@@ -82,7 +243,7 @@ void FSavedMove_SSCharacter::PrepMoveFor(ACharacter* Character) // Client only
 		//																							TODO: document, fix this comment \/ \/ \/
 		// WE ARE GETTING READY TO CORRECT A CLIENT PREDICTIVE ERROR
 		// Copy values out of the saved move to use for a client correction
-		CMC->bWantsToRun = bSavedWantsToRun;
+		CMC->SetWantsToRun(CMC->bWantsToRun);
 	}
 }
 
@@ -129,22 +290,66 @@ uint8 FSavedMove_SSCharacter::GetCompressedFlags() const
 
 void USSCharacterMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
 {
-	Super::UpdateFromCompressedFlags(Flags);
+	//Super::UpdateFromCompressedFlags(Flags);
+
+	if (!CharacterOwner)
+	{
+		return;
+	}
+
+	const bool bWasPressingJump = CharacterOwner->bPressedJump;
+
+	CharacterOwner->bPressedJump = ((Flags & FSavedMove_Character::FLAG_JumpPressed) != 0);
+	//if ((Flags & FSavedMove_Character::FLAG_JumpPressed) != 0)
+	//{
+	//	CharacterOwner->Jump();
+	//}
+	//else
+	//{
+	//	CharacterOwner->StopJumping();
+	//}
+	if ((Flags & FSavedMove_Character::FLAG_WantsToCrouch) != 0)
+	{
+		CharacterOwner->Crouch();
+	}
+	else
+	{
+		CharacterOwner->UnCrouch();
+	}
+
+	// Detect change in jump press on the server
+	if (CharacterOwner->GetLocalRole() == ROLE_Authority)
+	{
+		const bool bIsPressingJump = CharacterOwner->bPressedJump;
+		if (bIsPressingJump && !bWasPressingJump)
+		{
+			CharacterOwner->Jump();
+		}
+		else if (!bIsPressingJump)
+		{
+			CharacterOwner->StopJumping();
+		}
+	}
+	////////////////////////////////////    /\/\/\ Modified Super /\/\/\
+
+
+
+
 
 	// Update this CMC with the info stored in the compressed flags
-	bWantsToRun = (Flags & FLAG_WantsToRun) != 0;
+	SetWantsToRun((Flags & FLAG_WantsToRun) != 0);
 }
 #pragma endregion
 
 
 #pragma region Client Adjust
-void USSCharacterMovementComponent::ClientAdjustPosition(float TimeStamp, FVector NewLoc, FVector NewVel, UPrimitiveComponent* NewBase, FName NewBaseBoneName, bool bHasBase, bool bBaseRelativePosition, uint8 ServerMovementMode)
-{
-	Super::ClientAdjustPosition(TimeStamp, NewLoc, NewVel, NewBase, NewBaseBoneName, bHasBase, bBaseRelativePosition, ServerMovementMode);
-
-
-	//SSClientAdjustPosition();
-}
+//void USSCharacterMovementComponent::ClientAdjustPosition(float TimeStamp, FVector NewLoc, FVector NewVel, UPrimitiveComponent* NewBase, FName NewBaseBoneName, bool bHasBase, bool bBaseRelativePosition, uint8 ServerMovementMode)
+//{
+//	Super::ClientAdjustPosition(TimeStamp, NewLoc, NewVel, NewBase, NewBaseBoneName, bHasBase, bBaseRelativePosition, ServerMovementMode);
+//
+//
+//	SSClientAdjustPosition();
+//}
 
 //void USSCharacterMovementComponent::SSClientAdjustPosition_Implementation()
 //{
@@ -154,18 +359,60 @@ void USSCharacterMovementComponent::ClientAdjustPosition(float TimeStamp, FVecto
 
 void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float DeltaSeconds)
 {
-	Super::UpdateCharacterStateBeforeMovement(DeltaSeconds);
+	//Super::UpdateCharacterStateBeforeMovement(DeltaSeconds);
 
 
+	// Proxies get replicated crouch state.
 	if (CharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)
 	{
-		if (bIsRunning && (!bWantsToRun || !CanRunInCurrentState()))
+		// Check for a change in crouch state. Players toggle crouch by changing bWantsToCrouch.
+		bool willCrouch = bWantsToCrouch && CanCrouchInCurrentState();
+		if (IsCrouching() && !willCrouch)
 		{
-			bIsRunning = false;
+			UnCrouch();
 		}
-		else if (!bIsRunning && bWantsToRun && CanRunInCurrentState())
+		else if (!IsCrouching() && willCrouch)
 		{
-			bIsRunning = true;
+			if (timestampWantsToCrouch > timestampWantsToRun)
+			{
+				Crouch();
+			}
+		}
+
+
+		bool willRun = bWantsToRun && CanRunInCurrentState();
+		if (IsRunning() && !willRun)
+		{
+			UnRun();
+		}
+		else if (!IsRunning() && willRun)
+		{
+			if (timestampWantsToRun > timestampWantsToCrouch)
+			{
+				Run();
+			}
+		}
+	}
+}
+
+void USSCharacterMovementComponent::UpdateCharacterStateAfterMovement(float DeltaSeconds)
+{
+	//Super::UpdateCharacterStateAfterMovement(DeltaSeconds);
+
+
+	// Proxies get replicated crouch state.
+	if (CharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)
+	{
+		// Uncrouch if no longer allowed to be crouched
+		if (IsCrouching() && !CanCrouchInCurrentState())
+		{
+			UnCrouch();
+		}
+
+
+		if (IsRunning() && !CanRunInCurrentState())
+		{
+			UnRun();
 		}
 	}
 }
@@ -199,7 +446,7 @@ bool USSCharacterMovementComponent::CanCrouchInCurrentState() const
 
 bool USSCharacterMovementComponent::CanRunInCurrentState() const
 {
-	if (IsCrouching())
+	if (bRunDisabled)
 	{
 		return false;
 	}
@@ -207,12 +454,72 @@ bool USSCharacterMovementComponent::CanRunInCurrentState() const
 	{
 		return false;
 	}
-	if (!IsMovingForward())
+	// Actually we don't do this check (the client-only version) at all anymore because if it does pass, only the client can't run but that doesn't mean anything (and causes useless corrections)
+	//if (PawnOwner->IsLocallyControlled() && IsMovingForward() == false) // we dont perform the IsMovingForward() check on dedicated server because its messed up on there. Yes this is a vulnerability but its temporary
+	//{
+	//	return false;
+	//}
+	if (CharacterAttributeSet && CharacterAttributeSet->GetStamina() <= 0)
 	{
 		return false;
 	}
 
 	return true;
+}
+
+bool USSCharacterMovementComponent::IsRunning() const
+{
+	return OwnerSSCharacter->bIsRunning;
+}
+
+
+bool USSCharacterMovementComponent::DoJump(bool bReplayingMoves)
+{
+	UnCrouch();
+
+	return Super::DoJump(bReplayingMoves);
+}
+
+void USSCharacterMovementComponent::Crouch(bool bClientSimulation)
+{
+	UnRun();
+
+	Super::Crouch(bClientSimulation);
+
+
+
+}
+
+void USSCharacterMovementComponent::UnCrouch(bool bClientSimulation)
+{
+	Super::UnCrouch(bClientSimulation);
+
+
+
+}
+
+void USSCharacterMovementComponent::Run()
+{
+	UnCrouch();
+
+	OwnerSSCharacter->bIsRunning = true;
+	if (CharacterAttributeSet)
+	{
+		CharacterAttributeSet->SetStaminaDraining(true);
+	}
+}
+void USSCharacterMovementComponent::UnRun()
+{
+	OwnerSSCharacter->bIsRunning = false;
+	if (CharacterAttributeSet)
+	{
+		CharacterAttributeSet->SetStaminaDraining(false);
+	}
+}
+
+void USSCharacterMovementComponent::OnStaminaFullyDrained()
+{
+	SetWantsToRun(false);
 }
 
 
@@ -247,7 +554,7 @@ float USSCharacterMovementComponent::GetMaxSpeed() const
 				return 0;
 			}
 
-			if (bIsRunning && bRunDisabled == false)
+			if (IsRunning())
 			{
 				return CharacterAttributeSet->GetRunSpeed();
 			}
@@ -296,7 +603,7 @@ float USSCharacterMovementComponent::GetMaxAcceleration() const
 			return 0;
 		}
 
-		if (bIsRunning && bRunDisabled == false)
+		if (IsRunning())
 		{
 			return CharacterAttributeSet->GetRunAccelaration();
 		}
@@ -418,37 +725,15 @@ void USSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 {
 	// DO NOT UTILIZE THIS EVENT FOR MOVEMENT
 
+	CurrentRotationRate = (PawnOwner->GetActorRotation() - PreviousRotation) * (DeltaTime * 1000);
 
 
-
-	FRotator CurrentRotation = PawnOwner->GetActorRotation();
-
-	// Update rotation rate only if there has been a change in rotation
-	if (CurrentRotation != PreviousRotation)
+	if (PawnOwner->IsLocallyControlled()) // only tweak compressed flags on client/controlled
 	{
-		CurrentRotationRate = CurrentRotation - PreviousRotation;
-		
-		if (timeSinceLastRot > 0)
-		{
-			// Apply the delta in time since we last rotated to this value
-			CurrentRotationRate *= 1000 / timeSinceLastRot;
-		}
-
-		// Reset our time since
-		timeSinceLastRot = 0;
+		TweakCompressedFlagsBeforeTick();
 	}
-	else
-	{
-		timeSinceLastRot += DeltaTime;
-	}
-
-
-
-
-
 
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 
 
 
@@ -458,9 +743,9 @@ void USSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 }
 
 #pragma region MovementHelpers
-bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/) const
+bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/) const // THIS CHECK DOES NOT WORK ON DEDICATED SERVER
 {
-	/**
+	/*
 	 * At dot product 0.7 you are looking at a 45 degrees angle
 	 * For 25 degrees tolerance use > 0.9
 	 * 0.99 gives you 8 degrees of tolerance
@@ -468,28 +753,18 @@ bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/) c
 	 * ACOS(dot product) is the formula. Incidentally, it's the formula to find the angle between two vectors
 	 */
 
-	bool auth = PawnOwner->GetLocalRole() == ROLE_Authority; // for debugging
-
-
 	const FVector ForwardDir = PawnOwner->GetActorForwardVector();
 	const FVector DesiredDir = Acceleration.GetSafeNormal();
 
 	const float forwardDifference = FVector::DotProduct(DesiredDir, ForwardDir);
 
+
 	const float degsDiff = UKismetMathLibrary::DegAcos(forwardDifference);
-
 	const float graceDegs = 1 + FMath::Abs(CurrentRotationRate.Yaw) + FMath::Abs(CurrentRotationRate.Pitch) + FMath::Abs(CurrentRotationRate.Roll); // how much extra degrees of grace should be given based on how fast we are rotating. We need this because the dot product isnt perfect for some reason and gets more inaccurate the faster you rotate
-
-	//UKismetSystemLibrary::PrintString(PawnOwner, FString::SanitizeFloat(graceDegs), true, false);
 
 	if (degsDiff > 45.f + graceDegs) // if we are moving 45 degs or more away from our forward vector (plus some grace based on how fast we are rotating)
 	{
 		return false;
-	}
-
-	if (degsDiff > 160)
-	{
-		int hey = 1;
 	}
 
 	return true;

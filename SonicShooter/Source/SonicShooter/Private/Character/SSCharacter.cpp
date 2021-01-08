@@ -547,11 +547,28 @@ void ASSCharacter::OnReloadReleased()
 
 void ASSCharacter::OnCrouchPressed()
 {
-	Crouch();
+	if (SSCharacterMovementComponent->GetToggleCrouchEnabled())
+	{
+		if (SSCharacterMovementComponent->bWantsToCrouch == true)
+		{
+			UnCrouch();
+		}
+		else
+		{
+			Crouch();
+		}
+	}
+	else
+	{
+		Crouch();
+	}
 }
 void ASSCharacter::OnCrouchReleased()
 {
-	UnCrouch();
+	if (SSCharacterMovementComponent->GetToggleCrouchEnabled() == false)
+	{
+		UnCrouch();
+	}
 }
 
 void ASSCharacter::OnSwitchWeaponPressed()
@@ -565,11 +582,28 @@ void ASSCharacter::OnSwitchWeaponReleased()
 
 void ASSCharacter::OnRunPressed()
 {
-	SSCharacterMovementComponent->SetWantsToRun(true);
+	if (SSCharacterMovementComponent->GetToggleRunEnabled())
+	{
+		if (SSCharacterMovementComponent->GetWantsToRun() == true)
+		{
+			SSCharacterMovementComponent->SetWantsToRun(false);
+		}
+		else
+		{
+			SSCharacterMovementComponent->SetWantsToRun(true);
+		}
+	}
+	else
+	{
+		SSCharacterMovementComponent->SetWantsToRun(true);
+	}
 }
 void ASSCharacter::OnRunReleased()
 {
-	SSCharacterMovementComponent->SetWantsToRun(false);
+	if (SSCharacterMovementComponent->GetToggleRunEnabled() == false)
+	{
+		SSCharacterMovementComponent->SetWantsToRun(false);
+	}
 }
 
 

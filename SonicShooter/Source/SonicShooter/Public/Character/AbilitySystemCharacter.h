@@ -198,15 +198,6 @@ protected:
 	virtual void OnInteractPressed() override;
 	virtual void OnInteractReleased() override;
 
-	virtual void OnJumpPressed() override;
-	virtual void OnJumpReleased() override;
-
-	virtual void OnCrouchPressed() override;
-	virtual void OnCrouchReleased() override;
-
-	virtual void OnRunPressed() override;
-	virtual void OnRunReleased() override;
-
 	virtual void OnPrimaryFirePressed() override;
 	virtual void OnPrimaryFireReleased() override;
 

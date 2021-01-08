@@ -502,33 +502,6 @@ void AAbilitySystemCharacter::OnInteractReleased()
 
 }
 
-void AAbilitySystemCharacter::OnJumpPressed()
-{
-	Jump();
-}
-void AAbilitySystemCharacter::OnJumpReleased()
-{
-	StopJumping();
-}
-
-void AAbilitySystemCharacter::OnCrouchPressed()
-{
-	Crouch();
-}
-void AAbilitySystemCharacter::OnCrouchReleased()
-{
-	UnCrouch();
-}
-
-void AAbilitySystemCharacter::OnRunPressed()
-{
-	SSCharacterMovementComponent->SetWantsToRun(true);
-}
-void AAbilitySystemCharacter::OnRunReleased()
-{
-	SSCharacterMovementComponent->SetWantsToRun(false);
-}
-
 void AAbilitySystemCharacter::OnPrimaryFirePressed()
 {
 	

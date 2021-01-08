@@ -568,11 +568,6 @@ bool USSCharacterMovementComponent::CanCrouchInCurrentState() const
 		}
 	}
 
-	if (IsRunning())
-	{
-		return false;
-	}
-
 
 	return Super::CanCrouchInCurrentState();
 }
@@ -597,7 +592,7 @@ bool USSCharacterMovementComponent::CanRunInCurrentState() const
 		return false;
 	}
 
-	if (IsCrouching())
+	if (IsCrouching() && bWantsToCrouch == false)
 	{
 		return false;
 	}

@@ -225,8 +225,13 @@ public:
 	/** Actually makes the character stop running, should not be called directly */
 	virtual void UnRun();
 
+
 	virtual bool DoJump(bool bReplayingMoves) override;
 	virtual void UnJump();
+
+	/** If true, we are in the air because of a jump */
+	uint8 bJumpedInAir : 1;
+
 
 	virtual void Crouch(bool bClientSimulation = false) override;
 	virtual void UnCrouch(bool bClientSimulation = false) override;

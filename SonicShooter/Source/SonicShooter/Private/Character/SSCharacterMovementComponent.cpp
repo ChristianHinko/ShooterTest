@@ -23,6 +23,8 @@ USSCharacterMovementComponent::USSCharacterMovementComponent()
 	CVarToggleRunChangeDelegate.BindUFunction(this, TEXT("CVarToggleRunChanged"));
 	UCVarChangeListenerManager::AddBoolCVarCallbackStatic(TEXT("input.ToggleRun"), CVarToggleRunChangeDelegate, true);
 
+
+
 	bCrouchCancelsDesireToRun = true;
 	bRunCancelsDesireToCrouch = true;
 	bJumpCancelsDesireToCrouch = true;
@@ -560,7 +562,10 @@ bool USSCharacterMovementComponent::CanCrouchInCurrentState() const
 {
 	if (!bCanCrouchJump && !IsMovingOnGround())
 	{
-		return false;
+		if (bJumpedInAir) // only false if jumped
+		{
+			return false;
+		}
 	}
 
 	if (IsRunning())
@@ -615,6 +620,9 @@ bool USSCharacterMovementComponent::DoJump(bool bReplayingMoves)
 
 	Velocity.Z = FMath::Max(Velocity.Z, JumpZVelocity);
 	SetMovementMode(MOVE_Falling);
+
+	bJumpedInAir = true;
+
 	return true;
 }
 
@@ -806,6 +814,11 @@ void USSCharacterMovementComponent::SetMovementMode(EMovementMode NewMovementMod
 void USSCharacterMovementComponent::OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode)
 {
 	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);
+
+	if (MovementMode == MOVE_Walking)
+	{
+		bJumpedInAir = false;
+	}
 }
 
 void USSCharacterMovementComponent::PhysCustom(float deltaTime, int32 Iterations)

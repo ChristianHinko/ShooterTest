@@ -563,6 +563,12 @@ bool USSCharacterMovementComponent::CanCrouchInCurrentState() const
 		return false;
 	}
 
+	if (IsRunning())
+	{
+		return false;
+	}
+
+
 	return Super::CanCrouchInCurrentState();
 }
 

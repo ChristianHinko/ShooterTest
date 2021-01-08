@@ -240,7 +240,7 @@ void AAbilitySystemPawn::CreateAttributeSets()
 void AAbilitySystemPawn::RegisterAttributeSets()
 {
 	// give the ASC the default Pawn attribute set
-	if (PawnAttributeSet && !GetAbilitySystemComponent()->SpawnedAttributes.Contains(PawnAttributeSet))	// If PawnAttributeSet is valid and it's not yet registered with the Pawn's ASC
+	if (PawnAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(PawnAttributeSet))	// If PawnAttributeSet is valid and it's not yet registered with the Pawn's ASC
 	{
 		GetAbilitySystemComponent()->AddAttributeSetSubobject(PawnAttributeSet);
 	}
@@ -256,7 +256,7 @@ void AAbilitySystemPawn::RegisterAttributeSets()
 	// \/\/\/\/ This is how you should register each of your attribute sets after calling the Super \/\/\/\/
 	// -------------------------------------------------------------------------------------------------- //
 	/*
-				if (MyAttributeSet && !GetAbilitySystemComponent()->SpawnedAttributes.Contains(MyAttributeSet))
+				if (MyAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(MyAttributeSet))
 				{
 					GetAbilitySystemComponent()->AddAttributeSetSubobject(MyAttributeSet);
 				}
@@ -439,13 +439,13 @@ int32 AAbilitySystemPawn::UnregisterPawnOwnedAttributeSets()
 	}
 
 	int32 retVal = 0;
-	for (int32 i = GetAbilitySystemComponent()->SpawnedAttributes.Num() - 1; i >= 0; i--)
+	for (int32 i = GetAbilitySystemComponent()->GetSpawnedAttributes().Num() - 1; i >= 0; i--)
 	{
-		if (UAttributeSet* AS = GetAbilitySystemComponent()->SpawnedAttributes[i])
+		if (UAttributeSet* AS = GetAbilitySystemComponent()->GetSpawnedAttributes()[i])
 		{
 			if (AS->GetOwningActor() == this)	// for attribute sets we check the OwningActor since thats what they use. It's also automatically set by the engine so were good
 			{
-				GetAbilitySystemComponent()->SpawnedAttributes.RemoveAt(i);
+				GetAbilitySystemComponent()->GetSpawnedAttributes_Mutable().RemoveAt(i);
 				retVal++;
 			}
 		}

@@ -124,7 +124,7 @@ void AAbilitySystemActor::CreateAttributeSets()
 void AAbilitySystemActor::RegisterAttributeSets()
 {
 	// give the ASC the default Actor attribute set
-	if (ActorAttributeSet && !GetAbilitySystemComponent()->SpawnedAttributes.Contains(ActorAttributeSet))	// If ActorAttributeSet is valid and it's not yet registered with the Actor's ASC
+	if (ActorAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(ActorAttributeSet))	// If ActorAttributeSet is valid and it's not yet registered with the Actor's ASC
 	{
 		GetAbilitySystemComponent()->AddAttributeSetSubobject(ActorAttributeSet);
 	}
@@ -140,7 +140,7 @@ void AAbilitySystemActor::RegisterAttributeSets()
 	// \/\/\/\/ This is how you should register each of your attribute sets after calling the Super \/\/\/\/
 	// -------------------------------------------------------------------------------------------------- //
 	/*
-				if (MyAttributeSet && !GetAbilitySystemComponent()->SpawnedAttributes.Contains(MyAttributeSet))
+				if (MyAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(MyAttributeSet))
 				{
 					GetAbilitySystemComponent()->AddAttributeSetSubobject(MyAttributeSet);
 				}

@@ -586,6 +586,12 @@ bool USSCharacterMovementComponent::CanRunInCurrentState() const
 		return false;
 	}
 
+	if (IsCrouching())
+	{
+		return false;
+	}
+
+
 	return true;
 }
 

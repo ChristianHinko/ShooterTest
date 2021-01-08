@@ -27,6 +27,11 @@
 			"Name": "PowerIK",
 			"Enabled": true,
 			"MarketplaceURL": "https://www.unrealengine.com/marketplace/en-US/product/power-ik"
+		},
+		{
+			"Name": "ArcInventory",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/b2e658f9efc140d98cc30613626abae3"
 		}
 	]
 }

@@ -51,7 +51,7 @@ void AWeapon::RegisterAttributeSets()
 	Super::RegisterAttributeSets();
 
 
-	if (WeaponAttributeSet && !GetAbilitySystemComponent()->SpawnedAttributes.Contains(WeaponAttributeSet))
+	if (WeaponAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(WeaponAttributeSet))
 	{
 		GetAbilitySystemComponent()->AddAttributeSetSubobject(WeaponAttributeSet);
 	}

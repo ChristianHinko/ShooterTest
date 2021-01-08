@@ -36,11 +36,6 @@ public:
 		TSubclassOf<USSGameplayAbility> InteractDurationAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle InteractDurationAbilitySpecHandle;
-
-	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities")
-		TSubclassOf<USSGameplayAbility> CharacterCrouchAbilityTSub;
-	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle CharacterCrouchAbilitySpecHandle;
 #pragma endregion
 
 protected:
@@ -58,9 +53,6 @@ protected:
 
 #pragma region Input Events
 	virtual void OnInteractPressed() override;
-
-	virtual void OnCrouchPressed() override;
-	virtual void OnCrouchReleased() override;
 
 	virtual void OnPrimaryFirePressed() override;
 #pragma endregion

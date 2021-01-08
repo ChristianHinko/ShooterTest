@@ -9,10 +9,6 @@
 
 class AAbilitySystemCharacter;
 class USSCharacterMovementComponent;
-class UAS_Character;
-class UAT_WaitInputPressCust;
-class UAT_WaitInputReleaseCust;
-class UAT_Ticker;
 
 /**
  * 
@@ -36,8 +32,6 @@ protected:
 		AAbilitySystemCharacter* GASCharacter;
 	UPROPERTY()
 		USSCharacterMovementComponent* CMC;
-	UPROPERTY()
-		UAS_Character* CharacterAttributeSet;
 
 
 
@@ -47,22 +41,4 @@ protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	//END UGameplayAbility Interface
-
-
-	void OnStaminaFullyDrained();
-	FDelegateHandle OnStaminaFullyDrainedDelegateHandle;
-
-	void OnWantsToRunChanged(bool newWantsToRun);
-	FDelegateHandle OnWantsToRunChangedDelegateHandle;
-
-
-	UAT_WaitInputReleaseCust* InputReleasedTask;
-	UAT_Ticker* TickerTask;
-	UAT_WaitInputPressCust* InputPressTask;
-	// We want to give the player option to togle or hold so we will need to do some small rework in future
-	UFUNCTION()
-		virtual void OnRelease(float TimeHeld);		
-	UFUNCTION()
-		virtual void OnPress(float TimeElapsed);
-
 };

@@ -112,8 +112,6 @@ void USSCharacterMovementComponent::SetWantsToRun(bool newWantsToRun)
 
 void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 {
-	float currentTime = GetWorld()->GetTimeSeconds();
-
 	////////////////////////////////////////////////////////////////////////////// WantsTo Calculations //////////
 	
 	// When calculation whether we want to run or not, modify this. We will
@@ -135,7 +133,7 @@ void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 	{
 		newWantsToRun = false; // a client-only check to ensure we are moving forward (i know this is bad, it's not server verified but it's temporary so i guess hackers can run backwards if they want)
 	}
-	if (currentTime == -timestampWantsToRun)
+	if (currentTimeSeconds == -timestampWantsToRun)
 	{
 		if (bToggleRunEnabled && isMovingForward && !IsMovingOnGround())
 		{
@@ -148,10 +146,13 @@ void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 	// Call SetWantsToRun() using our calculated value of newWantsToRun
 	SetWantsToRun(newWantsToRun);
 
+
+
+
 	////////////////////////////////////////////////////////////////////////////// Desire Cancellations (for Toggle Modes) //////////
 
 
-	if (currentTime == timestampWantsToJump)
+	if (currentTimeSeconds == timestampWantsToJump)
 	{
 		if (bJumpCancelsDesireToCrouch)
 		{
@@ -169,7 +170,7 @@ void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 		}
 	}
 
-	if (currentTime == timestampWantsToCrouch)
+	if (currentTimeSeconds == timestampWantsToCrouch)
 	{
 		if (bCrouchCancelsDesireToRun)
 		{
@@ -180,7 +181,7 @@ void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 		}
 	}
 
-	if (currentTime == timestampWantsToRun)
+	if (currentTimeSeconds == timestampWantsToRun)
 	{
 		if (bRunCancelsDesireToCrouch)
 		{
@@ -190,34 +191,33 @@ void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 			}
 		}
 	}
+}
 
-
-	////////////////////////////////////////////////////////////////////////////// WantsTo Broadcasts //////////
-	
-
-	if (currentTime == timestampWantsToJump)
+void USSCharacterMovementComponent::BroadcastMovementDelegates()
+{
+	if (currentTimeSeconds == timestampWantsToJump)
 	{
 		OnWantsToJumpChanged.Broadcast(true);
 	}
-	else if (currentTime == -1 * timestampWantsToJump)
+	else if (currentTimeSeconds == -1 * timestampWantsToJump)
 	{
 		OnWantsToJumpChanged.Broadcast(false);
 	}
 
-	if (currentTime == timestampWantsToCrouch)
+	if (currentTimeSeconds == timestampWantsToCrouch)
 	{
 		OnWantsToCrouchChanged.Broadcast(true);
 	}
-	else if (currentTime == -1 * timestampWantsToCrouch)
+	else if (currentTimeSeconds == -1 * timestampWantsToCrouch)
 	{
 		OnWantsToCrouchChanged.Broadcast(false);
 	}
 
-	if (currentTime == timestampWantsToRun)
+	if (currentTimeSeconds == timestampWantsToRun)
 	{
 		OnWantsToRunChanged.Broadcast(true);
 	}
-	else if (currentTime == -1 * timestampWantsToRun)
+	else if (currentTimeSeconds == -1 * timestampWantsToRun)
 	{
 		OnWantsToRunChanged.Broadcast(false);
 	}
@@ -244,6 +244,12 @@ void FSavedMove_SSCharacter::PrepMoveFor(ACharacter* Character) // Client only
 		// WE ARE GETTING READY TO CORRECT A CLIENT PREDICTIVE ERROR
 		// Copy values out of the saved move to use for a client correction
 		CMC->SetWantsToRun(CMC->bWantsToRun);
+
+		if (CMC->IsMovingOnGround())
+		{
+			// Kind of a hack. Sometimes on jump corrections, bIsJumping is incorrect
+			CMC->OwnerSSCharacter->bIsJumping = false;
+		}
 	}
 }
 
@@ -297,17 +303,18 @@ void USSCharacterMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
 		return;
 	}
 
-	const bool bWasPressingJump = CharacterOwner->bPressedJump;
+	//const bool bWasPressingJump = CharacterOwner->bPressedJump;
 
-	CharacterOwner->bPressedJump = ((Flags & FSavedMove_Character::FLAG_JumpPressed) != 0);
-	//if ((Flags & FSavedMove_Character::FLAG_JumpPressed) != 0)
-	//{
-	//	CharacterOwner->Jump();
-	//}
-	//else
-	//{
-	//	CharacterOwner->StopJumping();
-	//}
+	//CharacterOwner->bPressedJump = ((Flags & FSavedMove_Character::FLAG_JumpPressed) != 0);
+	//const bool bIsPressingJump = ((Flags & FSavedMove_Character::FLAG_JumpPressed) != 0);
+	if ((Flags & FSavedMove_Character::FLAG_JumpPressed) != 0)
+	{
+		CharacterOwner->Jump();
+	}
+	else
+	{
+		CharacterOwner->StopJumping();
+	}
 	if ((Flags & FSavedMove_Character::FLAG_WantsToCrouch) != 0)
 	{
 		CharacterOwner->Crouch();
@@ -318,18 +325,17 @@ void USSCharacterMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
 	}
 
 	// Detect change in jump press on the server
-	if (CharacterOwner->GetLocalRole() == ROLE_Authority)
-	{
-		const bool bIsPressingJump = CharacterOwner->bPressedJump;
-		if (bIsPressingJump && !bWasPressingJump)
-		{
-			CharacterOwner->Jump();
-		}
-		else if (!bIsPressingJump)
-		{
-			CharacterOwner->StopJumping();
-		}
-	}
+	//if (CharacterOwner->GetLocalRole() == ROLE_Authority)
+	//{
+	//	if (bIsPressingJump && !bWasPressingJump)
+	//	{
+	//		CharacterOwner->Jump();
+	//	}
+	//	else if (!bIsPressingJump)
+	//	{
+	//		CharacterOwner->StopJumping();
+	//	}
+	//}
 	////////////////////////////////////    /\/\/\ Modified Super /\/\/\
 
 
@@ -338,6 +344,14 @@ void USSCharacterMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
 
 	// Update this CMC with the info stored in the compressed flags
 	SetWantsToRun((Flags & FLAG_WantsToRun) != 0);
+
+
+
+
+	if (PawnOwner->IsLocallyControlled() == false)
+	{
+		BroadcastMovementDelegates();
+	}
 }
 #pragma endregion
 
@@ -357,6 +371,89 @@ void USSCharacterMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
 //}
 #pragma endregion
 
+void USSCharacterMovementComponent::CheckJumpInput(float DeltaTime) // basically a UpdateCharacterStateBeforeMovement() for the jump
+{
+	CharacterOwner->JumpCurrentCountPreJump = CharacterOwner->JumpCurrentCount;
+
+	if (CharacterOwner->bPressedJump)
+	{
+		// If this is the first jump and we're already falling,
+		// then increment the JumpCount to compensate.
+		const bool bFirstJump = CharacterOwner->JumpCurrentCount == 0;
+		if (bFirstJump && IsFalling())
+		{
+			CharacterOwner->JumpCurrentCount++;
+		}
+
+		//const bool bDidJump = CanJump() && GetCharacterMovement()->DoJump(bClientUpdating);
+		bool bDidJump = false;
+		if (CharacterOwner->CanJump())
+		{
+			if (!OwnerSSCharacter->bIsJumping)
+			{
+				if (CharacterOwner->bClientUpdating == false)
+				{
+					if (PawnOwner->IsLocallyControlled())
+					{
+						if (GetOwnerAbilitySystemCharacter() && GetOwnerAbilitySystemCharacter()->GetAbilitySystemComponent())
+						{
+							bDidJump = GetOwnerAbilitySystemCharacter()->GetAbilitySystemComponent()->TryActivateAbility(GetOwnerAbilitySystemCharacter()->CharacterJumpAbilitySpecHandle);
+						}
+					}
+					else
+					{
+						bDidJump = DoJump(CharacterOwner->bClientUpdating);
+					}
+				}
+				else
+				{
+					bDidJump = DoJump(CharacterOwner->bClientUpdating);
+				}
+			}
+		}
+
+		if (bDidJump)
+		{
+			// Transition from not (actively) jumping to jumping.
+			if (!CharacterOwner->bWasJumping)
+			{
+				CharacterOwner->JumpCurrentCount++;
+				CharacterOwner->JumpForceTimeRemaining = CharacterOwner->GetJumpMaxHoldTime();
+				CharacterOwner->OnJumped();
+			}
+		}
+
+		CharacterOwner->bWasJumping = bDidJump;
+	}
+}
+
+void USSCharacterMovementComponent::ClearJumpInput(float DeltaTime)
+{
+	if (CharacterOwner->bPressedJump)
+	{
+		CharacterOwner->JumpKeyHoldTime += DeltaTime;
+
+		// Don't disable bPressedJump right away if it's still held.
+		// Don't modify JumpForceTimeRemaining because a frame of update may be remaining.
+		if (CharacterOwner->JumpKeyHoldTime >= CharacterOwner->GetJumpMaxHoldTime())
+		{
+			if (OwnerSSCharacter->bIsJumping)
+			{
+				OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->CancelAbilityHandle(OwnerAbilitySystemCharacter->CharacterJumpAbilitySpecHandle);
+			}
+		}
+	}
+	else
+	{
+		CharacterOwner->JumpForceTimeRemaining = 0.0f;
+		CharacterOwner->bWasJumping = false;
+		if (OwnerSSCharacter->bIsJumping)
+		{
+			OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->CancelAbilityHandle(OwnerAbilitySystemCharacter->CharacterJumpAbilitySpecHandle);
+		}
+	}
+}
+
 void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float DeltaSeconds)
 {
 	//Super::UpdateCharacterStateBeforeMovement(DeltaSeconds);
@@ -366,30 +463,44 @@ void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 	if (CharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)
 	{
 		// Check for a change in crouch state. Players toggle crouch by changing bWantsToCrouch.
-		bool willCrouch = bWantsToCrouch && CanCrouchInCurrentState();
+		const bool willCrouch = bWantsToCrouch && CanCrouchInCurrentState();
 		if (IsCrouching() && !willCrouch)
 		{
-			UnCrouch();
+			OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->CancelAbilityHandle(OwnerAbilitySystemCharacter->CharacterCrouchAbilitySpecHandle);
 		}
 		else if (!IsCrouching() && willCrouch)
 		{
 			if (timestampWantsToCrouch > timestampWantsToRun)
 			{
-				Crouch();
+				if (CharacterOwner->IsLocallyControlled())
+				{
+					OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->TryActivateAbility(OwnerAbilitySystemCharacter->CharacterCrouchAbilitySpecHandle);
+				}
+				else
+				{
+					Crouch();
+				}
 			}
 		}
 
 
-		bool willRun = bWantsToRun && CanRunInCurrentState();
+		const bool willRun = bWantsToRun && CanRunInCurrentState();
 		if (IsRunning() && !willRun)
 		{
-			UnRun();
+			OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->CancelAbilityHandle(OwnerAbilitySystemCharacter->CharacterRunAbilitySpecHandle);
 		}
 		else if (!IsRunning() && willRun)
 		{
 			if (timestampWantsToRun > timestampWantsToCrouch)
 			{
-				Run();
+				if (CharacterOwner->IsLocallyControlled())
+				{
+					OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->TryActivateAbility(OwnerAbilitySystemCharacter->CharacterRunAbilitySpecHandle);
+				}
+				else
+				{
+					Run();
+				}
 			}
 		}
 	}
@@ -406,13 +517,15 @@ void USSCharacterMovementComponent::UpdateCharacterStateAfterMovement(float Delt
 		// Uncrouch if no longer allowed to be crouched
 		if (IsCrouching() && !CanCrouchInCurrentState())
 		{
-			UnCrouch();
+			//UnCrouch();
+			OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->CancelAbilityHandle(OwnerAbilitySystemCharacter->CharacterCrouchAbilitySpecHandle);
 		}
 
 
 		if (IsRunning() && !CanRunInCurrentState())
 		{
-			UnRun();
+			//UnRun();
+			OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->CancelAbilityHandle(OwnerAbilitySystemCharacter->CharacterRunAbilitySpecHandle);
 		}
 	}
 }
@@ -427,6 +540,12 @@ bool USSCharacterMovementComponent::CanAttemptJump() const
 	}
 
 	if ((IsMovingOnGround() || IsFalling()) == false) // falling included for double-jump and non-zero jump hold time, but validated by character.
+	{
+		return false;
+	}
+
+	// Don't jump if we can't move up/down.
+	if (bConstrainToPlane && FMath::Abs(PlaneConstraintNormal.Z) == 1.f)
 	{
 		return false;
 	}
@@ -475,15 +594,22 @@ bool USSCharacterMovementComponent::IsRunning() const
 
 bool USSCharacterMovementComponent::DoJump(bool bReplayingMoves)
 {
-	UnCrouch();
+	//return Super::DoJump(bReplayingMoves); // super does CanJump checks we don't want checks, checks are done elsewhere
 
-	return Super::DoJump(bReplayingMoves);
+	OwnerSSCharacter->bIsJumping = true;
+
+	Velocity.Z = FMath::Max(Velocity.Z, JumpZVelocity);
+	SetMovementMode(MOVE_Falling);
+	return true;
+}
+
+void USSCharacterMovementComponent::UnJump()
+{
+	OwnerSSCharacter->bIsJumping = false;
 }
 
 void USSCharacterMovementComponent::Crouch(bool bClientSimulation)
 {
-	UnRun();
-
 	Super::Crouch(bClientSimulation);
 
 
@@ -500,8 +626,6 @@ void USSCharacterMovementComponent::UnCrouch(bool bClientSimulation)
 
 void USSCharacterMovementComponent::Run()
 {
-	UnCrouch();
-
 	OwnerSSCharacter->bIsRunning = true;
 	if (CharacterAttributeSet)
 	{
@@ -725,17 +849,20 @@ void USSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 {
 	// DO NOT UTILIZE THIS EVENT FOR MOVEMENT
 
+	currentTimeSeconds = GetWorld()->GetTimeSeconds();
+
 	CurrentRotationRate = (PawnOwner->GetActorRotation() - PreviousRotation) * (DeltaTime * 1000);
 
 
 	if (PawnOwner->IsLocallyControlled()) // only tweak compressed flags on client/controlled
 	{
 		TweakCompressedFlagsBeforeTick();
+		BroadcastMovementDelegates();
 	}
 
+	
+
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-
 
 
 

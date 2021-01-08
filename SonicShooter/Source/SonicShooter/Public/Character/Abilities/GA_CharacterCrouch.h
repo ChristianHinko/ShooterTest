@@ -8,10 +8,8 @@
 #include "GA_CharacterCrouch.generated.h"
 
 class AAbilitySystemCharacter;
-class UAS_Character;
-class UAT_WaitInputPressCust;
-class UAT_WaitInputReleaseCust;
 class USSCharacterMovementComponent;
+
 /**
  * 
  */
@@ -42,17 +40,4 @@ protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	//END UGameplayAbility Interface
-
-
-	void OnWantsToCrouchChanged(bool newWantsToCrouch);
-	FDelegateHandle OnWantsToCrouchChangedDelegateHandle;
-
-
-	UAT_WaitInputPressCust* InputPressTask;
-	UAT_WaitInputReleaseCust* InputReleasedTask;
-
-	UFUNCTION()
-		void OnPress(float TimeElapsed);
-	UFUNCTION()
-		void OnRelease(float TimeHeld);
 };

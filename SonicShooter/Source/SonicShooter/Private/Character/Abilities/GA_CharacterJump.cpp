@@ -4,8 +4,10 @@
 #include "Character/Abilities/GA_CharacterJump.h"
 
 #include "Character/AbilitySystemCharacter.h"
-#include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Character/SSCharacterMovementComponent.h"
+
+#include "Kismet/KismetSystemLibrary.h"
 
 
 
@@ -19,6 +21,34 @@ UGA_CharacterJump::UGA_CharacterJump()
 }
 
 
+void UGA_CharacterJump::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+{
+	Super::OnAvatarSet(ActorInfo, Spec);
+
+	// Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times
+	if (!ActorInfo)
+	{
+		return;
+	}
+	if (!ActorInfo->AvatarActor.Get())
+	{
+		return;
+	}
+
+
+	GASCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
+	if (!GASCharacter)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL"), *FString(__FUNCTION__));
+	}
+
+	CMC = GASCharacter->GetSSCharacterMovementComponent();
+	if (!CMC)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetSSCharacterMovementComponent was NULL"), *FString(__FUNCTION__));
+	}
+}
+
 bool UGA_CharacterJump::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
 	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
@@ -26,10 +56,14 @@ bool UGA_CharacterJump::CanActivateAbility(const FGameplayAbilitySpecHandle Hand
 		return false;
 	}
 
-	const AAbilitySystemCharacter* Character = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
-	if (!Character)
+	if (!GASCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL. Returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+	if (!CMC)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
 
@@ -40,51 +74,33 @@ void UGA_CharacterJump::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	ENetRole mode = GetAvatarActorFromActorInfo()->GetLocalRole();
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
-	if (!JumpEffectTSub)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("Effect TSubclassOf empty in %s so this ability was ended - please fill out Character Jump ability blueprint"), *FString(__FUNCTION__));
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
-	}
-	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
-	if (!Character)
-	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Character was NULL when trying to activate jump ability. Called EndAbility()"), *FString(__FUNCTION__));
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
-	}
-	UAbilityTask_WaitInputRelease* InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
-	if (!InputReleasedTask)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate jump ability. Called EndAbility()"), *FString(__FUNCTION__));
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
-	}
+	///////////////////////// we've passed the checks ///////////
+
 
 	//	Make sure we apply effect in valid prediction key window so we make sure the tag also gets applied on the client too
-	JumpEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, JumpEffectTSub.GetDefaultObject(), GetAbilityLevel());
-	Character->Jump();
+	if (JumpEffectTSub)
+	{
+		JumpEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, JumpEffectTSub.GetDefaultObject(), GetAbilityLevel());
+	}
+	else
+	{
+		UE_LOG(LogGameplayAbility, Warning, TEXT("JumpEffectTSub empty in %s - please fill out Character Jump ability blueprint"), *FString(__FUNCTION__));
+	}
 
-	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterJump::OnRelease);
-	InputReleasedTask->ReadyForActivation();
+	CMC->DoJump(false);
 }
 
-void UGA_CharacterJump::OnRelease(float TimeHeld)
-{
-	ENetRole mode = GetAvatarActorFromActorInfo()->GetLocalRole();
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);	// no need to replicate, server runs this too
-}
+
 
 void UGA_CharacterJump::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	if (!IsEndAbilityValid(Handle, ActorInfo))
+  	if (!IsEndAbilityValid(Handle, ActorInfo))
 	{
 		return;
 	}
@@ -94,23 +110,9 @@ void UGA_CharacterJump::EndAbility(const FGameplayAbilitySpecHandle Handle, cons
 		return;
 	}
 
-	if (ActorInfo)
-	{
-		ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get());
-		if (Character && ActorInfo->AbilitySystemComponent.Get())
-		{
-			Character->StopJumping();
-			ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(JumpEffectActiveHandle);
-		}
-		else
-		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() Couldn't call Character->StopJumping() because Character* was NULL"), *FString(__FUNCTION__));
-		}
-	}
-	else
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo was NULL when trying to remove JumpEffectActiveHande and when trying to call StopJumping on the character"), *FString(__FUNCTION__));
-	}
+	CMC->UnJump();
+
+	ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(JumpEffectActiveHandle);
 
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);

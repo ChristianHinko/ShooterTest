@@ -92,6 +92,9 @@ public:
 	UPROPERTY(ReplicatedUsing=OnRep_IsRunning)
 		uint8 bIsRunning : 1;
 
+	/**  */
+	uint8 bIsJumping : 1;
+
 
 	bool GetFirstPerson() const { return bFirstPerson; }
 
@@ -134,6 +137,8 @@ protected:
 		uint8 bFirstPerson : 1;
 
 	virtual bool CanJumpInternal_Implementation() const override;
+	virtual void CheckJumpInput(float DeltaTime) override;
+	virtual void ClearJumpInput(float DeltaTime) override;
 
 	UFUNCTION()
 		virtual void OnRep_IsRunning();

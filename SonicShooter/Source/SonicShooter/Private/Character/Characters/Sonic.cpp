@@ -62,14 +62,15 @@ void ASonic::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 
-	if (USSCharacterMovementComponent* CMC = GetSSCharacterMovementComponent())
-	{
-		//UKismetSystemLibrary::PrintString(this, CMC->IsCrouching() ? "CROUCHING" : "not crouching", true, false);
-		//UKismetSystemLibrary::PrintString(this, CMC->bWantsToCrouch ? "WANTS TO CROUCH" : "no want crouching", true, false);
+	//if (USSCharacterMovementComponent* CMC = GetSSCharacterMovementComponent())
+	//{
+	//	UKismetSystemLibrary::PrintString(this, CMC->IsCrouching() ? "CROUCHING" : "not crouching", true, false);
+	//	UKismetSystemLibrary::PrintString(this, CMC->bWantsToCrouch ? "WANTS TO CROUCH" : "no want crouching", true, false);
 
-		//UKismetSystemLibrary::PrintString(this, CMC->IsRunning() ? "RUNNING" : "not running", true, false);
-		//UKismetSystemLibrary::PrintString(this, CMC->GetWantsToRun() ? "WANTS TO RUN" : "no want running", true, false);
-	}
+	//	UKismetSystemLibrary::PrintString(this, CMC->IsRunning() ? "RUNNING" : "not running", true, false);
+	//	UKismetSystemLibrary::PrintString(this, CMC->GetWantsToRun() ? "WANTS TO RUN" : "no want running", true, false);
+	//}
+
 
 	//if (GetHealthAttributeSet())
 	//{

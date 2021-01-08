@@ -156,6 +156,7 @@ public:
 	USSCharacterMovementComponent();
 	
 
+	AAbilitySystemCharacter* GetOwnerAbilitySystemCharacter() const { return OwnerAbilitySystemCharacter; }
 
 	bool GetToggleCrouchEnabled() const { return bToggleCrouchEnabled; }
 	bool GetToggleRunEnabled() const { return bToggleRunEnabled; }
@@ -191,6 +192,11 @@ public:
 	uint8 bCanCrouchJump : 1;
 	virtual bool CanCrouchInCurrentState() const override;
 	virtual bool CanRunInCurrentState() const;
+
+
+	/** Basically a UpdateCharacterStateBeforeMovement() for the jump */
+	virtual void CheckJumpInput(float DeltaTime);
+	virtual void ClearJumpInput(float DeltaTime);
 	
 	/**
 	 * Boolean Timestamps.
@@ -206,6 +212,11 @@ public:
 	float timestampWantsToRun;
 	FCharacterMovementWantsToChanged OnWantsToRunChanged;
 
+
+	float currentTimeSeconds;
+	void BroadcastMovementDelegates();
+
+
 	/** Whether we are actually running or not */
 	bool IsRunning() const;
 
@@ -213,6 +224,12 @@ public:
 	virtual void Run();
 	/** Actually makes the character stop running, should not be called directly */
 	virtual void UnRun();
+
+	virtual bool DoJump(bool bReplayingMoves) override;
+	virtual void UnJump();
+
+	virtual void Crouch(bool bClientSimulation = false) override;
+	virtual void UnCrouch(bool bClientSimulation = false) override;
 
 
 
@@ -262,11 +279,6 @@ protected:
 	bool IsMovingForward(/*float degreeTolerance = 45.f*/) const;
 
 	virtual void TweakCompressedFlagsBeforeTick();
-
-	virtual bool DoJump(bool bReplayingMoves) override;
-
-	virtual void Crouch(bool bClientSimulation = false) override;
-	virtual void UnCrouch(bool bClientSimulation = false) override;
 
 
 	// This is a good event for calling your custom client adjustment RPCs

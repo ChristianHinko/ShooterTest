@@ -99,25 +99,29 @@ public:
 		TSubclassOf<UGameplayEffect> DefaultAttributeValuesEffectTSub;
 #pragma endregion
 
-protected:
 #pragma region Abilities
-	/** Note: No AbilitySpecHandles are tracked upon grant. These are good for passive abilities. These abilities are assigned EAbilityInputID::None */
-	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
-		TArray<TSubclassOf<USSGameplayAbility>> NonHandleStartingAbilities;
-
-
-
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
 		TSubclassOf<USSGameplayAbility> CharacterJumpAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle CharacterJumpAbilitySpecHandle;
 
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
+		TSubclassOf<USSGameplayAbility> CharacterCrouchAbilityTSub;
+	UPROPERTY(Replicated)
+		FGameplayAbilitySpecHandle CharacterCrouchAbilitySpecHandle;
+
+	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
 		TSubclassOf<USSGameplayAbility> CharacterRunAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle CharacterRunAbilitySpecHandle;
-
 #pragma endregion
+
+protected:
+	/** Note: No AbilitySpecHandles are tracked upon grant. These are good for passive abilities. These abilities are assigned EAbilityInputID::None */
+	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
+		TArray<TSubclassOf<USSGameplayAbility>> NonHandleStartingAbilities;
+
+
 
 	/** Decide which replication mode you want for the AIAbilitySystemComponent. Should normally be set to Minimal. Only change if you know what your doing */
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|AI")
@@ -125,11 +129,6 @@ protected:
 
 	UPROPERTY()
 		ASSPlayerState* SSPlayerState;
-
-
-	
-
-
 
 
 	
@@ -202,6 +201,9 @@ protected:
 	virtual void OnJumpPressed() override;
 	virtual void OnJumpReleased() override;
 
+	virtual void OnCrouchPressed() override;
+	virtual void OnCrouchReleased() override;
+
 	virtual void OnRunPressed() override;
 	virtual void OnRunReleased() override;
 
@@ -209,6 +211,7 @@ protected:
 	virtual void OnPrimaryFireReleased() override;
 
 #pragma endregion
+
 
 private:
 	// only one of these ASC will be active at a time

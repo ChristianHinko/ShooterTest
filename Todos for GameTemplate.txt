@@ -130,3 +130,12 @@ An ideal solution to these 2 problems would mean the server wouldn't have to wai
 - Make a UGameplayEffect_DefaultAttributes and make a virtual SetSoftAttributeDefaults in GTAttributeSet that is called whenever a UGameplayEffect_DefaultAttributes is applied
 	- Copy implementation of SonicShooter (we have nice documentation and stuff)
 	- Make our existing attribute sets implement this workflow
+
+- Go through each EndAbility() and decide whether the client should replicate end ability or not (most likely not). If not, ensure only the autority calls the EndAbility() with bReplicateEndAbility to true while the client runs the EndAbility with it false. See example in SS abilities
+
+- Make movement abilities call the move functions on the cmc
+	- Get rid of the movement abilities determining the WantsTo values
+
+- fix CMC's jump system (make bIsJumping)
+
+- maybe add crouch ability to AbilitySystemCharacter, or take Jump and Run out of it and into a subclass with crouch

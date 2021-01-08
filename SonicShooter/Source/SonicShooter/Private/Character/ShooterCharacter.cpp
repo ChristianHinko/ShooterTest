@@ -16,7 +16,6 @@ void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 
 	DOREPLIFETIME_CONDITION(AShooterCharacter, InteractInstantAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, InteractDurationAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AShooterCharacter, CharacterCrouchAbilitySpecHandle, COND_OwnerOnly);
 
 	//DOREPLIFETIME(AShooterCharacter, Inventory);
 }
@@ -26,12 +25,6 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 {
 	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
 	Interactor = CreateDefaultSubobject<UInteractorComponent>(TEXT("Interactor"));
-
-
-	if (GetCharacterMovement())
-	{
-		GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
-	}
 }
 
 bool AShooterCharacter::GrantStartingAbilities()
@@ -44,7 +37,6 @@ bool AShooterCharacter::GrantStartingAbilities()
 
 	InteractInstantAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractInstantAbilityTSub, this, EAbilityInputID::Interact/*, GetLevel()*/);
 	InteractDurationAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractDurationAbilityTSub, this, EAbilityInputID::Interact/*, GetLevel()*/);
-	CharacterCrouchAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterCrouchAbilityTSub, this, EAbilityInputID::Crouch/*, GetLevel()*/);
 
 	return true;
 }
@@ -104,15 +96,6 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 void AShooterCharacter::OnInteractPressed()
 {
 	Interactor->TryInteract();
-}
-
-void AShooterCharacter::OnCrouchPressed()
-{
-	GetAbilitySystemComponent()->TryActivateAbility(CharacterCrouchAbilitySpecHandle);
-}
-void AShooterCharacter::OnCrouchReleased()
-{
-
 }
 
 void AShooterCharacter::OnPrimaryFirePressed()

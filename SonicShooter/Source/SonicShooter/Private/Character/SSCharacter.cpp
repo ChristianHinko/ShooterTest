@@ -85,6 +85,12 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	// Default to first person
 	bFirstPerson = true;
 
+
+	if (GetCharacterMovement())
+	{
+		GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
+	}
+
 	crouchSpeed = 100.f;
 }
 void ASSCharacter::PostInitializeComponents()
@@ -144,7 +150,7 @@ void ASSCharacter::Jump()
 {
 	if (SSCharacterMovementComponent)
 	{
-		if (GetWorld()->GetTimeSeconds() != FMath::Abs(SSCharacterMovementComponent->timestampWantsToJump)) // if changed
+		if (bPressedJump == false) // if changed
 		{
 			Super::Jump(); // set to true
 
@@ -158,7 +164,7 @@ void ASSCharacter::StopJumping()
 {
 	if (SSCharacterMovementComponent)
 	{
-		if (GetWorld()->GetTimeSeconds() != FMath::Abs(SSCharacterMovementComponent->timestampWantsToJump)) // if changed
+		if (bPressedJump == true) // if changed
 		{
 			Super::StopJumping(); // set to false
 
@@ -205,6 +211,17 @@ bool ASSCharacter::CanJumpInternal_Implementation() const
 
 	return bCanJump;
 }
+
+void ASSCharacter::CheckJumpInput(float DeltaTime)
+{
+	SSCharacterMovementComponent->CheckJumpInput(DeltaTime);
+}
+
+void ASSCharacter::ClearJumpInput(float DeltaTime)
+{
+	SSCharacterMovementComponent->ClearJumpInput(DeltaTime);
+}
+
 #pragma endregion
 
 

@@ -17,7 +17,9 @@
 #include "Character/AS_Character.h"
 #include "Actor/AS_Health.h"
 
+#include "Character/SSCharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+
 
 
 
@@ -29,6 +31,7 @@ void AAbilitySystemCharacter::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	DOREPLIFETIME(AAbilitySystemCharacter, CharacterAttributeSet);
 	DOREPLIFETIME(AAbilitySystemCharacter, HealthAttributeSet);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterJumpAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterCrouchAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterRunAbilitySpecHandle, COND_OwnerOnly);
 	//DOREPLIFETIME(AAbilitySystemCharacter, PlayerAbilitySystemComponent);			//can be helpful for debugging
 }
@@ -55,6 +58,7 @@ AAbilitySystemCharacter::AAbilitySystemCharacter(const FObjectInitializer& Objec
 		AIAbilitySystemComponent->SetIsReplicated(true);
 	}
 }
+
 
 void AAbilitySystemCharacter::Tick(float DeltaTime)
 {
@@ -397,6 +401,7 @@ bool AAbilitySystemCharacter::GrantStartingAbilities()
 
 	// GetLevel() doesn't exist in this template. Will need to implement one if you want a level system
 	CharacterJumpAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterJumpAbilityTSub, this, EAbilityInputID::Jump/*, GetLevel()*/);
+	CharacterCrouchAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterCrouchAbilityTSub, this, EAbilityInputID::Crouch/*, GetLevel()*/);
 	CharacterRunAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterRunAbilityTSub, this, EAbilityInputID::Run/*, GetLevel()*/);
 
 	return true;
@@ -499,26 +504,29 @@ void AAbilitySystemCharacter::OnInteractReleased()
 
 void AAbilitySystemCharacter::OnJumpPressed()
 {
- 	if (GetAbilitySystemComponent())
-	{
-		GetAbilitySystemComponent()->TryActivateAbility(CharacterJumpAbilitySpecHandle);
-	}
+	Jump();
 }
 void AAbilitySystemCharacter::OnJumpReleased()
 {
+	StopJumping();
+}
 
+void AAbilitySystemCharacter::OnCrouchPressed()
+{
+	Crouch();
+}
+void AAbilitySystemCharacter::OnCrouchReleased()
+{
+	UnCrouch();
 }
 
 void AAbilitySystemCharacter::OnRunPressed()
 {
-	if (GetAbilitySystemComponent())
-	{
-		GetAbilitySystemComponent()->TryActivateAbility(CharacterRunAbilitySpecHandle);
-	}
+	SSCharacterMovementComponent->SetWantsToRun(true);
 }
 void AAbilitySystemCharacter::OnRunReleased()
 {
-
+	SSCharacterMovementComponent->SetWantsToRun(false);
 }
 
 void AAbilitySystemCharacter::OnPrimaryFirePressed()
@@ -530,6 +538,7 @@ void AAbilitySystemCharacter::OnPrimaryFireReleased()
 
 }
 #pragma endregion
+
 
 #pragma region Ability System Unpossess
 int32 AAbilitySystemCharacter::UnregisterCharacterOwnedAttributeSets()

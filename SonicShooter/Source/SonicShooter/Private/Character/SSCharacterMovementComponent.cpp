@@ -123,8 +123,11 @@ void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 
 	if (CharacterAttributeSet && CharacterAttributeSet->GetStamina() <= 0.f)
 	{
-		// We don't want to run if we are fully out of stamina or else when stamina starts regening we would run right away and be back at zero stamina
-		newWantsToRun = false;
+		if (IsMovingOnGround()) // only if we are on the ground. if we are in the air, the player will be expecting to run anyways
+		{
+			// We don't want to run if we are fully out of stamina or else when stamina starts regening we would run right away and be back at zero stamina
+			newWantsToRun = false;
+		}
 	}
 
 	bool isMovingForward = IsMovingForward();
@@ -135,7 +138,7 @@ void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 	}
 	if (currentTimeSeconds == -timestampWantsToRun)
 	{
-		if (bToggleRunEnabled && isMovingForward && !IsMovingOnGround())
+		if (!IsMovingOnGround() && bToggleRunEnabled && isMovingForward)
 		{
 			// If you're in the air moving forward (only if in toggle mode) you probably still want to run, whether you are
 			// trying to stop or not

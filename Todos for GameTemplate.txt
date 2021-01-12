@@ -139,3 +139,5 @@ An ideal solution to these 2 problems would mean the server wouldn't have to wai
 - fix CMC's jump system (make bIsJumping)
 
 - maybe add crouch ability to AbilitySystemCharacter, or take Jump and Run out of it and into a subclass with crouch
+
+- add NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ServerOnlyTermination in base GA (at the time we only knew about bServerRespectsRemoteAbilityCancellation, maybe this is a new property, idk but its awesome)

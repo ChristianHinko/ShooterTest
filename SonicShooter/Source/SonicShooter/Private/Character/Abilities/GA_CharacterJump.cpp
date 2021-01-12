@@ -15,8 +15,6 @@ UGA_CharacterJump::UGA_CharacterJump()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Jump")));
 
-	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ServerOnlyTermination;
-
 
 	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Crouch"));
 	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Run"));

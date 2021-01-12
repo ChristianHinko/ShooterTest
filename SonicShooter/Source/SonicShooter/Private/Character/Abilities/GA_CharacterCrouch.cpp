@@ -15,8 +15,6 @@ UGA_CharacterCrouch::UGA_CharacterCrouch()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Crouch")));
 
-	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ServerOnlyTermination;
-
 
 	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Run"));
 }

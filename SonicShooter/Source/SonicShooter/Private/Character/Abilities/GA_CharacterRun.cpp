@@ -15,8 +15,6 @@ UGA_CharacterRun::UGA_CharacterRun()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Run")));
 
-	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ServerOnlyTermination;
-
 
 	FGameplayTag RunDisabledTag = FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled");
 	ActivationBlockedTags.AddTag(RunDisabledTag);	// This isn't the singular thing stopping you from running. The CMC is what listens for the presence of the RunDisabledTag and blocks running. This check just saves an ability activation.

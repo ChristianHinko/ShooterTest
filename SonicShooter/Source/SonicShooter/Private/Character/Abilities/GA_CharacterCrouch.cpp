@@ -15,6 +15,8 @@ UGA_CharacterCrouch::UGA_CharacterCrouch()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Crouch")));
 
+	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ServerOnlyTermination;
+
 
 	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Run"));
 }
@@ -82,32 +84,19 @@ void UGA_CharacterCrouch::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 
 	if (CMC->CanCrouchInCurrentState() == false)
 	{
-		bool replicateEndAbility = true;
-		if (ActivationInfo.ActivationMode != EGameplayAbilityActivationMode::Authority)
-		{
-			// Only server->client EndAbility replication
-			replicateEndAbility = false;
-		}
-
-		EndAbility(Handle, ActorInfo, ActivationInfo, replicateEndAbility, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		bool replicateEndAbility = true;
-		if (ActivationInfo.ActivationMode != EGameplayAbilityActivationMode::Authority)
-		{
-			// Only server->client EndAbility replication
-			replicateEndAbility = false;
-		}
-
-		EndAbility(Handle, ActorInfo, ActivationInfo, replicateEndAbility, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	///////////////////////// we've passed the checks ///////////
 
 
 	CrouchingEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, CrouchingEffectTSub.GetDefaultObject(), GetAbilityLevel());
+
 	CMC->Crouch();
 }
 

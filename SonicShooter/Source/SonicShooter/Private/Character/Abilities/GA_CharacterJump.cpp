@@ -15,6 +15,8 @@ UGA_CharacterJump::UGA_CharacterJump()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Jump")));
 
+	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ServerOnlyTermination;
+
 
 	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Crouch"));
 	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Run"));
@@ -83,26 +85,12 @@ void UGA_CharacterJump::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 
 	if (CMC->CanAttemptJump() == false)
 	{
-		bool replicateEndAbility = true;
-		if (ActivationInfo.ActivationMode != EGameplayAbilityActivationMode::Authority)
-		{
-			// Only server->client EndAbility replication
-			replicateEndAbility = false;
-		}
-
-		EndAbility(Handle, ActorInfo, ActivationInfo, replicateEndAbility, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		bool replicateEndAbility = true;
-		if (ActivationInfo.ActivationMode != EGameplayAbilityActivationMode::Authority)
-		{
-			// Only server->client EndAbility replication
-			replicateEndAbility = false;
-		}
-
-		EndAbility(Handle, ActorInfo, ActivationInfo, replicateEndAbility, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	///////////////////////// we've passed the checks ///////////

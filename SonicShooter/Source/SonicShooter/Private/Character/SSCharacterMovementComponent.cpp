@@ -561,6 +561,7 @@ bool USSCharacterMovementComponent::CanAttemptJump() const
 	{
 		return false;
 	}
+
 	
 	return true;
 }

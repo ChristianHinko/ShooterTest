@@ -77,7 +77,14 @@ void UGA_CharacterJump::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		bool replicateEndAbility = true;
+		if (ActivationInfo.ActivationMode != EGameplayAbilityActivationMode::Authority)
+		{
+			// Only server->client EndAbility replication
+			replicateEndAbility = false;
+		}
+
+		EndAbility(Handle, ActorInfo, ActivationInfo, replicateEndAbility, false);
 		return;
 	}
 	///////////////////////// we've passed the checks ///////////

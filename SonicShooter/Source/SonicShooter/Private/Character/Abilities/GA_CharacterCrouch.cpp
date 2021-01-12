@@ -73,7 +73,7 @@ void UGA_CharacterCrouch::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-
+	
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		bool replicateEndAbility = true;
@@ -83,7 +83,7 @@ void UGA_CharacterCrouch::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 			replicateEndAbility = false;
 		}
 
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), replicateEndAbility, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, replicateEndAbility, false);
 		return;
 	}
 	///////////////////////// we've passed the checks ///////////

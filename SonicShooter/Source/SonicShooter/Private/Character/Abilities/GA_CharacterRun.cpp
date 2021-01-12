@@ -87,7 +87,7 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 			replicateEndAbility = false;
 		}
 
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), replicateEndAbility, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, replicateEndAbility, false);
 		return;
 	}
 	/////////////////////////////////////////////    we've passed the checks //////

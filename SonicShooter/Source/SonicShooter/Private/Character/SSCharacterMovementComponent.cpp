@@ -134,11 +134,18 @@ void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 
 	bool isMovingForward = IsMovingForward();
 
-	if (!isMovingForward)
+	if (!isMovingForward && Acceleration.SizeSquared() > 0)
 	{
 		newWantsToRun = false; // a client-only check to ensure we are moving forward (i know this is bad, it's not server verified but it's temporary so i guess hackers can run backwards if they want)
 	}
-	if (currentTimeSeconds == -timestampWantsToRun)
+
+	if (bToggleRunEnabled && Acceleration.SizeSquared() == 0)
+	{
+		// If we are staying still while toggle run is on, we don't want to run
+		newWantsToRun = false;
+	}
+
+	if (currentTimeSeconds == -timestampWantsToRun) // if we just began running
 	{
 		if (!IsMovingOnGround() && bToggleRunEnabled && isMovingForward)
 		{
@@ -582,6 +589,10 @@ bool USSCharacterMovementComponent::CanRunInCurrentState() const
 	{
 		return false;
 	}
+	if (Velocity.SizeSquared() == 0)
+	{
+		return false;
+	}
 	// Actually we don't do this check (the client-only version) at all anymore because if it does pass, only the client can't run but that doesn't mean anything (and causes useless corrections)
 	//if (PawnOwner->IsLocallyControlled() && IsMovingForward() == false) // we dont perform the IsMovingForward() check on dedicated server because its messed up on there. Yes this is a vulnerability but its temporary
 	//{
@@ -880,7 +891,7 @@ void USSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 	if (PawnOwner->IsLocallyControlled()) // only tweak compressed flags on client/controlled
 	{
 		TweakCompressedFlagsBeforeTick();
-		BroadcastMovementDelegates();
+		BroadcastMovementDelegates(); // the server's movement delegates are broadcasted on UpdateFromCompressedFlags()
 	}
 
 	

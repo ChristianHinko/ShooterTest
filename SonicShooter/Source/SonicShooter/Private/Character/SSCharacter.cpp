@@ -464,7 +464,7 @@ void ASSCharacter::CrouchTick(float DeltaTime)
 void ASSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	check(PlayerInputComponent);
-
+	
 	//Action
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASSCharacter::OnJumpPressed);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ASSCharacter::OnJumpReleased);

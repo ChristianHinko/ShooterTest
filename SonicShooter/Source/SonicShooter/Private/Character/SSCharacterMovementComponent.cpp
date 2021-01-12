@@ -589,7 +589,7 @@ bool USSCharacterMovementComponent::CanRunInCurrentState() const
 	{
 		return false;
 	}
-	if (Velocity.SizeSquared() == 0)
+	if (Acceleration.SizeSquared() == 0)
 	{
 		return false;
 	}

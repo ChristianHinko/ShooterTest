@@ -66,6 +66,12 @@ bool UGA_CharacterCrouch::CanActivateAbility(const FGameplayAbilitySpecHandle Ha
 		return false;
 	}
 
+	if (CMC->CanCrouchInCurrentState() == false)
+	{
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Was not able to crouch in current state when trying to activate ability. Returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+
 	return true;
 }
 
@@ -73,7 +79,19 @@ void UGA_CharacterCrouch::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	
+
+	if (CMC->CanCrouchInCurrentState() == false)
+	{
+		bool replicateEndAbility = true;
+		if (ActivationInfo.ActivationMode != EGameplayAbilityActivationMode::Authority)
+		{
+			// Only server->client EndAbility replication
+			replicateEndAbility = false;
+		}
+
+		EndAbility(Handle, ActorInfo, ActivationInfo, replicateEndAbility, false);
+		return;
+	}
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		bool replicateEndAbility = true;

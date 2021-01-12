@@ -70,6 +70,12 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 		return false;
 	}
 
+	if (CMC->CanRunInCurrentState() == false)
+	{
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Was not able to run in current state when trying to activate ability. Returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+
 	return true;
 }
 
@@ -78,6 +84,18 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 
+	if (CMC->CanRunInCurrentState() == false)
+	{
+		bool replicateEndAbility = true;
+		if (ActivationInfo.ActivationMode != EGameplayAbilityActivationMode::Authority)
+		{
+			// Only server->client EndAbility replication
+			replicateEndAbility = false;
+		}
+
+		EndAbility(Handle, ActorInfo, ActivationInfo, replicateEndAbility, false);
+		return;
+	}
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		bool replicateEndAbility = true;

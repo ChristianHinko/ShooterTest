@@ -67,6 +67,12 @@ bool UGA_CharacterJump::CanActivateAbility(const FGameplayAbilitySpecHandle Hand
 		return false;
 	}
 
+	if (CMC->CanAttemptJump() == false)
+	{
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Was not able to jump when trying to activate ability. Returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+
 	return true;
 }
 
@@ -75,6 +81,18 @@ void UGA_CharacterJump::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 
+	if (CMC->CanAttemptJump() == false)
+	{
+		bool replicateEndAbility = true;
+		if (ActivationInfo.ActivationMode != EGameplayAbilityActivationMode::Authority)
+		{
+			// Only server->client EndAbility replication
+			replicateEndAbility = false;
+		}
+
+		EndAbility(Handle, ActorInfo, ActivationInfo, replicateEndAbility, false);
+		return;
+	}
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		bool replicateEndAbility = true;

@@ -7,10 +7,12 @@
 
 #include "SSCharacter.generated.h"
 
+
 class USkeletalMeshComponent;
 class UCameraComponent;
 class USpringArmComponent;
 class USSCharacterMovementComponent;
+class ASSGameState;
 
 /**
  * Handles physical animation while crouching/uncrouching
@@ -122,6 +124,8 @@ public:
 
 	void CrouchTick(float DeltaTime);
 
+
+	APawn* GetNearestPawn();
 
 protected:
 	virtual void PostInitializeComponents() override;

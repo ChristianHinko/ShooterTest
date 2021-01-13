@@ -68,7 +68,9 @@ An ideal solution to these 2 problems would mean the server wouldn't have to wai
 	- figure out how to make it look clean still
 
 - Fix thing where if CMC exceeds save move buffer the character becomes completely in the wrong place and its not accounted for
-
+- Add AT_WaitInputPressCust
+- Add AT_WaitInputReleaseCust
+- Add AT_PlayMontageAndWaitCust
 
 - AbilitySystemActor "ActorAttributeSet" IS NOT ON EVERY ACTOR". Name misleading
 - Update GrantAbility() UELOG to give the function name
@@ -146,3 +148,14 @@ An ideal solution to these 2 problems would mean the server wouldn't have to wai
 - Fix CMC documentation
 
 - Add bJumpDisabled and bCrouchDisabled tags for CMC
+
+- Make root folder for GameTemplate and add 3DObjects and Tools as subfolders along side GameTemplate subfolder (the one that has the actual uproject)
+	- Add contents of Tools
+
+- For the UE4_Mannequin_Skeleton, in RetargetManager, in Set up Rig, set the Select Rig to Humanoid so that we can retarget this skeleton's anims to other skeletons
+- Add our EpicSkeleton (our version of the mannequin skeleton)
+	- Including the retargeted mannequin anims and anim bps
+	- Including our version of the mannequin that uses our EpicSkeleton
+- Add EpicSkeleton to the 3DObjects folder
+	- The blend files and the fbx
+

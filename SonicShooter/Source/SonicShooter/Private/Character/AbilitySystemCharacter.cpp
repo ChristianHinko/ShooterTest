@@ -297,7 +297,7 @@ void AAbilitySystemCharacter::CreateAttributeSets()
 void AAbilitySystemCharacter::RegisterAttributeSets()
 {
 	// give the ASC the default Character attribute set
-	if (CharacterAttributeSet && !GetAbilitySystemComponent()->SpawnedAttributes.Contains(CharacterAttributeSet))	// If CharacterAttributeSet is valid and it's not yet registered with the Character's ASC
+	if (CharacterAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(CharacterAttributeSet))	// If CharacterAttributeSet is valid and it's not yet registered with the Character's ASC
 	{
 		GetAbilitySystemComponent()->AddAttributeSetSubobject(CharacterAttributeSet);
 	}
@@ -306,7 +306,7 @@ void AAbilitySystemCharacter::RegisterAttributeSets()
 		UE_CLOG((GetLocalRole() == ROLE_Authority), LogAbilitySystemSetup, Warning, TEXT("%s() CharacterAttributeSet was either NULL or already added to the character's ASC. Character: %s"), *FString(__FUNCTION__), *GetName());
 	}
 
-	if (HealthAttributeSet && !GetAbilitySystemComponent()->SpawnedAttributes.Contains(HealthAttributeSet))	// If HealthAttributeSet is valid and it's not yet registered with the Character's ASC
+	if (HealthAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(HealthAttributeSet))	// If HealthAttributeSet is valid and it's not yet registered with the Character's ASC
 	{
 		GetAbilitySystemComponent()->AddAttributeSetSubobject(HealthAttributeSet);
 	}
@@ -322,7 +322,7 @@ void AAbilitySystemCharacter::RegisterAttributeSets()
 	// \/\/\/\/ This is how you should register each of your attribute sets after calling the Super \/\/\/\/
 	// -------------------------------------------------------------------------------------------------- //
 	/*
-				if (MyAttributeSet && !GetAbilitySystemComponent()->SpawnedAttributes.Contains(MyAttributeSet))
+				if (MyAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(MyAttributeSet))
 				{
 					GetAbilitySystemComponent()->AddAttributeSetSubobject(MyAttributeSet);
 				}
@@ -527,13 +527,13 @@ int32 AAbilitySystemCharacter::UnregisterCharacterOwnedAttributeSets()
 	}
 
 	int32 retVal = 0;
-	for (int32 i = GetAbilitySystemComponent()->SpawnedAttributes.Num() - 1; i >= 0; i--)
+	for (int32 i = GetAbilitySystemComponent()->GetSpawnedAttributes().Num() - 1; i >= 0; i--)
 	{
-		if (UAttributeSet* AS = GetAbilitySystemComponent()->SpawnedAttributes[i])
+		if (UAttributeSet* AS = GetAbilitySystemComponent()->GetSpawnedAttributes()[i])
 		{
 			if (AS->GetOwningActor() == this)	// for attribute sets we check the OwningActor since thats what they use. It's also automatically set by the engine so were good
 			{
-				GetAbilitySystemComponent()->SpawnedAttributes.RemoveAt(i);
+				GetAbilitySystemComponent()->GetSpawnedAttributes_Mutable().RemoveAt(i);
 				retVal++;
 			}
 		}

@@ -1,0 +1,35 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.2.4.118",
+	"FriendlyName": "ArcInventory",
+	"Description": "",
+	"Category": "Other",
+	"CreatedBy": "Garrett Fleenor & Puny Human",
+	"CreatedByURL": "https://punyhuman.com/",
+	"DocsURL": "https://tracker.punyhuman.com/projects/arc_inventory/wiki",
+	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/b2e658f9efc140d98cc30613626abae3",
+	"SupportURL": "https://tracker.punyhuman.com/projects/arc_inventory",
+	"EngineVersion": "4.26.0",
+	"CanContainContent": true,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "ArcInventory",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Win32",
+				"Mac",
+				"Linux"
+			]
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "GameplayAbilities",
+			"Enabled": true
+		}
+	]
+}

@@ -23,13 +23,13 @@ ASonic::ASonic(const FObjectInitializer& ObjectInitializer)
 {
 	GetMesh()->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));
 
-	GetCapsuleComponent()->SetCapsuleHalfHeight(52.0f);
-
+	GetCapsuleComponent()->SetCapsuleHalfHeight(65.0f);
+	
 	//Bump up all meshes so it gets within the capsule
-	GetMesh()->SetRelativeLocation(FVector(GetMesh()->GetRelativeLocation().X, GetMesh()->GetRelativeLocation().Y, GetMesh()->GetRelativeLocation().Z + 44.f));
-	GetPOVMesh()->SetRelativeLocation(FVector(GetPOVMesh()->GetRelativeLocation().X, GetPOVMesh()->GetRelativeLocation().Y, GetPOVMesh()->GetRelativeLocation().Z + 44.f));
+	GetMesh()->SetRelativeLocation(FVector(GetMesh()->GetRelativeLocation().X, GetMesh()->GetRelativeLocation().Y, GetMesh()->GetRelativeLocation().Z + 44.f-13.f));
+	GetPOVMesh()->SetRelativeLocation(FVector(GetPOVMesh()->GetRelativeLocation().X, GetPOVMesh()->GetRelativeLocation().Y, GetPOVMesh()->GetRelativeLocation().Z + 44.f - 13.f));
 
-	GetCameraBoom()->SetRelativeLocation(FVector(GetCameraBoom()->GetRelativeLocation().X, GetCameraBoom()->GetRelativeLocation().Y, GetPOVMesh()->GetRelativeLocation().Z + 28.f));
+	GetCameraBoom()->SetRelativeLocation(FVector(GetCameraBoom()->GetRelativeLocation().X, GetCameraBoom()->GetRelativeLocation().Y, 39.f));
 	
 
 	//// Don't rotate when the controller rotates. Let that just affect the camera.

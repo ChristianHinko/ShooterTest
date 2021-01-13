@@ -47,7 +47,7 @@ void AExampleAbilitySystemCharacter::RegisterAttributeSets()
 	Super::RegisterAttributeSets();
 
 
-	if (ExampleAbilitySystemCharacterAttributeSet && !GetAbilitySystemComponent()->SpawnedAttributes.Contains(ExampleAbilitySystemCharacterAttributeSet))
+	if (ExampleAbilitySystemCharacterAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(ExampleAbilitySystemCharacterAttributeSet))
 	{
 		GetAbilitySystemComponent()->AddAttributeSetSubobject(ExampleAbilitySystemCharacterAttributeSet);
 	}

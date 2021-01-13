@@ -14,6 +14,10 @@
 #include "Utilities/CollisionChannels.h"
 #include "Interfaces/Interactable.h"
 #include "GameFramework/PlayerController.h"
+#include "Kismet/GameplayStatics.h"
+#include "Game/SSGameState.h"
+#include "GameFramework/PlayerState.h"
+#include "GameFramework/Pawn.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -33,7 +37,6 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<USSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	SSCharacterMovementComponent = Cast<USSCharacterMovementComponent>(GetMovementComponent());
-
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -60,7 +63,7 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	POVMesh->SetCollisionProfileName(TEXT("CharacterMesh"));
 	POVMesh->SetGenerateOverlapEvents(false);
 	POVMesh->SetCanEverAffectNavigation(false);
-	POVMesh->SetRelativeLocation(FVector(0.f, 0.f, -96.f));
+	POVMesh->SetRelativeLocation(FVector(-25.f, 0, -96.f));
 	POVMesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 	POVMesh->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
 	POVMesh->AlwaysLoadOnServer = false; // the server shouldn't care about this mesh
@@ -651,6 +654,36 @@ void ASSCharacter::VerticalLook(float Rate) // TODO: add slight smoothing in cou
 	{
 		AddControllerPitchInput(Rate * VerticalSensitivity * 0.5/* * GetWorld()->GetDeltaSeconds()*/); // delta seconds is not needed here for some reason. Idk why but it does the opposite of the expected effect
 	}
+}
+#pragma endregion
+
+#pragma region Helpers
+APawn* ASSCharacter::GetNearestPawn()
+{
+	APawn* RetVal = nullptr;
+	if (UGameplayStatics::GetGameState(this))
+	{
+		float closestPawnDistance = MAX_FLT;
+		TArray<APlayerState*> PlayerStates = UGameplayStatics::GetGameState(this)->PlayerArray;
+		for (int i = 0; i < PlayerStates.Num(); i++)
+		{
+			if (PlayerStates.IsValidIndex(i) && PlayerStates[i])
+			{
+				APawn* CurrentPawn = PlayerStates[i]->GetPawn();
+				if (CurrentPawn != this)
+				{
+					float distanceToCurrentPlayer = GetDistanceTo(CurrentPawn);
+					if (distanceToCurrentPlayer < closestPawnDistance)
+					{
+						RetVal = CurrentPawn;
+						closestPawnDistance = distanceToCurrentPlayer;
+					}
+				}
+			}
+		}
+	}
+
+	return RetVal;
 }
 #pragma endregion
 

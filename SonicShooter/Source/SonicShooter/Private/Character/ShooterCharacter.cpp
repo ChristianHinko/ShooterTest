@@ -25,6 +25,9 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 {
 	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
 	Interactor = CreateDefaultSubobject<UInteractorComponent>(TEXT("Interactor"));
+
+	CameraSwayAmount = FVector(0, 1.3f, .4f);
+	AddedCameraSwayDuringADS = FVector(0, -1.1f, -.1f);
 }
 
 bool AShooterCharacter::GrantStartingAbilities()
@@ -41,13 +44,16 @@ bool AShooterCharacter::GrantStartingAbilities()
 	return true;
 }
 
+//#include "Kismet/KismetSystemLibrary.h"
+//#include "Kismet/KismetMathLibrary.h"
+//#include "GameFramework/SpringArmComponent.h"
 void AShooterCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
 	//float frameHorizontalMouseRate = 0;
 	//float frameVerticalMouseRate = 0;
-	//Cast<APlayerController>(GetController())-> GetInputMouseDelta(frameHorizontalMouseRate, frameVerticalMouseRate);
+	//Cast<APlayerController>(GetController())->GetInputMouseDelta(frameHorizontalMouseRate, frameVerticalMouseRate);
 	//
 
 	//// Weapon sway
@@ -60,7 +66,7 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 	//	{
 	//		FVector CurrentCameraLocation = FVector(GetCameraBoom()->GetRelativeTransform().GetLocation());
 
-	//		GetCameraBoom()->SetRelativeLocation(UKismetMathLibrary::VInterpTo(CurrentCameraLocation, NewCameraLocation, DeltaTime, 10));
+	//		GetCameraBoom()->SetRelativeLocation(UKismetMathLibrary::VInterpTo(CurrentCameraLocation, NewCameraLocation, DeltaSeconds, 10));
 	//	}
 
 	//	
@@ -84,7 +90,7 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 
 
 
-	//		GetCameraBoom()->SetRelativeLocation(UKismetMathLibrary::VInterpTo(CurrentCameraLocation, NewCameraLocation, DeltaTime, 10));
+	//		GetCameraBoom()->SetRelativeLocation(UKismetMathLibrary::VInterpTo(CurrentCameraLocation, NewCameraLocation, DeltaSeconds, 10));
 	//	}
 
 

@@ -315,7 +315,7 @@ void USSAbilitySystemComponent::FullReset()
 		}
 
 		//	Remove Attribute Sets
-		SpawnedAttributes.Empty();
+		GetSpawnedAttributes_Mutable().Empty();
 	}
 
 
@@ -324,7 +324,7 @@ void USSAbilitySystemComponent::FullReset()
 
 	//	Now clean up any loose gameplay tags
 	ResetTagMap();
-	MinimalReplicationTags.RemoveAllTags();		//	This line may not be necessary
+	GetMinimalReplicationTags_Mutable().RemoveAllTags();		//	This line may not be necessary
 
 	//	Give clients changes ASAP
 	ForceReplication();

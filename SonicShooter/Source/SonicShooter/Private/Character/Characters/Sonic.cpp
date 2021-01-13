@@ -78,10 +78,10 @@ void ASonic::Tick(float DeltaSeconds)
 	//}
 	//if (IsLocallyControlled())
 	//{
-		if (GetCharacterAttributeSet())
-		{
-			UKismetSystemLibrary::PrintString(this, GetCharacterAttributeSet()->GetStaminaAttribute().AttributeName + ": " + FString::SanitizeFloat(GetCharacterAttributeSet()->GetStamina()), true, false);
-		}
+		//if (GetCharacterAttributeSet())
+		//{
+		//	UKismetSystemLibrary::PrintString(this, GetCharacterAttributeSet()->GetStaminaAttribute().AttributeName + ": " + FString::SanitizeFloat(GetCharacterAttributeSet()->GetStamina()), true, false);
+		//}
 	//}
 }
 

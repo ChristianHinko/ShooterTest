@@ -38,65 +38,28 @@ enum ECustomMovementMode																		// should we make this an enum class?
  * Our custom base implementation of the CMC
  * 
  *																An overview:
- * 
- * 
- *						OUTDATED DOCUMENTATION
+ *													--- not everything is documented ---
  * 
  * 
  * Movement restrictions:
- *		- Movement restrictions is a way to expose the CMC for gameplay related code. This is mainly for integration with the Gameplay Ability System.
- *			- Ex: if a stun grenade hits a character, you would set bCanRun to false for the duration of the stun and
+ *		- Movement restrictions is a way to expose the CMC for gameplay related code.
+ *			- Ex: if a stun grenade hits a character, you would set bRunDisabled to true (or add the Gameplay Tag RunDisabled) for the duration of the stun and
  *			this would work flawlessly over the network
- * 
- *		- All movement restrictions should be correctable by the server (SEE: Custom client adjustment section below).
- *		
- * 
- * 
- * 
- * 
  * 
  * 
  * 
  * Integration with GAS:
- *		- The Ability System is heavily gameplay related so we need a way for gameplay to affect movement
- *			- You cannot simply have a run ability that checks stamina like this:
- *						 															if (has stamina)
- *						 																CMC->SetWantsToRun(true)
- * 
- *				because SetWantsToRun is client authoritative and tells the server to run through the fsavedmove.
- *					- If the client passes the stamina check on his activation but the server doesn't, then the client will run while the server doesn't causing a
- *						client correction right?
- *					- And if the client predictively activates the ability but the server rolls it back, then the rollback will make the client stop running right?
- *					- Wrong, it doensn't matter, the character is going to run on the server too because the client's SetWantsToRun told the server to do so.
- *						- SetWantsToRun is client authoritative, once its called it will in turn set the server's WantsToRun as well.
- * 
- *			- To fix this we will need a Gameplay Tag that determines whether you can run or not.
- *				- This tag, when added, will disable running for the CMC (ex: "Character.Movement.RunDisabled").
- *				- We will have to implement what this tag does deep in the CMC level rather than the ability level.
- *				- Now whenever you check if bWantsToRun in the CMC, also make sure the owning ASC does not have the RunDisabled tag.
- *				- Checking if the player has the tag every time is annoying and not efficient.
- *					- To simplify this, make a corresponding bool for that tag (ex: bRunDisabled)
- *					- Use the RegisterGameplayTagEvent with EGameplayTagEventType::NewOrRemoved and if the tag count is > 0, that means the tag was added so
- *						set bRunDisabled = true, else the tag was removed to set bRunDisabled = false.
- *					- Never touch the bRunDisabled bool, only read from it. And do not make it a client adjustment variable, the Gameplay Tag will replicate so the client will
- *						always have the correct value.
- *																								\][\][\]\']'\]\[]\[			TODO: document
- * 
- * 
- * 
- *		- Make heavy use of movement restrictions
- *			- You probably want a corresponding Gameplay Tag for each movement restriction
- *			- I would avoid setting the movement restrictions directly
- *			- Use RegisterGameplayTagEvent with EGameplayTagEventType::NewOrRemoved to have your movement restrictions synced with their gameplay tags
- * 
- *		- For movement abilities such as GA_CharacterRun
- *			- If something goes wrong set the abilities corresponding movement restriction to disable the movement (ex: set bCanRun to false)
- *				- In CanActivateAbility() whenever you return false, disable the movement
- *				- In ActivteAbility() anywhere you have EndAbility(), disable the movement
- *			- This is an exception to not setting movement restrictions directly		]\]\]][		actually its not maybe use a GE for this
- *			-				talk about movement restrictions working as rollback			\-\-=\-\-\]-\]-\]\-\-]-\]-\-]\-=]\-=\]-]\-=\]
- * 
- * 
+ *		- Do not try to make your movement abilities set compressed flags
+ *			- This would be predictively predicting (ability prediction predicting a movement prediction all in one) a move which gets really weird
+ *		- Make your movement ability just directly call the move function in the CMC
+ *			- So instead of making your run ability synced with the bWantsToRun, make it synced with bIsRunning. Make it call Run() rather than SetWantsToRun(true).
+ *			- Whenever you want to perform a move, activate the movement ability instead. And whenever you are no longer able to be doing
+ *				that move, cancel the ability and have the EndAbility() unperform the move.
+ *		- Now to ensure your movement abilities are not client authoritative
+ *			- In CanActivateAbility(), check whether you can perform the move or not using the Can___InCurrentState() functions so
+ *				that the client and server determine whether they can move or not independently
+ *			- Make sure your movement abilities (though all of your abilities should have this) have NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ServerOnlyTermination and bServerRespectsRemoteAbilityCancellation = false.
+ *			- When you want to stop a movement (maybe in UpdateCharacterStateBeforeMovement()), cancel the movement ability so that the server ends the client.
  * 
  * 
  * 
@@ -105,7 +68,7 @@ enum ECustomMovementMode																		// should we make this an enum class?
  *		- Client adjustment occurs when the difference between the client and server's position exceed an allowable threshold or when the client and 
  *			server's movement modes do not match up.
  *		- Variables to consider puting in a custom client adjustment should be ones that the server only needs to send when a client correction occurs.
- *			- Therefore you should only consider making a variable a client adjustment variable if it is position related or movement mode related.
+ *			- Therefore you should only consider making a variable a client adjustment variable if it is position related or physics related.
  *			- It is rare to need a custom client adjustment.
  *				- One of the few cases I can think of is that you may want to make your custom movement mode enum an adjustable variable.
  * 

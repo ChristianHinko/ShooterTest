@@ -13,7 +13,6 @@ class USSCharacterMovementComponent;
 /**
  * 
  */
-// We want to make this ability work so that if you start or end the ability, the server's stamina value gets replicated to the client through custom replication. This seemed like a lot of work to figure this out though. Replicating variables at custom times looked kind of time consuming to figure out so we havn't done that yet. But that should be the last thing we need
 UCLASS()
 class SONICSHOOTER_API UGA_CharacterRun : public USSGameplayAbility
 {

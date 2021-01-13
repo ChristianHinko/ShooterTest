@@ -252,9 +252,8 @@ void FSavedMove_SSCharacter::PrepMoveFor(ACharacter* Character) // Client only
 	USSCharacterMovementComponent* CMC = Cast<USSCharacterMovementComponent>(Character->GetCharacterMovement());
 	if (CMC)
 	{
-		//																							TODO: document, fix this comment \/ \/ \/
-		// WE ARE GETTING READY TO CORRECT A CLIENT PREDICTIVE ERROR
-		// Copy values out of the saved move to use for a client correction
+		// WE ARE CORRECTING A CLIENT PREDICTIVE ERROR
+		// Copy the values out of this move to the CMC so we can replay it, approaching our correct position
 		CMC->SetWantsToRun(CMC->bWantsToRun);
 
 		if (CMC->IsMovingOnGround())
@@ -274,8 +273,6 @@ void FSavedMove_SSCharacter::SetMoveFor(ACharacter* Character, float InDeltaTime
 	{
 		// Copy client values into the saved move to use for our next movement and to send to the server for the server to copy our movement
 		bSavedWantsToRun = CMC->bWantsToRun;
-
-		// DO NOT SET THE MOVEMENT RESTRICTIONS IN SET MOVE FOR WE DONT WANT THE SERVER TO LISTEN TO THE CLIENTS RESTRICTIONS					TODO: document
 	}
 }
 
@@ -405,17 +402,7 @@ void USSCharacterMovementComponent::CheckJumpInput(float DeltaTime) // basically
 			{
 				if (CharacterOwner->bClientUpdating == false)
 				{
-					if (PawnOwner->IsLocallyControlled())
-					{
-						if (GetOwnerAbilitySystemCharacter() && GetOwnerAbilitySystemCharacter()->GetAbilitySystemComponent())
-						{
-							bDidJump = GetOwnerAbilitySystemCharacter()->GetAbilitySystemComponent()->TryActivateAbility(GetOwnerAbilitySystemCharacter()->CharacterJumpAbilitySpecHandle);
-						}
-					}
-					else
-					{
-						bDidJump = DoJump(CharacterOwner->bClientUpdating);
-					}
+					bDidJump = GetOwnerAbilitySystemCharacter()->GetAbilitySystemComponent()->TryActivateAbility(GetOwnerAbilitySystemCharacter()->CharacterJumpAbilitySpecHandle);
 				}
 				else
 				{
@@ -484,14 +471,7 @@ void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 		{
 			if (timestampWantsToCrouch > timestampWantsToRun)
 			{
-				if (CharacterOwner->IsLocallyControlled())
-				{
-					OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->TryActivateAbility(OwnerAbilitySystemCharacter->CharacterCrouchAbilitySpecHandle);
-				}
-				else
-				{
-					Crouch();
-				}
+				OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->TryActivateAbility(OwnerAbilitySystemCharacter->CharacterCrouchAbilitySpecHandle);
 			}
 		}
 
@@ -505,14 +485,7 @@ void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 		{
 			if (timestampWantsToRun > timestampWantsToCrouch)
 			{
-				if (CharacterOwner->IsLocallyControlled())
-				{
-					OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->TryActivateAbility(OwnerAbilitySystemCharacter->CharacterRunAbilitySpecHandle);
-				}
-				else
-				{
-					Run();
-				}
+				OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->TryActivateAbility(OwnerAbilitySystemCharacter->CharacterRunAbilitySpecHandle);
 			}
 		}
 	}

@@ -169,7 +169,7 @@ void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 		newWantsToRun = false;
 	}
 
-	if (currentTimeSeconds == -timestampWantsToRun) // if we just began running
+	if (currentTimeSeconds == -timestampWantsToRun) // if we just stopped running
 	{
 		if (!IsMovingOnGround() && bToggleRunEnabled && isMovingForward)
 		{

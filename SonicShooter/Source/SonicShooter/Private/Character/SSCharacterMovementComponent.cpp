@@ -500,7 +500,7 @@ void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 		}
 
 
-		const bool willRun = bWantsToRun && CanRunInCurrentState();
+		const bool willRun = bWantsToRun && CanRunInCurrentState() && Acceleration.SizeSquared() > 0;
 		if (IsRunning() && !willRun)
 		{
 			OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->CancelAbilityHandle(OwnerAbilitySystemCharacter->CharacterRunAbilitySpecHandle);
@@ -592,10 +592,6 @@ bool USSCharacterMovementComponent::CanRunInCurrentState() const
 	}
 
 	if (!IsMovingOnGround())
-	{
-		return false;
-	}
-	if (Acceleration.SizeSquared() == 0)
 	{
 		return false;
 	}

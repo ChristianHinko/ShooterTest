@@ -50,30 +50,31 @@ void USSCharacterMovementComponent::InitializeComponent()
 
 
 	// Get reference to our SSCharacter
-	OwnerSSCharacter = Cast<ASSCharacter>(PawnOwner);
+	SSCharacterOwner = Cast<ASSCharacter>(PawnOwner);
 
 	// Get reference to our AbilitySystemCharacter
-	OwnerAbilitySystemCharacter = Cast<AAbilitySystemCharacter>(OwnerSSCharacter);
+	AbilitySystemCharacterOwner = Cast<AAbilitySystemCharacter>(SSCharacterOwner);
 
-	if (OwnerAbilitySystemCharacter)
+	if (AbilitySystemCharacterOwner)
 	{
-		OwnerAbilitySystemCharacter->PreApplyStartupEffects.AddUObject(this, &USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady);
+		AbilitySystemCharacterOwner->PreApplyStartupEffects.AddUObject(this, &USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady);
 	}
 }
 
+#pragma region Ability System
 void USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady()
 {
-	if (OwnerAbilitySystemCharacter)
+	if (AbilitySystemCharacterOwner)
 	{
-		OwnerSSASC = Cast<USSAbilitySystemComponent>(OwnerAbilitySystemCharacter->GetAbilitySystemComponent());
-		CharacterAttributeSet = OwnerAbilitySystemCharacter->GetCharacterAttributeSet();
+		OwnerASC = Cast<USSAbilitySystemComponent>(AbilitySystemCharacterOwner->GetAbilitySystemComponent());
+		CharacterAttributeSet = AbilitySystemCharacterOwner->GetCharacterAttributeSet();
 	}
 
-	if (OwnerSSASC)
+	if (OwnerASC)
 	{
-		OwnerSSASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnRunDisabledTagChanged);
-		OwnerSSASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.JumpDisabled"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnJumpDisabledTagChanged);
-		OwnerSSASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.CrouchDisabled"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCrouchDisabledTagChanged);
+		OwnerASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnRunDisabledTagChanged);
+		OwnerASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.JumpDisabled"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnJumpDisabledTagChanged);
+		OwnerASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.CrouchDisabled"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCrouchDisabledTagChanged);
 	}
 
 	if (CharacterAttributeSet)
@@ -115,7 +116,7 @@ void USSCharacterMovementComponent::OnCrouchDisabledTagChanged(const FGameplayTa
 		bCrouchDisabled = false;
 	}
 }
-
+#pragma endregion
 
 #pragma region Move Requests
 void USSCharacterMovementComponent::SetWantsToRun(bool newWantsToRun)
@@ -136,6 +137,7 @@ void USSCharacterMovementComponent::SetWantsToRun(bool newWantsToRun)
 }
 #pragma endregion
 
+#pragma region WantsTo Configuration
 void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 {
 	////////////////////////////////////////////////////////////////////////////// WantsTo Calculations //////////
@@ -258,6 +260,7 @@ void USSCharacterMovementComponent::BroadcastMovementDelegates()
 		OnWantsToRunChanged.Broadcast(false);
 	}
 }
+#pragma endregion
 
 #pragma region Saved Move
 void FSavedMove_SSCharacter::Clear()
@@ -283,7 +286,7 @@ void FSavedMove_SSCharacter::PrepMoveFor(ACharacter* Character) // Client only
 		if (CMC->IsMovingOnGround())
 		{
 			// Kind of a hack. Sometimes on jump corrections, bIsJumping is incorrect
-			CMC->OwnerSSCharacter->bIsJumping = false;
+			CMC->SSCharacterOwner->bIsJumping = false;
 		}
 	}
 }
@@ -404,6 +407,7 @@ void USSCharacterMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
 //}
 #pragma endregion
 
+#pragma region Moves
 void USSCharacterMovementComponent::CheckJumpInput(float DeltaTime) // basically a UpdateCharacterStateBeforeMovement() for the jump
 {
 	CharacterOwner->JumpCurrentCountPreJump = CharacterOwner->JumpCurrentCount;
@@ -422,11 +426,11 @@ void USSCharacterMovementComponent::CheckJumpInput(float DeltaTime) // basically
 		bool bDidJump = false;
 		if (CharacterOwner->CanJump())
 		{
-			if (!OwnerSSCharacter->bIsJumping)
+			if (!SSCharacterOwner->bIsJumping)
 			{
 				if (CharacterOwner->bClientUpdating == false)
 				{
-					bDidJump = GetOwnerAbilitySystemCharacter()->GetAbilitySystemComponent()->TryActivateAbility(GetOwnerAbilitySystemCharacter()->CharacterJumpAbilitySpecHandle);
+					bDidJump = OwnerASC->TryActivateAbility(AbilitySystemCharacterOwner->CharacterJumpAbilitySpecHandle);
 				}
 				else
 				{
@@ -460,9 +464,9 @@ void USSCharacterMovementComponent::ClearJumpInput(float DeltaTime)
 		// Don't modify JumpForceTimeRemaining because a frame of update may be remaining.
 		if (CharacterOwner->JumpKeyHoldTime >= CharacterOwner->GetJumpMaxHoldTime())
 		{
-			if (OwnerSSCharacter->bIsJumping)
+			if (SSCharacterOwner->bIsJumping)
 			{
-				OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->CancelAbilityHandle(OwnerAbilitySystemCharacter->CharacterJumpAbilitySpecHandle);
+				OwnerASC->CancelAbilityHandle(AbilitySystemCharacterOwner->CharacterJumpAbilitySpecHandle);
 			}
 		}
 	}
@@ -470,9 +474,9 @@ void USSCharacterMovementComponent::ClearJumpInput(float DeltaTime)
 	{
 		CharacterOwner->JumpForceTimeRemaining = 0.0f;
 		CharacterOwner->bWasJumping = false;
-		if (OwnerSSCharacter->bIsJumping)
+		if (SSCharacterOwner->bIsJumping)
 		{
-			OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->CancelAbilityHandle(OwnerAbilitySystemCharacter->CharacterJumpAbilitySpecHandle);
+			OwnerASC->CancelAbilityHandle(AbilitySystemCharacterOwner->CharacterJumpAbilitySpecHandle);
 		}
 	}
 }
@@ -489,13 +493,13 @@ void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 		const bool willCrouch = bWantsToCrouch && CanCrouchInCurrentState();
 		if (IsCrouching() && !willCrouch)
 		{
-			OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->CancelAbilityHandle(OwnerAbilitySystemCharacter->CharacterCrouchAbilitySpecHandle);
+			OwnerASC->CancelAbilityHandle(AbilitySystemCharacterOwner->CharacterCrouchAbilitySpecHandle);
 		}
 		else if (!IsCrouching() && willCrouch)
 		{
 			if (timestampWantsToCrouch > timestampWantsToRun)
 			{
-				OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->TryActivateAbility(OwnerAbilitySystemCharacter->CharacterCrouchAbilitySpecHandle);
+				OwnerASC->TryActivateAbility(AbilitySystemCharacterOwner->CharacterCrouchAbilitySpecHandle);
 			}
 		}
 
@@ -503,13 +507,13 @@ void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 		const bool willRun = bWantsToRun && CanRunInCurrentState() && Acceleration.SizeSquared() > 0;
 		if (IsRunning() && !willRun)
 		{
-			OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->CancelAbilityHandle(OwnerAbilitySystemCharacter->CharacterRunAbilitySpecHandle);
+			OwnerASC->CancelAbilityHandle(AbilitySystemCharacterOwner->CharacterRunAbilitySpecHandle);
 		}
 		else if (!IsRunning() && willRun)
 		{
 			if (timestampWantsToRun > timestampWantsToCrouch)
 			{
-				OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->TryActivateAbility(OwnerAbilitySystemCharacter->CharacterRunAbilitySpecHandle);
+				OwnerASC->TryActivateAbility(AbilitySystemCharacterOwner->CharacterRunAbilitySpecHandle);
 			}
 		}
 	}
@@ -526,13 +530,13 @@ void USSCharacterMovementComponent::UpdateCharacterStateAfterMovement(float Delt
 		// Uncrouch if no longer allowed to be crouched
 		if (IsCrouching() && !CanCrouchInCurrentState())
 		{
-			OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->CancelAbilityHandle(OwnerAbilitySystemCharacter->CharacterCrouchAbilitySpecHandle);
+			OwnerASC->CancelAbilityHandle(AbilitySystemCharacterOwner->CharacterCrouchAbilitySpecHandle);
 		}
 
 
 		if (IsRunning() && !CanRunInCurrentState())
 		{
-			OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->CancelAbilityHandle(OwnerAbilitySystemCharacter->CharacterRunAbilitySpecHandle);
+			OwnerASC->CancelAbilityHandle(AbilitySystemCharacterOwner->CharacterRunAbilitySpecHandle);
 		}
 	}
 }
@@ -616,7 +620,7 @@ bool USSCharacterMovementComponent::CanRunInCurrentState() const
 
 bool USSCharacterMovementComponent::IsRunning() const
 {
-	return OwnerSSCharacter->bIsRunning;
+	return SSCharacterOwner->bIsRunning;
 }
 
 
@@ -624,7 +628,7 @@ bool USSCharacterMovementComponent::DoJump(bool bReplayingMoves)
 {
 	//return Super::DoJump(bReplayingMoves); // super does CanJump checks we don't want checks, checks are done elsewhere
 
-	OwnerSSCharacter->bIsJumping = true;
+	SSCharacterOwner->bIsJumping = true;
 
 	Velocity.Z = FMath::Max(Velocity.Z, JumpZVelocity);
 	SetMovementMode(MOVE_Falling);
@@ -636,7 +640,7 @@ bool USSCharacterMovementComponent::DoJump(bool bReplayingMoves)
 
 void USSCharacterMovementComponent::UnJump()
 {
-	OwnerSSCharacter->bIsJumping = false;
+	SSCharacterOwner->bIsJumping = false;
 }
 
 void USSCharacterMovementComponent::Crouch(bool bClientSimulation)
@@ -657,7 +661,7 @@ void USSCharacterMovementComponent::UnCrouch(bool bClientSimulation)
 
 void USSCharacterMovementComponent::Run()
 {
-	OwnerSSCharacter->bIsRunning = true;
+	SSCharacterOwner->bIsRunning = true;
 	if (CharacterAttributeSet)
 	{
 		CharacterAttributeSet->SetStaminaDraining(true);
@@ -665,7 +669,7 @@ void USSCharacterMovementComponent::Run()
 }
 void USSCharacterMovementComponent::UnRun()
 {
-	OwnerSSCharacter->bIsRunning = false;
+	SSCharacterOwner->bIsRunning = false;
 	if (CharacterAttributeSet)
 	{
 		CharacterAttributeSet->SetStaminaDraining(false);
@@ -676,7 +680,7 @@ void USSCharacterMovementComponent::OnStaminaFullyDrained()
 {
 	SetWantsToRun(false);
 }
-
+#pragma endregion
 
 void USSCharacterMovementComponent::OnMovementUpdated(float deltaTime, const FVector& OldLocation, const FVector& OldVelocity)
 {

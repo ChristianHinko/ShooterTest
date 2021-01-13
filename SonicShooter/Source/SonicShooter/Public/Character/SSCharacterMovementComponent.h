@@ -119,7 +119,7 @@ public:
 	USSCharacterMovementComponent();
 	
 
-	AAbilitySystemCharacter* GetOwnerAbilitySystemCharacter() const { return OwnerAbilitySystemCharacter; }
+	AAbilitySystemCharacter* GetAbilitySystemCharacterOwner() const { return AbilitySystemCharacterOwner; }
 
 	bool GetToggleCrouchEnabled() const { return bToggleCrouchEnabled; }
 	bool GetToggleRunEnabled() const { return bToggleRunEnabled; }
@@ -209,11 +209,11 @@ protected:
 	virtual void InitializeComponent() override;
 
 	UPROPERTY()
-		ASSCharacter* OwnerSSCharacter;
+		ASSCharacter* SSCharacterOwner;
 	UPROPERTY()
-		AAbilitySystemCharacter* OwnerAbilitySystemCharacter;
+		AAbilitySystemCharacter* AbilitySystemCharacterOwner;
 	UPROPERTY()
-		USSAbilitySystemComponent* OwnerSSASC;
+		USSAbilitySystemComponent* OwnerASC;
 	UPROPERTY()
 		UAS_Character* CharacterAttributeSet;
 

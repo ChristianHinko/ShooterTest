@@ -33,14 +33,14 @@ void UGA_CharacterJumpStatic::ActivateAbility(const FGameplayAbilitySpecHandle H
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	if (!Character)
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Character was NULL when trying to activate static jump ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Character was NULL when trying to activate static jump ability. Called EndAbility()"), *FString(__FUNCTION__));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 

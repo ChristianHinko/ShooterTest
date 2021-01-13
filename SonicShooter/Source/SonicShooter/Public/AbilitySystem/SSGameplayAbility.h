@@ -26,7 +26,10 @@ public:
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
-	virtual void OnCurrentAbilityPredictionKeyRejected(); // Not implemented or hooked up yet
+	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+
+
+	//virtual void OnCurrentAbilityPredictionKeyRejected(); // Not implemented or hooked up yet
 
 	virtual void OnActivationPredictionKeyRejected(); // Not implemented or hooked up yet
 

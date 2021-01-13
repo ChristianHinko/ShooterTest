@@ -7,7 +7,8 @@
 
 #include "GA_CharacterJump.generated.h"
 
-
+class AAbilitySystemCharacter;
+class USSCharacterMovementComponent;
 
 /**
  * This is a nice minimal implementation of the CMC jumping into the ability system
@@ -25,12 +26,15 @@ protected:
 		TSubclassOf<UGameplayEffect> JumpEffectTSub;	// asset manager we need you D:
 	FActiveGameplayEffectHandle JumpEffectActiveHandle;
 
+	UPROPERTY()
+		AAbilitySystemCharacter* GASCharacter;
+	UPROPERTY()
+		USSCharacterMovementComponent* CMC;
+
 	//BEGIN UGameplayAbility Interface
-	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	//END UGameplayAbility Interface
-
-	UFUNCTION()
-		virtual void OnRelease(float TimeHeld);
 };

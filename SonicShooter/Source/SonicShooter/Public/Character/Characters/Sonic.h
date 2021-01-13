@@ -29,6 +29,16 @@ protected:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<AWeapon> MyTestWeapon;
 
+
+	//virtual void OnJumpPressed() override;
+	//virtual void OnJumpReleased() override;
+
+	//virtual void OnRunPressed() override;
+	//virtual void OnRunReleased() override;
+
+	//virtual void OnCrouchPressed() override;
+	//virtual void OnCrouchReleased() override;
+
 	FTimerHandle MyTimerHandle;
 	void MyTimerCallback();
 

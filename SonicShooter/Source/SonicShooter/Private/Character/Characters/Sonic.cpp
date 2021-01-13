@@ -8,11 +8,13 @@
 #include "GameFramework/SpringArmComponent.h"
 
 //#include "GameFramework/CharacterMovementComponent.h"
-//#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 //#include "Actor/AS_Health.h"
+#include "Character/AS_Character.h"
 #include "ActorComponents/InventoryComponent.h"
 #include "Actor/Weapon/Weapon.h"
 #include "Net/UnrealNetwork.h"
+#include "Character/SSCharacterMovementComponent.h"
 
 
 
@@ -59,11 +61,56 @@ void ASonic::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	//if (GetHealthAttributeSet() && GetHealthAttributeSet()->GetHealth())
+
+	//if (USSCharacterMovementComponent* CMC = GetSSCharacterMovementComponent())
+	//{
+	//	UKismetSystemLibrary::PrintString(this, CMC->IsCrouching() ? "CROUCHING" : "not crouching", true, false);
+	//	UKismetSystemLibrary::PrintString(this, CMC->bWantsToCrouch ? "WANTS TO CROUCH" : "no want crouching", true, false);
+
+	//	UKismetSystemLibrary::PrintString(this, CMC->IsRunning() ? "RUNNING" : "not running", true, false);
+	//	UKismetSystemLibrary::PrintString(this, CMC->GetWantsToRun() ? "WANTS TO RUN" : "no want running", true, false);
+	//}
+
+
+	//if (GetHealthAttributeSet())
 	//{
 	//	UKismetSystemLibrary::PrintString(this, GetName() + ": " + FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
 	//}
+	//if (IsLocallyControlled())
+	//{
+		//if (GetCharacterAttributeSet())
+		//{
+		//	UKismetSystemLibrary::PrintString(this, GetCharacterAttributeSet()->GetStaminaAttribute().AttributeName + ": " + FString::SanitizeFloat(GetCharacterAttributeSet()->GetStamina()), true, false);
+		//}
+	//}
 }
+
+//void ASonic::OnJumpPressed()
+//{
+//	Jump();
+//}
+//void ASonic::OnJumpReleased()
+//{
+//	StopJumping();
+//}
+//
+//void ASonic::OnCrouchPressed()
+//{
+//	Crouch();
+//}
+//void ASonic::OnCrouchReleased()
+//{
+//	UnCrouch();
+//}
+//
+//void ASonic::OnRunPressed()
+//{
+//	SSCharacterMovementComponent->SetWantsToRun(true);
+//}
+//void ASonic::OnRunReleased()
+//{
+//	SSCharacterMovementComponent->SetWantsToRun(false);
+//}
 
 
 void ASonic::MyTimerCallback()

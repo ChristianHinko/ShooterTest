@@ -8,7 +8,7 @@
 #include "AbilitySystemComponent.h"
 #include "ActorComponents/InventoryComponent.h"
 #include "ActorComponents/InteractorComponent.h"
-
+#include "GameFramework/CharacterMovementComponent.h"
 
 void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -50,7 +50,6 @@ bool AShooterCharacter::GrantStartingAbilities()
 void AShooterCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
 
 	//float frameHorizontalMouseRate = 0;
 	//float frameVerticalMouseRate = 0;
@@ -112,3 +111,4 @@ void AShooterCharacter::OnPrimaryFirePressed()
 	//	GetAbilitySystemComponent()->TryActivateAbility(CurrentWeapon->FireAbilitySpecHandle);		for when we add inventory system
 	//}
 }
+

@@ -80,11 +80,6 @@ void UGA_CharacterCrouch::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 
-	if (CMC->CanCrouchInCurrentState() == false)
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
-	}
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);

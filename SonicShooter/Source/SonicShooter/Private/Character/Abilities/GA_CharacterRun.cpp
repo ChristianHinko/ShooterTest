@@ -84,11 +84,6 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 
-	if (CMC->CanRunInCurrentState() == false)
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
-	}
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);

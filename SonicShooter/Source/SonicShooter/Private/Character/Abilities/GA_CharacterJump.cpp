@@ -81,11 +81,6 @@ void UGA_CharacterJump::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 
-	if (CMC->CanAttemptJump() == false)
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
-	}
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);

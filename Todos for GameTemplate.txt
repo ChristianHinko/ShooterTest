@@ -144,3 +144,5 @@ An ideal solution to these 2 problems would mean the server wouldn't have to wai
 - add NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ServerOnlyTermination in base GA (at the time we only knew about bServerRespectsRemoteAbilityCancellation, maybe this is a new property, idk but its awesome)
 
 - Fix CMC documentation
+
+- Add bJumpDisabled and bCrouchDisabled tags for CMC

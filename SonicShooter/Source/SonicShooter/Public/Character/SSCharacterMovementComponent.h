@@ -249,7 +249,7 @@ protected:
 	virtual void TweakCompressedFlagsBeforeTick();
 
 
-	// This is a good event for calling your custom client adjustment RPCs
+	//// This is a good event for calling your custom client adjustment RPCs
 	//virtual void ClientAdjustPosition(float TimeStamp, FVector NewLoc, FVector NewVel, UPrimitiveComponent* NewBase, FName NewBaseBoneName, bool bHasBase, bool bBaseRelativePosition, uint8 ServerMovementMode) override;
 	//UFUNCTION(Unreliable, Client)
 	//	virtual void SSClientAdjustPosition();
@@ -257,8 +257,14 @@ protected:
 
 #pragma region Movement Restrictions
 	void OnRunDisabledTagChanged(const FGameplayTag Tag, int32 NewCount);
-	/** This bool is only and optimization layer. We dont want to be checking HasMatchingTag every frame in GetMaxSpeed() */
+	/** This bool is only and optimization layer. We dont want to be checking HasMatchingTag all of the time */
 	uint8 bRunDisabled : 1;
+
+	void OnJumpDisabledTagChanged(const FGameplayTag Tag, int32 NewCount);
+	uint8 bJumpDisabled : 1;
+
+	void OnCrouchDisabledTagChanged(const FGameplayTag Tag, int32 NewCount);
+	uint8 bCrouchDisabled : 1;
 #pragma endregion
 
 

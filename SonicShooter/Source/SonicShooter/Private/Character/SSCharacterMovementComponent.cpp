@@ -72,6 +72,8 @@ void USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady()
 	if (OwnerSSASC)
 	{
 		OwnerSSASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnRunDisabledTagChanged);
+		OwnerSSASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.JumpDisabled"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnJumpDisabledTagChanged);
+		OwnerSSASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.CrouchDisabled"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCrouchDisabledTagChanged);
 	}
 
 	if (CharacterAttributeSet)
@@ -89,6 +91,28 @@ void USSCharacterMovementComponent::OnRunDisabledTagChanged(const FGameplayTag T
 	else 			    // If RunDisabled tag not present
 	{
 		bRunDisabled = false;
+	}
+}
+void USSCharacterMovementComponent::OnJumpDisabledTagChanged(const FGameplayTag Tag, int32 NewCount)
+{
+	if (NewCount > 0)
+	{
+		bJumpDisabled = true;
+	}
+	else
+	{
+		bJumpDisabled = false;
+	}
+}
+void USSCharacterMovementComponent::OnCrouchDisabledTagChanged(const FGameplayTag Tag, int32 NewCount)
+{
+	if (NewCount > 0)
+	{
+		bCrouchDisabled = true;
+	}
+	else
+	{
+		bCrouchDisabled = false;
 	}
 }
 
@@ -502,14 +526,12 @@ void USSCharacterMovementComponent::UpdateCharacterStateAfterMovement(float Delt
 		// Uncrouch if no longer allowed to be crouched
 		if (IsCrouching() && !CanCrouchInCurrentState())
 		{
-			//UnCrouch();
 			OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->CancelAbilityHandle(OwnerAbilitySystemCharacter->CharacterCrouchAbilitySpecHandle);
 		}
 
 
 		if (IsRunning() && !CanRunInCurrentState())
 		{
-			//UnRun();
 			OwnerAbilitySystemCharacter->GetAbilitySystemComponent()->CancelAbilityHandle(OwnerAbilitySystemCharacter->CharacterRunAbilitySpecHandle);
 		}
 	}
@@ -518,6 +540,10 @@ void USSCharacterMovementComponent::UpdateCharacterStateAfterMovement(float Delt
 bool USSCharacterMovementComponent::CanAttemptJump() const
 {
 	//Super::CanAttemptJump(); // the super makes it return false when crouched - we don't want this
+	if (bJumpDisabled)
+	{
+		return false;
+	}
 
 	if (IsJumpAllowed() == false)
 	{
@@ -541,6 +567,11 @@ bool USSCharacterMovementComponent::CanAttemptJump() const
 
 bool USSCharacterMovementComponent::CanCrouchInCurrentState() const
 {
+	if (bCrouchDisabled)
+	{
+		return false;
+	}
+
 	if (!bCanCrouchJump && !IsMovingOnGround())
 	{
 		if (bJumpedInAir) // only false if jumped
@@ -559,6 +590,7 @@ bool USSCharacterMovementComponent::CanRunInCurrentState() const
 	{
 		return false;
 	}
+
 	if (!IsMovingOnGround())
 	{
 		return false;

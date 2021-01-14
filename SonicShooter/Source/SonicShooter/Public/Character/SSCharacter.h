@@ -94,7 +94,12 @@ public:
 	UPROPERTY(ReplicatedUsing=OnRep_IsRunning)
 		uint8 bIsRunning : 1;
 
-	/**  */
+	/**
+	 * Whether we are actually jumping (only while the player is actively jumping or holding down jump).
+	 * Should this be replicated to simulated proxies like bIsRunning is? Maybe if you are using a button hold dependent jump you may have to do this  =@REVIEW MARKER@=.
+	 * 
+	 * If you are looking for a variable that represents whether we are in the air because of a jump, look in the CMC: bJumpedInAir.
+	 */
 	uint8 bIsJumping : 1;
 
 
@@ -115,7 +120,7 @@ public:
 	virtual void Crouch(bool bClientSimulation = false) override;
 	virtual void UnCrouch(bool bClientSimulation = false) override;
 
-	virtual bool CanCrouch() const override; // this function isn't being used anymore
+	virtual bool CanCrouch() const override; // this function isn't being used but we're overriding it anyways
 	virtual void OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust) override;
 	virtual void OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust) override;
 

@@ -6,7 +6,10 @@
 #include "Character/AbilitySystemCharacter.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 
-
+// THIS ABILITY IS WAYYYYYY OUTDATED!!!!!!!!!!!!!!!!
+// WE HAVE NOT IMPLEMENTED THE NEW WAY OF DOING MOVEMENT ABILITIES FOR THIS STATIC VERISON OF JUMP!!!!
+// IF YOU WANT TO USE THIS FOLLOW THE WAY THE STANDARD GA_CharacterJump DOES IT!!!!!!!!!
+// WE JUST HAVENT FIXED THIS STATIC VERSION BECAUSE WE AREN'T USING IT!!!!!!!
 
 UGA_CharacterJumpStatic::UGA_CharacterJumpStatic()
 {

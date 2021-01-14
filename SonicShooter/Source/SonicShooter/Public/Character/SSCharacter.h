@@ -94,6 +94,9 @@ public:
 	UPROPERTY(ReplicatedUsing=OnRep_IsRunning)
 		uint8 bIsRunning : 1;
 
+	/** If true, after toggling run, you can't untoggle run. You can only stop running by stopping moving forward for example. */
+	uint8 bToggleRunAlwaysRun : 1;
+
 	/**
 	 * Whether we are actually jumping (only while the player is actively jumping or holding down jump).
 	 * Should this be replicated to simulated proxies like bIsRunning is? Maybe if you are using a button hold dependent jump you may have to do this  =@REVIEW MARKER@=.

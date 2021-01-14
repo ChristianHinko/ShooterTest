@@ -95,6 +95,8 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	}
 
 	crouchSpeed = 100.f;
+
+	bToggleRunAlwaysRun = false;
 }
 void ASSCharacter::PostInitializeComponents()
 {
@@ -589,7 +591,10 @@ void ASSCharacter::OnRunPressed()
 	{
 		if (SSCharacterMovementComponent->GetWantsToRun() == true)
 		{
-			SSCharacterMovementComponent->SetWantsToRun(false);
+			if (bToggleRunAlwaysRun == false)
+			{
+				SSCharacterMovementComponent->SetWantsToRun(false);
+			}
 		}
 		else
 		{

@@ -68,7 +68,7 @@ void UAS_Character::SetSoftAttributeDefaults()
 
 
 	Health = GetMaxHealth();
-	Stamina = GetMaxStamina();
+	Stamina = GetMaxStamina(); // TODO: this event is server only (after constructer call at least) but Stamina isn't replicated so the client won't this updated
 }
 
 void UAS_Character::Tick(float DeltaTime)

@@ -94,6 +94,7 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //      EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 //		return;
 //	}
+//	///////////////////////////////////// we are safe to proceed /////////
 //
 //	// Handle what we will do if this interactable is an automatic interact on overlap. If there are other interactables like this that we are currently overlaping with,
 //	// we will take care of all of them in one ability (this one) instead of a bunch of ability calls for each one.

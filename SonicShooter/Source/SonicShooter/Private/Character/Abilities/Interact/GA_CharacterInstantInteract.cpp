@@ -47,6 +47,7 @@ void UGA_CharacterInstantInteract::ActivateAbility(const FGameplayAbilitySpecHan
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
+	///////////////////////////////////// we are safe to proceed /////////
 
 	Interactable->OnInstantInteract(ShooterCharacter);
 

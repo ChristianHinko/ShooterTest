@@ -20,7 +20,14 @@ AEquipment::AEquipment()
 }
 void AEquipment::PostInitializeComponents()
 {
-	AAbilitySystemActor::Super::PostInitializeComponents();		// skip AAbilitySystemActor's call on SetupWithAbilitySystem()
+	if (Super::StaticClass() == AAbilitySystemActor::StaticClass())
+	{
+		AAbilitySystemActor::Super::PostInitializeComponents();	// skip AAbilitySystemActor's call on SetupWithAbilitySystem()
+	}
+	else
+	{
+		Super::PostInitializeComponents();
+	}
 
 
 }

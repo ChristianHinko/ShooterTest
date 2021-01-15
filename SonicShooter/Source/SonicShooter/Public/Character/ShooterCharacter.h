@@ -26,7 +26,12 @@ private:
 public:
 	AShooterCharacter(const FObjectInitializer& ObjectInitializer);
 
-
+	/**
+	 * This setup, with the static FName InventoryComponentName and SetDefaultSubobjectClass allows you to
+	 * have a bit of a heirarchy for your character classes. For example, you can have a base class that uses a basic
+	 * inventory component and a 'PlayerCharacter' subclass that has an Active inventory component.
+	 * It is up to you if you want to go this route.
+	*/
 	static FName InventoryComponentName;
 
 	class UArcInventoryComponent* GetInventoryComponent() const override { return InventoryComponent; }

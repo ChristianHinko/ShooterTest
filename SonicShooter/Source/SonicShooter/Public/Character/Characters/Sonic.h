@@ -6,7 +6,7 @@
 #include "Character/ShooterCharacter.h"
 #include "Sonic.generated.h"
 
-class AWeapon;///////// remove this
+
 
 /**
  * 
@@ -24,12 +24,6 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 
 
-	// testing, delete these
-	AWeapon* TestWeapon;
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<AWeapon> MyTestWeapon;
-
-
 	//virtual void OnJumpPressed() override;
 	//virtual void OnJumpReleased() override;
 
@@ -38,8 +32,4 @@ protected:
 
 	//virtual void OnCrouchPressed() override;
 	//virtual void OnCrouchReleased() override;
-
-	FTimerHandle MyTimerHandle;
-	void MyTimerCallback();
-
 };

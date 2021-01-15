@@ -11,9 +11,6 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Actor/AS_Health.h"
 #include "Character/AS_Character.h"
-#include "ActorComponents/InventoryComponent.h"
-#include "Actor/Weapon/Weapon.h"
-#include "Net/UnrealNetwork.h"
 #include "Character/SSCharacterMovementComponent.h"
 
 
@@ -53,8 +50,6 @@ void ASonic::BeginPlay()
 	Super::BeginPlay();
 
 
-	TestWeapon = GetWorld()->SpawnActor<AWeapon>(MyTestWeapon);
-	GetWorldTimerManager().SetTimer(MyTimerHandle, this, &ASonic::MyTimerCallback, 10.f, false);
 }
 
 void ASonic::Tick(float DeltaSeconds)
@@ -111,12 +106,3 @@ void ASonic::Tick(float DeltaSeconds)
 //{
 //	SSCharacterMovementComponent->SetWantsToRun(false);
 //}
-
-
-void ASonic::MyTimerCallback()
-{
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		Inventory->AddWeaponToInventory(TestWeapon);
-	}
-}

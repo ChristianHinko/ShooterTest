@@ -10,7 +10,6 @@
 //#include "GameFramework/CharacterMovementComponent.h"
 //#include "Kismet/KismetSystemLibrary.h"
 //#include "Actor/AS_Health.h"
-#include "ActorComponents/InventoryComponent.h"
 #include "Actor/Weapon/Weapon.h"
 #include "Net/UnrealNetwork.h"
 

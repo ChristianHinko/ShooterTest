@@ -11,7 +11,6 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Actor/AS_Health.h"
 #include "Character/AS_Character.h"
-#include "ActorComponents/InventoryComponent.h"
 #include "Actor/Weapon/Weapon.h"
 #include "Net/UnrealNetwork.h"
 #include "Character/SSCharacterMovementComponent.h"
@@ -117,6 +116,6 @@ void ASonic::MyTimerCallback()
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		Inventory->AddWeaponToInventory(TestWeapon);
+		//Inventory->AddWeaponToInventory(TestWeapon);
 	}
 }

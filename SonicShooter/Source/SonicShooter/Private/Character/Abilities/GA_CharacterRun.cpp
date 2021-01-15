@@ -1,33 +1,78 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/Abilities/GA_CharacterRun.h"
+#include "Character\Abilities\GA_CharacterRun.h"
 
 #include "Character/AbilitySystemCharacter.h"
 #include "Character/SSCharacterMovementComponent.h"
-#include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
-#include "Character\AbilitySystemCharacter.h"
-#include "Character\AS_Character.h"
+
 #include "Kismet/KismetSystemLibrary.h"
+
+
 
 UGA_CharacterRun::UGA_CharacterRun()
 {
-	TagOutOfStamina = FGameplayTag::RequestGameplayTag(FName("State.Character.OutOfStamina"));
-	
-	
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Run")));
-	
-	ActivationBlockedTags.AddTagFast(TagOutOfStamina);
-	
-	TickTimerDel.BindUObject(this, &UGA_CharacterRun::OnTimerTick);
 
+
+	FGameplayTag RunDisabledTag = FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled");
+	ActivationBlockedTags.AddTag(RunDisabledTag);	// This isn't the singular thing stopping you from running. The CMC is what listens for the presence of the RunDisabledTag and blocks running. This check just saves an ability activation.
+
+	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Crouch"));
+}
+
+
+void UGA_CharacterRun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+{
+	Super::OnAvatarSet(ActorInfo, Spec);
+
+	// Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times
+	if (!ActorInfo)
+	{
+		return;
+	}
+	if (!ActorInfo->AvatarActor.Get())
+	{
+		return;
+	}
+
+
+	GASCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
+	if (!GASCharacter)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL"), *FString(__FUNCTION__));
+		return;
+	}
+	CMC = GASCharacter->GetSSCharacterMovementComponent();
+	if (!CMC)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetSSCharacterMovementComponent was NULL"), *FString(__FUNCTION__));
+	}
 }
 
 bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
+	// Returning false in here for checks is better than doing checks in ActivateAbility() since returning false triggers a rollback on the client if Server returns false. In our previous method we called EndAbility() inside ActivateAbility() if a check didn't pass, which doesn't even cancel it on the remote machine if client since bRespectsRemoteAbilityToCancel most of the time will be false.
 	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 	{
+		return false;
+	}
+
+	if (!GASCharacter)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL. Returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+	if (!CMC)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+
+	if (CMC->CanRunInCurrentState() == false)
+	{
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Was not able to run in current state when trying to activate ability. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
 
@@ -38,115 +83,18 @@ void UGA_CharacterRun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-
-	if (!DrainStaminaFromRunEffectTSub)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("Effect TSubclassOf empty in %s so this ability was canceled - please fill out Character Run ability blueprint"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
-		return;
-	}
-	USSCharacterMovementComponent* CMC = Cast<USSCharacterMovementComponent>(ActorInfo->MovementComponent);
-	if (!CMC)
-	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() CharacterMovementComponent was NULL when trying to run. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
-		return;
-	}
-	UAbilityTask_WaitInputRelease* InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
-	if (!InputReleasedTask)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate run ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
-		return;
-	}
-	GASCharacter = Cast<AAbilitySystemCharacter>(GetAvatarActorFromActorInfo());
-	if (!GASCharacter)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL when trying to run. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
-		return;
-	}
-	if (GASCharacter->GetCharacterAttributeSet()->GetStamina() <= 0)
-	{
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
-		return;
-	}
-
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
+	/////////////////////////////////////////////    we've passed the checks //////
 
-	
 
-
-	// Lets do the logic we want to happen when the ability starts.
-	//	Make sure we apply effect in valid prediction key window so we make sure the tag also gets applied on the client too
-	CMC->SetWantsToRun(true);
 	RunningEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, RunningEffectTSub.GetDefaultObject(), GetAbilityLevel());
 
-	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterRun::OnRelease);
-	InputReleasedTask->ReadyForActivation();
-
-	GetWorld()->GetTimerManager().SetTimer(TickTimerHandle, TickTimerDel, 1.f, true, 0.f);
-
-
+	CMC->Run();
 }
-
-//	Somehow we have a valid prediction key here. I guess we don't need a WaitNetSync
-void UGA_CharacterRun::OnTimerTick()
-{
-	if (GASCharacter)
-	{
-		if (GASCharacter->GetCharacterAttributeSet())
-		{
-			
-			
-
-			if (GASCharacter->GetCharacterAttributeSet()->GetStamina() > 1)
-			{
-				ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DrainStaminaFromRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
-			}
-			else if (GASCharacter->GetCharacterAttributeSet()->GetStamina() == 1)
-			{
-				EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);	// no need to replicate, server runs this too
-			}
-			
-		}
-	}
-
-
-
-	
-	
-}
-
-void UGA_CharacterRun::OnRelease(float TimeHeld)
-{
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);	// no need to replicate, server runs this too
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -166,73 +114,18 @@ void UGA_CharacterRun::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 
 
 
-	// Lets do the logic we want to happen when the ability ends. If you want you can do an async task,
-	// but just make sure you don't call Super::EndAbility until after the task ends (call Super::EndAbility in the task's callback)
 
-	//	This is where we make the character stop moving fast since this is the moment we decrement Stamina attribute to 0
-	//	Stop movement and remove the IsRunning tag by removing the run effect before we apply the stamina drain effect, that way when we we react to the stamina attribute changing to 0, the IsRunningTag will not be on the player
-	if (GetCurrentActorInfo())
-	{
-		USSCharacterMovementComponent* CMC = CastChecked<USSCharacterMovementComponent>(GetCurrentActorInfo()->MovementComponent);
-		if (CMC && GetCurrentActorInfo()->AbilitySystemComponent.Get())
-		{
-			//	We want to group all ending actions for this ability together instead of them having them inside their own NULL checks. We want all our logic running or none of it running
-			CMC->SetWantsToRun(false);
-			GetCurrentActorInfo()->AbilitySystemComponent->RemoveActiveGameplayEffect(RunningEffectActiveHandle);
-		}
-		else
-		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() Either CMC or ActorInfo->AbilitySystemComponent.Get() was NULL when trying to remove RunningEffectActiveHandle and when trying to run CMC->SetWantsToRun(false);"), *FString(__FUNCTION__));
-		}
-	}
-	else
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo was NULL when trying to remove RunningEffectActiveHandle and when trying to run CMC->SetWantsToRun(false);"), *FString(__FUNCTION__));
-	}
+	CMC->UnRun();
+
+	ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(RunningEffectActiveHandle);
 
 
 
-
-	if (GASCharacter->GetCharacterAttributeSet()->GetStamina() == 1)
-	{
-		//	Decrement the stamina attribute after we remove IsRunning tag that way when we listen for the attribute reaching 0 the IsRunning tag won't be present
-		ApplyGameplayEffectToOwner(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DrainStaminaFromRunEffectTSub.GetDefaultObject(), GetAbilityLevel());
-
-	}
-	
 	//Now call the Super to finish ending the ability.
-	/* 
+	/*
 		IMPORTANT: If part of your gameplay logic in EndAbility() uses an async task, make sure you wait until the task is completed before you call Super::EndAbility.
 		Otherwise the task may not complete. Call Super::EndAbility inside the task's OnComplete delegate.
 	*/
 	// super end ability loops through all tasks and calls OnDestroy; however, this is a virtual function, some tasks may not be destroyed on end ability (this is probably a super rare case tho) (dan says WaitTargetData doesn't end)
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void UGA_CharacterRun::BeginDestroy()
-{
-	Super::BeginDestroy();
-
-	// Alternatively you can clear ALL timers that belong to this (Actor) instance.
-	if (GetWorld())
-	{
-		GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
-	}
-}
-
-

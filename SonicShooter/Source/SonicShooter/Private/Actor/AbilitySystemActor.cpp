@@ -45,7 +45,7 @@ void AAbilitySystemActor::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 
-	//if (!bAbilitySystemSetupInitialized)		//maybe do this so we dont have to call AAbilitySystemActor::Super::?
+	//if (!bWithoutAbilitySystemComponentSubobject) // TODO: check this out, add this and we won't have to override PIC for subclasses that have this bool true
 	//{
 		SetupWithAbilitySystem();
 	//}

@@ -18,7 +18,7 @@ class UAS_Health;
 
 
 
-DECLARE_MULTICAST_DELEGATE(FSetupWithAbilitySystemCompleted);
+DECLARE_MULTICAST_DELEGATE(FSetupWithAbilitySystemDelegate);
 
 /**
  * A Base GAS class
@@ -80,22 +80,35 @@ public:
 	UAS_Health* GetHealthAttributeSet() const { return HealthAttributeSet; }
 
 #pragma region AbilitySystemSetup Delegates
-	FSetupWithAbilitySystemCompleted SetupWithAbilitySystemCompleted;
-	FSetupWithAbilitySystemCompleted OnServerAknowledgeClientSetupAbilitySystem;
+	FSetupWithAbilitySystemDelegate SetupWithAbilitySystemCompleted;
+	/**
+	 * This is broadcasted when the ability system is set up but startup effects aren't applied, default attributes aren't initialized, and
+	 * starting abilities aren't granted.
+	 */
+	FSetupWithAbilitySystemDelegate PreApplyStartupEffects;
+	FSetupWithAbilitySystemDelegate OnServerAknowledgeClientSetupAbilitySystem;			// bad idea, server shouldnt have to wait for client
 #pragma endregion
 
-protected:
+	/** These effects are only applied one time on startup (ie. GE_HealthRegen, GE_StaminaRegen) */
+	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Effects")
+		TArray<TSubclassOf<UGameplayEffect>> EffectsToApplyOnStartup;
+
+#pragma region Effects
+	/** Default attributes values for a Character on spawn. This should be an instant GE with the Modifier Op set to Override so you can choose what the Character's starting attribute values will be on spawn */
+	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Effects")
+		TSubclassOf<UGameplayEffect> DefaultAttributeValuesEffectTSub;
+#pragma endregion
+
 #pragma region Abilities
-	/** Note: No AbilitySpecHandles are tracked upon grant. These are good for passive abilities. These abilities are assigned EAbilityInputID::None */
-	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
-		TArray<TSubclassOf<USSGameplayAbility>> NonHandleStartingAbilities;
-
-
-
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
 		TSubclassOf<USSGameplayAbility> CharacterJumpAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle CharacterJumpAbilitySpecHandle;
+
+	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
+		TSubclassOf<USSGameplayAbility> CharacterCrouchAbilityTSub;
+	UPROPERTY(Replicated)
+		FGameplayAbilitySpecHandle CharacterCrouchAbilitySpecHandle;
 
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
 		TSubclassOf<USSGameplayAbility> CharacterRunAbilityTSub;
@@ -103,14 +116,12 @@ protected:
 		FGameplayAbilitySpecHandle CharacterRunAbilitySpecHandle;
 #pragma endregion
 
-#pragma region Effects
-	/** Default attributes values for a Character on spawn. This should be an instant GE with the Modifier Op set to Override so you can choose what the Character's starting attribute values will be on spawn */
-	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Effects")
-		TSubclassOf<UGameplayEffect> DefaultAttributeValuesEffect;
-	/** These effects are only applied one time on startup (ie. GE_HealthRegen, GE_StaminaRegen) */
-	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Effects")
-		TArray<TSubclassOf<UGameplayEffect>> EffectsToApplyOnStartup;
-#pragma endregion
+protected:
+	/** Note: No AbilitySpecHandles are tracked upon grant. These are good for passive abilities. These abilities are assigned EAbilityInputID::None */
+	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
+		TArray<TSubclassOf<USSGameplayAbility>> NonHandleStartingAbilities;
+
+
 
 	/** Decide which replication mode you want for the AIAbilitySystemComponent. Should normally be set to Minimal. Only change if you know what your doing */
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|AI")
@@ -118,11 +129,6 @@ protected:
 
 	UPROPERTY()
 		ASSPlayerState* SSPlayerState;
-
-
-	
-
-
 
 
 	
@@ -192,16 +198,11 @@ protected:
 	virtual void OnInteractPressed() override;
 	virtual void OnInteractReleased() override;
 
-	virtual void OnJumpPressed() override;
-	virtual void OnJumpReleased() override;
-
-	virtual void OnRunPressed() override;
-	virtual void OnRunReleased() override;
-
 	virtual void OnPrimaryFirePressed() override;
 	virtual void OnPrimaryFireReleased() override;
 
 #pragma endregion
+
 
 private:
 	// only one of these ASC will be active at a time

@@ -17,12 +17,20 @@ void UAS_Health::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 }
 
 UAS_Health::UAS_Health()
-	: MaxHealth(100),
-	Health(GetMaxHealth())
+	: MaxHealth(100)//,
+	//Health(GetMaxHealth())
 {
+	SetSoftAttributeDefaults();
+
 
 }
 
+void UAS_Health::SetSoftAttributeDefaults()
+{
+	Super::SetSoftAttributeDefaults();
+
+	Health = GetMaxHealth();
+}
 
 bool UAS_Health::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
 {

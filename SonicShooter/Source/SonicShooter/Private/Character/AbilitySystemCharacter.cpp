@@ -17,7 +17,9 @@
 #include "Character/AS_Character.h"
 #include "Actor/AS_Health.h"
 
+#include "Character/SSCharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+
 
 
 
@@ -29,6 +31,7 @@ void AAbilitySystemCharacter::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	DOREPLIFETIME(AAbilitySystemCharacter, CharacterAttributeSet);
 	DOREPLIFETIME(AAbilitySystemCharacter, HealthAttributeSet);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterJumpAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterCrouchAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterRunAbilitySpecHandle, COND_OwnerOnly);
 	//DOREPLIFETIME(AAbilitySystemCharacter, PlayerAbilitySystemComponent);			//can be helpful for debugging
 }
@@ -55,6 +58,7 @@ AAbilitySystemCharacter::AAbilitySystemCharacter(const FObjectInitializer& Objec
 		AIAbilitySystemComponent->SetIsReplicated(true);
 	}
 }
+
 
 void AAbilitySystemCharacter::Tick(float DeltaTime)
 {
@@ -138,16 +142,24 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 
 		if (!bAttributesAndStartupEffectsInitialized)
 		{
-			// Must run these on Server but we run them on client too so that we don't have to wait.. It's how Dan does it so seams legit
-			CreateAttributeSets();
-			RegisterAttributeSets();
+
+
 			if (GetLocalRole() == ROLE_Authority)
 			{
+				// Moved these attribute set stuff into this check because seems to make more sence. move outside if problems arise
+				CreateAttributeSets();
+				RegisterAttributeSets();
 				// Must call ForceReplication after registering an attribute set(s)
 				PlayerAbilitySystemComponent->ForceReplication();
 			}
-			InitializeAttributes();
-			ApplyStartupEffects();
+			
+			PreApplyStartupEffects.Broadcast();	// Good place to bind to Attribute/Tag events, but currently effect replicates to client faster than it can broadcast, so we need to fix this
+
+			if (GetLocalRole() == ROLE_Authority)
+			{
+				InitializeAttributes();
+				ApplyStartupEffects();
+			}
 
 			bAttributesAndStartupEffectsInitialized = true;
 		}
@@ -163,13 +175,9 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 		}
 
 		// Refresh ASC Actor Info for clients. Server will be refreshed by its AIController/PlayerController when it possesses a new Actor.
-		if (GetLocalRole() != ROLE_Authority) // CLIENT
+		if (IsLocallyControlled()) // CLIENT
 		{
 			PlayerAbilitySystemComponent->RefreshAbilityActorInfo();
-		}
-
-		if (IsLocallyControlled())
-		{
 			ServerOnSetupWithAbilitySystemCompletedOnOwningClient();
 		}
 	}
@@ -206,6 +214,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 			RegisterAttributeSets();
 			// Must call ForceReplication after registering an attribute set(s)
 			AIAbilitySystemComponent->ForceReplication();
+			PreApplyStartupEffects.Broadcast();					// at this point the asc is safe to use
 			InitializeAttributes();
 			ApplyStartupEffects();
 
@@ -226,6 +235,22 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 	SetupWithAbilitySystemCompleted.Broadcast();
 }
 #pragma endregion
+
+bool AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningClient_Validate()
+{
+	return true;
+}
+void AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningClient_Implementation()
+{
+	// Wanted to make it clear that THIS IS NOT HOW THINGS SHOULD BE IMPLEMENTED. This RPC makes the server wait on the client to grant the ability which can be bad. Initially I thought the server needed to wait for the client or something, but I no longer think that is the case anymore since solving this race condition by RPCing is basicly the same thing as solving it using a delay node.
+	// Fix in GameTemplate!
+
+	// When posessing this Character always grant the player's ASC his starting abilities
+	GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
+	GrantNonHandleStartingAbilities();
+
+	OnServerAknowledgeClientSetupAbilitySystem.Broadcast();
+}
 
 #pragma region ASC Setup Helpers
 void AAbilitySystemCharacter::CreateAttributeSets()
@@ -272,7 +297,7 @@ void AAbilitySystemCharacter::CreateAttributeSets()
 void AAbilitySystemCharacter::RegisterAttributeSets()
 {
 	// give the ASC the default Character attribute set
-	if (CharacterAttributeSet && !GetAbilitySystemComponent()->SpawnedAttributes.Contains(CharacterAttributeSet))	// If CharacterAttributeSet is valid and it's not yet registered with the Character's ASC
+	if (CharacterAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(CharacterAttributeSet))	// If CharacterAttributeSet is valid and it's not yet registered with the Character's ASC
 	{
 		GetAbilitySystemComponent()->AddAttributeSetSubobject(CharacterAttributeSet);
 	}
@@ -281,7 +306,7 @@ void AAbilitySystemCharacter::RegisterAttributeSets()
 		UE_CLOG((GetLocalRole() == ROLE_Authority), LogAbilitySystemSetup, Warning, TEXT("%s() CharacterAttributeSet was either NULL or already added to the character's ASC. Character: %s"), *FString(__FUNCTION__), *GetName());
 	}
 
-	if (HealthAttributeSet && !GetAbilitySystemComponent()->SpawnedAttributes.Contains(HealthAttributeSet))	// If HealthAttributeSet is valid and it's not yet registered with the Character's ASC
+	if (HealthAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(HealthAttributeSet))	// If HealthAttributeSet is valid and it's not yet registered with the Character's ASC
 	{
 		GetAbilitySystemComponent()->AddAttributeSetSubobject(HealthAttributeSet);
 	}
@@ -297,7 +322,7 @@ void AAbilitySystemCharacter::RegisterAttributeSets()
 	// \/\/\/\/ This is how you should register each of your attribute sets after calling the Super \/\/\/\/
 	// -------------------------------------------------------------------------------------------------- //
 	/*
-				if (MyAttributeSet && !GetAbilitySystemComponent()->SpawnedAttributes.Contains(MyAttributeSet))
+				if (MyAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(MyAttributeSet))
 				{
 					GetAbilitySystemComponent()->AddAttributeSetSubobject(MyAttributeSet);
 				}
@@ -318,7 +343,7 @@ void AAbilitySystemCharacter::InitializeAttributes()
 		UE_LOG(LogAbilitySystemSetup, Error, TEXT("GetAbilitySystemComponent() returned null on %s"), *FString(__FUNCTION__));
 		return;
 	}
-	if (!DefaultAttributeValuesEffect)
+	if (!DefaultAttributeValuesEffectTSub)
 	{
 		UE_LOG(LogAbilitySystemSetup, Warning, TEXT("%s() Missing DefaultAttributeValuesEffect for %s. Please fill DefaultAttributeValuesEffect in the Character's Blueprint."), *FString(__FUNCTION__), *GetName());
 		return;
@@ -329,7 +354,7 @@ void AAbilitySystemCharacter::InitializeAttributes()
 	EffectContextHandle.AddInstigator(this, this);
 	EffectContextHandle.AddSourceObject(this);
 
-	FGameplayEffectSpecHandle NewEffectSpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(DefaultAttributeValuesEffect, 1/*GetLevel()*/, EffectContextHandle);
+	FGameplayEffectSpecHandle NewEffectSpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(DefaultAttributeValuesEffectTSub, 1/*GetLevel()*/, EffectContextHandle);
 	if (NewEffectSpecHandle.IsValid())
 	{
 		GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*NewEffectSpecHandle.Data.Get());
@@ -376,6 +401,7 @@ bool AAbilitySystemCharacter::GrantStartingAbilities()
 
 	// GetLevel() doesn't exist in this template. Will need to implement one if you want a level system
 	CharacterJumpAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterJumpAbilityTSub, this, EAbilityInputID::Jump/*, GetLevel()*/);
+	CharacterCrouchAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterCrouchAbilityTSub, this, EAbilityInputID::Crouch/*, GetLevel()*/);
 	CharacterRunAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterRunAbilityTSub, this, EAbilityInputID::Run/*, GetLevel()*/);
 
 	return true;
@@ -411,19 +437,6 @@ void AAbilitySystemCharacter::GrantNonHandleStartingAbilities()
 	}
 }
 #pragma endregion
-
-bool AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningClient_Validate()
-{
-	return true;
-}
-void AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningClient_Implementation()
-{
-	// When posessing this Character always grant the player's ASC his starting abilities
-	GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
-	GrantNonHandleStartingAbilities();
-
-	OnServerAknowledgeClientSetupAbilitySystem.Broadcast();
-}
 
 #pragma region Input
 void AAbilitySystemCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -489,30 +502,6 @@ void AAbilitySystemCharacter::OnInteractReleased()
 
 }
 
-void AAbilitySystemCharacter::OnJumpPressed()
-{
- 	if (GetAbilitySystemComponent())
-	{
-		GetAbilitySystemComponent()->TryActivateAbility(CharacterJumpAbilitySpecHandle);
-	}
-}
-void AAbilitySystemCharacter::OnJumpReleased()
-{
-
-}
-
-void AAbilitySystemCharacter::OnRunPressed()
-{
-	if (GetAbilitySystemComponent())
-	{
-		GetAbilitySystemComponent()->TryActivateAbility(CharacterRunAbilitySpecHandle);
-	}
-}
-void AAbilitySystemCharacter::OnRunReleased()
-{
-
-}
-
 void AAbilitySystemCharacter::OnPrimaryFirePressed()
 {
 	
@@ -522,6 +511,7 @@ void AAbilitySystemCharacter::OnPrimaryFireReleased()
 
 }
 #pragma endregion
+
 
 #pragma region Ability System Unpossess
 int32 AAbilitySystemCharacter::UnregisterCharacterOwnedAttributeSets()
@@ -537,13 +527,13 @@ int32 AAbilitySystemCharacter::UnregisterCharacterOwnedAttributeSets()
 	}
 
 	int32 retVal = 0;
-	for (int32 i = GetAbilitySystemComponent()->SpawnedAttributes.Num() - 1; i >= 0; i--)
+	for (int32 i = GetAbilitySystemComponent()->GetSpawnedAttributes().Num() - 1; i >= 0; i--)
 	{
-		if (UAttributeSet* AS = GetAbilitySystemComponent()->SpawnedAttributes[i])
+		if (UAttributeSet* AS = GetAbilitySystemComponent()->GetSpawnedAttributes()[i])
 		{
 			if (AS->GetOwningActor() == this)	// for attribute sets we check the OwningActor since thats what they use. It's also automatically set by the engine so were good
 			{
-				GetAbilitySystemComponent()->SpawnedAttributes.RemoveAt(i);
+				GetAbilitySystemComponent()->GetSpawnedAttributes_Mutable().RemoveAt(i);
 				retVal++;
 			}
 		}

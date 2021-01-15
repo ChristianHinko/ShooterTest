@@ -11,7 +11,7 @@ UGA_ADS::UGA_ADS()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.ADS")));
 
-	TagAimingDownSights = FGameplayTag::RequestGameplayTag(FName("State.Character.IsAimingDownSights"));
+	TagAimingDownSights = FGameplayTag::RequestGameplayTag(FName("Character.State.IsAimingDownSights"));
 	ActivationOwnedTags.AddTagFast(TagAimingDownSights);
 }
 
@@ -34,31 +34,32 @@ void UGA_ADS::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGa
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 
-	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
-	{
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
-		return;
-	}
 	/*if (!ADSEffectTSub)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("Effect TSubclassOf empty in %s so this ability was canceled - please fill out ADS ability blueprint"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		UE_LOG(LogGameplayAbility, Error, TEXT("Effect TSubclassOf empty in %s so this ability was ended - please fill out ADS ability blueprint"), *FString(__FUNCTION__));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}*/
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	if (!Character)
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Character was NULL when trying to activate ADS ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Character was NULL when trying to activate ADS ability. Called EndAbility()"), *FString(__FUNCTION__));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	UAbilityTask_WaitInputRelease* InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
 	if (!InputReleasedTask)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate ADS ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate ADS ability. Called EndAbility()"), *FString(__FUNCTION__));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		return;
+	}
+	///////////////////////////////////// we are safe to proceed /////////
 
 	//	Make sure we apply effect in valid prediction key window so we make sure the tag also gets applied on the client too
 	//ADSEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, ADSEffectTSub.GetDefaultObject(), GetAbilityLevel());

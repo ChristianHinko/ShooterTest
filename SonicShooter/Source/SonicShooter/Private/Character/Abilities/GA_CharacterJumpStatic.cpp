@@ -6,7 +6,10 @@
 #include "Character/AbilitySystemCharacter.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 
-
+// THIS ABILITY IS WAYYYYYY OUTDATED!!!!!!!!!!!!!!!!
+// WE HAVE NOT IMPLEMENTED THE NEW WAY OF DOING MOVEMENT ABILITIES FOR THIS STATIC VERISON OF JUMP!!!!
+// IF YOU WANT TO USE THIS FOLLOW THE WAY THE STANDARD GA_CharacterJump DOES IT!!!!!!!!!
+// WE JUST HAVENT FIXED THIS STATIC VERSION BECAUSE WE AREN'T USING IT!!!!!!!
 
 UGA_CharacterJumpStatic::UGA_CharacterJumpStatic()
 {
@@ -30,19 +33,22 @@ bool UGA_CharacterJumpStatic::CanActivateAbility(const FGameplayAbilitySpecHandl
 void UGA_CharacterJumpStatic::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
 
-	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
-	{
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
-		return;
-	}
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	if (!Character)
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Character was NULL when trying to activate static jump ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Character was NULL when trying to activate static jump ability. Called EndAbility()"), *FString(__FUNCTION__));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
+
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		return;
+	}
+	///////////////////////////////////// we are safe to proceed /////////
 
 
 	Character->Jump();

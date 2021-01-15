@@ -53,6 +53,7 @@ protected:
 	//	Server only. Handle using 'meta' attributes for modifying 'persistant' attributes. Such as Damage modifying Health
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 
+	virtual void SetSoftAttributeDefaults() override;
 
 	UFUNCTION()
 		virtual void OnRep_MaxHealth(const FGameplayAttributeData& ServerBaseValue);

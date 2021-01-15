@@ -7,7 +7,6 @@
 #include "ShooterCharacter.generated.h"
 
 class IInteractable;
-class UInventoryComponent;
 class UInteractorComponent;
 
 /**
@@ -21,8 +20,6 @@ class SONICSHOOTER_API AShooterCharacter : public AAbilitySystemCharacter
 public:
 	AShooterCharacter(const FObjectInitializer& ObjectInitializer);
 
-	UPROPERTY(/*Replicated*/)
-		UInventoryComponent* Inventory;
 	UPROPERTY()
 		UInteractorComponent* Interactor;
 
@@ -40,10 +37,10 @@ public:
 
 protected:
 
-	/*UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
+	UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
 		FVector CameraSwayAmount;
 	UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
-		FVector AddedCameraSwayDuringADS;*/
+		FVector AddedCameraSwayDuringADS;
 
 	//BEGIN AActor Interface
 	virtual void Tick(float DeltaSeconds) override;

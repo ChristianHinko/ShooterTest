@@ -6,9 +6,8 @@
 #include "Net/UnrealNetwork.h"
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
-#include "ActorComponents/InventoryComponent.h"
 #include "ActorComponents/InteractorComponent.h"
-
+#include "GameFramework/CharacterMovementComponent.h"
 
 void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -16,15 +15,15 @@ void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 
 	DOREPLIFETIME_CONDITION(AShooterCharacter, InteractInstantAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, InteractDurationAbilitySpecHandle, COND_OwnerOnly);
-
-	//DOREPLIFETIME(AShooterCharacter, Inventory);
 }
 
 AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
 	Interactor = CreateDefaultSubobject<UInteractorComponent>(TEXT("Interactor"));
+
+	CameraSwayAmount = FVector(0, 1.3f, .4f);
+	AddedCameraSwayDuringADS = FVector(0, -1.1f, -.1f);
 }
 
 bool AShooterCharacter::GrantStartingAbilities()
@@ -41,14 +40,16 @@ bool AShooterCharacter::GrantStartingAbilities()
 	return true;
 }
 
+//#include "Kismet/KismetSystemLibrary.h"
+//#include "Kismet/KismetMathLibrary.h"
+//#include "GameFramework/SpringArmComponent.h"
 void AShooterCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-
 	//float frameHorizontalMouseRate = 0;
 	//float frameVerticalMouseRate = 0;
-	//Cast<APlayerController>(GetController())-> GetInputMouseDelta(frameHorizontalMouseRate, frameVerticalMouseRate);
+	//Cast<APlayerController>(GetController())->GetInputMouseDelta(frameHorizontalMouseRate, frameVerticalMouseRate);
 	//
 
 	//// Weapon sway
@@ -61,7 +62,7 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 	//	{
 	//		FVector CurrentCameraLocation = FVector(GetCameraBoom()->GetRelativeTransform().GetLocation());
 
-	//		GetCameraBoom()->SetRelativeLocation(UKismetMathLibrary::VInterpTo(CurrentCameraLocation, NewCameraLocation, DeltaTime, 10));
+	//		GetCameraBoom()->SetRelativeLocation(UKismetMathLibrary::VInterpTo(CurrentCameraLocation, NewCameraLocation, DeltaSeconds, 10));
 	//	}
 
 	//	
@@ -85,7 +86,7 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 
 
 
-	//		GetCameraBoom()->SetRelativeLocation(UKismetMathLibrary::VInterpTo(CurrentCameraLocation, NewCameraLocation, DeltaTime, 10));
+	//		GetCameraBoom()->SetRelativeLocation(UKismetMathLibrary::VInterpTo(CurrentCameraLocation, NewCameraLocation, DeltaSeconds, 10));
 	//	}
 
 
@@ -106,3 +107,4 @@ void AShooterCharacter::OnPrimaryFirePressed()
 	//	GetAbilitySystemComponent()->TryActivateAbility(CurrentWeapon->FireAbilitySpecHandle);		for when we add inventory system
 	//}
 }
+

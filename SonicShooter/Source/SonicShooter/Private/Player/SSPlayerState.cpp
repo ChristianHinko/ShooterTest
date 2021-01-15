@@ -3,7 +3,7 @@
 
 #include "Player/SSPlayerState.h"
 
-//#include "AbilitySystem/SSAbilitySystemComponent.h"	// it's compiling without this I think because its included in the header
+#include "Character/AbilitySystemCharacter.h"
 #include "Player/AS_PlayerState.h"
 
 
@@ -29,4 +29,6 @@ ASSPlayerState::ASSPlayerState()
 	NetUpdateFrequency = 100.0f;
 	// we're not sure if adaptive net update frequency is safe for PS or what a safe min update frequency would be for PS so we just set it to the max
 	MinNetUpdateFrequency = NetUpdateFrequency;
+
+	
 }

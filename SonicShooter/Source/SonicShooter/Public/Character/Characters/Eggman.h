@@ -6,7 +6,7 @@
 #include "Character/ShooterCharacter.h"
 #include "Eggman.generated.h"
 
-class AWeapon;///////// remove this
+
 
 /**
  * 

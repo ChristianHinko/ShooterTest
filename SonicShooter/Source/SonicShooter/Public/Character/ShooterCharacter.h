@@ -7,7 +7,6 @@
 #include "ShooterCharacter.generated.h"
 
 class IInteractable;
-class UInventoryComponent;
 class UInteractorComponent;
 
 /**
@@ -21,8 +20,6 @@ class SONICSHOOTER_API AShooterCharacter : public AAbilitySystemCharacter
 public:
 	AShooterCharacter(const FObjectInitializer& ObjectInitializer);
 
-	UPROPERTY(/*Replicated*/)
-		UInventoryComponent* Inventory;
 	UPROPERTY()
 		UInteractorComponent* Interactor;
 

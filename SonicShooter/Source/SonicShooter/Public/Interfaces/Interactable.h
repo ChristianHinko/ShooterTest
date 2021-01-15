@@ -29,7 +29,7 @@ enum class EDurationInteractEndReason
 	REASON_SweepMiss,			// Character's Interaction sweep missed. (Can't reach it)
 	REASON_CharacterLeftInteractionOverlap,
 	REASON_NewInteractionOverlapPriority,	// Not currently being used. May add this feature in the future
-	REASON_AbilityCanceled,					// Used whenever the ability gets canceled (most likely due to one end not having valid variables on activation)
+	REASON_PredictionCorrected,					// Used whenever the ability gets ended because the server rejected it (most likely due to one end not having valid variables on activation). Not a feature yet
 	REASON_SuccessfulInteract	// After you've successfully interacted (Frame after the last frame of interaction)
 };
 

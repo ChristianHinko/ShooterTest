@@ -20,6 +20,16 @@ public:
 	ASonic(const FObjectInitializer& ObjectInitializer);
 
 protected:
+	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
+
+	//virtual void OnJumpPressed() override;
+	//virtual void OnJumpReleased() override;
+
+	//virtual void OnRunPressed() override;
+	//virtual void OnRunReleased() override;
+
+	//virtual void OnCrouchPressed() override;
+	//virtual void OnCrouchReleased() override;
 };

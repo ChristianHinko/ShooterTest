@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Actor/Item/Item.h"
+#include "Actor\Item\Item.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 #include "Interfaces/Interactable.h"
@@ -12,7 +12,7 @@ AItem::AItem()
 	bWithoutAbilitySystemComponentSubobject = true;
 
 	bShouldFireDetectionEvents = true;
-	
+
 	bIsAutomaticInstantInteract = false;
 	bIsAutomaticDurationInteract = false;
 	bIsManualInstantInteract = false;
@@ -20,7 +20,14 @@ AItem::AItem()
 }
 void AItem::PostInitializeComponents()
 {
-	AAbilitySystemActor::Super::PostInitializeComponents();		// skip AAbilitySystemActor's call on SetupWithAbilitySystem()
+	if (Super::StaticClass() == AAbilitySystemActor::StaticClass())
+	{
+		AAbilitySystemActor::Super::PostInitializeComponents();	// skip AAbilitySystemActor's call on SetupWithAbilitySystem()
+	}
+	else
+	{
+		Super::PostInitializeComponents();
+	}
 
 
 }
@@ -72,7 +79,7 @@ void AItem::OnDurationInteractEnd(AShooterCharacter* InteractingPawn, EDurationI
 		Destroy();	// Destroying on complete causes that weird problem where (im guessing the next interactable in the stack) doesn't stop ticking if you leave. And completes.
 		//UKismetSystemLibrary::PrintString(this, "OnDurationInteractEnd", true, false, FLinearColor::Gray);
 	}
-	
+
 }
 
 

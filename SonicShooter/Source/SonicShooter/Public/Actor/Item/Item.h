@@ -9,6 +9,7 @@
 #include "Item.generated.h"
 
 class USSGameplayAbility;
+class AShooterCharacter;
 
 enum class EItemType : uint8
 {

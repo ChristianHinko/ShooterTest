@@ -91,9 +91,10 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //
 //	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 //	{
-//		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+//      EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 //		return;
 //	}
+//	///////////////////////////////////// we are safe to proceed /////////
 //
 //	// Handle what we will do if this interactable is an automatic interact on overlap. If there are other interactables like this that we are currently overlaping with,
 //	// we will take care of all of them in one ability (this one) instead of a bunch of ability calls for each one.
@@ -133,7 +134,7 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //	if (!DurationInteractCallbacks)
 //	{
 //		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DurationInteractCallbacks was NULL when trying to activate an automatic duration interact."), *FString(__FUNCTION__));
-//		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+//      EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 //		return;
 //	}
 //
@@ -240,12 +241,12 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //
 //	if (bWasCancelled)
 //	{
-//		InteractEndReason = EDurationInteractEndReason::REASON_AbilityCanceled;
+//		InteractEndReason = EDurationInteractEndReason::REASON_PredictionCorrected;
 //		if (Interactable)	// If there is a valid interactable for this machine (it's ok if not. That may be why it was canceled)
 //		{
-//			if (InteractEndReason == EDurationInteractEndReason::REASON_AbilityCanceled)
+//			if (InteractEndReason == EDurationInteractEndReason::REASON_PredictionCorrected)
 //			{
-//				Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_AbilityCanceled, timeHeld);
+//				Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_PredictionCorrected, timeHeld);
 //			}
 //		}
 //	}
@@ -313,12 +314,12 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //
 //	if (bWasCancelled)
 //	{
-//		InteractEndReason = EDurationInteractEndReason::REASON_AbilityCanceled;
+//		InteractEndReason = EDurationInteractEndReason::REASON_PredictionCorrected;
 //		if (Interactable)	// If there is a valid interactable for this machine (it's ok if not. That may be why it was canceled)
 //		{
-//			if (InteractEndReason == EDurationInteractEndReason::REASON_AbilityCanceled)
+//			if (InteractEndReason == EDurationInteractEndReason::REASON_PredictionCorrected)
 //			{
-//				Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_AbilityCanceled, timeHeld);
+//				Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_PredictionCorrected, timeHeld);
 //			}
 //		}
 //	}

@@ -417,15 +417,7 @@ void ASSCharacter::RecalculateBaseEyeHeight()
 
 void FCrouchTickFunction::ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent)
 {
-	//if (Target && !Target->IsPendingKillOrUnreachable())
-	//{
-	//	if (TickType != LEVELTICK_ViewportsOnly || Target->ShouldTickIfViewportsOnly())
-	//	{
-	//		FScopeCycleCounterUObject ActorScope(Target);
-	//		Target->TickActor(DeltaTime * Target->CustomTimeDilation, TickType, *this);
-	//	}
-	//}
-	if (Target)
+	if (Target && !Target->IsPendingKillOrUnreachable())
 	{
 		Target->CrouchTick(DeltaTime);
 	}

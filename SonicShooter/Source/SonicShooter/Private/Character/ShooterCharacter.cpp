@@ -8,6 +8,9 @@
 #include "AbilitySystemComponent.h"
 #include "ActorComponents/InteractorComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/ArcInventoryComponent_Active.h"
+
+
 
 void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -17,9 +20,13 @@ void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME_CONDITION(AShooterCharacter, InteractDurationAbilitySpecHandle, COND_OwnerOnly);
 }
 
+FName AShooterCharacter::InventoryComponentName(TEXT("InventoryComponent"));
+
 AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UArcInventoryComponent_Active>(InventoryComponentName))
 {
+	InventoryComponent = CreateDefaultSubobject<UArcInventoryComponent>(InventoryComponentName);
+
 	Interactor = CreateDefaultSubobject<UInteractorComponent>(TEXT("Interactor"));
 
 	CameraSwayAmount = FVector(0, 1.3f, .4f);

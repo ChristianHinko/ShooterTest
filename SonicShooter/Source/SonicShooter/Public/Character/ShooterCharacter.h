@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Character/AbilitySystemCharacter.h"
+#include "Interfaces/ArcInventoryInterface.h"
 #include "ShooterCharacter.generated.h"
+
 
 class IInteractable;
 class UInteractorComponent;
@@ -13,12 +15,22 @@ class UInteractorComponent;
  *
  */
 UCLASS()
-class SONICSHOOTER_API AShooterCharacter : public AAbilitySystemCharacter
+class SONICSHOOTER_API AShooterCharacter : public AAbilitySystemCharacter, public IArcInventoryInterface
 {
 	GENERATED_BODY()
 
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
+		class UArcInventoryComponent* InventoryComponent;
+
 public:
 	AShooterCharacter(const FObjectInitializer& ObjectInitializer);
+
+
+	static FName InventoryComponentName;
+
+	class UArcInventoryComponent* GetInventoryComponent() const override { return InventoryComponent; }
+
 
 	UPROPERTY()
 		UInteractorComponent* Interactor;

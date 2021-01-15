@@ -6,7 +6,6 @@
 #include "Net/UnrealNetwork.h"
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
-#include "ActorComponents/InventoryComponent.h"
 #include "ActorComponents/InteractorComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -16,14 +15,11 @@ void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 
 	DOREPLIFETIME_CONDITION(AShooterCharacter, InteractInstantAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, InteractDurationAbilitySpecHandle, COND_OwnerOnly);
-
-	//DOREPLIFETIME(AShooterCharacter, Inventory);
 }
 
 AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
 	Interactor = CreateDefaultSubobject<UInteractorComponent>(TEXT("Interactor"));
 
 	CameraSwayAmount = FVector(0, 1.3f, .4f);

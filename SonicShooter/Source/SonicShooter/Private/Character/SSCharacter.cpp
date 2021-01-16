@@ -98,6 +98,20 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 
 	bToggleRunAlwaysRun = false;
 }
+//void ASSCharacter::PostInitProperties()
+//{
+//	Super::PostInitProperties();
+//
+//
+//	// Theses aren't working right yet some reason:
+//
+//	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * -1));
+//
+//	POVMesh->SetRelativeLocation(GetMesh()->GetRelativeLocation() + FVector(-25.f, 0.f, 0.f));
+//	POVMesh->SetRelativeRotation(GetMesh()->GetRelativeRotation());
+//	POVMesh->SetRelativeScale3D(GetMesh()->GetRelativeScale3D());
+//}
+
 void ASSCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();

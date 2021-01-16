@@ -28,6 +28,7 @@ public:
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FArcInvOnItemEquippedDelegate, class UArcInventoryComponent*, Inventory, const FArcInventoryItemSlotReference&, ItemSlotRef, UArcItemStack*, ItemStack);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FArcInvOnAttributeSetCreated, class UArcInventoryComponent_Equippable*, Inventory, class UAttributeSet*, AttributeSet, UArcItemStack*, AttributeSource);
 
 /**
  * 
@@ -58,6 +59,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FArcInvOnItemEquippedDelegate OnUnEquippedItem;
+
+	UPROPERTY(BlueprintAssignable)
+	FArcInvOnAttributeSetCreated OnAttributeSetCreated;
 	
 protected:
 	virtual bool MakeItemEquipped_Internal(const FArcInventoryItemSlotReference& ItemSlot);

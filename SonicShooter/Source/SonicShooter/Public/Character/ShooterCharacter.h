@@ -10,6 +10,8 @@
 
 class IInteractable;
 class UInteractorComponent;
+class UArcInventoryComponent;
+class UArcInventoryComponent_Active;
 
 /**
  *
@@ -23,6 +25,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
 		class UArcInventoryComponent* InventoryComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
+		class UArcInventoryComponent_Active* InventoryComponentActive;
+
+	
 public:
 	AShooterCharacter(const FObjectInitializer& ObjectInitializer);
 

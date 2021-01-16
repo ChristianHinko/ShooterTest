@@ -27,6 +27,10 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UArcInventoryComponent_Active>(InventoryComponentName))
 {
 	InventoryComponent = CreateDefaultSubobject<UArcInventoryComponent>(InventoryComponentName);
+	InventoryComponentActive = Cast<UArcInventoryComponent_Active>(InventoryComponent);
+
+
+
 
 
 
@@ -51,7 +55,7 @@ bool AShooterCharacter::GrantStartingAbilities()
 	return true;
 }
 
-//#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 //#include "Kismet/KismetMathLibrary.h"
 //#include "GameFramework/SpringArmComponent.h"
 void AShooterCharacter::Tick(float DeltaSeconds)
@@ -108,12 +112,11 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 
 void AShooterCharacter::OnSwitchWeaponPressed()
 {
-	//GetInventoryComponent()->SwapFromSlot = FArcInventoryItemSlotReference(;
-	//GetInventoryComponent()->getactiv
-	//GetInventoryComponent()->SwapFromSlot = FArcInventoryItemSlotReference(SwapAbilityTag);
-	//GetInventoryComponent()->SwapToSlot = FArcInventoryItemSlotReference(SwapAbilityTag);
+	GetInventoryComponent()->SwapFromSlot = InventoryComponentActive->GetActiveItemSlot();
+	FArcInventoryItemSlotReference ToSlotRef = FArcInventoryItemSlotReference(InventoryComponentActive->GetPreviousActiveItemSlot(), GetInventoryComponent());
+	GetInventoryComponent()->SwapToSlot = ToSlotRef;
 
-	//GetAbilitySystemComponent()->TryActivateAbility(SwapItemSlotAbilitySpecHandle);
+	GetAbilitySystemComponent()->TryActivateAbility(SwapItemSlotAbilitySpecHandle);
 }
 
 void AShooterCharacter::OnInteractPressed()

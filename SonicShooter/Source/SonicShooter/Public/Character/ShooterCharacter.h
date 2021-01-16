@@ -40,14 +40,24 @@ public:
 	UPROPERTY()
 		UInteractorComponent* Interactor;
 
+#pragma region Tags
+	//FGameplayTag 
+#pragma endregion
+
+
 #pragma region Abilities
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities")
-		TSubclassOf<USSGameplayAbility> InteractInstantAbilityTSub;
+		TSubclassOf<UGameplayAbility> SwapItemSlotAbilityTSub;
+	UPROPERTY(Replicated)
+		FGameplayAbilitySpecHandle SwapItemSlotAbilitySpecHandle;
+
+	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities")
+		TSubclassOf<UGameplayAbility> InteractInstantAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle InteractInstantAbilitySpecHandle;
 
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities")
-		TSubclassOf<USSGameplayAbility> InteractDurationAbilityTSub;
+		TSubclassOf<UGameplayAbility> InteractDurationAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle InteractDurationAbilitySpecHandle;
 #pragma endregion
@@ -66,6 +76,8 @@ protected:
 	virtual bool GrantStartingAbilities() override;
 
 #pragma region Input Events
+	virtual void OnSwitchWeaponPressed();
+
 	virtual void OnInteractPressed() override;
 
 	virtual void OnPrimaryFirePressed() override;

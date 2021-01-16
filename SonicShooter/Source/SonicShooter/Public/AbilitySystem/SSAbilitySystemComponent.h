@@ -58,7 +58,7 @@ public:
 
 
 
-	FGameplayAbilitySpecHandle GrantAbility(TSubclassOf<USSGameplayAbility> NewAbility, UObject* InSourceObject, EAbilityInputID inputID, int32 level = 1);
+	FGameplayAbilitySpecHandle GrantAbility(TSubclassOf<UGameplayAbility> NewAbility, UObject* InSourceObject, EAbilityInputID inputID, int32 level = 1);
 
 	virtual void TargetConfirmByAbility(UGameplayAbility* AbilityToConfirmTargetOn);
 	virtual void TargetCancelByAbility(UGameplayAbility* AbilityToCancelTargetOn);

@@ -51,7 +51,7 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	GetCharacterMovement()->AirControl = 0.2f;
 
 	// Mesh defaults
-	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -96.f));
+	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * -1));
 	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
 
@@ -63,9 +63,9 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	POVMesh->SetCollisionProfileName(TEXT("CharacterMesh"));
 	POVMesh->SetGenerateOverlapEvents(false);
 	POVMesh->SetCanEverAffectNavigation(false);
-	POVMesh->SetRelativeLocation(FVector(-25.f, 0, -96.f));
-	POVMesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
-	POVMesh->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
+	POVMesh->SetRelativeLocation(GetMesh()->GetRelativeLocation() + FVector(-25.f, 0.f, 0.f));
+	POVMesh->SetRelativeRotation(GetMesh()->GetRelativeRotation());
+	POVMesh->SetRelativeScale3D(GetMesh()->GetRelativeScale3D());
 	POVMesh->AlwaysLoadOnServer = false; // the server shouldn't care about this mesh
 	// Configure the POVMesh for first person (these apply regardless of third/first person because switching between the two will only set visibility and not change these settings)
 	POVMesh->SetOwnerNoSee(false);
@@ -98,6 +98,20 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 
 	bToggleRunAlwaysRun = false;
 }
+//void ASSCharacter::PostInitProperties()
+//{
+//	Super::PostInitProperties();
+//
+//
+//	// Theses aren't working right yet some reason:
+//
+//	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * -1));
+//
+//	POVMesh->SetRelativeLocation(GetMesh()->GetRelativeLocation() + FVector(-25.f, 0.f, 0.f));
+//	POVMesh->SetRelativeRotation(GetMesh()->GetRelativeRotation());
+//	POVMesh->SetRelativeScale3D(GetMesh()->GetRelativeScale3D());
+//}
+
 void ASSCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();

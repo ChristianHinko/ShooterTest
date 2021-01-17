@@ -13,6 +13,19 @@ USSArcInventoryComponent_Active::USSArcInventoryComponent_Active(const FObjectIn
 	OnItemActive.AddDynamic(this, &USSArcInventoryComponent_Active::OnNewActiveItem);
 }
 
+bool USSArcInventoryComponent_Active::IsActiveItemSlotIndexValid(int32 InActiveItemSlot)
+{
+	if (InActiveItemSlot < 0)
+	{
+		return false;
+	}
+	if (InActiveItemSlot >= CachedActiveItemSlots.Num())
+	{
+		return false;
+	}
+	return true;
+}
+
 void USSArcInventoryComponent_Active::OnNewActiveItem(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* NewlyActiveItemStack)
 {
 	// Something like this:

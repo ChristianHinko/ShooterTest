@@ -20,6 +20,9 @@ class SONICSHOOTER_API USSArcInventoryComponent_Active : public UArcInventoryCom
 public:
 	USSArcInventoryComponent_Active(const FObjectInitializer& ObjectInitializer);
 
+	UFUNCTION(BlueprintPure, Category = "Inventory")
+		bool IsActiveItemSlotIndexValid(int32 InActiveItemSlot);
+
 
 	TArray<UArcItemStack*> ItemHistory;
 

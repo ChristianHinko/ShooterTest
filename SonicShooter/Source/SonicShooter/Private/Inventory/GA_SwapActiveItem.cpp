@@ -116,8 +116,14 @@ void UGA_SwapActiveItem::PerformSwap()
 		case ESwapMethod::PreviousItem:
 			SSInventoryComponentActive->SwapActiveItems(SSInventoryComponentActive->GetPreviousActiveItemSlot());
 			break;
-		case ESwapMethod::LastActiveItem:
+		case ESwapMethod::ByItemHistory:
+			if (!SSInventoryComponentActive->ItemHistory.IsValidIndex(itemHistoryIndex))
+			{
+				//UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Entered an invalid index for the itemHistoryIndex"), *FString(__FUNCTION__));
+				break;
+			}
 
+			//SSInventoryComponentActive->SwapActiveItems();
 			break;
 		default:
 			break;

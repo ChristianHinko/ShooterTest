@@ -13,16 +13,16 @@ class USSArcInventoryComponent_Active;
 UENUM()
 enum class ESwapMethod : uint8
 {
-	/**  */
+	/** Swap to an item slot given an item slot index */
 	ByIndex,
-	/**  */
+	/** Find the item slot with a given tag and swap to it */
 	ByTag,
-	/**  */
+	/** Go up an index in the inventory */
 	NextItem,
-	/**  */
+	/** Go down an index in the inventory */
 	PreviousItem,
-	/**  */
-	LastActiveItem
+	/** Find the item slot of an item that was recently held and swap to it. 0 represents most recent item */
+	ByItemHistory
 };
 
 /**
@@ -48,6 +48,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, meta = (EditCondition = "SwapMethod == ESwapMethod::ByIndex", EditConditionHides), Category = "Config")
 		int32 itemSlotIndexToSwitchTo;
+	UPROPERTY(EditDefaultsOnly, meta = (EditCondition = "SwapMethod == ESwapMethod::ByItemHistory", EditConditionHides), Category = "Config")
+		int32 itemHistoryIndex;
 	UPROPERTY(EditDefaultsOnly, meta = (EditCondition = "SwapMethod == ESwapMethod::ByTag", EditConditionHides), Category = "Config")
 		FGameplayTag ItemSlotTagToSwitchTo;
 

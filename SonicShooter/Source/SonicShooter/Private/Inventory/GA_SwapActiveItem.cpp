@@ -113,7 +113,7 @@ void UGA_SwapActiveItem::PerformSwap()
 		case ESwapMethod::NextItem:
 			SSInventoryComponentActive->SwapActiveItems(SSInventoryComponentActive->GetNextActiveItemSlot());
 			break;
-		case ESwapMethod::PrecedingItem:
+		case ESwapMethod::PreviousItem:
 			SSInventoryComponentActive->SwapActiveItems(SSInventoryComponentActive->GetPreviousActiveItemSlot());
 			break;
 		case ESwapMethod::LastActiveItem:

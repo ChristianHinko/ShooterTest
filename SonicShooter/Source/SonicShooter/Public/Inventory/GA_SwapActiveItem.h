@@ -20,7 +20,7 @@ enum class ESwapMethod : uint8
 	/**  */
 	NextItem,
 	/**  */
-	PrecedingItem,
+	PreviousItem,
 	/**  */
 	LastActiveItem
 };

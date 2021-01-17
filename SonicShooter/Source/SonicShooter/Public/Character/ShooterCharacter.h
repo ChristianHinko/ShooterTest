@@ -34,6 +34,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
 		USSArcInventoryComponent_Active* SSInventoryComponentActive;
+
 	/**
 	 * This setup, with the static FName InventoryComponentName and SetDefaultSubobjectClass in the constructor allows you to
 	 * have a bit of a heirarchy for your character classes. For example, you can have a base class that uses a basic

@@ -10,10 +10,10 @@
 USSArcInventoryComponent_Active::USSArcInventoryComponent_Active(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	OnItemActive.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemStackActive);
+	OnItemActive.AddDynamic(this, &USSArcInventoryComponent_Active::OnNewActiveItem);
 }
 
-void USSArcInventoryComponent_Active::OnItemStackActive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* NewlyActiveItemStack)
+void USSArcInventoryComponent_Active::OnNewActiveItem(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* NewlyActiveItemStack)
 {
 	// Something like this:
 	

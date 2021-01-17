@@ -23,7 +23,8 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 		bool IsActiveItemSlotIndexValid(int32 InActiveItemSlot);
 
-	int32 maxItemHistoryBufferSize;
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+		int32 maxItemHistoryBufferSize;
 	TArray<FArcInventoryItemSlotReference> ItemHistory;
 
 protected:

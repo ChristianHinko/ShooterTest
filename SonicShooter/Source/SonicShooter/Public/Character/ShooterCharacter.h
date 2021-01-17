@@ -94,6 +94,11 @@ public:
 		FGameplayAbilitySpecHandle SwapToItem4AbilitySpecHandle;
 	// -----------------------
 
+	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities")
+		TSubclassOf<UGameplayAbility> DropItemAbilityTSub;
+	UPROPERTY(Replicated)
+		FGameplayAbilitySpecHandle DropItemAbilitySpecHandle;
+
 
 
 
@@ -137,6 +142,8 @@ protected:
 
 	virtual void OnPausePressed();
 	virtual void OnScoreSheetPressed();
+
+	virtual void OnDropItemPressed();
 
 #pragma endregion
 

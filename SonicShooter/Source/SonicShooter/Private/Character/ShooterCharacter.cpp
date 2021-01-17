@@ -71,14 +71,13 @@ bool AShooterCharacter::GrantStartingAbilities()
 	return true;
 }
 
-#include "Kismet/KismetSystemLibrary.h"
+//#include "Kismet/KismetSystemLibrary.h"
 //#include "Kismet/KismetMathLibrary.h"
 //#include "GameFramework/SpringArmComponent.h"
 void AShooterCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	SSInventoryComponentActive ? UKismetSystemLibrary::PrintString(this, "Valid") : UKismetSystemLibrary::PrintString(this, "NULLL");
 
 	//float frameHorizontalMouseRate = 0;
 	//float frameVerticalMouseRate = 0;

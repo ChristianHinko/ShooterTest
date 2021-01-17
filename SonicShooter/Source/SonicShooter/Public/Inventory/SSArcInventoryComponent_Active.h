@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Components/ArcInventoryComponent_Active.h"
+
 #include "SSArcInventoryComponent_Active.generated.h"
+
+class UArkItemStack;
 
 /**
  * 
@@ -14,4 +17,13 @@ class SONICSHOOTER_API USSArcInventoryComponent_Active : public UArcInventoryCom
 {
 	GENERATED_BODY()
 	
+public:
+	USSArcInventoryComponent_Active(const FObjectInitializer& ObjectInitializer);
+
+
+	TArray<UArcItemStack*> ItemHistory;
+
+protected:
+	UFUNCTION()
+		void OnItemStackActive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* NewlyActiveItemStack);
 };

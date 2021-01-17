@@ -28,6 +28,8 @@ void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToItem2AbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToItem3AbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToItem4AbilitySpecHandle, COND_OwnerOnly);
+
+	DOREPLIFETIME_CONDITION(AShooterCharacter, DropItemAbilitySpecHandle, COND_OwnerOnly);
 }
 
 FName AShooterCharacter::InventoryComponentName(TEXT("InventoryComponent"));
@@ -69,6 +71,8 @@ bool AShooterCharacter::GrantStartingAbilities()
 	SwapToItem3AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem3AbilityTSub, this, EAbilityInputID::Item3/*, GetLevel()*/);
 	SwapToItem4AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem4AbilityTSub, this, EAbilityInputID::Item4/*, GetLevel()*/);
 
+	DropItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(DropItemAbilityTSub, this, EAbilityInputID::DropItem/*, GetLevel()*/);
+
 	return true;
 }
 
@@ -98,7 +102,6 @@ void AShooterCharacter::UnPossessed()
 void AShooterCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
 
 	//float frameHorizontalMouseRate = 0;
 	//float frameVerticalMouseRate = 0;
@@ -201,6 +204,11 @@ void AShooterCharacter::OnPausePressed()
 
 void AShooterCharacter::OnScoreSheetPressed()
 {
+}
+
+void AShooterCharacter::OnDropItemPressed()
+{
+	GetAbilitySystemComponent()->TryActivateAbility(DropItemAbilitySpecHandle);
 }
 
 

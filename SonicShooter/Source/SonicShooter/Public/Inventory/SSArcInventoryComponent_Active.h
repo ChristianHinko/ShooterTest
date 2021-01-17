@@ -23,10 +23,12 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 		bool IsActiveItemSlotIndexValid(int32 InActiveItemSlot);
 
-
-	TArray<UArcItemStack*> ItemHistory;
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+		int32 maxItemHistoryBufferSize;
+	TArray<FArcInventoryItemSlotReference> ItemHistory;
 
 protected:
-	UFUNCTION()
-		void OnNewActiveItem(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* NewlyActiveItemStack);
+	virtual bool MakeItemActive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack);
+
+	void AddNewActiveItemToHistoryBuffer(FArcInventoryItemSlotReference NewActiveItemSlotReference);
 };

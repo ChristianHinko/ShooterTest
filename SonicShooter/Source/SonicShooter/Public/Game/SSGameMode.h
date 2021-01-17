@@ -19,4 +19,9 @@ class SONICSHOOTER_API ASSGameMode : public AGameMode
 	
 public:
 	ASSGameMode();
+
+
+protected:
+	virtual APawn* SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform) override;
+
 };

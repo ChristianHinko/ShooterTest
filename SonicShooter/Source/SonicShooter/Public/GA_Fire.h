@@ -6,7 +6,8 @@
 #include "AbilitySystem/SSGameplayAbility.h"
 #include "GA_Fire.generated.h"
 
-class AWeapon;
+class UArcItemStack;
+class UWeaponDefinition;
 class AGATA_BulletTrace;
 
 /**
@@ -30,6 +31,9 @@ protected:
 
 	//BEGIN UGameplayAbility Interface
 	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
+	virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
+	virtual void OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
+
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
@@ -37,7 +41,13 @@ protected:
 
 
 	UPROPERTY()
-		AWeapon* SourceWeapon;
+		UArcItemStack* SourceItem;
+	UPROPERTY()
+		UWeaponDefinition* SourceWeaponDefinition;
+	UPROPERTY()
+		TSubclassOf<AGATA_BulletTrace> BulletTraceTargetActorTSub;
+
+
 	UPROPERTY()
 		AGATA_BulletTrace* BulletTraceTargetActor;
 

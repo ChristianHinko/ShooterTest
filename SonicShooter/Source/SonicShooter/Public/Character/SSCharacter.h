@@ -205,6 +205,18 @@ protected:
 	virtual void OnItem4Pressed();
 	//virtual void OnItem4Released();
 
+	virtual void OnNextItemPressed();
+	//virtual void OnNextItemReleased();
+
+	virtual void OnPreviousItemPressed();
+	//virtual void OnPreviousItemReleased();
+
+	virtual void OnPausePressed();
+	//virtual void OnPauseReleased();
+
+	virtual void OnScoreSheetPressed();
+	//virtual void OnScoreSheetReleased();
+
 
 	//Axis
 	virtual void MoveForward(float Value);

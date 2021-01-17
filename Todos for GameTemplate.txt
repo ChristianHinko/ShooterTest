@@ -158,3 +158,45 @@ An ideal solution to these 2 problems would mean the server wouldn't have to wai
 - Add BlenderMannequin to the 3DObjects folder
 	- The blend files and the fbx
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+- Add BaseUMG class
+
+
+
+
+

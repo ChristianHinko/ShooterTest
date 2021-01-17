@@ -28,5 +28,5 @@ public:
 
 protected:
 	UFUNCTION()
-		void OnItemStackActive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* NewlyActiveItemStack);
+		void OnNewActiveItem(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* NewlyActiveItemStack);
 };

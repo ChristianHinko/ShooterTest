@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Character/AbilitySystemCharacter.h"
 #include "Interfaces/ArcInventoryInterface.h"
+
 #include "ShooterCharacter.generated.h"
 
 
@@ -12,6 +13,7 @@ class IInteractable;
 class UInteractorComponent;
 class UArcInventoryComponent;
 class USSArcInventoryComponent_Active;
+class UArcItemGenerator_Unique;
 
 /**
  *
@@ -32,15 +34,20 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
 		USSArcInventoryComponent_Active* SSInventoryComponentActive;
+
 	/**
 	 * This setup, with the static FName InventoryComponentName and SetDefaultSubobjectClass in the constructor allows you to
 	 * have a bit of a heirarchy for your character classes. For example, you can have a base class that uses a basic
 	 * inventory component and a 'PlayerCharacter' subclass that has an Active inventory component.
 	 * It is up to you if you want to go this route.
-	*/
+	 */
 	static FName InventoryComponentName;
 
 	class UArcInventoryComponent* GetInventoryComponent() const override { return InventoryComponent; }
+
+	/** These item generators will be used by the GameMode to populate this character's inventory when the character is spawned */
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+		TArray<TSubclassOf<UArcItemGenerator_Unique>> ItemsToLootOnStartup;
 
 
 	UPROPERTY()

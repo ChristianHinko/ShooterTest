@@ -10,7 +10,7 @@
 USSArcInventoryComponent_Active::USSArcInventoryComponent_Active(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	OnItemActive.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemStackActive);
+	OnItemActive.AddDynamic(this, &USSArcInventoryComponent_Active::OnNewActiveItem);
 }
 
 bool USSArcInventoryComponent_Active::IsActiveItemSlotIndexValid(int32 InActiveItemSlot)
@@ -26,7 +26,7 @@ bool USSArcInventoryComponent_Active::IsActiveItemSlotIndexValid(int32 InActiveI
 	return true;
 }
 
-void USSArcInventoryComponent_Active::OnItemStackActive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* NewlyActiveItemStack)
+void USSArcInventoryComponent_Active::OnNewActiveItem(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* NewlyActiveItemStack)
 {
 	// Something like this:
 	

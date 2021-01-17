@@ -8,7 +8,7 @@
 #include "AbilitySystemComponent.h"
 #include "ActorComponents/InteractorComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Components/ArcInventoryComponent_Active.h"
+#include "Inventory/SSArcInventoryComponent_Active.h"
 
 
 
@@ -33,7 +33,7 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UArcInventoryComponent_Active>(InventoryComponentName))
 {
 	InventoryComponent = CreateDefaultSubobject<UArcInventoryComponent>(InventoryComponentName);
-	InventoryComponentActive = Cast<UArcInventoryComponent_Active>(InventoryComponent);
+	SSInventoryComponentActive = Cast<USSArcInventoryComponent_Active>(InventoryComponent);
 
 
 
@@ -67,7 +67,7 @@ bool AShooterCharacter::GrantStartingAbilities()
 	return true;
 }
 
-#include "Kismet/KismetSystemLibrary.h"
+//#include "Kismet/KismetSystemLibrary.h"
 //#include "Kismet/KismetMathLibrary.h"
 //#include "GameFramework/SpringArmComponent.h"
 void AShooterCharacter::Tick(float DeltaSeconds)

@@ -5,7 +5,7 @@
 
 
 #include "Character/ShooterCharacter.h"
-#include "Components/ArcInventoryComponent_Active.h"
+#include "Inventory/SSArcInventoryComponent_Active.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 
 UGA_SwapActiveItem::UGA_SwapActiveItem()
@@ -39,10 +39,10 @@ void UGA_SwapActiveItem::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo,
 		return;
 	}
 
-	InventoryComponentActive = ShooterCharacter->InventoryComponentActive;
-	if (!InventoryComponentActive)
+	SSInventoryComponentActive = ShooterCharacter->SSInventoryComponentActive;
+	if (!SSInventoryComponentActive)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InventoryComponentActive was NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSInventoryComponentActive was NULL"), *FString(__FUNCTION__));
 		return;
 	}
 }
@@ -61,9 +61,9 @@ bool UGA_SwapActiveItem::CanActivateAbility(const FGameplayAbilitySpecHandle Han
 		return false;
 	}
 
-	if (!InventoryComponentActive)
+	if (!SSInventoryComponentActive)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InventoryComponentActive was NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSInventoryComponentActive was NULL"), *FString(__FUNCTION__));
 		return false;
 	}
 
@@ -100,7 +100,7 @@ void UGA_SwapActiveItem::PerformSwap()
 				UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Can't switch to item index below 0 (none exist)"), *FString(__FUNCTION__));
 				break;
 			}
-			InventoryComponentActive->SwapActiveItems(itemSlotIndexToSwitchTo);
+			SSInventoryComponentActive->SwapActiveItems(itemSlotIndexToSwitchTo);
 			break;
 		case ESwapMethod::ByTag:
 			if (ItemSlotTagToSwitchTo.IsValid() || ItemSlotTagToSwitchTo == FGameplayTag::EmptyTag)
@@ -108,13 +108,13 @@ void UGA_SwapActiveItem::PerformSwap()
 				UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Tag not valid when trying to switch to inventory slot with the tag"), *FString(__FUNCTION__));
 				break;
 			}
-			InventoryComponentActive->SwapActiveItems(InventoryComponentActive->GetActiveItemIndexByTag(ItemSlotTagToSwitchTo));
+			SSInventoryComponentActive->SwapActiveItems(SSInventoryComponentActive->GetActiveItemIndexByTag(ItemSlotTagToSwitchTo));
 			break;
 		case ESwapMethod::NextItem:
-			InventoryComponentActive->SwapActiveItems(InventoryComponentActive->GetNextActiveItemSlot());
+			SSInventoryComponentActive->SwapActiveItems(SSInventoryComponentActive->GetNextActiveItemSlot());
 			break;
 		case ESwapMethod::PrecedingItem:
-			InventoryComponentActive->SwapActiveItems(InventoryComponentActive->GetPreviousActiveItemSlot());
+			SSInventoryComponentActive->SwapActiveItems(SSInventoryComponentActive->GetPreviousActiveItemSlot());
 			break;
 		case ESwapMethod::LastActiveItem:
 

@@ -7,7 +7,7 @@
 #include "GA_SwapActiveItem.generated.h"
 
 class AShooterCharacter;
-class UArcInventoryComponent_Active;
+class USSArcInventoryComponent_Active;
 
 /** How we want to be able to swap item */
 UENUM()
@@ -42,7 +42,7 @@ protected:
 	UPROPERTY()
 		AShooterCharacter* ShooterCharacter;
 	UPROPERTY()
-		UArcInventoryComponent_Active* InventoryComponentActive;
+		USSArcInventoryComponent_Active* SSInventoryComponentActive;
 
 
 

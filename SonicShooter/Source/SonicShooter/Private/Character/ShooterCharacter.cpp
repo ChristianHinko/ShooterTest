@@ -78,7 +78,6 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-
 	//float frameHorizontalMouseRate = 0;
 	//float frameVerticalMouseRate = 0;
 	//Cast<APlayerController>(GetController())->GetInputMouseDelta(frameHorizontalMouseRate, frameVerticalMouseRate);

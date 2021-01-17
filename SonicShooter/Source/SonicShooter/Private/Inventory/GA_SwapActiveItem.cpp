@@ -122,8 +122,7 @@ void UGA_SwapActiveItem::PerformSwap()
 				break;
 			}
 
-			// Trying to figure out how to switch to the item slot of a know item
-			//SSInventoryComponentActive->SwapActiveItems(SSInventoryComponentActive->GetActiveItemIndexBySlotRef(SSInventoryComponentActive->ItemHistory[itemHistoryIndex]->GetItemDefinition()->));
+			SSInventoryComponentActive->SwapActiveItems(SSInventoryComponentActive->ItemHistory[itemHistoryIndex].SlotId);
 			break;
 		default:
 			break;

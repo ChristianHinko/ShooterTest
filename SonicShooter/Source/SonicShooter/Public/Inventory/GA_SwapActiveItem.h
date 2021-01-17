@@ -21,7 +21,7 @@ enum class ESwapMethod : uint8
 	NextItem,
 	/** Go down an index in the inventory */
 	PreviousItem,
-	/** Find the item slot of an item that was recently held and swap to it. 0 represents most recent item */
+	/** Find the item slot of an item that was recently held and swap to it. 0 represents most recent item (your current item) */
 	ByItemHistory
 };
 

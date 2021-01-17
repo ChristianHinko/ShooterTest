@@ -39,7 +39,7 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 	SSInventoryComponentActive = Cast<USSArcInventoryComponent_Active>(InventoryComponent);
 
 
-
+	OnServerAknowledgeClientSetupAbilitySystem.AddUObject(this, &AShooterCharacter::RefreshInventoryAbilitySystemInfo);
 
 
 
@@ -70,6 +70,26 @@ bool AShooterCharacter::GrantStartingAbilities()
 	SwapToItem4AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem4AbilityTSub, this, EAbilityInputID::Item4/*, GetLevel()*/);
 
 	return true;
+}
+
+void AShooterCharacter::RefreshInventoryAbilitySystemInfo()
+{
+	if (USSArcInventoryComponent_Active* Inventory = SSInventoryComponentActive)
+	{
+		// Make the inventory re-give us our item's abilities and attribute sets and stuff
+		Inventory->MakeItemActive(Inventory->GetActiveItemSlot());
+	}
+}
+void AShooterCharacter::UnPossessed()
+{
+	Super::UnPossessed();
+
+
+	if (USSArcInventoryComponent_Active* Inventory = SSInventoryComponentActive)
+	{
+		// Clear ability system stuff from inventory for this ASC
+		Inventory->MakeItemInactive();
+	}
 }
 
 //#include "Kismet/KismetSystemLibrary.h"
@@ -138,11 +158,7 @@ void AShooterCharacter::OnPrimaryFirePressed()
 {
 	if (GetAbilitySystemComponent())
 	{
-		if (SSInventoryComponentActive)
-		{
-			//UArkItemStack* ActiveItem = SSInventoryComponentActive->GetActiveItemStack();
-			////GetAbilitySystemComponent()->TryActivateAbility(CurrentWeapon->FireAbilitySpecHandle);
-		}
+		GetAbilitySystemComponent()->TryActivateAbilitiesByTag(FGameplayTag::RequestGameplayTag(FName("Ability.Fire")).GetSingleTagContainer());
 	}
 }
 

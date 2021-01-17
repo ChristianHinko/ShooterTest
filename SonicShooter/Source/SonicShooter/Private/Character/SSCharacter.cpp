@@ -517,6 +517,18 @@ void ASSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Item4", IE_Pressed, this, &ASSCharacter::OnItem4Pressed);
 	//PlayerInputComponent->BindAction("Item4", IE_Released, this, &ASSCharacter::OnItem4Released);
 
+	PlayerInputComponent->BindAction("Pause", IE_Pressed, this, &ASSCharacter::OnPausePressed);
+	//PlayerInputComponent->BindAction("Pause", IE_Released, this, &ASSCharacter::OnPauseReleased);
+
+	PlayerInputComponent->BindAction("ScoreSheet", IE_Pressed, this, &ASSCharacter::OnScoreSheetPressed);
+	//PlayerInputComponent->BindAction("ScoreSheet", IE_Released, this, &ASSCharacter::OnScoreSheetReleased);
+
+	PlayerInputComponent->BindAction("NextItem", IE_Pressed, this, &ASSCharacter::OnNextItemPressed);
+	//PlayerInputComponent->BindAction("NextItem", IE_Released, this, &ASSCharacter::OnNextItemReleased);
+
+	PlayerInputComponent->BindAction("PreviousItem", IE_Pressed, this, &ASSCharacter::OnPreviousItemPressed);
+	//PlayerInputComponent->BindAction("PreviousItem", IE_Released, this, &ASSCharacter::OnPreviousItemReleased);
+
 
 
 	//Axis
@@ -648,6 +660,40 @@ void ASSCharacter::OnItem4Pressed()
 //void ASSCharacter::OnItem4Released()
 //{
 //}
+
+void ASSCharacter::OnNextItemPressed()
+{
+}
+
+//void ASSCharacter::OnNextItemReleased()
+//{
+//}
+
+void ASSCharacter::OnPreviousItemPressed()
+{
+}
+
+//void ASSCharacter::OnPreviousItemReleased()
+//{
+//}
+
+void ASSCharacter::OnPausePressed()
+{
+}
+
+//void ASSCharacter::OnPauseReleased()
+//{
+//}
+
+void ASSCharacter::OnScoreSheetPressed()
+{
+}
+
+//void ASSCharacter::OnScoreSheetReleased()
+//{
+//}
+
+
 
 void ASSCharacter::OnRunPressed()
 {

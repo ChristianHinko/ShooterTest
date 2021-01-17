@@ -52,7 +52,15 @@ enum class EAbilityInputID : uint8
 	// 12 Item3
 	Item3				UMETA(DisplayName = "Item3"),
 	// 13 Item4
-	Item4				UMETA(DisplayName = "Item4")
+	Item4				UMETA(DisplayName = "Item4"),
+	// 14 NextItem
+	NextItem			UMETA(DisplayName = "NextItem"),
+	// 15 PreviousItem
+	PreviousItem		UMETA(DisplayName = "PreviousItem"),
+	// 16 Pause
+	Pause				UMETA(DisplayName = "Pause"),
+	// 17 ScoreSheet
+	ScoreSheet			UMETA(DisplayName = "ScoreSheet")
 };
 
 /**

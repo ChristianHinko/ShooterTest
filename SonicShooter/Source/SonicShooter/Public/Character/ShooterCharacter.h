@@ -117,6 +117,11 @@ protected:
 	virtual void OnItem2Pressed();
 	virtual void OnItem3Pressed();
 	virtual void OnItem4Pressed();
+	virtual void OnNextItemPressed();
+	virtual void OnPreviousItemPressed();
+
+	virtual void OnPausePressed();
+	virtual void OnScoreSheetPressed();
 
 #pragma endregion
 

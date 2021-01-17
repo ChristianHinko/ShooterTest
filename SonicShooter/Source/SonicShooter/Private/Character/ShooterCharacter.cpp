@@ -160,5 +160,19 @@ void AShooterCharacter::OnItem4Pressed()
 {
 	GetAbilitySystemComponent()->TryActivateAbility(SwapToItem4AbilitySpecHandle);
 }
+void AShooterCharacter::OnNextItemPressed()
+{
+}
+void AShooterCharacter::OnPreviousItemPressed()
+{
+}
+
+void AShooterCharacter::OnPausePressed()
+{
+}
+
+void AShooterCharacter::OnScoreSheetPressed()
+{
+}
 
 

@@ -479,13 +479,31 @@ void ASSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("SecondaryFire", IE_Released, this, &ASSCharacter::OnSecondaryFireReleased);
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ASSCharacter::OnReloadPressed);
-	PlayerInputComponent->BindAction("Reload", IE_Released, this, &ASSCharacter::OnReloadReleased);
+	//PlayerInputComponent->BindAction("Reload", IE_Released, this, &ASSCharacter::OnReloadReleased);
 
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ASSCharacter::OnCrouchPressed);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASSCharacter::OnCrouchReleased);
 
 	PlayerInputComponent->BindAction("SwitchWeapon", IE_Pressed, this, &ASSCharacter::OnSwitchWeaponPressed);
-	PlayerInputComponent->BindAction("SwitchWeapon", IE_Released, this, &ASSCharacter::OnSwitchWeaponReleased);
+	//PlayerInputComponent->BindAction("SwitchWeapon", IE_Released, this, &ASSCharacter::OnSwitchWeaponReleased);
+
+
+	PlayerInputComponent->BindAction("Item0", IE_Pressed, this, &ASSCharacter::OnItem0Pressed);
+	//PlayerInputComponent->BindAction("Item0", IE_Released, this, &ASSCharacter::OnItem0Released);
+
+	PlayerInputComponent->BindAction("Item1", IE_Pressed, this, &ASSCharacter::OnItem1Pressed);
+	//PlayerInputComponent->BindAction("Item1", IE_Released, this, &ASSCharacter::OnItem1Released);
+
+	PlayerInputComponent->BindAction("Item2", IE_Pressed, this, &ASSCharacter::OnItem2Pressed);
+	//PlayerInputComponent->BindAction("Item2", IE_Released, this, &ASSCharacter::OnItem2Released);
+
+	PlayerInputComponent->BindAction("Item3", IE_Pressed, this, &ASSCharacter::OnItem3Pressed);
+	//PlayerInputComponent->BindAction("Item3", IE_Released, this, &ASSCharacter::OnItem3Released);
+
+	PlayerInputComponent->BindAction("Item4", IE_Pressed, this, &ASSCharacter::OnItem4Pressed);
+	//PlayerInputComponent->BindAction("Item4", IE_Released, this, &ASSCharacter::OnItem4Released);
+
+
 
 	//Axis
 	PlayerInputComponent->BindAxis("MoveForward", this, &ASSCharacter::MoveForward);
@@ -537,10 +555,10 @@ void ASSCharacter::OnReloadPressed()
 {
 
 }
-void ASSCharacter::OnReloadReleased()
-{
-
-}
+//void ASSCharacter::OnReloadReleased()
+//{
+//
+//}
 
 void ASSCharacter::OnCrouchPressed()
 {
@@ -572,10 +590,50 @@ void ASSCharacter::OnSwitchWeaponPressed()
 {
 
 }
-void ASSCharacter::OnSwitchWeaponReleased()
-{
+//void ASSCharacter::OnSwitchWeaponReleased()
+//{
+//
+//}
 
+void ASSCharacter::OnItem0Pressed()
+{
 }
+
+//void ASSCharacter::OnItem0Released()
+//{
+//}
+
+void ASSCharacter::OnItem1Pressed()
+{
+}
+
+//void ASSCharacter::OnItem1Released()
+//{
+//}
+
+void ASSCharacter::OnItem2Pressed()
+{
+}
+
+//void ASSCharacter::OnItem2Released()
+//{
+//}
+
+void ASSCharacter::OnItem3Pressed()
+{
+}
+
+//void ASSCharacter::OnItem3Released()
+//{
+//}
+
+void ASSCharacter::OnItem4Pressed()
+{
+}
+
+//void ASSCharacter::OnItem4Released()
+//{
+//}
 
 void ASSCharacter::OnRunPressed()
 {

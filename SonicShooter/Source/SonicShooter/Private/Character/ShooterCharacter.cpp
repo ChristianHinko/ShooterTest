@@ -16,9 +16,15 @@ void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapActiveItemAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, InteractInstantAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, InteractDurationAbilitySpecHandle, COND_OwnerOnly);
+
+	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToLastActiveItemAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToItem0AbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToItem1AbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToItem2AbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToItem3AbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToItem4AbilitySpecHandle, COND_OwnerOnly);
 }
 
 FName AShooterCharacter::InventoryComponentName(TEXT("InventoryComponent"));
@@ -48,9 +54,15 @@ bool AShooterCharacter::GrantStartingAbilities()
 	}
 	//	We are on authority and have a valid ASC to work with
 
-	SwapActiveItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapItemSlotAbilityTSub, this, EAbilityInputID::SwitchWeapon/*, GetLevel()*/);
 	InteractInstantAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractInstantAbilityTSub, this, EAbilityInputID::Interact/*, GetLevel()*/);
 	InteractDurationAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractDurationAbilityTSub, this, EAbilityInputID::Interact/*, GetLevel()*/);
+
+	SwapToLastActiveItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToLastActiveItemAbilityTSub, this, EAbilityInputID::SwitchWeapon/*, GetLevel()*/);
+	SwapToItem0AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem0AbilityTSub, this, EAbilityInputID::Item0/*, GetLevel()*/);
+	SwapToItem1AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem1AbilityTSub, this, EAbilityInputID::Item1/*, GetLevel()*/);
+	SwapToItem2AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem2AbilityTSub, this, EAbilityInputID::Item2/*, GetLevel()*/);
+	SwapToItem3AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem3AbilityTSub, this, EAbilityInputID::Item3/*, GetLevel()*/);
+	SwapToItem4AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem4AbilityTSub, this, EAbilityInputID::Item4/*, GetLevel()*/);
 
 	return true;
 }
@@ -110,10 +122,6 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 	//}
 }
 
-void AShooterCharacter::OnSwitchWeaponPressed()
-{
-	GetAbilitySystemComponent()->TryActivateAbility(SwapActiveItemAbilitySpecHandle);
-}
 
 void AShooterCharacter::OnInteractPressed()
 {
@@ -127,4 +135,30 @@ void AShooterCharacter::OnPrimaryFirePressed()
 	//	GetAbilitySystemComponent()->TryActivateAbility(CurrentWeapon->FireAbilitySpecHandle);		for when we add inventory system
 	//}
 }
+
+void AShooterCharacter::OnSwitchWeaponPressed()
+{
+	GetAbilitySystemComponent()->TryActivateAbility(SwapToLastActiveItemAbilitySpecHandle);
+}
+void AShooterCharacter::OnItem0Pressed()
+{
+	GetAbilitySystemComponent()->TryActivateAbility(SwapToItem0AbilitySpecHandle);
+}
+void AShooterCharacter::OnItem1Pressed()
+{
+	GetAbilitySystemComponent()->TryActivateAbility(SwapToItem1AbilitySpecHandle);
+}
+void AShooterCharacter::OnItem2Pressed()
+{
+	GetAbilitySystemComponent()->TryActivateAbility(SwapToItem2AbilitySpecHandle);
+}
+void AShooterCharacter::OnItem3Pressed()
+{
+	GetAbilitySystemComponent()->TryActivateAbility(SwapToItem3AbilitySpecHandle);
+}
+void AShooterCharacter::OnItem4Pressed()
+{
+	GetAbilitySystemComponent()->TryActivateAbility(SwapToItem4AbilitySpecHandle);
+}
+
 

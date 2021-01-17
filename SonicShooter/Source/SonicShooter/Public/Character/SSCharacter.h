@@ -181,14 +181,28 @@ protected:
 	virtual void OnSecondaryFireReleased();
 
 	virtual void OnReloadPressed();
-	virtual void OnReloadReleased();
+	//virtual void OnReloadReleased();
 
 	virtual void OnCrouchPressed();
 	virtual void OnCrouchReleased();
 
 	virtual void OnSwitchWeaponPressed();
-	virtual void OnSwitchWeaponReleased();
+	//virtual void OnSwitchWeaponReleased();
 
+	virtual void OnItem0Pressed();
+	//virtual void OnItem0Released();
+
+	virtual void OnItem1Pressed();
+	//virtual void OnItem1Released();
+
+	virtual void OnItem2Pressed();
+	//virtual void OnItem2Released();
+
+	virtual void OnItem3Pressed();
+	//virtual void OnItem3Released();
+
+	virtual void OnItem4Pressed();
+	//virtual void OnItem4Released();
 
 
 	//Axis

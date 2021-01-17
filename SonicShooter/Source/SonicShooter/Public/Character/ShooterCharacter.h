@@ -52,10 +52,35 @@ public:
 
 
 #pragma region Abilities
+	// Change weapon Abilities
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities")
-		TSubclassOf<UGameplayAbility> SwapItemSlotAbilityTSub;
+		TSubclassOf<UGameplayAbility> SwapToLastActiveItemAbilityTSub;
 	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle SwapActiveItemAbilitySpecHandle;
+		FGameplayAbilitySpecHandle SwapToLastActiveItemAbilitySpecHandle;
+	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities")
+		TSubclassOf<UGameplayAbility> SwapToItem0AbilityTSub;
+	UPROPERTY(Replicated)
+		FGameplayAbilitySpecHandle SwapToItem0AbilitySpecHandle;
+	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities")
+		TSubclassOf<UGameplayAbility> SwapToItem1AbilityTSub;
+	UPROPERTY(Replicated)
+		FGameplayAbilitySpecHandle SwapToItem1AbilitySpecHandle;
+	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities")
+		TSubclassOf<UGameplayAbility> SwapToItem2AbilityTSub;
+	UPROPERTY(Replicated)
+		FGameplayAbilitySpecHandle SwapToItem2AbilitySpecHandle;
+	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities")
+		TSubclassOf<UGameplayAbility> SwapToItem3AbilityTSub;
+	UPROPERTY(Replicated)
+		FGameplayAbilitySpecHandle SwapToItem3AbilitySpecHandle;
+	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities")
+		TSubclassOf<UGameplayAbility> SwapToItem4AbilityTSub;
+	UPROPERTY(Replicated)
+		FGameplayAbilitySpecHandle SwapToItem4AbilitySpecHandle;
+	// -----------------------
+
+
+
 
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities")
 		TSubclassOf<UGameplayAbility> InteractInstantAbilityTSub;
@@ -82,11 +107,17 @@ protected:
 	virtual bool GrantStartingAbilities() override;
 
 #pragma region Input Events
-	virtual void OnSwitchWeaponPressed();
-
 	virtual void OnInteractPressed() override;
 
 	virtual void OnPrimaryFirePressed() override;
+
+	virtual void OnSwitchWeaponPressed();
+	virtual void OnItem0Pressed();
+	virtual void OnItem1Pressed();
+	virtual void OnItem2Pressed();
+	virtual void OnItem3Pressed();
+	virtual void OnItem4Pressed();
+
 #pragma endregion
 
 };

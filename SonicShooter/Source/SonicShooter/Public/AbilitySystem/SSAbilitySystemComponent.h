@@ -42,7 +42,17 @@ enum class EAbilityInputID : uint8
 	// 7 Crouch
 	Crouch				UMETA(DisplayName = "Crouch"),
 	// 8 Switch Weapon
-	SwitchWeapon		UMETA(DisplayName = "Switch Weapon")
+	SwitchWeapon		UMETA(DisplayName = "Switch Weapon"),
+	// 9 Item0
+	Item0				UMETA(DisplayName = "Item0"),
+	// 10 Item1
+	Item1				UMETA(DisplayName = "Item1"),
+	// 11 Item2
+	Item2				UMETA(DisplayName = "Item2"),
+	// 12 Item3
+	Item3				UMETA(DisplayName = "Item3"),
+	// 13 Item4
+	Item4				UMETA(DisplayName = "Item4")
 };
 
 /**

@@ -16,7 +16,7 @@ void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapItemSlotAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapActiveItemAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, InteractInstantAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, InteractDurationAbilitySpecHandle, COND_OwnerOnly);
 }
@@ -48,7 +48,7 @@ bool AShooterCharacter::GrantStartingAbilities()
 	}
 	//	We are on authority and have a valid ASC to work with
 
-	SwapItemSlotAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapItemSlotAbilityTSub, this, EAbilityInputID::SwitchWeapon/*, GetLevel()*/);
+	SwapActiveItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapItemSlotAbilityTSub, this, EAbilityInputID::SwitchWeapon/*, GetLevel()*/);
 	InteractInstantAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractInstantAbilityTSub, this, EAbilityInputID::Interact/*, GetLevel()*/);
 	InteractDurationAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractDurationAbilityTSub, this, EAbilityInputID::Interact/*, GetLevel()*/);
 
@@ -112,11 +112,7 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 
 void AShooterCharacter::OnSwitchWeaponPressed()
 {
-	GetInventoryComponent()->SwapFromSlot = InventoryComponentActive->GetActiveItemSlot();
-	FArcInventoryItemSlotReference ToSlotRef = FArcInventoryItemSlotReference(InventoryComponentActive->GetPreviousActiveItemSlot(), GetInventoryComponent());
-	GetInventoryComponent()->SwapToSlot = ToSlotRef;
-
-	GetAbilitySystemComponent()->TryActivateAbility(SwapItemSlotAbilitySpecHandle);
+	GetAbilitySystemComponent()->TryActivateAbility(SwapActiveItemAbilitySpecHandle);
 }
 
 void AShooterCharacter::OnInteractPressed()

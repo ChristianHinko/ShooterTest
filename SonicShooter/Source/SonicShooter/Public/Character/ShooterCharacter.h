@@ -25,13 +25,13 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
 		class UArcInventoryComponent* InventoryComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
-		class UArcInventoryComponent_Active* InventoryComponentActive;
 
 	
 public:
 	AShooterCharacter(const FObjectInitializer& ObjectInitializer);
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
+		class UArcInventoryComponent_Active* InventoryComponentActive;
 	/**
 	 * This setup, with the static FName InventoryComponentName and SetDefaultSubobjectClass in the constructor allows you to
 	 * have a bit of a heirarchy for your character classes. For example, you can have a base class that uses a basic
@@ -55,7 +55,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities")
 		TSubclassOf<UGameplayAbility> SwapItemSlotAbilityTSub;
 	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle SwapItemSlotAbilitySpecHandle;
+		FGameplayAbilitySpecHandle SwapActiveItemAbilitySpecHandle;
 
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities")
 		TSubclassOf<UGameplayAbility> InteractInstantAbilityTSub;

@@ -95,9 +95,9 @@ void UGA_SwapActiveItem::PerformSwap()
 	switch (SwapMethod)
 	{
 		case ESwapMethod::ByIndex:
-			if (itemSlotIndexToSwitchTo <= -1)
+			if (SSInventoryComponentActive->IsActiveItemSlotIndexValid(itemSlotIndexToSwitchTo) == false)
 			{
-				UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Can't switch to item index below 0 (none exist)"), *FString(__FUNCTION__));
+				UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Invalid item slot index"), *FString(__FUNCTION__));
 				break;
 			}
 			SSInventoryComponentActive->SwapActiveItems(itemSlotIndexToSwitchTo);
@@ -117,13 +117,13 @@ void UGA_SwapActiveItem::PerformSwap()
 			SSInventoryComponentActive->SwapActiveItems(SSInventoryComponentActive->GetPreviousActiveItemSlot());
 			break;
 		case ESwapMethod::ByItemHistory:
-			if (!SSInventoryComponentActive->ItemHistory.IsValidIndex(itemHistoryIndex))
+			if (SSInventoryComponentActive->ItemHistory.IsValidIndex(itemHistoryIndex) == false)
 			{
-				//UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Entered an invalid index for the itemHistoryIndex"), *FString(__FUNCTION__));
 				break;
 			}
 
-			//SSInventoryComponentActive->SwapActiveItems();
+			// Trying to figure out how to switch to the item slot of a know item
+			//SSInventoryComponentActive->SwapActiveItems(SSInventoryComponentActive->GetActiveItemIndexBySlotRef(SSInventoryComponentActive->ItemHistory[itemHistoryIndex]->GetItemDefinition()->));
 			break;
 		default:
 			break;

@@ -32,7 +32,7 @@ void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 FName AShooterCharacter::InventoryComponentName(TEXT("InventoryComponent"));
 
 AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer.SetDefaultSubobjectClass<UArcInventoryComponent_Active>(InventoryComponentName))
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<USSArcInventoryComponent_Active>(InventoryComponentName))
 {
 	InventoryComponent = CreateDefaultSubobject<UArcInventoryComponent>(InventoryComponentName);
 	SSInventoryComponentActive = Cast<USSArcInventoryComponent_Active>(InventoryComponent);
@@ -71,12 +71,14 @@ bool AShooterCharacter::GrantStartingAbilities()
 	return true;
 }
 
-//#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 //#include "Kismet/KismetMathLibrary.h"
 //#include "GameFramework/SpringArmComponent.h"
 void AShooterCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	SSInventoryComponentActive ? UKismetSystemLibrary::PrintString(this, "Valid") : UKismetSystemLibrary::PrintString(this, "NULLL");
 
 	//float frameHorizontalMouseRate = 0;
 	//float frameVerticalMouseRate = 0;

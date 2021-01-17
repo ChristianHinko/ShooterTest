@@ -20,6 +20,8 @@ void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME_CONDITION(AShooterCharacter, InteractDurationAbilitySpecHandle, COND_OwnerOnly);
 
 	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToLastActiveItemAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToNextItemAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToPreviousItemAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToItem0AbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToItem1AbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToItem2AbilitySpecHandle, COND_OwnerOnly);
@@ -58,6 +60,8 @@ bool AShooterCharacter::GrantStartingAbilities()
 	InteractDurationAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractDurationAbilityTSub, this, EAbilityInputID::Interact/*, GetLevel()*/);
 
 	SwapToLastActiveItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToLastActiveItemAbilityTSub, this, EAbilityInputID::SwitchWeapon/*, GetLevel()*/);
+	SwapToNextItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToNextItemAbilityTSub, this, EAbilityInputID::NextItem/*, GetLevel()*/);
+	SwapToPreviousItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToPreviousItemAbilityTSub, this, EAbilityInputID::PreviousItem/*, GetLevel()*/);
 	SwapToItem0AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem0AbilityTSub, this, EAbilityInputID::Item0/*, GetLevel()*/);
 	SwapToItem1AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem1AbilityTSub, this, EAbilityInputID::Item1/*, GetLevel()*/);
 	SwapToItem2AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem2AbilityTSub, this, EAbilityInputID::Item2/*, GetLevel()*/);
@@ -162,9 +166,11 @@ void AShooterCharacter::OnItem4Pressed()
 }
 void AShooterCharacter::OnNextItemPressed()
 {
+	GetAbilitySystemComponent()->TryActivateAbility(SwapToNextItemAbilitySpecHandle);
 }
 void AShooterCharacter::OnPreviousItemPressed()
 {
+	GetAbilitySystemComponent()->TryActivateAbility(SwapToPreviousItemAbilitySpecHandle);
 }
 
 void AShooterCharacter::OnPausePressed()

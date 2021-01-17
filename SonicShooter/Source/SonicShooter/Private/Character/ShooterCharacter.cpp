@@ -9,6 +9,7 @@
 #include "ActorComponents/InteractorComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
+#include "ArcItemStack.h"
 
 
 
@@ -135,10 +136,14 @@ void AShooterCharacter::OnInteractPressed()
 
 void AShooterCharacter::OnPrimaryFirePressed()
 {
-	//if (GetAbilitySystemComponent())
-	//{
-	//	GetAbilitySystemComponent()->TryActivateAbility(CurrentWeapon->FireAbilitySpecHandle);		for when we add inventory system
-	//}
+	if (GetAbilitySystemComponent())
+	{
+		if (SSInventoryComponentActive)
+		{
+			//UArkItemStack* ActiveItem = SSInventoryComponentActive->GetActiveItemStack();
+			////GetAbilitySystemComponent()->TryActivateAbility(CurrentWeapon->FireAbilitySpecHandle);
+		}
+	}
 }
 
 void AShooterCharacter::OnSwitchWeaponPressed()

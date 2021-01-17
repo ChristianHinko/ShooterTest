@@ -1,12 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Actor/Weapon/Abilities/GA_Fire.h"
+#include "GA_Fire.h"
 
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
 #include "AbilitySystem/TargetActor/TargetActors/GATA_BulletTrace.h"
-#include "Actor/Weapon/Weapon.h"
+#include "ArcItemStack.h"
+#include "WeaponDefinition.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Utilities/CollisionChannels.h"
@@ -28,28 +29,54 @@ void UGA_Fire::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGa
 	Super::OnAvatarSet(ActorInfo, Spec);
 
 
-	// get reference to source weapon that granted this ability
-	SourceWeapon = Cast<AWeapon>(GetCurrentSourceObject());
-	if (!SourceWeapon)
+}
+
+void UGA_Fire::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+{
+	Super::OnGiveAbility(ActorInfo, Spec);
+
+
+	// Get reference to source item that granted this ability
+	SourceItem = Cast<UArcItemStack>(GetCurrentSourceObject());
+	if (!SourceItem)
 	{
 		if (GetCurrentSourceObject() == nullptr)
 		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("Current source object was null in %s(). - Failed to cast fire ability's source object to AWeapon"), *FString(__FUNCTION__));
+			UE_LOG(LogGameplayAbility, Error, TEXT("Current source object was null in %s(). - Failed to cast fire ability's source object to UArcItemStack"), *FString(__FUNCTION__));
 		}
 		else
 		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("Failed to cast fire ability's source object to AWeapon in %s(). Is this ability being given to a non-weapon? (it shouldn't be)"), *FString(__FUNCTION__));
+			UE_LOG(LogGameplayAbility, Error, TEXT("Failed to cast fire ability's source object to UArcItemStack in %s(). Is this ability being given to a non-itemstack? (it shouldn't be)"), *FString(__FUNCTION__));
 		}
-			
+
 		return;
 	}
 
-	// get referance to source weapon's target actor
-	BulletTraceTargetActor = SourceWeapon->GetBulletTraceTargetActor();
-	if (!BulletTraceTargetActor)
+	SourceWeaponDefinition = Cast<UWeaponDefinition>(SourceItem->GetItemDefinition().GetDefaultObject());
+
+	// Get referance to source weapon's target actor
+	BulletTraceTargetActorTSub = SourceWeaponDefinition->BulletTraceTargetActorTSub;
+	if (!BulletTraceTargetActorTSub)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s gave us a null bullet trace target actor in %s()"), *SourceWeapon->GetName(), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s gave us a null bullet trace target actor in %s()"), *SourceWeaponDefinition->GetName(), *FString(__FUNCTION__));
 		return;
+	}
+
+
+	// Ensure this target actor is always spawned
+	FActorSpawnParameters TargetActorSpawnParameters;
+	TargetActorSpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	// Spawn our target actor
+	BulletTraceTargetActor = GetWorld()->SpawnActor<AGATA_BulletTrace>(BulletTraceTargetActorTSub, TargetActorSpawnParameters);
+	BulletTraceTargetActor->bDestroyOnConfirmation = false;
+}
+
+void UGA_Fire::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+{
+	if (BulletTraceTargetActor->Destroy())
+	{
+		BulletTraceTargetActor = nullptr;
 	}
 }
 
@@ -76,10 +103,10 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	}
 
 
-	// update target actor's start location info
+	// Update target actor's start location info
 	BulletTraceTargetActor->StartLocation = MakeTargetLocationInfoFromOwnerSkeletalMeshComponent(TEXT("None"));		// this will take the actor info's skeletal mesh, maybe make our own in SSGameplayAbility which you can specify a skeletal mesh to use
 
-	// try to make wait target data task
+	// Try to make wait target data task
 	UAbilityTask_WaitTargetData* WaitTargetDataActorTask = UAbilityTask_WaitTargetData::WaitTargetDataUsingActor(this, TEXT("WaitTargetDataActorTask"), EGameplayTargetingConfirmation::Instant, BulletTraceTargetActor);
 	if (!WaitTargetDataActorTask)
 	{
@@ -96,11 +123,11 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	}
 	///////////////////////////////////// we are safe to proceed /////////
 
-	// take away ammo first
+	// Take away ammo first
 	//FireEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, FireEffectTSub.GetDefaultObject(), GetAbilityLevel());			// how do we do this? we want to apply the effect to the weapon but all they have is apply to owner and apply to target
 
 
-	// bind to wait target data delegates and activate the task
+	// Bind to wait target data delegates and activate the task
 	WaitTargetDataActorTask->ValidData.AddDynamic(this, &UGA_Fire::OnValidData);
 	WaitTargetDataActorTask->Cancelled.AddDynamic(this, &UGA_Fire::OnCancelled);
 	WaitTargetDataActorTask->ReadyForActivation();

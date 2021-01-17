@@ -217,6 +217,9 @@ protected:
 	virtual void OnScoreSheetPressed();
 	//virtual void OnScoreSheetReleased();
 
+	virtual void OnDropItemPressed();
+	//virtual void OnDropItemReleased();
+
 
 	//Axis
 	virtual void MoveForward(float Value);

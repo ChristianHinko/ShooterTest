@@ -529,6 +529,9 @@ void ASSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("PreviousItem", IE_Pressed, this, &ASSCharacter::OnPreviousItemPressed);
 	//PlayerInputComponent->BindAction("PreviousItem", IE_Released, this, &ASSCharacter::OnPreviousItemReleased);
 
+	PlayerInputComponent->BindAction("DropItem", IE_Pressed, this, &ASSCharacter::OnDropItemPressed);
+	//PlayerInputComponent->BindAction("DropItem", IE_Released, this, &ASSCharacter::OnDropItemReleased);
+
 
 
 	//Axis
@@ -693,6 +696,13 @@ void ASSCharacter::OnScoreSheetPressed()
 //{
 //}
 
+void ASSCharacter::OnDropItemPressed()
+{
+}
+
+//void ASSCharacter::OnDropItemReleased()
+//{
+//}
 
 
 void ASSCharacter::OnRunPressed()

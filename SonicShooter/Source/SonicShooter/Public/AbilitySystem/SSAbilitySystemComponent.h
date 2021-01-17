@@ -60,7 +60,9 @@ enum class EAbilityInputID : uint8
 	// 16 Pause
 	Pause				UMETA(DisplayName = "Pause"),
 	// 17 ScoreSheet
-	ScoreSheet			UMETA(DisplayName = "ScoreSheet")
+	ScoreSheet			UMETA(DisplayName = "ScoreSheet"),
+	// 18 DropItem
+	DropItem			UMETA(DisplayName = "DropItem")
 };
 
 /**

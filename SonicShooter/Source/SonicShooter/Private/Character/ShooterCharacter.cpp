@@ -208,7 +208,12 @@ void AShooterCharacter::OnScoreSheetPressed()
 
 void AShooterCharacter::OnDropItemPressed()
 {
-	GetAbilitySystemComponent()->TryActivateAbility(DropItemAbilitySpecHandle);
+	FArcInventoryItemSlotReference ActiveItem = SSInventoryComponentActive->GetActiveItemSlot();
+	if (SSInventoryComponentActive->IsValidActiveItemSlot(ActiveItem.SlotId))
+	{
+		SSInventoryComponentActive->PendingItemDrop = SSInventoryComponentActive->GetActiveItemSlot();
+		GetAbilitySystemComponent()->TryActivateAbility(DropItemAbilitySpecHandle, true);
+	}
 }
 
 

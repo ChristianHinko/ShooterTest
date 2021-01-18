@@ -29,35 +29,9 @@ bool USSArcInventoryComponent_Active::IsActiveItemSlotIndexValid(int32 InActiveI
 
 bool USSArcInventoryComponent_Active::MakeItemActive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack)
 {
-	if (!IsValid(ItemStack))
-	{
-		return false;
-	}
+	bool bSuccess = Super::MakeItemActive_Internal(ItemSlot, ItemStack);
 
-	TSubclassOf<UArcItemDefinition_Active> ItemDefinition(ItemStack->GetItemDefinition());
-	if (!IsValid(ItemDefinition))
-	{
-		return false;
-	}
-
-	FArcInventoryItemInfoEntry* Entry = ActiveItemAbilityInfos.FindByPredicate([ItemSlot](const FArcInventoryItemInfoEntry& x) {
-		return x.ItemSlotRef.SlotId == ItemSlot.SlotId;
-		});
-	if (Entry == nullptr)
-	{
-		Entry = &ActiveItemAbilityInfos.Add_GetRef(FArcInventoryItemInfoEntry(ItemSlot));
-	}
-
-	//Add this item's Active Abilities
-	bool bSuccess = ApplyAbilityInfo_Internal(ItemDefinition.GetDefaultObject()->ActiveItemAbilityInfo, (*Entry).EquippedItemInfo, ItemStack);
-
-	if (bSuccess)
-	{
-		ApplyPerks(ItemStack, ItemSlot);
-	}
-
-	OnItemActive.Broadcast(this, ItemStack);
-	AddNewActiveItemToHistoryBuffer(ItemSlot);	// Only thing added from the Super
+	AddNewActiveItemToHistoryBuffer(ItemSlot);
 
 	return bSuccess;
 }

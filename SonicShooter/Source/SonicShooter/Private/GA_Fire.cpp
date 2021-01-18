@@ -53,6 +53,19 @@ void UGA_Fire::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const F
 	}
 
 	SourceWeaponDefinition = Cast<UWeaponDefinition>(SourceItem->GetItemDefinition().GetDefaultObject());
+	if (!SourceWeaponDefinition)
+	{
+		if (SourceItem->GetItemDefinition().GetDefaultObject())
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("SourceItem's item definition was null in %s(). - Failed to cast to UWeaponDefinition"), *FString(__FUNCTION__));
+		}
+		else
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("Failed to cast SourceItem's item definition to UWeaponDefinition in %s(). Is SourceItem's item definition a non-UWeaponDefinition? (it shouldn't be)"), *FString(__FUNCTION__));
+		}
+
+		return;
+	}
 
 	// Get referance to source weapon's target actor
 	BulletTraceTargetActorTSub = SourceWeaponDefinition->BulletTraceTargetActorTSub;

@@ -59,45 +59,46 @@ public:
 
 
 #pragma region Abilities
-	// Change weapon Abilities
-	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Input")
+	// Inventory Abilities
+	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
 		TSubclassOf<UGameplayAbility> SwapToLastActiveItemAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToLastActiveItemAbilitySpecHandle;
-	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Input")
+	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
 		TSubclassOf<UGameplayAbility> SwapToNextItemAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToNextItemAbilitySpecHandle;
-	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Input")
+	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
 		TSubclassOf<UGameplayAbility> SwapToPreviousItemAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToPreviousItemAbilitySpecHandle;
-	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Input")
+	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
 		TSubclassOf<UGameplayAbility> SwapToItem0AbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToItem0AbilitySpecHandle;
-	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Input")
+	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
 		TSubclassOf<UGameplayAbility> SwapToItem1AbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToItem1AbilitySpecHandle;
-	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Input")
+	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
 		TSubclassOf<UGameplayAbility> SwapToItem2AbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToItem2AbilitySpecHandle;
-	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Input")
+	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
 		TSubclassOf<UGameplayAbility> SwapToItem3AbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToItem3AbilitySpecHandle;
-	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Input")
+	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
 		TSubclassOf<UGameplayAbility> SwapToItem4AbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToItem4AbilitySpecHandle;
-	// -----------------------
 
-	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities")
+	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
 		TSubclassOf<UGameplayAbility> DropItemAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle DropItemAbilitySpecHandle;
+	// -----------------------
+
 
 
 

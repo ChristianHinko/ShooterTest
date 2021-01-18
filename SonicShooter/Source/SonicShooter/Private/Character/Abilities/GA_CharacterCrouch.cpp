@@ -13,10 +13,10 @@
 
 UGA_CharacterCrouch::UGA_CharacterCrouch()
 {
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Crouch")));
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Movement.Crouch")));
 
 
-	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Run"));
+	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Movement.Run"));
 }
 
 

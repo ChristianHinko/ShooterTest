@@ -33,7 +33,7 @@
 
 UGA_CharacterAutoInteract::UGA_CharacterAutoInteract()
 {
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.AutoInteract")));
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Interact.AutoInteract")));
 	// Probably make this an InstancedPerActor passive ability to handle all automatic interactions. Since it will be passive the ability will never end than thus we don't need to do Durration End callbacks inside EndAbility(). We can just do them where ever
 }
 

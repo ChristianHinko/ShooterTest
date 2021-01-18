@@ -10,7 +10,7 @@
 
 UGA_SwapActiveItem::UGA_SwapActiveItem()
 {
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.ItemSwitch")));	// Should I have the game at runtime assign a more specific tag for the "AbilityTags"? ie. if developer subclassed and chose for this to be a by index ability. Maybe even go as far as including the item index to swap to in the tag? We could maybe build this tag and assign it when a value is assigned in editor.
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Inventory.ItemSwitch")));	// Should I have the game at runtime assign a more specific tag for the "AbilityTags"? ie. if developer subclassed and chose for this to be a by index ability. Maybe even go as far as including the item index to swap to in the tag? We could maybe build this tag and assign it when a value is assigned in editor.
 
 	itemSlotIndexToSwitchTo = -1;
 	ItemSlotTagToSwitchTo = FGameplayTag::EmptyTag;

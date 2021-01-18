@@ -96,12 +96,20 @@ void AShooterCharacter::UnPossessed()
 	}
 }
 
-//#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Actor/AS_Health.h"
 //#include "Kismet/KismetMathLibrary.h"
 //#include "GameFramework/SpringArmComponent.h"
 void AShooterCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	if (GetHealthAttributeSet())
+	{
+		UKismetSystemLibrary::PrintString(this, FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
+	}
+
+	
 
 	//float frameHorizontalMouseRate = 0;
 	//float frameVerticalMouseRate = 0;

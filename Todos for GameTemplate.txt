@@ -200,3 +200,17 @@ An ideal solution to these 2 problems would mean the server wouldn't have to wai
 
 
 
+
+
+
+
+
+
+
+
+
+
+- (JUST AN IDEA) make bool for having abilities transfer over between AIAbilitySystemComponent and PlayerAbilitySystemComponent in AbilitySystemCharacter
+- (ALSO JUST AN IDEA) make our own AIController and store the AIAbilitySystemComponent on that?
+
+

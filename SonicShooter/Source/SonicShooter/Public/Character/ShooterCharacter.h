@@ -121,6 +121,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
 		FVector AddedCameraSwayDuringADS;
 
+	void RefreshInventoryAbilitySystemInfo();
+	virtual void UnPossessed() override;
+
 	//BEGIN AActor Interface
 	virtual void Tick(float DeltaSeconds) override;
 	//END AActor Interface

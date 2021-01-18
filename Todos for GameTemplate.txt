@@ -214,3 +214,6 @@ An ideal solution to these 2 problems would mean the server wouldn't have to wai
 - (ALSO JUST AN IDEA) make our own AIController and store the AIAbilitySystemComponent on that?
 
 
+
+
+- Fix GrantAbility(). Sometimes we may want 2 of the same abilities, maybe compare the Specs before returning out?

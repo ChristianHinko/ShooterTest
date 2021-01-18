@@ -8,7 +8,6 @@
 #include "AbilitySystem/TargetActor/TargetActors/GATA_BulletTrace.h"
 #include "ArcItemStack.h"
 #include "WeaponDefinition.h"
-#include "AbilitySystemBlueprintLibrary.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Utilities/CollisionChannels.h"
 
@@ -83,6 +82,7 @@ void UGA_Fire::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const F
 	// Spawn our target actor
 	BulletTraceTargetActor = GetWorld()->SpawnActor<AGATA_BulletTrace>(BulletTraceTargetActorTSub, TargetActorSpawnParameters);
 	BulletTraceTargetActor->bDestroyOnConfirmation = false;
+
 }
 
 void UGA_Fire::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -91,12 +91,19 @@ void UGA_Fire::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const
 	{
 		BulletTraceTargetActor = nullptr;
 	}
+
 }
 
 bool UGA_Fire::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
 	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 	{
+		return false;
+	}
+
+	if (!BulletTraceTargetActor)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() BulletTraceTargetActor was NULL. returned false"), *FString(__FUNCTION__));
 		return false;
 	}
 
@@ -107,13 +114,6 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-
-	if (!BulletTraceTargetActor)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() BulletTraceTargetActor was NULL when trying to activate fire ability. Called EndAbility()"), *FString(__FUNCTION__));
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
-	}
 
 	// Update target actor's start location info
 	BulletTraceTargetActor->StartLocation = MakeTargetLocationInfoFromOwnerSkeletalMeshComponent(TEXT("None"));		// this will take the actor info's skeletal mesh, maybe make our own in SSGameplayAbility which you can specify a skeletal mesh to use

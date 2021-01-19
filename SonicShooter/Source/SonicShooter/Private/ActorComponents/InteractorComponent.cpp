@@ -50,12 +50,12 @@ void UInteractorComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 			if (CurrentPrioritizedInteractable != LastPrioritizedInteractable)
 			{
 
-				if (CurrentPrioritizedInteractable->bShouldFireDetectionEvents)
+				if (CurrentPrioritizedInteractable->GetShouldFireDetectionEvents())
 					CurrentPrioritizedInteractable->OnInitialDetect(OwningShooterCharacter);
 
 				if (LastPrioritizedInteractable)
 				{
-					if (LastPrioritizedInteractable->bShouldFireDetectionEvents)
+					if (LastPrioritizedInteractable->GetShouldFireDetectionEvents())
 						LastPrioritizedInteractable->OnEndDetect(OwningShooterCharacter);
 				}
 
@@ -63,7 +63,7 @@ void UInteractorComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 			}
 			else
 			{
-				if (CurrentPrioritizedInteractable->bShouldFireDetectionEvents)
+				if (CurrentPrioritizedInteractable->GetShouldFireDetectionEvents())
 					CurrentPrioritizedInteractable->OnConsecutiveDetect(OwningShooterCharacter);
 			}
 
@@ -77,7 +77,7 @@ void UInteractorComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 		{
 			if (LastPrioritizedInteractable != nullptr)	// If the last frame had something to interact with
 			{
-				if (LastPrioritizedInteractable->bShouldFireDetectionEvents)
+				if (LastPrioritizedInteractable->GetShouldFireDetectionEvents())
 					LastPrioritizedInteractable->OnEndDetect(OwningShooterCharacter);
 				LastPrioritizedInteractable = nullptr;
 			}

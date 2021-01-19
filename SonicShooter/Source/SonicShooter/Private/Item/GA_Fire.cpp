@@ -147,7 +147,7 @@ void UGA_Fire::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGamepl
 	{
 		if (ActorInfo->AbilitySystemComponent.Get())
 		{
-			ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(FireEffectActiveHandle);
+			//ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(FireEffectActiveHandle); // this would give us back our ammo, maybe use this for a firing state tag though
 		}
 		else
 		{

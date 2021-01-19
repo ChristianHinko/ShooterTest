@@ -46,10 +46,10 @@ protected:
 		UArcItemStack* SourceItem;
 	UPROPERTY()
 		UWeaponDefinition* SourceWeaponDefinition;
-	UPROPERTY()
+
+
+	UPROPERTY(EditDefaultsOnly, Category = "Target Actor")
 		TSubclassOf<AGATA_BulletTrace> BulletTraceTargetActorTSub;
-
-
 	UPROPERTY()
 		AGATA_BulletTrace* BulletTraceTargetActor;
 

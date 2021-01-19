@@ -23,6 +23,4 @@ class SONICSHOOTER_API UWeaponDefinition : public UArcItemDefinition_Active
 public:
 	UWeaponDefinition();
 
-	UPROPERTY(EditDefaultsOnly, Category = "Target Actor")
-		TSubclassOf<AGATA_BulletTrace> BulletTraceTargetActorTSub;
 };

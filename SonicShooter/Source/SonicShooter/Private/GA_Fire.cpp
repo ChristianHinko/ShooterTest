@@ -66,11 +66,9 @@ void UGA_Fire::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const F
 		return;
 	}
 
-	// Get referance to source weapon's target actor
-	BulletTraceTargetActorTSub = SourceWeaponDefinition->BulletTraceTargetActorTSub;
 	if (!BulletTraceTargetActorTSub)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s gave us a null bullet trace target actor in %s()"), *SourceWeaponDefinition->GetName(), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("BulletTraceTargetActorTSub TSubclassOf empty in %s(). Please fill out BP"), *FString(__FUNCTION__));
 		return;
 	}
 

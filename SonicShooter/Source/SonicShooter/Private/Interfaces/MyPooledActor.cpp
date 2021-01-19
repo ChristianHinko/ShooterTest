@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "MyPooledActor.h"
+#include "Interfaces/MyPooledActor.h"
 
 // Sets default values
 AMyPooledActor::AMyPooledActor()

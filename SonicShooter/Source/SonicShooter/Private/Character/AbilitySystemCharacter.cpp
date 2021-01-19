@@ -15,7 +15,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Character/AS_Character.h"
-#include "Actor/AS_Health.h"
+#include "AbilitySystem/AttributeSets/AS_Health.h"
 
 #include "Character/SSCharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"

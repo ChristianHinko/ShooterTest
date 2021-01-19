@@ -97,7 +97,7 @@ void AShooterCharacter::UnPossessed()
 }
 
 #include "Kismet/KismetSystemLibrary.h"
-#include "Actor/AS_Health.h"
+#include "AbilitySystem/AttributeSets/AS_Health.h"
 //#include "Kismet/KismetMathLibrary.h"
 //#include "GameFramework/SpringArmComponent.h"
 void AShooterCharacter::Tick(float DeltaSeconds)

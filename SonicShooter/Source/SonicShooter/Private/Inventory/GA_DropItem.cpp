@@ -106,8 +106,8 @@ void UGA_DropItem::OnDataRecieved(const FArcInventoryItemSlotReference& FromSlot
 		SpawnTransform.SetLocation(SpawnTransform.GetLocation() + ShooterCharacter->GetActorForwardVector() * 200);
 
 		USSArcItemBPFunctionLibrary::SpawnWorldItem(this, RemovedItemStack, SpawnTransform, RemovedItemStack->GetItemDefinition().GetDefaultObject()->WorldItemActor);
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 	}
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
 
 void UGA_DropItem::OnDataCancelled()

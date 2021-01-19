@@ -6,8 +6,6 @@
 #include "AbilitySystem/SSGameplayAbility.h"
 #include "GA_Fire.generated.h"
 
-class UArcItemStack;
-class UWeaponDefinition;
 class AGATA_BulletTrace;
 
 /**
@@ -40,12 +38,6 @@ protected:
 	
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	//END UGameplayAbility Interface
-
-
-	UPROPERTY()
-		UArcItemStack* SourceItem;
-	UPROPERTY()
-		UWeaponDefinition* SourceWeaponDefinition;
 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Target Actor")

@@ -80,8 +80,21 @@ void AShooterCharacter::RefreshInventoryAbilitySystemInfo()
 {
 	if (USSArcInventoryComponent_Active* Inventory = SSInventoryComponentActive)
 	{
-		// Make the inventory re-give us our item's abilities and attribute sets and stuff
+		//Inventory->MakeItemInactive();
+		//// Make the inventory re-give us our item's abilities and attribute sets and stuff
 		Inventory->MakeItemActive(Inventory->GetActiveItemSlot());
+
+		//if (UArcInventoryComponent_Active* a = Cast<UArcInventoryComponent_Active>(GetInventoryComponent()))
+		//{
+		//	TArray<FArcInventoryItemSlotReference> InventoryActiveSlotRefs;
+		//	if (a->Query_GetAllSlots(FArcInventoryQuery::QuerySlotMatchingTag(GetDefault<UArcInventoryDeveloperSettings>()->ActiveItemSlotTag), InventoryActiveSlotRefs))
+		//	{
+		//		int32 d = 325;
+		//		float h = 3.7f;
+		//	}
+		//	a-
+		//	a->SwapActiveItems(SlotAddedTo.SlotId);
+		//}
 	}
 }
 void AShooterCharacter::UnPossessed()
@@ -109,6 +122,13 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 	//{
 	//	UKismetSystemLibrary::PrintString(this, FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
 	//}
+
+	for (int i = 0; i < SSInventoryComponentActive->ItemHistory.Num(); i++)
+	{
+		FArcInventoryItemSlotReference current = SSInventoryComponentActive->ItemHistory[i];
+
+		UKismetSystemLibrary::PrintString(this, "["+FString::FromInt(current.SlotId)+"] " + current.SlotTags.GetByIndex(1).ToString(), true, false, FLinearColor::Green);
+	}
 
 	if (GetAbilitySystemComponent())
 	{

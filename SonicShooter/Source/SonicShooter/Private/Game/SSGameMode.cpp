@@ -15,6 +15,7 @@ ASSGameMode::ASSGameMode()
 }
 
 
+#include "Components/ArcInventoryComponent_Active.h"
 APawn* ASSGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform)
 {
 	APawn* Pawn = Super::SpawnDefaultPawnAtTransform_Implementation(NewPlayer, SpawnTransform);
@@ -24,8 +25,9 @@ APawn* ASSGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewP
 		if (UArcInventoryComponent* Inventory = ShooterCharacter->GetInventoryComponent())
 		{
 			// For each item generator
-			for (TSubclassOf<UArcItemGenerator_Unique> ItemGeneratorTSub : ShooterCharacter->ItemsToLootOnStartup)
+			for (int i = 0; i < ShooterCharacter->ItemsToLootOnStartup.Num(); i++)
 			{
+				TSubclassOf<UArcItemGenerator_Unique> ItemGeneratorTSub = ShooterCharacter->ItemsToLootOnStartup[i];
 				// Get this generator
 				UArcItemGenerator_Unique* ItemGenerator = ItemGeneratorTSub.GetDefaultObject();
 				FArcItemGeneratorContext GeneratorContext;
@@ -34,8 +36,14 @@ APawn* ASSGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewP
 				UArcItemStack* ItemStack = ItemGenerator->GenerateItemStack(GeneratorContext);
 
 				// Loot the newly generated item
-				Inventory->LootItem(ItemStack);
+				FArcInventoryItemSlotReference SlotAddedTo;
+				Inventory->LootItemAndOutSlotRef(ItemStack, SlotAddedTo);
+				//if (UArcInventoryComponent_Active* a = Cast<UArcInventoryComponent_Active>(ShooterCharacter->GetInventoryComponent()))
+				//{
+				//	a->SwapActiveItems(SlotAddedTo.SlotId);
+				//}
 			}
+
 		}
 	}
 

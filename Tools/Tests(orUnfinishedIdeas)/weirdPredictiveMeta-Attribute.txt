@@ -1,0 +1,44 @@
+if test this with net pktloss it messes up
+also we dont even need this for ClipAmmo because it isnt replicated that why i stopped working on this
+
+
+
+void UAS_Ammo::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+{
+	Super::PreAttributeChange(Attribute, NewValue);
+
+
+	if (Attribute == GetClipDepletionAttribute() && NewValue != 0.f)
+	{
+		if (NewValue > 1)
+		{
+			int what = 3; // this should never get hit
+		}
+		const float amountToTakeAway = NewValue;
+		NewValue = 0.f;
+
+		SetClipAmmo(FMath::Clamp(GetClipAmmo() - amountToTakeAway, 0.f, GetMaxClipSize()));
+	}
+}
+
+void UAS_Ammo::PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const
+{
+	Super::PreAttributeBaseChange(Attribute, NewValue);
+
+
+	if (Attribute == GetClipDepletionAttribute())
+	{
+		if (NewValue > 1)
+		{
+			int what = 3; // this should never get hit
+		}
+		const float amountToTakeAway = NewValue;
+		NewValue = 0.f;
+
+		UAbilitySystemComponent* AbilityComp = GetOwningAbilitySystemComponent();
+		if (ensure(AbilityComp))
+		{
+			AbilityComp->SetNumericAttributeBase(GetClipAmmoAttribute(), FMath::Clamp(GetClipAmmo() - amountToTakeAway, 0.f, GetMaxClipSize()));
+		};
+	}
+}

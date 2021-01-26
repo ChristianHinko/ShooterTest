@@ -19,6 +19,7 @@ class SONICSHOOTER_API USSArcInventoryComponent_Active : public UArcInventoryCom
 	
 public:
 	USSArcInventoryComponent_Active(const FObjectInitializer& ObjectInitializer);
+	uint8 GetInventoryInitialized();
 
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 		bool IsActiveItemSlotIndexValid(int32 InActiveItemSlot);
@@ -26,9 +27,16 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 		int32 maxItemHistoryBufferSize;
 	TArray<FArcInventoryItemSlotReference> ItemHistory;
+	
+	UFUNCTION()
+		void AddToItemHistory(FArcInventoryItemSlotReference NewActiveItemSlotReference);
 
 protected:
+	uint8 bInventoryInitialized;
+
+	TQueue<int32> His;
+	//UFUNCTION()
+	//	virtual void OnInventoryUpdated(UArcInventoryComponent* Owner);
 	virtual bool MakeItemActive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack);
 
-	void AddNewActiveItemToHistoryBuffer(FArcInventoryItemSlotReference NewActiveItemSlotReference);
 };

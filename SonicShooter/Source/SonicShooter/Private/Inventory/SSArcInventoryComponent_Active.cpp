@@ -11,7 +11,14 @@
 USSArcInventoryComponent_Active::USSArcInventoryComponent_Active(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	bInventoryInitialized = false;
+
 	maxItemHistoryBufferSize = 5;
+}
+
+uint8 USSArcInventoryComponent_Active::GetInventoryInitialized()
+{
+	return bInventoryInitialized;
 }
 
 bool USSArcInventoryComponent_Active::IsActiveItemSlotIndexValid(int32 InActiveItemSlot)
@@ -31,29 +38,35 @@ bool USSArcInventoryComponent_Active::MakeItemActive_Internal(const FArcInventor
 {
 	bool bSuccess = Super::MakeItemActive_Internal(ItemSlot, ItemStack);
 
-	AddNewActiveItemToHistoryBuffer(ItemSlot);
+	AddToItemHistory(ItemSlot);
 
 	return bSuccess;
 }
 
-void USSArcInventoryComponent_Active::AddNewActiveItemToHistoryBuffer(FArcInventoryItemSlotReference NewActiveItemSlotReference)
+
+
+
+
+
+
+void USSArcInventoryComponent_Active::AddToItemHistory(FArcInventoryItemSlotReference NewActiveItemSlotReference)
 {
 	int32 sizeChange = 0;
 
 	if (ItemHistory.RemoveSingle(NewActiveItemSlotReference) == 1)		// Remove the item from the history buffer so we can make it a new recent
 	{
 		sizeChange--;
-	}	
-	ItemHistory.Push(NewActiveItemSlotReference);						// Make item new recent
+	}
+	ItemHistory.Insert(NewActiveItemSlotReference, 0);						// Make item new recent
 	sizeChange++;
 
-	
+
 
 	if (ItemHistory.Num() > maxItemHistoryBufferSize)
 	{
-		ItemHistory.RemoveAt(ItemHistory.Num()-1);						// Remove oldest stored item if we are passed the max buffer size
+		ItemHistory.RemoveAt(ItemHistory.Num() - 1);						// Remove oldest stored item if we are passed the max buffer size
 	}
 
-	
+
 
 }

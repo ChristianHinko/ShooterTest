@@ -63,6 +63,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Arc|Inventory")
 	virtual bool LootItem(UArcItemStack* Item);
 
+
+	//------------------=@MODIFIED MARKER@=		// Add this function so we know what slot ref is the one with the new item. (We use this when populating our inventory so we can add the slot ref to our item history)
+	//Returns true if the item has been add to this inventory.  False if the item can't fit. Outs the slot ref of the new item
+	UFUNCTION(BlueprintCallable, Category = "Arc|Inventory")
+		virtual bool LootItemAndOutSlotRef(UArcItemStack* Item, FArcInventoryItemSlotReference& SlotRefAddedTo);
+	//------------------
+
+
 	//Places the item into the slot.  Returns false if hte item cannot be put there.
 	UFUNCTION(BlueprintCallable, Category = "Arc|Inventory")
 	virtual bool PlaceItemIntoSlot(UArcItemStack* Item, const FArcInventoryItemSlotReference& ItemSlot);

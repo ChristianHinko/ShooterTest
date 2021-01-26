@@ -126,6 +126,29 @@ bool UArcInventoryComponent::LootItem(UArcItemStack* Item)
 	return false;
 }
 
+//------------------=@MODIFIED MARKER@=		Added new looting function identical to original, just outputs more information
+bool UArcInventoryComponent::LootItemAndOutSlotRef(UArcItemStack* Item, FArcInventoryItemSlotReference& SlotRefAddedTo)
+{
+	//We can't do this on clients
+	if (GetOwnerRole() != ROLE_Authority)
+	{
+		return false;
+	}
+
+	//Find the first empty item slot
+	for (auto Slot : BagInventory.Slots)
+	{
+		SlotRefAddedTo = FArcInventoryItemSlotReference(Slot, this);
+		if (AcceptsItem(Item, SlotRefAddedTo) && PlaceItemIntoSlot(Item, SlotRefAddedTo))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+//------------------
+
 bool UArcInventoryComponent::PlaceItemIntoSlot(UArcItemStack* Item, const FArcInventoryItemSlotReference& ItemSlot)
 {
 	//We can't do this on clients

@@ -31,7 +31,7 @@ private:
 	
 public:
 	AShooterCharacter(const FObjectInitializer& ObjectInitializer);
-
+	virtual void BeginPlay() override;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
 		USSArcInventoryComponent_Active* SSInventoryComponentActive;
 
@@ -121,7 +121,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
 		FVector AddedCameraSwayDuringADS;
 
-	void RefreshInventoryAbilitySystemInfo();
+	void MakeAllActiveWeaponsActive();
 	virtual void UnPossessed() override;
 
 	//BEGIN AActor Interface

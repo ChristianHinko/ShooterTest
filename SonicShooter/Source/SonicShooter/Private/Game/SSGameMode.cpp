@@ -25,7 +25,7 @@ APawn* ASSGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewP
 		if (UArcInventoryComponent* Inventory = ShooterCharacter->GetInventoryComponent())
 		{
 			// For each item generator
-			for (int i = 0; i < ShooterCharacter->ItemsToLootOnStartup.Num(); i++)
+			for (int32 i = ShooterCharacter->ItemsToLootOnStartup.Num()-1; i >= 0; i--)
 			{
 				TSubclassOf<UArcItemGenerator_Unique> ItemGeneratorTSub = ShooterCharacter->ItemsToLootOnStartup[i];
 				// Get this generator
@@ -36,12 +36,8 @@ APawn* ASSGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewP
 				UArcItemStack* ItemStack = ItemGenerator->GenerateItemStack(GeneratorContext);
 
 				// Loot the newly generated item
-				FArcInventoryItemSlotReference SlotAddedTo;
-				Inventory->LootItemAndOutSlotRef(ItemStack, SlotAddedTo);
-				//if (UArcInventoryComponent_Active* a = Cast<UArcInventoryComponent_Active>(ShooterCharacter->GetInventoryComponent()))
-				//{
-				//	a->SwapActiveItems(SlotAddedTo.SlotId);
-				//}
+				FArcInventoryItemSlotReference SlotRefToPlaceIn = FArcInventoryItemSlotReference(i, Inventory);		// Currently we are handling making Arc Inventory not make active the items we populate the inventory with by using the contructor that doesn't pass in the FArcInventoryItemSlot. Not having the FArcInventoryItemSlot passed through makes the system not able to tell if the item you "equiped" is an active item or not, since the slot tags from FArcInventoryItemSlot isn't stored. Because of this it doesn't bother setting it active (which is what we want, but this is not the right way to do it). By default Arc Inventory just sets the active item active when you loot it if you don't currently have an active item active. And by default, if you unequip a curently active item, it will move you to the next available active item instead of leaving you with nothing active. These things aren't configurable and it's annoying, however the method that does these things is overidable UArcInventoryComponent_Active::OnItemEquipped()
+				Inventory->PlaceItemIntoSlot(ItemStack, SlotRefToPlaceIn);
 			}
 
 		}

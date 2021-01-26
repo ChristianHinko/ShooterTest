@@ -11,14 +11,7 @@
 USSArcInventoryComponent_Active::USSArcInventoryComponent_Active(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	bInventoryInitialized = false;
-
-	maxItemHistoryBufferSize = 5;
-}
-
-uint8 USSArcInventoryComponent_Active::GetInventoryInitialized()
-{
-	return bInventoryInitialized;
+	maxItemHistoryBufferSize = 30;
 }
 
 bool USSArcInventoryComponent_Active::IsActiveItemSlotIndexValid(int32 InActiveItemSlot)
@@ -43,12 +36,6 @@ bool USSArcInventoryComponent_Active::MakeItemActive_Internal(const FArcInventor
 	return bSuccess;
 }
 
-
-
-
-
-
-
 void USSArcInventoryComponent_Active::AddToItemHistory(FArcInventoryItemSlotReference NewActiveItemSlotReference)
 {
 	int32 sizeChange = 0;
@@ -70,3 +57,5 @@ void USSArcInventoryComponent_Active::AddToItemHistory(FArcInventoryItemSlotRefe
 
 
 }
+
+

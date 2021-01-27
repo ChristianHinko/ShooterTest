@@ -25,8 +25,8 @@ void USonicAnimInstance::NativeInitializeAnimation()
 
 	if (USkeletalMeshComponent* SkelMesh = GetSkelMeshComponent())
 	{
-		REyeDynamicMat = SkelMesh->CreateDynamicMaterialInstance(3);
-		LEyeDynamicMat = SkelMesh->CreateDynamicMaterialInstance(4);
+		REyeDynamicMat = SkelMesh->CreateDynamicMaterialInstance(5);
+		LEyeDynamicMat = SkelMesh->CreateDynamicMaterialInstance(6);
 	}
 }
 
@@ -44,8 +44,8 @@ void USonicAnimInstance::NativeUpdateAnimation(float DeltaTimeX)
 
 			if (REyeDynamicMat && LEyeDynamicMat)
 			{
-				float uCoordinateOffset = ((lookRot.Yaw / 360) * 1.5);
-				float vCoordinateOffset = ((lookRot.Pitch / 360) * 1.5);
+				float uCoordinateOffset = ((lookRot.Yaw / 360) * 1.3);
+				float vCoordinateOffset = ((lookRot.Pitch / 360) * 1.3);
 
 				// Now move the eyes by moving their UV coordinates
 				// Right Eye

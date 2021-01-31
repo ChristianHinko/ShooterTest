@@ -98,21 +98,22 @@ bool AShooterCharacter::GrantStartingAbilities()
 
 void AShooterCharacter::MakeAllActiveWeaponsActive()
 {
-	//if (USSArcInventoryComponent_Active* Inventory = SSInventoryComponentActive)
-	//{
-	//	if (UArcInventoryComponent_Active* a = Cast<UArcInventoryComponent_Active>(GetInventoryComponent()))
-	//	{
-	//		TArray<FArcInventoryItemSlotReference> InventoryActiveSlotRefs;
-	//		if (a->Query_GetAllSlots(FArcInventoryQuery::QuerySlotMatchingTag(GetDefault<UArcInventoryDeveloperSettings>()->ActiveItemSlotTag), InventoryActiveSlotRefs))
-	//		{
-	//			// Iterating down the list gives us our primary item last, which is what we want
-	//			for (int32 i = InventoryActiveSlotRefs.Num() - 1; i >= 0; i--)
-	//			{
-	//				SSInventoryComponentActive->SwapActiveItems(InventoryActiveSlotRefs[i].SlotId);
-	//			}
-	//		}
-	//	}
-	//}
+	if (USSArcInventoryComponent_Active* Inventory = SSInventoryComponentActive)
+	{
+		if (UArcInventoryComponent_Active* a = Cast<UArcInventoryComponent_Active>(GetInventoryComponent()))
+		{
+			TArray<FArcInventoryItemSlotReference> InventoryActiveSlotRefs;
+			if (a->Query_GetAllSlots(FArcInventoryQuery::QuerySlotMatchingTag(GetDefault<UArcInventoryDeveloperSettings>()->ActiveItemSlotTag), InventoryActiveSlotRefs))
+			{
+				SSInventoryComponentActive->SwapActiveItems(1);
+				// Iterating down the list sets active our primary item last, which is what we want
+				for (int32 i = InventoryActiveSlotRefs.Num() - 1; i >= 0; i--)
+				{
+					//SSInventoryComponentActive->SwapActiveItems(InventoryActiveSlotRefs[i].SlotId);			// UNDERSTAND HOW THE SYSTEM MUST SET SOMETHING ACTIVE! rn it seems like since the automatic set activeness is not working because of the constuctor thing i did, this may be affecting it. But make sure I know how it sets stuff active, because it's apparently not working rn.
+				}
+			}
+		}
+	}
 }
 void AShooterCharacter::UnPossessed()
 {

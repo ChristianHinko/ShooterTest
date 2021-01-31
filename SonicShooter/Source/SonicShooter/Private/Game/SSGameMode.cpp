@@ -16,6 +16,8 @@ ASSGameMode::ASSGameMode()
 
 
 #include "Components/ArcInventoryComponent_Active.h"
+#include "Inventory/SSArcinventoryComponent_Active.h"
+
 APawn* ASSGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform)
 {
 	APawn* Pawn = Super::SpawnDefaultPawnAtTransform_Implementation(NewPlayer, SpawnTransform);

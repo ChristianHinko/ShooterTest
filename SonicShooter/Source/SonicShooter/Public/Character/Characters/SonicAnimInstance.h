@@ -19,7 +19,9 @@ protected:
 	AActor* LookTarget;
 
 	UPROPERTY(BlueprintReadOnly)
-		FRotator lookRot;
+		FRotator RightEyelookRot;
+	UPROPERTY(BlueprintReadOnly)
+		FRotator LeftEyelookRot;
 
 
 	UPROPERTY(BlueprintReadWrite)
@@ -36,7 +38,7 @@ protected:
 		float lEyeLookAtAlpha;
 
 
-	FRotator Look(AActor* lookTarget, float deltaTime);
+	FRotator Look(FName boneName, AActor* lookTarget, float deltaTime);
 
 public:
 	USonicAnimInstance();

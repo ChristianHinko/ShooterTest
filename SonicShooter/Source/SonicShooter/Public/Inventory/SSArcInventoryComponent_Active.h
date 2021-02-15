@@ -17,9 +17,10 @@ class SONICSHOOTER_API USSArcInventoryComponent_Active : public UArcInventoryCom
 {
 	GENERATED_BODY()
 	
+private:
+
 public:
 	USSArcInventoryComponent_Active(const FObjectInitializer& ObjectInitializer);
-	uint8 GetInventoryInitialized();
 
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 		bool IsActiveItemSlotIndexValid(int32 InActiveItemSlot);
@@ -32,11 +33,7 @@ public:
 		void AddToItemHistory(FArcInventoryItemSlotReference NewActiveItemSlotReference);
 
 protected:
-	uint8 bInventoryInitialized;
-
-	TQueue<int32> His;
-	//UFUNCTION()
-	//	virtual void OnInventoryUpdated(UArcInventoryComponent* Owner);
 	virtual bool MakeItemActive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack);
+
 
 };

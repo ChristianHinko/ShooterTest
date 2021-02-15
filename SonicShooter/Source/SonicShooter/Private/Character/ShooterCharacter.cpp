@@ -41,7 +41,7 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 	SSInventoryComponentActive = Cast<USSArcInventoryComponent_Active>(InventoryComponent);
 
 
-	OnServerAknowledgeClientSetupAbilitySystem.AddUObject(this, &AShooterCharacter::RefreshInventoryAbilitySystemInfo);
+	OnServerAknowledgeClientSetupAbilitySystem.AddUObject(this, &AShooterCharacter::MakeAllActiveWeaponsActive);
 
 
 
@@ -49,6 +49,26 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 
 	CameraSwayAmount = FVector(0, 1.3f, .4f);
 	AddedCameraSwayDuringADS = FVector(0, -1.1f, -.1f);
+}
+
+void AShooterCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	//if (USSArcInventoryComponent_Active* Inventory = SSInventoryComponentActive)
+	//{
+	//	if (UArcInventoryComponent_Active* a = Cast<UArcInventoryComponent_Active>(GetInventoryComponent()))
+	//	{
+	//		TArray<FArcInventoryItemSlotReference> InventoryActiveSlotRefs;
+	//		if (a->Query_GetAllSlots(FArcInventoryQuery::QuerySlotMatchingTag(GetDefault<UArcInventoryDeveloperSettings>()->ActiveItemSlotTag), InventoryActiveSlotRefs))
+	//		{
+	//			// This for loop assumes all active item slots (slots with the active item tag) are all together and start at index 0. So in BP make sure your active item slots are the first slots
+	//			for (int32 i = InventoryActiveSlotRefs.Num() - 1; i >= 0; i--)
+	//			{
+	//				SSInventoryComponentActive->SwapActiveItems(i);
+	//			}
+	//		}
+	//	}
+	//}
 }
 
 bool AShooterCharacter::GrantStartingAbilities()
@@ -76,25 +96,23 @@ bool AShooterCharacter::GrantStartingAbilities()
 	return true;
 }
 
-void AShooterCharacter::RefreshInventoryAbilitySystemInfo()
+void AShooterCharacter::MakeAllActiveWeaponsActive()
 {
 	if (USSArcInventoryComponent_Active* Inventory = SSInventoryComponentActive)
 	{
-		//Inventory->MakeItemInactive();
-		//// Make the inventory re-give us our item's abilities and attribute sets and stuff
-		Inventory->MakeItemActive(Inventory->GetActiveItemSlot());
-
-		//if (UArcInventoryComponent_Active* a = Cast<UArcInventoryComponent_Active>(GetInventoryComponent()))
-		//{
-		//	TArray<FArcInventoryItemSlotReference> InventoryActiveSlotRefs;
-		//	if (a->Query_GetAllSlots(FArcInventoryQuery::QuerySlotMatchingTag(GetDefault<UArcInventoryDeveloperSettings>()->ActiveItemSlotTag), InventoryActiveSlotRefs))
-		//	{
-		//		int32 d = 325;
-		//		float h = 3.7f;
-		//	}
-		//	a-
-		//	a->SwapActiveItems(SlotAddedTo.SlotId);
-		//}
+		if (UArcInventoryComponent_Active* a = Cast<UArcInventoryComponent_Active>(GetInventoryComponent()))
+		{
+			TArray<FArcInventoryItemSlotReference> InventoryActiveSlotRefs;
+			if (a->Query_GetAllSlots(FArcInventoryQuery::QuerySlotMatchingTag(GetDefault<UArcInventoryDeveloperSettings>()->ActiveItemSlotTag), InventoryActiveSlotRefs))
+			{
+				SSInventoryComponentActive->SwapActiveItems(1);
+				// Iterating down the list sets active our primary item last, which is what we want
+				for (int32 i = InventoryActiveSlotRefs.Num() - 1; i >= 0; i--)
+				{
+					//SSInventoryComponentActive->SwapActiveItems(InventoryActiveSlotRefs[i].SlotId);			// UNDERSTAND HOW THE SYSTEM MUST SET SOMETHING ACTIVE! rn it seems like since the automatic set activeness is not working because of the constuctor thing i did, this may be affecting it. But make sure I know how it sets stuff active, because it's apparently not working rn.
+				}
+			}
+		}
 	}
 }
 void AShooterCharacter::UnPossessed()
@@ -123,11 +141,17 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 	//	UKismetSystemLibrary::PrintString(this, FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
 	//}
 
-	for (int i = 0; i < SSInventoryComponentActive->ItemHistory.Num(); i++)
-	{
-		FArcInventoryItemSlotReference current = SSInventoryComponentActive->ItemHistory[i];
+	//for (int i = 0; i < SSInventoryComponentActive->ItemHistory.Num(); i++)
+	//{
+	//	FArcInventoryItemSlotReference current = SSInventoryComponentActive->ItemHistory[i];
 
-		UKismetSystemLibrary::PrintString(this, "["+FString::FromInt(current.SlotId)+"] " + current.SlotTags.GetByIndex(1).ToString(), true, false, FLinearColor::Green);
+	//	UKismetSystemLibrary::PrintString(this, "["+FString::FromInt(current.SlotId)+"] " + current.SlotTags.GetByIndex(1).ToString(), true, false, FLinearColor::Green);
+	//}
+
+	if (SSInventoryComponentActive)
+	{
+		UKismetSystemLibrary::PrintString(this, "Current Item Slot: " + FString::FromInt(SSInventoryComponentActive->GetActiveItemSlot().SlotId), true, false);
+		UKismetSystemLibrary::PrintString(this, "Pending Item Slot: " + FString::FromInt(SSInventoryComponentActive->PendingItemSlot), true, false);
 	}
 
 	if (GetAbilitySystemComponent())
@@ -250,6 +274,7 @@ void AShooterCharacter::OnPreviousItemPressed()
 
 void AShooterCharacter::OnPausePressed()
 {
+
 }
 
 void AShooterCharacter::OnScoreSheetPressed()

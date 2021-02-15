@@ -46,9 +46,12 @@ void UAS_Ammo::PreAttributeChange(const FGameplayAttribute& Attribute, float& Ne
 
 	if (Attribute == GetClipAmmoAttribute())
 	{
-		if (preModifyClipAmmo != -1 * MAX_FLT)
+		if (GetOwningActor() && GetOwningActor()->GetLocalRole() < ROLE_Authority)
 		{
-			preModifyClipAmmo = GetClipAmmo();
+			if (preModifyClipAmmo != -1 * MAX_FLT)
+			{
+				preModifyClipAmmo = GetClipAmmo();
+			}
 		}
 		//if (GetOwningActor()->GetLocalRole() < ROLE_Authority)
 		//{

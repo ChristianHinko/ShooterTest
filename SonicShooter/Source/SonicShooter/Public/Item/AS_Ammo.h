@@ -32,24 +32,22 @@ public:
 		FGameplayAttributeData MaxClipSize;
 	ATTRIBUTE_ACCESSORS(UAS_Ammo, MaxClipSize)
 
-	UPROPERTY(BlueprintReadOnly/*, ReplicatedUsing = OnRep_ClipAmmo*/, Category = "Attributes", meta = (HideFromModifiers))
+	UPROPERTY(BlueprintReadOnly/*, ReplicatedUsing = OnRep_ClipAmmo*/, Category = "Attributes")
 		FGameplayAttributeData ClipAmmo;
 	ATTRIBUTE_ACCESSORS(UAS_Ammo, ClipAmmo)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromLevelInfos))
-		FGameplayAttributeData ClipDepletion;
-	ATTRIBUTE_ACCESSORS(UAS_Ammo, ClipDepletion)
-
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromLevelInfos))
-		FGameplayAttributeData BackupAmmoReceive;
-	ATTRIBUTE_ACCESSORS(UAS_Ammo, BackupAmmoReceive)
+	//UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromLevelInfos))
+	//	FGameplayAttributeData BackupAmmoReceive;
+	//ATTRIBUTE_ACCESSORS(UAS_Ammo, BackupAmmoReceive)
 
 protected:
 	virtual void SetSoftAttributeDefaults() override;
 
 
-	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	void OnGameplayEffectRemoved(const FActiveGameplayEffect& ActiveGameplayEffect);
 
+	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 
 
 
@@ -64,4 +62,7 @@ protected:
 
 	//UFUNCTION()
 	//	virtual void OnRep_ClipAmmo(const FGameplayAttributeData& ServerBaseValue);
+
+private:
+	float preModifyClipAmmo;
 };

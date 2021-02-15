@@ -25,7 +25,10 @@ UAS_Ammo::UAS_Ammo()
 {
 	SetSoftAttributeDefaults();
 
-
+	if (GetWorld() && GetWorld()->IsGameWorld())
+	{
+		GetOwningAbilitySystemComponent()->OnAnyGameplayEffectRemovedDelegate().AddUObject(this, &UAS_Ammo::OnGameplayEffectRemoved);
+	}
 }
 
 void UAS_Ammo::SetSoftAttributeDefaults()
@@ -37,6 +40,62 @@ void UAS_Ammo::SetSoftAttributeDefaults()
 	BackupAmmo = GetMaxAmmo() - GetClipAmmo();
 }
 
+void UAS_Ammo::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+{
+	Super::PreAttributeChange(Attribute, NewValue);
+
+	if (Attribute == GetClipAmmoAttribute())
+	{
+		if (preModifyClipAmmo != -1 * MAX_FLT)
+		{
+			preModifyClipAmmo = GetClipAmmo();
+		}
+		//if (GetOwningActor()->GetLocalRole() < ROLE_Authority)
+		//{
+		//	UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
+
+		//	FGameplayEffectQuery EffectQuery;
+		//	EffectQuery.ModifyingAttribute = Attribute;
+
+		//	TArray<FActiveGameplayEffectHandle> ActiveHandles = ASC->GetActiveEffects(EffectQuery);
+		//	for (FActiveGameplayEffectHandle ActiveHandle : ActiveHandles)
+		//	{
+		//		const FActiveGameplayEffect* ActiveEffect = ASC->GetActiveGameplayEffect(ActiveHandle);
+
+		//		if (ActiveEffect->IsPendingRemove)
+		//		{
+		//			NewValue = GetClipAmmo(); // don't change this attribute, set the new value to the old value (do nothing)
+		//		}
+		//	}
+		//}
+	}
+}
+
+void UAS_Ammo::OnGameplayEffectRemoved(const FActiveGameplayEffect& ActiveGameplayEffect)
+{
+	FGameplayEffectSpec ActiveSpec = ActiveGameplayEffect.Spec;
+
+
+	if (GetOwningActor() && GetOwningActor()->GetLocalRole() < ROLE_Authority)
+	{
+		for (int32 ModIdx = 0; ModIdx < ActiveSpec.Modifiers.Num(); ++ModIdx)
+		{
+			const FGameplayModifierInfo& ModDef = ActiveSpec.Def->Modifiers[ModIdx];
+			const FModifierSpec& ModSpec = ActiveSpec.Modifiers[ModIdx];
+
+			if (ModDef.Attribute == GetClipAmmoAttribute())
+			{
+				const float preEffectRemoveClipAmmo = preModifyClipAmmo;
+				preModifyClipAmmo = -1 * MAX_FLT;
+
+				SetClipAmmo(preEffectRemoveClipAmmo);
+
+				preModifyClipAmmo = preEffectRemoveClipAmmo;
+			}
+		}
+	}
+}
+
 void UAS_Ammo::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
@@ -44,24 +103,15 @@ void UAS_Ammo::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& D
 	FGameplayAttribute ModifiedAttribute = Data.EvaluatedData.Attribute;
 
 
+	//if (ModifiedAttribute == GetBackupAmmoReceiveAttribute())
+	//{
+	//	const float ammoToAdd = GetBackupAmmoReceive();
+	//	SetBackupAmmoReceive(0.f);
 
-	if (ModifiedAttribute == GetClipDepletionAttribute())
-	{
-		const float amountToTakeAway = GetClipDepletion();
-		SetClipDepletion(0.f);
+	//	const float maxBackupAmmo = GetMaxAmmo() - GetMaxClipSize();
 
-		SetClipAmmo(FMath::Clamp(GetClipAmmo() - amountToTakeAway, 0.f, GetMaxClipSize()));
-	}
-
-	if (ModifiedAttribute == GetBackupAmmoReceiveAttribute())
-	{
-		const float ammoToAdd = GetBackupAmmoReceive();
-		SetClipDepletion(0.f);
-
-		const float maxBackupAmmo = GetMaxAmmo() - GetMaxClipSize();
-
-		SetBackupAmmo(FMath::Clamp(GetBackupAmmo() + ammoToAdd, 0.f, maxBackupAmmo));
-	}
+	//	SetBackupAmmo(FMath::Clamp(GetBackupAmmo() + ammoToAdd, 0.f, maxBackupAmmo));
+	//}
 }
 
 

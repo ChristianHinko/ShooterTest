@@ -11,7 +11,7 @@
 
 UGA_Reload::UGA_Reload()
 {
-	//AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Reload")));
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Reload")));
 }
 
 void UGA_Reload::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -60,6 +60,9 @@ void UGA_Reload::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 
 
 	//MyEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, MyEffectTSub.GetDefaultObject(), GetAbilityLevel());
+
+	// Reload ammo attributes
+	ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, ReloadEffectTSub.GetDefaultObject(), GetAbilityLevel());
 
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);

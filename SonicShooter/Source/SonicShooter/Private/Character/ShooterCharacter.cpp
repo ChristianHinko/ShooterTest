@@ -207,6 +207,14 @@ void AShooterCharacter::OnPrimaryFirePressed()
 	}
 }
 
+void AShooterCharacter::OnReloadPressed()
+{
+	if (GetAbilitySystemComponent())
+	{
+		GetAbilitySystemComponent()->TryActivateAbilitiesByTag(FGameplayTag::RequestGameplayTag(FName("Ability.Reload")).GetSingleTagContainer());
+	}
+}
+
 void AShooterCharacter::OnSwitchWeaponPressed()
 {
 	GetAbilitySystemComponent()->TryActivateAbility(SwapToLastActiveItemAbilitySpecHandle);

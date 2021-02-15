@@ -135,6 +135,8 @@ protected:
 
 	virtual void OnPrimaryFirePressed() override;
 
+	virtual void OnReloadPressed() override;
+
 	virtual void OnSwitchWeaponPressed();
 	virtual void OnItem0Pressed();
 	virtual void OnItem1Pressed();

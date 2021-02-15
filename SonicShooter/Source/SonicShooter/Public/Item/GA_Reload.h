@@ -25,6 +25,8 @@ protected:
 	//UPROPERTY(EditAnywhere)
 	//	TSubclassOf<UGameplayEffect> MyEffectTSub;	// asset manager we need you D:
 	//FActiveGameplayEffectHandle MyEffectActiveHandle;
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<UGameplayEffect> ReloadEffectTSub;	// asset manager we need you D:
 
 
 	//BEGIN UGameplayAbility Interface

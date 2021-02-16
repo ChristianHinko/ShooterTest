@@ -32,7 +32,7 @@ public:
 		FGameplayAttributeData MaxClipSize;
 	ATTRIBUTE_ACCESSORS(UAS_Ammo, MaxClipSize)
 
-	UPROPERTY(BlueprintReadOnly/*, ReplicatedUsing = OnRep_ClipAmmo*/, Category = "Attributes")
+	UPROPERTY(BlueprintReadOnly/*, ReplicatedUsing = OnRep_ClipAmmo*/, Category = "Attributes", meta = (HideFromModifiers))
 		FGameplayAttributeData ClipAmmo;
 	ATTRIBUTE_ACCESSORS(UAS_Ammo, ClipAmmo)
 
@@ -43,9 +43,6 @@ public:
 protected:
 	virtual void SetSoftAttributeDefaults() override;
 
-
-	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
-	void OnGameplayEffectRemoved(const FActiveGameplayEffect& ActiveGameplayEffect);
 
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 
@@ -62,7 +59,4 @@ protected:
 
 	//UFUNCTION()
 	//	virtual void OnRep_ClipAmmo(const FGameplayAttributeData& ServerBaseValue);
-
-private:
-	float preModifyClipAmmo;
 };

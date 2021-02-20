@@ -121,7 +121,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
 		FVector AddedCameraSwayDuringADS;
 
-	void MakeAllActiveWeaponsActive();
 	virtual void UnPossessed() override;
 
 	//BEGIN AActor Interface

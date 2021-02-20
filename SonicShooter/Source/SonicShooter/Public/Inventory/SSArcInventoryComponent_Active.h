@@ -29,6 +29,8 @@ public:
 		int32 maxItemHistoryBufferSize;
 	TArray<FArcInventoryItemSlotReference> ItemHistory;
 	
+	virtual void OnItemEquipped(class UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack) override;
+
 	UFUNCTION()
 		void AddToItemHistory(FArcInventoryItemSlotReference NewActiveItemSlotReference);
 

@@ -27,6 +27,48 @@ bool USSArcInventoryComponent_Active::IsActiveItemSlotIndexValid(int32 InActiveI
 	return true;
 }
 
+void USSArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
+{
+	// In our game we want items to auto set active whenever we equip an active item, but only if we've begun play (if havn't begun play, )
+	if (IsActiveItemSlot(ItemSlotRef) && IsValid(ItemStack))
+	{
+		int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);
+		PendingItemSlot = ItemSlotIndex;
+
+		//If we've begun play, send the gameplay event now.  Otherwise we'll get it in BeginPlay
+		if (HasBegunPlay())
+		{
+			SwitchToPendingItemSlot();
+		}
+	}
+
+	//If we are an active item slot, make it active if we don't already have an active item		
+	//if (ActiveItemSlot == INDEX_NONE && IsActiveItemSlot(ItemSlotRef) && IsValid(ItemStack))
+	//{
+
+	//	int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);
+	//	PendingItemSlot = ItemSlotIndex;
+
+	//	//If we've begun play, send the gameplay event now.  Otherwise we'll get it in BeginPlay
+	//	if (HasBegunPlay())
+	//	{
+	//		SwitchToPendingItemSlot();
+	//	}
+	//}
+
+	//If we are unequipping an item and it's the currently active item, either go to the next available active item or go to neutral
+	if (!IsValid(ItemStack))
+	{
+		int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);
+		if (ItemSlotIndex == ActiveItemSlot)
+		{
+			PendingItemSlot = GetNextValidActiveItemSlot();
+			MakeItemInactive_Internal(ItemSlotRef, PreviousItemStack);
+			SwitchToPendingItemSlot();
+		}
+	}
+}
+
 bool USSArcInventoryComponent_Active::MakeItemActive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack)
 {
 	bool bSuccess = Super::MakeItemActive_Internal(ItemSlot, ItemStack);

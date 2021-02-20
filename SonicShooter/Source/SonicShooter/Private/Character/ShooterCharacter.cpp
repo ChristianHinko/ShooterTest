@@ -41,13 +41,6 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 	SSInventoryComponentActive = Cast<USSArcInventoryComponent_Active>(InventoryComponent);
 
 
-	if (HasAuthority())
-	{
-		OnServerAknowledgeClientSetupAbilitySystem.AddUObject(this, &AShooterCharacter::MakeAllActiveWeaponsActive);
-	}
-
-
-
 	Interactor = CreateDefaultSubobject<UInteractorComponent>(TEXT("Interactor"));
 
 	CameraSwayAmount = FVector(0, 1.3f, .4f);
@@ -58,10 +51,6 @@ void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//if (HasAuthority())
-	//{
-	//	MakeAllActiveWeaponsActive();
-	//}
 }
 
 bool AShooterCharacter::GrantStartingAbilities()
@@ -89,22 +78,6 @@ bool AShooterCharacter::GrantStartingAbilities()
 	return true;
 }
 
-void AShooterCharacter::MakeAllActiveWeaponsActive()
-{
-	if (USSArcInventoryComponent_Active* SSInventory = SSInventoryComponentActive)
-	{
-		TArray<FArcInventoryItemSlotReference> InventoryActiveSlotRefs;
-		if (SSInventory->Query_GetAllSlots(FArcInventoryQuery::QuerySlotMatchingTag(GetDefault<UArcInventoryDeveloperSettings>()->ActiveItemSlotTag), InventoryActiveSlotRefs))
-		{
-			SSInventoryComponentActive->SwapActiveItems(1);
-			// Iterating down the list sets active our primary item last, which is what we want
-			for (int32 i = InventoryActiveSlotRefs.Num() - 1; i >= 0; i--)
-			{
-				//SSInventoryComponentActive->SwapActiveItems(InventoryActiveSlotRefs[i].SlotId);			// UNDERSTAND HOW THE SYSTEM MUST SET SOMETHING ACTIVE! rn it seems like since the automatic set activeness is not working because of the constuctor thing i did, this may be affecting it. But make sure I know how it sets stuff active, because it's apparently not working rn.
-			}
-		}
-	}
-}
 void AShooterCharacter::UnPossessed()
 {
 	Super::UnPossessed();
@@ -140,8 +113,8 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 
 	if (SSInventoryComponentActive)
 	{
-		UKismetSystemLibrary::PrintString(this, "Current Item Slot: " + FString::FromInt(SSInventoryComponentActive->GetActiveItemSlot().SlotId), true, false);
-		UKismetSystemLibrary::PrintString(this, "Pending Item Slot: " + FString::FromInt(SSInventoryComponentActive->PendingItemSlot), true, false);
+		//UKismetSystemLibrary::PrintString(this, "Current Item Slot: " + FString::FromInt(SSInventoryComponentActive->GetActiveItemSlot().SlotId), true, false);
+		//UKismetSystemLibrary::PrintString(this, "Pending Item Slot: " + FString::FromInt(SSInventoryComponentActive->PendingItemSlot), true, false);
 	}
 
 	if (GetAbilitySystemComponent())

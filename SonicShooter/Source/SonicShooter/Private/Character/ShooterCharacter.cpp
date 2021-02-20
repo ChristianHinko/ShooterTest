@@ -91,19 +91,16 @@ bool AShooterCharacter::GrantStartingAbilities()
 
 void AShooterCharacter::MakeAllActiveWeaponsActive()
 {
-	if (USSArcInventoryComponent_Active* Inventory = SSInventoryComponentActive)
+	if (USSArcInventoryComponent_Active* SSInventory = SSInventoryComponentActive)
 	{
-		if (UArcInventoryComponent_Active* a = Cast<UArcInventoryComponent_Active>(GetInventoryComponent()))
+		TArray<FArcInventoryItemSlotReference> InventoryActiveSlotRefs;
+		if (SSInventory->Query_GetAllSlots(FArcInventoryQuery::QuerySlotMatchingTag(GetDefault<UArcInventoryDeveloperSettings>()->ActiveItemSlotTag), InventoryActiveSlotRefs))
 		{
-			TArray<FArcInventoryItemSlotReference> InventoryActiveSlotRefs;
-			if (a->Query_GetAllSlots(FArcInventoryQuery::QuerySlotMatchingTag(GetDefault<UArcInventoryDeveloperSettings>()->ActiveItemSlotTag), InventoryActiveSlotRefs))
+			SSInventoryComponentActive->SwapActiveItems(1);
+			// Iterating down the list sets active our primary item last, which is what we want
+			for (int32 i = InventoryActiveSlotRefs.Num() - 1; i >= 0; i--)
 			{
-				SSInventoryComponentActive->SwapActiveItems(1);
-				// Iterating down the list sets active our primary item last, which is what we want
-				for (int32 i = InventoryActiveSlotRefs.Num() - 1; i >= 0; i--)
-				{
-					//SSInventoryComponentActive->SwapActiveItems(InventoryActiveSlotRefs[i].SlotId);			// UNDERSTAND HOW THE SYSTEM MUST SET SOMETHING ACTIVE! rn it seems like since the automatic set activeness is not working because of the constuctor thing i did, this may be affecting it. But make sure I know how it sets stuff active, because it's apparently not working rn.
-				}
+				//SSInventoryComponentActive->SwapActiveItems(InventoryActiveSlotRefs[i].SlotId);			// UNDERSTAND HOW THE SYSTEM MUST SET SOMETHING ACTIVE! rn it seems like since the automatic set activeness is not working because of the constuctor thing i did, this may be affecting it. But make sure I know how it sets stuff active, because it's apparently not working rn.
 			}
 		}
 	}

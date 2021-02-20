@@ -41,7 +41,10 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 	SSInventoryComponentActive = Cast<USSArcInventoryComponent_Active>(InventoryComponent);
 
 
-	OnServerAknowledgeClientSetupAbilitySystem.AddUObject(this, &AShooterCharacter::MakeAllActiveWeaponsActive);
+	if (HasAuthority())
+	{
+		OnServerAknowledgeClientSetupAbilitySystem.AddUObject(this, &AShooterCharacter::MakeAllActiveWeaponsActive);
+	}
 
 
 
@@ -54,20 +57,10 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	//if (USSArcInventoryComponent_Active* Inventory = SSInventoryComponentActive)
+
+	//if (HasAuthority())
 	//{
-	//	if (UArcInventoryComponent_Active* a = Cast<UArcInventoryComponent_Active>(GetInventoryComponent()))
-	//	{
-	//		TArray<FArcInventoryItemSlotReference> InventoryActiveSlotRefs;
-	//		if (a->Query_GetAllSlots(FArcInventoryQuery::QuerySlotMatchingTag(GetDefault<UArcInventoryDeveloperSettings>()->ActiveItemSlotTag), InventoryActiveSlotRefs))
-	//		{
-	//			// This for loop assumes all active item slots (slots with the active item tag) are all together and start at index 0. So in BP make sure your active item slots are the first slots
-	//			for (int32 i = InventoryActiveSlotRefs.Num() - 1; i >= 0; i--)
-	//			{
-	//				SSInventoryComponentActive->SwapActiveItems(i);
-	//			}
-	//		}
-	//	}
+	//	MakeAllActiveWeaponsActive();
 	//}
 }
 

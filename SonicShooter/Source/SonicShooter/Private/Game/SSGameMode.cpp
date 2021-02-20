@@ -4,7 +4,7 @@
 #include "Game/SSGameMode.h"
 
 #include "Character/ShooterCharacter.h"
-#include "ArcInventoryComponent.h"
+#include "Inventory/SSArcinventoryComponent_Active.h"
 #include "Generators/ArcItemGenerator_Unique.h"
 
 
@@ -15,7 +15,6 @@ ASSGameMode::ASSGameMode()
 }
 
 
-#include "Inventory/SSArcinventoryComponent_Active.h"
 
 APawn* ASSGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform)
 {

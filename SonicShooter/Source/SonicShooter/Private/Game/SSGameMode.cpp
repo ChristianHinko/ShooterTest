@@ -16,6 +16,7 @@ ASSGameMode::ASSGameMode()
 
 
 
+
 APawn* ASSGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform)
 {
 	APawn* Pawn = Super::SpawnDefaultPawnAtTransform_Implementation(NewPlayer, SpawnTransform);
@@ -32,19 +33,23 @@ APawn* ASSGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewP
 				{
 					if (ShooterCharacter->ItemsToEquipOnStartup.IsValidIndex(i))
 					{
-						// Get the generator
-						TSubclassOf<UArcItemGenerator_Unique> ItemGeneratorTSub = ShooterCharacter->ItemsToEquipOnStartup[i];
-						UArcItemGenerator_Unique* ItemGenerator = ItemGeneratorTSub.GetDefaultObject();
-
-						// Generate the item
-						FArcItemGeneratorContext GeneratorContext;
-						UArcItemStack* GeneratedItem = ItemGenerator->GenerateItemStack(GeneratorContext);
-
-						// Equip the generated item
-						SSInventory->PlaceItemIntoSlot(GeneratedItem, CharacterInventoryActiveItemSlotRefs[i]);
-						if (i != 0)	// Only manually add to item history if we aren't equiping the last item. ArcInventoryComponent_Active::BeginPlay() will set active the last item which will in turn add it to the item history by function USSArcInventoryComponent_Active::MakeItemActive_Internal
+						if (i == 0)
 						{
-							SSInventory->AddToItemHistory(CharacterInventoryActiveItemSlotRefs[i]);
+							// Get the generator
+							TSubclassOf<UArcItemGenerator_Unique> ItemGeneratorTSub = ShooterCharacter->ItemsToEquipOnStartup[i];
+							UArcItemGenerator_Unique* ItemGenerator = ItemGeneratorTSub.GetDefaultObject();
+
+							// Generate the item
+							FArcItemGeneratorContext GeneratorContext;
+							UArcItemStack* GeneratedItem = ItemGenerator->GenerateItemStack(GeneratorContext);
+
+							// Equip the generated item
+							SSInventory->PlaceItemIntoSlot(GeneratedItem, CharacterInventoryActiveItemSlotRefs[i]);
+							// Item history only working correctly on server rn
+							if (i != 0)	// Only manually add to item history if we aren't equiping the last item. ArcInventoryComponent_Active::BeginPlay() will set active the last item which will in turn add it to the item history by function USSArcInventoryComponent_Active::MakeItemActive_Internal
+							{
+								SSInventory->AddToItemHistory(CharacterInventoryActiveItemSlotRefs[i]);
+							}
 						}
 					}
 

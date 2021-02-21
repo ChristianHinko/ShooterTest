@@ -577,7 +577,7 @@ void AAbilitySystemCharacter::RemoveAllCharacterTags()	// Only called on Authori
 
 void AAbilitySystemCharacter::UnPossessed()
 {
-	//this goes before Super because we need to make sure we are dealing with the correct ASC (the old one)
+	//this goes before Super so we can get the controller before it unpossess and the character's reference becomes null. If it was null we can't do IsPlayerControlled()
 	if (IsPlayerControlled() || (!IsPlayerControlled() && bShouldHandleAIAbilitySystemSetup))	//	If you were a player or were an AI with the AIAbilitySystemComponent subobject
 	{
 		if (bUnregisterAttributeSetsOnUnpossessed)
@@ -593,7 +593,8 @@ void AAbilitySystemCharacter::UnPossessed()
 			RemoveAllCharacterTags();
 		}
 	}
-	
+
+	PreviousController = GetController();	// We make sure we set our prev controller right before we unpossess so this is the most reliable previous controller
 	Super::UnPossessed(); // actual unpossession happens here
 
 

@@ -76,6 +76,8 @@ public:
 	/** Inherited via IAbilitySystemInterface. Returns the ASC (either the AI one or the PS one) */
 	USSAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
+	AController* GetPreviousController() const { return PreviousController; }
+
 	UAS_Character* GetCharacterAttributeSet() const { return CharacterAttributeSet; }
 	UAS_Health* GetHealthAttributeSet() const { return HealthAttributeSet; }
 
@@ -210,6 +212,9 @@ private:
 		USSAbilitySystemComponent* PlayerAbilitySystemComponent;
 	UPROPERTY()
 		USSAbilitySystemComponent* AIAbilitySystemComponent;
+
+	UPROPERTY()
+		AController* PreviousController;
 
 	/** Every character will have this attribute set. This is useful because this gives you a place for common attributes that every character should have. Children can make another attribute set specific to their character (ie. UAS_Demoman, UAS_Ganondorf) */
 	UPROPERTY(Replicated)

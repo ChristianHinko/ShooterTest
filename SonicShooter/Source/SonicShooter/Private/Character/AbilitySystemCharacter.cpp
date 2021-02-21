@@ -87,6 +87,11 @@ void AAbilitySystemCharacter::PossessedBy(AController* NewController)
 
 
 	SetupWithAbilitySystem();
+
+	//if (PreviousController->IsPlayerController() != NewController->IsPlayerController())
+	//{
+	//	// transfer abilities here
+	//}
 }
 
 void AAbilitySystemCharacter::OnRep_PlayerState()

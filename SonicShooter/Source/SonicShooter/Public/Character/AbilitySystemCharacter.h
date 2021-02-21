@@ -210,6 +210,10 @@ private:
 	// only one of these ASC will be active at a time
 	UPROPERTY(/*Replicated*/)	// Replicated can be helpful for debugging issues
 		USSAbilitySystemComponent* PlayerAbilitySystemComponent;
+	/** 
+	 * This is used if an AIController is posessing. However, it is also used as a placeholder ASC for before the player possesses this character (so we can give abilities and stuff).
+	 * These abilities will be transfered from this ASC to the player's (this allows us to give abilities early on)
+	 */
 	UPROPERTY()
 		USSAbilitySystemComponent* AIAbilitySystemComponent;
 

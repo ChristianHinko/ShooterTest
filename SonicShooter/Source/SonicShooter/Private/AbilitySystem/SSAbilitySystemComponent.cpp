@@ -39,7 +39,8 @@ FGameplayAbilitySpecHandle USSAbilitySystemComponent::GrantAbility(TSubclassOf<U
 	{
 		UGameplayAbility* AbilityToGive = NewAbility.GetDefaultObject();
 		// if we don't have the ability yet give it, else log an error and let it return an invalid spec handle
-		if (GetActivatableAbilities().ContainsByPredicate([&AbilityToGive](const FGameplayAbilitySpec& Spec) { return Spec.Ability == AbilityToGive; }) == false)
+		if (GetActivatableAbilities().ContainsByPredicate([&AbilityToGive](const FGameplayAbilitySpec& Spec)
+			{ return Spec.Ability == AbilityToGive; }) == false)
 		{
 			FGameplayAbilitySpecHandle AbilitySpecHandle = GiveAbility(FGameplayAbilitySpec(AbilityToGive, level, static_cast<int32>(inputID), InSourceObject));
 			
@@ -55,6 +56,18 @@ FGameplayAbilitySpecHandle USSAbilitySystemComponent::GrantAbility(TSubclassOf<U
 		UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Could'nt grant ability. NewAbility was null"), *FString(__FUNCTION__));
 	}
 	return FGameplayAbilitySpecHandle();
+}
+
+void USSAbilitySystemComponent::CopyAbilitiesFrom(UAbilitySystemComponent* From)
+{
+	for (FGameplayAbilitySpec SpecToGive : From->GetActivatableAbilities())
+	{
+		if (GetActivatableAbilities().ContainsByPredicate([&SpecToGive](const FGameplayAbilitySpec& Spec)
+			{ return Spec.Ability == SpecToGive.Ability; }) == false)
+		{
+			GiveAbility(SpecToGive);
+		}
+	}
 }
 
 void USSAbilitySystemComponent::TargetConfirmByAbility(UGameplayAbility* AbilityToConfirmTargetOn)

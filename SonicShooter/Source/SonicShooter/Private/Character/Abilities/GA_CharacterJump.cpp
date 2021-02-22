@@ -30,22 +30,25 @@ void UGA_CharacterJump::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, 
 	{
 		return;
 	}
-	if (!ActorInfo->AvatarActor.Get())
+	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
+	if (!AvatarActor)
 	{
 		return;
 	}
 
 
-	GASCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
-	if (!GASCharacter)
+	GASCharacter = Cast<AAbilitySystemCharacter>(AvatarActor);
+	if (GASCharacter)
+	{
+		CMC = GASCharacter->GetSSCharacterMovementComponent();
+		if (!CMC)
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetSSCharacterMovementComponent was NULL"), *FString(__FUNCTION__));
+		}
+	}
+	else
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL"), *FString(__FUNCTION__));
-	}
-
-	CMC = GASCharacter->GetSSCharacterMovementComponent();
-	if (!CMC)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetSSCharacterMovementComponent was NULL"), *FString(__FUNCTION__));
 	}
 }
 

@@ -46,6 +46,12 @@ AAbilitySystemCharacter::AAbilitySystemCharacter(const FObjectInitializer& Objec
 	bRemoveAbilitiesOnUnpossessed = true;
 	bRemoveCharacterTagsOnUnpossessed = true;
 
+	// We make the AI always automatically posses us because the AI ASC will be in use before the player possesses us so it only makes sense for there to actually be an AI possessing us.
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+	// Sync our abilities between possesions (making one of these (or both of them) false would be a special case)
+	bAIToPlayerSyncAbilities = true;
+	bPlayerToAISyncAbilities = true;
+
 	bAttributesAndStartupEffectsInitialized = false;
 	bASCInputBound = false;
 
@@ -88,10 +94,26 @@ void AAbilitySystemCharacter::PossessedBy(AController* NewController)
 
 	SetupWithAbilitySystem();
 
-	//if (PreviousController->IsPlayerController() != NewController->IsPlayerController())
-	//{
-	//	// transfer abilities here
-	//}
+
+	const bool wasPlayer = (PreviousController && PreviousController->IsPlayerController());
+	const bool isPlayer = NewController->IsPlayerController();
+
+	if (bAIToPlayerSyncAbilities)
+	{
+		// If we went from AI -> Player
+		if (wasPlayer == false && isPlayer == true)
+		{
+			PlayerAbilitySystemComponent->RecieveAbilitiesFrom(AIAbilitySystemComponent);
+		}
+	}
+	if (bPlayerToAISyncAbilities)
+	{
+		// If we went from Player -> AI
+		if (wasPlayer == true && isPlayer == false)
+		{
+			AIAbilitySystemComponent->RecieveAbilitiesFrom(PlayerAbilitySystemComponent);
+		}
+	}
 }
 
 void AAbilitySystemCharacter::OnRep_PlayerState()
@@ -237,6 +259,13 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 		GrantNonHandleStartingAbilities();
 	}
 
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		// When posessing this Character always grant the player's ASC his starting abilities
+		GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
+		GrantNonHandleStartingAbilities();
+	}
+
 	SetupWithAbilitySystemCompleted.Broadcast();
 }
 #pragma endregion
@@ -251,8 +280,8 @@ void AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningCli
 	// Fix in GameTemplate!
 
 	// When posessing this Character always grant the player's ASC his starting abilities
-	GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
-	GrantNonHandleStartingAbilities();
+	//GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
+	//GrantNonHandleStartingAbilities();
 
 	OnServerAknowledgeClientSetupAbilitySystem.Broadcast();
 }

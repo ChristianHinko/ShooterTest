@@ -171,6 +171,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Config")
 		uint8 bRemoveCharacterTagsOnUnpossessed : 1;
 
+	/** If true, then when a PLAYER posseses a former AI possesed character, the PLAYER ASC will recieve the abilities that the AI had */
+	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Config")
+		uint8 bAIToPlayerSyncAbilities;
+	/** If true, then when an AI posseses a former PLAYER possesed character, the AI ASC will recieve the abilities that the PLAYER had */
+	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Config")
+		uint8 bPlayerToAISyncAbilities;
+
 
 	/** Removes all attribute sets that this Character added to the PlayerState's ASC */
 	int32 UnregisterCharacterOwnedAttributeSets();

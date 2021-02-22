@@ -81,7 +81,7 @@ public:
 	FGameplayAbilitySpecHandle GrantAbility(TSubclassOf<UGameplayAbility> NewAbility, UObject* InSourceObject, EAbilityInputID inputID, int32 level = 1);
 	
 	/** Gives abilities that an other given ASC has */
-	void CopyAbilitiesFrom(UAbilitySystemComponent* From);
+	void RecieveAbilitiesFrom(UAbilitySystemComponent* From);
 
 	virtual void TargetConfirmByAbility(UGameplayAbility* AbilityToConfirmTargetOn);
 	virtual void TargetCancelByAbility(UGameplayAbility* AbilityToCancelTargetOn);

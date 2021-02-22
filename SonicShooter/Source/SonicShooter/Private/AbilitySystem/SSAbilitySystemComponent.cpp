@@ -58,7 +58,7 @@ FGameplayAbilitySpecHandle USSAbilitySystemComponent::GrantAbility(TSubclassOf<U
 	return FGameplayAbilitySpecHandle();
 }
 
-void USSAbilitySystemComponent::CopyAbilitiesFrom(UAbilitySystemComponent* From)
+void USSAbilitySystemComponent::RecieveAbilitiesFrom(UAbilitySystemComponent* From)
 {
 	for (FGameplayAbilitySpec SpecToGive : From->GetActivatableAbilities())
 	{

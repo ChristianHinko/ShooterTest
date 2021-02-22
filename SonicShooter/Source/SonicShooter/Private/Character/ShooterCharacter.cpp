@@ -94,8 +94,8 @@ void AShooterCharacter::UnPossessed()
 #include "Kismet/KismetSystemLibrary.h"
 #include "AbilitySystem/AttributeSets/AS_Health.h"
 #include "Item/AS_Ammo.h"
-#include "C:\Users\b2hin\Documents\Unreal Projects\SonicShooter\SonicShooter\Plugins\ArcInventory\Source\ArcInventory\Public\ArcItemBPFunctionLibrary.h"
-#include "C:\Users\b2hin\Documents\Unreal Projects\SonicShooter\SonicShooter\Plugins\ArcInventory\Source\ArcInventory\Public\Item\ArcItemDefinition_New.h"
+#include "ArcItemBPFunctionLibrary.h"
+#include "Item\ArcItemDefinition_New.h"
 //#include "Kismet/KismetMathLibrary.h"
 //#include "GameFramework/SpringArmComponent.h"
 void AShooterCharacter::Tick(float DeltaSeconds)

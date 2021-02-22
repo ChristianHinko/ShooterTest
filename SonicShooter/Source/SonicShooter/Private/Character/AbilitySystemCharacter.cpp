@@ -43,7 +43,7 @@ AAbilitySystemCharacter::AAbilitySystemCharacter(const FObjectInitializer& Objec
 	// Minimal Mode means that no GameplayEffects will replicate. They will only live on the Server. Attributes, GameplayTags, and GameplayCues will still replicate to us.
 	AIAbilitySystemComponentReplicationMode = EGameplayEffectReplicationMode::Minimal;
 	bUnregisterAttributeSetsOnUnpossessed = true;
-	bRemoveAbilitiesOnUnpossessed = true;
+	//bRemoveAbilitiesOnUnpossessed = true; // dont do this for the sync abilities thing
 	bRemoveCharacterTagsOnUnpossessed = true;
 
 	// We make the AI always automatically posses us because the AI ASC will be in use before the player possesses us so it only makes sense for there to actually be an AI possessing us.
@@ -70,7 +70,14 @@ void AAbilitySystemCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	
+
+	if (GetAbilitySystemComponent())
+	{
+		if (GetAbilitySystemComponent()->GetActivatableAbilities().Num() > 0)
+		{
+			UKismetSystemLibrary::PrintString(this, "has abs", true, false);
+		}
+	}
 }
 
 
@@ -205,7 +212,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 		if (IsLocallyControlled()) // CLIENT
 		{
 			PlayerAbilitySystemComponent->RefreshAbilityActorInfo();
-			ServerOnSetupWithAbilitySystemCompletedOnOwningClient();
+			//ServerOnSetupWithAbilitySystemCompletedOnOwningClient();
 		}
 	}
 	else // AI controlled   \/\/
@@ -254,9 +261,9 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 			// Must call ForceReplication after registering an attribute set(s)
 			AIAbilitySystemComponent->ForceReplication();
 		}
-		// When posessing this Character always grant the player's ASC his starting abilities. Also since this is an AI we don't need to wait for client to setup to grant abilities
-		GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
-		GrantNonHandleStartingAbilities();
+		//// When posessing this Character always grant the player's ASC his starting abilities. Also since this is an AI we don't need to wait for client to setup to grant abilities
+		//GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
+		//GrantNonHandleStartingAbilities();
 	}
 
 	if (GetLocalRole() == ROLE_Authority)

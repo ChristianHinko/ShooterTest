@@ -34,6 +34,7 @@ private:
 public:
 	AShooterCharacter(const FObjectInitializer& ObjectInitializer);
 	virtual void BeginPlay() override;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
 		USSArcInventoryComponent_Active* SSInventoryComponentActive;
 
@@ -119,6 +120,10 @@ protected:
 		FVector AddedCameraSwayDuringADS;
 
 	virtual void UnPossessed() override;
+
+	// BEGIN APawn Interface
+	virtual void PossessedBy(AController* NewController) override;
+	// END APawn Interface
 
 	//BEGIN AActor Interface
 	virtual void Tick(float DeltaSeconds) override;

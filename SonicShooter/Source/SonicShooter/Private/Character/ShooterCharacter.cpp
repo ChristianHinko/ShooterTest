@@ -47,6 +47,18 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 	AddedCameraSwayDuringADS = FVector(0, -1.1f, -.1f);
 }
 
+void AShooterCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if (SSInventoryComponentActive)
+	{
+		if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy)	// No point of doing a client RPC if no client is controlling it (ie. this is an AI)
+		{
+			SSInventoryComponentActive->ClientRecieveStartingActiveItemHistoryArray(SSInventoryComponentActive->ActiveItemHistory);
+		}
+	}
+}
 
 void AShooterCharacter::BeginPlay()
 {
@@ -96,6 +108,7 @@ void AShooterCharacter::UnPossessed()
 #include "Item/AS_Ammo.h"
 #include "C:\Users\b2hin\Documents\Unreal Projects\SonicShooter\SonicShooter\Plugins\ArcInventory\Source\ArcInventory\Public\ArcItemBPFunctionLibrary.h"
 #include "C:\Users\b2hin\Documents\Unreal Projects\SonicShooter\SonicShooter\Plugins\ArcInventory\Source\ArcInventory\Public\Item\ArcItemDefinition_New.h"
+
 //#include "Kismet/KismetMathLibrary.h"
 //#include "GameFramework/SpringArmComponent.h"
 void AShooterCharacter::Tick(float DeltaSeconds)
@@ -137,7 +150,7 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 	//UKismetSystemLibrary::PrintString(this, "------------", true, false);
 	//if (SSInventoryComponentActive)
 	//{
-	//	for (FArcInventoryItemSlotReference slotRef : SSInventoryComponentActive->ItemHistory)
+	//	for (FArcInventoryItemSlotReference slotRef : SSInventoryComponentActive->ActiveItemHistory)
 	//	{
 	//		UKismetSystemLibrary::PrintString(this, UArcItemBPFunctionLibrary::GetItemFromSlot(slotRef)->GetItemDefinition().GetDefaultObject()->GetFName().ToString(), true, false);
 

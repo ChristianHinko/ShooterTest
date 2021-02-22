@@ -26,9 +26,10 @@ APawn* ASSGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewP
 	{
 		if (UArcInventoryComponent* Inventory = Cast<UArcInventoryComponent>(FoundActorComponent))
 		{
-			GiveInventoryStartupLoadout(Inventory);
+			GiveInventoryStartupItems(Inventory);
 		}
 	}
+
 
 
 
@@ -39,13 +40,13 @@ APawn* ASSGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewP
 	return Pawn;
 }
 
-void ASSGameMode::GiveInventoryStartupLoadout(UArcInventoryComponent* NewInventory)
+void ASSGameMode::GiveInventoryStartupItems(UArcInventoryComponent* Inventory)
 {
 	// Loop through the SlotDefinitions we filled out in the inventory component's BP for this pawn so we can access the information of what item we should put in each slot
-	for (int i = 0; i < NewInventory->CustomInventorySlots.Num(); i++)
+	for (int i = Inventory->CustomInventorySlots.Num() - 1; i >= 0 ; i--)
 	{
 		//	Get the item generator the SlotDefinition specifies
-		if (UArcItemGenerator_Unique* CurrentItemGenerator = NewInventory->CustomInventorySlots[i].SlotStartupItem.GetDefaultObject())
+		if (UArcItemGenerator_Unique* CurrentItemGenerator = Inventory->CustomInventorySlots[i].SlotStartupItem.GetDefaultObject())
 		{
 			//	Generate the item
 			UArcItemStack* GeneratedItem = CurrentItemGenerator->GenerateItemStack(FArcItemGeneratorContext());
@@ -54,9 +55,9 @@ void ASSGameMode::GiveInventoryStartupLoadout(UArcInventoryComponent* NewInvento
 			if (GeneratedItem)
 			{
 				FArcInventoryItemSlotReference SlotToAddItemTo;
-				if (NewInventory->GetSlotReferenceByIndex(i, SlotToAddItemTo))
+				if (Inventory->GetSlotReferenceByIndex(i, SlotToAddItemTo))
 				{
-					NewInventory->PlaceItemIntoSlot(GeneratedItem, SlotToAddItemTo);
+					Inventory->PlaceItemIntoSlot(GeneratedItem, SlotToAddItemTo);
 				}
 				else
 				{
@@ -69,6 +70,8 @@ void ASSGameMode::GiveInventoryStartupLoadout(UArcInventoryComponent* NewInvento
 			}
 		}
 	}
+
+	Inventory->bStartupItemsGiven = true;
 }
 
 

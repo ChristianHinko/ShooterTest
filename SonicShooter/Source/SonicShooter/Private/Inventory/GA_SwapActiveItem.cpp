@@ -117,12 +117,12 @@ void UGA_SwapActiveItem::PerformSwap()
 			SSInventoryComponentActive->SwapActiveItems(SSInventoryComponentActive->GetPreviousActiveItemSlot());
 			break;
 		case ESwapMethod::ByItemHistory:
-			if (SSInventoryComponentActive->ItemHistory.IsValidIndex(itemHistoryIndex) == false)
+			if (SSInventoryComponentActive->ActiveItemHistory.IsValidIndex(itemHistoryIndex) == false)
 			{
 				break;
 			}
 
-			SSInventoryComponentActive->SwapActiveItems(SSInventoryComponentActive->ItemHistory[itemHistoryIndex].SlotId);
+			SSInventoryComponentActive->SwapActiveItems(SSInventoryComponentActive->ActiveItemHistory[itemHistoryIndex].SlotId);
 			break;
 		default:
 			break;

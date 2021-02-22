@@ -47,6 +47,7 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 	AddedCameraSwayDuringADS = FVector(0, -1.1f, -.1f);
 }
 
+
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -104,9 +105,9 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 	//	UKismetSystemLibrary::PrintString(this, FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
 	//}
 
-	//for (int i = 0; i < SSInventoryComponentActive->ItemHistory.Num(); i++)
+	//for (int i = 0; i < SSInventoryComponentActive->ActiveItemHistory.Num(); i++)
 	//{
-	//	FArcInventoryItemSlotReference current = SSInventoryComponentActive->ItemHistory[i];
+	//	FArcInventoryItemSlotReference current = SSInventoryComponentActive->ActiveItemHistory[i];
 
 	//	UKismetSystemLibrary::PrintString(this, "["+FString::FromInt(current.SlotId)+"] " + current.SlotTags.GetByIndex(1).ToString(), true, false, FLinearColor::Green);
 	//}

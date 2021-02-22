@@ -29,6 +29,8 @@ private:
 
 
 	
+
+
 public:
 	AShooterCharacter(const FObjectInitializer& ObjectInitializer);
 	virtual void BeginPlay() override;

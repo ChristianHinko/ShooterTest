@@ -26,7 +26,7 @@ APawn* ASSGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewP
 	{
 		if (UArcInventoryComponent* Inventory = Cast<UArcInventoryComponent>(FoundActorComponent))
 		{
-			GiveInventoryStartupItems(Inventory);
+			GiveInventoryStartupLoadout(Inventory);
 		}
 	}
 
@@ -39,7 +39,7 @@ APawn* ASSGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewP
 	return Pawn;
 }
 
-void ASSGameMode::GiveInventoryStartupItems(UArcInventoryComponent* NewInventory)
+void ASSGameMode::GiveInventoryStartupLoadout(UArcInventoryComponent* NewInventory)
 {
 	// Loop through the SlotDefinitions we filled out in the inventory component's BP for this pawn so we can access the information of what item we should put in each slot
 	for (int i = 0; i < NewInventory->CustomInventorySlots.Num(); i++)

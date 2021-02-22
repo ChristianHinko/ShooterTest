@@ -4,6 +4,7 @@
 #include "Character/ShooterCharacter.h"
 
 #include "Net/UnrealNetwork.h"
+#include "Utilities/LogCategories.h"
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
 #include "ActorComponents/InteractorComponent.h"
@@ -51,13 +52,17 @@ void AShooterCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	if (SSInventoryComponentActive)
-	{
 		if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy)	// No point of doing a client RPC if no client is controlling it (ie. this is an AI)
 		{
-			SSInventoryComponentActive->ClientRecieveStartingActiveItemHistoryArray(SSInventoryComponentActive->ActiveItemHistory);
+			if (SSInventoryComponentActive)
+			{
+				SSInventoryComponentActive->ClientRecieveStartingActiveItemHistoryArray(SSInventoryComponentActive->ActiveItemHistory);
+			}
+			else
+			{
+				UE_LOG(LogArcInventorySetup, Error, TEXT("%s() Failed to call ClientRecieveStartingActiveItemHistoryArray RPC. Item history array is not in sync!"), *FString(__FUNCTION__));
+			}
 		}
-	}
 }
 
 void AShooterCharacter::BeginPlay()

@@ -8,6 +8,7 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogSonicShooterModule, Log, All)
 DECLARE_LOG_CATEGORY_EXTERN(LogAbilitySystemSetup, Log, All)
+DECLARE_LOG_CATEGORY_EXTERN(LogArcInventorySetup, Log, All)
 DECLARE_LOG_CATEGORY_EXTERN(LogCharacterMovementSetup, Log, All)
 DECLARE_LOG_CATEGORY_EXTERN(LogCharacterMovement, Log, All)
 DECLARE_LOG_CATEGORY_EXTERN(LogGameplayAbility, Log, All)

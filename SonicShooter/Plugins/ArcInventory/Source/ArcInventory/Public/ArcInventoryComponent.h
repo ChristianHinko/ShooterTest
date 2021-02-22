@@ -12,6 +12,10 @@
 class UArcInventoryAttributeSet;
 class UArcItemStack;
 
+//------------------ =@MODIFIED MARKER@= fwd declare so we can use it in FArcInventoryItemSlotDefinition
+class UArcItemGenerator_Unique;
+//------------------
+
 USTRUCT(BlueprintType)
 struct ARCINVENTORY_API FArcInventoryItemSlotDefinition
 {
@@ -21,6 +25,13 @@ public:
 		FGameplayTagContainer Tags;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Inventory")
 		FArcInventoryItemSlotFilter Filter;
+
+
+	//------------------ =@MODIFIED MARKER@=
+	/** This item generator will be used by the GameMode to populate this slot when the character is spawned */
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+		TSubclassOf<UArcItemGenerator_Unique> SlotStartupItem;
+	//------------------
 };
 
 
@@ -138,6 +149,12 @@ private:
 
 	//Inventory Searching
 public:
+	//------------------ =@MODIFIED MARKER@= Added function
+	// VERY UNRELIABLE WARNING!!! SlotReferences can be dynamcically switched around during gameplay so anytime after inventory initialisation is a bad time to call this!!!!
+	UFUNCTION(BlueprintCallable, Category = "Inventory | Item Queries", meta = (ScriptName = "GetSlotReferenceByIndex"))
+	bool GetSlotReferenceByIndex(int32 index, FArcInventoryItemSlotReference& OutSlotReference);
+	//------------------
+
 	UFUNCTION(BlueprintCallable, Category="Inventory | Item Queries", meta = (ScriptName = "ItemQuery_GetAll"))
 	bool Query_GetAllSlots(const FArcInventoryQuery& Query, TArray<FArcInventoryItemSlotReference>& OutSlotRefs);
 

@@ -45,11 +45,6 @@ public:
 
 	class UArcInventoryComponent* GetInventoryComponent() const override { return InventoryComponent; }
 
-	/** These item generators will be used by the GameMode to populate this character's inventory when the character is spawned */
-	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
-		TArray<TSubclassOf<UArcItemGenerator_Unique>> ItemsToEquipOnStartup;
-
-
 	UPROPERTY()
 		UInteractorComponent* Interactor;
 

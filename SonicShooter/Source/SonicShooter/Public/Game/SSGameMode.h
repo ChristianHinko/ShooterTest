@@ -8,7 +8,7 @@
 #include "SSGameMode.generated.h"
 
 
-
+class UArcInventoryComponent;
 /**
  * 
  */
@@ -23,5 +23,8 @@ public:
 
 protected:
 	virtual APawn* SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform) override;
+
+	// Override this event if you want to customize how this gamemode gives you your startup items
+	virtual void GiveInventoryStartupItems(UArcInventoryComponent* Inventory);
 
 };

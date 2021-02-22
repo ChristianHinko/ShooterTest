@@ -466,6 +466,19 @@ class UAbilitySystemComponent* UArcInventoryComponent::GetOwnerAbilitySystem()
 	return UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetOwner());
 }
 
+//------------------ =@MODIFIED MARKER@= Added function
+bool UArcInventoryComponent::GetSlotReferenceByIndex(int32 index, FArcInventoryItemSlotReference& OutSlotReference)
+{
+	if (BagInventory.Slots.IsValidIndex(index))
+	{
+		OutSlotReference = FArcInventoryItemSlotReference(BagInventory.Slots[index], this);
+		return true;
+	}
+
+	return false;
+}
+//------------------
+
 bool UArcInventoryComponent::Query_GetAllSlots(const FArcInventoryQuery& Query, TArray<FArcInventoryItemSlotReference>& OutSlotRefs)
 {
 	for (FArcInventoryItemSlot& ItemSlot : BagInventory.Slots)
@@ -490,8 +503,6 @@ FArcInventoryItemSlotReference UArcInventoryComponent::Query_GetFirstSlot(const 
 
 	return OutSlotRefs[0];
 }
-
-
 
 void UArcInventoryComponent::Query_GetAllItems(const FArcInventoryQuery& Query, TArray<UArcItemStack*>& OutItems)
 {

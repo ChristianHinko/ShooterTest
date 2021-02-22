@@ -29,9 +29,11 @@ private:
 
 
 	
+
+
 public:
 	AShooterCharacter(const FObjectInitializer& ObjectInitializer);
-
+	virtual void BeginPlay() override;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
 		USSArcInventoryComponent_Active* SSInventoryComponentActive;
 
@@ -44,11 +46,6 @@ public:
 	static FName InventoryComponentName;
 
 	class UArcInventoryComponent* GetInventoryComponent() const override { return InventoryComponent; }
-
-	/** These item generators will be used by the GameMode to populate this character's inventory when the character is spawned */
-	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
-		TArray<TSubclassOf<UArcItemGenerator_Unique>> ItemsToLootOnStartup;
-
 
 	UPROPERTY()
 		UInteractorComponent* Interactor;
@@ -121,7 +118,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
 		FVector AddedCameraSwayDuringADS;
 
-	void RefreshInventoryAbilitySystemInfo();
 	virtual void UnPossessed() override;
 
 	//BEGIN AActor Interface
@@ -134,6 +130,8 @@ protected:
 	virtual void OnInteractPressed() override;
 
 	virtual void OnPrimaryFirePressed() override;
+
+	virtual void OnReloadPressed() override;
 
 	virtual void OnSwitchWeaponPressed();
 	virtual void OnItem0Pressed();

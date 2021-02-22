@@ -11,7 +11,7 @@
 USSArcInventoryComponent_Active::USSArcInventoryComponent_Active(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	maxItemHistoryBufferSize = 5;
+	maxItemHistoryBufferSize = 30;
 }
 
 bool USSArcInventoryComponent_Active::IsActiveItemSlotIndexValid(int32 InActiveItemSlot)
@@ -27,59 +27,72 @@ bool USSArcInventoryComponent_Active::IsActiveItemSlotIndexValid(int32 InActiveI
 	return true;
 }
 
-bool USSArcInventoryComponent_Active::MakeItemActive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack)
+void USSArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
 {
+	if (!bStartupItemsGiven)
+	{
+		AddToActiveItemHistory(ItemSlotRef);
+	}
+
+	// In our game we want items to auto set active whenever we equip an active item. However, if we havn't begun play yet, equiping an item will still work, just only with the most recent one before beginplay happens
+	if (IsActiveItemSlot(ItemSlotRef) && IsValid(ItemStack))
+	{
+		int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);
+		PendingItemSlot = ItemSlotIndex;
+
+		//If we've begun play, send the gameplay event now.  Otherwise we'll get it in BeginPlay
+		if (HasBegunPlay())
+		{
+			SwitchToPendingItemSlot();
+		}
+	}
+
+
+	//If we are unequipping an item and it's the currently active item, either go to the next available active item or go to neutral
 	if (!IsValid(ItemStack))
 	{
-		return false;
+		int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);
+		if (ItemSlotIndex == ActiveItemSlot)
+		{
+			PendingItemSlot = GetNextValidActiveItemSlot();
+			MakeItemInactive_Internal(ItemSlotRef, PreviousItemStack);
+			SwitchToPendingItemSlot();
+		}
 	}
+}
 
-	TSubclassOf<UArcItemDefinition_Active> ItemDefinition(ItemStack->GetItemDefinition());
-	if (!IsValid(ItemDefinition))
+bool USSArcInventoryComponent_Active::MakeItemActive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack)
+{
+	bool bSuccess = Super::MakeItemActive_Internal(ItemSlot, ItemStack);
+
+	if (bStartupItemsGiven)		// We don't want to touch the item history array if the startup items have not been given yet. Adding to it will be taken care of in OnItemEquipped
 	{
-		return false;
+		AddToActiveItemHistory(ItemSlot);
 	}
-
-	FArcInventoryItemInfoEntry* Entry = ActiveItemAbilityInfos.FindByPredicate([ItemSlot](const FArcInventoryItemInfoEntry& x) {
-		return x.ItemSlotRef.SlotId == ItemSlot.SlotId;
-		});
-	if (Entry == nullptr)
-	{
-		Entry = &ActiveItemAbilityInfos.Add_GetRef(FArcInventoryItemInfoEntry(ItemSlot));
-	}
-
-	//Add this item's Active Abilities
-	bool bSuccess = ApplyAbilityInfo_Internal(ItemDefinition.GetDefaultObject()->ActiveItemAbilityInfo, (*Entry).EquippedItemInfo, ItemStack);
-
-	if (bSuccess)
-	{
-		ApplyPerks(ItemStack, ItemSlot);
-	}
-
-	OnItemActive.Broadcast(this, ItemStack);
-	AddNewActiveItemToHistoryBuffer(ItemSlot);	// Only thing added from the Super
 
 	return bSuccess;
 }
 
-void USSArcInventoryComponent_Active::AddNewActiveItemToHistoryBuffer(FArcInventoryItemSlotReference NewActiveItemSlotReference)
+void USSArcInventoryComponent_Active::AddToActiveItemHistory(FArcInventoryItemSlotReference NewActiveItemSlotReference)
 {
 	int32 sizeChange = 0;
 
-	if (ItemHistory.RemoveSingle(NewActiveItemSlotReference) == 1)		// Remove the item from the history buffer so we can make it a new recent
+	if (ActiveItemHistory.RemoveSingle(NewActiveItemSlotReference) == 1)		// Remove the item from the history buffer so we can make it a new recent
 	{
 		sizeChange--;
-	}	
-	ItemHistory.Push(NewActiveItemSlotReference);						// Make item new recent
+	}
+	ActiveItemHistory.Insert(NewActiveItemSlotReference, 0);						// Make item new recent
 	sizeChange++;
 
-	
 
-	if (ItemHistory.Num() > maxItemHistoryBufferSize)
+
+	if (ActiveItemHistory.Num() > maxItemHistoryBufferSize)
 	{
-		ItemHistory.RemoveAt(ItemHistory.Num()-1);						// Remove oldest stored item if we are passed the max buffer size
+		ActiveItemHistory.RemoveAt(ActiveItemHistory.Num() - 1);						// Remove oldest stored item if we are passed the max buffer size
 	}
 
-	
+
 
 }
+
+

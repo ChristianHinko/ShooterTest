@@ -41,14 +41,17 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 	SSInventoryComponentActive = Cast<USSArcInventoryComponent_Active>(InventoryComponent);
 
 
-	OnServerAknowledgeClientSetupAbilitySystem.AddUObject(this, &AShooterCharacter::RefreshInventoryAbilitySystemInfo);
-
-
-
 	Interactor = CreateDefaultSubobject<UInteractorComponent>(TEXT("Interactor"));
 
 	CameraSwayAmount = FVector(0, 1.3f, .4f);
 	AddedCameraSwayDuringADS = FVector(0, -1.1f, -.1f);
+}
+
+
+void AShooterCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
 }
 
 bool AShooterCharacter::GrantStartingAbilities()
@@ -76,14 +79,6 @@ bool AShooterCharacter::GrantStartingAbilities()
 	return true;
 }
 
-void AShooterCharacter::RefreshInventoryAbilitySystemInfo()
-{
-	if (USSArcInventoryComponent_Active* Inventory = SSInventoryComponentActive)
-	{
-		// Make the inventory re-give us our item's abilities and attribute sets and stuff
-		Inventory->MakeItemActive(Inventory->GetActiveItemSlot());
-	}
-}
 void AShooterCharacter::UnPossessed()
 {
 	Super::UnPossessed();
@@ -96,12 +91,62 @@ void AShooterCharacter::UnPossessed()
 	}
 }
 
-//#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "AbilitySystem/AttributeSets/AS_Health.h"
+#include "Item/AS_Ammo.h"
+#include "C:\Users\b2hin\Documents\Unreal Projects\SonicShooter\SonicShooter\Plugins\ArcInventory\Source\ArcInventory\Public\ArcItemBPFunctionLibrary.h"
+#include "C:\Users\b2hin\Documents\Unreal Projects\SonicShooter\SonicShooter\Plugins\ArcInventory\Source\ArcInventory\Public\Item\ArcItemDefinition_New.h"
 //#include "Kismet/KismetMathLibrary.h"
 //#include "GameFramework/SpringArmComponent.h"
 void AShooterCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	//if (GetHealthAttributeSet())
+	//{
+	//	UKismetSystemLibrary::PrintString(this, FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
+	//}
+
+	//for (int i = 0; i < SSInventoryComponentActive->ActiveItemHistory.Num(); i++)
+	//{
+	//	FArcInventoryItemSlotReference current = SSInventoryComponentActive->ActiveItemHistory[i];
+
+	//	UKismetSystemLibrary::PrintString(this, "["+FString::FromInt(current.SlotId)+"] " + current.SlotTags.GetByIndex(1).ToString(), true, false, FLinearColor::Green);
+	//}
+
+	if (SSInventoryComponentActive)
+	{
+		//UKismetSystemLibrary::PrintString(this, "Current Item Slot: " + FString::FromInt(SSInventoryComponentActive->GetActiveItemSlot().SlotId), true, false);
+		//UKismetSystemLibrary::PrintString(this, "Pending Item Slot: " + FString::FromInt(SSInventoryComponentActive->PendingItemSlot), true, false);
+	}
+
+	if (GetAbilitySystemComponent())
+	{
+		for (UAttributeSet* AttributeSet : GetAbilitySystemComponent()->GetSpawnedAttributes())
+		{
+			if (UAS_Ammo* AmmoAttributeSet = Cast<UAS_Ammo>(AttributeSet))
+			{
+				//UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetBackupAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetBackupAmmo()), true, false);
+				//UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetClipAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetClipAmmo()), true, false);
+			}
+		}
+
+	}
+
+	//	Item history debug
+	//UKismetSystemLibrary::PrintString(this, "------------", true, false);
+	//if (SSInventoryComponentActive)
+	//{
+	//	for (FArcInventoryItemSlotReference slotRef : SSInventoryComponentActive->ItemHistory)
+	//	{
+	//		UKismetSystemLibrary::PrintString(this, UArcItemBPFunctionLibrary::GetItemFromSlot(slotRef)->GetItemDefinition().GetDefaultObject()->GetFName().ToString(), true, false);
+
+	//	}
+	//}
+	//UKismetSystemLibrary::PrintString(this, "-----------", true, false);
+
+
+	
 
 	//float frameHorizontalMouseRate = 0;
 	//float frameVerticalMouseRate = 0;
@@ -165,6 +210,14 @@ void AShooterCharacter::OnPrimaryFirePressed()
 	}
 }
 
+void AShooterCharacter::OnReloadPressed()
+{
+	if (GetAbilitySystemComponent())
+	{
+		GetAbilitySystemComponent()->TryActivateAbilitiesByTag(FGameplayTag::RequestGameplayTag(FName("Ability.Reload")).GetSingleTagContainer());
+	}
+}
+
 void AShooterCharacter::OnSwitchWeaponPressed()
 {
 	GetAbilitySystemComponent()->TryActivateAbility(SwapToLastActiveItemAbilitySpecHandle);
@@ -200,6 +253,7 @@ void AShooterCharacter::OnPreviousItemPressed()
 
 void AShooterCharacter::OnPausePressed()
 {
+
 }
 
 void AShooterCharacter::OnScoreSheetPressed()
@@ -208,7 +262,12 @@ void AShooterCharacter::OnScoreSheetPressed()
 
 void AShooterCharacter::OnDropItemPressed()
 {
-	GetAbilitySystemComponent()->TryActivateAbility(DropItemAbilitySpecHandle);
+	FArcInventoryItemSlotReference ActiveItem = SSInventoryComponentActive->GetActiveItemSlot();
+	if (SSInventoryComponentActive->IsValidActiveItemSlot(ActiveItem.SlotId))
+	{
+		SSInventoryComponentActive->PendingItemDrop = SSInventoryComponentActive->GetActiveItemSlot();
+		GetAbilitySystemComponent()->TryActivateAbility(DropItemAbilitySpecHandle, true);
+	}
 }
 
 

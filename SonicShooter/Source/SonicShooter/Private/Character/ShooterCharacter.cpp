@@ -94,6 +94,8 @@ void AShooterCharacter::UnPossessed()
 #include "Kismet/KismetSystemLibrary.h"
 #include "AbilitySystem/AttributeSets/AS_Health.h"
 #include "Item/AS_Ammo.h"
+#include "C:\Users\b2hin\Documents\Unreal Projects\SonicShooter\SonicShooter\Plugins\ArcInventory\Source\ArcInventory\Public\ArcItemBPFunctionLibrary.h"
+#include "C:\Users\b2hin\Documents\Unreal Projects\SonicShooter\SonicShooter\Plugins\ArcInventory\Source\ArcInventory\Public\Item\ArcItemDefinition_New.h"
 //#include "Kismet/KismetMathLibrary.h"
 //#include "GameFramework/SpringArmComponent.h"
 void AShooterCharacter::Tick(float DeltaSeconds)
@@ -124,12 +126,25 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 		{
 			if (UAS_Ammo* AmmoAttributeSet = Cast<UAS_Ammo>(AttributeSet))
 			{
-				UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetBackupAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetBackupAmmo()), true, false);
-				UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetClipAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetClipAmmo()), true, false);
+				//UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetBackupAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetBackupAmmo()), true, false);
+				//UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetClipAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetClipAmmo()), true, false);
 			}
 		}
 
 	}
+
+	//	Item history debug
+	//UKismetSystemLibrary::PrintString(this, "------------", true, false);
+	//if (SSInventoryComponentActive)
+	//{
+	//	for (FArcInventoryItemSlotReference slotRef : SSInventoryComponentActive->ItemHistory)
+	//	{
+	//		UKismetSystemLibrary::PrintString(this, UArcItemBPFunctionLibrary::GetItemFromSlot(slotRef)->GetItemDefinition().GetDefaultObject()->GetFName().ToString(), true, false);
+
+	//	}
+	//}
+	//UKismetSystemLibrary::PrintString(this, "-----------", true, false);
+
 
 	
 

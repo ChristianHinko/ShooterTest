@@ -258,7 +258,7 @@ private:
 	UPROPERTY(Replicated) // replicated from Server -> Simulated Proxies
 		uint8 bSetupWithAbilitySystemCompletedOnOwningClient : 1;
 	/** Indicates that we already created attribute sets and registered them, Initialized the attributes, and applied the startup effects */
-	uint8 bAttributesAndStartupEffectsInitialized : 1;
+	uint8 bCharacterInitialized : 1;
 	/** Shows that we already have input binded with the ability system */
 	uint8 bASCInputBound : 1;
 	/** Indicates we currently should be dealing with the AIAbilitySystemComponent (this is commonly paired with "!IsPlayerControlled()") */

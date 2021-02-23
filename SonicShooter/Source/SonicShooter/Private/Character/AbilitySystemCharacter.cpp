@@ -54,7 +54,7 @@ AAbilitySystemCharacter::AAbilitySystemCharacter(const FObjectInitializer& Objec
 	bAIToPlayerSyncAbilities = true;
 	bPlayerToAISyncAbilities = true;
 
-	bAttributesAndStartupEffectsInitialized = false;
+	bCharacterInitialized = false;
 	bASCInputBound = false;
 
 	bShouldHandleAIAbilitySystemSetup = false;
@@ -179,7 +179,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemPlayerControlled()
 	// Bind player input to the AbilitySystemComponent. Also called in SetupPlayerInputComponent because of a potential race condition.
 	BindASCInput();
 
-	if (!bAttributesAndStartupEffectsInitialized)
+	if (!bCharacterInitialized)
 	{
 
 
@@ -198,9 +198,14 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemPlayerControlled()
 		{
 			InitializeAttributes();
 			ApplyStartupEffects();
+
+			// This is the first time our setup is being run. So no matter what (even if bAIToPlayerSyncAbilities), grant our starting abilities.
+			GrantStartingAbilities();
+			GrantNonHandleStartingAbilities();
 		}
 
-		bAttributesAndStartupEffectsInitialized = true;
+
+		bCharacterInitialized = true;
 	}
 	else    // If something is posessing this Character a second time
 	{
@@ -222,13 +227,6 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemPlayerControlled()
 		ServerOnSetupWithAbilitySystemCompletedOnOwningClient();
 	}
 
-	// TODO: maybe use this when we make the AI in use before client ready
-	//if (GetLocalRole() == ROLE_Authority)
-	//{
-	//	// When posessing this Character always grant the player's ASC his starting abilities
-	//	GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
-	//	GrantNonHandleStartingAbilities();
-	//}
 
 	SetupWithAbilitySystemCompleted.Broadcast();
 }
@@ -258,7 +256,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemAIControlled()
 	//From my understanding, only needs to be done on server since no player is controlling it
 	AIAbilitySystemComponent->InitAbilityActorInfo(this, this);
 
-	if (!bAttributesAndStartupEffectsInitialized)
+	if (!bCharacterInitialized)
 	{
 		// Must run these on Server but we run them on client too so that we don't have to wait.. It's how Dan does it so seams legit
 		CreateAttributeSets();
@@ -269,7 +267,12 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemAIControlled()
 		InitializeAttributes();
 		ApplyStartupEffects();
 
-		bAttributesAndStartupEffectsInitialized = true;
+		// This is the first time our setup is being run. So no matter what (even if bPlayerToAISyncAbilities), grant our starting abilities
+		GrantStartingAbilities();
+		GrantNonHandleStartingAbilities();
+
+
+		bCharacterInitialized = true;
 	}
 	else    // If something is posessing this Character a second time
 	{
@@ -277,36 +280,29 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemAIControlled()
 		RegisterAttributeSets();
 		// Must call ForceReplication after registering an attribute set(s)
 		AIAbilitySystemComponent->ForceReplication();
-	}
 
-	// Grant our abilities
-	if (bPlayerToAISyncAbilities)
-	{
-		const bool wasPlayer = (PreviousController && PreviousController->IsPlayerController());
-		const bool isPlayer = GetController()->IsPlayerController();
 
-		// If we went from Player -> AI
-		if (wasPlayer == true && isPlayer == false)
+		if (bPlayerToAISyncAbilities)
 		{
-			AIAbilitySystemComponent->RecieveAbilitiesFrom(PlayerAbilitySystemComponent);
+			const bool wasPlayer = (PreviousController && PreviousController->IsPlayerController());
+			const bool isPlayer = GetController()->IsPlayerController();
+
+			// If we went from Player -> AI
+			if (wasPlayer == true && isPlayer == false)
+			{
+				AIAbilitySystemComponent->RecieveAbilitiesFrom(PlayerAbilitySystemComponent);
+			}
+
+			// maybe also grant starting abilities here? so we recieve abilities from player but also ensure we get our starting ones? idk it depends on the game, maybe we should make a config bool for it
 		}
-
-		// maybe also grant starting abilities here? so we recieve abilities from player but also ensure we get our starting ones? idk it depends on the game, maybe we should make a config bool for it
-	}
-	else
-	{
-		// When posessing this Character grant the ASC our starting abilities. Also since this is an AI we don't need to wait for client to setup before grant abilities.
-		GrantStartingAbilities();	// TODO: problem: if bPlayerToAISyncAbilities is false, the AI's mid-game-earned abilities will not be given. Only the starting abilities will
-		GrantNonHandleStartingAbilities();
+		else
+		{
+			// When posessing this Character grant the ASC our starting abilities. Also since this is an AI we don't need to wait for client to setup before grant abilities.
+			GrantStartingAbilities();	// TODO: problem: if bPlayerToAISyncAbilities is false, the AI's mid-game-earned abilities will not be given. Only the starting abilities will
+			GrantNonHandleStartingAbilities();
+		}
 	}
 
-	// TODO: maybe use this when we make the AI in use before client ready
-	//if (GetLocalRole() == ROLE_Authority)
-	//{
-	//	// When posessing this Character always grant the player's ASC his starting abilities
-	//	GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
-	//	GrantNonHandleStartingAbilities();
-	//}
 
 	SetupWithAbilitySystemCompleted.Broadcast();
 }

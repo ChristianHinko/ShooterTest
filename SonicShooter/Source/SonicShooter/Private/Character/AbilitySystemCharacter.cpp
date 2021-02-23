@@ -99,7 +99,14 @@ void AAbilitySystemCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 
-	SetupWithAbilitySystem();
+	if (IsPlayerControlled())
+	{
+		SetupWithAbilitySystemPlayerControlled();
+	}
+	else // AI Controlled 
+	{
+		SetupWithAbilitySystemAIControlled();
+	}
 }
 
 void AAbilitySystemCharacter::OnRep_PlayerState()
@@ -109,7 +116,10 @@ void AAbilitySystemCharacter::OnRep_PlayerState()
 	// make sure its not when unpossessing (when unpossessed player state is null)
 	if (GetPlayerState())
 	{
-		SetupWithAbilitySystem();
+		if (IsPlayerControlled())
+		{
+			SetupWithAbilitySystemPlayerControlled();
+		}
 	}
 }
 
@@ -124,145 +134,74 @@ void AAbilitySystemCharacter::OnRep_Controller()
 	}
 }
 
-void AAbilitySystemCharacter::SetupWithAbilitySystem()
+void AAbilitySystemCharacter::SetupWithAbilitySystemPlayerControlled()
 {
-	if (IsPlayerControlled())
+	SSPlayerState = GetPlayerState<ASSPlayerState>();
+	if (!SSPlayerState)
 	{
-		SSPlayerState = GetPlayerState<ASSPlayerState>();
-		if (!SSPlayerState)
-		{
-			UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Failed to setup Character with GAS on (failed to InitAbilityActorInfo, AddExistingAttributeSets, InitializeAttributes, ApplyStartupEffects, and GrantStartingAbilities). Character's player state is not an ASSPlayerState (Cast failed)"), *FString(__FUNCTION__));
-			return;
-		}
-		PlayerAbilitySystemComponent = SSPlayerState->GetAbilitySystemComponent();
-		if (!PlayerAbilitySystemComponent)
-		{
-			UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Failed to setup Character with GAS on (failed to InitAbilityActorInfo, AddExistingAttributeSets, InitializeAttributes, ApplyStartupEffects, and GrantStartingAbilities). PlayerAbilitySystemComponent was NULL"), *FString(__FUNCTION__));
-			return;
-		}
-		if (GetAbilitySystemComponent() != PlayerAbilitySystemComponent)	// Check to make sure GetAbilitySystemComponent() returns the same ASC we are now trying to set up and switch to
-		{
-			UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() GetAbilitySystemComponent() not returning PlayerAbilitySystemComponent when a PlayerController just took possesion and is trying to InitAbilityActorInfo() on the character"), *FString(__FUNCTION__));
-			return;
-		}
-
-
-		// This must be done on both client and server
-		PlayerAbilitySystemComponent->InitAbilityActorInfo(SSPlayerState, this);
-
-		// Bind player input to the AbilitySystemComponent. Also called in SetupPlayerInputComponent because of a potential race condition.
-		BindASCInput();
-
-		if (!bAttributesAndStartupEffectsInitialized)
-		{
-
-
-			if (GetLocalRole() == ROLE_Authority)
-			{
-				// Moved these attribute set stuff into this check because seems to make more sence. move outside if problems arise
-				CreateAttributeSets();
-				RegisterAttributeSets();
-				// Must call ForceReplication after registering an attribute set(s)
-				PlayerAbilitySystemComponent->ForceReplication();
-			}
-			
-			PreApplyStartupEffects.Broadcast();	// Good place to bind to Attribute/Tag events, but currently effect replicates to client faster than it can broadcast, so we need to fix this
-
-			if (GetLocalRole() == ROLE_Authority)
-			{
-				InitializeAttributes();
-				ApplyStartupEffects();
-			}
-
-			bAttributesAndStartupEffectsInitialized = true;
-		}
-		else    // If something is posessing this Character a second time
-		{
-			// Just register this Character's already-created attribute sets with the player's ASC
-			RegisterAttributeSets();
-			if (GetLocalRole() == ROLE_Authority)
-			{
-				// Must call ForceReplication after registering an attribute set(s)
-				PlayerAbilitySystemComponent->ForceReplication();
-			}
-		}
-
-		// Refresh ASC Actor Info for clients. Server will be refreshed by its AIController/PlayerController when it possesses a new Actor.
-		if (IsLocallyControlled()) // CLIENT
-		{
-			PlayerAbilitySystemComponent->RefreshAbilityActorInfo();
-
-			// Tell the server to grant our abilities
-			ServerOnSetupWithAbilitySystemCompletedOnOwningClient();
-		}
+		UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Failed to setup Character with GAS on (failed to InitAbilityActorInfo, AddExistingAttributeSets, InitializeAttributes, ApplyStartupEffects, and GrantStartingAbilities). Character's player state is not an ASSPlayerState (Cast failed)"), *FString(__FUNCTION__));
+		return;
 	}
-	else // AI controlled   \/\/
+	PlayerAbilitySystemComponent = SSPlayerState->GetAbilitySystemComponent();
+	if (!PlayerAbilitySystemComponent)
 	{
-		if (GetLocalRole() < ROLE_Authority)
-		{
-			return;
-		}
-		if (!bShouldHandleAIAbilitySystemSetup)
-		{
-			return;
-		}
-		if (!AIAbilitySystemComponent)
-		{
-			UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Failed to setup Character with AI GAS setup on (failed to InitAbilityActorInfo, AddExistingAttributeSets, InitializeAttributes, ApplyStartupEffects, and GrantStartingAbilities). AIAbilitySystemComponent was NULL"), *FString(__FUNCTION__));
-			return;
-		}
-		if (GetAbilitySystemComponent() != AIAbilitySystemComponent)	// Check to make sure GetAbilitySystemComponent() returns the same ASC we are now trying to set up and switch to
-		{
-			UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() GetAbilitySystemComponent() not returning AIAbilitySystemComponent when an AIController just took possesion and is trying to InitAbilityActorInfo() on the character"), *FString(__FUNCTION__));
-			return;
-		}
+		UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Failed to setup Character with GAS on (failed to InitAbilityActorInfo, AddExistingAttributeSets, InitializeAttributes, ApplyStartupEffects, and GrantStartingAbilities). PlayerAbilitySystemComponent was NULL"), *FString(__FUNCTION__));
+		return;
+	}
+	if (GetAbilitySystemComponent() != PlayerAbilitySystemComponent)	// Check to make sure GetAbilitySystemComponent() returns the same ASC we are now trying to set up and switch to
+	{
+		UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() GetAbilitySystemComponent() not returning PlayerAbilitySystemComponent when a PlayerController just took possesion and is trying to InitAbilityActorInfo() on the character"), *FString(__FUNCTION__));
+		return;
+	}
 
 
+	// This must be done on both client and server
+	PlayerAbilitySystemComponent->InitAbilityActorInfo(SSPlayerState, this);
 
-		//From my understanding, only needs to be done on server since no player is controlling it
-		AIAbilitySystemComponent->InitAbilityActorInfo(this, this);
+	// Bind player input to the AbilitySystemComponent. Also called in SetupPlayerInputComponent because of a potential race condition.
+	BindASCInput();
 
-		if (!bAttributesAndStartupEffectsInitialized)
+	if (!bAttributesAndStartupEffectsInitialized)
+	{
+
+
+		if (GetLocalRole() == ROLE_Authority)
 		{
-			// Must run these on Server but we run them on client too so that we don't have to wait.. It's how Dan does it so seams legit
+			// Moved these attribute set stuff into this check because seems to make more sence. move outside if problems arise
 			CreateAttributeSets();
 			RegisterAttributeSets();
 			// Must call ForceReplication after registering an attribute set(s)
-			AIAbilitySystemComponent->ForceReplication();
-			PreApplyStartupEffects.Broadcast();					// at this point the asc is safe to use
+			PlayerAbilitySystemComponent->ForceReplication();
+		}
+
+		PreApplyStartupEffects.Broadcast();	// Good place to bind to Attribute/Tag events, but currently effect replicates to client faster than it can broadcast, so we need to fix this
+
+		if (GetLocalRole() == ROLE_Authority)
+		{
 			InitializeAttributes();
 			ApplyStartupEffects();
-
-			bAttributesAndStartupEffectsInitialized = true;
 		}
-		else    // If something is posessing this Character a second time
+
+		bAttributesAndStartupEffectsInitialized = true;
+	}
+	else    // If something is posessing this Character a second time
+	{
+		// Just register this Character's already-created attribute sets with the player's ASC
+		RegisterAttributeSets();
+		if (GetLocalRole() == ROLE_Authority)
 		{
-			// Just register this Character's already-created attribute sets with the player's ASC
-			RegisterAttributeSets();
 			// Must call ForceReplication after registering an attribute set(s)
-			AIAbilitySystemComponent->ForceReplication();
+			PlayerAbilitySystemComponent->ForceReplication();
 		}
+	}
 
-		// Grant our abilities
-		if (bPlayerToAISyncAbilities)
-		{
-			const bool wasPlayer = (PreviousController && PreviousController->IsPlayerController());
-			const bool isPlayer = GetController()->IsPlayerController();
+	// Refresh ASC Actor Info for clients. Server will be refreshed by its AIController/PlayerController when it possesses a new Actor.
+	if (IsLocallyControlled()) // CLIENT
+	{
+		PlayerAbilitySystemComponent->RefreshAbilityActorInfo();
 
-			// If we went from Player -> AI
-			if (wasPlayer == true && isPlayer == false)
-			{
-				AIAbilitySystemComponent->RecieveAbilitiesFrom(PlayerAbilitySystemComponent);
-			}
-
-			// maybe also grant starting abilities here? so we recieve abilities from player but also ensure we get our starting ones? idk it depends on the game, maybe we should make a config bool for it
-		}
-		else
-		{
-			// When posessing this Character grant the ASC our starting abilities. Also since this is an AI we don't need to wait for client to setup before grant abilities.
-			GrantStartingAbilities();	// TODO: problem: if bPlayerToAISyncAbilities is false, the AI's mid-game-earned abilities will not be given. Only the starting abilities will
-			GrantNonHandleStartingAbilities();
-		}
+		// Tell the server to grant our abilities
+		ServerOnSetupWithAbilitySystemCompletedOnOwningClient();
 	}
 
 	// TODO: maybe use this when we make the AI in use before client ready
@@ -275,6 +214,85 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 
 	SetupWithAbilitySystemCompleted.Broadcast();
 }
+void AAbilitySystemCharacter::SetupWithAbilitySystemAIControlled()
+{
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		return;
+	}
+	if (!bShouldHandleAIAbilitySystemSetup)
+	{
+		return;
+	}
+	if (!AIAbilitySystemComponent)
+	{
+		UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Failed to setup Character with AI GAS setup on (failed to InitAbilityActorInfo, AddExistingAttributeSets, InitializeAttributes, ApplyStartupEffects, and GrantStartingAbilities). AIAbilitySystemComponent was NULL"), *FString(__FUNCTION__));
+		return;
+	}
+	if (GetAbilitySystemComponent() != AIAbilitySystemComponent)	// Check to make sure GetAbilitySystemComponent() returns the same ASC we are now trying to set up and switch to
+	{
+		UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() GetAbilitySystemComponent() not returning AIAbilitySystemComponent when an AIController just took possesion and is trying to InitAbilityActorInfo() on the character"), *FString(__FUNCTION__));
+		return;
+	}
+
+
+
+	//From my understanding, only needs to be done on server since no player is controlling it
+	AIAbilitySystemComponent->InitAbilityActorInfo(this, this);
+
+	if (!bAttributesAndStartupEffectsInitialized)
+	{
+		// Must run these on Server but we run them on client too so that we don't have to wait.. It's how Dan does it so seams legit
+		CreateAttributeSets();
+		RegisterAttributeSets();
+		// Must call ForceReplication after registering an attribute set(s)
+		AIAbilitySystemComponent->ForceReplication();
+		PreApplyStartupEffects.Broadcast();					// at this point the asc is safe to use
+		InitializeAttributes();
+		ApplyStartupEffects();
+
+		bAttributesAndStartupEffectsInitialized = true;
+	}
+	else    // If something is posessing this Character a second time
+	{
+		// Just register this Character's already-created attribute sets with the player's ASC
+		RegisterAttributeSets();
+		// Must call ForceReplication after registering an attribute set(s)
+		AIAbilitySystemComponent->ForceReplication();
+	}
+
+	// Grant our abilities
+	if (bPlayerToAISyncAbilities)
+	{
+		const bool wasPlayer = (PreviousController && PreviousController->IsPlayerController());
+		const bool isPlayer = GetController()->IsPlayerController();
+
+		// If we went from Player -> AI
+		if (wasPlayer == true && isPlayer == false)
+		{
+			AIAbilitySystemComponent->RecieveAbilitiesFrom(PlayerAbilitySystemComponent);
+		}
+
+		// maybe also grant starting abilities here? so we recieve abilities from player but also ensure we get our starting ones? idk it depends on the game, maybe we should make a config bool for it
+	}
+	else
+	{
+		// When posessing this Character grant the ASC our starting abilities. Also since this is an AI we don't need to wait for client to setup before grant abilities.
+		GrantStartingAbilities();	// TODO: problem: if bPlayerToAISyncAbilities is false, the AI's mid-game-earned abilities will not be given. Only the starting abilities will
+		GrantNonHandleStartingAbilities();
+	}
+
+	// TODO: maybe use this when we make the AI in use before client ready
+	//if (GetLocalRole() == ROLE_Authority)
+	//{
+	//	// When posessing this Character always grant the player's ASC his starting abilities
+	//	GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
+	//	GrantNonHandleStartingAbilities();
+	//}
+
+	SetupWithAbilitySystemCompleted.Broadcast();
+}
+
 #pragma endregion
 
 bool AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningClient_Validate()

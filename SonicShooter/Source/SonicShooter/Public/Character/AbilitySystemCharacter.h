@@ -242,8 +242,10 @@ private:
 		UAS_Health* HealthAttributeSet;
 
 
-	/** The function that hooks this Character to the ASC. Calls most functions in this base Character class */
-	void SetupWithAbilitySystem();
+	/** The function that hooks this Character to the ASC when it's a player controller. Calls most functions in this base Character class */
+	void SetupWithAbilitySystemPlayerControlled();
+	/** The function that hooks this Character to the ASC when its an AI controller. Calls most functions in this base Character class */
+	void SetupWithAbilitySystemAIControlled();
 	/** Initialize the Character's attributes using the DefaultAttributeValuesEffect */
 	void InitializeAttributes();
 	/** Will apply all effects in EffectsToApplyOnStartup. */

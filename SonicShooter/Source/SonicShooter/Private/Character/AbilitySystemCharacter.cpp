@@ -100,27 +100,6 @@ void AAbilitySystemCharacter::PossessedBy(AController* NewController)
 
 
 	SetupWithAbilitySystem();
-
-
-	const bool wasPlayer = (PreviousController && PreviousController->IsPlayerController());
-	const bool isPlayer = NewController->IsPlayerController();
-
-	if (bAIToPlayerSyncAbilities)
-	{
-		// If we went from AI -> Player
-		if (wasPlayer == false && isPlayer == true)
-		{
-			PlayerAbilitySystemComponent->RecieveAbilitiesFrom(AIAbilitySystemComponent);
-		}
-	}
-	if (bPlayerToAISyncAbilities)
-	{
-		// If we went from Player -> AI
-		if (wasPlayer == true && isPlayer == false)
-		{
-			AIAbilitySystemComponent->RecieveAbilitiesFrom(PlayerAbilitySystemComponent);
-		}
-	}
 }
 
 void AAbilitySystemCharacter::OnRep_PlayerState()
@@ -212,7 +191,9 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 		if (IsLocallyControlled()) // CLIENT
 		{
 			PlayerAbilitySystemComponent->RefreshAbilityActorInfo();
-			//ServerOnSetupWithAbilitySystemCompletedOnOwningClient();
+
+			// Tell the server to grant our abilities
+			ServerOnSetupWithAbilitySystemCompletedOnOwningClient();
 		}
 	}
 	else // AI controlled   \/\/
@@ -261,17 +242,36 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 			// Must call ForceReplication after registering an attribute set(s)
 			AIAbilitySystemComponent->ForceReplication();
 		}
-		//// When posessing this Character always grant the player's ASC his starting abilities. Also since this is an AI we don't need to wait for client to setup to grant abilities
-		//GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
-		//GrantNonHandleStartingAbilities();
+
+		// Grant our abilities
+		if (bPlayerToAISyncAbilities)
+		{
+			const bool wasPlayer = (PreviousController && PreviousController->IsPlayerController());
+			const bool isPlayer = GetController()->IsPlayerController();
+
+			// If we went from Player -> AI
+			if (wasPlayer == true && isPlayer == false)
+			{
+				AIAbilitySystemComponent->RecieveAbilitiesFrom(PlayerAbilitySystemComponent);
+			}
+
+			// maybe also grant starting abilities here? so we recieve abilities from player but also ensure we get our starting ones? idk it depends on the game, maybe we should make a config bool for it
+		}
+		else
+		{
+			// When posessing this Character grant the ASC our starting abilities. Also since this is an AI we don't need to wait for client to setup before grant abilities.
+			GrantStartingAbilities();	// TODO: problem: if bPlayerToAISyncAbilities is false, the AI's mid-game-earned abilities will not be given. Only the starting abilities will
+			GrantNonHandleStartingAbilities();
+		}
 	}
 
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		// When posessing this Character always grant the player's ASC his starting abilities
-		GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
-		GrantNonHandleStartingAbilities();
-	}
+	// TODO: maybe use this when we make the AI in use before client ready
+	//if (GetLocalRole() == ROLE_Authority)
+	//{
+	//	// When posessing this Character always grant the player's ASC his starting abilities
+	//	GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
+	//	GrantNonHandleStartingAbilities();
+	//}
 
 	SetupWithAbilitySystemCompleted.Broadcast();
 }
@@ -283,12 +283,33 @@ bool AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningCli
 }
 void AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningClient_Implementation()
 {
-	// Wanted to make it clear that THIS IS NOT HOW THINGS SHOULD BE IMPLEMENTED. This RPC makes the server wait on the client to grant the ability which can be bad. Initially I thought the server needed to wait for the client or something, but I no longer think that is the case anymore since solving this race condition by RPCing is basicly the same thing as solving it using a delay node.
-	// Fix in GameTemplate!
+	// THIS IS A DANGEROUS EVENT TO USE! This event is client-controlled. If he wanted, he could just never call this and possibly mess something up.
+	// The only reason it is ok for us to use it, is for granting abilities to the Player's ASC. Because if the client did decide to never call this, the AI's ASC would have the abilities granted from before and will be the one in use.
+	// The reason we grant the Player's abilities here is because his abilities are broken if you grant the client's abilities before he does his SetupWithAbilitySystem().
+	// ACTUALLY: it is not safe to use this yet. TODO: we need to make the AI's ASC in use up until this event or else you're just delaying the granthing of our ASC which is bad.
+	// ALSO: when we switch from AI to Player, we won't have the same attributes that we should have TODO: maybe make a bAIToPlayerSyncAttributes or something, and one for tags and effects i guess everything
 
-	// When posessing this Character always grant the player's ASC his starting abilities
-	//GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
-	//GrantNonHandleStartingAbilities();
+	// Grant our abilities
+	if (bAIToPlayerSyncAbilities)
+	{
+		const bool wasPlayer = (PreviousController && PreviousController->IsPlayerController());
+		const bool isPlayer = GetController()->IsPlayerController();
+
+		// If we went from AI -> Player
+		if (wasPlayer == false && isPlayer == true)
+		{
+			PlayerAbilitySystemComponent->RecieveAbilitiesFrom(AIAbilitySystemComponent);
+		}
+
+		// maybe also grant starting abilities here? so we recieve abilities from AI but also ensure we get our starting ones? idk it depends on the game, maybe we should make a config bool for it
+	}
+	else
+	{
+		// When posessing this Character grant the ASC our starting abilities
+		GrantStartingAbilities();	// TODO: problem: if bAIToPlayerSyncAbilities is false, the Player's mid-game-earned abilities will not be given. Only the starting abilities will
+		GrantNonHandleStartingAbilities();
+	}
+
 
 	OnServerAknowledgeClientSetupAbilitySystem.Broadcast();
 }

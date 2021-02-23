@@ -73,13 +73,6 @@ void AAbilitySystemCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 
-	if (GetAbilitySystemComponent())
-	{
-		if (GetAbilitySystemComponent()->GetActivatableAbilities().Num() > 0)
-		{
-			UKismetSystemLibrary::PrintString(this, "has abs", true, false);
-		}
-	}
 }
 
 

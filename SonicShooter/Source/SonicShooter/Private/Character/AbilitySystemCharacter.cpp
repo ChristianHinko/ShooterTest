@@ -28,6 +28,8 @@ void AAbilitySystemCharacter::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 
+	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, bSetupWithAbilitySystemCompletedOnOwningClient, COND_SkipOwner);
+
 	DOREPLIFETIME(AAbilitySystemCharacter, CharacterAttributeSet);
 	DOREPLIFETIME(AAbilitySystemCharacter, HealthAttributeSet);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterJumpAbilitySpecHandle, COND_OwnerOnly);
@@ -86,12 +88,28 @@ USSAbilitySystemComponent* AAbilitySystemCharacter::GetAbilitySystemComponent() 
 {
 	if (IsPlayerControlled())
 	{
+		if (GetLocalRole() == ROLE_Authority || GetLocalRole() == ROLE_SimulatedProxy)
+		{
+			if (bSetupWithAbilitySystemCompletedOnOwningClient)
+			{
+				// We have been told by the owning client that his ability system has been set up. We are ready to use the Player's ASC
+				return PlayerAbilitySystemComponent;
+			}
+
+			// If we got here, the owning client isn't set up with ability system yet, the AI ASC will be temporaily used while we wait.
+			// He will send us the RPC when he is ready. @SEE: ServerOnSetupWithAbilitySystemCompletedOnOwningClient().
+			// If we are ROLE_SimulatedProxy, we are waiting for the server to replicate to us that this character is ready.
+			
+			// If we are here, we are waiting on this character's owning client to get set up.
+			return AIAbilitySystemComponent;
+		}
+
+		// We are the owning client (Autonomous Proxy) always return the Player's ASC since we are Player-controlled
 		return PlayerAbilitySystemComponent;
 	}
-	else
-	{
-		return AIAbilitySystemComponent;
-	}
+
+	// We are an AI because we are not Player-controlled. Return the AI's ASC
+	return AIAbilitySystemComponent;
 }
 
 void AAbilitySystemCharacter::PossessedBy(AController* NewController)
@@ -103,7 +121,7 @@ void AAbilitySystemCharacter::PossessedBy(AController* NewController)
 	{
 		SetupWithAbilitySystemPlayerControlled();
 	}
-	else // AI Controlled 
+	else // AI Controlled
 	{
 		SetupWithAbilitySystemAIControlled();
 	}
@@ -301,6 +319,7 @@ bool AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningCli
 }
 void AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningClient_Implementation()
 {
+	bSetupWithAbilitySystemCompletedOnOwningClient = true;
 	// THIS IS A DANGEROUS EVENT TO USE! This event is client-controlled. If he wanted, he could just never call this and possibly mess something up.
 	// The only reason it is ok for us to use it, is for granting abilities to the Player's ASC. Because if the client did decide to never call this, the AI's ASC would have the abilities granted from before and will be the one in use.
 	// The reason we grant the Player's abilities here is because his abilities are broken if you grant the client's abilities before he does his SetupWithAbilitySystem().
@@ -677,6 +696,8 @@ void AAbilitySystemCharacter::UnPossessed()
 	PreviousController = GetController();	// We make sure we set our prev controller right before we unpossess so this is the most reliable previous controller
 	Super::UnPossessed(); // actual unpossession happens here
 
+
+	bSetupWithAbilitySystemCompletedOnOwningClient = false;
 
 
 }

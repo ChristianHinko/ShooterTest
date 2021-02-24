@@ -209,6 +209,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemPlayerControlled()
 			ApplyStartupEffects();
 
 			// This is the first time our setup is being run. So no matter what (even if bAIToPlayerSyncAbilities), grant our starting abilities.
+			// TODO: This is bad! We need a way to do this in ServerOnSetupWithAbilitySystemCompletedOnOwningClient() somehow instead. We need a way to know if we've already granted startup effects or not. And if not, grant them in that RPC rather than here because the Owning Client isnt ready here.
 			GrantStartingAbilities();
 			GrantNonHandleStartingAbilities();
 		}

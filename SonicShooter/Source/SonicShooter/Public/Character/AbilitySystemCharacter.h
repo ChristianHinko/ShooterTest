@@ -20,8 +20,6 @@ class UAS_Health;
 
 DECLARE_MULTICAST_DELEGATE(FSetupWithAbilitySystemDelegate);
 
-
-
 /**
  * A Base GAS class
  * Note: This was designed to be as flexable as possible for things regarding unpossesion/reposession of this character. Having the ASC on the playerstate can make unpossesion and repossesion a pain
@@ -77,8 +75,6 @@ public:
 
 	/** Inherited via IAbilitySystemInterface. Returns the ASC (either the AI one or the PS one) */
 	USSAbilitySystemComponent* GetAbilitySystemComponent() const override;
-
-	AController* GetPreviousController() const { return PreviousController; }
 
 	UAS_Character* GetCharacterAttributeSet() const { return CharacterAttributeSet; }
 	UAS_Health* GetHealthAttributeSet() const { return HealthAttributeSet; }
@@ -174,19 +170,6 @@ protected:
 		uint8 bRemoveCharacterTagsOnUnpossessed : 1;
 
 
-
-
-	/**  */
-	//UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Config")	We may use this later for easy BP editing
-	//	uint8 bDoASCSyncing : 1;
-	/** If true, then when a PLAYER posseses a former AI possesed character, the PLAYER ASC will recieve the abilities that the AI had */
-	UPROPERTY(EditAnywhere, /*meta = (EditCondition = "bDoASCSyncing", EditConditionHides),*/ Category = "AbilitySystemSetup|Config")
-		uint8 bAIToPlayerSyncAbilities : 1;
-	/** If true, then when an AI posseses a former PLAYER possesed character, the AI ASC will recieve the abilities that the PLAYER had */
-	UPROPERTY(EditAnywhere, /*meta = (EditCondition = "bDoASCSyncing", EditConditionHides),*/ Category = "AbilitySystemSetup|Config")
-		uint8 bPlayerToAISyncAbilities : 1;
-
-
 	/** Removes all attribute sets that this Character added to the PlayerState's ASC */
 	int32 UnregisterCharacterOwnedAttributeSets();
 	/** Removes all abilities that this Character added to the PlayerState's ASC */
@@ -225,15 +208,8 @@ private:
 	// only one of these ASC will be active at a time
 	UPROPERTY(/*Replicated*/)	// Replicated can be helpful for debugging issues
 		USSAbilitySystemComponent* PlayerAbilitySystemComponent;
-	/** 
-	 * This is used if an AIController is posessing. However, it is also used as a placeholder ASC for before the player possesses this character (so we can give abilities and stuff).
-	 * These abilities will be transfered from this ASC to the player's (this allows us to give abilities early on)
-	 */
 	UPROPERTY()
 		USSAbilitySystemComponent* AIAbilitySystemComponent;
-
-	UPROPERTY()
-		AController* PreviousController;
 
 	/** Every character will have this attribute set. This is useful because this gives you a place for common attributes that every character should have. Children can make another attribute set specific to their character (ie. UAS_Demoman, UAS_Ganondorf) */
 	UPROPERTY(Replicated)
@@ -242,25 +218,18 @@ private:
 		UAS_Health* HealthAttributeSet;
 
 
-	/** The function that hooks this Character to the ASC when it's a player controller. Calls most functions in this base Character class */
-	void SetupWithAbilitySystemPlayerControlled();
-	/** The function that hooks this Character to the ASC when its an AI controller. Calls most functions in this base Character class */
-	void SetupWithAbilitySystemAIControlled();
+	/** The function that hooks this Character to the ASC. Calls most functions in this base Character class */
+	void SetupWithAbilitySystem();
 	/** Initialize the Character's attributes using the DefaultAttributeValuesEffect */
 	void InitializeAttributes();
 	/** Will apply all effects in EffectsToApplyOnStartup. */
 	void ApplyStartupEffects();
-
 	/** Notifies server that the client has his ability system all setup. */
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerOnSetupWithAbilitySystemCompletedOnOwningClient();
-	/** Whether the owning client has his ability system all setup or not. ONLY USED ON SERVER AND SIMULATED PROXIES - always false on owning client (autonomous) since we don't need it */
-	UPROPERTY(Replicated) // replicated from Server -> Simulated Proxies
-		uint8 bSetupWithAbilitySystemCompletedOnOwningClient : 1;
-	/** Only set to true while SetupWithAbiltiySystemPlayerControlled() is running. */
-	uint8 bSetupWithAbilitySystemPlayerControlledRunning : 1;
+
 	/** Indicates that we already created attribute sets and registered them, Initialized the attributes, and applied the startup effects */
-	uint8 bCharacterInitialized : 1;
+	uint8 bAttributesAndStartupEffectsInitialized : 1;
 	/** Shows that we already have input binded with the ability system */
 	uint8 bASCInputBound : 1;
 	/** Indicates we currently should be dealing with the AIAbilitySystemComponent (this is commonly paired with "!IsPlayerControlled()") */

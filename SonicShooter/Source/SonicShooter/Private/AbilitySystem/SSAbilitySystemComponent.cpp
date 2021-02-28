@@ -43,7 +43,7 @@ FGameplayAbilitySpecHandle USSAbilitySystemComponent::GrantAbility(TSubclassOf<U
 			{ return Spec.Ability == AbilityToGive; }) == false)
 		{
 			FGameplayAbilitySpecHandle AbilitySpecHandle = GiveAbility(FGameplayAbilitySpec(AbilityToGive, level, static_cast<int32>(inputID), InSourceObject));
-			
+
 			return AbilitySpecHandle;
 		}
 		else
@@ -186,15 +186,15 @@ void USSAbilitySystemComponent::BindAbilityActivationToInputComponent(UInputComp
 	}
 }
 
-/* 
+/*
 										--- Our thought process here that took us few hours to decide what to do ---
 													relates to AAbilitySystemCharacter::BindASCInput()
 	Idk why this what the pourpose is for the first 2 if statements because they never passed even when you pass in the last 2 optional parameters for
 	the FGameplayAbilityInputBinds struct for the BindAbilityActivationToInputComponent() function and put confirm and cancel inputs in the Enum we made.
 	Decided to just not have this function run for confirm and cancel since nothing happens in this function for them. We did this by not including
-	confirm and cancel in the GAS input enum and not setting the optional parameters for the confirm and cancel input IDs for 
+	confirm and cancel in the GAS input enum and not setting the optional parameters for the confirm and cancel input IDs for
 	BindAbilityActivationToInputComponent(). We figure this is the right way to setup the ability system since LocalInputConfirm() and LocalInputCancel()
-	still get called and it prevents an extra call to this function which would have don't nothing anyways. Technically there may be importance to this 
+	still get called and it prevents an extra call to this function which would have don't nothing anyways. Technically there may be importance to this
 	function running for the confirm and cancel inputs since there seems to be some kind of logic in the beginning for them, but Dart does it our way
 	so at least were not the only ones. Dan doesn't do it this way though but we think he should have.
 */
@@ -314,7 +314,7 @@ void USSAbilitySystemComponent::FullReset()
 {
 	//	Stop ASC from doing things
 	DestroyActiveState();
-	
+
 
 	if (IsOwnerActorAuthoritative())
 	{

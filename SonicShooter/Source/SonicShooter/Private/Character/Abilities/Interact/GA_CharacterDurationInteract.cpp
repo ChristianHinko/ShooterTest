@@ -19,6 +19,7 @@ UGA_CharacterDurationInteract::UGA_CharacterDurationInteract()
 
 void UGA_CharacterDurationInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
+	TryCallOnAvatarSetOnPrimaryInstance
 	Super::OnAvatarSet(ActorInfo, Spec);
 }
 

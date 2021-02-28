@@ -178,7 +178,12 @@ void AAbilitySystemCharacter::SetupWithAbilitySystem()
 		if (IsLocallyControlled()) // CLIENT
 		{
 			PlayerAbilitySystemComponent->RefreshAbilityActorInfo();
-			ServerOnSetupWithAbilitySystemCompletedOnOwningClient();
+			//ServerOnSetupWithAbilitySystemCompletedOnOwningClient();
+		}
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
+			GrantNonHandleStartingAbilities();
 		}
 	}
 	else // AI controlled   \/\/

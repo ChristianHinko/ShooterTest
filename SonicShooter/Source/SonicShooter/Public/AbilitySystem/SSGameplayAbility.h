@@ -34,3 +34,14 @@ public:
 	virtual void OnActivationPredictionKeyRejected(); // Not implemented or hooked up yet
 
 };
+
+/** stupid */
+#define TryCallOnAvatarSetOnPrimaryInstance																						\
+if (HasAnyFlags(RF_ClassDefaultObject) && InstancingPolicy != EGameplayAbilityInstancingPolicy::NonInstanced)					\
+{																																\
+	if (UGameplayAbility* PrimaryInstance = Spec.GetPrimaryInstance())															\
+	{																															\
+		PrimaryInstance->OnAvatarSet(ActorInfo, Spec);																			\
+		return;																													\
+	}																															\
+}																																

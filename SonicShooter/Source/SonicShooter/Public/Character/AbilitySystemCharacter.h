@@ -172,24 +172,12 @@ protected:
 
 
 
-
-	/**  */
-	//UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Config")	We may use this later for easy BP editing
-	//	uint8 bDoASCSyncing : 1;
-	/** If true, then when a PLAYER posseses a former AI possesed character, the PLAYER ASC will recieve the abilities that the AI had */
-	UPROPERTY(EditAnywhere, /*meta = (EditCondition = "bDoASCSyncing", EditConditionHides),*/ Category = "AbilitySystemSetup|Config")
-		uint8 bAIToPlayerSyncAbilities : 1;
-	/** If true, then when an AI posseses a former PLAYER possesed character, the AI ASC will recieve the abilities that the PLAYER had */
-	UPROPERTY(EditAnywhere, /*meta = (EditCondition = "bDoASCSyncing", EditConditionHides),*/ Category = "AbilitySystemSetup|Config")
-		uint8 bPlayerToAISyncAbilities : 1;
-
-
 	/** Removes all attribute sets that this Character added to the PlayerState's ASC */
 	int32 UnregisterCharacterOwnedAttributeSets();
 	/** Removes all abilities that this Character added to the PlayerState's ASC */
 	int32 RemoveCharacterOwnedAbilities();
 	/** NOT IMPLEMENTED YET! Removes all tags relating to this specific character from the PlayerState's ASC */
-	void RemoveAllCharacterTags();
+	int32 RemoveAllCharacterTags();
 
 	/** Called on the server and client. Override this to create new AttributeSets using NewObject(). This is if you have more than the default one. (call super in the beginning, then add your own logic) */
 	virtual void CreateAttributeSets();
@@ -217,7 +205,11 @@ protected:
 
 
 private:
-	// only one of these ASC will be active at a time
+	// Only one of these ASC will be active at a time:
+
+	/**
+	 * Points to the PlayerState's ASC
+	 */
 	UPROPERTY(/*Replicated*/)	// Replicated can be helpful for debugging issues
 		USSAbilitySystemComponent* PlayerAbilitySystemComponent;
 	/**
@@ -245,6 +237,9 @@ private:
 	void InitializeAttributes();
 	/** Will apply all effects in EffectsToApplyOnStartup. */
 	void ApplyStartupEffects();
+
+
+	// Internal state bools:
 
 	/** Indicates that we already created attribute sets and registered them, Initialized the attributes, and applied the startup effects */
 	uint8 bCharacterInitialized : 1;

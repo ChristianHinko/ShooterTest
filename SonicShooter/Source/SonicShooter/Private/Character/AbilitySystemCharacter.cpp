@@ -211,7 +211,6 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemPlayerControlled()
 			// This is the first time our setup is being run. So no matter what (even if bAIToPlayerSyncAbilities), grant our starting abilities.
 			// TODO: This is bad! We need a way to do this in ServerOnSetupWithAbilitySystemCompletedOnOwningClient() somehow instead. We need a way to know if we've already granted startup effects or not. And if not, grant them in that RPC rather than here because the Owning Client isnt ready here.
 			GrantStartingAbilities();
-			GrantNonHandleStartingAbilities();
 		}
 
 
@@ -282,7 +281,6 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemAIControlled()
 
 		// This is the first time our setup is being run. So no matter what (even if bPlayerToAISyncAbilities), grant our starting abilities
 		GrantStartingAbilities();
-		GrantNonHandleStartingAbilities();
 
 
 		bCharacterInitialized = true;
@@ -314,7 +312,6 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemAIControlled()
 		{
 			// When posessing this Character grant the ASC our starting abilities. Also since this is an AI we don't need to wait for client to setup before grant abilities.
 			GrantStartingAbilities();	// TODO: problem: if bPlayerToAISyncAbilities is false, the AI's mid-game-earned abilities will not be given. Only the starting abilities will
-			GrantNonHandleStartingAbilities();
 		}
 	}
 
@@ -372,7 +369,6 @@ void AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningCli
 
 		// When posessing this Character grant the ASC our starting abilities
 		GrantStartingAbilities();	// TODO: problem: if bAIToPlayerSyncAbilities is false, the Player's mid-game-earned abilities will not be given. Only the starting abilities will
-		GrantNonHandleStartingAbilities();
 	}
 
 
@@ -527,9 +523,17 @@ bool AAbilitySystemCharacter::GrantStartingAbilities()
 
 
 	// GetLevel() doesn't exist in this template. Will need to implement one if you want a level system
+	// ---------Grant handle starting abilities---------
 	CharacterJumpAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterJumpAbilityTSub, this, EAbilityInputID::Jump/*, GetLevel()*/);
 	CharacterCrouchAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterCrouchAbilityTSub, this, EAbilityInputID::Crouch/*, GetLevel()*/);
 	CharacterRunAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterRunAbilityTSub, this, EAbilityInputID::Run/*, GetLevel()*/);
+
+
+	// ---------Grant non handle starting abilities---------
+	for (int i = 0; i < NonHandleStartingAbilities.Num(); i++)
+	{
+		GetAbilitySystemComponent()->GrantAbility(NonHandleStartingAbilities[i], this, EAbilityInputID::None/*, GetLevel()*/);
+	}
 
 	return true;
 
@@ -543,25 +547,6 @@ bool AAbilitySystemCharacter::GrantStartingAbilities()
 					//	We are on authority and have a valid ASC to work with
 	*/
 	// ------------------------------------------------------------------------------------- //
-}
-
-void AAbilitySystemCharacter::GrantNonHandleStartingAbilities()
-{
-	if (GetLocalRole() < ROLE_Authority)
-	{
-		return;
-	}
-	if (!GetAbilitySystemComponent())
-	{
-		UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Tried to grant NonHandleStartingAbilities on %s but GetAbilitySystemComponent() returned NULL"), *FString(__FUNCTION__), *GetName());
-		return;
-	}
-
-	// GetLevel() doesn't exist in this template. Will need to implement one if you want a level system
-	for (int i = 0; i < NonHandleStartingAbilities.Num(); i++)
-	{
-		GetAbilitySystemComponent()->GrantAbility(NonHandleStartingAbilities[i], this, EAbilityInputID::None/*, GetLevel()*/);
-	}
 }
 #pragma endregion
 

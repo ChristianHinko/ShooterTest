@@ -33,7 +33,7 @@ void AAbilitySystemCharacter::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterJumpAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterCrouchAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterRunAbilitySpecHandle, COND_OwnerOnly);
-	//DOREPLIFETIME(AAbilitySystemCharacter, PlayerAbilitySystemComponent);			//can be helpful for debugging
+	//DOREPLIFETIME(AAbilitySystemCharacter, PlayerAbilitySystemComponent);			// can be helpful for debugging
 }
 
 
@@ -52,10 +52,7 @@ AAbilitySystemCharacter::AAbilitySystemCharacter(const FObjectInitializer& Objec
 	bAIToPlayerSyncAbilities = true;
 	bPlayerToAISyncAbilities = true;
 
-	bCharacterInitialized = false;
-	bASCInputBound = false;
 
-	bShouldHandleAIAbilitySystemSetup = false;
 	AIAbilitySystemComponent = CreateOptionalDefaultSubobject<USSAbilitySystemComponent>(TEXT("AIAbilitySystemComponent"));
 	if (AIAbilitySystemComponent)
 	{
@@ -141,11 +138,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemPlayerControlled()
 		UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Failed to setup Character with GAS on (failed to InitAbilityActorInfo, AddExistingAttributeSets, InitializeAttributes, ApplyStartupEffects, and GrantStartingAbilities). PlayerAbilitySystemComponent was NULL"), *FString(__FUNCTION__));
 		return;
 	}
-	//if (GetAbilitySystemComponent() != PlayerAbilitySystemComponent)	// Check to make sure GetAbilitySystemComponent() returns the same ASC we are now trying to set up and switch to
-	//{
-	//	UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() GetAbilitySystemComponent() not returning PlayerAbilitySystemComponent when a PlayerController just took possesion and is trying to InitAbilityActorInfo() on the character"), *FString(__FUNCTION__));
-	//	return;
-	//}
+
 
 
 	// This must be done on both client and server
@@ -205,7 +198,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemPlayerControlled()
 					PlayerAbilitySystemComponent->RecieveAbilitiesFrom(AIAbilitySystemComponent);
 				}
 
-				// maybe also grant starting abilities here? so we recieve abilities from AI but also ensure we get our starting ones? idk it depends on the game, maybe we should make a config bool for it
+				// Maybe also grant starting abilities here? so we recieve abilities from AI but also ensure we get our starting ones? idk it depends on the game, maybe we should make a config bool for it
 				
 				// TODO: we should have an option to sync tags and active effects and abilities to across ACSs but this sounds really hard
 			}
@@ -242,15 +235,10 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemAIControlled()
 		UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Failed to setup Character with AI GAS setup on (failed to InitAbilityActorInfo, AddExistingAttributeSets, InitializeAttributes, ApplyStartupEffects, and GrantStartingAbilities). AIAbilitySystemComponent was NULL"), *FString(__FUNCTION__));
 		return;
 	}
-	//if (GetAbilitySystemComponent() != AIAbilitySystemComponent)	// Check to make sure GetAbilitySystemComponent() returns the same ASC we are now trying to set up and switch to
-	//{
-	//	UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() GetAbilitySystemComponent() not returning AIAbilitySystemComponent when an AIController just took possesion and is trying to InitAbilityActorInfo() on the character"), *FString(__FUNCTION__));
-	//	return;
-	//}
 
 
 
-	//From my understanding, only needs to be done on server since no player is controlling it
+	// From my understanding, only needs to be done on server since no player is controlling it
 	AIAbilitySystemComponent->InitAbilityActorInfo(this, this);
 
 	if (!bCharacterInitialized)
@@ -290,7 +278,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemAIControlled()
 				AIAbilitySystemComponent->RecieveAbilitiesFrom(PlayerAbilitySystemComponent);
 			}
 
-			// maybe also grant starting abilities here? so we recieve abilities from player but also ensure we get our starting ones? idk it depends on the game, maybe we should make a config bool for it
+			// Maybe also grant starting abilities here? so we recieve abilities from player but also ensure we get our starting ones? idk it depends on the game, maybe we should make a config bool for it
 				
 			// TODO: we should have an option to sync tags and active effects and abilities to across ACSs but this sounds really hard
 		}
@@ -352,7 +340,7 @@ void AAbilitySystemCharacter::CreateAttributeSets()
 
 void AAbilitySystemCharacter::RegisterAttributeSets()
 {
-	// give the ASC the default Character attribute set
+	// Give the ASC the default Character attribute set
 	if (CharacterAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(CharacterAttributeSet))	// If CharacterAttributeSet is valid and it's not yet registered with the Character's ASC
 	{
 		GetAbilitySystemComponent()->AddAttributeSetSubobject(CharacterAttributeSet);
@@ -587,7 +575,7 @@ int32 AAbilitySystemCharacter::UnregisterCharacterOwnedAttributeSets()
 	{
 		if (UAttributeSet* AS = GetAbilitySystemComponent()->GetSpawnedAttributes()[i])
 		{
-			if (AS->GetOwningActor() == this)	// for attribute sets we check the OwningActor since thats what they use. It's also automatically set by the engine so were good
+			if (AS->GetOwningActor() == this) // for attribute sets we check the OwningActor since thats what they use. It's also automatically set by the engine so were good
 			{
 				GetAbilitySystemComponent()->GetSpawnedAttributes_Mutable().RemoveAt(i);
 				retVal++;
@@ -615,7 +603,7 @@ int32 AAbilitySystemCharacter::RemoveCharacterOwnedAbilities()
 	for (int32 i = GetAbilitySystemComponent()->GetActivatableAbilities().Num() - 1; i >= 0; i--)
 	{
 		FGameplayAbilitySpec Spec = GetAbilitySystemComponent()->GetActivatableAbilities()[i];
-		if (Spec.SourceObject == this)	// for abilities we check the SourceObject since thats what they use. SourceObjects are expected to be correct when set on GrantAbility()
+		if (Spec.SourceObject == this) // for abilities we check the SourceObject since thats what they use. SourceObjects are expected to be correct when set on GrantAbility()
 		{
 			GetAbilitySystemComponent()->ClearAbility(Spec.Handle);
 			retVal++;
@@ -627,13 +615,16 @@ int32 AAbilitySystemCharacter::RemoveCharacterOwnedAbilities()
 
 void AAbilitySystemCharacter::RemoveAllCharacterTags()	// Only called on Authority
 {
-	//	Needs implementation. Below I was trying to find a way to get all tags containing a parent of Character.
+	// Needs implementation. Below I was trying to find a way to get all tags containing a parent of Character.
 	//int32 amountFound = GetAbilitySystemComponent()->GetTagCount(FGameplayTag::RequestGameplayTag("Character"));
 }
 
 void AAbilitySystemCharacter::UnPossessed()
 {
-	//this goes before Super so we can get the controller before it unpossess and the character's reference becomes null. If it was null we can't do IsPlayerControlled()
+	// This goes before Super so we can get the controller before it unpossess and the character's reference becomes null. If it was
+	// null we can't do IsPlayerControlled() and GetAbilitySystemComponent() would return the wrong ASC so the functions that we are calling would
+	// probably act really weird and try doing stuff on the wrong ASC
+
 	if (IsPlayerControlled() || (!IsPlayerControlled() && bShouldHandleAIAbilitySystemSetup))	//	If you were a player or were an AI with the AIAbilitySystemComponent subobject
 	{
 		if (bUnregisterAttributeSetsOnUnpossessed)
@@ -649,6 +640,7 @@ void AAbilitySystemCharacter::UnPossessed()
 			RemoveAllCharacterTags();
 		}
 	}
+
 
 	PreviousController = GetController();	// We make sure we set our prev controller right before we unpossess so this is the most reliable previous controller
 	Super::UnPossessed(); // actual unpossession happens here

@@ -220,7 +220,11 @@ protected:
 
 
 private:
-	// only one of these ASC will be active at a time
+	// Only one of these ASC will be active at a time:
+
+	/**
+	 * Points to the PlayerState's ASC
+	 */
 	UPROPERTY(/*Replicated*/)	// Replicated can be helpful for debugging issues
 		USSAbilitySystemComponent* PlayerAbilitySystemComponent;
 	/**
@@ -248,6 +252,9 @@ private:
 	void InitializeAttributes();
 	/** Will apply all effects in EffectsToApplyOnStartup. */
 	void ApplyStartupEffects();
+
+
+	// Internal state bools:
 
 	/** Indicates that we already created attribute sets and registered them, Initialized the attributes, and applied the startup effects */
 	uint8 bCharacterInitialized : 1;

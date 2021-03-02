@@ -173,18 +173,6 @@ protected:
 
 
 
-
-	/**  */
-	//UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Config")	We may use this later for easy BP editing
-	//	uint8 bDoASCSyncing : 1;
-	/** If true, then when a PLAYER posseses a former AI possesed character, the PLAYER ASC will recieve the abilities that the AI had */
-	UPROPERTY(EditAnywhere, /*meta = (EditCondition = "bDoASCSyncing", EditConditionHides),*/ Category = "AbilitySystemSetup|Config")
-		uint8 bAIToPlayerSyncAbilities : 1;
-	/** If true, then when an AI posseses a former PLAYER possesed character, the AI ASC will recieve the abilities that the PLAYER had */
-	UPROPERTY(EditAnywhere, /*meta = (EditCondition = "bDoASCSyncing", EditConditionHides),*/ Category = "AbilitySystemSetup|Config")
-		uint8 bPlayerToAISyncAbilities : 1;
-
-
 	/** Removes all attribute sets that this Character added to the PlayerState's ASC */
 	int32 UnregisterCharacterOwnedAttributeSets();
 	/** Removes all abilities that this Character added to the PlayerState's ASC */

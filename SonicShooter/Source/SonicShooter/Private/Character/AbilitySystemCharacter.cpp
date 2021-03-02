@@ -43,14 +43,11 @@ AAbilitySystemCharacter::AAbilitySystemCharacter(const FObjectInitializer& Objec
 	// Minimal Mode means that no GameplayEffects will replicate. They will only live on the Server. Attributes, GameplayTags, and GameplayCues will still replicate to us.
 	AIAbilitySystemComponentReplicationMode = EGameplayEffectReplicationMode::Minimal;
 	bUnregisterAttributeSetsOnUnpossessed = true;
-	//bRemoveAbilitiesOnUnpossessed = true; // dont do this for the sync abilities thing
+	bRemoveAbilitiesOnUnpossessed = false; // TODO: maybe change this to remove abilities from the ability sync source
 	bRemoveCharacterTagsOnUnpossessed = true;
 
 	// We make the AI always automatically posses us because the AI ASC will be in use before the player possesses us so it only makes sense for there to actually be an AI possessing us.
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-	// Sync our abilities between possesions (making one of these (or both of them) false would be a special case)
-	bAIToPlayerSyncAbilities = true;
-	bPlayerToAISyncAbilities = true;
 
 
 	AIAbilitySystemComponent = CreateOptionalDefaultSubobject<USSAbilitySystemComponent>(TEXT("AIAbilitySystemComponent"));
@@ -160,7 +157,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemPlayerControlled()
 			PlayerAbilitySystemComponent->ForceReplication();
 		}
 
-		PreApplyStartupEffects.Broadcast();	// Good place to bind to Attribute/Tag events, but currently effect replicates to client faster than it can broadcast, so we need to fix this
+		PreApplyStartupEffects.Broadcast();	// good place to bind to Attribute/Tag events, but currently effect replicates to client faster than it can broadcast, so we need to fix this
 
 		if (GetLocalRole() == ROLE_Authority)
 		{
@@ -184,28 +181,18 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemPlayerControlled()
 			PlayerAbilitySystemComponent->ForceReplication();
 		}
 
-		if (GetLocalRole() == ROLE_Authority)
+		if (GetLocalRole() == ROLE_Authority) // Sync abilities between ASCs
 		{
-			if (bAIToPlayerSyncAbilities)
-			{
-				const bool wasPlayer = (PreviousController && PreviousController->IsPlayerController());
-				const bool isPlayer = GetController()->IsPlayerController();
+			const bool wasPlayer = (PreviousController && PreviousController->IsPlayerController());
+			const bool isPlayer = GetController()->IsPlayerController();
 
-				// If we went from AI -> Player
-				if (wasPlayer == false && isPlayer == true)
-				{
-					PlayerAbilitySystemComponent->RecieveAbilitiesFrom(AIAbilitySystemComponent);
-				}
-
-				// Maybe also grant starting abilities here? so we recieve abilities from AI but also ensure we get our starting ones? idk it depends on the game, maybe we should make a config bool for it
-				
-				// TODO: we should have an option to sync tags and active effects and abilities to across ACSs but this sounds really hard
-			}
-			else
+			// If we went from AI -> Player
+			if (wasPlayer == false && isPlayer == true)
 			{
-				// Just grant the standard starting abilities
-				GrantStartingAbilities();	// TODO: problem: if bAIToPlayerSyncAbilities is false, the Player's mid-game-earned abilities will not be given. Only the starting abilities will
+				PlayerAbilitySystemComponent->RecieveAbilitiesFrom(AIAbilitySystemComponent);
 			}
+
+			// TODO: we should have a way to sync tags and active effects and abilities to across ACSs but this sounds really hard
 		}
 	}
 
@@ -264,7 +251,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemAIControlled()
 		AIAbilitySystemComponent->ForceReplication();
 
 
-		if (bPlayerToAISyncAbilities)
+		// Sync abilities between ASCs
 		{
 			const bool wasPlayer = (PreviousController && PreviousController->IsPlayerController());
 			const bool isPlayer = GetController()->IsPlayerController();
@@ -275,14 +262,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemAIControlled()
 				AIAbilitySystemComponent->RecieveAbilitiesFrom(PlayerAbilitySystemComponent);
 			}
 
-			// Maybe also grant starting abilities here? so we recieve abilities from player but also ensure we get our starting ones? idk it depends on the game, maybe we should make a config bool for it
-				
-			// TODO: we should have an option to sync tags and active effects and abilities to across ACSs but this sounds really hard
-		}
-		else
-		{
-			// Just grant the standard starting abilities
-			GrantStartingAbilities();	// TODO: problem: if bPlayerToAISyncAbilities is false, the AI's mid-game-earned abilities will not be given. Only the starting abilities will
+			// TODO: we should have a way to sync tags and active effects and abilities to across ACSs but this sounds really hard
 		}
 	}
 
@@ -497,7 +477,7 @@ void AAbilitySystemCharacter::BindASCInput()
 			)
 		);
 
-		bASCInputBound = true;	// Only run this function only once
+		bASCInputBound = true;	// only run this function only once
 	}
 }
 //----------------------------------------------------------------------------- \/\/\/\/ EVENTS \/\/\/\/ ------------------------

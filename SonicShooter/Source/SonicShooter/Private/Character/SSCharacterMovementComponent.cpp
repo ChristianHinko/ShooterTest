@@ -64,9 +64,10 @@ void USSCharacterMovementComponent::InitializeComponent()
 #pragma region Ability System
 void USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady()
 {
+	UAbilitySystemComponent* OwnerASC = nullptr;
 	if (AbilitySystemCharacterOwner)
 	{
-		OwnerASC = Cast<USSAbilitySystemComponent>(AbilitySystemCharacterOwner->GetAbilitySystemComponent());
+		OwnerASC = AbilitySystemCharacterOwner->GetAbilitySystemComponent();
 		CharacterAttributeSet = AbilitySystemCharacterOwner->GetCharacterAttributeSet();
 	}
 
@@ -430,7 +431,7 @@ void USSCharacterMovementComponent::CheckJumpInput(float DeltaTime) // basically
 			{
 				if (CharacterOwner->bClientUpdating == false)
 				{
-					bDidJump = OwnerASC->TryActivateAbility(AbilitySystemCharacterOwner->CharacterJumpAbilitySpecHandle);
+					bDidJump = AbilitySystemCharacterOwner->GetAbilitySystemComponent()->TryActivateAbility(AbilitySystemCharacterOwner->CharacterJumpAbilitySpecHandle);
 				}
 				else
 				{
@@ -466,7 +467,7 @@ void USSCharacterMovementComponent::ClearJumpInput(float DeltaTime)
 		{
 			if (SSCharacterOwner->bIsJumping)
 			{
-				OwnerASC->CancelAbilityHandle(AbilitySystemCharacterOwner->CharacterJumpAbilitySpecHandle);
+				AbilitySystemCharacterOwner->GetAbilitySystemComponent()->CancelAbilityHandle(AbilitySystemCharacterOwner->CharacterJumpAbilitySpecHandle);
 			}
 		}
 	}
@@ -476,7 +477,7 @@ void USSCharacterMovementComponent::ClearJumpInput(float DeltaTime)
 		CharacterOwner->bWasJumping = false;
 		if (SSCharacterOwner->bIsJumping)
 		{
-			OwnerASC->CancelAbilityHandle(AbilitySystemCharacterOwner->CharacterJumpAbilitySpecHandle);
+			AbilitySystemCharacterOwner->GetAbilitySystemComponent()->CancelAbilityHandle(AbilitySystemCharacterOwner->CharacterJumpAbilitySpecHandle);
 		}
 	}
 }
@@ -489,6 +490,9 @@ void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 	// Proxies get replicated crouch state.
 	if (CharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)
 	{
+		UAbilitySystemComponent* OwnerASC = AbilitySystemCharacterOwner->GetAbilitySystemComponent();
+
+
 		// Check for a change in crouch state. Players toggle crouch by changing bWantsToCrouch.
 		const bool willCrouch = bWantsToCrouch && CanCrouchInCurrentState();
 		if (IsCrouching() && !willCrouch)
@@ -527,6 +531,9 @@ void USSCharacterMovementComponent::UpdateCharacterStateAfterMovement(float Delt
 	// Proxies get replicated crouch state.
 	if (CharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)
 	{
+		UAbilitySystemComponent* OwnerASC = AbilitySystemCharacterOwner->GetAbilitySystemComponent();
+
+
 		// Uncrouch if no longer allowed to be crouched
 		if (IsCrouching() && !CanCrouchInCurrentState())
 		{

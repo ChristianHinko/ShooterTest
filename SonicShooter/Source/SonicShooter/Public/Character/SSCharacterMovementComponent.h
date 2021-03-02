@@ -213,8 +213,6 @@ protected:
 	UPROPERTY()
 		AAbilitySystemCharacter* AbilitySystemCharacterOwner;
 	UPROPERTY()
-		USSAbilitySystemComponent* OwnerASC;
-	UPROPERTY()
 		UAS_Character* CharacterAttributeSet;
 
 	UFUNCTION()

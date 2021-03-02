@@ -13,6 +13,7 @@
 
 UGA_CharacterRun::UGA_CharacterRun()
 {
+	AbilityInputID = EAbilityInputID::Run;
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Movement.Run")));
 
 

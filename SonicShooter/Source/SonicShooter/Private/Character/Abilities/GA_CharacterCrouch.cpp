@@ -13,6 +13,7 @@
 
 UGA_CharacterCrouch::UGA_CharacterCrouch()
 {
+	AbilityInputID = EAbilityInputID::Crouch;
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Movement.Crouch")));
 
 

@@ -9,6 +9,7 @@
 
 UGA_ADS::UGA_ADS()
 {
+	AbilityInputID = EAbilityInputID::SecondaryFire;
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.ADS")));
 
 	TagAimingDownSights = FGameplayTag::RequestGameplayTag(FName("Character.State.IsAimingDownSights"));

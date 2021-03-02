@@ -13,6 +13,7 @@
 
 UGA_CharacterJump::UGA_CharacterJump()
 {
+	AbilityInputID = EAbilityInputID::Jump;
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Movement.Jump")));
 
 

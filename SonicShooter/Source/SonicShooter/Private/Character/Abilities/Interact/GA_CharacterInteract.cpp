@@ -13,7 +13,7 @@
 
 UGA_CharacterInteract::UGA_CharacterInteract()
 {
-
+	AbilityInputID = EAbilityInputID::Interact;
 }
 
 void UGA_CharacterInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)

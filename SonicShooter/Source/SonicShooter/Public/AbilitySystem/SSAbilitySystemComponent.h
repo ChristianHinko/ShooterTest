@@ -77,7 +77,6 @@ public:
 	USSAbilitySystemComponent();
 
 
-
 	FGameplayAbilitySpecHandle GrantAbility(TSubclassOf<UGameplayAbility> NewAbility, UObject* InSourceObject, EAbilityInputID inputID, int32 level = 1);
 
 	/** Gives abilities that an other given ASC has */

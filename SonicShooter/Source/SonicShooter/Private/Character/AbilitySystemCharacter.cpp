@@ -40,15 +40,17 @@ void AAbilitySystemCharacter::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 AAbilitySystemCharacter::AAbilitySystemCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	// Minimal Mode means that no GameplayEffects will replicate. They will only live on the Server. Attributes, GameplayTags, and GameplayCues will still replicate to us.
-	AIAbilitySystemComponentReplicationMode = EGameplayEffectReplicationMode::Minimal;
+	// We make the AI always automatically posses us because the AI ASC will be in use before the player possesses us so it only makes sense for there to actually be an AI possessing us.
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+
 	bUnregisterAttributeSetsOnUnpossessed = true;
 	bRemoveAbilitiesOnUnpossessed = false; // TODO: maybe change this to remove abilities from the ability sync source
 	bRemoveCharacterTagsOnUnpossessed = true;
 
-	// We make the AI always automatically posses us because the AI ASC will be in use before the player possesses us so it only makes sense for there to actually be an AI possessing us.
-	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
+	// Minimal Mode means that no GameplayEffects will replicate. They will only live on the Server. Attributes, GameplayTags, and GameplayCues will still replicate to us.
+	AIAbilitySystemComponentReplicationMode = EGameplayEffectReplicationMode::Minimal;
 
 	AIAbilitySystemComponent = CreateOptionalDefaultSubobject<USSAbilitySystemComponent>(TEXT("AIAbilitySystemComponent"));
 	if (AIAbilitySystemComponent)
@@ -577,10 +579,12 @@ int32 AAbilitySystemCharacter::RemoveCharacterOwnedAbilities()
 	return retVal;
 }
 
-void AAbilitySystemCharacter::RemoveAllCharacterTags()	// Only called on Authority
+int32 AAbilitySystemCharacter::RemoveAllCharacterTags()	// Only called on Authority
 {
 	// Needs implementation. Below I was trying to find a way to get all tags containing a parent of Character.
 	//int32 amountFound = GetAbilitySystemComponent()->GetTagCount(FGameplayTag::RequestGameplayTag("Character"));
+
+	return -1;
 }
 
 void AAbilitySystemCharacter::UnPossessed()

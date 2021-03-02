@@ -178,7 +178,7 @@ protected:
 	/** Removes all abilities that this Character added to the PlayerState's ASC */
 	int32 RemoveCharacterOwnedAbilities();
 	/** NOT IMPLEMENTED YET! Removes all tags relating to this specific character from the PlayerState's ASC */
-	void RemoveAllCharacterTags();
+	int32 RemoveAllCharacterTags();
 
 	/** Called on the server and client. Override this to create new AttributeSets using NewObject(). This is if you have more than the default one. (call super in the beginning, then add your own logic) */
 	virtual void CreateAttributeSets();

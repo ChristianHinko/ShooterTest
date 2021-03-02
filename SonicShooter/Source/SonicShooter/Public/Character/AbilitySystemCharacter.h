@@ -35,8 +35,7 @@ DECLARE_MULTICAST_DELEGATE(FSetupWithAbilitySystemDelegate);
 				You could even have multible GetLevel() functions, one for the character class and one that persists throughtout different characters in the PlayerState.However, if you want a system where you have to level up each ability individually and abilities don't reflect your character or playerstate level, you will have to think of a way to keep track of each individual ability level.
 	3) Abilities
 		- Any Abilities added with its SourceObject being the character will be automatically removed from the ASC (SourceObject is set in GrantAbility()). If you want an ability set to persist between characters make sure you manually set its SourceObject to the PlayerState. (still havn't tested thoroughly but should work)
-		- We've decided on not having a StartingAbilities array, that way we can focus on having a reference to each ability's TSubClassOf and AbilitySpecHandle
-		- If you have a starting ability just override GrantStartingAbilities() and call Super in the beginning, then add your own logic
+		- If you have a starting ability that needs a handle just override GrantStartingAbilities() and call Super in the beginning, then add your own logic
 	4) Attribute Sets
 		- Any AttributeSets owned by this character will be automatically removed from the ASC (owner actor is automatically set by the engine). If you want an attribute set to persist between characters make sure you manually set its owner to the PlayerState. (still haven't tested with non subobject attribute sets)
 		- Subclasses should override RegisterAttributeSets() and call the Super at the beginning if they would like to add more attribute sets than the default pawn one

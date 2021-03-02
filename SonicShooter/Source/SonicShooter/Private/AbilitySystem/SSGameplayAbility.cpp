@@ -19,10 +19,7 @@ USSGameplayAbility::USSGameplayAbility()
 
 void USSGameplayAbility::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-	if (HasAnyFlags(RF_ClassDefaultObject) && InstancingPolicy != EGameplayAbilityInstancingPolicy::NonInstanced)
-	{
-		return;
-	}
+	TryCallOnAvatarSetOnPrimaryInstance
 	Super::OnAvatarSet(ActorInfo, Spec);
 
 	if (ActivateAbilityOnGrant && ActorInfo)

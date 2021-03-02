@@ -28,8 +28,6 @@ void AAbilitySystemCharacter::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 
-	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, bSetupWithAbilitySystemCompletedOnOwningClient, COND_SkipOwner);
-
 	DOREPLIFETIME(AAbilitySystemCharacter, CharacterAttributeSet);
 	DOREPLIFETIME(AAbilitySystemCharacter, HealthAttributeSet);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterJumpAbilitySpecHandle, COND_OwnerOnly);
@@ -79,43 +77,14 @@ void AAbilitySystemCharacter::Tick(float DeltaTime)
 #pragma region Ability System Possess
 USSAbilitySystemComponent* AAbilitySystemCharacter::GetAbilitySystemComponent() const
 {
-	// While SetupWithAbilitySystemPlayerControlled() is running, we want the ASC that is related to our current controller.
-	if (bSetupWithAbilitySystemPlayerControlledRunning)
-	{
-		if (IsPlayerControlled())
-		{
-			return PlayerAbilitySystemComponent;
-		}
-		else // AI controlled
-		{
-			return AIAbilitySystemComponent;
-		}
-	}
-
 	if (IsPlayerControlled())
 	{
-		if (GetLocalRole() == ROLE_Authority || GetLocalRole() == ROLE_SimulatedProxy)
-		{
-			if (bSetupWithAbilitySystemCompletedOnOwningClient)
-			{
-				// We have been told by the owning client that his ability system has been set up. We are ready to use the Player's ASC
-				return PlayerAbilitySystemComponent;
-			}
-
-			// If we got here, the owning client isn't set up with ability system yet, the AI ASC will be temporaily used while we wait.
-			// He will send us the RPC when he is ready. @SEE: ServerOnSetupWithAbilitySystemCompletedOnOwningClient().
-			// If we are ROLE_SimulatedProxy, we are waiting for the server to replicate to us that this character is ready.
-
-			// If we are here, we are waiting on this character's owning client to get set up.
-			return AIAbilitySystemComponent;
-		}
-
-		// We are the owning client (Autonomous Proxy) always return the Player's ASC since we are Player-controlled
 		return PlayerAbilitySystemComponent;
 	}
-
-	// We are an AI because we are not Player-controlled. Return the AI's ASC
-	return AIAbilitySystemComponent;
+	else // AI controlled
+	{
+		return AIAbilitySystemComponent;
+	}
 }
 
 void AAbilitySystemCharacter::PossessedBy(AController* NewController)
@@ -160,9 +129,6 @@ void AAbilitySystemCharacter::OnRep_Controller()
 
 void AAbilitySystemCharacter::SetupWithAbilitySystemPlayerControlled()
 {
-	bSetupWithAbilitySystemPlayerControlledRunning = true;
-
-
 	SSPlayerState = GetPlayerState<ASSPlayerState>();
 	if (!SSPlayerState)
 	{
@@ -209,7 +175,6 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemPlayerControlled()
 			ApplyStartupEffects();
 
 			// This is the first time our setup is being run. So no matter what (even if bAIToPlayerSyncAbilities), grant our starting abilities.
-			// TODO: This is bad! We need a way to do this in ServerOnSetupWithAbilitySystemCompletedOnOwningClient() somehow instead. We need a way to know if we've already granted startup effects or not. And if not, grant them in that RPC rather than here because the Owning Client isnt ready here.
 			GrantStartingAbilities();
 			GrantNonHandleStartingAbilities();
 		}
@@ -226,22 +191,41 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemPlayerControlled()
 			// Must call ForceReplication after registering an attribute set(s)
 			PlayerAbilitySystemComponent->ForceReplication();
 		}
+
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			if (bAIToPlayerSyncAbilities)
+			{
+				const bool wasPlayer = (PreviousController && PreviousController->IsPlayerController());
+				const bool isPlayer = GetController()->IsPlayerController();
+
+				// If we went from AI -> Player
+				if (wasPlayer == false && isPlayer == true)
+				{
+					PlayerAbilitySystemComponent->RecieveAbilitiesFrom(AIAbilitySystemComponent);
+				}
+
+				// maybe also grant starting abilities here? so we recieve abilities from AI but also ensure we get our starting ones? idk it depends on the game, maybe we should make a config bool for it
+				
+				// TODO: we should have an option to sync tags and active effects and abilities to across ACSs but this sounds really hard
+			}
+			else
+			{
+				// Just grant the standard starting abilities
+				GrantStartingAbilities();	// TODO: problem: if bAIToPlayerSyncAbilities is false, the Player's mid-game-earned abilities will not be given. Only the starting abilities will
+				GrantNonHandleStartingAbilities();
+			}
+		}
 	}
 
 	// Refresh ASC Actor Info for clients. Server will be refreshed by its AIController/PlayerController when it possesses a new Actor.
 	if (IsLocallyControlled()) // CLIENT
 	{
 		PlayerAbilitySystemComponent->RefreshAbilityActorInfo();
-
-		// Tell the server to grant our abilities
-		ServerOnSetupWithAbilitySystemCompletedOnOwningClient();
 	}
 
 
 	SetupWithAbilitySystemCompleted.Broadcast();
-
-
-	bSetupWithAbilitySystemPlayerControlledRunning = true;
 }
 void AAbilitySystemCharacter::SetupWithAbilitySystemAIControlled()
 {
@@ -295,8 +279,6 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemAIControlled()
 		AIAbilitySystemComponent->ForceReplication();
 
 
-		// We are granting abilities for this possession:
-
 		if (bPlayerToAISyncAbilities)
 		{
 			const bool wasPlayer = (PreviousController && PreviousController->IsPlayerController());
@@ -309,10 +291,12 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemAIControlled()
 			}
 
 			// maybe also grant starting abilities here? so we recieve abilities from player but also ensure we get our starting ones? idk it depends on the game, maybe we should make a config bool for it
+				
+			// TODO: we should have an option to sync tags and active effects and abilities to across ACSs but this sounds really hard
 		}
 		else
 		{
-			// When posessing this Character grant the ASC our starting abilities. Also since this is an AI we don't need to wait for client to setup before grant abilities.
+			// Just grant the standard starting abilities
 			GrantStartingAbilities();	// TODO: problem: if bPlayerToAISyncAbilities is false, the AI's mid-game-earned abilities will not be given. Only the starting abilities will
 			GrantNonHandleStartingAbilities();
 		}
@@ -323,61 +307,6 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemAIControlled()
 }
 
 #pragma endregion
-
-bool AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningClient_Validate()
-{
-	return true;
-}
-void AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningClient_Implementation()
-{
-	bSetupWithAbilitySystemCompletedOnOwningClient = true;
-	// THIS IS A DANGEROUS EVENT TO USE! This event is client-controlled. If he wanted, he could just never call this and possibly mess something up.
-	// The only reason it is ok for us to use it, is for granting abilities to the Player's ASC. Because if the client did decide to never call this, the AI's ASC would have the abilities granted from before and
-	// will be the one in use (GetAbilitySystemComponent() would return the AI's ASC despite being player-controlled).
-	// The reason we grant the Player's abilities here is because his abilities are broken if you grant the client's abilities before he does his SetupWithAbilitySystem() (because by the time the server replicates the GiveAbility(), the owning client doesn't have his AbilityActorInfo Initted).
-
-	// TODO: we may want an option to sync tags and active effects to across ACSs because if a player delays this RPC call, his ASC could be missing a tag or effect that he should have
-
-
-	// There may be a case where we are somehow AI-controlled at this point (ie. An enemy AI on the server possesses this character while this RPC is being sent).
-	// This would be bad because we would be granting the AI startup abilities a 2nd time.
-	if (IsPlayerControlled() == false) // if we are an AI
-	{
-		return;
-	}
-
-
-	// We are granting abilities that we have been waiting to grant ever since a player controller SetupWithAbilitySystem:
-
-	if (bAIToPlayerSyncAbilities)
-	{
-		const bool wasPlayer = (PreviousController && PreviousController->IsPlayerController());
-		const bool isPlayer = GetController()->IsPlayerController();
-
-		// If we went from AI -> Player
-		if (wasPlayer == false && isPlayer == true)
-		{
-			PlayerAbilitySystemComponent->RecieveAbilitiesFrom(AIAbilitySystemComponent);
-		}
-
-		// maybe also grant starting abilities here? so we recieve abilities from AI but also ensure we get our starting ones? idk it depends on the game, maybe we should make a config bool for it
-	}
-	else
-	{
-		// But GrantStartingAbilities() will grant the abilities to the AI ASC right?
-		// Because bSetupWithAbilitySystemPlayerControlledRunning is false which will make GetAbilitySystemComponent() return the AI's ASC right?
-		// WRONG!!
-		// If you look at the beginning of this RPC, we set bSetupWithAbilitySystemCompletedOnOwningClient to true
-		// meaning GetAbilitySystemComponent() will return the Player's ASC (so long as we are Player-controlled)
-
-		// When posessing this Character grant the ASC our starting abilities
-		GrantStartingAbilities();	// TODO: problem: if bAIToPlayerSyncAbilities is false, the Player's mid-game-earned abilities will not be given. Only the starting abilities will
-		GrantNonHandleStartingAbilities();
-	}
-
-
-	OnServerAknowledgeClientSetupAbilitySystem.Broadcast();
-}
 
 #pragma region ASC Setup Helpers
 void AAbilitySystemCharacter::CreateAttributeSets()

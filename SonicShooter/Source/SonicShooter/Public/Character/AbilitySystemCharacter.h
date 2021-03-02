@@ -89,7 +89,6 @@ public:
 	 * starting abilities aren't granted.
 	 */
 	FSetupWithAbilitySystemDelegate PreApplyStartupEffects;
-	FSetupWithAbilitySystemDelegate OnServerAknowledgeClientSetupAbilitySystem;			// bad idea, server shouldnt have to wait for client
 #pragma endregion
 
 	/** These effects are only applied one time on startup (ie. GE_HealthRegen, GE_StaminaRegen) */
@@ -250,14 +249,6 @@ private:
 	/** Will apply all effects in EffectsToApplyOnStartup. */
 	void ApplyStartupEffects();
 
-	/** Notifies server that the client has his ability system all setup. */
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerOnSetupWithAbilitySystemCompletedOnOwningClient();
-	/** Whether the owning client has his ability system all setup or not. ONLY USED ON SERVER AND SIMULATED PROXIES - always false on owning client (autonomous) since we don't need it */
-	UPROPERTY(Replicated) // replicated from Server -> Simulated Proxies
-		uint8 bSetupWithAbilitySystemCompletedOnOwningClient : 1;
-	/** Only set to true while SetupWithAbiltiySystemPlayerControlled() is running. */
-	uint8 bSetupWithAbilitySystemPlayerControlledRunning : 1;
 	/** Indicates that we already created attribute sets and registered them, Initialized the attributes, and applied the startup effects */
 	uint8 bCharacterInitialized : 1;
 	/** Shows that we already have input binded with the ability system */

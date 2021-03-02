@@ -11,6 +11,7 @@
 
 UGA_Reload::UGA_Reload()
 {
+	AbilityInputID = EAbilityInputID::Reload;
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Reload")));
 }
 

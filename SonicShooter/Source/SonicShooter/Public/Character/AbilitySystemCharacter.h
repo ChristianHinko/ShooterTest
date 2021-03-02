@@ -35,8 +35,7 @@ DECLARE_MULTICAST_DELEGATE(FSetupWithAbilitySystemDelegate);
 				You could even have multible GetLevel() functions, one for the character class and one that persists throughtout different characters in the PlayerState.However, if you want a system where you have to level up each ability individually and abilities don't reflect your character or playerstate level, you will have to think of a way to keep track of each individual ability level.
 	3) Abilities
 		- Any Abilities added with its SourceObject being the character will be automatically removed from the ASC (SourceObject is set in GrantAbility()). If you want an ability set to persist between characters make sure you manually set its SourceObject to the PlayerState. (still havn't tested thoroughly but should work)
-		- We've decided on not having a StartingAbilities array, that way we can focus on having a reference to each ability's TSubClassOf and AbilitySpecHandle
-		- If you have a starting ability just override GrantStartingAbilities() and call Super in the beginning, then add your own logic
+		- If you have a starting ability that needs a handle just override GrantStartingAbilities() and call Super in the beginning, then add your own logic
 	4) Attribute Sets
 		- Any AttributeSets owned by this character will be automatically removed from the ASC (owner actor is automatically set by the engine). If you want an attribute set to persist between characters make sure you manually set its owner to the PlayerState. (still haven't tested with non subobject attribute sets)
 		- Subclasses should override RegisterAttributeSets() and call the Super at the beginning if they would like to add more attribute sets than the default pawn one
@@ -119,7 +118,7 @@ public:
 #pragma endregion
 
 protected:
-	/** Note: No AbilitySpecHandles are tracked upon grant. These are good for passive abilities. These abilities are assigned EAbilityInputID::None */
+	/** Note: No AbilitySpecHandles are tracked upon grant. These abilities must be activated by class or by ability tag. These abilities are assigned EAbilityInputID::None */
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
 		TArray<TSubclassOf<USSGameplayAbility>> NonHandleStartingAbilities;
 
@@ -184,8 +183,6 @@ protected:
 	virtual void CreateAttributeSets();
 	/** Called on the server and client. Override this to register your created AttributeSets (from CreateAttributeSets()) with the ASC. This is if you have more than the default one. (call super in the beginning, then add your own logic) */
 	virtual void RegisterAttributeSets();
-	/*  Grant abilities from NonHandleStartingAbilities. These are good for passive abilities that don't need to be referenced later. They are granted and do not give back an AbilitySpecHandle. */
-	void GrantNonHandleStartingAbilities();
 	/** Called only on server. This is the earliest place you can grant an ability. (If overriding, return false if the Super returnes false, then add your own logic) */
 	virtual bool GrantStartingAbilities();
 

@@ -426,15 +426,15 @@ bool AAbilitySystemCharacter::GrantStartingAbilities()
 
 	// GetLevel() doesn't exist in this template. Will need to implement one if you want a level system
 	// ---------Grant handle starting abilities---------
-	CharacterJumpAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterJumpAbilityTSub, this, EAbilityInputID::Jump/*, GetLevel()*/);
-	CharacterCrouchAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterCrouchAbilityTSub, this, EAbilityInputID::Crouch/*, GetLevel()*/);
-	CharacterRunAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterRunAbilityTSub, this, EAbilityInputID::Run/*, GetLevel()*/);
+	CharacterJumpAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterJumpAbilityTSub, this, CharacterJumpAbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
+	CharacterCrouchAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterCrouchAbilityTSub, this, CharacterCrouchAbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
+	CharacterRunAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterRunAbilityTSub, this, CharacterRunAbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
 
 
 	// ---------Grant non handle starting abilities---------
 	for (int i = 0; i < NonHandleStartingAbilities.Num(); i++)
 	{
-		GetAbilitySystemComponent()->GrantAbility(NonHandleStartingAbilities[i], this, EAbilityInputID::None/*, GetLevel()*/);
+		GetAbilitySystemComponent()->GrantAbility(NonHandleStartingAbilities[i], this, NonHandleStartingAbilities[i].GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
 	}
 
 	return true;

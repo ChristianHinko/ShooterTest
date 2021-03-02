@@ -16,6 +16,7 @@
 
 UGA_DropItem::UGA_DropItem()
 {
+	AbilityInputID = EAbilityInputID::DropItem;
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Inventory.DropItem")));
 }
 

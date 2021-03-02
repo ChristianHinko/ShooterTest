@@ -10,6 +10,7 @@
 
 USSGameplayAbility::USSGameplayAbility()
 {
+	AbilityInputID = EAbilityInputID::None;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	bServerRespectsRemoteAbilityCancellation = false;

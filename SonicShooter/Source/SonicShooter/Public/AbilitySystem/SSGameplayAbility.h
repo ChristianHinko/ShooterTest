@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+#include "AbilitySystem/SSAbilitySystemComponent.h"
 
 #include "SSGameplayAbility.generated.h"
 
@@ -18,6 +19,11 @@ class SONICSHOOTER_API USSGameplayAbility : public UGameplayAbility
 	GENERATED_BODY()
 	
 public:
+
+	// Every gameplay ability must have this set to something in their constructor so we know what input id to give the ability when we grant it. If the ability doesn't have an input associated with it, it can be left as None.
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+		EAbilityInputID AbilityInputID;
+
 	bool ActivateAbilityOnGrant = false;
 	USSGameplayAbility();
 

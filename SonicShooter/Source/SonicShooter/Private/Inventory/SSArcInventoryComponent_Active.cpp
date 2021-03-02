@@ -27,6 +27,13 @@ bool USSArcInventoryComponent_Active::IsActiveItemSlotIndexValid(int32 InActiveI
 	return true;
 }
 
+void USSArcInventoryComponent_Active::ClientRecieveStartingActiveItemHistoryArray_Implementation(const TArray<FArcInventoryItemSlotReference>& ServerActiveItemHistoryArr)
+{
+	ActiveItemHistory = ServerActiveItemHistoryArr;
+	bStartupItemsGiven = true;	// Since this bool is not replicated we must set it now since we just rpced to the client
+}
+
+
 void USSArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
 {
 	if (!bStartupItemsGiven)

@@ -25,9 +25,19 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 		bool IsActiveItemSlotIndexValid(int32 InActiveItemSlot);
 
+	
+
+
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 		int32 maxItemHistoryBufferSize;
 	TArray<FArcInventoryItemSlotReference> ActiveItemHistory;
+
+	// This is the only time we sync the client and server ActiveItemHistory array. The very start of the game.
+	UFUNCTION(Client, Reliable)
+		void ClientRecieveStartingActiveItemHistoryArray(const TArray<FArcInventoryItemSlotReference>& ServerActiveItemHistoryArr);
+
+
+
 	
 	virtual void OnItemEquipped(class UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack) override;
 

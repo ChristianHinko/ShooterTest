@@ -4,6 +4,7 @@
 #include "Character/ShooterCharacter.h"
 
 #include "Net/UnrealNetwork.h"
+#include "Utilities/LogCategories.h"
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
 #include "ActorComponents/InteractorComponent.h"
@@ -47,6 +48,22 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 	AddedCameraSwayDuringADS = FVector(0, -1.1f, -.1f);
 }
 
+void AShooterCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+		if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy)	// No point of doing a client RPC if no client is controlling it (ie. this is an AI)
+		{
+			if (SSInventoryComponentActive)
+			{
+				SSInventoryComponentActive->ClientRecieveStartingActiveItemHistoryArray(SSInventoryComponentActive->ActiveItemHistory);
+			}
+			else
+			{
+				UE_LOG(LogArcInventorySetup, Error, TEXT("%s() Failed to call ClientRecieveStartingActiveItemHistoryArray RPC. Item history array is not in sync!"), *FString(__FUNCTION__));
+			}
+		}
+}
 
 void AShooterCharacter::BeginPlay()
 {
@@ -137,7 +154,7 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 	//UKismetSystemLibrary::PrintString(this, "------------", true, false);
 	//if (SSInventoryComponentActive)
 	//{
-	//	for (FArcInventoryItemSlotReference slotRef : SSInventoryComponentActive->ItemHistory)
+	//	for (FArcInventoryItemSlotReference slotRef : SSInventoryComponentActive->ActiveItemHistory)
 	//	{
 	//		UKismetSystemLibrary::PrintString(this, UArcItemBPFunctionLibrary::GetItemFromSlot(slotRef)->GetItemDefinition().GetDefaultObject()->GetFName().ToString(), true, false);
 

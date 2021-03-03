@@ -40,7 +40,7 @@ void AAbilitySystemCharacter::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 AAbilitySystemCharacter::AAbilitySystemCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	// We make the AI always automatically posses us because the AI ASC will be in use before the player possesses us so it only makes sense for there to actually be an AI possessing us.
+	// We make the AI always automatically posses us because the AI ASC will be in use before the Player possesses us so we sould have the SetupWithAbilitySystemAIControlled() run so the ASC can be used.
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 
@@ -102,7 +102,7 @@ void AAbilitySystemCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	// Make sure its not when unpossessing (when unpossessed player state is null)
+	// Make sure its not when unpossessing (when unpossessed Player State is null)
 	if (GetPlayerState())
 	{
 		if (IsPlayerControlled())
@@ -128,7 +128,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemPlayerControlled()
 	SSPlayerState = GetPlayerState<ASSPlayerState>();
 	if (!SSPlayerState)
 	{
-		UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Failed to setup Character with GAS on (failed to InitAbilityActorInfo, AddExistingAttributeSets, InitializeAttributes, ApplyStartupEffects, and GrantStartingAbilities). Character's player state is not an ASSPlayerState (Cast failed)"), *FString(__FUNCTION__));
+		UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Failed to setup Character with GAS on (failed to InitAbilityActorInfo, AddExistingAttributeSets, InitializeAttributes, ApplyStartupEffects, and GrantStartingAbilities). Character's Player State is not an ASSPlayerState (Cast failed)"), *FString(__FUNCTION__));
 		return;
 	}
 	PlayerAbilitySystemComponent = SSPlayerState->GetAbilitySystemComponent();
@@ -143,7 +143,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemPlayerControlled()
 	// This must be done on both client and server
 	PlayerAbilitySystemComponent->InitAbilityActorInfo(SSPlayerState, this);
 
-	// Bind player input to the AbilitySystemComponent. Also called in SetupPlayerInputComponent because of a potential race condition.
+	// Bind Player input to the AbilitySystemComponent. Also called in SetupPlayerInputComponent because of a potential race condition.
 	BindASCInput();
 
 	if (!bCharacterInitialized)
@@ -175,7 +175,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemPlayerControlled()
 	}
 	else    // If something is posessing this Character a second time
 	{
-		// Just register this Character's already-created attribute sets with the player's ASC
+		// Just register this Character's already-created attribute sets with the Player's ASC
 		RegisterAttributeSets();
 		if (GetLocalRole() == ROLE_Authority)
 		{
@@ -232,7 +232,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemAIControlled()
 
 
 
-	// From my understanding, only needs to be done on server since no player is controlling it
+	// From my understanding, only needs to be done on server since no Player is controlling it
 	AIAbilitySystemComponent->InitAbilityActorInfo(this, this);
 
 	if (!bCharacterInitialized)
@@ -254,7 +254,7 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemAIControlled()
 	}
 	else    // If something is posessing this Character a second time
 	{
-		// Just register this Character's already-created attribute sets with the player's ASC
+		// Just register this Character's already-created attribute sets with the Player's ASC
 		RegisterAttributeSets();
 		// Must call ForceReplication after registering an attribute set(s)
 		AIAbilitySystemComponent->ForceReplication();
@@ -469,7 +469,7 @@ void AAbilitySystemCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("CancelTarget", IE_Pressed, this, &AAbilitySystemCharacter::OnCancelTargetPressed);
 	PlayerInputComponent->BindAction("CancelTarget", IE_Released, this, &AAbilitySystemCharacter::OnCancelTargetReleased);
 
-	// Bind player input to the AbilitySystemComponent. Also called in OnRep_PlayerState because of a potential race condition.
+	// Bind Player input to the AbilitySystemComponent. Also called in OnRep_PlayerState because of a potential race condition.
 	BindASCInput();
 }
 
@@ -604,7 +604,7 @@ void AAbilitySystemCharacter::UnPossessed()
 	// null we can't do IsPlayerControlled() and GetAbilitySystemComponent() would return the wrong ASC so the functions that we are calling would
 	// probably act really weird and try doing stuff on the wrong ASC
 
-	if (IsPlayerControlled() || (!IsPlayerControlled() && bShouldHandleAIAbilitySystemSetup))	//	If you were a player or were an AI with the AIAbilitySystemComponent subobject
+	if (IsPlayerControlled() || (!IsPlayerControlled() && bShouldHandleAIAbilitySystemSetup))	//	If you were a Player or were an AI with the AIAbilitySystemComponent subobject
 	{
 		if (bUnregisterAttributeSetsOnUnpossessed)
 		{
@@ -632,7 +632,7 @@ void AAbilitySystemCharacter::UnPossessed()
 
 
 	PreviousController = GetController();	// we make sure we set our prev controller right before we unpossess so this is the most reliable previous controller
-	if (IsPlayerControlled()/* || GetPlayerState()->IsABot()*/) // should we be checking if we have a player state bot whenever we want to use the Player ASC
+	if (IsPlayerControlled()/* || GetPlayerState()->IsABot()*/) // should we be checking if we have a Player State bot whenever we want to use the Player ASC
 	{
 		PreviousPlayerASC = PlayerAbilitySystemComponent; // make sure we set previous ASC right before unpossess
 	}

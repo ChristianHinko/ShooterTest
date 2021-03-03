@@ -24,7 +24,7 @@ DECLARE_MULTICAST_DELEGATE(FSetupWithAbilitySystemDelegate);
 
 /**
  * A Base GAS class
- * Note: This was designed to be as flexable as possible for things regarding unpossesion/reposession of this character. Having the ASC on the playerstate can make unpossesion and repossesion a pain
+ * Note: This was designed to be as flexable as possible for things regarding unpossesion/reposession of this character. Having the ASC on the PlayerState can make unpossesion and repossesion a pain
  * since granted abilities and attribute sets exist on the PlayerState's ASC (because the character doesn't have one unless it's an AI). To make this less painful, some useful bools were implemented:
  * bUnregisterAttributeSetsOnUnpossessed, bRemoveAbilitiesOnUnpossessed, and bRemoveCharacterTagsOnUnpossessed.
  Some tips:
@@ -32,7 +32,7 @@ DECLARE_MULTICAST_DELEGATE(FSetupWithAbilitySystemDelegate);
 		- Removes Character owned Abilities and AttributeSets
 	2) Levels
 		- Always passed in as 1 because this template does not come with a level system. GetLevel() is what you should make if your wanting a level system. This is commented out at all places where the level is passed in. As to where you should make your GetLevel() function, idk.
-				You could even have multible GetLevel() functions, one for the character class and one that persists throughtout different characters in the PlayerState.However, if you want a system where you have to level up each ability individually and abilities don't reflect your character or playerstate level, you will have to think of a way to keep track of each individual ability level.
+				You could even have multible GetLevel() functions, one for the character class and one that persists throughtout different characters in the PlayerState.However, if you want a system where you have to level up each ability individually and abilities don't reflect your character or PlayerState level, you will have to think of a way to keep track of each individual ability level.
 	3) Abilities
 		- Any Abilities added with its SourceObject being the character will be automatically removed from the ASC (SourceObject is set in GrantAbility()). If you want an ability set to persist between characters make sure you manually set its SourceObject to the PlayerState. (still havn't tested thoroughly but should work)
 		- If you have a starting ability that needs a handle just override GrantStartingAbilities() and call Super in the beginning, then add your own logic
@@ -43,8 +43,8 @@ DECLARE_MULTICAST_DELEGATE(FSetupWithAbilitySystemDelegate);
 		- Every character should initialize their attributes through the DefaultAttributeValuesEffect GameplayEffectTSub in BP.
 		- Any gameplay effects that this character should have on spawn should be filled in in the EffectsToApplyOnStartup TArray in BP. (ie. GE_HealthRegen or GE_StaminaRegen)
 	5) Gmeplay Tags		=@REVIEW MARKER@=
-		- Right now I have a setup for it calling RemoveAllCharacterTags() to remove any character tags from the player's ASC on Unpossess if bRemoveCharacterTagsOnUnpossessed is set to true, but the function is NOT implemented.
-				There is no way of determining what tags to take off of the player's ASC when unpossessing/destroying this character which is why it is not implemented. If we can figure out a way to give an owner to
+		- Right now I have a setup for it calling RemoveAllCharacterTags() to remove any character tags from the Player's ASC on Unpossess if bRemoveCharacterTagsOnUnpossessed is set to true, but the function is NOT implemented.
+				There is no way of determining what tags to take off of the Player's ASC when unpossessing/destroying this character which is why it is not implemented. If we can figure out a way to give an owner to
 				specific tags without putting them on the actually actor, then this should be easily possible. You could implement it by removing all tags from the ASC that has a parent of "Character" so we know all
 				the "Character" tags will get removed on unpossess, but that removes some flexability for organization with gameplay tags. Havn't thought of a better way though. If you really feel you need this feature
 				implemented somehow, it might be better to just make a new GAS setup with the ASC on the character class.
@@ -61,7 +61,7 @@ DECLARE_MULTICAST_DELEGATE(FSetupWithAbilitySystemDelegate);
 		- Have a different attribute set for every character and avoid inheriting attributes from a parent attribute set
 	2) If you unpossess a character and unregister his attribute sets, his attributes are no longer associated with an ASC
 		- Don't apply effects to characters that have unregistered attribute sets (it will crash)
-			-(Possible future solution: have the AIAbilitySystemComponent take over when a player unpossesses a character and unregisters its attributes and register those attribute sets with the AI ASC)
+			-(Possible future solution: have the AIAbilitySystemComponent take over when a Player unpossesses a character and unregisters its attributes and register those attribute sets with the AI ASC)
 			-(Possible work around: have an AI controller possess the unpossessed character which will call SetUpWithAbilitySystem for the AIAbilitySystemComponent and register those attribute with the AI ASC)
 */
 UCLASS()
@@ -153,7 +153,7 @@ protected:
 
 
 	/**
-	 * Takes this object's AttributeSet(s) away from the player's ASC. This is on by default to prevent the potential problem of the ASC having 2 attribute sets of the same class.
+	 * Takes this object's AttributeSet(s) away from the Player's ASC. This is on by default to prevent the potential problem of the ASC having 2 attribute sets of the same class.
 	 * However if the ASC no longer has this object's AttributeSet, GameplayEffects can no longet modify their attributes.
 	 */
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Config")
@@ -213,8 +213,8 @@ private:
 	UPROPERTY(/*Replicated*/)	// Replicated can be helpful for debugging issues
 		USSAbilitySystemComponent* PlayerAbilitySystemComponent;
 	/**
-	 * This is used if an AIController is posessing. However, it is also used as a placeholder ASC for before the player possesses this character (so we can give abilities and stuff).
-	 * These abilities will be transfered from this ASC to the player's (this allows us to give abilities early on)
+	 * This is used if an AIController is posessing. However, it is also used as a placeholder ASC for before the Player possesses this character (so we can give abilities and stuff).
+	 * These abilities will be transfered from this ASC to the Player's (this allows us to give abilities early on)
 	 */
 	UPROPERTY()
 		USSAbilitySystemComponent* AIAbilitySystemComponent;
@@ -231,7 +231,7 @@ private:
 		UAS_Health* HealthAttributeSet;
 
 
-	/** The function that hooks this Character to the ASC when it's a player controller. Calls most functions in this base Character class */
+	/** The function that hooks this Character to the ASC when it's a Player Controller. Calls most functions in this base Character class */
 	void SetupWithAbilitySystemPlayerControlled();
 	/** The function that hooks this Character to the ASC when its an AI controller. Calls most functions in this base Character class */
 	void SetupWithAbilitySystemAIControlled();

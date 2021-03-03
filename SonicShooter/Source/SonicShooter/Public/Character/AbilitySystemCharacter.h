@@ -240,6 +240,8 @@ private:
 	/** Will apply all effects in EffectsToApplyOnStartup. */
 	void ApplyStartupEffects();
 
+	TArray<FGameplayAbilitySpec> PendingAbilitiesToSync;
+
 
 	// Internal state bools:
 

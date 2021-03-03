@@ -32,6 +32,7 @@ FGameplayAbilitySpecHandle USSAbilitySystemComponent::GrantAbility(TSubclassOf<U
 {
 	if (IsOwnerActorAuthoritative() == false)
 	{
+		UE_LOG(LogAbilitySystemSetup, Warning, TEXT("%s() called without Authority. Did nothing and returned empty spec handle"), *FString(__FUNCTION__));
 		return FGameplayAbilitySpecHandle();
 	}
 
@@ -53,13 +54,37 @@ FGameplayAbilitySpecHandle USSAbilitySystemComponent::GrantAbility(TSubclassOf<U
 	}
 	else
 	{
-		UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Could'nt grant ability. NewAbility was null"), *FString(__FUNCTION__));
+		UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Couldn't grant ability. NewAbility was null"), *FString(__FUNCTION__));
 	}
 	return FGameplayAbilitySpecHandle();
 }
 
+void USSAbilitySystemComponent::GrantAbilities(TArray<FGameplayAbilitySpec> Abilities)
+{
+	if (IsOwnerActorAuthoritative() == false)
+	{
+		UE_LOG(LogAbilitySystemSetup, Warning, TEXT("%s() called without Authority. Did nothing"), *FString(__FUNCTION__));
+		return;
+	}
+
+	for (FGameplayAbilitySpec SpecToGive : Abilities)
+	{
+		if (GetActivatableAbilities().ContainsByPredicate([&SpecToGive](const FGameplayAbilitySpec& Spec)
+			{ return Spec.Ability == SpecToGive.Ability; }) == false)
+		{
+			GiveAbility(SpecToGive);
+		}
+	}
+}
+
 void USSAbilitySystemComponent::RecieveAbilitiesFrom(UAbilitySystemComponent* From)
 {
+	if (IsOwnerActorAuthoritative() == false)
+	{
+		UE_LOG(LogAbilitySystemSetup, Warning, TEXT("%s() called without Authority. Did nothing"), *FString(__FUNCTION__));
+		return;
+	}
+
 	for (FGameplayAbilitySpec SpecToGive : From->GetActivatableAbilities())
 	{
 		if (GetActivatableAbilities().ContainsByPredicate([&SpecToGive](const FGameplayAbilitySpec& Spec)

@@ -45,8 +45,8 @@ AAbilitySystemCharacter::AAbilitySystemCharacter(const FObjectInitializer& Objec
 
 
 	bUnregisterAttributeSetsOnUnpossessed = true;
-	bRemoveAbilitiesOnUnpossessed = false; // TODO: maybe change this to remove abilities from the ability sync source
 	bRemoveCharacterTagsOnUnpossessed = true;
+	bRemoveAbilitiesOnUnpossessed = true;
 
 
 	// Minimal Mode means that no GameplayEffects will replicate. They will only live on the Server. Attributes, GameplayTags, and GameplayCues will still replicate to us.
@@ -191,12 +191,15 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemPlayerControlled()
 			// If we went from AI -> Player
 			if (wasPlayer == false && isPlayer == true)
 			{
-				PlayerAbilitySystemComponent->RecieveAbilitiesFrom(AIAbilitySystemComponent);
+				//PlayerAbilitySystemComponent->RecieveAbilitiesFrom(AIAbilitySystemComponent);
+				PlayerAbilitySystemComponent->GrantAbilities(PendingAbilitiesToSync);
+				PendingAbilitiesToSync.Empty();
 			}
-			//else // we went from Player -> Player // TODO: finish this
-			//{
-			//	PlayerAbilitySystemComponent->RecieveAbilitiesFrom(PreviousPlayerASC);
-			//}
+			else // we went from Player -> Player // THIS IS NOT COMPLETELY WORKING YET
+			{
+				PlayerAbilitySystemComponent->GrantAbilities(PendingAbilitiesToSync);
+				PendingAbilitiesToSync.Empty();
+			}
 
 			// TODO: we should have a way to sync tags and active effects and abilities to across ACSs but this sounds really hard
 		}
@@ -265,7 +268,9 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemAIControlled()
 			// If we went from Player -> AI
 			if (wasPlayer == true && isPlayer == false)
 			{
-				AIAbilitySystemComponent->RecieveAbilitiesFrom(PlayerAbilitySystemComponent);
+				//AIAbilitySystemComponent->RecieveAbilitiesFrom(PlayerAbilitySystemComponent);
+				AIAbilitySystemComponent->GrantAbilities(PendingAbilitiesToSync);
+				PendingAbilitiesToSync.Empty();
 			}
 
 			// TODO: we should have a way to sync tags and active effects and abilities to across ACSs but this sounds really hard
@@ -593,6 +598,8 @@ int32 AAbilitySystemCharacter::RemoveAllCharacterTags()	// Only called on Author
 
 void AAbilitySystemCharacter::UnPossessed()
 {
+	PendingAbilitiesToSync = GetAbilitySystemComponent()->GetActivatableAbilities();
+
 	// This goes before Super so we can get the controller before it unpossess and the character's reference becomes null. If it was
 	// null we can't do IsPlayerControlled() and GetAbilitySystemComponent() would return the wrong ASC so the functions that we are calling would
 	// probably act really weird and try doing stuff on the wrong ASC
@@ -606,6 +613,16 @@ void AAbilitySystemCharacter::UnPossessed()
 		if (bRemoveAbilitiesOnUnpossessed)
 		{
 			RemoveCharacterOwnedAbilities();
+			for (int i = 0; i < PendingAbilitiesToSync.Num(); ++i)
+			{
+				FGameplayAbilitySpec* Spec = &PendingAbilitiesToSync[i];
+				Spec->NonReplicatedInstances.Empty();
+				Spec->ReplicatedInstances.Empty();
+				Spec->ActiveCount = 0;
+				//Spec->PendingRemove = false; // maybe not actually?
+
+				//GetAbilitySystemComponent()->ClearAbility(Spec->Handle);
+			}
 		}
 		if (bRemoveCharacterTagsOnUnpossessed)
 		{

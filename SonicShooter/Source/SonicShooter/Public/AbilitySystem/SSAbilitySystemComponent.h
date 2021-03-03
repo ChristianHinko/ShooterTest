@@ -25,43 +25,47 @@ class USSGameplayAbility;
 UENUM()
 enum class EAbilityInputID : uint8
 {
-	// 0 None
-	None				UMETA(DisplayName = "None"),
-	// 1 Jump
+	// 0
+	// This means the ability implementor forgot to set an AbilityInputId in their ability's constructor
+	Unset				UMETA(DisplayName = "Unset"),
+	// 1
+	// This means the ability is triggered without input (probably gameplay code)
+	NoInput				UMETA(DisplayName = "NoInput"),
+	// 2
 	Jump				UMETA(DisplayName = "Jump"),
-	// 2 Interact
+	// 3
 	Interact			UMETA(DisplayName = "Interact"),
-	// 3 Run
-	Run					UMETA(DisplayName = "Sprint"),
-	// 4 PrimaryFire
+	// 4
+	Run					UMETA(DisplayName = "Run"),
+	// 5
 	PrimaryFire			UMETA(DisplayName = "Primary Fire"),
-	// 5 SecondaryFire
+	// 6
 	SecondaryFire		UMETA(DisplayName = "Secondary Fire"),
-	// 6 Reload
+	// 7
 	Reload				UMETA(DisplayName = "Reload"),
-	// 7 Crouch
+	// 8
 	Crouch				UMETA(DisplayName = "Crouch"),
-	// 8 Switch Weapon
+	// 9
 	SwitchWeapon		UMETA(DisplayName = "Switch Weapon"),
-	// 9 Item0
+	// 10
 	Item0				UMETA(DisplayName = "Item0"),
-	// 10 Item1
+	// 11
 	Item1				UMETA(DisplayName = "Item1"),
-	// 11 Item2
+	// 12
 	Item2				UMETA(DisplayName = "Item2"),
-	// 12 Item3
+	// 13
 	Item3				UMETA(DisplayName = "Item3"),
-	// 13 Item4
+	// 14
 	Item4				UMETA(DisplayName = "Item4"),
-	// 14 NextItem
+	// 15
 	NextItem			UMETA(DisplayName = "NextItem"),
-	// 15 PreviousItem
+	// 16
 	PreviousItem		UMETA(DisplayName = "PreviousItem"),
-	// 16 Pause
+	// 17
 	Pause				UMETA(DisplayName = "Pause"),
-	// 17 ScoreSheet
+	// 18
 	ScoreSheet			UMETA(DisplayName = "ScoreSheet"),
-	// 18 DropItem
+	// 19
 	DropItem			UMETA(DisplayName = "DropItem")
 };
 

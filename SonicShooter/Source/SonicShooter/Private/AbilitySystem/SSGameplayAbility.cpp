@@ -10,7 +10,7 @@
 
 USSGameplayAbility::USSGameplayAbility()
 {
-	AbilityInputID = EAbilityInputID::None;
+	AbilityInputID = EAbilityInputID::Unset;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	bServerRespectsRemoteAbilityCancellation = false;
@@ -20,6 +20,11 @@ USSGameplayAbility::USSGameplayAbility()
 
 void USSGameplayAbility::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
+	if (AbilityInputID == EAbilityInputID::Unset)
+	{
+		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s()  Ability implementor forgot to set an AbilityInputID in the ability's constructor. Go back and set it so our grant ability calls know what input id to give it"), *FString(__FUNCTION__));
+	}
+
 	TryCallOnAvatarSetOnPrimaryInstance
 	Super::OnAvatarSet(ActorInfo, Spec);
 

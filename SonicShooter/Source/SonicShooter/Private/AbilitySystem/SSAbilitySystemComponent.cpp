@@ -65,6 +65,7 @@ void USSAbilitySystemComponent::RecieveAbilitiesFrom(UAbilitySystemComponent* Fr
 		if (GetActivatableAbilities().ContainsByPredicate([&SpecToGive](const FGameplayAbilitySpec& Spec)
 			{ return Spec.Ability == SpecToGive.Ability; }) == false)
 		{
+			//SpecToGive.ActiveCount = 0; // maybe
 			GiveAbility(SpecToGive);
 		}
 	}

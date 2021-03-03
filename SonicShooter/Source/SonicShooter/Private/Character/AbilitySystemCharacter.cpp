@@ -193,6 +193,10 @@ void AAbilitySystemCharacter::SetupWithAbilitySystemPlayerControlled()
 			{
 				PlayerAbilitySystemComponent->RecieveAbilitiesFrom(AIAbilitySystemComponent);
 			}
+			//else // we went from Player -> Player // TODO: finish this
+			//{
+			//	PlayerAbilitySystemComponent->RecieveAbilitiesFrom(PreviousPlayerASC);
+			//}
 
 			// TODO: we should have a way to sync tags and active effects and abilities to across ACSs but this sounds really hard
 		}
@@ -610,7 +614,12 @@ void AAbilitySystemCharacter::UnPossessed()
 	}
 
 
-	PreviousController = GetController();	// We make sure we set our prev controller right before we unpossess so this is the most reliable previous controller
+	PreviousController = GetController();	// we make sure we set our prev controller right before we unpossess so this is the most reliable previous controller
+	if (IsPlayerControlled()/* || GetPlayerState()->IsABot()*/) // should we be checking if we have a player state bot whenever we want to use the Player ASC
+	{
+		PreviousPlayerASC = PlayerAbilitySystemComponent; // make sure we set previous ASC right before unpossess
+	}
+
 	Super::UnPossessed(); // actual unpossession happens here
 
 

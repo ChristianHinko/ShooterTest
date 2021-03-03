@@ -221,6 +221,8 @@ private:
 
 	UPROPERTY()
 		AController* PreviousController;
+	UPROPERTY()
+		USSAbilitySystemComponent* PreviousPlayerASC;
 
 	/** Every character will have this attribute set. This is useful because this gives you a place for common attributes that every character should have. Children can make another attribute set specific to their character (ie. UAS_Demoman, UAS_Ganondorf) */
 	UPROPERTY(Replicated)

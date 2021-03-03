@@ -119,8 +119,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
 		FVector AddedCameraSwayDuringADS;
 
-	virtual void UnPossessed() override;
-
 	// BEGIN APawn Interface
 	virtual void PossessedBy(AController* NewController) override;
 	// END APawn Interface

@@ -96,18 +96,6 @@ bool AShooterCharacter::GrantStartingAbilities()
 	return true;
 }
 
-void AShooterCharacter::UnPossessed()
-{
-	Super::UnPossessed();
-
-
-	if (USSArcInventoryComponent_Active* Inventory = SSInventoryComponentActive)
-	{
-		// Clear ability system stuff from inventory for this ASC
-		Inventory->MakeItemInactive();
-	}
-}
-
 #include "Kismet/KismetSystemLibrary.h"
 #include "AbilitySystem/AttributeSets/AS_Health.h"
 #include "Item/AS_Ammo.h"

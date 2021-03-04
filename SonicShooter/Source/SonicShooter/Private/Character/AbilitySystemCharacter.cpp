@@ -41,10 +41,11 @@ AAbilitySystemCharacter::AAbilitySystemCharacter(const FObjectInitializer& Objec
 	: Super(ObjectInitializer)
 {
 	// We make the AI always automatically posses us because the AI ASC will be in use before the Player possesses us so we sould have the SetupWithAbilitySystemAIControlled() run so the ASC can be used.
-	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+	// But we're not doing this because its hard to transfer ASC state to another. We don't need this feature right now
+	//AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 
-	bUnregisterAttributeSetsOnUnpossessed = true;
+	bUnregisterAttributeSetsOnUnpossessed = true; // TODO: make these transfer to next ASC
 	bRemoveCharacterTagsOnUnpossessed = true;
 	bRemoveAbilitiesOnUnpossessed = true;
 

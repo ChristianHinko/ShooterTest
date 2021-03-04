@@ -407,7 +407,7 @@ void AAbilitySystemCharacter::ApplyStartupEffects()
 	FGameplayEffectContextHandle EffectContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
 	EffectContextHandle.AddInstigator(this, this);
 	EffectContextHandle.AddSourceObject(this);
-	for (int32 i = 0; i < EffectsToApplyOnStartup.Num(); i++)
+	for (int32 i = 0; i < EffectsToApplyOnStartup.Num(); ++i)
 	{
 		FGameplayEffectSpecHandle NewEffectSpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(EffectsToApplyOnStartup[i], 1/*GetLevel()*/, EffectContextHandle);
 		if (NewEffectSpecHandle.IsValid())
@@ -438,7 +438,7 @@ bool AAbilitySystemCharacter::GrantStartingAbilities()
 
 
 	// ---------Grant non handle starting abilities---------
-	for (int i = 0; i < NonHandleStartingAbilities.Num(); i++)
+	for (int i = 0; i < NonHandleStartingAbilities.Num(); ++i)
 	{
 		GetAbilitySystemComponent()->GrantAbility(NonHandleStartingAbilities[i], this, NonHandleStartingAbilities[i].GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
 	}
@@ -547,7 +547,7 @@ int32 AAbilitySystemCharacter::UnregisterCharacterOwnedAttributeSets()
 	}
 
 	int32 retVal = 0;
-	for (int32 i = GetAbilitySystemComponent()->GetSpawnedAttributes().Num() - 1; i >= 0; i--)
+	for (int32 i = GetAbilitySystemComponent()->GetSpawnedAttributes().Num() - 1; i >= 0; --i)
 	{
 		if (UAttributeSet* AS = GetAbilitySystemComponent()->GetSpawnedAttributes()[i])
 		{
@@ -576,7 +576,7 @@ int32 AAbilitySystemCharacter::RemoveCharacterOwnedAbilities()
 	}
 
 	int32 retVal = 0;
-	for (int32 i = GetAbilitySystemComponent()->GetActivatableAbilities().Num() - 1; i >= 0; i--)
+	for (int32 i = GetAbilitySystemComponent()->GetActivatableAbilities().Num() - 1; i >= 0; --i)
 	{
 		FGameplayAbilitySpec Spec = GetAbilitySystemComponent()->GetActivatableAbilities()[i];
 		if (Spec.SourceObject == this) // for abilities we check the SourceObject since thats what they use. SourceObjects are expected to be correct when set on GrantAbility()

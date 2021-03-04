@@ -22,11 +22,20 @@ APawn* ASSGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewP
 	APawn* Pawn = Super::SpawnDefaultPawnAtTransform_Implementation(NewPlayer, SpawnTransform);
 
 	// Does this new pawn have an inventory component?
-	if (UActorComponent* FoundActorComponent = Pawn->GetComponentByClass(UArcInventoryComponent::StaticClass()))
+	if (UActorComponent* InventoryComponentFound = Pawn->GetComponentByClass(UArcInventoryComponent::StaticClass()))
 	{
-		if (UArcInventoryComponent* Inventory = Cast<UArcInventoryComponent>(FoundActorComponent))
+		if (UArcInventoryComponent* Inventory = Cast<UArcInventoryComponent>(InventoryComponentFound))
 		{
-			GiveInventoryStartupItems(Inventory);
+			if (AAbilitySystemCharacter* AbilitySystemCharacter = Cast<AAbilitySystemCharacter>(Pawn))
+			{
+				// Wait until they have they ability system set up
+				AbilitySystemCharacter->SetupWithAbilitySystemCompleted.AddUObject(this, &ASSGameMode::GiveInventoryStartupItems, Inventory);
+			}
+			else
+			{
+				// Unlikely that it would reach here
+				GiveInventoryStartupItems(Inventory);
+			}
 		}
 	}
 

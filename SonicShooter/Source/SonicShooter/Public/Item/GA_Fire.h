@@ -7,6 +7,7 @@
 #include "GA_Fire.generated.h"
 
 class AGATA_BulletTrace;
+class UAS_Ammo;
 
 /**
  * 
@@ -39,6 +40,11 @@ protected:
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	//END UGameplayAbility Interface
 
+
+	UAS_Ammo* AmmoAttributeSet;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
+		float AmmoCost;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Target Actor")
 		TSubclassOf<AGATA_BulletTrace> BulletTraceTargetActorTSub;

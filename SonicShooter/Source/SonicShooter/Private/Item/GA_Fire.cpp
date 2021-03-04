@@ -8,6 +8,7 @@
 #include "AbilitySystem/TargetActor/TargetActors/GATA_BulletTrace.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Utilities/CollisionChannels.h"
+#include "Item/AS_Ammo.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -18,7 +19,7 @@ UGA_Fire::UGA_Fire()
 	AbilityInputID = EAbilityInputID::PrimaryFire;
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Fire")));
 
-
+	AmmoCost = 1;
 }
 
 
@@ -41,7 +42,6 @@ void UGA_Fire::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const F
 		return;
 	}
 
-
 	// Ensure this target actor is always spawned
 	FActorSpawnParameters TargetActorSpawnParameters;
 	TargetActorSpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -49,6 +49,18 @@ void UGA_Fire::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const F
 	// Spawn our target actor
 	BulletTraceTargetActor = GetWorld()->SpawnActor<AGATA_BulletTrace>(BulletTraceTargetActorTSub, TargetActorSpawnParameters);
 	BulletTraceTargetActor->bDestroyOnConfirmation = false;
+
+
+	UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
+
+	for (UAttributeSet* AttributeSet : ASC->GetSpawnedAttributes())
+	{
+		if (UAS_Ammo* AmmoAS = Cast<UAS_Ammo>(AttributeSet))
+		{
+			AmmoAttributeSet = AmmoAS;
+			break;
+		}
+	}
 }
 
 void UGA_Fire::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -57,6 +69,8 @@ void UGA_Fire::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const
 	{
 		BulletTraceTargetActor = nullptr;
 	}
+
+	AmmoAttributeSet = nullptr;
 }
 
 bool UGA_Fire::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
@@ -71,6 +85,13 @@ bool UGA_Fire::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() BulletTraceTargetActor was NULL. returned false"), *FString(__FUNCTION__));
 		return false;
 	}
+
+	if (!AmmoAttributeSet)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() AmmoAttributeSet was NULL. returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+
 
 	return true;
 }
@@ -101,6 +122,19 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	///////////////////////////////////// we are safe to proceed /////////
 
 	// Take away ammo first
+	if (AmmoAttributeSet->GetClipAmmo() < AmmoCost) // if we don't have enough ammo
+	{
+		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Not enough ammo to fire"), *FString(__FUNCTION__));
+
+		// Handle out of ammo
+
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		return;
+	}
+
+	AmmoAttributeSet->SetClipAmmo(AmmoAttributeSet->GetClipAmmo() - AmmoCost);
+
+
 	if (FireEffectTSub)
 	{
 		FireEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, FireEffectTSub.GetDefaultObject(), GetAbilityLevel());

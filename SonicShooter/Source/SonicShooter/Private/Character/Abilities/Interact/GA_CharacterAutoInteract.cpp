@@ -104,7 +104,7 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //	{
 //		/*if (Interactable->bAllowedInstantInteractActivationCombining)	// Maybe give implementor functionality
 //		{*/
-//		for (int32 i = ShooterCharacter->CurrentOverlapInteractablesStack.Num() - 1; i >= 0; i--)
+//		for (int32 i = ShooterCharacter->CurrentOverlapInteractablesStack.Num() - 1; i >= 0; --i)
 //		{
 //			if (ShooterCharacter->CurrentOverlapInteractablesStack.IsValidIndex(i) && ShooterCharacter->CurrentOverlapInteractablesStack[i])
 //			{

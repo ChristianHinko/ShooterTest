@@ -790,7 +790,7 @@ APawn* ASSCharacter::GetNearestPawn()
 	{
 		float closestPawnDistance = MAX_FLT;
 		TArray<APlayerState*> PlayerStates = UGameplayStatics::GetGameState(this)->PlayerArray;
-		for (int i = 0; i < PlayerStates.Num(); i++)
+		for (int i = 0; i < PlayerStates.Num(); ++i)
 		{
 			if (PlayerStates.IsValidIndex(i) && PlayerStates[i])
 			{

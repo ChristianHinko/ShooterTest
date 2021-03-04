@@ -112,7 +112,7 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 	//	UKismetSystemLibrary::PrintString(this, FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
 	//}
 
-	//for (int i = 0; i < SSInventoryComponentActive->ActiveItemHistory.Num(); i++)
+	//for (int i = 0; i < SSInventoryComponentActive->ActiveItemHistory.Num(); ++i)
 	//{
 	//	FArcInventoryItemSlotReference current = SSInventoryComponentActive->ActiveItemHistory[i];
 

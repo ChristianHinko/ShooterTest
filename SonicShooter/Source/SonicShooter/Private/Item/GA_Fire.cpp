@@ -65,6 +65,9 @@ void UGA_Fire::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const F
 
 void UGA_Fire::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
+	Super::OnRemoveAbility(ActorInfo, Spec);
+
+
 	if (BulletTraceTargetActor && BulletTraceTargetActor->Destroy())
 	{
 		BulletTraceTargetActor = nullptr;

@@ -247,7 +247,7 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 		const uint8 hitsNum = OutHitResults.Num();
 		if (hitsNum > 0)
 		{
-			for (int32 i = 0; i < OutHitResults.Num(); i++)
+			for (int32 i = 0; i < OutHitResults.Num(); ++i)
 			{
 				const FHitResult Hit = OutHitResults[i];
 				const FVector FromLocation = i <= 0 ? Start : Hit.TraceStart;
@@ -279,7 +279,7 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 
 
 	// filter out hit results that do not pass filter
-	for (int32 i = 0; i < OutHitResults.Num(); i++)
+	for (int32 i = 0; i < OutHitResults.Num(); ++i)
 	{
 		const FHitResult Hit = OutHitResults[i];
 
@@ -287,7 +287,7 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 		if (!bPassesFilter)
 		{
 			OutHitResults.RemoveAt(i);
-			i--;		// put i back in sync after removal		(this can be weird because on first iteration, this will make i == -1 but it gets fixed next iteration)
+			--i;		// put i back in sync after removal		(this can be weird because on first iteration, this will make i == -1 but it gets fixed next iteration)
 		}
 	}
 }
@@ -333,7 +333,7 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 		const uint8 hitsNum = OutHitResults.Num();
 		if (hitsNum > 0)
 		{
-			for (int32 i = 0; i < OutHitResults.Num(); i++)
+			for (int32 i = 0; i < OutHitResults.Num(); ++i)
 			{
 				const FHitResult Hit = OutHitResults[i];
 				const FVector FromLocation = i <= 0 ? Start : Hit.TraceStart;
@@ -365,7 +365,7 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 
 
 	// filter out hit results that do not pass filter
-	for (int32 i = 0; i < OutHitResults.Num(); i++)
+	for (int32 i = 0; i < OutHitResults.Num(); ++i)
 	{
 		const FHitResult Hit = OutHitResults[i];
 
@@ -373,7 +373,7 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 		if (!bPassesFilter)
 		{
 			OutHitResults.RemoveAt(i);
-			i--;		// put i back in sync after removal		(this can be weird because on first iteration, this will make i == -1 but it gets fixed next iteration)
+			--i;		// put i back in sync after removal		(this can be weird because on first iteration, this will make i == -1 but it gets fixed next iteration)
 		}
 	}
 }

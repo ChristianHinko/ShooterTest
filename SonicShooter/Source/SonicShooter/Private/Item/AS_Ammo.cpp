@@ -14,13 +14,13 @@ void UAS_Ammo::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Ammo, MaxAmmo, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Ammo, BackupAmmo, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Ammo, MaxClipSize, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Ammo, MaxClipAmmo, COND_None, REPNOTIFY_Always);
 	//DOREPLIFETIME_CONDITION_NOTIFY(UAS_Ammo, ClipAmmo, COND_None, REPNOTIFY_Always);
 }
 
 UAS_Ammo::UAS_Ammo()
 	: MaxAmmo(100),
-	MaxClipSize(10)
+	MaxClipAmmo(10)
 
 {
 	SetSoftAttributeDefaults();
@@ -34,7 +34,7 @@ void UAS_Ammo::SetSoftAttributeDefaults()
 	Super::SetSoftAttributeDefaults();
 
 
-	ClipAmmo = GetMaxClipSize();
+	ClipAmmo = GetMaxClipAmmo();
 	BackupAmmo = GetMaxAmmo() - GetClipAmmo();
 }
 
@@ -51,7 +51,7 @@ void UAS_Ammo::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& D
 	//	const float ammoToAdd = GetBackupAmmoReceive();
 	//	SetBackupAmmoReceive(0.f);
 
-	//	const float maxBackupAmmo = GetMaxAmmo() - GetMaxClipSize();
+	//	const float maxBackupAmmo = GetMaxAmmo() - GetMaxClipAmmo();
 
 	//	SetBackupAmmo(FMath::Clamp(GetBackupAmmo() + ammoToAdd, 0.f, maxBackupAmmo));
 	//}
@@ -70,9 +70,9 @@ void UAS_Ammo::OnRep_BackupAmmo(const FGameplayAttributeData& ServerBaseValue)
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Ammo, BackupAmmo, ServerBaseValue);
 }
 
-void UAS_Ammo::OnRep_MaxClipSize(const FGameplayAttributeData& ServerBaseValue)
+void UAS_Ammo::OnRep_MaxClipAmmo(const FGameplayAttributeData& ServerBaseValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Ammo, MaxClipSize, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Ammo, MaxClipAmmo, ServerBaseValue);
 }
 
 //void UAS_Ammo::OnRep_ClipAmmo(const FGameplayAttributeData& ServerBaseValue)

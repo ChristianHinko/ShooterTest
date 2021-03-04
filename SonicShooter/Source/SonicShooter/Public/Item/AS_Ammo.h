@@ -28,9 +28,9 @@ public:
 		FGameplayAttributeData BackupAmmo;
 	ATTRIBUTE_ACCESSORS(UAS_Ammo, BackupAmmo)
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxClipSize, Category = "Attributes")
-		FGameplayAttributeData MaxClipSize;
-	ATTRIBUTE_ACCESSORS(UAS_Ammo, MaxClipSize)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxClipAmmo, Category = "Attributes")
+		FGameplayAttributeData MaxClipAmmo;
+	ATTRIBUTE_ACCESSORS(UAS_Ammo, MaxClipAmmo)
 
 	UPROPERTY(BlueprintReadOnly/*, ReplicatedUsing = OnRep_ClipAmmo*/, Category = "Attributes", meta = (HideFromModifiers))
 		FGameplayAttributeData ClipAmmo;
@@ -55,7 +55,7 @@ protected:
 		virtual void OnRep_BackupAmmo(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
-		virtual void OnRep_MaxClipSize(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_MaxClipAmmo(const FGameplayAttributeData& ServerBaseValue);
 
 	//UFUNCTION()
 	//	virtual void OnRep_ClipAmmo(const FGameplayAttributeData& ServerBaseValue);

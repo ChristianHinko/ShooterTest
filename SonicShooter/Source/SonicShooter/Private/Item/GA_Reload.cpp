@@ -4,6 +4,8 @@
 #include "Item/GA_Reload.h"
 
 #include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Item/AS_Ammo.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -36,6 +38,30 @@ void UGA_Reload::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const F
 
 }
 
+void UGA_Reload::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+{
+	Super::OnGiveAbility(ActorInfo, Spec);
+
+
+	UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
+
+	for (UAttributeSet* AttributeSet : ASC->GetSpawnedAttributes())
+	{
+		if (UAS_Ammo* AmmoAS = Cast<UAS_Ammo>(AttributeSet))
+		{
+			AmmoAttributeSet = AmmoAS;
+			break;
+		}
+	}
+}
+void UGA_Reload::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+{
+	Super::OnRemoveAbility(ActorInfo, Spec);
+
+
+	AmmoAttributeSet = nullptr;
+}
+
 bool UGA_Reload::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
 	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
@@ -44,7 +70,28 @@ bool UGA_Reload::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 	}
 
 
+	if (!DepleteBackupAmmoEffectTSub)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DepleteBackupAmmoEffectTSub was NULL. Returned false. - Please fill out blueprint TSubs"), *FString(__FUNCTION__));
+		return false;
+	}
 
+	if (!AmmoAttributeSet)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() AmmoAttributeSet was NULL. returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+
+	if (AmmoAttributeSet->GetClipAmmo() >= AmmoAttributeSet->GetMaxClipAmmo())
+	{
+		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Already have full ammo. Returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+	if (AmmoAttributeSet->GetBackupAmmo() <= 0)
+	{
+		UE_LOG(LogGameplayAbility, Log, TEXT("%s() No backup ammo to use to reload. Returned false"), *FString(__FUNCTION__));
+		return false;
+	}
 
 
 	return true;
@@ -54,17 +101,45 @@ void UGA_Reload::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+
+
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 
-
 	//MyEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, MyEffectTSub.GetDefaultObject(), GetAbilityLevel());
 
-	// Reload ammo attributes
-	ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, ReloadEffectTSub.GetDefaultObject(), GetAbilityLevel());
+
+
+
+	// Amount to move out of BackupAmmo, and into ClipAmmo
+	float AmmoToMove = AmmoAttributeSet->GetMaxClipAmmo() - AmmoAttributeSet->GetClipAmmo();
+
+	// Check if BackupAmmo went negative
+	{
+		float postBackupAmmo = AmmoAttributeSet->GetBackupAmmo() - AmmoToMove;
+		if (postBackupAmmo < 0)
+		{
+			// Make it so we don't take that much away
+			AmmoToMove -= FMath::Abs(postBackupAmmo);
+		}
+	}
+
+	// Move ammo out of backup
+	FGameplayEffectSpecHandle DepleteBackupAmmoSpecHandle = MakeOutgoingGameplayEffectSpec(Handle, ActorInfo, ActivationInfo, DepleteBackupAmmoEffectTSub, GetAbilityLevel());
+	DepleteBackupAmmoSpecHandle.Data.Get()->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("SetByCaller.BackupAmmoDepletion"), -1 * AmmoToMove);
+
+	ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, DepleteBackupAmmoSpecHandle);
+
+
+	// Move ammo into clip
+	AmmoAttributeSet->SetClipAmmo(AmmoAttributeSet->GetClipAmmo() + AmmoToMove);
+
+
+
+
 
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);

@@ -109,9 +109,14 @@ void UGA_Reload::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 		return;
 	}
 
-	//MyEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, MyEffectTSub.GetDefaultObject(), GetAbilityLevel());
-
-
+	if (ReloadingEffectTSub)
+	{
+		ReloadingEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, ReloadingEffectTSub.GetDefaultObject(), GetAbilityLevel());
+	}
+	else
+	{
+		UE_LOG(LogGameplayAbility, Warning, TEXT("ReloadingEffectTSub TSubclassOf empty in %s"), *FString(__FUNCTION__));
+	}
 
 
 	// Amount to move out of BackupAmmo, and into ClipAmmo
@@ -164,7 +169,7 @@ void UGA_Reload::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 
 
 
-	//ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(MyEffectActiveHandle);
+	ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(ReloadingEffectActiveHandle);
 
 
 

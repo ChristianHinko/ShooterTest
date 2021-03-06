@@ -18,6 +18,7 @@ UGA_Fire::UGA_Fire()
 {
 	AbilityInputID = EAbilityInputID::PrimaryFire;
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Fire")));
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("AbilityInput.PrimaryFire")));
 
 	AmmoCost = 1;
 }

@@ -211,7 +211,16 @@ void AShooterCharacter::OnPrimaryFirePressed()
 {
 	if (GetAbilitySystemComponent())
 	{
-		GetAbilitySystemComponent()->TryActivateAbilitiesByTag(FGameplayTag::RequestGameplayTag(FName("Ability.Fire")).GetSingleTagContainer());
+		TArray<FGameplayAbilitySpec*> Specs; // our found specs
+		GetAbilitySystemComponent()->GetActivatableGameplayAbilitySpecsByAllMatchingTags(FGameplayTag::RequestGameplayTag(FName("AbilityInput.PrimaryFire")).GetSingleTagContainer(), Specs);
+
+		for (FGameplayAbilitySpec* Spec : Specs)
+		{
+			// Our spec handle to activate
+			FGameplayAbilitySpecHandle Handle = Spec->Handle;
+
+			GetAbilitySystemComponent()->TryActivateAbility(Handle);
+		}
 	}
 }
 

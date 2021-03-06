@@ -577,20 +577,12 @@ bool UArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDefi
 				//}
 
 				//=@MODIFIED MARKER@= also this class doesnt even override these functions
-				if (ASC->GetActivatableAbilities().ContainsByPredicate([&AbilitySource, &ExtraAbility](const FGameplayAbilitySpec& Spec)
-					{
-						bool shouldGive = true;
-						if (Spec.SourceObject == AbilitySource)
-						{
-							if (Spec.Ability->GetClass() == ExtraAbility->GetClass())
-							{
-								shouldGive = false;
-							}
-						}
-						return !shouldGive;
-					}))
+				if (FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromClass(ExtraAbility))
 				{
-					continue;
+					if (Spec->SourceObject == AbilitySource)
+					{
+						continue;
+					}
 				}
 
 

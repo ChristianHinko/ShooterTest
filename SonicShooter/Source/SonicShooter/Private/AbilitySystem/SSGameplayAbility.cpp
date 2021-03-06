@@ -91,6 +91,15 @@ void USSGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 #pragma endregion
 }
 
+void USSGameplayAbility::ExternalEndAbility()
+{
+	check(CurrentActorInfo);
+
+	const bool bReplicateEndAbility = true;
+	const bool bWasCancelled = false;
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
 //void USSGameplayAbility::OnCurrentAbilityPredictionKeyRejected()
 //{
 //	/*UKismetSystemLibrary::PrintString(this, "Prediction Key rejected ", true, false, FLinearColor::Red);

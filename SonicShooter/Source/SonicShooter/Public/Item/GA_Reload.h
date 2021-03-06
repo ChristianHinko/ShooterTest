@@ -22,9 +22,9 @@ public:
 
 
 protected:
-	//UPROPERTY(EditAnywhere)
-	//	TSubclassOf<UGameplayEffect> MyEffectTSub;	// asset manager we need you D:
-	//FActiveGameplayEffectHandle MyEffectActiveHandle;
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<UGameplayEffect> ReloadingEffectTSub;	// asset manager we need you D:
+	FActiveGameplayEffectHandle ReloadingEffectActiveHandle;
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<UGameplayEffect> DepleteBackupAmmoEffectTSub;	// asset manager we need you D:
 

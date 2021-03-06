@@ -81,6 +81,8 @@ public:
 	USSAbilitySystemComponent();
 
 
+	virtual bool ShouldDoServerAbilityRPCBatch() const override { return true; }
+
 	FGameplayAbilitySpecHandle GrantAbility(TSubclassOf<UGameplayAbility> NewAbility, UObject* InSourceObject, EAbilityInputID inputID, int32 level = 1);
 	void GrantAbilities(TArray<FGameplayAbilitySpec> Abilities);
 
@@ -125,7 +127,4 @@ protected:
 	 * (because you may want to manually control when confirm/cancel get called but still want to use the tasks that binded input gives you)
 	 */
 	uint8 bDoNotAutoConfirmAndCancelFromGASBindings : 1;
-
-private:
-	virtual bool ShouldDoServerAbilityRPCBatch() const override { return true; }
 };

@@ -6,6 +6,8 @@
 #include "ArcItemStack.h"
 #include "WeaponStack.generated.h"
 
+class AGATA_BulletTrace;
+
 /**
  * 
  */
@@ -14,4 +16,7 @@ class SONICSHOOTER_API UWeaponStack : public UArcItemStack
 {
 	GENERATED_BODY()
 	
+public:
+	UPROPERTY(EditDefaultsOnly, Category = "Target Actor")
+		TSubclassOf<AGATA_BulletTrace> BulletTraceTargetActorTSub;
 };

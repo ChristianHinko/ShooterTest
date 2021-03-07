@@ -153,18 +153,19 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	WaitTargetDataActorTask->ValidData.AddDynamic(this, &UGA_Fire::OnValidData);
 	WaitTargetDataActorTask->Cancelled.AddDynamic(this, &UGA_Fire::OnCancelled);
 	WaitTargetDataActorTask->ReadyForActivation();
-
-
-	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
 }
 
 void UGA_Fire::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 {
 	ApplyGameplayEffectToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), Data, BulletHitEffectTSub, GetAbilityLevel());
+	
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
 }
 void UGA_Fire::OnCancelled(const FGameplayAbilityTargetDataHandle& Data)
 {
 	UKismetSystemLibrary::PrintString(this, "Cancelled...", true, false);
+	
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
 }
 
 void UGA_Fire::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)

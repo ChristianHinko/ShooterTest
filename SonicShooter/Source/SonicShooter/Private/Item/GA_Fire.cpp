@@ -126,14 +126,26 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
-
-
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	///////////////////////////////////// we are safe to proceed /////////
+
+
+
+	switch (WeaponToFire->FiringMode)
+	{
+	case EWeaponFireMode::MODE_SemiAuto:
+
+		break;
+	case EWeaponFireMode::MODE_FullAuto:
+
+		break;
+	default:
+		break;
+	}
 
 	// Take away ammo first
 	if (AmmoAttributeSet->GetClipAmmo() < AmmoCost) // if we don't have enough ammo

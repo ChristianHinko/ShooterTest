@@ -35,6 +35,9 @@ void UAT_Ticker::Activate()
 
 void UAT_Ticker::TickTask(float DeltaTime)
 {
+	Super::TickTask(DeltaTime);
+
+
 	if (duration != -1)	// If user set a duration
 	{
 		if (currentTime >= duration)
@@ -43,24 +46,30 @@ void UAT_Ticker::TickTask(float DeltaTime)
 			RemoveAllDelegates();
 			return;
 		}
+	}
 
-		if ((continueTimestamp == 0) && skipFirstTick)
-		{
-			skipFirstTick = false;
+	if ((continueTimestamp == 0) && skipFirstTick)
+	{
+		skipFirstTick = false;
 
-			////
-			currentTime = currentTime + DeltaTime;
-			timeRemaining = timeRemaining - DeltaTime;
-			continueTimestamp = continueTimestamp + tickInterval;
-			////
-			return;
-		}
-		if (currentTime < continueTimestamp)
+		////
+		currentTime = currentTime + DeltaTime;
+		if (duration != -1)	// If user set a duration
 		{
-			currentTime = currentTime + DeltaTime;
 			timeRemaining = timeRemaining - DeltaTime;
-			return;
 		}
+		continueTimestamp = continueTimestamp + tickInterval;
+		////
+		return;
+	}
+	if (currentTime < continueTimestamp)
+	{
+		currentTime = currentTime + DeltaTime;
+		if (duration != -1)	// If user set a duration
+		{
+			timeRemaining = timeRemaining - DeltaTime;
+		}
+		return;
 	}
 	
 	if (!IsPendingKill())
@@ -78,8 +87,8 @@ void UAT_Ticker::TickTask(float DeltaTime)
 	if (duration != -1)	// If user set a duration
 	{
 		timeRemaining = timeRemaining - DeltaTime;
-		continueTimestamp = continueTimestamp + tickInterval;
 	}
+	continueTimestamp = continueTimestamp + tickInterval;
 }
 
 void UAT_Ticker::OnDurationEnded()

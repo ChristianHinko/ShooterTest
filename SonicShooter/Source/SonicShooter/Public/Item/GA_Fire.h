@@ -8,6 +8,7 @@
 
 class AGATA_BulletTrace;
 class UAS_Ammo;
+class UWeaponStack;
 
 /**
  * 
@@ -28,6 +29,7 @@ protected:
 		TSubclassOf<UGameplayEffect> BulletHitEffectTSub;
 
 
+
 	//BEGIN UGameplayAbility Interface
 	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 
@@ -41,15 +43,16 @@ protected:
 	//END UGameplayAbility Interface
 
 
-	UAS_Ammo* AmmoAttributeSet;
+	UPROPERTY()
+		UWeaponStack* WeaponToFire;
+	UPROPERTY()
+		AGATA_BulletTrace* BulletTraceTargetActor;
+	UPROPERTY()
+		UAS_Ammo* AmmoAttributeSet;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
 		float AmmoCost;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Target Actor")
-		TSubclassOf<AGATA_BulletTrace> BulletTraceTargetActorTSub;
-	UPROPERTY()
-		AGATA_BulletTrace* BulletTraceTargetActor;
 
 	UFUNCTION()
 		void OnValidData(const FGameplayAbilityTargetDataHandle& Data);

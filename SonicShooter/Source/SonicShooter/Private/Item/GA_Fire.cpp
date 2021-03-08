@@ -9,6 +9,9 @@
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Utilities/CollisionChannels.h"
 #include "Item/AS_Ammo.h"
+#include "Item\Weapons\WeaponStack.h"
+#include "ArcInventoryItemTypes.h"
+#include "Item\Definitions\ArcItemDefinition_Active.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -32,28 +35,34 @@ void UGA_Fire::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGa
 
 }
 
+// This ability is only granted to the player while his weapon is active
 void UGA_Fire::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
 
-
-	if (!BulletTraceTargetActorTSub)
+	// Need to make the item generators use the weapon stack now
+	// instead of it using item stack so this cast works.
+	WeaponToFire = Cast<UWeaponStack>(GetCurrentSourceObject());
+	if (!WeaponToFire)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("BulletTraceTargetActorTSub TSubclassOf empty in %s(). Please fill out BP"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid weapon (weapon stack) when giving the fire ability"), *FString(__FUNCTION__));
 		return;
 	}
 
-	// Ensure this target actor is always spawned
+	// Spawn the weapon's target actor
 	FActorSpawnParameters TargetActorSpawnParameters;
 	TargetActorSpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	// Spawn our target actor
-	BulletTraceTargetActor = GetWorld()->SpawnActor<AGATA_BulletTrace>(BulletTraceTargetActorTSub, TargetActorSpawnParameters);
+	BulletTraceTargetActor = GetWorld()->SpawnActor<AGATA_BulletTrace>(WeaponToFire->BulletTraceTargetActorTSub, TargetActorSpawnParameters);
+	if (!BulletTraceTargetActor)
+	{
+		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid BulletTraceTargetActor in the weapon item stack when giving the fire ability. How the heck we supposed to fire the weapon!?!?"), *FString(__FUNCTION__));
+		return;
+	}
 	BulletTraceTargetActor->bDestroyOnConfirmation = false;
 
 
 	UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
-
 	for (UAttributeSet* AttributeSet : ASC->GetSpawnedAttributes())
 	{
 		if (UAS_Ammo* AmmoAS = Cast<UAS_Ammo>(AttributeSet))
@@ -64,11 +73,12 @@ void UGA_Fire::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const F
 	}
 }
 
+// This ability is only granted to the player while his weapon is active
 void UGA_Fire::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnRemoveAbility(ActorInfo, Spec);
 
-
+	WeaponToFire = nullptr;
 	if (BulletTraceTargetActor && BulletTraceTargetActor->Destroy())
 	{
 		BulletTraceTargetActor = nullptr;

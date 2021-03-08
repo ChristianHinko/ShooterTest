@@ -23,7 +23,7 @@ UGA_Fire::UGA_Fire()
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Fire")));
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("AbilityInput.PrimaryFire")));
 
-	AmmoCost = 1;
+
 }
 
 
@@ -148,7 +148,7 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	}
 
 	// Take away ammo first
-	if (AmmoAttributeSet->GetClipAmmo() < AmmoCost) // if we don't have enough ammo
+	if (AmmoAttributeSet->GetClipAmmo() < WeaponToFire->AmmoCost) // if we don't have enough ammo
 	{
 		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Not enough ammo to fire"), *FString(__FUNCTION__));
 
@@ -158,7 +158,7 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 		return;
 	}
 
-	AmmoAttributeSet->SetClipAmmo(AmmoAttributeSet->GetClipAmmo() - AmmoCost);
+	AmmoAttributeSet->SetClipAmmo(AmmoAttributeSet->GetClipAmmo() - WeaponToFire->AmmoCost);
 
 
 	if (FireEffectTSub)

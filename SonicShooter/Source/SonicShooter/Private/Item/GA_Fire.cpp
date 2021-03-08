@@ -10,8 +10,7 @@
 #include "Utilities/CollisionChannels.h"
 #include "Item/AS_Ammo.h"
 #include "Item\Weapons\WeaponStack.h"
-#include "ArcInventoryItemTypes.h"
-#include "Item\Definitions\ArcItemDefinition_Active.h"
+#include "AbilitySystem\AbilityTasks\AT_WaitInputReleaseCust.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -126,6 +125,19 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
+	// We only want a release task if we are a full auto fire
+	UAT_WaitInputReleaseCust* WaitInputReleaseTask = UAT_WaitInputReleaseCust::WaitInputReleaseCust(this);
+	if (WeaponToFire->FiringMode == EWeaponFireMode::MODE_FullAuto)
+	{
+		if (!WaitInputReleaseTask)
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputReleaseTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), *FString(__FUNCTION__));
+			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+			return;
+		}
+		WaitInputReleaseTask->OnRelease.AddDynamic(this, &UGA_Fire::OnRelease);
+	}
+
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
@@ -141,6 +153,7 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 
 		break;
 	case EWeaponFireMode::MODE_FullAuto:
+		WaitInputReleaseTask->ReadyForActivation();
 
 		break;
 	default:
@@ -157,7 +170,7 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
-
+	
 	AmmoAttributeSet->SetClipAmmo(AmmoAttributeSet->GetClipAmmo() - WeaponToFire->AmmoCost);
 
 
@@ -177,17 +190,19 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	WaitTargetDataActorTask->ReadyForActivation();
 }
 
-void UGA_Fire::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+
+
+
+
+
+
+
+
+
+void UGA_Fire::OnRelease(float TimeHeld)
 {
 
 }
-
-
-
-
-
-
-
 
 void UGA_Fire::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 {

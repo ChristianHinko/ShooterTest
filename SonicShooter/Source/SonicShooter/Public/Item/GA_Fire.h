@@ -9,6 +9,7 @@
 class AGATA_BulletTrace;
 class UAS_Ammo;
 class UWeaponStack;
+class UAT_SSWaitTargetData;
 
 /**
  * 
@@ -50,6 +51,13 @@ protected:
 	UPROPERTY()
 		UAS_Ammo* AmmoAttributeSet;
 
+	UFUNCTION()
+		void OnFullAutoTick(float DeltaTime, float CurrentTime, float TimeRemaining);
+
+	void Fire();
+
+	UPROPERTY()
+		UAT_SSWaitTargetData* WaitTargetDataActorTask;
 
 	UFUNCTION()
 		void OnRelease(float TimeHeld);

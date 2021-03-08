@@ -10,6 +10,9 @@
 #include "Utilities/CollisionChannels.h"
 #include "Item/AS_Ammo.h"
 #include "Item\Weapons\WeaponStack.h"
+#include "ArcInventoryItemTypes.h"
+#include "Item\Definitions\ArcItemDefinition_Active.h"
+#include "AbilitySystem/AbilityTasks/AT_Ticker.h"
 #include "AbilitySystem\AbilityTasks\AT_WaitInputReleaseCust.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -114,17 +117,27 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 
-	// Update target actor's start location info
-	BulletTraceTargetActor->StartLocation = MakeTargetLocationInfoFromOwnerSkeletalMeshComponent(TEXT("None"));		// this will take the actor info's skeletal mesh, maybe make our own in SSGameplayAbility which you can specify a skeletal mesh to use
-
 	// Try to make wait target data task
-	UAT_SSWaitTargetData* WaitTargetDataActorTask = UAT_SSWaitTargetData::SSWaitTargetDataUsingActor(this, TEXT("WaitTargetDataActorTask"), EGameplayTargetingConfirmation::Instant, BulletTraceTargetActor);
+	WaitTargetDataActorTask = UAT_SSWaitTargetData::SSWaitTargetDataUsingActor(this, TEXT("WaitTargetDataActorTask"), EGameplayTargetingConfirmation::Instant, BulletTraceTargetActor);
 	if (!WaitTargetDataActorTask)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitTargetDataActorTask was NULL when trying to activate fire ability. Called EndAbility()"), *FString(__FUNCTION__));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
+
+	UAT_Ticker* TickerTask = nullptr;
+	if (WeaponToFire->FiringMode == EWeaponFireMode::MODE_FullAuto)
+	{
+		TickerTask = UAT_Ticker::Ticker(this, false, -1.f, WeaponToFire->FireRate);
+		if (!TickerTask)
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() TickerTask was NULL when trying to activate fire ability. Called EndAbility()"), *FString(__FUNCTION__));
+			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+			return;
+		}
+	}
+	
 	// We only want a release task if we are a full auto fire
 	UAT_WaitInputReleaseCust* WaitInputReleaseTask = UAT_WaitInputReleaseCust::WaitInputReleaseCust(this);
 	if (WeaponToFire->FiringMode == EWeaponFireMode::MODE_FullAuto)
@@ -146,34 +159,6 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	///////////////////////////////////// we are safe to proceed /////////
 
 
-
-	switch (WeaponToFire->FiringMode)
-	{
-	case EWeaponFireMode::MODE_SemiAuto:
-
-		break;
-	case EWeaponFireMode::MODE_FullAuto:
-		WaitInputReleaseTask->ReadyForActivation();
-
-		break;
-	default:
-		break;
-	}
-
-	// Take away ammo first
-	if (AmmoAttributeSet->GetClipAmmo() < WeaponToFire->AmmoCost) // if we don't have enough ammo
-	{
-		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Not enough ammo to fire"), *FString(__FUNCTION__));
-
-		// Handle out of ammo
-
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
-	}
-	
-	AmmoAttributeSet->SetClipAmmo(AmmoAttributeSet->GetClipAmmo() - WeaponToFire->AmmoCost);
-
-
 	if (FireEffectTSub)
 	{
 		FireEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, FireEffectTSub.GetDefaultObject(), GetAbilityLevel());
@@ -187,12 +172,54 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	// Bind to wait target data delegates and activate the task
 	WaitTargetDataActorTask->ValidData.AddDynamic(this, &UGA_Fire::OnValidData);
 	WaitTargetDataActorTask->Cancelled.AddDynamic(this, &UGA_Fire::OnCancelled);
-	WaitTargetDataActorTask->ReadyForActivation();
+
+
+
+	switch (WeaponToFire->FiringMode)
+	{
+	case EWeaponFireMode::MODE_SemiAuto:
+		Fire();
+		break;
+
+	case EWeaponFireMode::MODE_FullAuto:
+		WaitInputReleaseTask->ReadyForActivation();
+
+		TickerTask->OnTick.AddDynamic(this, &UGA_Fire::OnFullAutoTick);
+		TickerTask->ReadyForActivation();
+		break;
+
+	default:
+		break;
+	}
+
 }
 
 
 
 
+
+void UGA_Fire::Fire()
+{
+	// Take away ammo first
+	if (AmmoAttributeSet->GetClipAmmo() < WeaponToFire->AmmoCost) // if we don't have enough ammo
+	{
+		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Not enough ammo to fire"), *FString(__FUNCTION__));
+
+		// Handle out of ammo
+
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+		return;
+	}
+	
+	AmmoAttributeSet->SetClipAmmo(AmmoAttributeSet->GetClipAmmo() - WeaponToFire->AmmoCost);
+
+
+	// Update target actor's start location info
+	BulletTraceTargetActor->StartLocation = MakeTargetLocationInfoFromOwnerSkeletalMeshComponent(TEXT("None"));		// this will take the actor info's skeletal mesh, maybe make our own in SSGameplayAbility which you can specify a skeletal mesh to use
+
+
+	WaitTargetDataActorTask->ReadyForActivation();
+}
 
 
 
@@ -204,17 +231,26 @@ void UGA_Fire::OnRelease(float TimeHeld)
 
 }
 
+
+void UGA_Fire::OnFullAutoTick(float DeltaTime, float CurrentTime, float TimeRemaining)
+{
+	// TODO: burst logic
+
+	Fire();
+}
+
 void UGA_Fire::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 {
 	ApplyGameplayEffectToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), Data, BulletHitEffectTSub, GetAbilityLevel());
 	
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
+	//EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
+	UKismetSystemLibrary::PrintString(this, "valid", true, false);
 }
 void UGA_Fire::OnCancelled(const FGameplayAbilityTargetDataHandle& Data)
 {
 	UKismetSystemLibrary::PrintString(this, "Cancelled...", true, false);
 	
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
+	//EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
 }
 
 void UGA_Fire::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)

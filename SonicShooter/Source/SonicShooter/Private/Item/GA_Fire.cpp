@@ -177,6 +177,18 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	WaitTargetDataActorTask->ReadyForActivation();
 }
 
+void UGA_Fire::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+{
+
+}
+
+
+
+
+
+
+
+
 void UGA_Fire::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 {
 	ApplyGameplayEffectToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), Data, BulletHitEffectTSub, GetAbilityLevel());

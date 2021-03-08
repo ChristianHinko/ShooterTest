@@ -47,6 +47,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Firing")
 		float DefaultFireRate;
 
+
+	/** How much clip ammo will we lose for each shot. (Pretty much always just 1 but it's here if you need it) */
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon Firing")
+		float DefaultAmmoCost;
+
 protected:
 	virtual UArcItemStack* GenerateItemStack_Implementation(const FArcItemGeneratorContext& Context) override;
 };

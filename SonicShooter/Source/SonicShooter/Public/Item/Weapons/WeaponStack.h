@@ -48,4 +48,9 @@ public:
 	 */
 	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Weapon Firing")
 		float FireRate;
+
+
+	/** How much clip ammo will we lose for each shot. (Pretty much always just 1 but it's here if you need it) */
+	UPROPERTY(EditDefaultsOnly, Replicated, Category = "Weapon Firing")
+		float AmmoCost;
 };

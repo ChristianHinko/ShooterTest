@@ -50,9 +50,6 @@ protected:
 	UPROPERTY()
 		UAS_Ammo* AmmoAttributeSet;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
-		float AmmoCost;
-
 
 	UFUNCTION()
 		void OnValidData(const FGameplayAbilityTargetDataHandle& Data);

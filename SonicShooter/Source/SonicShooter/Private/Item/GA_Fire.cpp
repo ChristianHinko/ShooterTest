@@ -246,7 +246,14 @@ void UGA_Fire::OnRelease(float TimeHeld)
 
 void UGA_Fire::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 {
-	ApplyGameplayEffectToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), Data, BulletHitEffectTSub, GetAbilityLevel());
+	if (TSubclassOf<UGameplayEffect> BulletHitEffectTSub = WeaponToFire->BulletHitEffectTSub)
+	{
+		ApplyGameplayEffectToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), Data, WeaponToFire->BulletHitEffectTSub, GetAbilityLevel());
+	}
+	else
+	{
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s(): WeaponToFire gave us an empty BulletHitEffectTSub. Make sure to fill out DefaultBulletHitEffectTSub in the weapon generator"), *FString(__FUNCTION__));
+	}
 	
 	if (WeaponToFire->FiringMode == EWeaponFireMode::MODE_SemiAuto)
 	{

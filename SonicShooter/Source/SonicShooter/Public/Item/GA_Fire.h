@@ -26,8 +26,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Effects To Apply")
 		TSubclassOf<UGameplayEffect> FireEffectTSub;
 	FActiveGameplayEffectHandle FireEffectActiveHandle;
-	UPROPERTY(EditAnywhere, Category = "Effects To Apply")
-		TSubclassOf<UGameplayEffect> BulletHitEffectTSub;
 
 
 

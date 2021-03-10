@@ -28,6 +28,10 @@ public:
 	/** This weapon's target actor (what it will shoot) */
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Firing")
 		TSubclassOf<AGATA_BulletTrace> DefaultBulletTraceTargetActorTSub;
+
+	/** The effect that will be applied to the target that this bullet hits */
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon Firing")
+		TSubclassOf<UGameplayEffect> DefaultBulletHitEffectTSub;
 	
 
 	/** Firing mode */

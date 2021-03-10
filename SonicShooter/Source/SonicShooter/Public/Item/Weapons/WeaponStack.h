@@ -31,6 +31,10 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Weapon Firing")
 		TSubclassOf<AGATA_BulletTrace> BulletTraceTargetActorTSub;
 
+	/** The effect that will be applied to the target that this bullet hits */
+	UPROPERTY(EditDefaultsOnly, Replicated, Category = "Weapon Firing")
+		TSubclassOf<UGameplayEffect> BulletHitEffectTSub;
+
 
 	/** Firing mode */
 	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Weapon Firing")

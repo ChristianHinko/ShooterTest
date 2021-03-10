@@ -25,6 +25,7 @@ UArcItemStack* UWeaponGenerator::GenerateItemStack_Implementation(const FArcItem
 	if (UWeaponStack* NewWeaponStack = Cast<UWeaponStack>(NewItemStack))
 	{
 		NewWeaponStack->BulletTraceTargetActorTSub				= DefaultBulletTraceTargetActorTSub;
+		NewWeaponStack->BulletHitEffectTSub						= DefaultBulletHitEffectTSub;
 		NewWeaponStack->FiringMode								= DefaultFiringMode;
 		NewWeaponStack->NumBursts								= DefaultNumBursts;
 		NewWeaponStack->FireRate								= DefaultFireRate;

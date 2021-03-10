@@ -12,6 +12,7 @@ void UWeaponStack::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(UWeaponStack, BulletTraceTargetActorTSub, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(UWeaponStack, BulletHitEffectTSub, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(UWeaponStack, FiringMode, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(UWeaponStack, NumBursts, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(UWeaponStack, FireRate, COND_OwnerOnly);

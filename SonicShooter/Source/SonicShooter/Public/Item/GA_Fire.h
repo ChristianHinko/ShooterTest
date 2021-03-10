@@ -56,9 +56,6 @@ protected:
 
 	void Fire();
 
-	UPROPERTY()
-		UAT_SSWaitTargetData* WaitTargetDataActorTask;
-
 	UFUNCTION()
 		void OnRelease(float TimeHeld);
 	UFUNCTION()

@@ -117,14 +117,6 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 
-	// Try to make wait target data task
-	WaitTargetDataActorTask = UAT_SSWaitTargetData::SSWaitTargetDataUsingActor(this, TEXT("WaitTargetDataActorTask"), EGameplayTargetingConfirmation::Instant, BulletTraceTargetActor);
-	if (!WaitTargetDataActorTask)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitTargetDataActorTask was NULL when trying to activate fire ability. Called EndAbility()"), *FString(__FUNCTION__));
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
-	}
 
 	UAT_Ticker* TickerTask = nullptr;
 	if (WeaponToFire->FiringMode == EWeaponFireMode::MODE_FullAuto)
@@ -169,9 +161,6 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	}
 
 
-	// Bind to wait target data delegates and activate the task
-	WaitTargetDataActorTask->ValidData.AddDynamic(this, &UGA_Fire::OnValidData);
-	WaitTargetDataActorTask->Cancelled.AddDynamic(this, &UGA_Fire::OnCancelled);
 
 
 
@@ -197,27 +186,50 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 
 
 
+void UGA_Fire::OnFullAutoTick(float DeltaTime, float CurrentTime, float TimeRemaining)
+{
+	// TODO: burst logic
+
+	Fire();
+}
 
 void UGA_Fire::Fire()
 {
-	// Take away ammo first
+	// Check if we have enough ammo first
 	if (AmmoAttributeSet->GetClipAmmo() < WeaponToFire->AmmoCost) // if we don't have enough ammo
 	{
 		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Not enough ammo to fire"), *FString(__FUNCTION__));
 
 		// Handle out of ammo
 
+
+
+
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 		return;
 	}
+
+
+	// Try to make wait target data task for this shot
+	UAT_SSWaitTargetData* WaitTargetDataActorTask = UAT_SSWaitTargetData::SSWaitTargetDataUsingActor(this, TEXT("WaitTargetDataActorTask"), EGameplayTargetingConfirmation::Instant, BulletTraceTargetActor);
+	if (!WaitTargetDataActorTask)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitTargetDataActorTask was NULL when trying to shoot. Called EndAbility()"), *FString(__FUNCTION__));
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
+		return;
+	}
+	// Bind to wait target data delegates and activate the task
+	WaitTargetDataActorTask->ValidData.AddDynamic(this, &UGA_Fire::OnValidData);
+	WaitTargetDataActorTask->Cancelled.AddDynamic(this, &UGA_Fire::OnCancelled);
+
 	
+
+
+
+
+	// Lets finally fire
 	AmmoAttributeSet->SetClipAmmo(AmmoAttributeSet->GetClipAmmo() - WeaponToFire->AmmoCost);
-
-
-	// Update target actor's start location info
 	BulletTraceTargetActor->StartLocation = MakeTargetLocationInfoFromOwnerSkeletalMeshComponent(TEXT("None"));		// this will take the actor info's skeletal mesh, maybe make our own in SSGameplayAbility which you can specify a skeletal mesh to use
-
-
 	WaitTargetDataActorTask->ReadyForActivation();
 }
 
@@ -228,29 +240,23 @@ void UGA_Fire::Fire()
 
 void UGA_Fire::OnRelease(float TimeHeld)
 {
-
-}
-
-
-void UGA_Fire::OnFullAutoTick(float DeltaTime, float CurrentTime, float TimeRemaining)
-{
-	// TODO: burst logic
-
-	Fire();
+	// When a machine gun stops shooting
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
 }
 
 void UGA_Fire::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 {
 	ApplyGameplayEffectToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), Data, BulletHitEffectTSub, GetAbilityLevel());
 	
-	//EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
-	UKismetSystemLibrary::PrintString(this, "valid", true, false);
+	if (WeaponToFire->FiringMode == EWeaponFireMode::MODE_SemiAuto)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
+	}
 }
 void UGA_Fire::OnCancelled(const FGameplayAbilityTargetDataHandle& Data)
 {
-	UKismetSystemLibrary::PrintString(this, "Cancelled...", true, false);
-	
-	//EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
+	// This won't ever happen for hit scans I think, but if it does we'll just end the ability I guess
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
 }
 
 void UGA_Fire::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)

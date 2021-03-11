@@ -28,7 +28,7 @@ USSAbilitySystemComponent::USSAbilitySystemComponent()
 	Wrapper version of GiveAbility. Always call this instead for our games. InSourceObject is the actor that owns the granted ability. Make sure InSourceObject isset to a meaningful value (shouldn't pass null for it).
 	By default this method will look at the ability's AbilityInputID variable and use that as the ability's inputID. But if you specify one it will override it.
 */
-FGameplayAbilitySpecHandle USSAbilitySystemComponent::GrantAbility(TSubclassOf<USSGameplayAbility> NewAbility, UObject* InSourceObject, int32 level)
+FGameplayAbilitySpecHandle USSAbilitySystemComponent::GrantAbility(TSubclassOf<USSGameplayAbility> SSNewAbility, UObject* InSourceObject, int32 level)
 {
 	if (IsOwnerActorAuthoritative() == false)
 	{
@@ -36,14 +36,14 @@ FGameplayAbilitySpecHandle USSAbilitySystemComponent::GrantAbility(TSubclassOf<U
 		return FGameplayAbilitySpecHandle();
 	}
 
-	if (NewAbility)
+	if (SSNewAbility)
 	{
-		UGameplayAbility* AbilityToGive = NewAbility.GetDefaultObject();
+		UGameplayAbility* AbilityToGive = SSNewAbility.GetDefaultObject();
 		// if we don't have the ability yet give it, else log an error and let it return an invalid spec handle
 		if (GetActivatableAbilities().ContainsByPredicate([&AbilityToGive](const FGameplayAbilitySpec& Spec)
 			{ return Spec.Ability == AbilityToGive; }) == false)
 		{
-			FGameplayAbilitySpecHandle AbilitySpecHandle = GiveAbility(FGameplayAbilitySpec(AbilityToGive, level, static_cast<int32>(NewAbility.GetDefaultObject()->AbilityInputID), InSourceObject));
+			FGameplayAbilitySpecHandle AbilitySpecHandle = GiveAbility(FGameplayAbilitySpec(AbilityToGive, level, static_cast<int32>(SSNewAbility.GetDefaultObject()->AbilityInputID), InSourceObject));
 
 			return AbilitySpecHandle;
 		}
@@ -58,6 +58,13 @@ FGameplayAbilitySpecHandle USSAbilitySystemComponent::GrantAbility(TSubclassOf<U
 	}
 	return FGameplayAbilitySpecHandle();
 }
+
+FGameplayAbilitySpecHandle USSAbilitySystemComponent::GrantAbility(TSubclassOf<UGameplayAbility> NewAbility, UObject* InSourceObject, int32 level)
+{
+	TSubclassOf<USSGameplayAbility> SSNewAbility = TSubclassOf<USSGameplayAbility>(NewAbility);
+	return GrantAbility(SSNewAbility, InSourceObject, level);
+}
+
 
 void USSAbilitySystemComponent::GrantAbilities(TArray<FGameplayAbilitySpec> Abilities)
 {

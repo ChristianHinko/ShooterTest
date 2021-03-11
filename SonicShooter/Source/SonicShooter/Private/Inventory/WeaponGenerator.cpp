@@ -3,7 +3,7 @@
 
 #include "Inventory/WeaponGenerator.h"
 
-#include "Item/Weapons/WeaponStack.h"
+#include "Item/Weapons/GunStack.h"
 
 
 
@@ -22,14 +22,14 @@ UArcItemStack* UWeaponGenerator::GenerateItemStack_Implementation(const FArcItem
 	UArcItemStack* NewItemStack = Super::GenerateItemStack_Implementation(Context);
 
 
-	if (UWeaponStack* NewWeaponStack = Cast<UWeaponStack>(NewItemStack))
+	if (UGunStack* NewGunStack = Cast<UGunStack>(NewItemStack))
 	{
-		NewWeaponStack->BulletTraceTargetActorTSub				= DefaultBulletTraceTargetActorTSub;
-		NewWeaponStack->BulletHitEffectTSub						= DefaultBulletHitEffectTSub;
-		NewWeaponStack->FiringMode								= DefaultFiringMode;
-		NewWeaponStack->NumBursts								= DefaultNumBursts;
-		NewWeaponStack->FireRate								= DefaultFireRate;
-		NewWeaponStack->AmmoCost								= DefaultAmmoCost;
+		NewGunStack->BulletTraceTargetActorTSub				= DefaultBulletTraceTargetActorTSub;
+		NewGunStack->BulletHitEffectTSub					= DefaultBulletHitEffectTSub;
+		NewGunStack->FiringMode								= DefaultFiringMode;
+		NewGunStack->NumBursts								= DefaultNumBursts;
+		NewGunStack->FireRate								= DefaultFireRate;
+		NewGunStack->AmmoCost								= DefaultAmmoCost;
 	}
 
 

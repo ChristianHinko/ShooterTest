@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Generators/ArcItemGenerator_Unique.h"
-#include "Item/Weapons/WeaponStack.h"
+#include "Item/Weapons/GunStack.h"
 
 #include "WeaponGenerator.generated.h"
 

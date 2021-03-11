@@ -8,7 +8,7 @@
 
 class AGATA_BulletTrace;
 class UAS_Ammo;
-class UWeaponStack;
+class UGunStack;
 class UAT_SSWaitTargetData;
 
 /**
@@ -43,7 +43,7 @@ protected:
 
 
 	UPROPERTY()
-		UWeaponStack* WeaponToFire;
+		UGunStack* GunToFire;
 	UPROPERTY()
 		AGATA_BulletTrace* BulletTraceTargetActor;
 	UPROPERTY()

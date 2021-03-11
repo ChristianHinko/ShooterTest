@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "ArcItemStack.h"
-#include "WeaponStack.generated.h"
+#include "GunStack.generated.h"
 
 
 class AGATA_BulletTrace;
@@ -22,7 +22,7 @@ enum class EWeaponFireMode : uint8
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UWeaponStack : public UArcItemStack
+class SONICSHOOTER_API UGunStack : public UArcItemStack
 {
 	GENERATED_BODY()
 	

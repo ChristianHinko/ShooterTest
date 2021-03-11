@@ -9,7 +9,7 @@
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Utilities/CollisionChannels.h"
 #include "Item/AS_Ammo.h"
-#include "Item\Weapons\WeaponStack.h"
+#include "Item\Weapons\GunStack.h"
 #include "ArcInventoryItemTypes.h"
 #include "Item\Definitions\ArcItemDefinition_Active.h"
 #include "AbilitySystem/AbilityTasks/AT_Ticker.h"
@@ -44,8 +44,8 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 
 	// Need to make the item generators use the weapon stack now
 	// instead of it using item stack so this cast works.
-	WeaponToFire = Cast<UWeaponStack>(GetCurrentSourceObject());
-	if (!WeaponToFire)
+	GunToFire = Cast<UGunStack>(GetCurrentSourceObject());
+	if (!GunToFire)
 	{
 		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid weapon (weapon stack) when giving the fire ability"), *FString(__FUNCTION__));
 		return;
@@ -55,7 +55,7 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	FActorSpawnParameters TargetActorSpawnParameters;
 	TargetActorSpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	BulletTraceTargetActor = GetWorld()->SpawnActor<AGATA_BulletTrace>(WeaponToFire->BulletTraceTargetActorTSub, TargetActorSpawnParameters);
+	BulletTraceTargetActor = GetWorld()->SpawnActor<AGATA_BulletTrace>(GunToFire->BulletTraceTargetActorTSub, TargetActorSpawnParameters);
 	if (!BulletTraceTargetActor)
 	{
 		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid BulletTraceTargetActor in the weapon item stack when giving the fire ability. How the heck we supposed to fire the weapon!?!?"), *FString(__FUNCTION__));
@@ -80,7 +80,7 @@ void UGA_FireGun::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, co
 {
 	Super::OnRemoveAbility(ActorInfo, Spec);
 
-	WeaponToFire = nullptr;
+	GunToFire = nullptr;
 	if (BulletTraceTargetActor && BulletTraceTargetActor->Destroy())
 	{
 		BulletTraceTargetActor = nullptr;
@@ -119,9 +119,9 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 
 
 	UAT_Ticker* TickerTask = nullptr;
-	if (WeaponToFire->FiringMode == EWeaponFireMode::MODE_FullAuto)
+	if (GunToFire->FiringMode == EWeaponFireMode::MODE_FullAuto)
 	{
-		TickerTask = UAT_Ticker::Ticker(this, false, -1.f, WeaponToFire->FireRate);
+		TickerTask = UAT_Ticker::Ticker(this, false, -1.f, GunToFire->FireRate);
 		if (!TickerTask)
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() TickerTask was NULL when trying to activate fire ability. Called EndAbility()"), *FString(__FUNCTION__));
@@ -132,7 +132,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	
 	// We only want a release task if we are a full auto fire
 	UAT_WaitInputReleaseCust* WaitInputReleaseTask = nullptr;
-	if (WeaponToFire->FiringMode == EWeaponFireMode::MODE_FullAuto && WeaponToFire->NumBursts <= 0)
+	if (GunToFire->FiringMode == EWeaponFireMode::MODE_FullAuto && GunToFire->NumBursts <= 0)
 	{
 		WaitInputReleaseTask = UAT_WaitInputReleaseCust::WaitInputReleaseCust(this);
 		if (!WaitInputReleaseTask)
@@ -164,14 +164,14 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 
 
 
-	switch (WeaponToFire->FiringMode)
+	switch (GunToFire->FiringMode)
 	{
 	case EWeaponFireMode::MODE_SemiAuto:
 		Fire();
 		break;
 
 	case EWeaponFireMode::MODE_FullAuto:
-		if (WeaponToFire->NumBursts <= 0)
+		if (GunToFire->NumBursts <= 0)
 		{
 			WaitInputReleaseTask->OnRelease.AddDynamic(this, &UGA_FireGun::OnRelease);
 			WaitInputReleaseTask->ReadyForActivation();
@@ -192,7 +192,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 
 void UGA_FireGun::OnFullAutoTick(float DeltaTime, float CurrentTime, float TimeRemaining)
 {
-	const int32 TimesToBurst = WeaponToFire->NumBursts;
+	const int32 TimesToBurst = GunToFire->NumBursts;
 
 	if (TimesToBurst <= 0)
 	{
@@ -216,7 +216,7 @@ void UGA_FireGun::OnFullAutoTick(float DeltaTime, float CurrentTime, float TimeR
 void UGA_FireGun::Fire()
 {
 	// Check if we have enough ammo first
-	if (AmmoAttributeSet->GetClipAmmo() < WeaponToFire->AmmoCost) // if we don't have enough ammo
+	if (AmmoAttributeSet->GetClipAmmo() < GunToFire->AmmoCost) // if we don't have enough ammo
 	{
 		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Not enough ammo to fire"), *FString(__FUNCTION__));
 
@@ -248,7 +248,7 @@ void UGA_FireGun::Fire()
 
 
 	// Lets finally fire
-	AmmoAttributeSet->SetClipAmmo(AmmoAttributeSet->GetClipAmmo() - WeaponToFire->AmmoCost);
+	AmmoAttributeSet->SetClipAmmo(AmmoAttributeSet->GetClipAmmo() - GunToFire->AmmoCost);
 	BulletTraceTargetActor->StartLocation = MakeTargetLocationInfoFromOwnerSkeletalMeshComponent(TEXT("None"));		// this will take the actor info's skeletal mesh, maybe make our own in SSGameplayAbility which you can specify a skeletal mesh to use
 	WaitTargetDataActorTask->ReadyForActivation();
 }
@@ -266,16 +266,16 @@ void UGA_FireGun::OnRelease(float TimeHeld)
 
 void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 {
-	if (TSubclassOf<UGameplayEffect> BulletHitEffectTSub = WeaponToFire->BulletHitEffectTSub)
+	if (TSubclassOf<UGameplayEffect> BulletHitEffectTSub = GunToFire->BulletHitEffectTSub)
 	{
-		ApplyGameplayEffectToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), Data, WeaponToFire->BulletHitEffectTSub, GetAbilityLevel());
+		ApplyGameplayEffectToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), Data, GunToFire->BulletHitEffectTSub, GetAbilityLevel());
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s(): WeaponToFire gave us an empty BulletHitEffectTSub. Make sure to fill out DefaultBulletHitEffectTSub in the weapon generator"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s(): GunToFire gave us an empty BulletHitEffectTSub. Make sure to fill out DefaultBulletHitEffectTSub in the weapon generator"), *FString(__FUNCTION__));
 	}
 	
-	if (WeaponToFire->FiringMode == EWeaponFireMode::MODE_SemiAuto)
+	if (GunToFire->FiringMode == EWeaponFireMode::MODE_SemiAuto)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
 	}

@@ -39,18 +39,18 @@ FGameplayAbilitySpecHandle USSAbilitySystemComponent::GrantAbility(TSubclassOf<U
 	if (SSNewAbility)
 	{
 		UGameplayAbility* AbilityToGive = SSNewAbility.GetDefaultObject();
-		// if we don't have the ability yet give it, else log an error and let it return an invalid spec handle
-		if (GetActivatableAbilities().ContainsByPredicate([&AbilityToGive](const FGameplayAbilitySpec& Spec)
-			{ return Spec.Ability == AbilityToGive; }) == false)
-		{
+		//// if we don't have the ability yet give it, else log an error and let it return an invalid spec handle
+		//if (GetActivatableAbilities().ContainsByPredicate([&AbilityToGive](const FGameplayAbilitySpec& Spec)
+		//	{ return Spec.Ability == AbilityToGive; }) == false)
+		//{
 			FGameplayAbilitySpecHandle AbilitySpecHandle = GiveAbility(FGameplayAbilitySpec(AbilityToGive, level, static_cast<int32>(SSNewAbility.GetDefaultObject()->AbilityInputID), InSourceObject));
 
 			return AbilitySpecHandle;
-		}
-		else
-		{
-			UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Tried granting an already-activatable ability. %s was not granted"), *FString(__FUNCTION__), *(AbilityToGive->GetName()));
-		}
+		//}
+		//else
+		//{
+		//	UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Tried granting an already-activatable ability. %s was not granted"), *FString(__FUNCTION__), *(AbilityToGive->GetName()));
+		//}
 	}
 	else
 	{

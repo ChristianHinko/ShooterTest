@@ -99,8 +99,8 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 
 	if (!GunToFire)
 	{
-		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() GunToFire was NULL. returned false"), *FString(__FUNCTION__));
-		return;
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GunToFire was NULL. returned false"), *FString(__FUNCTION__));
+		return false;
 	}
 
 	if (!BulletTraceTargetActor)
@@ -135,7 +135,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	UAT_Ticker* TickerTask = nullptr;
 	if (GunToFire->FiringMode != EGunFireMode::MODE_SemiAuto)
 	{
-		TickerTask = UAT_Ticker::Ticker(this, false, -1.f, GunToFire->AutoShootingRate);
+		TickerTask = UAT_Ticker::Ticker(this, false, -1.f, 1 / GunToFire->AutoShootingRate);
 		if (!TickerTask)
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() TickerTask was NULL when trying to activate fire ability. Called EndAbility()"), *FString(__FUNCTION__));

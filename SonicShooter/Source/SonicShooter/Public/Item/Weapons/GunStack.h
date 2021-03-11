@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "ArcItemStack.h"
-#include "WeaponStack.generated.h"
+#include "GunStack.generated.h"
 
 
 class AGATA_BulletTrace;
@@ -12,7 +12,7 @@ class AGATA_BulletTrace;
 
 
 UENUM()
-enum class EWeaponFireMode : uint8
+enum class EGunFireMode : uint8
 {
 	MODE_SemiAuto									UMETA(DisplayName = "Semi-auto"),
 	MODE_FullAuto									UMETA(DisplayName = "Full-auto"),
@@ -23,7 +23,7 @@ enum class EWeaponFireMode : uint8
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UWeaponStack : public UArcItemStack
+class SONICSHOOTER_API UGunStack : public UArcItemStack
 {
 	GENERATED_BODY()
 	
@@ -45,7 +45,7 @@ public:
 	 * Firing mode
 	 */
 	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Weapon Firing")
-		EWeaponFireMode FiringMode;
+		EGunFireMode FiringMode;
 
 	/**
 	 * Minimum time that must pass before we can fire again
@@ -56,13 +56,13 @@ public:
 	/**
 	 * Number of bursts (ie. 3 for 3-round burst)
 	 */
-	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Weapon Firing", meta = (EditCondition = "DefaultFiringMode == EWeaponFireMode::MODE_Burst"))
+	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Weapon Firing", meta = (EditCondition = "DefaultFiringMode == EGunFireMode::MODE_Burst"))
 		int32 NumBursts;
 
 	/**
 	 * Amount of seconds between each shot for auto shooting. TODO: make this in bullets per second
 	 */
-	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Weapon Firing", meta = (EditCondition = "DefaultFiringMode != EWeaponFireMode::MODE_SemiAuto"))
+	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Weapon Firing", meta = (EditCondition = "DefaultFiringMode != EGunFireMode::MODE_SemiAuto"))
 		float AutoShootingRate;
 
 

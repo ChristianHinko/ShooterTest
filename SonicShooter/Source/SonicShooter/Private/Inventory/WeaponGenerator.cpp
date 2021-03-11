@@ -3,14 +3,14 @@
 
 #include "Inventory/WeaponGenerator.h"
 
-#include "Item/Weapons/WeaponStack.h"
+#include "Item/Weapons/GunStack.h"
 
 
 
 UWeaponGenerator::UWeaponGenerator(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	DefaultFiringMode = EWeaponFireMode::MODE_SemiAuto;
+	DefaultFiringMode = EGunFireMode::MODE_SemiAuto;
 	DefaultFireRate = 1.f;
 	DefaultNumBursts = 3;
 	DefaultAutoShootingRate = 1.f;
@@ -23,15 +23,15 @@ UArcItemStack* UWeaponGenerator::GenerateItemStack_Implementation(const FArcItem
 	UArcItemStack* NewItemStack = Super::GenerateItemStack_Implementation(Context);
 
 
-	if (UWeaponStack* NewWeaponStack = Cast<UWeaponStack>(NewItemStack))
+	if (UGunStack* NewGunStack = Cast<UGunStack>(NewItemStack))
 	{
-		NewWeaponStack->BulletTraceTargetActorTSub				= DefaultBulletTraceTargetActorTSub;
-		NewWeaponStack->BulletHitEffectTSub						= DefaultBulletHitEffectTSub;
-		NewWeaponStack->FiringMode								= DefaultFiringMode;
-		NewWeaponStack->FireRate								= DefaultFireRate;
-		NewWeaponStack->NumBursts								= DefaultNumBursts;
-		NewWeaponStack->AutoShootingRate						= DefaultAutoShootingRate;
-		NewWeaponStack->AmmoCost								= DefaultAmmoCost;
+		NewGunStack->BulletTraceTargetActorTSub						= DefaultBulletTraceTargetActorTSub;
+		NewGunStack->BulletHitEffectTSub							= DefaultBulletHitEffectTSub;
+		NewGunStack->FiringMode										= DefaultFiringMode;
+		NewGunStack->FireRate										= DefaultFireRate;
+		NewGunStack->NumBursts										= DefaultNumBursts;
+		NewGunStack->AutoShootingRate								= DefaultAutoShootingRate;
+		NewGunStack->AmmoCost										= DefaultAmmoCost;
 	}
 
 

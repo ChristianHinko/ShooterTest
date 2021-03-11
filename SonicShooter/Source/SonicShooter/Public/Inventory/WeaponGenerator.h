@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Generators/ArcItemGenerator_Unique.h"
-#include "Item/Weapons/WeaponStack.h"
+#include "Item/Weapons/GunStack.h"
 
 #include "WeaponGenerator.generated.h"
 
@@ -42,7 +42,7 @@ public:
 	 * Firing mode
 	 */
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Firing")
-		EWeaponFireMode DefaultFiringMode;
+		EGunFireMode DefaultFiringMode;
 
 	/**
 	 * Minimum time that must pass before we can fire again
@@ -53,13 +53,13 @@ public:
 	/**
 	 * Number of bursts (ie. 3 for 3-round burst)
 	 */
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon Firing", meta = (EditCondition = "DefaultFiringMode == EWeaponFireMode::MODE_Burst"))
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon Firing", meta = (EditCondition = "DefaultFiringMode == EGunFireMode::MODE_Burst"))
 		int32 DefaultNumBursts;
 
 	/**
 	 * Amount of seconds between each shot for auto shooting. TODO: make this in bullets per second
 	 */
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon Firing", meta = (EditCondition = "DefaultFiringMode != EWeaponFireMode::MODE_SemiAuto"))
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon Firing", meta = (EditCondition = "DefaultFiringMode != EGunFireMode::MODE_SemiAuto"))
 		float DefaultAutoShootingRate;
 
 

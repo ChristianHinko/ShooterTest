@@ -4,23 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSGameplayAbility.h"
-#include "GA_Fire.generated.h"
+#include "GA_FireGun.generated.h"
 
 class AGATA_BulletTrace;
 class UAS_Ammo;
-class UWeaponStack;
+class UGunStack;
 class UAT_SSWaitTargetData;
 
 /**
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UGA_Fire : public USSGameplayAbility
+class SONICSHOOTER_API UGA_FireGun : public USSGameplayAbility
 {
 	GENERATED_BODY()
 	
 public:
-	UGA_Fire();
+	UGA_FireGun();
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Effects To Apply")
@@ -43,7 +43,7 @@ protected:
 
 
 	UPROPERTY()
-		UWeaponStack* WeaponToFire;
+		UGunStack* GunToFire;
 	UPROPERTY()
 		AGATA_BulletTrace* BulletTraceTargetActor;
 	UPROPERTY()

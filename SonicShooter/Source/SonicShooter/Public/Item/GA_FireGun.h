@@ -63,4 +63,6 @@ protected:
 
 private:
 	int32 timesBursted;
+
+	float previousFireEndTimestamp;
 };

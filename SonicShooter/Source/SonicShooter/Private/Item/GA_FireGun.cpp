@@ -108,6 +108,13 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 		return false;
 	}
 
+	// If we're firing too fast
+	if (GetWorld()->GetTimeSeconds() - timestampPreviousFireEnd < GunToFire->FireRate)
+	{
+		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Tried firing gun faster than the gun's FireRate allowed. returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+
 
 	return true;
 }
@@ -309,6 +316,9 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &UGA_FireGun::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
 		return;
 	}
+
+	// Store when this fire ended so next fire can determine fire rate
+	timestampPreviousFireEnd = GetWorld()->GetTimeSeconds();
 
 	// Reset back to zero for next activation
 	timesBursted = 0;

@@ -17,11 +17,6 @@
 
 USSCharacterMovementComponent::USSCharacterMovementComponent()
 {
-	CVarToggleCrouchChangeDelegate.BindUFunction(this, TEXT("CVarToggleCrouchChanged"));
-	UCVarChangeListenerManager::AddBoolCVarCallbackStatic(TEXT("input.ToggleCrouch"), CVarToggleCrouchChangeDelegate, true);
-	
-	CVarToggleRunChangeDelegate.BindUFunction(this, TEXT("CVarToggleRunChanged"));
-	UCVarChangeListenerManager::AddBoolCVarCallbackStatic(TEXT("input.ToggleRun"), CVarToggleRunChangeDelegate, true);
 
 
 
@@ -47,6 +42,12 @@ void USSCharacterMovementComponent::CVarToggleRunChanged(bool newToggleRun)
 void USSCharacterMovementComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
+
+	// Setup listening for input CVar changes
+	CVarToggleCrouchChangeDelegate.BindUFunction(this, TEXT("CVarToggleCrouchChanged"));
+	UCVarChangeListenerManager::AddBoolCVarCallbackStatic(TEXT("input.ToggleCrouch"), CVarToggleCrouchChangeDelegate, true);
+	CVarToggleRunChangeDelegate.BindUFunction(this, TEXT("CVarToggleRunChanged"));
+	UCVarChangeListenerManager::AddBoolCVarCallbackStatic(TEXT("input.ToggleRun"), CVarToggleRunChangeDelegate, true);
 
 
 	// Get reference to our SSCharacter

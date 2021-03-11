@@ -27,7 +27,7 @@ public:
 	UActorPoolerSubsystem();
 
 	UPROPERTY(BlueprintReadWrite, Category = "Pooling|Variables")
-		int maxPoolSize;
+		int32 maxPoolSize;
 	UPROPERTY(BlueprintReadWrite, Category = "Pooling|Variables")
 		uint8 bDebugPooling : 1;
 

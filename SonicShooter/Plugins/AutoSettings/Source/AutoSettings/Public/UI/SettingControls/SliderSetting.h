@@ -18,11 +18,11 @@ public:
 	USliderSetting(const FObjectInitializer& ObjectInitializer);
 
 	// Value assigned with the left-most position of the slider
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Slider Setting")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slider Setting")
 	float LeftValue;
 
 	// Value assigned with the right-most position of the slider
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Slider Setting")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slider Setting")
 	float RightValue;
 
 	// Clamps a value between the Left Value and Right Value of the slider

@@ -10,7 +10,7 @@ TArray<FSettingOption> UResolutionOptionFactory::ConstructOptions_Implementation
 	UKismetSystemLibrary::GetSupportedFullscreenResolutions(Resolutions);
 
 	TArray<FSettingOption> Result;
-	for (const FIntPoint Resolution : Resolutions)
+	for (const FIntPoint& Resolution : Resolutions)
 	{
 		const FText X = FText::FromString(FString::FromInt(Resolution.X));
 		const FText Y = FText::FromString(FString::FromInt(Resolution.Y));

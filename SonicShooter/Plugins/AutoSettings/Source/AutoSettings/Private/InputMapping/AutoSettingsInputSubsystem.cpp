@@ -6,6 +6,7 @@
 #include "InputMapping/InputMappingManager.h"
 #include "Engine/GameInstance.h"
 #include "Engine/LocalPlayer.h"
+#include "GameFramework/PlayerController.h"
 
 void UAutoSettingsInputSubsystem::Tick(float DeltaTime)
 {

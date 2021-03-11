@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
-	"Version": 28,
-	"VersionName": "1.15",
+	"Version": 30,
+	"VersionName": "1.16.1",
 	"FriendlyName": "Auto Settings",
 	"Description": "Game options and input binding toolkit",
 	"Category": "Settings",

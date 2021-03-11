@@ -80,19 +80,19 @@ bool AShooterCharacter::GrantStartingAbilities()
 	}
 	//	We are on authority and have a valid ASC to work with
 
-	InteractInstantAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractInstantAbilityTSub, this, InteractInstantAbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
-	InteractDurationAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractDurationAbilityTSub, this, InteractDurationAbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
+	InteractInstantAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractInstantAbilityTSub, this/*, GetLevel()*/);
+	InteractDurationAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractDurationAbilityTSub, this/*, GetLevel()*/);
 
-	SwapToLastActiveItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToLastActiveItemAbilityTSub, this, SwapToLastActiveItemAbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
-	SwapToNextItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToNextItemAbilityTSub, this, SwapToNextItemAbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
-	SwapToPreviousItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToPreviousItemAbilityTSub, this, SwapToPreviousItemAbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
-	SwapToItem0AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem0AbilityTSub, this, SwapToItem0AbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
-	SwapToItem1AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem1AbilityTSub, this, SwapToItem1AbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
-	SwapToItem2AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem2AbilityTSub, this, SwapToItem2AbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
-	SwapToItem3AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem3AbilityTSub, this, SwapToItem3AbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
-	SwapToItem4AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem4AbilityTSub, this, SwapToItem4AbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
+	SwapToLastActiveItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToLastActiveItemAbilityTSub, this/*, GetLevel()*/);
+	SwapToNextItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToNextItemAbilityTSub, this/*, GetLevel()*/);
+	SwapToPreviousItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToPreviousItemAbilityTSub, this/*, GetLevel()*/);
+	SwapToItem0AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem0AbilityTSub, this/*, GetLevel()*/);
+	SwapToItem1AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem1AbilityTSub, this/*, GetLevel()*/);
+	SwapToItem2AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem2AbilityTSub, this/*, GetLevel()*/);
+	SwapToItem3AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem3AbilityTSub, this/*, GetLevel()*/);
+	SwapToItem4AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem4AbilityTSub, this/*, GetLevel()*/);
 
-	DropItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(DropItemAbilityTSub, this, DropItemAbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
+	DropItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(DropItemAbilityTSub, this/*, GetLevel()*/);
 
 	return true;
 }

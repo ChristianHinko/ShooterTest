@@ -28,7 +28,7 @@ USSAbilitySystemComponent::USSAbilitySystemComponent()
 	Wrapper version of GiveAbility. Always call this instead for our games. InSourceObject is the actor that owns the granted ability. Make sure InSourceObject isset to a meaningful value (shouldn't pass null for it).
 	By default this method will look at the ability's AbilityInputID variable and use that as the ability's inputID. But if you specify one it will override it.
 */
-FGameplayAbilitySpecHandle USSAbilitySystemComponent::GrantAbility(TSubclassOf<UGameplayAbility> NewAbility, UObject* InSourceObject, EAbilityInputID inputID, int32 level)
+FGameplayAbilitySpecHandle USSAbilitySystemComponent::GrantAbility(TSubclassOf<USSGameplayAbility> NewAbility, UObject* InSourceObject, int32 level)
 {
 	if (IsOwnerActorAuthoritative() == false)
 	{
@@ -43,7 +43,7 @@ FGameplayAbilitySpecHandle USSAbilitySystemComponent::GrantAbility(TSubclassOf<U
 		if (GetActivatableAbilities().ContainsByPredicate([&AbilityToGive](const FGameplayAbilitySpec& Spec)
 			{ return Spec.Ability == AbilityToGive; }) == false)
 		{
-			FGameplayAbilitySpecHandle AbilitySpecHandle = GiveAbility(FGameplayAbilitySpec(AbilityToGive, level, static_cast<int32>(inputID), InSourceObject));
+			FGameplayAbilitySpecHandle AbilitySpecHandle = GiveAbility(FGameplayAbilitySpec(AbilityToGive, level, static_cast<int32>(NewAbility.GetDefaultObject()->AbilityInputID), InSourceObject));
 
 			return AbilitySpecHandle;
 		}

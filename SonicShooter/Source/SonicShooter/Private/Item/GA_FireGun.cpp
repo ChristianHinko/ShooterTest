@@ -25,6 +25,7 @@ UGA_FireGun::UGA_FireGun()
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Fire")));
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("AbilityInput.PrimaryFire")));
 
+	fireNumber = 0;
 
 }
 
@@ -150,7 +151,6 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	}
 	///////////////////////////////////// we are safe to proceed /////////
 
-
 	if (FireEffectTSub)
 	{
 		FireEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, FireEffectTSub.GetDefaultObject(), GetAbilityLevel());
@@ -225,6 +225,7 @@ void UGA_FireGun::OnFullAutoTick(float DeltaTime, float CurrentTime, float TimeR
 
 void UGA_FireGun::Fire()
 {
+	fireNumber++;
 	// Check if we have enough ammo first
 	if (AmmoAttributeSet->GetClipAmmo() < GunToFire->AmmoCost) // if we don't have enough ammo
 	{
@@ -252,8 +253,11 @@ void UGA_FireGun::Fire()
 	WaitTargetDataActorTask->ValidData.AddDynamic(this, &UGA_FireGun::OnValidData);
 	WaitTargetDataActorTask->Cancelled.AddDynamic(this, &UGA_FireGun::OnCancelled);
 
-	
 
+
+	const int16 predKey = GetCurrentActivationInfo().GetActivationPredictionKey().Current;	// Use the prediction key as a net safe random seed.
+	const int32 fireRandomSeed = predKey + fireNumber;										// Make the random seed unique to this particular fire
+	BulletTraceTargetActor->fireNetSafeRandomSeed = fireRandomSeed;							// Inject this random seed into our target actor (target actor will make random seed unique to each bullet in the fire if there are multible bullets in the fire)
 
 
 
@@ -311,6 +315,7 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 	}
 
 	// Reset back to zero for next activation
+	fireNumber = 0;
 	timesBursted = 0;
 
 	if (ActorInfo)

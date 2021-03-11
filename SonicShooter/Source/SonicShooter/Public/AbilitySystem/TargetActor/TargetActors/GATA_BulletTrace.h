@@ -24,6 +24,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true, UIMin = 0, UIMax = 360), Category = "Bullet Config")
 		float bulletSpread;
 
+	/** This is injected in every fire */
+	int16 fireNetSafeRandomSeed;
+
 protected:
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor);
 };

@@ -27,6 +27,8 @@ protected:
 		TSubclassOf<UGameplayEffect> FireEffectTSub;
 	FActiveGameplayEffectHandle FireEffectActiveHandle;
 
+	// Used to give each fire a unique random seed since machine guns only have 1 prediction key across fires
+	int32 fireNumber;
 
 
 	//BEGIN UGameplayAbility Interface

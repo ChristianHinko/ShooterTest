@@ -11,8 +11,9 @@ UWeaponGenerator::UWeaponGenerator(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	DefaultFiringMode = EWeaponFireMode::MODE_SemiAuto;
-	DefaultNumBursts = 0;
 	DefaultFireRate = 1.f;
+	DefaultNumBursts = 3;
+	DefaultAutoShootingRate = 1.f;
 	DefaultAmmoCost = 1.f;
 }
 
@@ -27,8 +28,9 @@ UArcItemStack* UWeaponGenerator::GenerateItemStack_Implementation(const FArcItem
 		NewWeaponStack->BulletTraceTargetActorTSub				= DefaultBulletTraceTargetActorTSub;
 		NewWeaponStack->BulletHitEffectTSub						= DefaultBulletHitEffectTSub;
 		NewWeaponStack->FiringMode								= DefaultFiringMode;
-		NewWeaponStack->NumBursts								= DefaultNumBursts;
 		NewWeaponStack->FireRate								= DefaultFireRate;
+		NewWeaponStack->NumBursts								= DefaultNumBursts;
+		NewWeaponStack->AutoShootingRate						= DefaultAutoShootingRate;
 		NewWeaponStack->AmmoCost								= DefaultAmmoCost;
 	}
 

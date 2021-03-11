@@ -25,34 +25,47 @@ public:
 	UWeaponGenerator(const FObjectInitializer& ObjectInitializer);
 
 
-	/** This weapon's target actor (what it will shoot) */
+	/**
+	 * This weapon's target actor (what it will shoot)
+	 */
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Firing")
 		TSubclassOf<AGATA_BulletTrace> DefaultBulletTraceTargetActorTSub;
 
-	/** The effect that will be applied to the target that this bullet hits */
+	/**
+	 * The effect that will be applied to the target that this bullet hits
+	 */
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Firing")
 		TSubclassOf<UGameplayEffect> DefaultBulletHitEffectTSub;
 	
 
-	/** Firing mode */
+	/**
+	 * Firing mode
+	 */
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Firing")
 		EWeaponFireMode DefaultFiringMode;
 
-	/** Number of bursts (ie. 3 for 3-round burst). Set to 0 for full auto - no burst */
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon Firing", meta = (EditCondition = "DefaultFiringMode == EWeaponFireMode::MODE_FullAuto"))
-		int32 DefaultNumBursts;
-
 	/**
-	 * Rate of fire in seconds between each shot. (maybe this should be in bullets per second?)
-	 * 
-	 * If full-auto, time between each bullet fired.
-	 * If semi-auto, min time between each fire.
+	 * Minimum time that must pass before we can fire again
 	 */
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Firing")
 		float DefaultFireRate;
 
+	/**
+	 * Number of bursts (ie. 3 for 3-round burst)
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon Firing", meta = (EditCondition = "DefaultFiringMode == EWeaponFireMode::MODE_Burst"))
+		int32 DefaultNumBursts;
 
-	/** How much clip ammo will we lose for each shot. (Pretty much always just 1 but it's here if you need it) */
+	/**
+	 * Amount of seconds between each shot for auto shooting. TODO: make this in bullets per second
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon Firing", meta = (EditCondition = "DefaultFiringMode != EWeaponFireMode::MODE_SemiAuto"))
+		float DefaultAutoShootingRate;
+
+
+	/**
+	 * How much clip ammo will we lose for each shot. (Pretty much always just 1 but it's here if you need it)
+	 */
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Firing")
 		float DefaultAmmoCost;
 

@@ -119,9 +119,9 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 
 
 	UAT_Ticker* TickerTask = nullptr;
-	if (WeaponToFire->FiringMode == EWeaponFireMode::MODE_FullAuto)
+	if (WeaponToFire->FiringMode != EWeaponFireMode::MODE_SemiAuto)
 	{
-		TickerTask = UAT_Ticker::Ticker(this, false, -1.f, WeaponToFire->FireRate);
+		TickerTask = UAT_Ticker::Ticker(this, false, -1.f, WeaponToFire->AutoShootingRate);
 		if (!TickerTask)
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() TickerTask was NULL when trying to activate fire ability. Called EndAbility()"), *FString(__FUNCTION__));
@@ -132,7 +132,7 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	
 	// We only want a release task if we are a full auto fire
 	UAT_WaitInputReleaseCust* WaitInputReleaseTask = nullptr;
-	if (WeaponToFire->FiringMode == EWeaponFireMode::MODE_FullAuto && WeaponToFire->NumBursts <= 0)
+	if (WeaponToFire->FiringMode == EWeaponFireMode::MODE_FullAuto)
 	{
 		WaitInputReleaseTask = UAT_WaitInputReleaseCust::WaitInputReleaseCust(this);
 		if (!WaitInputReleaseTask)
@@ -170,16 +170,23 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 		Fire();
 		break;
 
-	case EWeaponFireMode::MODE_FullAuto:
-		if (WeaponToFire->NumBursts <= 0)
-		{
-			WaitInputReleaseTask->OnRelease.AddDynamic(this, &UGA_Fire::OnRelease);
-			WaitInputReleaseTask->ReadyForActivation();
-		}
+	case EWeaponFireMode::MODE_Burst:
 
 		TickerTask->OnTick.AddDynamic(this, &UGA_Fire::OnFullAutoTick);
 		TickerTask->ReadyForActivation();
+
 		break;
+
+	case EWeaponFireMode::MODE_FullAuto:
+
+		WaitInputReleaseTask->OnRelease.AddDynamic(this, &UGA_Fire::OnRelease);
+		WaitInputReleaseTask->ReadyForActivation();
+
+		TickerTask->OnTick.AddDynamic(this, &UGA_Fire::OnFullAutoTick);
+		TickerTask->ReadyForActivation();
+
+		break;
+
 
 	default:
 		break;
@@ -192,25 +199,28 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 
 void UGA_Fire::OnFullAutoTick(float DeltaTime, float CurrentTime, float TimeRemaining)
 {
-	const int32 TimesToBurst = WeaponToFire->NumBursts;
-
-	if (TimesToBurst <= 0)
+	// Full-auto logic
+	if (WeaponToFire->FiringMode == EWeaponFireMode::MODE_FullAuto)
 	{
 		Fire();
 		return;
 	}
 
-	// Burst logic:
-
-	if (TimesToBurst > 0 && timesBursted < TimesToBurst)
+	// Burst logic
+	if (WeaponToFire->FiringMode == EWeaponFireMode::MODE_Burst)
 	{
-		Fire();
-		++timesBursted;
+		const int32 TimesToBurst = WeaponToFire->NumBursts;
+		if (TimesToBurst > 0 && timesBursted < TimesToBurst)
+		{
+			Fire();
+			++timesBursted;
+			return;
+		}
+
+		// No more bursts left
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 		return;
 	}
-
-	// No more bursts left
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
 void UGA_Fire::Fire()

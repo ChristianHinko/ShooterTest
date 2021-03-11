@@ -15,7 +15,8 @@ UENUM()
 enum class EWeaponFireMode : uint8
 {
 	MODE_SemiAuto									UMETA(DisplayName = "Semi-auto"),
-	MODE_FullAuto									UMETA(DisplayName = "Full-auto")
+	MODE_FullAuto									UMETA(DisplayName = "Full-auto"),
+	MODE_Burst										UMETA(DisplayName = "Burst")
 };
 
 /**
@@ -27,34 +28,47 @@ class SONICSHOOTER_API UWeaponStack : public UArcItemStack
 	GENERATED_BODY()
 	
 public:
-	/** This weapon's target actor (what it will shoot) */
+	/**
+	 * This weapon's target actor (what it will shoot)
+	 */
 	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Weapon Firing")
 		TSubclassOf<AGATA_BulletTrace> BulletTraceTargetActorTSub;
 
-	/** The effect that will be applied to the target that this bullet hits */
-	UPROPERTY(EditDefaultsOnly, Replicated, Category = "Weapon Firing")
+	/**
+	 * The effect that will be applied to the target that this bullet hits
+	 */
+	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Weapon Firing")
 		TSubclassOf<UGameplayEffect> BulletHitEffectTSub;
 
 
-	/** Firing mode */
+	/**
+	 * Firing mode
+	 */
 	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Weapon Firing")
 		EWeaponFireMode FiringMode;
 
-	/** Number of bursts (ie. 3-round burst). Set to 0 for full auto - no burst */
-	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Weapon Firing", meta = (EditCondition = "DefaultFiringMode == EWeaponFireMode::MODE_FullAuto"))
-		int32 NumBursts;
-
 	/**
-	 * Rate of fire in seconds between each shot. (maybe this should be in bullets per second?)
-	 *
-	 * If full-auto, time between each bullet fired.
-	 * If semi-auto, min time between each fire.
+	 * Minimum time that must pass before we can fire again
 	 */
 	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Weapon Firing")
 		float FireRate;
 
+	/**
+	 * Number of bursts (ie. 3 for 3-round burst)
+	 */
+	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Weapon Firing", meta = (EditCondition = "DefaultFiringMode == EWeaponFireMode::MODE_Burst"))
+		int32 NumBursts;
 
-	/** How much clip ammo will we lose for each shot. (Pretty much always just 1 but it's here if you need it) */
-	UPROPERTY(EditDefaultsOnly, Replicated, Category = "Weapon Firing")
+	/**
+	 * Amount of seconds between each shot for auto shooting. TODO: make this in bullets per second
+	 */
+	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Weapon Firing", meta = (EditCondition = "DefaultFiringMode != EWeaponFireMode::MODE_SemiAuto"))
+		float AutoShootingRate;
+
+
+	/**
+	 * How much clip ammo will we lose for each shot. (Pretty much always just 1 but it's here if you need it)
+	 */
+	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Weapon Firing")
 		float AmmoCost;
 };

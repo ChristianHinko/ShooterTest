@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Inventory/WeaponGenerator.h"
+#include "Inventory/GunGenerator.h"
 
 #include "Item/Weapons/GunStack.h"
 
 
 
-UWeaponGenerator::UWeaponGenerator(const FObjectInitializer& ObjectInitializer)
+UGunGenerator::UGunGenerator(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	DefaultFiringMode = EGunFireMode::MODE_SemiAuto;
@@ -18,7 +18,7 @@ UWeaponGenerator::UWeaponGenerator(const FObjectInitializer& ObjectInitializer)
 }
 
 
-UArcItemStack* UWeaponGenerator::GenerateItemStack_Implementation(const FArcItemGeneratorContext& Context)
+UArcItemStack* UGunGenerator::GenerateItemStack_Implementation(const FArcItemGeneratorContext& Context)
 {
 	UArcItemStack* NewItemStack = Super::GenerateItemStack_Implementation(Context);
 

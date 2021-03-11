@@ -46,8 +46,8 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 		if (bulletSpread > SMALL_NUMBER)
 		{
 			// Our injected random seed is only unique to each fire. We need a random seed that is also unique to each bullet in the fire, so we will do this by using t
-			const int32 fireAndBulletNetSafeRandomSeed = fireNetSafeRandomSeed - ((t + 2) * fireNetSafeRandomSeed);	// Here, the 'number' multiplied to t makes the random pattern noticable after firing 'number' of times. I use the prediction key as that 'number' which i think eliminates the threshold for noticeability entirely. - its confusing to think about but i think it works
-			const FRandomStream randomStream = FRandomStream(fireAndBulletNetSafeRandomSeed);
+			const int32 fireAndBulletSpecificNetSafeRandomSeed = fireSpecificNetSafeRandomSeed - ((t + 2) * fireSpecificNetSafeRandomSeed);	// Here, the 'number' multiplied to t makes the random pattern noticable after firing 'number' of times. I use the prediction key as that 'number' which i think eliminates the threshold for noticeability entirely. - its confusing to think about but i think it works
+			const FRandomStream randomStream = FRandomStream(fireAndBulletSpecificNetSafeRandomSeed);
 
 			// Add random offset to AimDir using randomStream
 			const float coneHalfAngleRadius = FMath::DegreesToRadians(bulletSpread * 0.5f);

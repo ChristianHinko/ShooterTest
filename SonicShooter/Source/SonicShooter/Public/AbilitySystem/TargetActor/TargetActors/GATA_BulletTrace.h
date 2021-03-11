@@ -25,7 +25,7 @@ public:
 		float bulletSpread;
 
 	/** This is injected in every fire */
-	int16 fireNetSafeRandomSeed;
+	int16 fireSpecificNetSafeRandomSeed;
 
 protected:
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor);

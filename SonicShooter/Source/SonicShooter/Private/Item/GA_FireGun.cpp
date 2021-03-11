@@ -271,7 +271,7 @@ void UGA_FireGun::Fire()
 
 	const int16 predKey = GetCurrentActivationInfo().GetActivationPredictionKey().Current;	// Use the prediction key as a net safe random seed.
 	const int32 fireRandomSeed = predKey + fireNumber;										// Make the random seed unique to this particular fire
-	BulletTraceTargetActor->fireNetSafeRandomSeed = fireRandomSeed;							// Inject this random seed into our target actor (target actor will make random seed unique to each bullet in the fire if there are multible bullets in the fire)
+	BulletTraceTargetActor->fireSpecificNetSafeRandomSeed = fireRandomSeed;							// Inject this random seed into our target actor (target actor will make random seed unique to each bullet in the fire if there are multible bullets in the fire)
 
 
 

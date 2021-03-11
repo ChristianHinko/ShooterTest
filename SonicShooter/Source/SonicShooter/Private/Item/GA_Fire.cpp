@@ -131,16 +131,16 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	}
 	
 	// We only want a release task if we are a full auto fire
-	UAT_WaitInputReleaseCust* WaitInputReleaseTask = UAT_WaitInputReleaseCust::WaitInputReleaseCust(this);
+	UAT_WaitInputReleaseCust* WaitInputReleaseTask = nullptr;
 	if (WeaponToFire->FiringMode == EWeaponFireMode::MODE_FullAuto)
 	{
+		WaitInputReleaseTask = UAT_WaitInputReleaseCust::WaitInputReleaseCust(this);
 		if (!WaitInputReleaseTask)
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputReleaseTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), *FString(__FUNCTION__));
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 			return;
 		}
-		WaitInputReleaseTask->OnRelease.AddDynamic(this, &UGA_Fire::OnRelease);
 	}
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
@@ -171,6 +171,7 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 		break;
 
 	case EWeaponFireMode::MODE_FullAuto:
+		WaitInputReleaseTask->OnRelease.AddDynamic(this, &UGA_Fire::OnRelease);
 		WaitInputReleaseTask->ReadyForActivation();
 
 		TickerTask->OnTick.AddDynamic(this, &UGA_Fire::OnFullAutoTick);

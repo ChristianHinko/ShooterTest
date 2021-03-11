@@ -11,6 +11,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
 #include "ArcItemStack.h"
+#include "AbilitySystem/SSGameplayAbility.h"
 
 
 
@@ -79,19 +80,19 @@ bool AShooterCharacter::GrantStartingAbilities()
 	}
 	//	We are on authority and have a valid ASC to work with
 
-	InteractInstantAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractInstantAbilityTSub, this, EAbilityInputID::Interact/*, GetLevel()*/);
-	InteractDurationAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractDurationAbilityTSub, this, EAbilityInputID::Interact/*, GetLevel()*/);
+	InteractInstantAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractInstantAbilityTSub, this, InteractInstantAbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
+	InteractDurationAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractDurationAbilityTSub, this, InteractDurationAbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
 
-	SwapToLastActiveItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToLastActiveItemAbilityTSub, this, EAbilityInputID::SwitchWeapon/*, GetLevel()*/);
-	SwapToNextItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToNextItemAbilityTSub, this, EAbilityInputID::NextItem/*, GetLevel()*/);
-	SwapToPreviousItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToPreviousItemAbilityTSub, this, EAbilityInputID::PreviousItem/*, GetLevel()*/);
-	SwapToItem0AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem0AbilityTSub, this, EAbilityInputID::Item0/*, GetLevel()*/);
-	SwapToItem1AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem1AbilityTSub, this, EAbilityInputID::Item1/*, GetLevel()*/);
-	SwapToItem2AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem2AbilityTSub, this, EAbilityInputID::Item2/*, GetLevel()*/);
-	SwapToItem3AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem3AbilityTSub, this, EAbilityInputID::Item3/*, GetLevel()*/);
-	SwapToItem4AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem4AbilityTSub, this, EAbilityInputID::Item4/*, GetLevel()*/);
+	SwapToLastActiveItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToLastActiveItemAbilityTSub, this, SwapToLastActiveItemAbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
+	SwapToNextItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToNextItemAbilityTSub, this, SwapToNextItemAbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
+	SwapToPreviousItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToPreviousItemAbilityTSub, this, SwapToPreviousItemAbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
+	SwapToItem0AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem0AbilityTSub, this, SwapToItem0AbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
+	SwapToItem1AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem1AbilityTSub, this, SwapToItem1AbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
+	SwapToItem2AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem2AbilityTSub, this, SwapToItem2AbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
+	SwapToItem3AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem3AbilityTSub, this, SwapToItem3AbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
+	SwapToItem4AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem4AbilityTSub, this, SwapToItem4AbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
 
-	DropItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(DropItemAbilityTSub, this, EAbilityInputID::DropItem/*, GetLevel()*/);
+	DropItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(DropItemAbilityTSub, this, DropItemAbilityTSub.GetDefaultObject()->AbilityInputID/*, GetLevel()*/);
 
 	return true;
 }

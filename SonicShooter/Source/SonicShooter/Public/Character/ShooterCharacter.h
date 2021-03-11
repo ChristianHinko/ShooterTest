@@ -59,40 +59,40 @@ public:
 #pragma region Abilities
 	// Inventory Abilities
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UGameplayAbility> SwapToLastActiveItemAbilityTSub;
+		TSubclassOf<USSGameplayAbility> SwapToLastActiveItemAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToLastActiveItemAbilitySpecHandle;
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UGameplayAbility> SwapToNextItemAbilityTSub;
+		TSubclassOf<USSGameplayAbility> SwapToNextItemAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToNextItemAbilitySpecHandle;
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UGameplayAbility> SwapToPreviousItemAbilityTSub;
+		TSubclassOf<USSGameplayAbility> SwapToPreviousItemAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToPreviousItemAbilitySpecHandle;
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UGameplayAbility> SwapToItem0AbilityTSub;
+		TSubclassOf<USSGameplayAbility> SwapToItem0AbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToItem0AbilitySpecHandle;
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UGameplayAbility> SwapToItem1AbilityTSub;
+		TSubclassOf<USSGameplayAbility> SwapToItem1AbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToItem1AbilitySpecHandle;
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UGameplayAbility> SwapToItem2AbilityTSub;
+		TSubclassOf<USSGameplayAbility> SwapToItem2AbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToItem2AbilitySpecHandle;
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UGameplayAbility> SwapToItem3AbilityTSub;
+		TSubclassOf<USSGameplayAbility> SwapToItem3AbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToItem3AbilitySpecHandle;
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UGameplayAbility> SwapToItem4AbilityTSub;
+		TSubclassOf<USSGameplayAbility> SwapToItem4AbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToItem4AbilitySpecHandle;
 
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UGameplayAbility> DropItemAbilityTSub;
+		TSubclassOf<USSGameplayAbility> DropItemAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle DropItemAbilitySpecHandle;
 	// -----------------------
@@ -102,12 +102,12 @@ public:
 
 
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Interact")
-		TSubclassOf<UGameplayAbility> InteractInstantAbilityTSub;
+		TSubclassOf<USSGameplayAbility> InteractInstantAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle InteractInstantAbilitySpecHandle;
 
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Interact")
-		TSubclassOf<UGameplayAbility> InteractDurationAbilityTSub;
+		TSubclassOf<USSGameplayAbility> InteractDurationAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle InteractDurationAbilitySpecHandle;
 #pragma endregion

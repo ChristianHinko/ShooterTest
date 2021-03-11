@@ -37,28 +37,28 @@ void UGA_FireGun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const 
 
 }
 
-// This ability is only granted to the player while his weapon is active
+// This ability is only granted to the player while his Gun is active
 void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
 
-	// Need to make the item generators use the weapon stack now
+	// Need to make the item generators use the GunStack now
 	// instead of it using item stack so this cast works.
 	GunToFire = Cast<UGunStack>(GetCurrentSourceObject());
 	if (!GunToFire)
 	{
-		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid weapon (weapon stack) when giving the fire ability"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid Gun when giving the fire ability"), *FString(__FUNCTION__));
 		return;
 	}
 
-	// Spawn the weapon's target actor
+	// Spawn the Gun's target actor
 	FActorSpawnParameters TargetActorSpawnParameters;
 	TargetActorSpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	BulletTraceTargetActor = GetWorld()->SpawnActor<AGATA_BulletTrace>(GunToFire->BulletTraceTargetActorTSub, TargetActorSpawnParameters);
 	if (!BulletTraceTargetActor)
 	{
-		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid BulletTraceTargetActor in the weapon item stack when giving the fire ability. How the heck we supposed to fire the weapon!?!?"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid BulletTraceTargetActor in the GunStack when giving the fire ability. How the heck we supposed to fire the weapon!?!?"), *FString(__FUNCTION__));
 		return;
 	}
 	BulletTraceTargetActor->bDestroyOnConfirmation = false;
@@ -75,7 +75,7 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	}
 }
 
-// This ability is only granted to the player while his weapon is active
+// This ability is only granted to the player while his Gun is active
 void UGA_FireGun::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnRemoveAbility(ActorInfo, Spec);
@@ -119,7 +119,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 
 
 	UAT_Ticker* TickerTask = nullptr;
-	if (GunToFire->FiringMode == EWeaponFireMode::MODE_FullAuto)
+	if (GunToFire->FiringMode == EGunFireMode::MODE_FullAuto)
 	{
 		TickerTask = UAT_Ticker::Ticker(this, false, -1.f, GunToFire->FireRate);
 		if (!TickerTask)
@@ -132,7 +132,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	
 	// We only want a release task if we are a full auto fire
 	UAT_WaitInputReleaseCust* WaitInputReleaseTask = nullptr;
-	if (GunToFire->FiringMode == EWeaponFireMode::MODE_FullAuto && GunToFire->NumBursts <= 0)
+	if (GunToFire->FiringMode == EGunFireMode::MODE_FullAuto && GunToFire->NumBursts <= 0)
 	{
 		WaitInputReleaseTask = UAT_WaitInputReleaseCust::WaitInputReleaseCust(this);
 		if (!WaitInputReleaseTask)
@@ -166,11 +166,11 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 
 	switch (GunToFire->FiringMode)
 	{
-	case EWeaponFireMode::MODE_SemiAuto:
+	case EGunFireMode::MODE_SemiAuto:
 		Fire();
 		break;
 
-	case EWeaponFireMode::MODE_FullAuto:
+	case EGunFireMode::MODE_FullAuto:
 		if (GunToFire->NumBursts <= 0)
 		{
 			WaitInputReleaseTask->OnRelease.AddDynamic(this, &UGA_FireGun::OnRelease);
@@ -272,10 +272,10 @@ void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s(): GunToFire gave us an empty BulletHitEffectTSub. Make sure to fill out DefaultBulletHitEffectTSub in the weapon generator"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s(): GunToFire gave us an empty BulletHitEffectTSub. Make sure to fill out DefaultBulletHitEffectTSub in the Gun generator"), *FString(__FUNCTION__));
 	}
 	
-	if (GunToFire->FiringMode == EWeaponFireMode::MODE_SemiAuto)
+	if (GunToFire->FiringMode == EGunFireMode::MODE_SemiAuto)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
 	}

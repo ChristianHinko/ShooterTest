@@ -10,7 +10,7 @@
 UWeaponGenerator::UWeaponGenerator(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	DefaultFiringMode = EWeaponFireMode::MODE_SemiAuto;
+	DefaultFiringMode = EGunFireMode::MODE_SemiAuto;
 	DefaultNumBursts = 0;
 	DefaultFireRate = 1.f;
 	DefaultAmmoCost = 1.f;

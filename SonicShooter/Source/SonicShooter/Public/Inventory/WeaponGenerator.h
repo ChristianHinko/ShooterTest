@@ -36,10 +36,10 @@ public:
 
 	/** Firing mode */
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Firing")
-		EWeaponFireMode DefaultFiringMode;
+		EGunFireMode DefaultFiringMode;
 
 	/** Number of bursts (ie. 3 for 3-round burst). Set to 0 for full auto - no burst */
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon Firing", meta = (EditCondition = "DefaultFiringMode == EWeaponFireMode::MODE_FullAuto"))
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon Firing", meta = (EditCondition = "DefaultFiringMode == EGunFireMode::MODE_FullAuto"))
 		int32 DefaultNumBursts;
 
 	/**

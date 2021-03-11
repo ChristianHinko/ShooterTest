@@ -12,7 +12,7 @@ class AGATA_BulletTrace;
 
 
 UENUM()
-enum class EWeaponFireMode : uint8
+enum class EGunFireMode : uint8
 {
 	MODE_SemiAuto									UMETA(DisplayName = "Semi-auto"),
 	MODE_FullAuto									UMETA(DisplayName = "Full-auto")
@@ -38,10 +38,10 @@ public:
 
 	/** Firing mode */
 	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Weapon Firing")
-		EWeaponFireMode FiringMode;
+		EGunFireMode FiringMode;
 
 	/** Number of bursts (ie. 3-round burst). Set to 0 for full auto - no burst */
-	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Weapon Firing", meta = (EditCondition = "DefaultFiringMode == EWeaponFireMode::MODE_FullAuto"))
+	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Weapon Firing", meta = (EditCondition = "DefaultFiringMode == EGunFireMode::MODE_FullAuto"))
 		int32 NumBursts;
 
 	/**

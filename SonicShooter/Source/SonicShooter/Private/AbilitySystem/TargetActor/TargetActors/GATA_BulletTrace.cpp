@@ -11,8 +11,6 @@
 AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	ShouldProduceTargetDataOnServer = true;
-
 	MaxRange = 100000.f;
 	bTraceAffectsAimPitch = true;
 	TraceChannel = COLLISION_BULLET;

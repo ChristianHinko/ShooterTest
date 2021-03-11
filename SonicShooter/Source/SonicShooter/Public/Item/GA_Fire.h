@@ -60,4 +60,7 @@ protected:
 		void OnValidData(const FGameplayAbilityTargetDataHandle& Data);
 	UFUNCTION()
 		void OnCancelled(const FGameplayAbilityTargetDataHandle& Data);
+
+private:
+	int32 timesBursted;
 };

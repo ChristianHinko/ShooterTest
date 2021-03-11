@@ -60,7 +60,7 @@ public:
 		int32 NumBursts;
 
 	/**
-	 * Amount of seconds between each shot for auto shooting. TODO: make this in bullets per second
+	 * Bullets per second for auto-type shooting
 	 */
 	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Gun Firing", meta = (EditCondition = "DefaultFiringMode != EGunFireMode::MODE_SemiAuto"))
 		float AutoShootingRate;

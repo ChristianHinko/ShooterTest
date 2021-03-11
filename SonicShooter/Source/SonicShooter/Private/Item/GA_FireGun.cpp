@@ -97,6 +97,13 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 		return false;
 	}
 
+
+	if (!GunToFire)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GunToFire was NULL. returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+
 	if (!BulletTraceTargetActor)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() BulletTraceTargetActor was NULL. returned false"), *FString(__FUNCTION__));
@@ -106,6 +113,13 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 	if (!AmmoAttributeSet)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() AmmoAttributeSet was NULL. returned false"), *FString(__FUNCTION__));
+		return false;
+	}
+
+	// If we're firing too fast
+	if (GetWorld()->GetTimeSeconds() - timestampPreviousFireEnd < GunToFire->FireRate)
+	{
+		//UE_LOG(LogGameplayAbility, Log, TEXT("%s() Tried firing gun faster than the gun's FireRate allowed. returned false"), *FString(__FUNCTION__));
 		return false;
 	}
 
@@ -122,7 +136,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	UAT_Ticker* TickerTask = nullptr;
 	if (GunToFire->FiringMode != EGunFireMode::MODE_SemiAuto)
 	{
-		TickerTask = UAT_Ticker::Ticker(this, false, -1.f, GunToFire->AutoShootingRate);
+		TickerTask = UAT_Ticker::Ticker(this, false, -1.f, 1 / GunToFire->AutoShootingRate);
 		if (!TickerTask)
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() TickerTask was NULL when trying to activate fire ability. Called EndAbility()"), *FString(__FUNCTION__));
@@ -218,7 +232,7 @@ void UGA_FireGun::OnFullAutoTick(float DeltaTime, float CurrentTime, float TimeR
 		}
 
 		// No more bursts left
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 		return;
 	}
 }
@@ -236,7 +250,7 @@ void UGA_FireGun::Fire()
 
 
 
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 		return;
 	}
 
@@ -275,7 +289,7 @@ void UGA_FireGun::Fire()
 void UGA_FireGun::OnRelease(float TimeHeld)
 {
 	// When a machine gun stops shooting
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
 
 void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
@@ -291,13 +305,13 @@ void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 	
 	if (GunToFire->FiringMode == EGunFireMode::MODE_SemiAuto)
 	{
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 	}
 }
 void UGA_FireGun::OnCancelled(const FGameplayAbilityTargetDataHandle& Data)
 {
 	// This won't ever happen for hit scans I think, but if it does we'll just end the ability I guess
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
 
 void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
@@ -314,6 +328,9 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 		return;
 	}
 
+	// Store when this fire ended so next fire can determine fire rate
+	timestampPreviousFireEnd = GetWorld()->GetTimeSeconds();
+
 	// Reset back to zero for next activation
 	fireNumber = 0;
 	timesBursted = 0;
@@ -322,7 +339,7 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 	{
 		if (ActorInfo->AbilitySystemComponent.Get())
 		{
-			//ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(FireEffectActiveHandle); // this would give us back our ammo, maybe use this for a firing state tag though
+			ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(FireEffectActiveHandle);
 		}
 		else
 		{
@@ -333,6 +350,7 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo was NULL when trying to remove RunEffectActiveHande"), *FString(__FUNCTION__));
 	}
+
 
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);

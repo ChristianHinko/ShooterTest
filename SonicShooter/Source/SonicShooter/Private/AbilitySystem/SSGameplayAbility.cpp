@@ -97,7 +97,7 @@ void USSGameplayAbility::ExternalEndAbility()
 
 	const bool bReplicateEndAbility = true;
 	const bool bWasCancelled = false;
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicateEndAbility, bWasCancelled);
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), bReplicateEndAbility, bWasCancelled);
 }
 
 //void USSGameplayAbility::OnCurrentAbilityPredictionKeyRejected()

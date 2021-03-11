@@ -36,15 +36,15 @@ public:
 	// If true, then will tell viewport to ignore all game input (leaving only UI input)
 	// while capturing, then restore if when closed. If the game supports multiple local players
 	// binding at the same time then this may be undesirable.
-	UPROPERTY(EditDefaultsOnly, Category = "Bind Capture Prompt")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bind Capture Prompt")
 	bool bIgnoreGameViewportInputWhileCapturing;
 
 	// If true, only allow capturing keys in the passed in Key Group, otherwise the keys will be captured anyway
-	UPROPERTY(EditDefaultsOnly, Category = "Bind Capture Prompt")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bind Capture Prompt")
 	bool bRestrictKeyGroup;
 
 	// Should keys and mouse clicks be captured when they are pressed, or when they are released?
-	UPROPERTY(EditDefaultsOnly, Category = "Bind Capture Prompt")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bind Capture Prompt")
 	EBindingCaptureMode CaptureMode;
 
 	// If valid and bRestrictKeyGroup is true, then only keys allowed by this Key Group will be captured

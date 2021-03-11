@@ -438,7 +438,7 @@ bool AAbilitySystemCharacter::GrantStartingAbilities()
 
 
 	// ---------Grant non handle starting abilities---------
-	for (int i = 0; i < NonHandleStartingAbilities.Num(); ++i)
+	for (int32 i = 0; i < NonHandleStartingAbilities.Num(); ++i)
 	{
 		GetAbilitySystemComponent()->GrantAbility(NonHandleStartingAbilities[i], this/*, GetLevel()*/);
 	}
@@ -614,7 +614,7 @@ void AAbilitySystemCharacter::UnPossessed()
 		if (bRemoveAbilitiesOnUnpossessed)
 		{
 			RemoveCharacterOwnedAbilities();
-			for (int i = 0; i < PendingAbilitiesToSync.Num(); ++i)
+			for (int32 i = 0; i < PendingAbilitiesToSync.Num(); ++i)
 			{
 				FGameplayAbilitySpec* Spec = &PendingAbilitiesToSync[i];
 				Spec->NonReplicatedInstances.Empty();

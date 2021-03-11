@@ -30,8 +30,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Label")
 	FKey Key;
 
-	// Tags to determine which key icon should be used
-	// Key icons and tags can be defined in project settings (AutoSettings page)
+	/**
+	 * Scale value used to look up an axis button key to substitute if paired with an axis key
+	 * e.g. Show "Gamepad Left Stick Down" instead of "Gamepad Left Stick Y"
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Key Label")
+	float AxisScale;
+
+	/**
+	 * Tags to determine which key icon should be used
+	 * Key icons and tags can be defined in project settings (AutoSettings page)
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Key Label")
 	FGameplayTagContainer IconTags;
 

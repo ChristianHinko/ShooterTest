@@ -15,11 +15,11 @@ class AUTOSETTINGS_API USelectSetting : public UAutoSettingWidget
 	GENERATED_BODY()
 public:
 	// Predefined options
-	UPROPERTY(EditAnywhere, Category = "Select Setting")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Select Setting")
 	TArray<FSettingOption> Options;
 
 	// Factory to use to dynamically create options
-	UPROPERTY(EditAnywhere, Category = "Select Setting")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Select Setting")
 	TSubclassOf<USettingOptionFactory> OptionFactory;
 
 	/**

@@ -132,7 +132,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	
 	// We only want a release task if we are a full auto fire
 	UAT_WaitInputReleaseCust* WaitInputReleaseTask = nullptr;
-	if (WeaponToFire->FiringMode == EWeaponFireMode::MODE_FullAuto)
+	if (WeaponToFire->FiringMode == EWeaponFireMode::MODE_FullAuto && WeaponToFire->NumBursts <= 0)
 	{
 		WaitInputReleaseTask = UAT_WaitInputReleaseCust::WaitInputReleaseCust(this);
 		if (!WaitInputReleaseTask)
@@ -171,8 +171,11 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		break;
 
 	case EWeaponFireMode::MODE_FullAuto:
-		WaitInputReleaseTask->OnRelease.AddDynamic(this, &UGA_FireGun::OnRelease);
-		WaitInputReleaseTask->ReadyForActivation();
+		if (WeaponToFire->NumBursts <= 0)
+		{
+			WaitInputReleaseTask->OnRelease.AddDynamic(this, &UGA_Fire::OnRelease);
+			WaitInputReleaseTask->ReadyForActivation();
+		}
 
 		TickerTask->OnTick.AddDynamic(this, &UGA_FireGun::OnFullAutoTick);
 		TickerTask->ReadyForActivation();
@@ -189,9 +192,25 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 
 void UGA_FireGun::OnFullAutoTick(float DeltaTime, float CurrentTime, float TimeRemaining)
 {
-	// TODO: burst logic
+	const int32 TimesToBurst = WeaponToFire->NumBursts;
 
-	Fire();
+	if (TimesToBurst <= 0)
+	{
+		Fire();
+		return;
+	}
+
+	// Burst logic:
+
+	if (TimesToBurst > 0 && timesBursted < TimesToBurst)
+	{
+		Fire();
+		++timesBursted;
+		return;
+	}
+
+	// No more bursts left
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
 void UGA_FireGun::Fire()
@@ -281,7 +300,8 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 		return;
 	}
 
-
+	// Reset back to zero for next activation
+	timesBursted = 0;
 
 	if (ActorInfo)
 	{

@@ -173,7 +173,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	case EWeaponFireMode::MODE_FullAuto:
 		if (WeaponToFire->NumBursts <= 0)
 		{
-			WaitInputReleaseTask->OnRelease.AddDynamic(this, &UGA_Fire::OnRelease);
+			WaitInputReleaseTask->OnRelease.AddDynamic(this, &UGA_FireGun::OnRelease);
 			WaitInputReleaseTask->ReadyForActivation();
 		}
 

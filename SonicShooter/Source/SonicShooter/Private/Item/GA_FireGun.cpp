@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Item/GA_Fire.h"
+#include "Item/GA_FireGun.h"
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/AbilityTasks/AT_SSWaitTargetData.h"
@@ -19,7 +19,7 @@
 
 
 
-UGA_Fire::UGA_Fire()
+UGA_FireGun::UGA_FireGun()
 {
 	AbilityInputID = EAbilityInputID::PrimaryFire;
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Fire")));
@@ -29,7 +29,7 @@ UGA_Fire::UGA_Fire()
 }
 
 
-void UGA_Fire::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void UGA_FireGun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	TryCallOnAvatarSetOnPrimaryInstance
 	Super::OnAvatarSet(ActorInfo, Spec);
@@ -38,7 +38,7 @@ void UGA_Fire::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGa
 }
 
 // This ability is only granted to the player while his weapon is active
-void UGA_Fire::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
 
@@ -76,7 +76,7 @@ void UGA_Fire::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const F
 }
 
 // This ability is only granted to the player while his weapon is active
-void UGA_Fire::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void UGA_FireGun::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnRemoveAbility(ActorInfo, Spec);
 
@@ -89,7 +89,7 @@ void UGA_Fire::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const
 	AmmoAttributeSet = nullptr;
 }
 
-bool UGA_Fire::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
+bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
 	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 	{
@@ -112,7 +112,7 @@ bool UGA_Fire::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	return true;
 }
 
-void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
@@ -171,10 +171,10 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 		break;
 
 	case EWeaponFireMode::MODE_FullAuto:
-		WaitInputReleaseTask->OnRelease.AddDynamic(this, &UGA_Fire::OnRelease);
+		WaitInputReleaseTask->OnRelease.AddDynamic(this, &UGA_FireGun::OnRelease);
 		WaitInputReleaseTask->ReadyForActivation();
 
-		TickerTask->OnTick.AddDynamic(this, &UGA_Fire::OnFullAutoTick);
+		TickerTask->OnTick.AddDynamic(this, &UGA_FireGun::OnFullAutoTick);
 		TickerTask->ReadyForActivation();
 		break;
 
@@ -187,14 +187,14 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 
 
 
-void UGA_Fire::OnFullAutoTick(float DeltaTime, float CurrentTime, float TimeRemaining)
+void UGA_FireGun::OnFullAutoTick(float DeltaTime, float CurrentTime, float TimeRemaining)
 {
 	// TODO: burst logic
 
 	Fire();
 }
 
-void UGA_Fire::Fire()
+void UGA_FireGun::Fire()
 {
 	// Check if we have enough ammo first
 	if (AmmoAttributeSet->GetClipAmmo() < WeaponToFire->AmmoCost) // if we don't have enough ammo
@@ -220,8 +220,8 @@ void UGA_Fire::Fire()
 		return;
 	}
 	// Bind to wait target data delegates and activate the task
-	WaitTargetDataActorTask->ValidData.AddDynamic(this, &UGA_Fire::OnValidData);
-	WaitTargetDataActorTask->Cancelled.AddDynamic(this, &UGA_Fire::OnCancelled);
+	WaitTargetDataActorTask->ValidData.AddDynamic(this, &UGA_FireGun::OnValidData);
+	WaitTargetDataActorTask->Cancelled.AddDynamic(this, &UGA_FireGun::OnCancelled);
 
 	
 
@@ -239,13 +239,13 @@ void UGA_Fire::Fire()
 
 
 
-void UGA_Fire::OnRelease(float TimeHeld)
+void UGA_FireGun::OnRelease(float TimeHeld)
 {
 	// When a machine gun stops shooting
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
 }
 
-void UGA_Fire::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
+void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 {
 	if (TSubclassOf<UGameplayEffect> BulletHitEffectTSub = WeaponToFire->BulletHitEffectTSub)
 	{
@@ -261,13 +261,13 @@ void UGA_Fire::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
 	}
 }
-void UGA_Fire::OnCancelled(const FGameplayAbilityTargetDataHandle& Data)
+void UGA_FireGun::OnCancelled(const FGameplayAbilityTargetDataHandle& Data)
 {
 	// This won't ever happen for hit scans I think, but if it does we'll just end the ability I guess
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
 }
 
-void UGA_Fire::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	// Super wraps the whole EndAbility() in IsEndAbilityValid()
 	if (!IsEndAbilityValid(Handle, ActorInfo))
@@ -277,7 +277,7 @@ void UGA_Fire::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGamepl
 	// Make sure we bind our child class' version of EndAbility() instead of using the Super's version of this part
 	if (ScopeLockCount > 0)
 	{
-		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &UGA_Fire::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
+		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &UGA_FireGun::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
 		return;
 	}
 

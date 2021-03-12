@@ -15,6 +15,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Character/AS_Character.h"
+#include "AbilitySystem/AttributeSets/AS_Stamina.h"
 #include "AbilitySystem/AttributeSets/AS_Health.h"
 
 #include "Character/SSCharacterMovementComponent.h"
@@ -29,6 +30,7 @@ void AAbilitySystemCharacter::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 
 
 	DOREPLIFETIME(AAbilitySystemCharacter, CharacterAttributeSet);
+	DOREPLIFETIME(AAbilitySystemCharacter, StaminaAttributeSet);
 	DOREPLIFETIME(AAbilitySystemCharacter, HealthAttributeSet);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterJumpAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterCrouchAbilitySpecHandle, COND_OwnerOnly);
@@ -295,6 +297,15 @@ void AAbilitySystemCharacter::CreateAttributeSets()
 		UE_CLOG((GetLocalRole() == ROLE_Authority), LogAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), *FString(__FUNCTION__), *CharacterAttributeSet->GetName());
 	}
 
+	if (!StaminaAttributeSet)
+	{
+		StaminaAttributeSet = NewObject<UAS_Stamina>(this, UAS_Stamina::StaticClass(), TEXT("StaminaAttributeSet"));
+	}
+	else
+	{
+		UE_CLOG((GetLocalRole() == ROLE_Authority), LogAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), *FString(__FUNCTION__), *StaminaAttributeSet->GetName());
+	}
+
 	if (!HealthAttributeSet)
 	{
 		HealthAttributeSet = NewObject<UAS_Health>(this, UAS_Health::StaticClass(), TEXT("HealthAttributeSet"));
@@ -335,6 +346,15 @@ void AAbilitySystemCharacter::RegisterAttributeSets()
 	else
 	{
 		UE_CLOG((GetLocalRole() == ROLE_Authority), LogAbilitySystemSetup, Warning, TEXT("%s() CharacterAttributeSet was either NULL or already added to the character's ASC. Character: %s"), *FString(__FUNCTION__), *GetName());
+	}
+
+	if (StaminaAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(StaminaAttributeSet))	// If StaminaAttributeSet is valid and it's not yet registered with the Character's ASC
+	{
+		GetAbilitySystemComponent()->AddAttributeSetSubobject(StaminaAttributeSet);
+	}
+	else
+	{
+		UE_CLOG((GetLocalRole() == ROLE_Authority), LogAbilitySystemSetup, Warning, TEXT("%s() StaminaAttributeSet was either NULL or already added to the character's ASC. Character: %s"), *FString(__FUNCTION__), *GetName());
 	}
 
 	if (HealthAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(HealthAttributeSet))	// If HealthAttributeSet is valid and it's not yet registered with the Character's ASC

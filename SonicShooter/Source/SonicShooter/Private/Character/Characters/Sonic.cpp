@@ -9,8 +9,9 @@
 
 //#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "AbilitySystem/AttributeSets/AS_Health.h"
 #include "Character/AS_Character.h"
+#include "AbilitySystem/AttributeSets/AS_Stamina.h"
+#include "AbilitySystem/AttributeSets/AS_Health.h"
 #include "Character/SSCharacterMovementComponent.h"
 
 
@@ -58,10 +59,10 @@ void ASonic::Tick(float DeltaSeconds)
 	//}
 	//if (IsLocallyControlled())
 	//{
-		//if (GetCharacterAttributeSet())
-		//{
-		//	UKismetSystemLibrary::PrintString(this, GetCharacterAttributeSet()->GetStaminaAttribute().AttributeName + ": " + FString::SanitizeFloat(GetCharacterAttributeSet()->GetStamina()), true, false);
-		//}
+	//	if (GetStaminaAttributeSet())
+	//	{
+	//		UKismetSystemLibrary::PrintString(this, GetStaminaAttributeSet()->GetStaminaAttribute().AttributeName + ": " + FString::SanitizeFloat(GetStaminaAttributeSet()->GetStamina()), true, false);
+	//	}
 	//}
 }
 

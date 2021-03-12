@@ -14,6 +14,7 @@ class ASSPlayerState;
 class USSAttributeSet;
 class USSGameplayAbility;
 class UAS_Character;
+class UAS_Stamina;
 class UAS_Health;
 
 
@@ -79,6 +80,7 @@ public:
 	AController* GetPreviousController() const { return PreviousController; }
 
 	UAS_Character* GetCharacterAttributeSet() const { return CharacterAttributeSet; }
+	UAS_Stamina* GetStaminaAttributeSet() const { return StaminaAttributeSet; }
 	UAS_Health* GetHealthAttributeSet() const { return HealthAttributeSet; }
 
 #pragma region AbilitySystemSetup Delegates
@@ -227,6 +229,8 @@ private:
 	/** Every character will have this attribute set. This is useful because this gives you a place for common attributes that every character should have. Children can make another attribute set specific to their character (ie. UAS_Demoman, UAS_Ganondorf) */
 	UPROPERTY(Replicated)
 		UAS_Character* CharacterAttributeSet;
+	UPROPERTY(Replicated)
+		UAS_Stamina* StaminaAttributeSet;
 	UPROPERTY(Replicated)
 		UAS_Health* HealthAttributeSet;
 

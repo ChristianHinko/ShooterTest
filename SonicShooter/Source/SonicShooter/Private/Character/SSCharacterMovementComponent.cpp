@@ -8,6 +8,7 @@
 #include "Character/SSCharacterMovementComponent.h"
 #include "Character/AbilitySystemCharacter.h"
 #include "Character/AS_Character.h"
+#include "AbilitySystem/AttributeSets/AS_Stamina.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -70,6 +71,7 @@ void USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady()
 	{
 		OwnerASC = AbilitySystemCharacterOwner->GetAbilitySystemComponent();
 		CharacterAttributeSet = AbilitySystemCharacterOwner->GetCharacterAttributeSet();
+		StaminaAttributeSet = AbilitySystemCharacterOwner->GetStaminaAttributeSet();
 	}
 
 	if (OwnerASC)
@@ -79,9 +81,9 @@ void USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady()
 		OwnerASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.CrouchDisabled"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCrouchDisabledTagChanged);
 	}
 
-	if (CharacterAttributeSet)
+	if (StaminaAttributeSet)
 	{
-		CharacterAttributeSet->OnStaminaFullyDrained.AddUObject(this, &USSCharacterMovementComponent::OnStaminaFullyDrained);
+		StaminaAttributeSet->OnStaminaFullyDrained.AddUObject(this, &USSCharacterMovementComponent::OnStaminaFullyDrained);
 	}
 }
 
@@ -151,7 +153,7 @@ void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 	bool newWantsToRun = bWantsToRun;
 
 
-	if (CharacterAttributeSet && CharacterAttributeSet->GetStamina() <= 0.f)
+	if (StaminaAttributeSet && StaminaAttributeSet->GetStamina() <= 0.f)
 	{
 		if (IsMovingOnGround()) // only if we are on the ground. if we are in the air, the player will be expecting to run anyways
 		{
@@ -612,7 +614,7 @@ bool USSCharacterMovementComponent::CanRunInCurrentState() const
 	//{
 	//	return false;
 	//}
-	if (CharacterAttributeSet && CharacterAttributeSet->GetStamina() <= 0)
+	if (StaminaAttributeSet && StaminaAttributeSet->GetStamina() <= 0)
 	{
 		return false;
 	}
@@ -670,17 +672,17 @@ void USSCharacterMovementComponent::UnCrouch(bool bClientSimulation)
 void USSCharacterMovementComponent::Run()
 {
 	SSCharacterOwner->bIsRunning = true;
-	if (CharacterAttributeSet)
+	if (StaminaAttributeSet)
 	{
-		CharacterAttributeSet->SetStaminaDraining(true);
+		StaminaAttributeSet->SetStaminaDraining(true);
 	}
 }
 void USSCharacterMovementComponent::UnRun()
 {
 	SSCharacterOwner->bIsRunning = false;
-	if (CharacterAttributeSet)
+	if (StaminaAttributeSet)
 	{
-		CharacterAttributeSet->SetStaminaDraining(false);
+		StaminaAttributeSet->SetStaminaDraining(false);
 	}
 }
 

@@ -13,6 +13,7 @@
 class ASSCharacter;
 class USSAbilitySystemComponent;
 class UAS_Character;
+class UAS_Stamina;
 class AAbilitySystemCharacter;
 
 
@@ -214,6 +215,8 @@ protected:
 		AAbilitySystemCharacter* AbilitySystemCharacterOwner;
 	UPROPERTY()
 		UAS_Character* CharacterAttributeSet;
+	UPROPERTY()
+		UAS_Stamina* StaminaAttributeSet;
 
 	UFUNCTION()
 		virtual void OnOwningCharacterAbilitySystemReady();

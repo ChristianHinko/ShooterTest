@@ -14,6 +14,7 @@ void UAS_Health::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Health, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Health, Health, COND_None, REPNOTIFY_Always);
+	//	Damage and Healing not replicated since it's a 'meta' attribute
 }
 
 UAS_Health::UAS_Health()
@@ -54,6 +55,7 @@ bool UAS_Health::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
 
 
 	}
+
 
 	return true;
 }

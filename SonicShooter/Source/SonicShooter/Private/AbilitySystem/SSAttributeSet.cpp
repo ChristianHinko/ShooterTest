@@ -49,5 +49,11 @@ void USSAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	if (Data.EffectSpec.Def->IsA(UGameplayEffect_DefaultAttributes::StaticClass()))
 	{
 		SetSoftAttributeDefaults();
+		ClientSetSoftAttributeDefaults(); // PostGameplayEffectExecute() is server only, call SetSoftAttributeDefaults() on the client so he can have correct defaults too. (this is kind of annoying because what if attributes are modified before this RPC gets recieved)
 	}
+}
+
+void USSAttributeSet::ClientSetSoftAttributeDefaults_Implementation()
+{
+	SetSoftAttributeDefaults();
 }

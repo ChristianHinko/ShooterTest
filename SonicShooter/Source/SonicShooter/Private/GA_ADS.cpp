@@ -12,8 +12,7 @@ UGA_ADS::UGA_ADS()
 	AbilityInputID = EAbilityInputID::SecondaryFire;
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.ADS")));
 
-	TagAimingDownSights = FGameplayTag::RequestGameplayTag(FName("Character.State.IsAimingDownSights"));
-	ActivationOwnedTags.AddTagFast(TagAimingDownSights);
+
 }
 
 
@@ -35,12 +34,6 @@ void UGA_ADS::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGa
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 
-	/*if (!ADSEffectTSub)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("Effect TSubclassOf empty in %s so this ability was ended - please fill out ADS ability blueprint"), *FString(__FUNCTION__));
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
-	}*/
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	if (!Character)
 	{
@@ -55,6 +48,7 @@ void UGA_ADS::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGa
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
+
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
@@ -62,8 +56,16 @@ void UGA_ADS::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGa
 	}
 	///////////////////////////////////// we are safe to proceed /////////
 
-	//	Make sure we apply effect in valid prediction key window so we make sure the tag also gets applied on the client too
-	//ADSEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, ADSEffectTSub.GetDefaultObject(), GetAbilityLevel());
+	if (ADSEffectTSub)
+	{
+		ADSEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, ADSEffectTSub.GetDefaultObject(), GetAbilityLevel());
+	}
+	else
+	{
+		UE_LOG(LogGameplayAbility, Warning, TEXT("ADSEffectTSub TSubclassOf empty in %s"), *FString(__FUNCTION__));
+	}
+
+
 	//Character->ADS();
 
 	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_ADS::OnRelease);
@@ -101,11 +103,11 @@ void UGA_ADS::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGamepla
 		if (Character && ActorInfo->AbilitySystemComponent.Get())
 		{
 			//Character->StopADSing();
-			//ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(ADSEffectActiveHandle);
+			ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(ADSEffectActiveHandle);
 		}
 		else
 		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() Couldn't call Character->StopADSing() because Character* was NULL"), *FString(__FUNCTION__));
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() Couldn't call Character->StopADSing() or remove ADSEffectActiveHandle because Character* was NULL"), *FString(__FUNCTION__));
 		}
 	}
 	else

@@ -18,9 +18,9 @@ public:
 	UGA_ADS();
 
 protected:
-	//UPROPERTY(EditAnywhere)
-	//	TSubclassOf<UGameplayEffect> ADSEffectTSub;	// asset manager we need you D:
-	//FActiveGameplayEffectHandle ADSEffectActiveHandle;
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<UGameplayEffect> ADSEffectTSub;	// asset manager we need you D:
+	FActiveGameplayEffectHandle ADSEffectActiveHandle;
 
 	//BEGIN UGameplayAbility Interface
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;

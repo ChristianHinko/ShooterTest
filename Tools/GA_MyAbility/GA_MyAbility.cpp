@@ -11,11 +11,15 @@
 
 UGA_MyAbility::UGA_MyAbility()
 {
+	AbilityInputID = EAbilityInputID::MyInput;
 	//AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.MyAbility")));
+
+
 }
 
 void UGA_MyAbility::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
+	TryCallOnAvatarSetOnPrimaryInstance
 	Super::OnAvatarSet(ActorInfo, Spec);
 
 	if (!ActorInfo)
@@ -52,14 +56,22 @@ void UGA_MyAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
+	///////////////////////////////////// we are safe to proceed /////////
 
-
-	//MyEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, MyEffectTSub.GetDefaultObject(), GetAbilityLevel());
+	if (MyEffectTSub)
+	{
+		MyEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, MyEffectTSub.GetDefaultObject(), GetAbilityLevel());
+	}
+	else
+	{
+		UE_LOG(LogGameplayAbility, Warning, TEXT("MyEffectTSub TSubclassOf empty in %s"), *FString(__FUNCTION__));
+	}
 
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
@@ -84,7 +96,14 @@ void UGA_MyAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FG
 
 
 
-	//ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(MyEffectActiveHandle);
+	if (ActorInfo->AbilitySystemComponent.Get())
+	{
+		ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(MyEffectActiveHandle);
+	}
+	else
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo->AbilitySystemComponent.Get() was NULL when trying to remove MyEffectActiveHandle"), *FString(__FUNCTION__));
+	}
 
 
 

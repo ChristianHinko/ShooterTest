@@ -232,7 +232,7 @@ void UGA_FireGun::OnFullAutoTick(float DeltaTime, float CurrentTime, float TimeR
 		}
 
 		// No more bursts left
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 		return;
 	}
 }
@@ -335,20 +335,13 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 	fireNumber = 0;
 	timesBursted = 0;
 
-	if (ActorInfo)
+	if (ActorInfo->AbilitySystemComponent.Get())
 	{
-		if (ActorInfo->AbilitySystemComponent.Get())
-		{
-			ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(FireEffectActiveHandle);
-		}
-		else
-		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo->AbilitySystemComponent.Get() was NULL when trying to remove FireEffectActiveHandle"), *FString(__FUNCTION__));
-		}
+		ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(FireEffectActiveHandle);
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo was NULL when trying to remove FireEffectActiveHandle"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo->AbilitySystemComponent.Get() was NULL when trying to remove FireEffectActiveHandle"), *FString(__FUNCTION__));
 	}
 
 

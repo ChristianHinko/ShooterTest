@@ -19,4 +19,8 @@ class SONICSHOOTER_API USSAbilitySystemGlobals : public UAbilitySystemGlobals
 
 
 	USSAbilitySystemGlobals();
+
+public:
+	//virtual FGameplayEffectContext* AllocGameplayEffectContext() const override;
+
 };

@@ -136,7 +136,7 @@ void AGATA_Trace::AimWithPlayerController(const AActor* InSourceActor, FCollisio
 
 	OutTraceEnd = TraceStart + (AdjustedAimDir * MaxRange);
 }
-void AGATA_Trace::DirWithPlayerController(const AActor* InSourceActor, FCollisionQueryParams Params, const FVector& TraceStart, FVector& OutTraceDir, bool bIgnorePitch) const // TODO: fix the usage of this, not shooting at trace end
+void AGATA_Trace::DirWithPlayerController(const AActor* InSourceActor, FCollisionQueryParams Params, const FVector& TraceStart, FVector& OutTraceDir, bool bIgnorePitch) const
 {
 	if (!OwningAbility) // Server and launching client only
 	{

@@ -51,7 +51,7 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	GetCharacterMovement()->AirControl = 0.2f;
 
 	// Mesh defaults
-	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -96.f));
+	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * -1));
 	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
 
@@ -63,9 +63,9 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	POVMesh->SetCollisionProfileName(TEXT("CharacterMesh"));
 	POVMesh->SetGenerateOverlapEvents(false);
 	POVMesh->SetCanEverAffectNavigation(false);
-	POVMesh->SetRelativeLocation(FVector(-25.f, 0, -96.f));
-	POVMesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
-	POVMesh->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
+	POVMesh->SetRelativeLocation(GetMesh()->GetRelativeLocation() + FVector(-25.f, 0.f, 0.f));
+	POVMesh->SetRelativeRotation(GetMesh()->GetRelativeRotation());
+	POVMesh->SetRelativeScale3D(GetMesh()->GetRelativeScale3D());
 	POVMesh->AlwaysLoadOnServer = false; // the server shouldn't care about this mesh
 	// Configure the POVMesh for first person (these apply regardless of third/first person because switching between the two will only set visibility and not change these settings)
 	POVMesh->SetOwnerNoSee(false);
@@ -98,6 +98,20 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 
 	bToggleRunAlwaysRun = false;
 }
+//void ASSCharacter::PostInitProperties()
+//{
+//	Super::PostInitProperties();
+//
+//
+//	// Theses aren't working right yet some reason:
+//
+//	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * -1));
+//
+//	POVMesh->SetRelativeLocation(GetMesh()->GetRelativeLocation() + FVector(-25.f, 0.f, 0.f));
+//	POVMesh->SetRelativeRotation(GetMesh()->GetRelativeRotation());
+//	POVMesh->SetRelativeScale3D(GetMesh()->GetRelativeScale3D());
+//}
+
 void ASSCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
@@ -479,13 +493,46 @@ void ASSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("SecondaryFire", IE_Released, this, &ASSCharacter::OnSecondaryFireReleased);
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ASSCharacter::OnReloadPressed);
-	PlayerInputComponent->BindAction("Reload", IE_Released, this, &ASSCharacter::OnReloadReleased);
+	//PlayerInputComponent->BindAction("Reload", IE_Released, this, &ASSCharacter::OnReloadReleased);
 
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ASSCharacter::OnCrouchPressed);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASSCharacter::OnCrouchReleased);
 
 	PlayerInputComponent->BindAction("SwitchWeapon", IE_Pressed, this, &ASSCharacter::OnSwitchWeaponPressed);
-	PlayerInputComponent->BindAction("SwitchWeapon", IE_Released, this, &ASSCharacter::OnSwitchWeaponReleased);
+	//PlayerInputComponent->BindAction("SwitchWeapon", IE_Released, this, &ASSCharacter::OnSwitchWeaponReleased);
+
+
+	PlayerInputComponent->BindAction("Item0", IE_Pressed, this, &ASSCharacter::OnItem0Pressed);
+	//PlayerInputComponent->BindAction("Item0", IE_Released, this, &ASSCharacter::OnItem0Released);
+
+	PlayerInputComponent->BindAction("Item1", IE_Pressed, this, &ASSCharacter::OnItem1Pressed);
+	//PlayerInputComponent->BindAction("Item1", IE_Released, this, &ASSCharacter::OnItem1Released);
+
+	PlayerInputComponent->BindAction("Item2", IE_Pressed, this, &ASSCharacter::OnItem2Pressed);
+	//PlayerInputComponent->BindAction("Item2", IE_Released, this, &ASSCharacter::OnItem2Released);
+
+	PlayerInputComponent->BindAction("Item3", IE_Pressed, this, &ASSCharacter::OnItem3Pressed);
+	//PlayerInputComponent->BindAction("Item3", IE_Released, this, &ASSCharacter::OnItem3Released);
+
+	PlayerInputComponent->BindAction("Item4", IE_Pressed, this, &ASSCharacter::OnItem4Pressed);
+	//PlayerInputComponent->BindAction("Item4", IE_Released, this, &ASSCharacter::OnItem4Released);
+
+	PlayerInputComponent->BindAction("Pause", IE_Pressed, this, &ASSCharacter::OnPausePressed);
+	//PlayerInputComponent->BindAction("Pause", IE_Released, this, &ASSCharacter::OnPauseReleased);
+
+	PlayerInputComponent->BindAction("ScoreSheet", IE_Pressed, this, &ASSCharacter::OnScoreSheetPressed);
+	//PlayerInputComponent->BindAction("ScoreSheet", IE_Released, this, &ASSCharacter::OnScoreSheetReleased);
+
+	PlayerInputComponent->BindAction("NextItem", IE_Pressed, this, &ASSCharacter::OnNextItemPressed);
+	//PlayerInputComponent->BindAction("NextItem", IE_Released, this, &ASSCharacter::OnNextItemReleased);
+
+	PlayerInputComponent->BindAction("PreviousItem", IE_Pressed, this, &ASSCharacter::OnPreviousItemPressed);
+	//PlayerInputComponent->BindAction("PreviousItem", IE_Released, this, &ASSCharacter::OnPreviousItemReleased);
+
+	PlayerInputComponent->BindAction("DropItem", IE_Pressed, this, &ASSCharacter::OnDropItemPressed);
+	//PlayerInputComponent->BindAction("DropItem", IE_Released, this, &ASSCharacter::OnDropItemReleased);
+
+
 
 	//Axis
 	PlayerInputComponent->BindAxis("MoveForward", this, &ASSCharacter::MoveForward);
@@ -537,10 +584,10 @@ void ASSCharacter::OnReloadPressed()
 {
 
 }
-void ASSCharacter::OnReloadReleased()
-{
-
-}
+//void ASSCharacter::OnReloadReleased()
+//{
+//
+//}
 
 void ASSCharacter::OnCrouchPressed()
 {
@@ -572,10 +619,91 @@ void ASSCharacter::OnSwitchWeaponPressed()
 {
 
 }
-void ASSCharacter::OnSwitchWeaponReleased()
-{
+//void ASSCharacter::OnSwitchWeaponReleased()
+//{
+//
+//}
 
+void ASSCharacter::OnItem0Pressed()
+{
 }
+
+//void ASSCharacter::OnItem0Released()
+//{
+//}
+
+void ASSCharacter::OnItem1Pressed()
+{
+}
+
+//void ASSCharacter::OnItem1Released()
+//{
+//}
+
+void ASSCharacter::OnItem2Pressed()
+{
+}
+
+//void ASSCharacter::OnItem2Released()
+//{
+//}
+
+void ASSCharacter::OnItem3Pressed()
+{
+}
+
+//void ASSCharacter::OnItem3Released()
+//{
+//}
+
+void ASSCharacter::OnItem4Pressed()
+{
+}
+
+//void ASSCharacter::OnItem4Released()
+//{
+//}
+
+void ASSCharacter::OnNextItemPressed()
+{
+}
+
+//void ASSCharacter::OnNextItemReleased()
+//{
+//}
+
+void ASSCharacter::OnPreviousItemPressed()
+{
+}
+
+//void ASSCharacter::OnPreviousItemReleased()
+//{
+//}
+
+void ASSCharacter::OnPausePressed()
+{
+}
+
+//void ASSCharacter::OnPauseReleased()
+//{
+//}
+
+void ASSCharacter::OnScoreSheetPressed()
+{
+}
+
+//void ASSCharacter::OnScoreSheetReleased()
+//{
+//}
+
+void ASSCharacter::OnDropItemPressed()
+{
+}
+
+//void ASSCharacter::OnDropItemReleased()
+//{
+//}
+
 
 void ASSCharacter::OnRunPressed()
 {
@@ -662,7 +790,7 @@ APawn* ASSCharacter::GetNearestPawn()
 	{
 		float closestPawnDistance = MAX_FLT;
 		TArray<APlayerState*> PlayerStates = UGameplayStatics::GetGameState(this)->PlayerArray;
-		for (int i = 0; i < PlayerStates.Num(); i++)
+		for (int32 i = 0; i < PlayerStates.Num(); ++i)
 		{
 			if (PlayerStates.IsValidIndex(i) && PlayerStates[i])
 			{

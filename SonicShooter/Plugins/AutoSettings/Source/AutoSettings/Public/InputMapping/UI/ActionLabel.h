@@ -23,11 +23,11 @@ public:
 	FName ActionName;
 
 	// KeyLabel class to create for each key
-	UPROPERTY(EditAnywhere, NoClear, Category = "Action Label")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, NoClear, Category = "Action Label")
 	TSubclassOf<UKeyLabel> KeyLabelWidgetClass;
 
 	// Separator widget to place in between keys
-	UPROPERTY(EditAnywhere, Category = "Action Label")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action Label")
 	TSubclassOf<UWidget> KeySeparatorWidgetClass;
 
 	// Initialize this label

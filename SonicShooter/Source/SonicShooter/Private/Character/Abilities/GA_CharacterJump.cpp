@@ -13,16 +13,18 @@
 
 UGA_CharacterJump::UGA_CharacterJump()
 {
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Jump")));
+	AbilityInputID = EAbilityInputID::Jump;
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Movement.Jump")));
 
 
-	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Crouch"));
-	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Run"));
+	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Movement.Crouch"));
+	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Movement.Run"));
 }
 
 
 void UGA_CharacterJump::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
+	TryCallOnAvatarSetOnPrimaryInstance
 	Super::OnAvatarSet(ActorInfo, Spec);
 
 	// Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times
@@ -30,22 +32,39 @@ void UGA_CharacterJump::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, 
 	{
 		return;
 	}
-	if (!ActorInfo->AvatarActor.Get())
+	FString RoleString;
+	if (ActorInfo->OwnerActor.Get()->GetLocalRole() == ROLE_Authority)
+	{
+		RoleString = "Authority";
+	}
+	if (ActorInfo->OwnerActor.Get()->GetLocalRole() == ROLE_AutonomousProxy)
+	{
+		RoleString = "AutonomousProxy";
+	}
+	if (ActorInfo->OwnerActor.Get()->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		RoleString = "SimulatedProxy";
+	}
+	UE_LOG(LogTemp, Warning, TEXT("%s, Role: %s, Timestamp: %f"), *FString(__FUNCTION__), *RoleString, GetWorld() ? GetWorld()->GetTimeSeconds() : -1.f);
+	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
+	if (!AvatarActor)
 	{
 		return;
 	}
 
 
-	GASCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
-	if (!GASCharacter)
+	GASCharacter = Cast<AAbilitySystemCharacter>(AvatarActor);
+	if (GASCharacter)
+	{
+		CMC = GASCharacter->GetSSCharacterMovementComponent();
+		if (!CMC)
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetSSCharacterMovementComponent was NULL"), *FString(__FUNCTION__));
+		}
+	}
+	else
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL"), *FString(__FUNCTION__));
-	}
-
-	CMC = GASCharacter->GetSSCharacterMovementComponent();
-	if (!CMC)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetSSCharacterMovementComponent was NULL"), *FString(__FUNCTION__));
 	}
 }
 

@@ -17,11 +17,11 @@ class AUTOSETTINGS_API UAxisLabel : public UInputLabel
 	
 public:
 	// Name of the axis to display
-	UPROPERTY(EditAnywhere, Category = "Axis Label")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Axis Label")
 	FName AxisName;
 
 	// Scale of the key to display
-	UPROPERTY(EditAnywhere, Category = "Axis Label")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Axis Label")
 	float Scale;
 
 	// Initialize this label

@@ -8,6 +8,7 @@
 #include "Character/SSCharacterMovementComponent.h"
 #include "Character/AbilitySystemCharacter.h"
 #include "Character/AS_Character.h"
+#include "AbilitySystem/AttributeSets/AS_Stamina.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -17,11 +18,6 @@
 
 USSCharacterMovementComponent::USSCharacterMovementComponent()
 {
-	CVarToggleCrouchChangeDelegate.BindUFunction(this, TEXT("CVarToggleCrouchChanged"));
-	UCVarChangeListenerManager::AddBoolCVarCallbackStatic(TEXT("input.ToggleCrouch"), CVarToggleCrouchChangeDelegate, true);
-	
-	CVarToggleRunChangeDelegate.BindUFunction(this, TEXT("CVarToggleRunChanged"));
-	UCVarChangeListenerManager::AddBoolCVarCallbackStatic(TEXT("input.ToggleRun"), CVarToggleRunChangeDelegate, true);
 
 
 
@@ -48,6 +44,12 @@ void USSCharacterMovementComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
 
+	// Setup listening for input CVar changes
+	CVarToggleCrouchChangeDelegate.BindUFunction(this, TEXT("CVarToggleCrouchChanged"));
+	UCVarChangeListenerManager::AddBoolCVarCallbackStatic(TEXT("input.ToggleCrouch"), CVarToggleCrouchChangeDelegate, true);
+	CVarToggleRunChangeDelegate.BindUFunction(this, TEXT("CVarToggleRunChanged"));
+	UCVarChangeListenerManager::AddBoolCVarCallbackStatic(TEXT("input.ToggleRun"), CVarToggleRunChangeDelegate, true);
+
 
 	// Get reference to our SSCharacter
 	SSCharacterOwner = Cast<ASSCharacter>(PawnOwner);
@@ -64,10 +66,12 @@ void USSCharacterMovementComponent::InitializeComponent()
 #pragma region Ability System
 void USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady()
 {
+	UAbilitySystemComponent* OwnerASC = nullptr;
 	if (AbilitySystemCharacterOwner)
 	{
-		OwnerASC = Cast<USSAbilitySystemComponent>(AbilitySystemCharacterOwner->GetAbilitySystemComponent());
+		OwnerASC = AbilitySystemCharacterOwner->GetAbilitySystemComponent();
 		CharacterAttributeSet = AbilitySystemCharacterOwner->GetCharacterAttributeSet();
+		StaminaAttributeSet = AbilitySystemCharacterOwner->GetStaminaAttributeSet();
 	}
 
 	if (OwnerASC)
@@ -77,9 +81,9 @@ void USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady()
 		OwnerASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.CrouchDisabled"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCrouchDisabledTagChanged);
 	}
 
-	if (CharacterAttributeSet)
+	if (StaminaAttributeSet)
 	{
-		CharacterAttributeSet->OnStaminaFullyDrained.AddUObject(this, &USSCharacterMovementComponent::OnStaminaFullyDrained);
+		StaminaAttributeSet->OnStaminaFullyDrained.AddUObject(this, &USSCharacterMovementComponent::OnStaminaFullyDrained);
 	}
 }
 
@@ -149,7 +153,7 @@ void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 	bool newWantsToRun = bWantsToRun;
 
 
-	if (CharacterAttributeSet && CharacterAttributeSet->GetStamina() <= 0.f)
+	if (StaminaAttributeSet && StaminaAttributeSet->GetStamina() <= 0.f)
 	{
 		if (IsMovingOnGround()) // only if we are on the ground. if we are in the air, the player will be expecting to run anyways
 		{
@@ -430,7 +434,7 @@ void USSCharacterMovementComponent::CheckJumpInput(float DeltaTime) // basically
 			{
 				if (CharacterOwner->bClientUpdating == false)
 				{
-					bDidJump = OwnerASC->TryActivateAbility(AbilitySystemCharacterOwner->CharacterJumpAbilitySpecHandle);
+					bDidJump = AbilitySystemCharacterOwner->GetAbilitySystemComponent()->TryActivateAbility(AbilitySystemCharacterOwner->CharacterJumpAbilitySpecHandle);
 				}
 				else
 				{
@@ -466,7 +470,7 @@ void USSCharacterMovementComponent::ClearJumpInput(float DeltaTime)
 		{
 			if (SSCharacterOwner->bIsJumping)
 			{
-				OwnerASC->CancelAbilityHandle(AbilitySystemCharacterOwner->CharacterJumpAbilitySpecHandle);
+				AbilitySystemCharacterOwner->GetAbilitySystemComponent()->CancelAbilityHandle(AbilitySystemCharacterOwner->CharacterJumpAbilitySpecHandle);
 			}
 		}
 	}
@@ -476,7 +480,7 @@ void USSCharacterMovementComponent::ClearJumpInput(float DeltaTime)
 		CharacterOwner->bWasJumping = false;
 		if (SSCharacterOwner->bIsJumping)
 		{
-			OwnerASC->CancelAbilityHandle(AbilitySystemCharacterOwner->CharacterJumpAbilitySpecHandle);
+			AbilitySystemCharacterOwner->GetAbilitySystemComponent()->CancelAbilityHandle(AbilitySystemCharacterOwner->CharacterJumpAbilitySpecHandle);
 		}
 	}
 }
@@ -489,6 +493,9 @@ void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 	// Proxies get replicated crouch state.
 	if (CharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)
 	{
+		UAbilitySystemComponent* OwnerASC = AbilitySystemCharacterOwner->GetAbilitySystemComponent();
+
+
 		// Check for a change in crouch state. Players toggle crouch by changing bWantsToCrouch.
 		const bool willCrouch = bWantsToCrouch && CanCrouchInCurrentState();
 		if (IsCrouching() && !willCrouch)
@@ -527,6 +534,9 @@ void USSCharacterMovementComponent::UpdateCharacterStateAfterMovement(float Delt
 	// Proxies get replicated crouch state.
 	if (CharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)
 	{
+		UAbilitySystemComponent* OwnerASC = AbilitySystemCharacterOwner->GetAbilitySystemComponent();
+
+
 		// Uncrouch if no longer allowed to be crouched
 		if (IsCrouching() && !CanCrouchInCurrentState())
 		{
@@ -604,7 +614,7 @@ bool USSCharacterMovementComponent::CanRunInCurrentState() const
 	//{
 	//	return false;
 	//}
-	if (CharacterAttributeSet && CharacterAttributeSet->GetStamina() <= 0)
+	if (StaminaAttributeSet && StaminaAttributeSet->GetStamina() <= 0)
 	{
 		return false;
 	}
@@ -662,17 +672,17 @@ void USSCharacterMovementComponent::UnCrouch(bool bClientSimulation)
 void USSCharacterMovementComponent::Run()
 {
 	SSCharacterOwner->bIsRunning = true;
-	if (CharacterAttributeSet)
+	if (StaminaAttributeSet)
 	{
-		CharacterAttributeSet->SetStaminaDraining(true);
+		StaminaAttributeSet->SetStaminaDraining(true);
 	}
 }
 void USSCharacterMovementComponent::UnRun()
 {
 	SSCharacterOwner->bIsRunning = false;
-	if (CharacterAttributeSet)
+	if (StaminaAttributeSet)
 	{
-		CharacterAttributeSet->SetStaminaDraining(false);
+		StaminaAttributeSet->SetStaminaDraining(false);
 	}
 }
 

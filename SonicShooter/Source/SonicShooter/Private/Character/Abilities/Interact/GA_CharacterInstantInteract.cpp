@@ -13,11 +13,12 @@
 
 UGA_CharacterInstantInteract::UGA_CharacterInstantInteract()
 {
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.InstantInteract")));
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Interact.InstantInteract")));
 }
 
 void UGA_CharacterInstantInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
+	TryCallOnAvatarSetOnPrimaryInstance
 	Super::OnAvatarSet(ActorInfo, Spec);
 }
 

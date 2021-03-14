@@ -13,11 +13,12 @@
 
 UGA_CharacterInteract::UGA_CharacterInteract()
 {
-
+	AbilityInputID = EAbilityInputID::Interact;
 }
 
 void UGA_CharacterInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
+	TryCallOnAvatarSetOnPrimaryInstance
 	Super::OnAvatarSet(ActorInfo, Spec);
 
 	//	Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times

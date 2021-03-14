@@ -13,18 +13,20 @@
 
 UGA_CharacterRun::UGA_CharacterRun()
 {
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Run")));
+	AbilityInputID = EAbilityInputID::Run;
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Movement.Run")));
 
 
 	FGameplayTag RunDisabledTag = FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled");
 	ActivationBlockedTags.AddTag(RunDisabledTag);	// This isn't the singular thing stopping you from running. The CMC is what listens for the presence of the RunDisabledTag and blocks running. This check just saves an ability activation.
 
-	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Crouch"));
+	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Movement.Crouch"));
 }
 
 
 void UGA_CharacterRun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
+	TryCallOnAvatarSetOnPrimaryInstance
 	Super::OnAvatarSet(ActorInfo, Spec);
 
 	// Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times
@@ -32,22 +34,25 @@ void UGA_CharacterRun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, c
 	{
 		return;
 	}
-	if (!ActorInfo->AvatarActor.Get())
+	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
+	if (!AvatarActor)
 	{
 		return;
 	}
 
 
-	GASCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
-	if (!GASCharacter)
+	GASCharacter = Cast<AAbilitySystemCharacter>(AvatarActor);
+	if (GASCharacter)
+	{
+		CMC = GASCharacter->GetSSCharacterMovementComponent();
+		if (!CMC)
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetSSCharacterMovementComponent was NULL"), *FString(__FUNCTION__));
+		}
+	}
+	else
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL"), *FString(__FUNCTION__));
-		return;
-	}
-	CMC = GASCharacter->GetSSCharacterMovementComponent();
-	if (!CMC)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetSSCharacterMovementComponent was NULL"), *FString(__FUNCTION__));
 	}
 }
 

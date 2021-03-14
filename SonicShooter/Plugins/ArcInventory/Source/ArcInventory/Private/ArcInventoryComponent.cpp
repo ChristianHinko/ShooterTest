@@ -26,6 +26,10 @@
 UArcInventoryComponent::UArcInventoryComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	//------------------ =@MODIFIED MARKER@= We will use this OnRep as an event for the client that 
+	bStartupItemsGiven = false;
+	//------------------
+
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
@@ -125,6 +129,29 @@ bool UArcInventoryComponent::LootItem(UArcItemStack* Item)
 
 	return false;
 }
+
+//------------------=@MODIFIED MARKER@=		Added new looting function identical to original, just outputs more information
+bool UArcInventoryComponent::LootItemAndOutSlotRef(UArcItemStack* Item, FArcInventoryItemSlotReference& SlotRefAddedTo)
+{
+	//We can't do this on clients
+	if (GetOwnerRole() != ROLE_Authority)
+	{
+		return false;
+	}
+
+	//Find the first empty item slot
+	for (auto Slot : BagInventory.Slots)
+	{
+		SlotRefAddedTo = FArcInventoryItemSlotReference(Slot, this);
+		if (AcceptsItem(Item, SlotRefAddedTo) && PlaceItemIntoSlot(Item, SlotRefAddedTo))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+//------------------
 
 bool UArcInventoryComponent::PlaceItemIntoSlot(UArcItemStack* Item, const FArcInventoryItemSlotReference& ItemSlot)
 {
@@ -443,6 +470,19 @@ class UAbilitySystemComponent* UArcInventoryComponent::GetOwnerAbilitySystem()
 	return UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetOwner());
 }
 
+//------------------ =@MODIFIED MARKER@= Added function
+bool UArcInventoryComponent::GetSlotReferenceByIndex(int32 index, FArcInventoryItemSlotReference& OutSlotReference)
+{
+	if (BagInventory.Slots.IsValidIndex(index))
+	{
+		OutSlotReference = FArcInventoryItemSlotReference(BagInventory.Slots[index], this);
+		return true;
+	}
+
+	return false;
+}
+//------------------
+
 bool UArcInventoryComponent::Query_GetAllSlots(const FArcInventoryQuery& Query, TArray<FArcInventoryItemSlotReference>& OutSlotRefs)
 {
 	for (FArcInventoryItemSlot& ItemSlot : BagInventory.Slots)
@@ -467,8 +507,6 @@ FArcInventoryItemSlotReference UArcInventoryComponent::Query_GetFirstSlot(const 
 
 	return OutSlotRefs[0];
 }
-
-
 
 void UArcInventoryComponent::Query_GetAllItems(const FArcInventoryQuery& Query, TArray<UArcItemStack*>& OutItems)
 {

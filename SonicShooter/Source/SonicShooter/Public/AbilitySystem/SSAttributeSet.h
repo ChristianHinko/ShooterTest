@@ -39,4 +39,8 @@ protected:
 	void AdjustAttributeForMaxChange(FGameplayAttributeData& AffectedAttribute, const FGameplayAttributeData& MaxAttribute, float NewMaxValue, const FGameplayAttribute& AffectedAttributeProperty);
 
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
+
+	UFUNCTION(Reliable, Client)
+		void ClientSetSoftAttributeDefaults();
+	void ClientSetSoftAttributeDefaults_Implementation();
 };

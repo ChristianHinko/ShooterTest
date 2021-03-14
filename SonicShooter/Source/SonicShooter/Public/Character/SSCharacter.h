@@ -136,6 +136,7 @@ public:
 	APawn* GetNearestPawn();
 
 protected:
+	//virtual void PostInitProperties() override;
 	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
 
@@ -181,14 +182,43 @@ protected:
 	virtual void OnSecondaryFireReleased();
 
 	virtual void OnReloadPressed();
-	virtual void OnReloadReleased();
+	//virtual void OnReloadReleased();
 
 	virtual void OnCrouchPressed();
 	virtual void OnCrouchReleased();
 
 	virtual void OnSwitchWeaponPressed();
-	virtual void OnSwitchWeaponReleased();
+	//virtual void OnSwitchWeaponReleased();
 
+	virtual void OnItem0Pressed();
+	//virtual void OnItem0Released();
+
+	virtual void OnItem1Pressed();
+	//virtual void OnItem1Released();
+
+	virtual void OnItem2Pressed();
+	//virtual void OnItem2Released();
+
+	virtual void OnItem3Pressed();
+	//virtual void OnItem3Released();
+
+	virtual void OnItem4Pressed();
+	//virtual void OnItem4Released();
+
+	virtual void OnNextItemPressed();
+	//virtual void OnNextItemReleased();
+
+	virtual void OnPreviousItemPressed();
+	//virtual void OnPreviousItemReleased();
+
+	virtual void OnPausePressed();
+	//virtual void OnPauseReleased();
+
+	virtual void OnScoreSheetPressed();
+	//virtual void OnScoreSheetReleased();
+
+	virtual void OnDropItemPressed();
+	//virtual void OnDropItemReleased();
 
 
 	//Axis

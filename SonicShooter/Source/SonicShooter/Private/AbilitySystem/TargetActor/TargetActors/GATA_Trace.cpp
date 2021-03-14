@@ -92,7 +92,7 @@ void AGATA_Trace::AimWithPlayerController(const AActor* InSourceActor, FCollisio
 		return;
 	}
 
-	APlayerController* PC = OwningAbility->GetCurrentActorInfo()->PlayerController.Get();
+	const APlayerController* PC = OwningAbility->GetCurrentActorInfo()->PlayerController.Get();
 	check(PC);
 
 	FVector ViewStart;
@@ -143,7 +143,7 @@ void AGATA_Trace::DirWithPlayerController(const AActor* InSourceActor, FCollisio
 		return;
 	}
 
-	APlayerController* PC = OwningAbility->GetCurrentActorInfo()->PlayerController.Get();
+	const APlayerController* PC = OwningAbility->GetCurrentActorInfo()->PlayerController.Get();
 	check(PC);
 
 	FVector ViewStart;
@@ -190,17 +190,17 @@ void AGATA_Trace::DirWithPlayerController(const AActor* InSourceActor, FCollisio
 
 bool AGATA_Trace::ClipCameraRayToAbilityRange(FVector CameraLocation, FVector CameraDirection, FVector AbilityCenter, float AbilityRange, FVector& ClippedPosition)
 {
-	FVector CameraToCenter = AbilityCenter - CameraLocation;
-	float DotToCenter = FVector::DotProduct(CameraToCenter, CameraDirection);
+	const FVector CameraToCenter = AbilityCenter - CameraLocation;
+	const float DotToCenter = FVector::DotProduct(CameraToCenter, CameraDirection);
 	if (DotToCenter >= 0)		//If this fails, we're pointed away from the center, but we might be inside the sphere and able to find a good exit point.
 	{
-		float DistanceSquared = CameraToCenter.SizeSquared() - (DotToCenter * DotToCenter);
-		float RadiusSquared = (AbilityRange * AbilityRange);
+		const float DistanceSquared = CameraToCenter.SizeSquared() - (DotToCenter * DotToCenter);
+		const float RadiusSquared = (AbilityRange * AbilityRange);
 		if (DistanceSquared <= RadiusSquared)
 		{
-			float DistanceFromCamera = FMath::Sqrt(RadiusSquared - DistanceSquared);
-			float DistanceAlongRay = DotToCenter + DistanceFromCamera;						//Subtracting instead of adding will get the other intersection point
-			ClippedPosition = CameraLocation + (DistanceAlongRay * CameraDirection);		//Cam aim point clipped to range sphere
+			const float DistanceFromCamera = FMath::Sqrt(RadiusSquared - DistanceSquared);
+			const float DistanceAlongRay = DotToCenter + DistanceFromCamera;					//Subtracting instead of adding will get the other intersection point
+			ClippedPosition = CameraLocation + (DistanceAlongRay * CameraDirection);			//Cam aim point clipped to range sphere
 			return true;
 		}
 	}
@@ -215,13 +215,13 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 
 	// Ricochets
 	uint8 r = 0; // outside for bDebug to use maybe try to change this idk
-	for (r; r < ricochets; ++r)
+	for (r; r < Ricochets; ++r)
 	{
 		if (OutHitResults.Num() <= 0)
 		{
 			break;
 		}
-		FHitResult LastHit = OutHitResults.Last();
+		const FHitResult LastHit = OutHitResults.Last();
 		if (LastHit.bBlockingHit == false)
 		{
 			break;
@@ -233,11 +233,11 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 		RicoParams.AddIgnoredActor(LastHit.GetActor());
 
 		
-		FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.TraceEnd);
-		FVector MirroredDir = TracedDir.MirrorByVector(LastHit.ImpactNormal);
+		const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.TraceEnd);
+		const FVector MirroredDir = TracedDir.MirrorByVector(LastHit.ImpactNormal);
 
-		FVector RicoStart = LastHit.Location;
-		FVector RicoEnd = RicoStart + ((MaxRange - LastHit.Distance) * MirroredDir);
+		const FVector RicoStart = LastHit.Location;
+		const FVector RicoEnd = RicoStart + ((MaxRange - LastHit.Distance) * MirroredDir);
 
 
 		if (World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoParams) == false)
@@ -305,13 +305,13 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 			{
 				DrawDebugLine(World, OutHitResults.Last().Location, OutHitResults.Last().TraceEnd, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
 			}
-			else if (ricochets - r > 0)
+			else if (Ricochets - r > 0)
 			{
-				FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(OutHitResults.Last().TraceStart, OutHitResults.Last().TraceEnd);
-				FVector MirroredDir = TracedDir.MirrorByVector(OutHitResults.Last().ImpactNormal);
+				const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(OutHitResults.Last().TraceStart, OutHitResults.Last().TraceEnd);
+				const FVector MirroredDir = TracedDir.MirrorByVector(OutHitResults.Last().ImpactNormal);
 
-				FVector RicoStart = OutHitResults.Last().Location;
-				FVector RicoEnd = RicoStart + ((MaxRange - OutHitResults.Last().Distance) * MirroredDir);
+				const FVector RicoStart = OutHitResults.Last().Location;
+				const FVector RicoEnd = RicoStart + ((MaxRange - OutHitResults.Last().Distance) * MirroredDir);
 
 				DrawDebugLine(World, RicoStart, RicoEnd, TraceColor, false, debugLifeTime);
 			}
@@ -346,13 +346,13 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 
 	// Ricochets
 	uint8 r = 0; // outside for bDebug to use maybe try to change this idk
-	for (r; r < ricochets; ++r)
+	for (r; r < Ricochets; ++r)
 	{
 		if (OutHitResults.Num() <= 0)
 		{
 			break;
 		}
-		FHitResult LastHit = OutHitResults.Last();
+		const FHitResult LastHit = OutHitResults.Last();
 		if (LastHit.bBlockingHit == false)
 		{
 			break;
@@ -363,12 +363,12 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 		FCollisionQueryParams RicoParams = Params;
 		RicoParams.AddIgnoredActor(LastHit.GetActor());
 
+		
+		const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.TraceEnd);
+		const FVector MirroredDir = TracedDir.MirrorByVector(LastHit.ImpactNormal);
 
-		FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.TraceEnd);
-		FVector MirroredDir = TracedDir.MirrorByVector(LastHit.ImpactNormal);
-
-		FVector RicoStart = LastHit.Location;
-		FVector RicoEnd = RicoStart + ((MaxRange - LastHit.Distance) * MirroredDir);
+		const FVector RicoStart = LastHit.Location;
+		const FVector RicoEnd = RicoStart + ((MaxRange - LastHit.Distance) * MirroredDir);
 
 
 		if (World->SweepMultiByChannel(RicoHitResults, RicoStart, RicoEnd, Rotation, TraceChannel, CollisionShape, RicoParams) == false)
@@ -435,13 +435,13 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 			{
 				DrawDebugLine(World, OutHitResults.Last().Location, OutHitResults.Last().TraceEnd, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
 			}
-			else if (ricochets - r > 0)
+			else if (Ricochets - r > 0)
 			{
-				FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(OutHitResults.Last().TraceStart, OutHitResults.Last().TraceEnd);
-				FVector MirroredDir = TracedDir.MirrorByVector(OutHitResults.Last().ImpactNormal);
+				const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(OutHitResults.Last().TraceStart, OutHitResults.Last().TraceEnd);
+				const FVector MirroredDir = TracedDir.MirrorByVector(OutHitResults.Last().ImpactNormal);
 
-				FVector RicoStart = OutHitResults.Last().Location;
-				FVector RicoEnd = RicoStart + ((MaxRange - OutHitResults.Last().Distance) * MirroredDir);
+				const FVector RicoStart = OutHitResults.Last().Location;
+				const FVector RicoEnd = RicoStart + ((MaxRange - OutHitResults.Last().Distance) * MirroredDir);
 
 				DrawDebugLine(World, RicoStart, RicoEnd, TraceColor, false, debugLifeTime);
 			}
@@ -478,8 +478,8 @@ void AGATA_Trace::Tick(float DeltaSeconds)
 	{
 		TArray<FHitResult> HitResults;
 		PerformTrace(HitResults, SourceActor);
-		FHitResult HitResult = HitResults.Num() ? HitResults.Last() : FHitResult();	// get last hit
-		FVector EndPoint = HitResult.Component.IsValid() ? HitResult.ImpactPoint : HitResult.TraceEnd;
+		const FHitResult HitResult = HitResults.Num() ? HitResults.Last() : FHitResult();		// get last hit
+		const FVector EndPoint = HitResult.Component.IsValid() ? HitResult.ImpactPoint : HitResult.TraceEnd;
 
 		SetActorLocationAndRotation(EndPoint, SourceActor->GetActorRotation());
 	}

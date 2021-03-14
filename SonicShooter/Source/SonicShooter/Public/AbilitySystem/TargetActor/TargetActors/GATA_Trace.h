@@ -46,7 +46,7 @@ public:
 
 	/** Number of times the trace can ricochet off of blocking hits - Zero for no ricochet */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
-		uint8 ricochets;
+		uint8 Ricochets;
 
 	/** Does the trace affect the aiming pitch */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
@@ -60,7 +60,8 @@ public:
 	 * If true, when a trace overlaps an actor's multiple collisions, those multiple collision hits will add
 	 * that actor to the hitresults multiple times.
 	 */
-	bool bAllowMultipleHitsPerActor;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
+		bool bAllowMultipleHitsPerActor;
 
 protected:
 	virtual void PreInitializeComponents() override;

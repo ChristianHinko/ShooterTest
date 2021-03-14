@@ -58,7 +58,7 @@ public:
 	/**
 	 * Current bullet spread. Non-replicated because set every frame
 	 */
-	UPROPERTY(BlueprintReadOnly/*, ReplicatedUsing = OnRep_MaxBulletSpread*/, Category = "Attributes", meta = (HideFromModifiers))
+	UPROPERTY(BlueprintReadOnly/*, ReplicatedUsing = OnRep_CurrentBulletSpread*/, Category = "Attributes", meta = (HideFromModifiers))
 		FGameplayAttributeData CurrentBulletSpread;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, CurrentBulletSpread)
 

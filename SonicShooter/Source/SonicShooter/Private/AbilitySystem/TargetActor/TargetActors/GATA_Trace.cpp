@@ -105,7 +105,7 @@ void AGATA_Trace::AimWithPlayerController(const AActor* InSourceActor, FCollisio
 	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, MaxRange, ViewEnd);
 
 	TArray<FHitResult> HitResults;
-	LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), ViewStart, ViewEnd, Params, false);
+	InSourceActor->GetWorld()->LineTraceMultiByChannel(HitResults, ViewStart, ViewEnd, TraceChannel, Params);
 	FHitResult HitResult = HitResults.Num() ? HitResults[0] : FHitResult();
 
 	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
@@ -156,7 +156,7 @@ void AGATA_Trace::DirWithPlayerController(const AActor* InSourceActor, FCollisio
 	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, MaxRange, ViewEnd);
 
 	TArray<FHitResult> HitResults;
-	LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), ViewStart, ViewEnd, Params, false);
+	InSourceActor->GetWorld()->LineTraceMultiByChannel(HitResults, ViewStart, ViewEnd, TraceChannel, Params);
 	FHitResult HitResult = HitResults.Num() ? HitResults[0] : FHitResult();
 
 	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));

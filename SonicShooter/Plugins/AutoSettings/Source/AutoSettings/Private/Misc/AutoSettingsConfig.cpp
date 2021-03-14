@@ -3,29 +3,24 @@
 #include "Misc/AutoSettingsConfig.h"
 #include "GameFramework/InputSettings.h"
 #include "Misc/AutoSettingsLogs.h"
-#include "Misc/AutoSettingsError.h"
 
 #define LOCTEXT_NAMESPACE "FAutoSettingsModule"
 
 UTexture* FKeyIconSet::GetIcon(FKey Key) const
 {
-	const FKeyIconPair* FoundPair = Icons.FindByPredicate([Key](const FKeyIconPair KeyIconPair) {
-		return KeyIconPair.Key == Key;
-	});
-
-	if (FoundPair)
+	if(!IconMap.Contains(Key))
 	{
-		UTexture* FoundIcon = FoundPair->Icon;
-
-		if (!FoundIcon)
-		{
-			UE_LOG(LogAutoSettings, Warning, TEXT("FKeyIconSet::GetIcon: Key icon defined but empty - Key: %s, tags: %s"), *Key.ToString(), *Tags.ToString());
-		}
-
-		return FoundIcon;
+		return nullptr;
 	}
 
-	return nullptr;
+	UTexture* FoundIcon = IconMap.Find(Key)->LoadSynchronous();
+	
+	if(!FoundIcon)
+	{
+		UE_LOG(LogAutoSettings, Warning, TEXT("FKeyIconSet::GetIcon: Key icon defined but empty - Key: %s, tags: %s"), *Key.ToString(), *Tags.ToString());
+	}
+
+	return FoundIcon;
 }
 
 UAutoSettingsConfig::UAutoSettingsConfig()
@@ -91,16 +86,34 @@ FInputMappingPreset UAutoSettingsConfig::GetInputPresetByTag(FGameplayTag Preset
 	return Presets[0];
 }
 
-UTexture* UAutoSettingsConfig::GetIconForKey(FKey InKey, FGameplayTagContainer Tags) const
+UTexture* GetIcon(FKey Key, FKey AxisButtonKey, const FKeyIconSet& Set)
+{
+	// If the axis button key is valid, check it first
+	if(AxisButtonKey.IsValid())
+	{
+		UTexture* AxisButtonTexture = Set.GetIcon(AxisButtonKey);
+		if(AxisButtonTexture)
+		{
+			return AxisButtonTexture;
+		}
+	}
+
+	return Set.GetIcon(Key);
+}
+
+UTexture* UAutoSettingsConfig::GetIconForKey(FKey InKey, FGameplayTagContainer Tags, float AxisScale) const
 {
 	UTexture* Result;
 
+	// Retrieve axis button key if there is one, which may have a better icon
+	const FKey AxisButton = GetAxisButton(InKey, AxisScale);
+	
 	// First check if an icon matches input tags exactly
 	for (const FKeyIconSet& Set : KeyIconSets)
 	{
 		if (Set.Tags == Tags)
 		{
-			Result = Set.GetIcon(InKey);
+			Result = GetIcon(InKey, AxisButton, Set);
 			if (Result)
 				return Result;
 		}
@@ -111,7 +124,7 @@ UTexture* UAutoSettingsConfig::GetIconForKey(FKey InKey, FGameplayTagContainer T
 	{
 		if (Set.Tags.DoesTagContainerMatch(Tags, EGameplayTagMatchType::Explicit, EGameplayTagMatchType::Explicit, EGameplayContainerMatchType::All))
 		{
-			Result = Set.GetIcon(InKey);
+			Result = GetIcon(InKey, AxisButton, Set);
 			if (Result)
 				return Result;
 		}
@@ -122,7 +135,7 @@ UTexture* UAutoSettingsConfig::GetIconForKey(FKey InKey, FGameplayTagContainer T
 	{
 		if (Set.Tags.DoesTagContainerMatch(Tags, EGameplayTagMatchType::Explicit, EGameplayTagMatchType::Explicit, EGameplayContainerMatchType::Any))
 		{
-			Result = Set.GetIcon(InKey);
+			Result = GetIcon(InKey, AxisButton, Set);
 			if (Result)
 				return Result;
 		}
@@ -131,7 +144,7 @@ UTexture* UAutoSettingsConfig::GetIconForKey(FKey InKey, FGameplayTagContainer T
 	// Fall back to first icon we can find
 	for (const FKeyIconSet& Set : KeyIconSets)
 	{
-		Result = Set.GetIcon(InKey);
+		Result = GetIcon(InKey, AxisButton, Set);
 		if (Result)
 			return Result;
 	}
@@ -221,12 +234,39 @@ FKeyScale UAutoSettingsConfig::GetAxisKey(FKey InButtonKey) const
 
 bool UAutoSettingsConfig::IsAxisKey(FKey Key) const
 {
-	const FAxisAssociation* FoundAssociation = AxisAssociations.FindByPredicate([Key](const FAxisAssociation Association) {
+	const FAxisAssociation* FoundAssociation = AxisAssociations.FindByPredicate([Key](const FAxisAssociation Association)
+	{
 		return Association.AxisKey == Key;
 	});
 
 	return FoundAssociation != nullptr;
 }
+
+FKey UAutoSettingsConfig::GetAxisButton(FKey AxisKey, float AxisScale) const
+{
+	const FAxisAssociation* FoundAssociation = AxisAssociations.FindByPredicate([AxisKey](const FAxisAssociation Association)
+	{
+		return Association.AxisKey == AxisKey;
+	});
+
+	if(!FoundAssociation)
+	{
+		return EKeys::Invalid;
+	}
+
+	const FKeyScale* FoundKeyScale = FoundAssociation->ButtonKeys.FindByPredicate([AxisScale](const FKeyScale KeyScale)
+	{
+		return KeyScale.Scale == AxisScale;
+	});
+
+	if(!FoundKeyScale)
+	{
+		return EKeys::Invalid;
+	}
+
+	return FoundKeyScale->Key;
+}
+
 
 bool UAutoSettingsConfig::IsKeyAllowed(FKey Key) const
 {
@@ -268,10 +308,14 @@ bool UAutoSettingsConfig::ShouldBindingsBeUniqueBetweenMappingGroups(int32 Mappi
 {
 	// Always enforce unique if not allowing multiple bindings per key
 	if (!AllowMultipleBindingsPerKey)
+	{
 		return true;
+	}
 
 	if (MappingGroupA == MappingGroupB)
+	{
 		return true;
+	}
 
 	for (const FMappingGroupLink& Link : MappingGroupLinks)
 	{
@@ -323,6 +367,18 @@ void UAutoSettingsConfig::PostInitProperties()
 		{
 			Preset.InputLayout.MappingGroups = Preset.MappingGroups_DEPRECATED;
 			Preset.MappingGroups_DEPRECATED.Reset();
+		}
+	}
+
+	for(FKeyIconSet& IconSet : KeyIconSets)
+	{
+		for(FKeyIconPair& Pair : IconSet.Icons_DEPRECATED)
+		{
+			if(IconSet.IconMap.Contains(Pair.Key_DEPRECATED))
+			{
+				continue;
+			}
+			IconSet.IconMap.Add(Pair.Key_DEPRECATED, Pair.Icon_DEPRECATED);
 		}
 	}
 

@@ -12,6 +12,10 @@
 class UArcInventoryAttributeSet;
 class UArcItemStack;
 
+//------------------ =@MODIFIED MARKER@= fwd declare so we can use it in FArcInventoryItemSlotDefinition
+class UArcItemGenerator_Unique;
+//------------------
+
 USTRUCT(BlueprintType)
 struct ARCINVENTORY_API FArcInventoryItemSlotDefinition
 {
@@ -21,6 +25,13 @@ public:
 		FGameplayTagContainer Tags;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Inventory")
 		FArcInventoryItemSlotFilter Filter;
+
+
+	//------------------ =@MODIFIED MARKER@=
+	/** This item generator will be used by the GameMode to populate this slot when the character is spawned */
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+		TSubclassOf<UArcItemGenerator_Unique> SlotStartupItem;
+	//------------------
 };
 
 
@@ -40,6 +51,11 @@ public:
 
 	virtual void PostInitProperties() override;
 	virtual void InitializeComponent() override;
+
+
+	//------------------ =@MODIFIED MARKER@= new bool, set by the GameMode to be true after it gives the characters their items.
+		uint8 bStartupItemsGiven : 1;
+	//------------------
 
 
 protected:
@@ -62,6 +78,14 @@ public:
 	//Returns true if the item has been add to this inventory.  False if the item can't fit. 
 	UFUNCTION(BlueprintCallable, Category="Arc|Inventory")
 	virtual bool LootItem(UArcItemStack* Item);
+
+
+	//------------------=@MODIFIED MARKER@=		// Add this function so we know what slot ref is the one with the new item. (We use this when populating our inventory so we can add the slot ref to our item history)
+	//Returns true if the item has been add to this inventory.  False if the item can't fit. Outs the slot ref of the new item
+	UFUNCTION(BlueprintCallable, Category = "Arc|Inventory")
+		virtual bool LootItemAndOutSlotRef(UArcItemStack* Item, FArcInventoryItemSlotReference& SlotRefAddedTo);
+	//------------------
+
 
 	//Places the item into the slot.  Returns false if hte item cannot be put there.
 	UFUNCTION(BlueprintCallable, Category = "Arc|Inventory")
@@ -130,6 +154,12 @@ private:
 
 	//Inventory Searching
 public:
+	//------------------ =@MODIFIED MARKER@= Added function
+	// VERY UNRELIABLE WARNING!!! SlotReferences can be dynamcically switched around during gameplay so anytime after inventory initialisation is a bad time to call this!!!!
+	UFUNCTION(BlueprintCallable, Category = "Inventory | Item Queries", meta = (ScriptName = "GetSlotReferenceByIndex"))
+	bool GetSlotReferenceByIndex(int32 index, FArcInventoryItemSlotReference& OutSlotReference);
+	//------------------
+
 	UFUNCTION(BlueprintCallable, Category="Inventory | Item Queries", meta = (ScriptName = "ItemQuery_GetAll"))
 	bool Query_GetAllSlots(const FArcInventoryQuery& Query, TArray<FArcInventoryItemSlotReference>& OutSlotRefs);
 

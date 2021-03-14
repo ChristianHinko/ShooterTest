@@ -158,20 +158,49 @@ bool UArcInventoryComponent_Equippable::ApplyAbilityInfo_Internal(const FArcItem
 	if (GetOwnerRole() == ROLE_Authority)
 	{
 		//Setup the Item Info, duplicating attribute sets if we have to
-		for (auto AttributeSet : AbilityInfo.AttributeSets)
+		for (auto AttributeSetClass : AbilityInfo.AttributeSetsToAdd)
 		{
 			//Find an attribute set with the same key
 			UAttributeSet** ContainedAttributeSet = StoreInto.InstancedAttributeSets.FindByPredicate([=](UAttributeSet* Key) {
-				return Key->GetClass() == AttributeSet->GetClass();
+				return Key->GetClass() == AttributeSetClass.Get();
 			});
 			if (ContainedAttributeSet != nullptr)	 //If it exists, we've got it!
 			{
 				continue;
 			}
 
+
+
 			//Otherwise, create a new one
-			UAttributeSet* NewAttributeSet = NewObject<UAttributeSet>(GetOwner(), AttributeSet->GetClass());
-			UArcItemBPFunctionLibrary::CopyAttributeSet(AttributeSet, NewAttributeSet);
+			UAttributeSet* NewAttributeSet = NewObject<UAttributeSet>(GetOwner(), AttributeSetClass);
+
+			//and init the attributes
+			for (auto KV : AbilityInfo.AttributeInitalizers)
+			{
+				FGameplayAttribute Attribute = KV.Key;
+				float val = KV.Value;
+
+				if (Attribute.GetAttributeSetClass() == NewAttributeSet->GetClass())
+				{					
+					if (FNumericProperty* NumericProperty = CastField<FNumericProperty>(Attribute.GetUProperty()))
+					{
+						void* ValuePtr = NumericProperty->ContainerPtrToValuePtr<void>(NewAttributeSet);
+						NumericProperty->SetFloatingPointPropertyValue(ValuePtr, val);
+					}
+					else if (FStructProperty* StructProperty = CastField<FStructProperty>(Attribute.GetUProperty()))
+					{
+						FGameplayAttributeData* DataPtr = StructProperty->ContainerPtrToValuePtr<FGameplayAttributeData>(NewAttributeSet);
+						if (DataPtr)
+						{
+							DataPtr->SetBaseValue(val);
+							DataPtr->SetCurrentValue(val);
+						}
+					}
+				}
+			}
+
+			//and then tell watchers that a new attribute set has been created
+			OnAttributeSetCreated.Broadcast(this, NewAttributeSet, AbilitySource);
 
 			StoreInto.InstancedAttributeSets.Add(NewAttributeSet);
 		}

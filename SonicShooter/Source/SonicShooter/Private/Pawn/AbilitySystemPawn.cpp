@@ -310,7 +310,7 @@ void AAbilitySystemPawn::ApplyStartupEffects()
 	FGameplayEffectContextHandle EffectContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
 	EffectContextHandle.AddInstigator(this, this);
 	EffectContextHandle.AddSourceObject(this);
-	for (int32 i = 0; i < EffectsToApplyOnStartup.Num(); i++)
+	for (int32 i = 0; i < EffectsToApplyOnStartup.Num(); ++i)
 	{
 		FGameplayEffectSpecHandle NewEffectSpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(EffectsToApplyOnStartup[i], 1/*GetLevel()*/, EffectContextHandle);
 		if (NewEffectSpecHandle.IsValid())
@@ -439,14 +439,14 @@ int32 AAbilitySystemPawn::UnregisterPawnOwnedAttributeSets()
 	}
 
 	int32 retVal = 0;
-	for (int32 i = GetAbilitySystemComponent()->GetSpawnedAttributes().Num() - 1; i >= 0; i--)
+	for (int32 i = GetAbilitySystemComponent()->GetSpawnedAttributes().Num() - 1; i >= 0; --i)
 	{
 		if (UAttributeSet* AS = GetAbilitySystemComponent()->GetSpawnedAttributes()[i])
 		{
 			if (AS->GetOwningActor() == this)	// for attribute sets we check the OwningActor since thats what they use. It's also automatically set by the engine so were good
 			{
 				GetAbilitySystemComponent()->GetSpawnedAttributes_Mutable().RemoveAt(i);
-				retVal++;
+				++retVal;
 			}
 		}
 	}
@@ -468,13 +468,13 @@ int32 AAbilitySystemPawn::RemovePawnOwnedAbilities()
 	}
 
 	int32 retVal = 0;
-	for (int32 i = GetAbilitySystemComponent()->GetActivatableAbilities().Num() - 1; i >= 0; i--)
+	for (int32 i = GetAbilitySystemComponent()->GetActivatableAbilities().Num() - 1; i >= 0; --i)
 	{
 		FGameplayAbilitySpec Spec = GetAbilitySystemComponent()->GetActivatableAbilities()[i];
 		if (Spec.SourceObject == this)	// for abilities we check the SourceObject since thats what they use. SourceObjects are expected to be correct when set on GrantAbility()
 		{
 			GetAbilitySystemComponent()->ClearAbility(Spec.Handle);
-			retVal++;
+			++retVal;
 		}
 	}
 

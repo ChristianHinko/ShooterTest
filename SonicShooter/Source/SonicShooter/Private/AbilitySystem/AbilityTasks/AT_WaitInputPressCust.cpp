@@ -16,7 +16,7 @@ UAT_WaitInputPressCust::UAT_WaitInputPressCust(const FObjectInitializer& ObjectI
 
 void UAT_WaitInputPressCust::OnPressCallback()
 {
-	callBackNumber++;
+	++callBackNumber;
 	float ElapsedTime = GetWorld()->GetTimeSeconds() - StartTime;
 
 	if (!Ability || !AbilitySystemComponent)

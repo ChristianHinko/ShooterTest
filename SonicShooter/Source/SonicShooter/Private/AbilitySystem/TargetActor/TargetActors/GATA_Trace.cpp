@@ -12,6 +12,7 @@
 #include "AbilitySystem/SSAbilitySystemBlueprintLibrary.h"
 
 #include "DrawDebugHelpers.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 
@@ -91,7 +92,7 @@ void AGATA_Trace::AimWithPlayerController(const AActor* InSourceActor, FCollisio
 		return;
 	}
 
-	APlayerController* PC = OwningAbility->GetCurrentActorInfo()->PlayerController.Get();
+	const APlayerController* PC = OwningAbility->GetCurrentActorInfo()->PlayerController.Get();
 	check(PC);
 
 	FVector ViewStart;
@@ -104,7 +105,7 @@ void AGATA_Trace::AimWithPlayerController(const AActor* InSourceActor, FCollisio
 	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, MaxRange, ViewEnd);
 
 	TArray<FHitResult> HitResults;
-	LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), MultiFilterHandle, ViewStart, ViewEnd, TraceChannel, Params, false, false);
+	InSourceActor->GetWorld()->LineTraceMultiByChannel(HitResults, ViewStart, ViewEnd, TraceChannel, Params);
 	FHitResult HitResult = HitResults.Num() ? HitResults[0] : FHitResult();
 
 	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
@@ -142,7 +143,7 @@ void AGATA_Trace::DirWithPlayerController(const AActor* InSourceActor, FCollisio
 		return;
 	}
 
-	APlayerController* PC = OwningAbility->GetCurrentActorInfo()->PlayerController.Get();
+	const APlayerController* PC = OwningAbility->GetCurrentActorInfo()->PlayerController.Get();
 	check(PC);
 
 	FVector ViewStart;
@@ -155,7 +156,7 @@ void AGATA_Trace::DirWithPlayerController(const AActor* InSourceActor, FCollisio
 	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, MaxRange, ViewEnd);
 
 	TArray<FHitResult> HitResults;
-	LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), MultiFilterHandle, ViewStart, ViewEnd, TraceChannel, Params, false, false);
+	InSourceActor->GetWorld()->LineTraceMultiByChannel(HitResults, ViewStart, ViewEnd, TraceChannel, Params);
 	FHitResult HitResult = HitResults.Num() ? HitResults[0] : FHitResult();
 
 	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
@@ -189,54 +190,89 @@ void AGATA_Trace::DirWithPlayerController(const AActor* InSourceActor, FCollisio
 
 bool AGATA_Trace::ClipCameraRayToAbilityRange(FVector CameraLocation, FVector CameraDirection, FVector AbilityCenter, float AbilityRange, FVector& ClippedPosition)
 {
-	FVector CameraToCenter = AbilityCenter - CameraLocation;
-	float DotToCenter = FVector::DotProduct(CameraToCenter, CameraDirection);
+	const FVector CameraToCenter = AbilityCenter - CameraLocation;
+	const float DotToCenter = FVector::DotProduct(CameraToCenter, CameraDirection);
 	if (DotToCenter >= 0)		//If this fails, we're pointed away from the center, but we might be inside the sphere and able to find a good exit point.
 	{
-		float DistanceSquared = CameraToCenter.SizeSquared() - (DotToCenter * DotToCenter);
-		float RadiusSquared = (AbilityRange * AbilityRange);
+		const float DistanceSquared = CameraToCenter.SizeSquared() - (DotToCenter * DotToCenter);
+		const float RadiusSquared = (AbilityRange * AbilityRange);
 		if (DistanceSquared <= RadiusSquared)
 		{
-			float DistanceFromCamera = FMath::Sqrt(RadiusSquared - DistanceSquared);
-			float DistanceAlongRay = DotToCenter + DistanceFromCamera;						//Subtracting instead of adding will get the other intersection point
-			ClippedPosition = CameraLocation + (DistanceAlongRay * CameraDirection);		//Cam aim point clipped to range sphere
+			const float DistanceFromCamera = FMath::Sqrt(RadiusSquared - DistanceSquared);
+			const float DistanceAlongRay = DotToCenter + DistanceFromCamera;					//Subtracting instead of adding will get the other intersection point
+			ClippedPosition = CameraLocation + (DistanceAlongRay * CameraDirection);			//Cam aim point clipped to range sphere
 			return true;
 		}
 	}
 	return false;
 }
 
-void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGATDF_MultiFilterHandle MultiFilterHandle, const FVector& Start, const FVector& End, const ECollisionChannel TraceChannel, const FCollisionQueryParams Params, const bool inAllowMultipleHitsPerActor, const bool inDebug)
+void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams Params, const bool inDebug) const
 {
 	check(World);
 
 	World->LineTraceMultiByChannel(OutHitResults, Start, End, TraceChannel, Params);
 
-	// remove duplicate hits on actors
-	if (!inAllowMultipleHitsPerActor)
+	// Ricochets
+	uint8 r = 0; // outside for bDebug to use maybe try to change this idk
+	for (r; r < Ricochets; ++r)
 	{
-		/*
-			Loop through each hit result and check if the hits infront of it (the hit results less than the pending index) already have its actor.
-			If so, remove the pending hit result because it has the actor that was already hit and is considered a duplicate hit.
-		*/
-		for (int32 pendingIndex = 0; pendingIndex < OutHitResults.Num(); pendingIndex++)
+		if (OutHitResults.Num() <= 0)
+		{
+			break;
+		}
+		const FHitResult LastHit = OutHitResults.Last();
+		if (LastHit.bBlockingHit == false)
+		{
+			break;
+		}
+
+		TArray<FHitResult> RicoHitResults;
+
+		FCollisionQueryParams RicoParams = Params;
+		RicoParams.AddIgnoredActor(LastHit.GetActor());
+
+		
+		const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.TraceEnd);
+		const FVector MirroredDir = TracedDir.MirrorByVector(LastHit.ImpactNormal);
+
+		const FVector RicoStart = LastHit.Location;
+		const FVector RicoEnd = RicoStart + ((MaxRange - LastHit.Distance) * MirroredDir);
+
+
+		if (World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoParams) == false)
+		{
+			break;
+		}
+		OutHitResults.Append(RicoHitResults);
+	}
+
+	// Remove duplicate hits on actors
+	if (!bAllowMultipleHitsPerActor)
+	{
+		// Loop through each hit result and check if the hits infront of it (the hit results less than the pending index) already have its actor.
+		// If so, remove the pending hit result because it has the actor that was already hit and is considered a duplicate hit.
+		for (int32 pendingIndex = 0; pendingIndex < OutHitResults.Num(); ++pendingIndex)
 		{
 			const FHitResult PendingHit = OutHitResults[pendingIndex];
 
 			// check if the hit results that we've looped through so far contains a hit result with this actor already
-			for (int32 comparisonIndex = 0; comparisonIndex < pendingIndex; comparisonIndex++)
+			for (int32 comparisonIndex = 0; comparisonIndex < pendingIndex; ++comparisonIndex)
 			{
-				if (PendingHit.Actor == OutHitResults[comparisonIndex].Actor)
+				if (PendingHit.Actor == OutHitResults[comparisonIndex].Actor) // if we've already hit this actor
 				{
-					OutHitResults.RemoveAt(pendingIndex);
-					pendingIndex--;		// put pendingIndex back in sync after removal		(this can be weird because on first iteration, this will make pendingIndex == -1 but it gets fixed next iteration)
+					if (MultiFilterHandle.FilterPassesForActor(PendingHit.Actor)) // only remove if it passes the filter (to avoid double damage and stuff)
+					{
+						OutHitResults.RemoveAt(pendingIndex);
+						pendingIndex--;		// put pendingIndex back in sync after removal		(this can be weird because on first iteration, this will make pendingIndex == -1 but it gets fixed next iteration) 
+					}
 				}
 			}
 		}
 	}
 
 
-	// debug before we remove filtered hit results
+	// Debug before we remove filtered hit results
 #if ENABLE_DRAW_DEBUG
 	if (inDebug)
 	{
@@ -247,10 +283,10 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 		const uint8 hitsNum = OutHitResults.Num();
 		if (hitsNum > 0)
 		{
-			for (int32 i = 0; i < OutHitResults.Num(); i++)
+			for (int32 i = 0; i < OutHitResults.Num(); ++i)
 			{
 				const FHitResult Hit = OutHitResults[i];
-				const FVector FromLocation = i <= 0 ? Start : Hit.TraceStart;
+				const FVector FromLocation = Hit.TraceStart;
 				const FVector ToLocation = Hit.Location;
 
 				DrawDebugLine(World, FromLocation, ToLocation, TraceColor, false, debugLifeTime);
@@ -267,7 +303,17 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 			}
 			if (OutHitResults.Last().bBlockingHit == false)
 			{
-				DrawDebugLine(World, OutHitResults.Last().Location, End, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
+				DrawDebugLine(World, OutHitResults.Last().Location, OutHitResults.Last().TraceEnd, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
+			}
+			else if (Ricochets - r > 0)
+			{
+				const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(OutHitResults.Last().TraceStart, OutHitResults.Last().TraceEnd);
+				const FVector MirroredDir = TracedDir.MirrorByVector(OutHitResults.Last().ImpactNormal);
+
+				const FVector RicoStart = OutHitResults.Last().Location;
+				const FVector RicoEnd = RicoStart + ((MaxRange - OutHitResults.Last().Distance) * MirroredDir);
+
+				DrawDebugLine(World, RicoStart, RicoEnd, TraceColor, false, debugLifeTime);
 			}
 		}
 		else // if we've traced in thin air
@@ -278,8 +324,8 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 #endif // ENABLE_DRAW_DEBUG
 
 
-	// filter out hit results that do not pass filter
-	for (int32 i = 0; i < OutHitResults.Num(); i++)
+	// Filter out hit results that do not pass filter
+	for (int32 i = 0; i < OutHitResults.Num(); ++i)
 	{
 		const FHitResult Hit = OutHitResults[i];
 
@@ -287,30 +333,64 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 		if (!bPassesFilter)
 		{
 			OutHitResults.RemoveAt(i);
-			i--;		// put i back in sync after removal		(this can be weird because on first iteration, this will make i == -1 but it gets fixed next iteration)
+			--i;		// put i back in sync after removal		(this can be weird because on first iteration, this will make i == -1 but it gets fixed next iteration)
 		}
 	}
 }
 
-void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGATDF_MultiFilterHandle MultiFilterHandle, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const ECollisionChannel TraceChannel, const FCollisionQueryParams Params, const bool inAllowMultipleHitsPerActor, const bool inDebug)
+void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug) const
 {
 	check(World);
 
 	World->SweepMultiByChannel(OutHitResults, Start, End, Rotation, TraceChannel, CollisionShape, Params);
 
+	// Ricochets
+	uint8 r = 0; // outside for bDebug to use maybe try to change this idk
+	for (r; r < Ricochets; ++r)
+	{
+		if (OutHitResults.Num() <= 0)
+		{
+			break;
+		}
+		const FHitResult LastHit = OutHitResults.Last();
+		if (LastHit.bBlockingHit == false)
+		{
+			break;
+		}
+
+		TArray<FHitResult> RicoHitResults;
+
+		FCollisionQueryParams RicoParams = Params;
+		RicoParams.AddIgnoredActor(LastHit.GetActor());
+
+		
+		const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.TraceEnd);
+		const FVector MirroredDir = TracedDir.MirrorByVector(LastHit.ImpactNormal);
+
+		const FVector RicoStart = LastHit.Location;
+		const FVector RicoEnd = RicoStart + ((MaxRange - LastHit.Distance) * MirroredDir);
+
+
+		if (World->SweepMultiByChannel(RicoHitResults, RicoStart, RicoEnd, Rotation, TraceChannel, CollisionShape, RicoParams) == false)
+		{
+			break;
+		}
+		OutHitResults.Append(RicoHitResults);
+	}
+
 	// remove duplicate hits on actors
-	if (!inAllowMultipleHitsPerActor)
+	if (!bAllowMultipleHitsPerActor)
 	{
 		/*
 			Loop through each hit result and check if the hits infront of it (the hit results less than the pending index) already have its actor.
 			If so, remove the pending hit result because it has the actor that was already hit and is considered a duplicate hit.
 		*/
-		for (int32 pendingIndex = 0; pendingIndex < OutHitResults.Num(); pendingIndex++)
+		for (int32 pendingIndex = 0; pendingIndex < OutHitResults.Num(); ++pendingIndex)
 		{
 			const FHitResult PendingHit = OutHitResults[pendingIndex];
 
 			// check if the hit results that we've looped through so far contains a hit result with this actor already
-			for (int32 comparisonIndex = 0; comparisonIndex < pendingIndex; comparisonIndex++)
+			for (int32 comparisonIndex = 0; comparisonIndex < pendingIndex; ++comparisonIndex)
 			{
 				if (PendingHit.Actor == OutHitResults[comparisonIndex].Actor)
 				{
@@ -322,7 +402,7 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 	}
 
 
-	// debug before we remove filtered hit results
+	// Debug before we remove filtered hit results
 #if ENABLE_DRAW_DEBUG
 	if (inDebug)
 	{
@@ -333,10 +413,10 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 		const uint8 hitsNum = OutHitResults.Num();
 		if (hitsNum > 0)
 		{
-			for (int32 i = 0; i < OutHitResults.Num(); i++)
+			for (int32 i = 0; i < OutHitResults.Num(); ++i)
 			{
 				const FHitResult Hit = OutHitResults[i];
-				const FVector FromLocation = i <= 0 ? Start : Hit.TraceStart;
+				const FVector FromLocation = Hit.TraceStart;
 				const FVector ToLocation = Hit.Location;
 
 				DrawDebugLine(World, FromLocation, ToLocation, TraceColor, false, debugLifeTime);
@@ -353,7 +433,17 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 			}
 			if (OutHitResults.Last().bBlockingHit == false)
 			{
-				DrawDebugLine(World, OutHitResults.Last().Location, End, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
+				DrawDebugLine(World, OutHitResults.Last().Location, OutHitResults.Last().TraceEnd, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
+			}
+			else if (Ricochets - r > 0)
+			{
+				const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(OutHitResults.Last().TraceStart, OutHitResults.Last().TraceEnd);
+				const FVector MirroredDir = TracedDir.MirrorByVector(OutHitResults.Last().ImpactNormal);
+
+				const FVector RicoStart = OutHitResults.Last().Location;
+				const FVector RicoEnd = RicoStart + ((MaxRange - OutHitResults.Last().Distance) * MirroredDir);
+
+				DrawDebugLine(World, RicoStart, RicoEnd, TraceColor, false, debugLifeTime);
 			}
 		}
 		else // if we've traced in thin air
@@ -365,7 +455,7 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 
 
 	// filter out hit results that do not pass filter
-	for (int32 i = 0; i < OutHitResults.Num(); i++)
+	for (int32 i = 0; i < OutHitResults.Num(); ++i)
 	{
 		const FHitResult Hit = OutHitResults[i];
 
@@ -373,7 +463,7 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 		if (!bPassesFilter)
 		{
 			OutHitResults.RemoveAt(i);
-			i--;		// put i back in sync after removal		(this can be weird because on first iteration, this will make i == -1 but it gets fixed next iteration)
+			--i;		// put i back in sync after removal		(this can be weird because on first iteration, this will make i == -1 but it gets fixed next iteration)
 		}
 	}
 }
@@ -388,8 +478,8 @@ void AGATA_Trace::Tick(float DeltaSeconds)
 	{
 		TArray<FHitResult> HitResults;
 		PerformTrace(HitResults, SourceActor);
-		FHitResult HitResult = HitResults.Num() ? HitResults.Last() : FHitResult();	// get last hit
-		FVector EndPoint = HitResult.Component.IsValid() ? HitResult.ImpactPoint : HitResult.TraceEnd;
+		const FHitResult HitResult = HitResults.Num() ? HitResults.Last() : FHitResult();		// get last hit
+		const FVector EndPoint = HitResult.Component.IsValid() ? HitResult.ImpactPoint : HitResult.TraceEnd;
 
 		SetActorLocationAndRotation(EndPoint, SourceActor->GetActorRotation());
 	}

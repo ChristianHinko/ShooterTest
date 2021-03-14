@@ -15,7 +15,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Character/AS_Character.h"
-#include "Actor/AS_Health.h"
+#include "AbilitySystem/AttributeSets/AS_Stamina.h"
+#include "AbilitySystem/AttributeSets/AS_Health.h"
 
 #include "Character/SSCharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -29,27 +30,31 @@ void AAbilitySystemCharacter::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 
 
 	DOREPLIFETIME(AAbilitySystemCharacter, CharacterAttributeSet);
+	DOREPLIFETIME(AAbilitySystemCharacter, StaminaAttributeSet);
 	DOREPLIFETIME(AAbilitySystemCharacter, HealthAttributeSet);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterJumpAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterCrouchAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AAbilitySystemCharacter, CharacterRunAbilitySpecHandle, COND_OwnerOnly);
-	//DOREPLIFETIME(AAbilitySystemCharacter, PlayerAbilitySystemComponent);			//can be helpful for debugging
+	//DOREPLIFETIME(AAbilitySystemCharacter, PlayerAbilitySystemComponent);			// can be helpful for debugging
 }
 
 
 AAbilitySystemCharacter::AAbilitySystemCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	// We make the AI always automatically posses us because the AI ASC will be in use before the Player possesses us so we sould have the SetupWithAbilitySystemAIControlled() run so the ASC can be used.
+	// But we're not doing this because its hard to transfer ASC state to another. We don't need this feature right now
+	//AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+
+	bUnregisterAttributeSetsOnUnpossessed = true; // TODO: make these transfer to next ASC
+	bRemoveCharacterTagsOnUnpossessed = true;
+	bRemoveAbilitiesOnUnpossessed = true;
+
+
 	// Minimal Mode means that no GameplayEffects will replicate. They will only live on the Server. Attributes, GameplayTags, and GameplayCues will still replicate to us.
 	AIAbilitySystemComponentReplicationMode = EGameplayEffectReplicationMode::Minimal;
-	bUnregisterAttributeSetsOnUnpossessed = true;
-	bRemoveAbilitiesOnUnpossessed = true;
-	bRemoveCharacterTagsOnUnpossessed = true;
 
-	bAttributesAndStartupEffectsInitialized = false;
-	bASCInputBound = false;
-
-	bShouldHandleAIAbilitySystemSetup = false;
 	AIAbilitySystemComponent = CreateOptionalDefaultSubobject<USSAbilitySystemComponent>(TEXT("AIAbilitySystemComponent"));
 	if (AIAbilitySystemComponent)
 	{
@@ -64,7 +69,7 @@ void AAbilitySystemCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	
+
 }
 
 
@@ -75,7 +80,7 @@ USSAbilitySystemComponent* AAbilitySystemCharacter::GetAbilitySystemComponent() 
 	{
 		return PlayerAbilitySystemComponent;
 	}
-	else
+	else // AI controlled
 	{
 		return AIAbilitySystemComponent;
 	}
@@ -86,17 +91,27 @@ void AAbilitySystemCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 
-	SetupWithAbilitySystem();
+	if (IsPlayerControlled())
+	{
+		SetupWithAbilitySystemPlayerControlled();
+	}
+	else // AI Controlled
+	{
+		SetupWithAbilitySystemAIControlled();
+	}
 }
 
 void AAbilitySystemCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	// make sure its not when unpossessing (when unpossessed player state is null)
+	// Make sure its not when unpossessing (when unpossessed Player State is null)
 	if (GetPlayerState())
 	{
-		SetupWithAbilitySystem();
+		if (IsPlayerControlled())
+		{
+			SetupWithAbilitySystemPlayerControlled();
+		}
 	}
 }
 
@@ -107,151 +122,169 @@ void AAbilitySystemCharacter::OnRep_Controller()
 
 	if (GetAbilitySystemComponent())
 	{
-		GetAbilitySystemComponent()->RefreshAbilityActorInfo();		// COME BACK TO THIS. ONLY REASON I HAVE THIS HERE RN IS BECAUSE KAOSSPECRUM SAID TO REFRESH IN HERE. i think it's mainly for AIs
+		GetAbilitySystemComponent()->RefreshAbilityActorInfo();		// TODO: COME BACK TO THIS. ONLY REASON I HAVE THIS HERE RN IS BECAUSE KAOSSPECRUM SAID TO REFRESH IN HERE. i think it's mainly for AIs
 	}
 }
 
-void AAbilitySystemCharacter::SetupWithAbilitySystem()
+void AAbilitySystemCharacter::SetupWithAbilitySystemPlayerControlled()
 {
-	if (IsPlayerControlled())
+	SSPlayerState = GetPlayerState<ASSPlayerState>();
+	if (!SSPlayerState)
 	{
-		SSPlayerState = GetPlayerState<ASSPlayerState>();
-		if (!SSPlayerState)
-		{
-			UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Failed to setup Character with GAS on (failed to InitAbilityActorInfo, AddExistingAttributeSets, InitializeAttributes, ApplyStartupEffects, and GrantStartingAbilities). Character's player state is not an ASSPlayerState (Cast failed)"), *FString(__FUNCTION__));
-			return;
-		}
-		PlayerAbilitySystemComponent = SSPlayerState->GetAbilitySystemComponent();
-		if (!PlayerAbilitySystemComponent)
-		{
-			UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Failed to setup Character with GAS on (failed to InitAbilityActorInfo, AddExistingAttributeSets, InitializeAttributes, ApplyStartupEffects, and GrantStartingAbilities). PlayerAbilitySystemComponent was NULL"), *FString(__FUNCTION__));
-			return;
-		}
-		if (GetAbilitySystemComponent() != PlayerAbilitySystemComponent)	// Check to make sure GetAbilitySystemComponent() returns the same ASC we are now trying to set up and switch to
-		{
-			UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() GetAbilitySystemComponent() not returning PlayerAbilitySystemComponent when a PlayerController just took possesion and is trying to InitAbilityActorInfo() on the character"), *FString(__FUNCTION__));
-			return;
-		}
-
-
-		// This must be done on both client and server
-		PlayerAbilitySystemComponent->InitAbilityActorInfo(SSPlayerState, this);
-
-		// Bind player input to the AbilitySystemComponent. Also called in SetupPlayerInputComponent because of a potential race condition.
-		BindASCInput();
-
-		if (!bAttributesAndStartupEffectsInitialized)
-		{
-
-
-			if (GetLocalRole() == ROLE_Authority)
-			{
-				// Moved these attribute set stuff into this check because seems to make more sence. move outside if problems arise
-				CreateAttributeSets();
-				RegisterAttributeSets();
-				// Must call ForceReplication after registering an attribute set(s)
-				PlayerAbilitySystemComponent->ForceReplication();
-			}
-			
-			PreApplyStartupEffects.Broadcast();	// Good place to bind to Attribute/Tag events, but currently effect replicates to client faster than it can broadcast, so we need to fix this
-
-			if (GetLocalRole() == ROLE_Authority)
-			{
-				InitializeAttributes();
-				ApplyStartupEffects();
-			}
-
-			bAttributesAndStartupEffectsInitialized = true;
-		}
-		else    // If something is posessing this Character a second time
-		{
-			// Just register this Character's already-created attribute sets with the player's ASC
-			RegisterAttributeSets();
-			if (GetLocalRole() == ROLE_Authority)
-			{
-				// Must call ForceReplication after registering an attribute set(s)
-				PlayerAbilitySystemComponent->ForceReplication();
-			}
-		}
-
-		// Refresh ASC Actor Info for clients. Server will be refreshed by its AIController/PlayerController when it possesses a new Actor.
-		if (IsLocallyControlled()) // CLIENT
-		{
-			PlayerAbilitySystemComponent->RefreshAbilityActorInfo();
-			ServerOnSetupWithAbilitySystemCompletedOnOwningClient();
-		}
+		UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Failed to setup Character with GAS on (failed to InitAbilityActorInfo, AddExistingAttributeSets, InitializeAttributes, ApplyStartupEffects, and GrantStartingAbilities). Character's Player State is not an ASSPlayerState (Cast failed)"), *FString(__FUNCTION__));
+		return;
 	}
-	else // AI controlled   \/\/
+	PlayerAbilitySystemComponent = SSPlayerState->GetAbilitySystemComponent();
+	if (!PlayerAbilitySystemComponent)
 	{
-		if (GetLocalRole() < ROLE_Authority)
-		{
-			return;
-		}
-		if (!bShouldHandleAIAbilitySystemSetup)
-		{
-			return;
-		}
-		if (!AIAbilitySystemComponent)
-		{
-			UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Failed to setup Character with AI GAS setup on (failed to InitAbilityActorInfo, AddExistingAttributeSets, InitializeAttributes, ApplyStartupEffects, and GrantStartingAbilities). AIAbilitySystemComponent was NULL"), *FString(__FUNCTION__));
-			return;
-		}
-		if (GetAbilitySystemComponent() != AIAbilitySystemComponent)	// Check to make sure GetAbilitySystemComponent() returns the same ASC we are now trying to set up and switch to
-		{
-			UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() GetAbilitySystemComponent() not returning AIAbilitySystemComponent when an AIController just took possesion and is trying to InitAbilityActorInfo() on the character"), *FString(__FUNCTION__));
-			return;
-		}
+		UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Failed to setup Character with GAS on (failed to InitAbilityActorInfo, AddExistingAttributeSets, InitializeAttributes, ApplyStartupEffects, and GrantStartingAbilities). PlayerAbilitySystemComponent was NULL"), *FString(__FUNCTION__));
+		return;
+	}
 
 
 
-		//From my understanding, only needs to be done on server since no player is controlling it
-		AIAbilitySystemComponent->InitAbilityActorInfo(this, this);
+	// This must be done on both client and server
+	PlayerAbilitySystemComponent->InitAbilityActorInfo(SSPlayerState, this);
 
-		if (!bAttributesAndStartupEffectsInitialized)
+	// Bind Player input to the AbilitySystemComponent. Also called in SetupPlayerInputComponent because of a potential race condition.
+	BindASCInput();
+
+	if (!bCharacterInitialized)
+	{
+
+
+		if (GetLocalRole() == ROLE_Authority)
 		{
-			// Must run these on Server but we run them on client too so that we don't have to wait.. It's how Dan does it so seams legit
+			// Moved these attribute set stuff into this check because seems to make more sence. move outside if problems arise
 			CreateAttributeSets();
 			RegisterAttributeSets();
 			// Must call ForceReplication after registering an attribute set(s)
-			AIAbilitySystemComponent->ForceReplication();
-			PreApplyStartupEffects.Broadcast();					// at this point the asc is safe to use
+			PlayerAbilitySystemComponent->ForceReplication();
+		}
+
+		PreApplyStartupEffects.Broadcast();	// good place to bind to Attribute/Tag events, but currently effect replicates to client faster than it can broadcast, so we need to fix this
+
+		if (GetLocalRole() == ROLE_Authority)
+		{
 			InitializeAttributes();
 			ApplyStartupEffects();
 
-			bAttributesAndStartupEffectsInitialized = true;
+			// This is the first time our setup is being run. So no matter what (even if bAIToPlayerSyncAbilities), grant our starting abilities.
+			GrantStartingAbilities();
 		}
-		else    // If something is posessing this Character a second time
-		{
-			// Just register this Character's already-created attribute sets with the player's ASC
-			RegisterAttributeSets();
-			// Must call ForceReplication after registering an attribute set(s)
-			AIAbilitySystemComponent->ForceReplication();
-		}
-		// When posessing this Character always grant the player's ASC his starting abilities. Also since this is an AI we don't need to wait for client to setup to grant abilities
-		GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
-		GrantNonHandleStartingAbilities();
+
+
+		bCharacterInitialized = true;
 	}
+	else    // If something is posessing this Character a second time
+	{
+		// Just register this Character's already-created attribute sets with the Player's ASC
+		RegisterAttributeSets();
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			// Must call ForceReplication after registering an attribute set(s)
+			PlayerAbilitySystemComponent->ForceReplication();
+		}
+
+		if (GetLocalRole() == ROLE_Authority) // Sync abilities between ASCs
+		{
+			const bool wasPlayer = (PreviousController && PreviousController->IsPlayerController());
+			const bool isPlayer = GetController()->IsPlayerController();
+
+			// If we went from AI -> Player
+			if (wasPlayer == false && isPlayer == true)
+			{
+				//PlayerAbilitySystemComponent->RecieveAbilitiesFrom(AIAbilitySystemComponent);
+				PlayerAbilitySystemComponent->GrantAbilities(PendingAbilitiesToSync);
+				PendingAbilitiesToSync.Empty();
+			}
+			else // we went from Player -> Player // THIS IS NOT COMPLETELY WORKING YET
+			{
+				PlayerAbilitySystemComponent->GrantAbilities(PendingAbilitiesToSync);
+				PendingAbilitiesToSync.Empty();
+			}
+
+			// TODO: we should have a way to sync tags and active effects and abilities to across ACSs but this sounds really hard
+		}
+	}
+
+	// Refresh ASC Actor Info for clients. Server will be refreshed by its AIController/PlayerController when it possesses a new Actor.
+	if (IsLocallyControlled()) // CLIENT
+	{
+		PlayerAbilitySystemComponent->RefreshAbilityActorInfo();
+	}
+
 
 	SetupWithAbilitySystemCompleted.Broadcast();
 }
+void AAbilitySystemCharacter::SetupWithAbilitySystemAIControlled()
+{
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		return;
+	}
+	if (!bShouldHandleAIAbilitySystemSetup)
+	{
+		return;
+	}
+	if (!AIAbilitySystemComponent)
+	{
+		UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Failed to setup Character with AI GAS setup on (failed to InitAbilityActorInfo, AddExistingAttributeSets, InitializeAttributes, ApplyStartupEffects, and GrantStartingAbilities). AIAbilitySystemComponent was NULL"), *FString(__FUNCTION__));
+		return;
+	}
+
+
+
+	// From my understanding, only needs to be done on server since no Player is controlling it
+	AIAbilitySystemComponent->InitAbilityActorInfo(this, this);
+
+	if (!bCharacterInitialized)
+	{
+		// Must run these on Server but we run them on client too so that we don't have to wait.. It's how Dan does it so seams legit
+		CreateAttributeSets();
+		RegisterAttributeSets();
+		// Must call ForceReplication after registering an attribute set(s)
+		AIAbilitySystemComponent->ForceReplication();
+		PreApplyStartupEffects.Broadcast();					// at this point the asc is safe to use
+		InitializeAttributes();
+		ApplyStartupEffects();
+
+		// This is the first time our setup is being run. So no matter what (even if bPlayerToAISyncAbilities), grant our starting abilities
+		GrantStartingAbilities();
+
+
+		bCharacterInitialized = true;
+	}
+	else    // If something is posessing this Character a second time
+	{
+		// Just register this Character's already-created attribute sets with the Player's ASC
+		RegisterAttributeSets();
+		// Must call ForceReplication after registering an attribute set(s)
+		AIAbilitySystemComponent->ForceReplication();
+
+
+		// Sync abilities between ASCs
+		{
+			const bool wasPlayer = (PreviousController && PreviousController->IsPlayerController());
+			const bool isPlayer = GetController()->IsPlayerController();
+
+			// If we went from Player -> AI
+			if (wasPlayer == true && isPlayer == false)
+			{
+				//AIAbilitySystemComponent->RecieveAbilitiesFrom(PlayerAbilitySystemComponent);
+				AIAbilitySystemComponent->GrantAbilities(PendingAbilitiesToSync);
+				PendingAbilitiesToSync.Empty();
+			}
+
+			// TODO: we should have a way to sync tags and active effects and abilities to across ACSs but this sounds really hard
+		}
+	}
+
+
+	SetupWithAbilitySystemCompleted.Broadcast();
+}
+
 #pragma endregion
-
-bool AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningClient_Validate()
-{
-	return true;
-}
-void AAbilitySystemCharacter::ServerOnSetupWithAbilitySystemCompletedOnOwningClient_Implementation()
-{
-	// Wanted to make it clear that THIS IS NOT HOW THINGS SHOULD BE IMPLEMENTED. This RPC makes the server wait on the client to grant the ability which can be bad. Initially I thought the server needed to wait for the client or something, but I no longer think that is the case anymore since solving this race condition by RPCing is basicly the same thing as solving it using a delay node.
-	// Fix in GameTemplate!
-
-	// When posessing this Character always grant the player's ASC his starting abilities
-	GrantStartingAbilities();	//Come back to this later. Things like character earned abilities WILL NOT BE GIVEN ON POSSESSION
-	GrantNonHandleStartingAbilities();
-
-	OnServerAknowledgeClientSetupAbilitySystem.Broadcast();
-}
-
 #pragma region ASC Setup Helpers
 void AAbilitySystemCharacter::CreateAttributeSets()
 {
@@ -262,6 +295,15 @@ void AAbilitySystemCharacter::CreateAttributeSets()
 	else
 	{
 		UE_CLOG((GetLocalRole() == ROLE_Authority), LogAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), *FString(__FUNCTION__), *CharacterAttributeSet->GetName());
+	}
+
+	if (!StaminaAttributeSet)
+	{
+		StaminaAttributeSet = NewObject<UAS_Stamina>(this, UAS_Stamina::StaticClass(), TEXT("StaminaAttributeSet"));
+	}
+	else
+	{
+		UE_CLOG((GetLocalRole() == ROLE_Authority), LogAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), *FString(__FUNCTION__), *StaminaAttributeSet->GetName());
 	}
 
 	if (!HealthAttributeSet)
@@ -296,7 +338,7 @@ void AAbilitySystemCharacter::CreateAttributeSets()
 
 void AAbilitySystemCharacter::RegisterAttributeSets()
 {
-	// give the ASC the default Character attribute set
+	// Give the ASC the default Character attribute set
 	if (CharacterAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(CharacterAttributeSet))	// If CharacterAttributeSet is valid and it's not yet registered with the Character's ASC
 	{
 		GetAbilitySystemComponent()->AddAttributeSetSubobject(CharacterAttributeSet);
@@ -304,6 +346,15 @@ void AAbilitySystemCharacter::RegisterAttributeSets()
 	else
 	{
 		UE_CLOG((GetLocalRole() == ROLE_Authority), LogAbilitySystemSetup, Warning, TEXT("%s() CharacterAttributeSet was either NULL or already added to the character's ASC. Character: %s"), *FString(__FUNCTION__), *GetName());
+	}
+
+	if (StaminaAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(StaminaAttributeSet))	// If StaminaAttributeSet is valid and it's not yet registered with the Character's ASC
+	{
+		GetAbilitySystemComponent()->AddAttributeSetSubobject(StaminaAttributeSet);
+	}
+	else
+	{
+		UE_CLOG((GetLocalRole() == ROLE_Authority), LogAbilitySystemSetup, Warning, TEXT("%s() StaminaAttributeSet was either NULL or already added to the character's ASC. Character: %s"), *FString(__FUNCTION__), *GetName());
 	}
 
 	if (HealthAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(HealthAttributeSet))	// If HealthAttributeSet is valid and it's not yet registered with the Character's ASC
@@ -376,7 +427,7 @@ void AAbilitySystemCharacter::ApplyStartupEffects()
 	FGameplayEffectContextHandle EffectContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
 	EffectContextHandle.AddInstigator(this, this);
 	EffectContextHandle.AddSourceObject(this);
-	for (int32 i = 0; i < EffectsToApplyOnStartup.Num(); i++)
+	for (int32 i = 0; i < EffectsToApplyOnStartup.Num(); ++i)
 	{
 		FGameplayEffectSpecHandle NewEffectSpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(EffectsToApplyOnStartup[i], 1/*GetLevel()*/, EffectContextHandle);
 		if (NewEffectSpecHandle.IsValid())
@@ -400,9 +451,17 @@ bool AAbilitySystemCharacter::GrantStartingAbilities()
 
 
 	// GetLevel() doesn't exist in this template. Will need to implement one if you want a level system
-	CharacterJumpAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterJumpAbilityTSub, this, EAbilityInputID::Jump/*, GetLevel()*/);
-	CharacterCrouchAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterCrouchAbilityTSub, this, EAbilityInputID::Crouch/*, GetLevel()*/);
-	CharacterRunAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterRunAbilityTSub, this, EAbilityInputID::Run/*, GetLevel()*/);
+	// ---------Grant handle starting abilities---------
+	CharacterJumpAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterJumpAbilityTSub, this/*, GetLevel()*/);
+	CharacterCrouchAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterCrouchAbilityTSub, this/*, GetLevel()*/);
+	CharacterRunAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterRunAbilityTSub, this/*, GetLevel()*/);
+
+
+	// ---------Grant non handle starting abilities---------
+	for (int32 i = 0; i < NonHandleStartingAbilities.Num(); ++i)
+	{
+		GetAbilitySystemComponent()->GrantAbility(NonHandleStartingAbilities[i], this/*, GetLevel()*/);
+	}
 
 	return true;
 
@@ -411,30 +470,11 @@ bool AAbilitySystemCharacter::GrantStartingAbilities()
 	/*
 					if (Super::GrantStartingAbilities() == false)
 					{
-	  					return false;	// Did not pass predefined checks
+						return false;	// Did not pass predefined checks
 					}
 					//	We are on authority and have a valid ASC to work with
-	*/					
+	*/
 	// ------------------------------------------------------------------------------------- //
-}
-
-void AAbilitySystemCharacter::GrantNonHandleStartingAbilities()
-{
-	if (GetLocalRole() < ROLE_Authority)
-	{
-		return;
-	}
-	if (!GetAbilitySystemComponent())
-	{
-		UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Tried to grant NonHandleStartingAbilities on %s but GetAbilitySystemComponent() returned NULL"), *FString(__FUNCTION__), *GetName());
-		return;
-	}
-
-	// GetLevel() doesn't exist in this template. Will need to implement one if you want a level system
-	for (int i = 0; i < NonHandleStartingAbilities.Num(); i++)
-	{
-		GetAbilitySystemComponent()->GrantAbility(NonHandleStartingAbilities[i], this, EAbilityInputID::None/*, GetLevel()*/);
-	}
 }
 #pragma endregion
 
@@ -450,7 +490,7 @@ void AAbilitySystemCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("CancelTarget", IE_Pressed, this, &AAbilitySystemCharacter::OnCancelTargetPressed);
 	PlayerInputComponent->BindAction("CancelTarget", IE_Released, this, &AAbilitySystemCharacter::OnCancelTargetReleased);
 
-	// Bind player input to the AbilitySystemComponent. Also called in OnRep_PlayerState because of a potential race condition.
+	// Bind Player input to the AbilitySystemComponent. Also called in OnRep_PlayerState because of a potential race condition.
 	BindASCInput();
 }
 
@@ -469,7 +509,7 @@ void AAbilitySystemCharacter::BindASCInput()
 			)
 		);
 
-		bASCInputBound = true;	// Only run this function only once
+		bASCInputBound = true;	// only run this function only once
 	}
 }
 //----------------------------------------------------------------------------- \/\/\/\/ EVENTS \/\/\/\/ ------------------------
@@ -495,7 +535,7 @@ void AAbilitySystemCharacter::OnCancelTargetReleased()
 
 void AAbilitySystemCharacter::OnInteractPressed()
 {
-	
+
 }
 void AAbilitySystemCharacter::OnInteractReleased()
 {
@@ -504,7 +544,7 @@ void AAbilitySystemCharacter::OnInteractReleased()
 
 void AAbilitySystemCharacter::OnPrimaryFirePressed()
 {
-	
+
 }
 void AAbilitySystemCharacter::OnPrimaryFireReleased()
 {
@@ -527,14 +567,14 @@ int32 AAbilitySystemCharacter::UnregisterCharacterOwnedAttributeSets()
 	}
 
 	int32 retVal = 0;
-	for (int32 i = GetAbilitySystemComponent()->GetSpawnedAttributes().Num() - 1; i >= 0; i--)
+	for (int32 i = GetAbilitySystemComponent()->GetSpawnedAttributes().Num() - 1; i >= 0; --i)
 	{
 		if (UAttributeSet* AS = GetAbilitySystemComponent()->GetSpawnedAttributes()[i])
 		{
-			if (AS->GetOwningActor() == this)	// for attribute sets we check the OwningActor since thats what they use. It's also automatically set by the engine so were good
+			if (AS->GetOwningActor() == this) // for attribute sets we check the OwningActor since thats what they use. It's also automatically set by the engine so were good
 			{
 				GetAbilitySystemComponent()->GetSpawnedAttributes_Mutable().RemoveAt(i);
-				retVal++;
+				++retVal;
 			}
 		}
 	}
@@ -556,29 +596,36 @@ int32 AAbilitySystemCharacter::RemoveCharacterOwnedAbilities()
 	}
 
 	int32 retVal = 0;
-	for (int32 i = GetAbilitySystemComponent()->GetActivatableAbilities().Num() - 1; i >= 0; i--)
+	for (int32 i = GetAbilitySystemComponent()->GetActivatableAbilities().Num() - 1; i >= 0; --i)
 	{
 		FGameplayAbilitySpec Spec = GetAbilitySystemComponent()->GetActivatableAbilities()[i];
-		if (Spec.SourceObject == this)	// for abilities we check the SourceObject since thats what they use. SourceObjects are expected to be correct when set on GrantAbility()
+		if (Spec.SourceObject == this) // for abilities we check the SourceObject since thats what they use. SourceObjects are expected to be correct when set on GrantAbility()
 		{
 			GetAbilitySystemComponent()->ClearAbility(Spec.Handle);
-			retVal++;
+			++retVal;
 		}
 	}
 
 	return retVal;
 }
 
-void AAbilitySystemCharacter::RemoveAllCharacterTags()	// Only called on Authority
+int32 AAbilitySystemCharacter::RemoveAllCharacterTags()	// Only called on Authority
 {
-	//	Needs implementation. Below I was trying to find a way to get all tags containing a parent of Character.
+	// Needs implementation. Below I was trying to find a way to get all tags containing a parent of Character.
 	//int32 amountFound = GetAbilitySystemComponent()->GetTagCount(FGameplayTag::RequestGameplayTag("Character"));
+
+	return -1;
 }
 
 void AAbilitySystemCharacter::UnPossessed()
 {
-	//this goes before Super because we need to make sure we are dealing with the correct ASC (the old one)
-	if (IsPlayerControlled() || (!IsPlayerControlled() && bShouldHandleAIAbilitySystemSetup))	//	If you were a player or were an AI with the AIAbilitySystemComponent subobject
+	PendingAbilitiesToSync = GetAbilitySystemComponent()->GetActivatableAbilities();
+
+	// This goes before Super so we can get the controller before it unpossess and the character's reference becomes null. If it was
+	// null we can't do IsPlayerControlled() and GetAbilitySystemComponent() would return the wrong ASC so the functions that we are calling would
+	// probably act really weird and try doing stuff on the wrong ASC
+
+	if (IsPlayerControlled() || (!IsPlayerControlled() && bShouldHandleAIAbilitySystemSetup))	//	If you were a Player or were an AI with the AIAbilitySystemComponent subobject
 	{
 		if (bUnregisterAttributeSetsOnUnpossessed)
 		{
@@ -587,15 +634,31 @@ void AAbilitySystemCharacter::UnPossessed()
 		if (bRemoveAbilitiesOnUnpossessed)
 		{
 			RemoveCharacterOwnedAbilities();
+			for (int32 i = 0; i < PendingAbilitiesToSync.Num(); ++i)
+			{
+				FGameplayAbilitySpec* Spec = &PendingAbilitiesToSync[i];
+				Spec->NonReplicatedInstances.Empty();
+				Spec->ReplicatedInstances.Empty();
+				Spec->ActiveCount = 0;
+				//Spec->PendingRemove = false; // maybe not actually?
+
+				//GetAbilitySystemComponent()->ClearAbility(Spec->Handle);
+			}
 		}
 		if (bRemoveCharacterTagsOnUnpossessed)
 		{
 			RemoveAllCharacterTags();
 		}
 	}
-	
-	Super::UnPossessed(); // actual unpossession happens here
 
+
+	PreviousController = GetController();	// we make sure we set our prev controller right before we unpossess so this is the most reliable previous controller
+	if (IsPlayerControlled()/* || GetPlayerState()->IsABot()*/) // should we be checking if we have a Player State bot whenever we want to use the Player ASC
+	{
+		PreviousPlayerASC = PlayerAbilitySystemComponent; // make sure we set previous ASC right before unpossess
+	}
+
+	Super::UnPossessed(); // actual unpossession happens here
 
 
 }

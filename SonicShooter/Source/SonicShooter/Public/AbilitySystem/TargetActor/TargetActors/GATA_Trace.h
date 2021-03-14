@@ -33,9 +33,9 @@ public:
 	static bool ClipCameraRayToAbilityRange(FVector CameraLocation, FVector CameraDirection, FVector AbilityCenter, float AbilityRange, FVector& ClippedPosition);
 
 	/** Traces as normal, but will manually filter all hit actors */
-	static void LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGATDF_MultiFilterHandle MultiFilterHandle, const FVector& Start, const FVector& End, const ECollisionChannel TraceChannel, const FCollisionQueryParams Params, const bool inAllowMultipleHitsPerActor, const bool inDebug);
+	void LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams Params, const bool inDebug) const;
 	/** Sweeps as normal, but will manually filter all hit actors */
-	static void SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGATDF_MultiFilterHandle MultiFilterHandle, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const ECollisionChannel TraceChannel, const FCollisionQueryParams Params, const bool inAllowMultipleHitsPerActor, const bool inDebug);
+	void SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug) const;
 
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
@@ -43,6 +43,10 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
 		TEnumAsByte<ECollisionChannel> TraceChannel;
+
+	/** Number of times the trace can ricochet off of blocking hits - Zero for no ricochet */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
+		uint8 Ricochets;
 
 	/** Does the trace affect the aiming pitch */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
@@ -56,7 +60,8 @@ public:
 	 * If true, when a trace overlaps an actor's multiple collisions, those multiple collision hits will add
 	 * that actor to the hitresults multiple times.
 	 */
-	bool bAllowMultipleHitsPerActor;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
+		bool bAllowMultipleHitsPerActor;
 
 protected:
 	virtual void PreInitializeComponents() override;

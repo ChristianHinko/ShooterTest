@@ -20,7 +20,7 @@ void URadioSelect::SetOptions(TArray<FSettingOption> InOptions)
 	{
 		ButtonContainer->ClearChildren();
 
-		for (const FSettingOption Option : Options)
+		for (const FSettingOption& Option : Options)
 		{
 			URadioButton* NewButton = CreateWidget<URadioButton>(GetWorld(), RadioButtonClass);
 

@@ -194,7 +194,7 @@ void AAbilitySystemActor::ApplyStartupEffects()
 	FGameplayEffectContextHandle EffectContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
 	EffectContextHandle.AddInstigator(this, this);
 	EffectContextHandle.AddSourceObject(this);
-	for (int32 i = 0; i < EffectsToApplyOnStartup.Num(); i++)
+	for (int32 i = 0; i < EffectsToApplyOnStartup.Num(); ++i)
 	{
 		FGameplayEffectSpecHandle NewEffectSpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(EffectsToApplyOnStartup[i], 1/*GetLevel()*/, EffectContextHandle);
 		if (NewEffectSpecHandle.IsValid())

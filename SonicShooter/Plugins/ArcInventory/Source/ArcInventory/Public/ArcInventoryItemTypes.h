@@ -61,11 +61,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Item")
 		FGameplayTagContainer GrantedTags;
 
-
-	//DEPRECATED
-	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Item")
-		TMap<FGameplayTag, TSubclassOf<UGameplayAbility>> ActiveAbilities;
-
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Item")
 	TArray<FArcItemActiveAbilityEntry> ActiveAbilityEntries;
 
@@ -75,7 +70,14 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Item")
 		TArray<TSubclassOf<UGameplayEffect>> AddedGameplayEffects;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Instanced, Category = "Item")
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Item")
+	TMap<FGameplayAttribute, float> AttributeInitalizers;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Item")
+	TArray<TSubclassOf<UAttributeSet>> AttributeSetsToAdd;
+
+	//DEPRECATED
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Instanced, Category = "Item")
 		TArray<UAttributeSet*> AttributeSets;
 };
 

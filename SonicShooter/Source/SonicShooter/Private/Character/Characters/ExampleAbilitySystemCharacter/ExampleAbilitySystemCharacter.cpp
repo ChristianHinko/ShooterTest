@@ -69,7 +69,7 @@ bool AExampleAbilitySystemCharacter::GrantStartingAbilities()
 
 
 
-	ExampleAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(ExampleAbilityTSub, this, EAbilityInputID::PrimaryFire/*, GetLevel()*/);
+	ExampleAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(ExampleAbilityTSub, this/*, GetLevel()*/);
 
 
 	return true;

@@ -94,5 +94,9 @@ public:
 	static bool ASCHasAttributeSet(UAbilitySystemComponent* ASC, TSubclassOf<UAttributeSet> AttributeSetClass);
 	static bool ASCAddInstancedAttributeSet(UAbilitySystemComponent* ASC, UAttributeSet* AttributeSet);
 	static bool ASCRemoveInstancedAttributeSet(UAbilitySystemComponent* ASC, UAttributeSet* AttributeSet);
+
+
+	UFUNCTION(BlueprintCallable, Category = "Arc|Inventory|Editor")
+	static void ConvertOldAttributeModelToNew(TSubclassOf<class UArcItemDefinition_Equipment> EquipmentItemDef);
 };
 

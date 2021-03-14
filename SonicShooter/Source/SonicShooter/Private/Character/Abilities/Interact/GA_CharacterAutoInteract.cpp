@@ -33,12 +33,14 @@
 
 UGA_CharacterAutoInteract::UGA_CharacterAutoInteract()
 {
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.AutoInteract")));
+	AbilityInputID = EAbilityInputID::NoInput;	// Don't use the interact input ID since there is no input needed to activate this ability
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Interact.AutoInteract")));
 	// Probably make this an InstancedPerActor passive ability to handle all automatic interactions. Since it will be passive the ability will never end than thus we don't need to do Durration End callbacks inside EndAbility(). We can just do them where ever
 }
 
 void UGA_CharacterAutoInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
+	TryCallOnAvatarSetOnPrimaryInstance
 	Super::OnAvatarSet(ActorInfo, Spec);
 
 	//	Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times
@@ -102,7 +104,7 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //	{
 //		/*if (Interactable->bAllowedInstantInteractActivationCombining)	// Maybe give implementor functionality
 //		{*/
-//		for (int32 i = ShooterCharacter->CurrentOverlapInteractablesStack.Num() - 1; i >= 0; i--)
+//		for (int32 i = ShooterCharacter->CurrentOverlapInteractablesStack.Num() - 1; i >= 0; --i)
 //		{
 //			if (ShooterCharacter->CurrentOverlapInteractablesStack.IsValidIndex(i) && ShooterCharacter->CurrentOverlapInteractablesStack[i])
 //			{

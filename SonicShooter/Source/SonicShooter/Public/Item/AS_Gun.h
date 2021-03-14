@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSAttributeSet.h"
+#include "GameplayAbilities/Public/TickableAttributeSetInterface.h"
 #include "AbilitySystemComponent.h"
 
 #include "AS_Gun.generated.h"
@@ -14,7 +15,7 @@
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UAS_Gun : public USSAttributeSet
+class SONICSHOOTER_API UAS_Gun : public USSAttributeSet, public ITickableAttributeSetInterface
 {
 	GENERATED_BODY()
 
@@ -65,6 +66,11 @@ public:
 
 protected:
 	virtual void SetSoftAttributeDefaults() override;
+
+
+	virtual void Tick(float DeltaTime) override;
+	virtual bool ShouldTick() const override;
+
 
 
 	UFUNCTION()

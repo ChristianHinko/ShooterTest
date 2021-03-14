@@ -39,6 +39,17 @@ void UAS_Gun::SetSoftAttributeDefaults()
 }
 
 
+void UAS_Gun::Tick(float DeltaTime)
+{
+	if (GetCurrentBulletSpread() > GetMinBulletSpread())
+	{
+		SetCurrentBulletSpread(GetCurrentBulletSpread() - (GetBulletSpreadDecRate() * DeltaTime)); // should work, maybe multiply by 1000 if not
+	}
+}
+bool UAS_Gun::ShouldTick() const
+{
+	return (GetCurrentBulletSpread() > GetMinBulletSpread());
+}
 
 
 // OnReps:

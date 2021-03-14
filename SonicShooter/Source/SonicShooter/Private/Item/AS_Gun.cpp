@@ -5,6 +5,8 @@
 
 #include "Net/UnrealNetwork.h"
 
+#include "Kismet/KismetSystemLibrary.h"
+
 
 
 void UAS_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -20,7 +22,7 @@ void UAS_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 UAS_Gun::UAS_Gun()
 	: MinBulletSpread(0.f),
 	MaxBulletSpread(10.f),
-	BulletSpreadIncPerShot(1.f),
+	BulletSpreadIncPerShot(2.f),
 	BulletSpreadDecRate(10.f)
 {
 	SetSoftAttributeDefaults();
@@ -39,12 +41,27 @@ void UAS_Gun::SetSoftAttributeDefaults()
 }
 
 
+
+void UAS_Gun::IncCurrentBulletSpread()
+{
+	SetCurrentBulletSpread(GetCurrentBulletSpread() + GetBulletSpreadIncPerShot());
+	if (GetCurrentBulletSpread() > GetMaxBulletSpread())
+	{
+		SetCurrentBulletSpread(GetMaxBulletSpread());
+	}
+
+	//UKismetSystemLibrary::PrintString(this, "Current bullet spread: " + FString::SanitizeFloat(GetCurrentBulletSpread()), true, false);
+}
+
 void UAS_Gun::Tick(float DeltaTime)
 {
-	if (GetCurrentBulletSpread() > GetMinBulletSpread())
+	SetCurrentBulletSpread(GetCurrentBulletSpread() - (GetBulletSpreadDecRate() * DeltaTime));
+	if (GetCurrentBulletSpread() < GetMinBulletSpread())
 	{
-		SetCurrentBulletSpread(GetCurrentBulletSpread() - (GetBulletSpreadDecRate() * DeltaTime)); // should work, maybe multiply by 1000 if not
+		SetCurrentBulletSpread(GetMinBulletSpread());
 	}
+
+	//UKismetSystemLibrary::PrintString(this, "Current bullet spread: " + FString::SanitizeFloat(GetCurrentBulletSpread()), true, false);
 }
 bool UAS_Gun::ShouldTick() const
 {

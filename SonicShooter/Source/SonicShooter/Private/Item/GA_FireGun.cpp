@@ -8,6 +8,7 @@
 #include "AbilitySystem/TargetActor/TargetActors/GATA_BulletTrace.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Utilities/CollisionChannels.h"
+#include "Item/AS_Gun.h"
 #include "Item/AS_Ammo.h"
 #include "Item\Weapons\GunStack.h"
 #include "ArcInventoryItemTypes.h"
@@ -65,13 +66,28 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	BulletTraceTargetActor->bDestroyOnConfirmation = false;
 
 
-	UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
-	for (UAttributeSet* AttributeSet : ASC->GetSpawnedAttributes())
 	{
-		if (UAS_Ammo* AmmoAS = Cast<UAS_Ammo>(AttributeSet))
+		bool bFoundGunAS = false;
+		bool bFoundAmmoAS = false;
+
+		UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
+		for (UAttributeSet* AttributeSet : ASC->GetSpawnedAttributes())
 		{
-			AmmoAttributeSet = AmmoAS;
-			break;
+			if (UAS_Gun* GunAS = Cast<UAS_Gun>(AttributeSet))
+			{
+				GunAttributeSet = GunAS;
+				bFoundGunAS = true;
+			}
+			if (UAS_Ammo* AmmoAS = Cast<UAS_Ammo>(AttributeSet))
+			{
+				AmmoAttributeSet = AmmoAS;
+				bFoundAmmoAS = true;
+			}
+
+			if (bFoundGunAS && bFoundAmmoAS) // this is a kind of a stupid optimization it's here
+			{
+				break;
+			}
 		}
 	}
 }
@@ -87,6 +103,7 @@ void UGA_FireGun::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, co
 		BulletTraceTargetActor = nullptr;
 	}
 
+	GunAttributeSet = nullptr;
 	AmmoAttributeSet = nullptr;
 }
 
@@ -110,6 +127,11 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 		return false;
 	}
 
+	if (!GunAttributeSet)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GunAttributeSet was NULL. returned false"), *FString(__FUNCTION__));
+		return false;
+	}
 	if (!AmmoAttributeSet)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() AmmoAttributeSet was NULL. returned false"), *FString(__FUNCTION__));
@@ -268,17 +290,20 @@ void UGA_FireGun::Fire()
 	WaitTargetDataActorTask->Cancelled.AddDynamic(this, &UGA_FireGun::OnCancelled);
 
 
+	BulletTraceTargetActor->StartLocation = MakeTargetLocationInfoFromOwnerSkeletalMeshComponent(TEXT("None"));		// this will take the actor info's skeletal mesh, maybe make our own in SSGameplayAbility which you can specify a skeletal mesh to use
+
 
 	const int16 predKey = GetCurrentActivationInfo().GetActivationPredictionKey().Current;	// Use the prediction key as a net safe random seed.
 	const int32 fireRandomSeed = predKey + fireNumber;										// Make the random seed unique to this particular fire
 	BulletTraceTargetActor->FireSpecificNetSafeRandomSeed = fireRandomSeed;							// Inject this random seed into our target actor (target actor will make random seed unique to each bullet in the fire if there are multible bullets in the fire)
 
 
+	BulletTraceTargetActor->BulletSpread = GunAttributeSet->GetCurrentBulletSpread();
 
 	// Lets finally fire
 	AmmoAttributeSet->SetClipAmmo(AmmoAttributeSet->GetClipAmmo() - GunToFire->AmmoCost);
-	BulletTraceTargetActor->StartLocation = MakeTargetLocationInfoFromOwnerSkeletalMeshComponent(TEXT("None"));		// this will take the actor info's skeletal mesh, maybe make our own in SSGameplayAbility which you can specify a skeletal mesh to use
 	WaitTargetDataActorTask->ReadyForActivation();
+	GunAttributeSet->IncCurrentBulletSpread();
 }
 
 

@@ -7,6 +7,7 @@
 #include "GA_FireGun.generated.h"
 
 class AGATA_BulletTrace;
+class UAS_Gun;
 class UAS_Ammo;
 class UGunStack;
 class UAT_SSWaitTargetData;
@@ -48,6 +49,8 @@ protected:
 		UGunStack* GunToFire;
 	UPROPERTY()
 		AGATA_BulletTrace* BulletTraceTargetActor;
+	UPROPERTY()
+		UAS_Gun* GunAttributeSet;
 	UPROPERTY()
 		UAS_Ammo* AmmoAttributeSet;
 

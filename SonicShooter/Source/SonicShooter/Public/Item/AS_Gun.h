@@ -63,6 +63,8 @@ public:
 		FGameplayAttributeData CurrentBulletSpread;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, CurrentBulletSpread)
 
+	void IncCurrentBulletSpread();
+
 
 protected:
 	virtual void SetSoftAttributeDefaults() override;

@@ -34,7 +34,7 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 
 	// ------------------------------------------------------
 
-	for (uint8 t = 0; t < numberOfBullets; t++)
+	for (uint8 t = 0; t < numberOfBullets; ++t)
 	{
 		// Get direction player is aiming
 		FVector AimDir;
@@ -58,8 +58,9 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 
 		// Perform line trace 
 		TArray<FHitResult> ThisBulletsHitResults;
-		LineTraceMultiWithFilter(ThisBulletsHitResults, InSourceActor->GetWorld(), MultiFilterHandle, TraceStart, TraceEnd, TraceChannel, Params, bAllowMultipleHitsPerActor, bDebug);
+		LineTraceMultiWithFilter(ThisBulletsHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, Params, bDebug);
 		
+
 		// Add this bullet's hit results to the final hit results
 		OutHitResults.Append(ThisBulletsHitResults);
 	}

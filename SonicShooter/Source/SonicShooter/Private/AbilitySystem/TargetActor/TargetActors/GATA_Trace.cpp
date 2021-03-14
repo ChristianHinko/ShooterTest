@@ -12,6 +12,7 @@
 #include "AbilitySystem/SSAbilitySystemBlueprintLibrary.h"
 
 #include "DrawDebugHelpers.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 
@@ -104,7 +105,7 @@ void AGATA_Trace::AimWithPlayerController(const AActor* InSourceActor, FCollisio
 	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, MaxRange, ViewEnd);
 
 	TArray<FHitResult> HitResults;
-	LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), MultiFilterHandle, ViewStart, ViewEnd, TraceChannel, Params, false, false);
+	LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), ViewStart, ViewEnd, Params, false);
 	FHitResult HitResult = HitResults.Num() ? HitResults[0] : FHitResult();
 
 	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
@@ -135,7 +136,7 @@ void AGATA_Trace::AimWithPlayerController(const AActor* InSourceActor, FCollisio
 
 	OutTraceEnd = TraceStart + (AdjustedAimDir * MaxRange);
 }
-void AGATA_Trace::DirWithPlayerController(const AActor* InSourceActor, FCollisionQueryParams Params, const FVector& TraceStart, FVector& OutTraceDir, bool bIgnorePitch) const
+void AGATA_Trace::DirWithPlayerController(const AActor* InSourceActor, FCollisionQueryParams Params, const FVector& TraceStart, FVector& OutTraceDir, bool bIgnorePitch) const // TODO: fix the usage of this, not shooting at trace end
 {
 	if (!OwningAbility) // Server and launching client only
 	{
@@ -155,7 +156,7 @@ void AGATA_Trace::DirWithPlayerController(const AActor* InSourceActor, FCollisio
 	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, MaxRange, ViewEnd);
 
 	TArray<FHitResult> HitResults;
-	LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), MultiFilterHandle, ViewStart, ViewEnd, TraceChannel, Params, false, false);
+	LineTraceMultiWithFilter(HitResults, InSourceActor->GetWorld(), ViewStart, ViewEnd, Params, false);
 	FHitResult HitResult = HitResults.Num() ? HitResults[0] : FHitResult();
 
 	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
@@ -206,19 +207,51 @@ bool AGATA_Trace::ClipCameraRayToAbilityRange(FVector CameraLocation, FVector Ca
 	return false;
 }
 
-void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGATDF_MultiFilterHandle MultiFilterHandle, const FVector& Start, const FVector& End, const ECollisionChannel TraceChannel, const FCollisionQueryParams Params, const bool inAllowMultipleHitsPerActor, const bool inDebug)
+void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams Params, const bool inDebug) const
 {
 	check(World);
 
 	World->LineTraceMultiByChannel(OutHitResults, Start, End, TraceChannel, Params);
 
-	// remove duplicate hits on actors
-	if (!inAllowMultipleHitsPerActor)
+	// Ricochets
+	uint8 r = 0; // outside for bDebug to use maybe change this idk
+	for (r; r < ricochets; ++r)
 	{
-		/*
-			Loop through each hit result and check if the hits infront of it (the hit results less than the pending index) already have its actor.
-			If so, remove the pending hit result because it has the actor that was already hit and is considered a duplicate hit.
-		*/
+		if (OutHitResults.Num() <= 0)
+		{
+			break;
+		}
+		FHitResult LastHit = OutHitResults.Last();
+		if (LastHit.bBlockingHit == false)
+		{
+			break;
+		}
+
+		TArray<FHitResult> RicoHitResults;
+
+		FCollisionQueryParams RicoParams = Params;
+		RicoParams.AddIgnoredActor(LastHit.GetActor()); // TODO: what about last hits? sphere trace could hit two actors maybe (actually probably not)? should ignore both
+
+		
+		FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.TraceEnd);
+		FVector MirroredDir = TracedDir.MirrorByVector(LastHit.ImpactNormal);
+
+		FVector RicoStart = LastHit.Location;
+		FVector RicoEnd = RicoStart + ((MaxRange - LastHit.Distance) * MirroredDir);
+
+
+		if (World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoParams) == false)
+		{
+			break;
+		}
+		OutHitResults.Append(RicoHitResults);
+	}
+
+	// Remove duplicate hits on actors
+	if (!bAllowMultipleHitsPerActor)
+	{
+		// Loop through each hit result and check if the hits infront of it (the hit results less than the pending index) already have its actor.
+		// If so, remove the pending hit result because it has the actor that was already hit and is considered a duplicate hit.
 		for (int32 pendingIndex = 0; pendingIndex < OutHitResults.Num(); pendingIndex++)
 		{
 			const FHitResult PendingHit = OutHitResults[pendingIndex];
@@ -226,17 +259,20 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 			// check if the hit results that we've looped through so far contains a hit result with this actor already
 			for (int32 comparisonIndex = 0; comparisonIndex < pendingIndex; comparisonIndex++)
 			{
-				if (PendingHit.Actor == OutHitResults[comparisonIndex].Actor)
+				if (PendingHit.Actor == OutHitResults[comparisonIndex].Actor) // if we've already hit this actor
 				{
-					OutHitResults.RemoveAt(pendingIndex);
-					pendingIndex--;		// put pendingIndex back in sync after removal		(this can be weird because on first iteration, this will make pendingIndex == -1 but it gets fixed next iteration)
+					if (MultiFilterHandle.FilterPassesForActor(PendingHit.Actor)) // only remove if it passes the filter (to avoid double damage and stuff)
+					{
+						OutHitResults.RemoveAt(pendingIndex);
+						pendingIndex--;		// put pendingIndex back in sync after removal		(this can be weird because on first iteration, this will make pendingIndex == -1 but it gets fixed next iteration) 
+					}
 				}
 			}
 		}
 	}
 
 
-	// debug before we remove filtered hit results
+	// Debug before we remove filtered hit results
 #if ENABLE_DRAW_DEBUG
 	if (inDebug)
 	{
@@ -250,7 +286,7 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 			for (int32 i = 0; i < OutHitResults.Num(); ++i)
 			{
 				const FHitResult Hit = OutHitResults[i];
-				const FVector FromLocation = i <= 0 ? Start : Hit.TraceStart;
+				const FVector FromLocation = Hit.TraceStart;
 				const FVector ToLocation = Hit.Location;
 
 				DrawDebugLine(World, FromLocation, ToLocation, TraceColor, false, debugLifeTime);
@@ -267,7 +303,17 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 			}
 			if (OutHitResults.Last().bBlockingHit == false)
 			{
-				DrawDebugLine(World, OutHitResults.Last().Location, End, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
+				DrawDebugLine(World, OutHitResults.Last().Location, OutHitResults.Last().TraceEnd, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
+			}
+			else if (ricochets - r > 0)
+			{
+				FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(OutHitResults.Last().TraceStart, OutHitResults.Last().TraceEnd);
+				FVector MirroredDir = TracedDir.MirrorByVector(OutHitResults.Last().ImpactNormal);
+
+				FVector RicoStart = OutHitResults.Last().Location;
+				FVector RicoEnd = RicoStart + ((MaxRange - OutHitResults.Last().Distance) * MirroredDir);
+
+				DrawDebugLine(World, RicoStart, RicoEnd, TraceColor, false, debugLifeTime);
 			}
 		}
 		else // if we've traced in thin air
@@ -278,7 +324,7 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 #endif // ENABLE_DRAW_DEBUG
 
 
-	// filter out hit results that do not pass filter
+	// Filter out hit results that do not pass filter
 	for (int32 i = 0; i < OutHitResults.Num(); ++i)
 	{
 		const FHitResult Hit = OutHitResults[i];

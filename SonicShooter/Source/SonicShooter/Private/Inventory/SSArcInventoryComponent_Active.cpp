@@ -93,7 +93,7 @@ void USSArcInventoryComponent_Active::AddToActiveItemHistory(FArcInventoryItemSl
 		sizeChange--;
 	}
 	ActiveItemHistory.Insert(NewActiveItemSlotReference, 0);						// Make item new recent
-	sizeChange++;
+	++sizeChange;
 
 
 

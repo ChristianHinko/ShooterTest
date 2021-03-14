@@ -239,7 +239,7 @@ void UGA_FireGun::OnFullAutoTick(float DeltaTime, float CurrentTime, float TimeR
 
 void UGA_FireGun::Fire()
 {
-	fireNumber++;
+	++fireNumber;
 	// Check if we have enough ammo first
 	if (AmmoAttributeSet->GetClipAmmo() < GunToFire->AmmoCost) // if we don't have enough ammo
 	{

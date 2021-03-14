@@ -574,7 +574,7 @@ int32 AAbilitySystemCharacter::UnregisterCharacterOwnedAttributeSets()
 			if (AS->GetOwningActor() == this) // for attribute sets we check the OwningActor since thats what they use. It's also automatically set by the engine so were good
 			{
 				GetAbilitySystemComponent()->GetSpawnedAttributes_Mutable().RemoveAt(i);
-				retVal++;
+				++retVal;
 			}
 		}
 	}
@@ -602,7 +602,7 @@ int32 AAbilitySystemCharacter::RemoveCharacterOwnedAbilities()
 		if (Spec.SourceObject == this) // for abilities we check the SourceObject since thats what they use. SourceObjects are expected to be correct when set on GrantAbility()
 		{
 			GetAbilitySystemComponent()->ClearAbility(Spec.Handle);
-			retVal++;
+			++retVal;
 		}
 	}
 

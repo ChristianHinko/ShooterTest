@@ -15,7 +15,7 @@ UAT_WaitInputReleaseCust::UAT_WaitInputReleaseCust(const FObjectInitializer& Obj
 
 void UAT_WaitInputReleaseCust::OnReleaseCallback()
 {
-	callBackNumber++;
+	++callBackNumber;
 	float ElapsedTime = GetWorld()->GetTimeSeconds() - StartTime;
 
 	if (!Ability || !AbilitySystemComponent)

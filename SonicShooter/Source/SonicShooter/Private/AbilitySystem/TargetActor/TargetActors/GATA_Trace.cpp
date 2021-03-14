@@ -252,12 +252,12 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 	{
 		// Loop through each hit result and check if the hits infront of it (the hit results less than the pending index) already have its actor.
 		// If so, remove the pending hit result because it has the actor that was already hit and is considered a duplicate hit.
-		for (int32 pendingIndex = 0; pendingIndex < OutHitResults.Num(); pendingIndex++)
+		for (int32 pendingIndex = 0; pendingIndex < OutHitResults.Num(); ++pendingIndex)
 		{
 			const FHitResult PendingHit = OutHitResults[pendingIndex];
 
 			// check if the hit results that we've looped through so far contains a hit result with this actor already
-			for (int32 comparisonIndex = 0; comparisonIndex < pendingIndex; comparisonIndex++)
+			for (int32 comparisonIndex = 0; comparisonIndex < pendingIndex; ++comparisonIndex)
 			{
 				if (PendingHit.Actor == OutHitResults[comparisonIndex].Actor) // if we've already hit this actor
 				{
@@ -385,12 +385,12 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 			Loop through each hit result and check if the hits infront of it (the hit results less than the pending index) already have its actor.
 			If so, remove the pending hit result because it has the actor that was already hit and is considered a duplicate hit.
 		*/
-		for (int32 pendingIndex = 0; pendingIndex < OutHitResults.Num(); pendingIndex++)
+		for (int32 pendingIndex = 0; pendingIndex < OutHitResults.Num(); ++pendingIndex)
 		{
 			const FHitResult PendingHit = OutHitResults[pendingIndex];
 
 			// check if the hit results that we've looped through so far contains a hit result with this actor already
-			for (int32 comparisonIndex = 0; comparisonIndex < pendingIndex; comparisonIndex++)
+			for (int32 comparisonIndex = 0; comparisonIndex < pendingIndex; ++comparisonIndex)
 			{
 				if (PendingHit.Actor == OutHitResults[comparisonIndex].Actor)
 				{

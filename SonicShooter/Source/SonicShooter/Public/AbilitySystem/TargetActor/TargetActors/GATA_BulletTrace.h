@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/TargetActor/TargetActors/GATA_Trace.h"
+
 #include "GATA_BulletTrace.generated.h"
+
+
 
 /**
  * 
@@ -19,13 +22,13 @@ public:
 
 	/** Number of line traces to perform, above 1 would be considered a shotgun */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true, UIMin = 1), Category = "Bullet Config")
-		uint8 numberOfBullets;
+		uint8 NumberOfBullets;
 	/** Radius of cone which bullets can spread. In degrees (90 degs will make a right angle cone) */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true, UIMin = 0, UIMax = 360), Category = "Bullet Config")
-		float bulletSpread;
+		float BulletSpread;
 
 	/** This is injected in every fire */
-	int16 fireSpecificNetSafeRandomSeed;
+	int16 FireSpecificNetSafeRandomSeed;
 
 protected:
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor);

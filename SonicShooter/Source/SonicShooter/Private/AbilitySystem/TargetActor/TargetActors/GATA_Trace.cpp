@@ -214,7 +214,7 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 	World->LineTraceMultiByChannel(OutHitResults, Start, End, TraceChannel, Params);
 
 	// Ricochets
-	uint8 r = 0; // outside for bDebug to use maybe change this idk
+	uint8 r = 0; // outside for bDebug to use maybe try to change this idk
 	for (r; r < ricochets; ++r)
 	{
 		if (OutHitResults.Num() <= 0)
@@ -230,7 +230,7 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 		TArray<FHitResult> RicoHitResults;
 
 		FCollisionQueryParams RicoParams = Params;
-		RicoParams.AddIgnoredActor(LastHit.GetActor()); // TODO: what about last hits? sphere trace could hit two actors maybe (actually probably not)? should ignore both
+		RicoParams.AddIgnoredActor(LastHit.GetActor());
 
 		
 		FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.TraceEnd);
@@ -338,14 +338,48 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 	}
 }
 
-void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FGATDF_MultiFilterHandle MultiFilterHandle, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const ECollisionChannel TraceChannel, const FCollisionQueryParams Params, const bool inAllowMultipleHitsPerActor, const bool inDebug)
+void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug) const
 {
 	check(World);
 
 	World->SweepMultiByChannel(OutHitResults, Start, End, Rotation, TraceChannel, CollisionShape, Params);
 
+	// Ricochets
+	uint8 r = 0; // outside for bDebug to use maybe try to change this idk
+	for (r; r < ricochets; ++r)
+	{
+		if (OutHitResults.Num() <= 0)
+		{
+			break;
+		}
+		FHitResult LastHit = OutHitResults.Last();
+		if (LastHit.bBlockingHit == false)
+		{
+			break;
+		}
+
+		TArray<FHitResult> RicoHitResults;
+
+		FCollisionQueryParams RicoParams = Params;
+		RicoParams.AddIgnoredActor(LastHit.GetActor());
+
+
+		FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.TraceEnd);
+		FVector MirroredDir = TracedDir.MirrorByVector(LastHit.ImpactNormal);
+
+		FVector RicoStart = LastHit.Location;
+		FVector RicoEnd = RicoStart + ((MaxRange - LastHit.Distance) * MirroredDir);
+
+
+		if (World->SweepMultiByChannel(RicoHitResults, RicoStart, RicoEnd, Rotation, TraceChannel, CollisionShape, RicoParams) == false)
+		{
+			break;
+		}
+		OutHitResults.Append(RicoHitResults);
+	}
+
 	// remove duplicate hits on actors
-	if (!inAllowMultipleHitsPerActor)
+	if (!bAllowMultipleHitsPerActor)
 	{
 		/*
 			Loop through each hit result and check if the hits infront of it (the hit results less than the pending index) already have its actor.
@@ -368,7 +402,7 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 	}
 
 
-	// debug before we remove filtered hit results
+	// Debug before we remove filtered hit results
 #if ENABLE_DRAW_DEBUG
 	if (inDebug)
 	{
@@ -382,7 +416,7 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 			for (int32 i = 0; i < OutHitResults.Num(); ++i)
 			{
 				const FHitResult Hit = OutHitResults[i];
-				const FVector FromLocation = i <= 0 ? Start : Hit.TraceStart;
+				const FVector FromLocation = Hit.TraceStart;
 				const FVector ToLocation = Hit.Location;
 
 				DrawDebugLine(World, FromLocation, ToLocation, TraceColor, false, debugLifeTime);
@@ -399,7 +433,17 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 			}
 			if (OutHitResults.Last().bBlockingHit == false)
 			{
-				DrawDebugLine(World, OutHitResults.Last().Location, End, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
+				DrawDebugLine(World, OutHitResults.Last().Location, OutHitResults.Last().TraceEnd, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
+			}
+			else if (ricochets - r > 0)
+			{
+				FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(OutHitResults.Last().TraceStart, OutHitResults.Last().TraceEnd);
+				FVector MirroredDir = TracedDir.MirrorByVector(OutHitResults.Last().ImpactNormal);
+
+				FVector RicoStart = OutHitResults.Last().Location;
+				FVector RicoEnd = RicoStart + ((MaxRange - OutHitResults.Last().Distance) * MirroredDir);
+
+				DrawDebugLine(World, RicoStart, RicoEnd, TraceColor, false, debugLifeTime);
 			}
 		}
 		else // if we've traced in thin air

@@ -40,6 +40,32 @@ void UAS_Gun::SetSoftAttributeDefaults()
 	CurrentBulletSpread = GetMinBulletSpread();
 }
 
+void UAS_Gun::PostInitProperties()
+{
+	Super::PostInitProperties();
+
+	if (GetWorld() == nullptr || GetWorld()->IsGameWorld() == false)
+	{
+		return;
+	}
+	if (HasAnyFlags(RF_ClassDefaultObject))
+	{
+		return;
+	}
+	//---------------------------------------- safe "BeginPlay" logic here ------------------------
+
+
+	UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
+	ASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.State.HasActiveItemActive"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &UAS_Gun::OnHasActiveItemActiveTagChanged);
+}
+
+void UAS_Gun::OnHasActiveItemActiveTagChanged(const FGameplayTag Tag, int32 NewCount)
+{
+	if (GetOwningAbilitySystemComponent()->HasAttributeSetForAttribute(GetCurrentBulletSpreadAttribute()))
+	{
+		SetCurrentBulletSpread(GetMinBulletSpread());
+	}
+}
 
 
 void UAS_Gun::IncCurrentBulletSpread()

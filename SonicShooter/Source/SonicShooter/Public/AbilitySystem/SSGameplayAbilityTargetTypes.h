@@ -10,14 +10,14 @@
 
 /** Target data with a single hit result, data is packed into the hit result */
 USTRUCT(BlueprintType)
-struct SONICSHOOTER_API FGameplayAbilityTargetData_RicochetTargetHit : public FGameplayAbilityTargetData
+struct SONICSHOOTER_API FGameplayAbilityTargetData_BulletTraceTargetHit : public FGameplayAbilityTargetData
 {
 	GENERATED_USTRUCT_BODY()
 
-	FGameplayAbilityTargetData_RicochetTargetHit()
+	FGameplayAbilityTargetData_BulletTraceTargetHit()
 	{ }
 
-	FGameplayAbilityTargetData_RicochetTargetHit(FHitResult InHitResult)
+	FGameplayAbilityTargetData_BulletTraceTargetHit(FHitResult InHitResult)
 		: HitResult(MoveTemp(InHitResult))
 	{ }
 
@@ -80,11 +80,11 @@ struct SONICSHOOTER_API FGameplayAbilityTargetData_RicochetTargetHit : public FG
 
 	// -------------------------------------
 
-	/** Hit result that stores data */
+	/** If this hit resulted from a ricochet, this hit result will be the last one (the hit result from the last hit wall to the target) */
 	UPROPERTY()
 	FHitResult	HitResult;
 	UPROPERTY()
-	float totalDistanceTraveled;	// This data is important because it is the total distance traveled (all wall bounses accounted for). The HitResult itself doesn't have an acurate distance variable for a ricochet since it takes many FHitResults to 
+	float totalDistanceTraveled;	// This data is important because it is the total distance traveled (all wall bounses accounted for). The HitResult itself doesn't always have an acurate distance variable because the bullet could ricochet. The accurate ditance would be to add all the distance vars from each ricochet's HitResult, but we don't send each hit result, so we store the added up distance using this variable.
 
 	UPROPERTY()
 	bool bHitReplaced = false;
@@ -93,12 +93,12 @@ struct SONICSHOOTER_API FGameplayAbilityTargetData_RicochetTargetHit : public FG
 
 	virtual UScriptStruct* GetScriptStruct() const override
 	{
-		return FGameplayAbilityTargetData_RicochetTargetHit::StaticStruct();
+		return FGameplayAbilityTargetData_BulletTraceTargetHit::StaticStruct();
 	}
 };
 
 template<>
-struct TStructOpsTypeTraits<FGameplayAbilityTargetData_RicochetTargetHit> : public TStructOpsTypeTraitsBase2<FGameplayAbilityTargetData_RicochetTargetHit>
+struct TStructOpsTypeTraits<FGameplayAbilityTargetData_BulletTraceTargetHit> : public TStructOpsTypeTraitsBase2<FGameplayAbilityTargetData_BulletTraceTargetHit>
 {
 	enum
 	{

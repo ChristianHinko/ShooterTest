@@ -20,6 +20,8 @@ class SONICSHOOTER_API AGATA_BulletTrace : public AGATA_Trace
 public:
 	AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer);
 
+	virtual void ConfirmTargetingAndContinue() override;
+
 	/** Number of line traces to perform, above 1 would be considered a shotgun */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true, UIMin = 1), Category = "Bullet Config")
 		uint8 NumberOfBullets;

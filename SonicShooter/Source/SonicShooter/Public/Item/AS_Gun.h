@@ -67,12 +67,21 @@ public:
 	void IncCurrentBulletSpread();
 
 
+
+
+
+	virtual void PostInitProperties() override;
+
 protected:
 	virtual void SetSoftAttributeDefaults() override;
 
 
+	void OnHasActiveItemActiveTagChanged(const FGameplayTag Tag, int32 NewCount);
+
+
 	virtual void Tick(float DeltaTime) override;
 	virtual bool ShouldTick() const override;
+
 
 
 

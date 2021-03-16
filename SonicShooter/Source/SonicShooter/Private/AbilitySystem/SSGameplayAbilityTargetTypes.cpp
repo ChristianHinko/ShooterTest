@@ -2,7 +2,7 @@
 
 #include "AbilitySystem\SSGameplayAbilityTargetTypes.h"
 
-bool FGameplayAbilityTargetData_RicochetTargetHit::NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
+bool FGameplayAbilityTargetData_BulletTraceTargetHit::NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
 {
 	HitResult.NetSerialize(Ar, Map, bOutSuccess);
 

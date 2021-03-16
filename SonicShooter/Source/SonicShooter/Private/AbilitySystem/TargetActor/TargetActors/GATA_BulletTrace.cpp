@@ -5,7 +5,7 @@
 
 #include "Abilities/GameplayAbility.h"
 #include "Utilities/CollisionChannels.h"
-
+#include "AbilitySystem/SSGameplayAbilityTargetTypes.h"
 
 
 AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer)
@@ -16,6 +16,28 @@ AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer
 	BulletSpread = 0.f;
 }
 
+void AGATA_BulletTrace::ConfirmTargetingAndContinue()
+{
+	// Same as super, but we make our own target data handle since we want to use our bullet trace one
+	check(ShouldProduceTargetData());
+	if (SourceActor)
+	{
+		TArray<FHitResult> HitResults;
+		PerformTrace(HitResults, SourceActor);
+		FGameplayAbilityTargetDataHandle TargetDataHandle;
+		
+		// For loop code copied from FGameplayAbilityTargetingLocationInfo::MakeTargetDataHandleFromHitResults. Not using that function to make target data handle because it uses FGameplayAbilityTargetData_SingleTargetHit and not our custom target data struct FGameplayAbilityTargetData_BulletTraceTargetHit
+		for (int32 i = 0; i < HitResults.Num(); i++)
+		{
+			/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
+			FGameplayAbilityTargetData_BulletTraceTargetHit* ReturnData = new FGameplayAbilityTargetData_BulletTraceTargetHit();
+			ReturnData->HitResult = HitResults[i];
+			TargetDataHandle.Add(ReturnData);
+		}
+
+		TargetDataReadyDelegate.Broadcast(TargetDataHandle);
+	}
+}
 
 void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor)
 {

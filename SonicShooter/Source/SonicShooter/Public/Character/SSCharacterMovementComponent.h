@@ -208,6 +208,9 @@ public:
 	FCharacterMovementStateNotify OnAccelerationStart;
 	FCharacterMovementStateNotify OnAccelerationStop;
 
+	FCharacterMovementStateNotify OnStartedFalling;
+	FCharacterMovementStateNotify OnStoppedFalling;
+
 
 protected:
 	//	Don't know for sure if this is the best event to use but works for now

@@ -841,6 +841,19 @@ void USSCharacterMovementComponent::OnMovementModeChanged(EMovementMode Previous
 	{
 		bJumpedInAir = false;
 	}
+
+	if (MovementMode == MOVE_Falling && PreviousMovementMode != MOVE_Falling)
+	{
+		// We started falling
+		OnStartedFalling.Broadcast();
+		UKismetSystemLibrary::PrintString(PawnOwner, "FALL START", true, false);
+	}
+	if (MovementMode != MOVE_Falling && PreviousMovementMode == MOVE_Falling)
+	{
+		// We stopped falling
+		OnStoppedFalling.Broadcast();
+		UKismetSystemLibrary::PrintString(PawnOwner, "FALL STOP", true, false);
+	}
 }
 
 void USSCharacterMovementComponent::PhysCustom(float deltaTime, int32 Iterations)

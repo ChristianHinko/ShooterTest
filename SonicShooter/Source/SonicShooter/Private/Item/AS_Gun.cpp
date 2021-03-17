@@ -9,7 +9,7 @@
 
 #include "Kismet/KismetSystemLibrary.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "Character/SSCharacterMovementComponent.h"
 
 
 
@@ -65,13 +65,22 @@ void UAS_Gun::PostInitProperties()
 	if (const FSSGameplayAbilityActorInfo* const SSActorInfo = static_cast<const FSSGameplayAbilityActorInfo* const>(GetActorInfo()))
 	{
 		Inventory = SSActorInfo->GetInventoryComponent();
-		CMC = Cast<UCharacterMovementComponent>(SSActorInfo->MovementComponent);
+		CMC = SSActorInfo->GetSSCharacterMovementComponent();
 	}
 
 	if (Inventory)
 	{
 		Inventory->OnItemActive.AddDynamic(this, &UAS_Gun::OnInventoryItemActive);
 		Inventory->OnItemInactive.AddDynamic(this, &UAS_Gun::OnInventoryItemInactive);
+	}
+
+	if (CMC)
+	{
+		CMC->OnAccelerationStart.AddUObject(this, &UAS_Gun::OnAccelerationStartCMC);
+		CMC->OnAccelerationStop.AddUObject(this, &UAS_Gun::OnAccelerationStopCMC);
+
+		CMC->OnStartedFalling.AddUObject(this, &UAS_Gun::OnStartedFallingCMC);
+		CMC->OnStoppedFalling.AddUObject(this, &UAS_Gun::OnStoppedFallingCMC);
 	}
 }
 
@@ -149,7 +158,6 @@ void UAS_Gun::Tick(float DeltaTime)
 }
 bool UAS_Gun::ShouldTick() const
 {
-	return true; // FIX THIS! we are returning true always because ShouldTick isnt continuosly called. TODO: fix this
 	if (IsMovingToIncBulletSpread())
 	{
 		return true;
@@ -160,6 +168,44 @@ bool UAS_Gun::ShouldTick() const
 	}
 
 	return false;
+}
+
+void UAS_Gun::OnAccelerationStartCMC()
+{
+	if (IsMovingToIncBulletSpread() == false)
+	{
+		return;
+	}
+
+	GetOwningAbilitySystemComponent()->UpdateShouldTick();
+}
+void UAS_Gun::OnAccelerationStopCMC()
+{
+	if (IsMovingToIncBulletSpread() == false)
+	{
+		return;
+	}
+
+	GetOwningAbilitySystemComponent()->UpdateShouldTick();
+}
+
+void UAS_Gun::OnStartedFallingCMC()
+{
+	if (IsMovingToIncBulletSpread() == false)
+	{
+		return;
+	}
+
+	GetOwningAbilitySystemComponent()->UpdateShouldTick();
+}
+void UAS_Gun::OnStoppedFallingCMC()
+{
+	if (IsMovingToIncBulletSpread() == false)
+	{
+		return;
+	}
+
+	GetOwningAbilitySystemComponent()->UpdateShouldTick();
 }
 
 

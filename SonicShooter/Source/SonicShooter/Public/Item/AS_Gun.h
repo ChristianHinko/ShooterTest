@@ -11,7 +11,7 @@
 
 
 class USSArcInventoryComponent_Active;
-class UCharacterMovementComponent;
+class USSCharacterMovementComponent;
 
 
 
@@ -95,7 +95,7 @@ protected:
 	UFUNCTION()
 		void OnInventoryItemInactive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
 
-	UCharacterMovementComponent* CMC;
+	USSCharacterMovementComponent* CMC;
 
 	bool IsMovingToIncBulletSpread() const;
 
@@ -103,6 +103,12 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 	virtual bool ShouldTick() const override;
 
+
+	void OnAccelerationStartCMC();
+	void OnAccelerationStopCMC();
+
+	void OnStartedFallingCMC();
+	void OnStoppedFallingCMC();
 
 
 

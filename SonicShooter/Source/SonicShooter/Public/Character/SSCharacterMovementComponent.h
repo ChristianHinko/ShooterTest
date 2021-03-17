@@ -19,6 +19,7 @@ class AAbilitySystemCharacter;
 
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterMovementWantsToChanged, bool);
+DECLARE_MULTICAST_DELEGATE(FCharacterMovementStateNotify);
 
 
 /**
@@ -203,6 +204,9 @@ public:
 
 
 	FRotator CurrentRotationRate;
+
+	FCharacterMovementStateNotify OnAccelerationStart;
+	FCharacterMovementStateNotify OnAccelerationStop;
 
 
 protected:

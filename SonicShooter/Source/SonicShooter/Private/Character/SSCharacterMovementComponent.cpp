@@ -910,10 +910,24 @@ void USSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 		BroadcastMovementDelegates(); // the server's movement delegates are broadcasted on UpdateFromCompressedFlags()
 	}
 
-	
+	const float previousAccelerationSize = Acceleration.SizeSquared();
 
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	const float currentAccelerationSize = Acceleration.SizeSquared();
+
+	if (previousAccelerationSize <= KINDA_SMALL_NUMBER && currentAccelerationSize > KINDA_SMALL_NUMBER)
+	{
+		// We started acceleration
+		OnAccelerationStart.Broadcast();
+		UKismetSystemLibrary::PrintString(PawnOwner, "ACCEL START", true, false);
+	}
+	if (previousAccelerationSize > KINDA_SMALL_NUMBER && currentAccelerationSize <= KINDA_SMALL_NUMBER)
+	{
+		// We stopped acceleration
+		OnAccelerationStop.Broadcast();
+		UKismetSystemLibrary::PrintString(PawnOwner, "ACCEL STOP", true, false);
+	}
 
 
 	PreviousRotation = PawnOwner->GetActorRotation();

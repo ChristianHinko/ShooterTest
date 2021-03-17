@@ -395,6 +395,25 @@ void USSCharacterMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
 }
 #pragma endregion
 
+void USSCharacterMovementComponent::ServerMove_PerformMovement(const FCharacterNetworkMoveData& MoveData)
+{
+	const float previousAccelerationSize = Acceleration.SizeSquared();
+	Super::ServerMove_PerformMovement(MoveData);
+
+
+	const float currentAccelerationSize = Acceleration.SizeSquared();
+
+	if (previousAccelerationSize <= KINDA_SMALL_NUMBER && currentAccelerationSize > KINDA_SMALL_NUMBER)
+	{
+		// We started acceleration
+		OnAccelerationStart.Broadcast();
+	}
+	if (previousAccelerationSize > KINDA_SMALL_NUMBER && currentAccelerationSize <= KINDA_SMALL_NUMBER)
+	{
+		// We stopped acceleration
+		OnAccelerationStop.Broadcast();
+	}
+}
 
 #pragma region Client Adjust
 //void USSCharacterMovementComponent::ClientAdjustPosition(float TimeStamp, FVector NewLoc, FVector NewVel, UPrimitiveComponent* NewBase, FName NewBaseBoneName, bool bHasBase, bool bBaseRelativePosition, uint8 ServerMovementMode)
@@ -846,13 +865,11 @@ void USSCharacterMovementComponent::OnMovementModeChanged(EMovementMode Previous
 	{
 		// We started falling
 		OnStartedFalling.Broadcast();
-		UKismetSystemLibrary::PrintString(PawnOwner, "FALL START", true, false);
 	}
 	if (MovementMode != MOVE_Falling && PreviousMovementMode == MOVE_Falling)
 	{
 		// We stopped falling
 		OnStoppedFalling.Broadcast();
-		UKismetSystemLibrary::PrintString(PawnOwner, "FALL STOP", true, false);
 	}
 }
 
@@ -929,17 +946,18 @@ void USSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 
 	const float currentAccelerationSize = Acceleration.SizeSquared();
 
-	if (previousAccelerationSize <= KINDA_SMALL_NUMBER && currentAccelerationSize > KINDA_SMALL_NUMBER)
+	if (PawnOwner->IsLocallyControlled())
 	{
-		// We started acceleration
-		OnAccelerationStart.Broadcast();
-		UKismetSystemLibrary::PrintString(PawnOwner, "ACCEL START", true, false);
-	}
-	if (previousAccelerationSize > KINDA_SMALL_NUMBER && currentAccelerationSize <= KINDA_SMALL_NUMBER)
-	{
-		// We stopped acceleration
-		OnAccelerationStop.Broadcast();
-		UKismetSystemLibrary::PrintString(PawnOwner, "ACCEL STOP", true, false);
+		if (previousAccelerationSize <= KINDA_SMALL_NUMBER && currentAccelerationSize > KINDA_SMALL_NUMBER)
+		{
+			// We started acceleration
+			OnAccelerationStart.Broadcast();
+		}
+		if (previousAccelerationSize > KINDA_SMALL_NUMBER && currentAccelerationSize <= KINDA_SMALL_NUMBER)
+		{
+			// We stopped acceleration
+			OnAccelerationStop.Broadcast();
+		}
 	}
 
 

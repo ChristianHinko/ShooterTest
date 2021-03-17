@@ -44,19 +44,7 @@ public:
 	UFUNCTION()
 		void AddToActiveItemHistory(FArcInventoryItemSlotReference NewActiveItemSlotReference);
 
-
-	UPROPERTY(EditAnywhere, Category = "Effects To Apply")
-		TSubclassOf<UGameplayEffect> ItemActiveEffectTSub;
-	FActiveGameplayEffectHandle ItemActiveEffectActiveHandle;
-
 protected:
-	virtual void InitializeComponent() override;
-
-	UFUNCTION()
-		void OnItemActive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
-	UFUNCTION()
-		void OnItemInactive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
-
 
 	virtual bool MakeItemActive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack);
 	

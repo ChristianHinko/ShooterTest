@@ -4,8 +4,12 @@
 #include "Item/AS_Gun.h"
 
 #include "Net/UnrealNetwork.h"
+#include "Abilities/GameplayAbilityTypes.h"
+#include "AbilitySystem/SSGameplayAbilityTypes.h"
 
 #include "Kismet/KismetSystemLibrary.h"
+#include "Inventory/SSArcInventoryComponent_Active.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 
@@ -16,14 +20,16 @@ void UAS_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, MinBulletSpread, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, MaxBulletSpread, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadIncPerShot, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadDecRate, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadMovingIncRate, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadDecSpeed, COND_None, REPNOTIFY_Always);
 }
 
 UAS_Gun::UAS_Gun()
-	: MinBulletSpread(0.f),
-	MaxBulletSpread(10.f),
-	BulletSpreadIncPerShot(2.f),
-	BulletSpreadDecRate(10.f)
+	: MinBulletSpread(10.f),
+	MaxBulletSpread(20.f),
+	BulletSpreadIncPerShot(50.f),
+	BulletSpreadMovingIncRate(50.f),
+	BulletSpreadDecSpeed(10.f)
 {
 	SetSoftAttributeDefaults();
 
@@ -55,15 +61,34 @@ void UAS_Gun::PostInitProperties()
 	//---------------------------------------- safe "BeginPlay" logic here ------------------------
 
 
-	UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
-	ASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.State.HasActiveItemActive"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &UAS_Gun::OnHasActiveItemActiveTagChanged);
+	// TODO: this doesnt work on the client for the first weapon (i think its using the AI ASC when he hits this or something)
+	if (const FSSGameplayAbilityActorInfo* const SSActorInfo = static_cast<const FSSGameplayAbilityActorInfo* const>(GetActorInfo()))
+	{
+		Inventory = SSActorInfo->GetInventoryComponent();
+		CMC = Cast<UCharacterMovementComponent>(SSActorInfo->MovementComponent);
+	}
+
+	if (Inventory)
+	{
+		Inventory->OnItemActive.AddDynamic(this, &UAS_Gun::OnInventoryItemActive);
+		Inventory->OnItemInactive.AddDynamic(this, &UAS_Gun::OnInventoryItemInactive);
+	}
 }
 
-void UAS_Gun::OnHasActiveItemActiveTagChanged(const FGameplayTag Tag, int32 NewCount)
+void UAS_Gun::OnInventoryItemActive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
 {
 	if (GetOwningAbilitySystemComponent()->HasAttributeSetForAttribute(GetCurrentBulletSpreadAttribute()))
 	{
 		SetCurrentBulletSpread(GetMinBulletSpread());
+		//UKismetSystemLibrary::PrintString(this, "RESETED", true, false, FLinearColor::Yellow);
+	}
+}
+void UAS_Gun::OnInventoryItemInactive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
+{
+	if (GetOwningAbilitySystemComponent()->HasAttributeSetForAttribute(GetCurrentBulletSpreadAttribute()))
+	{
+		SetCurrentBulletSpread(GetMinBulletSpread());
+		//UKismetSystemLibrary::PrintString(this, "RESETED", true, false, FLinearColor::Yellow);
 	}
 }
 
@@ -71,27 +96,70 @@ void UAS_Gun::OnHasActiveItemActiveTagChanged(const FGameplayTag Tag, int32 NewC
 void UAS_Gun::IncCurrentBulletSpread()
 {
 	SetCurrentBulletSpread(GetCurrentBulletSpread() + GetBulletSpreadIncPerShot());
-	if (GetCurrentBulletSpread() > GetMaxBulletSpread())
-	{
-		SetCurrentBulletSpread(GetMaxBulletSpread());
-	}
+	//if (GetCurrentBulletSpread() > GetMaxBulletSpread())
+	//{
+	//	SetCurrentBulletSpread(GetMaxBulletSpread());
+	//}
 
 	//UKismetSystemLibrary::PrintString(this, "Current bullet spread: " + FString::SanitizeFloat(GetCurrentBulletSpread()), true, false);
+}
+
+bool UAS_Gun::IsMovingToIncBulletSpread() const
+{
+	if (GetBulletSpreadMovingIncRate() <= 0)
+	{
+		return false;
+	}
+	if (!CMC)
+	{
+		return false;
+	}
+	if (CMC->IsMovingOnGround() && CMC->GetCurrentAcceleration().SizeSquared() > KINDA_SMALL_NUMBER)
+	{
+		return true;
+	}
+	if (CMC->IsFalling())
+	{
+		return true;
+	}
+
+	return false;
 }
 
 void UAS_Gun::Tick(float DeltaTime)
 {
-	SetCurrentBulletSpread(GetCurrentBulletSpread() - (GetBulletSpreadDecRate() * DeltaTime));
+	if (IsMovingToIncBulletSpread())
+	{
+		SetCurrentBulletSpread(GetCurrentBulletSpread() + (GetBulletSpreadMovingIncRate() * DeltaTime));
+		if (GetCurrentBulletSpread() > GetMaxBulletSpread())
+		{
+			SetCurrentBulletSpread(GetMaxBulletSpread());
+		}
+		//UKismetSystemLibrary::PrintString(this, "Current bullet spread: " + FString::SanitizeFloat(GetCurrentBulletSpread()), true, false);
+		return;
+	}
+
+	float interptedBulletSpread = FMath::FInterpTo(GetCurrentBulletSpread(), GetMinBulletSpread(), DeltaTime, GetBulletSpreadDecSpeed());
+	SetCurrentBulletSpread(interptedBulletSpread);
 	if (GetCurrentBulletSpread() < GetMinBulletSpread())
 	{
 		SetCurrentBulletSpread(GetMinBulletSpread());
 	}
-
 	//UKismetSystemLibrary::PrintString(this, "Current bullet spread: " + FString::SanitizeFloat(GetCurrentBulletSpread()), true, false);
 }
 bool UAS_Gun::ShouldTick() const
 {
-	return (GetCurrentBulletSpread() > GetMinBulletSpread());
+	return true; // FIX THIS! we are returning true always because ShouldTick isnt continuosly called. TODO: fix this
+	if (IsMovingToIncBulletSpread())
+	{
+		return true;
+	}
+	if (GetCurrentBulletSpread() > GetMinBulletSpread())
+	{
+		return true;
+	}
+
+	return false;
 }
 
 
@@ -108,12 +176,17 @@ void UAS_Gun::OnRep_MaxBulletSpread(const FGameplayAttributeData& ServerBaseValu
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, MaxBulletSpread, ServerBaseValue);
 }
 
+void UAS_Gun::OnRep_BulletSpreadMovingIncRate(const FGameplayAttributeData& ServerBaseValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, BulletSpreadMovingIncRate, ServerBaseValue);
+}
+
 void UAS_Gun::OnRep_BulletSpreadIncPerShot(const FGameplayAttributeData& ServerBaseValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, BulletSpreadIncPerShot, ServerBaseValue);
 }
 
-void UAS_Gun::OnRep_BulletSpreadDecRate(const FGameplayAttributeData& ServerBaseValue)
+void UAS_Gun::OnRep_BulletSpreadDecSpeed(const FGameplayAttributeData& ServerBaseValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, BulletSpreadDecRate, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, BulletSpreadDecSpeed, ServerBaseValue);
 }

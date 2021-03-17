@@ -10,6 +10,10 @@
 #include "AS_Gun.generated.h"
 
 
+class USSArcInventoryComponent_Active;
+class UCharacterMovementComponent;
+
+
 
 /**
  * 
@@ -48,12 +52,20 @@ public:
 	ATTRIBUTE_ACCESSORS(UAS_Gun, BulletSpreadIncPerShot)
 
 	/**
-	 * The rate of decrease in bullet spread in degrees per second. Will be continuously decrease spread by
+	 * The rate of increase in bullet spread in degrees per second. Will be continuously increasing spread by
+	 * this rate while the avatar actor's velocity is greater than zero until reached maximum spread
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadMovingIncRate, Category = "Attributes")
+		FGameplayAttributeData BulletSpreadMovingIncRate;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, BulletSpreadMovingIncRate)
+
+	/**
+	 * The rate of decrease in bullet spread in degrees per second. Will be continuously decreasing spread by
 	 * this rate until reached minimum spread
 	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadDecRate, Category = "Attributes")
-		FGameplayAttributeData BulletSpreadDecRate;
-	ATTRIBUTE_ACCESSORS(UAS_Gun, BulletSpreadDecRate)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadDecSpeed, Category = "Attributes")
+		FGameplayAttributeData BulletSpreadDecSpeed;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, BulletSpreadDecSpeed)
 
 
 	/**
@@ -66,6 +78,7 @@ public:
 
 	void IncCurrentBulletSpread();
 
+	uint8 bIsMovingForIncRate : 1;
 
 
 
@@ -76,7 +89,15 @@ protected:
 	virtual void SetSoftAttributeDefaults() override;
 
 
-	void OnHasActiveItemActiveTagChanged(const FGameplayTag Tag, int32 NewCount);
+	USSArcInventoryComponent_Active* Inventory;
+	UFUNCTION()
+		void OnInventoryItemActive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
+	UFUNCTION()
+		void OnInventoryItemInactive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
+
+	UCharacterMovementComponent* CMC;
+
+	bool IsMovingToIncBulletSpread() const;
 
 
 	virtual void Tick(float DeltaTime) override;
@@ -95,5 +116,8 @@ protected:
 		virtual void OnRep_BulletSpreadIncPerShot(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
-		virtual void OnRep_BulletSpreadDecRate(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_BulletSpreadMovingIncRate(const FGameplayAttributeData& ServerBaseValue);
+
+	UFUNCTION()
+		virtual void OnRep_BulletSpreadDecSpeed(const FGameplayAttributeData& ServerBaseValue);
 };

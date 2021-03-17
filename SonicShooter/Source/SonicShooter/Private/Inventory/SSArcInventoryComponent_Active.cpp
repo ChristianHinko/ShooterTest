@@ -17,14 +17,6 @@ USSArcInventoryComponent_Active::USSArcInventoryComponent_Active(const FObjectIn
 {
 	maxItemHistoryBufferSize = 30;
 }
-void USSArcInventoryComponent_Active::InitializeComponent()
-{
-	Super::InitializeComponent();
-
-
-	Super::OnItemActive.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemActive);
-	Super::OnItemInactive.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemInactive);
-}
 
 bool USSArcInventoryComponent_Active::IsActiveItemSlotIndexValid(int32 InActiveItemSlot)
 {
@@ -112,43 +104,6 @@ void USSArcInventoryComponent_Active::AddToActiveItemHistory(FArcInventoryItemSl
 
 
 
-}
-
-void USSArcInventoryComponent_Active::OnItemActive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
-{
-	UAbilitySystemComponent* ASC = UAbilitySystemGlobals::Get().GetAbilitySystemComponentFromActor(GetOwner());
-
-	const UGameplayEffect* const Default_ItemActiveEffect = ItemActiveEffectTSub.GetDefaultObject();
-
-	if (GetOwner()->GetLocalRole() == ROLE_Authority)
-	{
-		FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
-		EffectContextHandle.AddInstigator(GetOwner(), GetOwner());
-		EffectContextHandle.AddSourceObject(GetOwner());
-
-		ItemActiveEffectActiveHandle = ASC->ApplyGameplayEffectToSelf(Default_ItemActiveEffect, 1, EffectContextHandle);
-		return;
-	}
-	
-	// Predictively add this tag for the client:
-
-	//ASC->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("Character.State.HasActiveItemActive")));
-	ASC->AddLooseGameplayTags(Default_ItemActiveEffect->InheritableGameplayEffectTags.CombinedTags);
-}
-void USSArcInventoryComponent_Active::OnItemInactive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
-{
-	UAbilitySystemComponent* ASC = UAbilitySystemGlobals::Get().GetAbilitySystemComponentFromActor(GetOwner());
-
-	if (GetOwner()->GetLocalRole() == ROLE_Authority)
-	{
-		ASC->RemoveActiveGameplayEffect(ItemActiveEffectActiveHandle);
-		return;
-	}
-
-	// Predictively remove this tag for the client:
-
-	//ASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("Character.State.HasActiveItemActive")));
-	ASC->RemoveLooseGameplayTags(ItemActiveEffectTSub.GetDefaultObject()->InheritableGameplayEffectTags.CombinedTags);
 }
 
 bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDefinition_AbilityInfo& AbilityInfo, FArcEquippedItemInfo& StoreInto, UArcItemStack* AbilitySource)

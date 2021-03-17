@@ -8,7 +8,7 @@
 USonicAnimInstance::USonicAnimInstance()
 {
 	LookTarget = nullptr;
-	lookRot = FRotator::ZeroRotator;
+	LeftEyelookRot = FRotator::ZeroRotator;
 
 	eyeLookSpeed = 3;
 	eyeMaxPitchRot = 85;
@@ -25,8 +25,8 @@ void USonicAnimInstance::NativeInitializeAnimation()
 
 	if (USkeletalMeshComponent* SkelMesh = GetSkelMeshComponent())
 	{
-		REyeDynamicMat = SkelMesh->CreateDynamicMaterialInstance(3);
-		LEyeDynamicMat = SkelMesh->CreateDynamicMaterialInstance(4);
+		REyeDynamicMat = SkelMesh->CreateDynamicMaterialInstance(5);
+		LEyeDynamicMat = SkelMesh->CreateDynamicMaterialInstance(6);
 	}
 }
 
@@ -39,18 +39,26 @@ void USonicAnimInstance::NativeUpdateAnimation(float DeltaTimeX)
 		LookTarget = OwningShooterCharacter->GetNearestPawn();
 		if (LookTarget)
 		{
-			lookRot = Look(LookTarget, DeltaTimeX);
+			RightEyelookRot = Look(TEXT("u_Eye_r"), LookTarget, DeltaTimeX);
+			LeftEyelookRot = Look(TEXT("u_Eye_l"), LookTarget, DeltaTimeX);
 
 
-			if (REyeDynamicMat && LEyeDynamicMat)
+			if (REyeDynamicMat)
 			{
-				float uCoordinateOffset = ((lookRot.Yaw / 360) * 1.5);
-				float vCoordinateOffset = ((lookRot.Pitch / 360) * 1.5);
+				float uCoordinateOffset = ((RightEyelookRot.Yaw / 360) * 1.3);
+				float vCoordinateOffset = ((RightEyelookRot.Pitch / 360) * 1.3);
 
 				// Now move the eyes by moving their UV coordinates
 				// Right Eye
 				REyeDynamicMat->SetScalarParameterValue(TEXT("U"), uCoordinateOffset * rEyeLookAtAlpha);
 				REyeDynamicMat->SetScalarParameterValue(TEXT("V"), vCoordinateOffset * rEyeLookAtAlpha);
+			}
+			if (LEyeDynamicMat)
+			{
+				float uCoordinateOffset = ((LeftEyelookRot.Yaw / 360) * 1.3);
+				float vCoordinateOffset = ((LeftEyelookRot.Pitch / 360) * 1.3);
+
+				// Now move the eyes by moving their UV coordinates
 				// Left Eye
 				LEyeDynamicMat->SetScalarParameterValue(TEXT("U"), (uCoordinateOffset * -1) * lEyeLookAtAlpha);		// Texture was mirrored on the x axis so negate
 				LEyeDynamicMat->SetScalarParameterValue(TEXT("V"), vCoordinateOffset * lEyeLookAtAlpha);
@@ -61,7 +69,7 @@ void USonicAnimInstance::NativeUpdateAnimation(float DeltaTimeX)
 	}
 }
 
-FRotator USonicAnimInstance::Look(AActor* lookTarget, float deltaTime)
+FRotator USonicAnimInstance::Look(FName boneName, AActor* lookTarget, float deltaTime)
 {
 	if (!lookTarget || !OwningShooterCharacter)
 	{
@@ -70,11 +78,14 @@ FRotator USonicAnimInstance::Look(AActor* lookTarget, float deltaTime)
 
 
 
-	FVector SelfHeadBoneLocation;
+
+	FVector boneLocation;
 	if (OwningShooterCharacter->GetMesh())
 	{
-		SelfHeadBoneLocation = OwningShooterCharacter->GetMesh()->GetSocketLocation(TEXT("head"));
+		boneLocation = OwningShooterCharacter->GetMesh()->GetSocketLocation(boneName);
 	}
+
+
 	FVector targetLocation;
 	if (AShooterCharacter* ShooterCharacterToLookAt = Cast<AShooterCharacter>(lookTarget))
 	{
@@ -85,7 +96,7 @@ FRotator USonicAnimInstance::Look(AActor* lookTarget, float deltaTime)
 	}
 
 	FRotator OwningCharacterRotation = OwningShooterCharacter->GetActorRotation();
-	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(SelfHeadBoneLocation, targetLocation);
+	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(boneLocation, targetLocation);
 
 	FRotator normalizedDeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(OwningCharacterRotation, LookAtRotation);
 
@@ -95,11 +106,11 @@ FRotator USonicAnimInstance::Look(AActor* lookTarget, float deltaTime)
 	FRotator smoothedLookRot;
 	if (UKismetMathLibrary::Abs(normalizedDeltaRotator.Pitch) < eyeMaxPitchRot && UKismetMathLibrary::Abs(normalizedDeltaRotator.Yaw) < eyeMaxYawRot)	// If the eye can rotate this far
 	{
-		smoothedLookRot = FMath::RInterpTo(lookRot, hardLookRot, deltaTime, eyeLookSpeed);
+		smoothedLookRot = FMath::RInterpTo(LeftEyelookRot, hardLookRot, deltaTime, eyeLookSpeed);
 	}
 	else
 	{
-		smoothedLookRot = FMath::RInterpTo(lookRot, FRotator::ZeroRotator, deltaTime, eyeLookSpeed);
+		smoothedLookRot = FMath::RInterpTo(LeftEyelookRot, FRotator::ZeroRotator, deltaTime, eyeLookSpeed);
 	}
 
 	return smoothedLookRot;

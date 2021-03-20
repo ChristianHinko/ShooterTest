@@ -36,6 +36,11 @@ public:
 	void LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams Params, const bool inDebug) const;
 	/** Sweeps as normal, but will manually filter all hit actors */
 	void SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug) const;
+	
+	/** Removes duplicate hits on actors */
+	void RemoveMultipleHitsPerActor(TArray<FHitResult>& OutHitResults) const;
+	/** Filter out hit results that do not pass filter */
+	void FilterHitResults(TArray<FHitResult>& OutHitResults) const;
 
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")

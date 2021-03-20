@@ -229,8 +229,8 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 
 		TArray<FHitResult> RicoHitResults;
 
-		FCollisionQueryParams RicoCollisionQueryParams = Params;
-		RicoCollisionQueryParams.AddIgnoredActor(LastHit.GetActor());
+		FCollisionQueryParams RicoParams = Params;
+		RicoParams.AddIgnoredActor(LastHit.GetActor());
 
 		
 		const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.TraceEnd);
@@ -240,7 +240,7 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 		const FVector RicoEnd = RicoStart + ((MaxRange - LastHit.Distance) * MirroredDir);
 
 
-		if (World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoCollisionQueryParams) == false)
+		if (World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoParams) == false)
 		{
 			break;
 		}
@@ -250,25 +250,7 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 	// Remove duplicate hits on actors
 	if (!bAllowMultipleHitsPerActor)
 	{
-		// Loop through each hit result and check if the hits infront of it (the hit results less than the pending index) already have its actor.
-		// If so, remove the pending hit result because it has the actor that was already hit and is considered a duplicate hit.
-		for (int32 pendingIndex = 0; pendingIndex < OutHitResults.Num(); ++pendingIndex)
-		{
-			const FHitResult PendingHit = OutHitResults[pendingIndex];
-
-			// check if the hit results that we've looped through so far contains a hit result with this actor already
-			for (int32 comparisonIndex = 0; comparisonIndex < pendingIndex; ++comparisonIndex)
-			{
-				if (PendingHit.Actor == OutHitResults[comparisonIndex].Actor) // if we've already hit this actor
-				{
-					if (MultiFilterHandle.FilterPassesForActor(PendingHit.Actor)) // only remove if it passes the filter (to avoid double damage and stuff)
-					{
-						OutHitResults.RemoveAt(pendingIndex);
-						pendingIndex--;		// put pendingIndex back in sync after removal		(this can be weird because on first iteration, this will make pendingIndex == -1 but it gets fixed next iteration) 
-					}
-				}
-			}
-		}
+		RemoveMultipleHitsPerActor(OutHitResults);
 	}
 
 
@@ -324,18 +306,7 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 #endif // ENABLE_DRAW_DEBUG
 
 
-	// Filter out hit results that do not pass filter
-	for (int32 i = 0; i < OutHitResults.Num(); ++i)
-	{
-		const FHitResult Hit = OutHitResults[i];
-
-		const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.Actor);
-		if (!bPassesFilter)
-		{
-			OutHitResults.RemoveAt(i);
-			--i;		// put i back in sync after removal		(this can be weird because on first iteration, this will make i == -1 but it gets fixed next iteration)
-		}
-	}
+	FilterHitResults(OutHitResults);
 }
 
 void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug) const
@@ -378,27 +349,10 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 		OutHitResults.Append(RicoHitResults);
 	}
 
-	// remove duplicate hits on actors
+	// Remove duplicate hits on actors
 	if (!bAllowMultipleHitsPerActor)
 	{
-		/*
-			Loop through each hit result and check if the hits infront of it (the hit results less than the pending index) already have its actor.
-			If so, remove the pending hit result because it has the actor that was already hit and is considered a duplicate hit.
-		*/
-		for (int32 pendingIndex = 0; pendingIndex < OutHitResults.Num(); ++pendingIndex)
-		{
-			const FHitResult PendingHit = OutHitResults[pendingIndex];
-
-			// check if the hit results that we've looped through so far contains a hit result with this actor already
-			for (int32 comparisonIndex = 0; comparisonIndex < pendingIndex; ++comparisonIndex)
-			{
-				if (PendingHit.Actor == OutHitResults[comparisonIndex].Actor)
-				{
-					OutHitResults.RemoveAt(pendingIndex);
-					pendingIndex--;		// put pendingIndex back in sync after removal		(this can be weird because on first iteration, this will make pendingIndex == -1 but it gets fixed next iteration)
-				}
-			}
-		}
+		RemoveMultipleHitsPerActor(OutHitResults);
 	}
 
 
@@ -454,7 +408,30 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 #endif // ENABLE_DRAW_DEBUG
 
 
-	// filter out hit results that do not pass filter
+	FilterHitResults(OutHitResults);
+}
+
+void AGATA_Trace::RemoveMultipleHitsPerActor(TArray<FHitResult>& OutHitResults) const
+{
+	// Loop through each hit result and check if the hits infront of it (the hit results less than the pending index) already have its actor.
+	// If so, remove the pending hit result because it has the actor that was already hit and is considered a duplicate hit.
+	for (int32 pendingIndex = 0; pendingIndex < OutHitResults.Num(); ++pendingIndex)
+	{
+		const FHitResult PendingHit = OutHitResults[pendingIndex];
+
+		// Check if the hit results that we've looped through so far contains a hit result with this actor already
+		for (int32 comparisonIndex = 0; comparisonIndex < pendingIndex; ++comparisonIndex)
+		{
+			if (PendingHit.Actor == OutHitResults[comparisonIndex].Actor)
+			{
+				OutHitResults.RemoveAt(pendingIndex);
+				pendingIndex--;		// put pendingIndex back in sync after removal		(this can be weird because on first iteration, this will make pendingIndex == -1 but it gets fixed next iteration)
+			}
+		}
+	}
+}
+void AGATA_Trace::FilterHitResults(TArray<FHitResult>& OutHitResults) const
+{
 	for (int32 i = 0; i < OutHitResults.Num(); ++i)
 	{
 		const FHitResult Hit = OutHitResults[i];

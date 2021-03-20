@@ -77,11 +77,11 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 		const FVector TraceEnd = TraceStart + (AimDir * MaxRange);
 
 		// Perform line trace 
-		TArray<FHitResult> ThisBulletsHitResults;
-		LineTraceMultiWithFilter(ThisBulletsHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, Params, bDebug);
+		TArray<FHitResult> ShotHitResults;
+		LineTraceMultiWithFilter(ShotHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, Params, bDebug);
 		
 
 		// Add this bullet's hit results to the final hit results
-		OutHitResults.Append(ThisBulletsHitResults);
+		OutHitResults.Append(ShotHitResults);
 	}
 }

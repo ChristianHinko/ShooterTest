@@ -33,7 +33,8 @@ public:
 	int16 FireSpecificNetSafeRandomSeed;
 
 protected:
-	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor);
+	// This override signifies performing a trace for a ricochetable bullet (but it also might not richochet based on how this GATA is configed). The OutHitResults are the hit results from 1 bullet ricocheting off walls and hitting player(s)
+	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) override;
 
 private:
 	uint8 currentBulletNumber;

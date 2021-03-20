@@ -25,7 +25,19 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 		TArray<FHitResult> HitResults;
 		for (currentBulletNumber = 0; currentBulletNumber < NumberOfBullets; ++currentBulletNumber)
 		{
-			PerformTrace(HitResults, SourceActor);
+			TArray<FHitResult> ShotHitResults;
+			PerformTrace(ShotHitResults, SourceActor);
+
+			// Remove multiple hits to the ShotHitResults rather than the final HitResults because if we did that, that would
+			// also remove multiple hits in general (not per bullet) it would make it so only one of the bullets could hit each actor which is bad
+			if (bAllowMultipleHitsPerActor)
+			{
+				RemoveMultipleHitsPerActor(ShotHitResults);
+			}
+			FilterHitResults(ShotHitResults);
+
+
+			HitResults.Append(ShotHitResults);
 		}
 		FGameplayAbilityTargetDataHandle TargetDataHandle;
 		
@@ -44,6 +56,9 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor)
 {
+	OutHitResults.Empty();
+
+
 	const bool bTraceComplex = false;
 	TArray<AActor*> ActorsToIgnore;
 
@@ -79,10 +94,5 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 	const FVector TraceEnd = TraceStart + (AimDir * MaxRange);
 
 	// Perform line trace 
-	TArray<FHitResult> ShotHitResults;
-	LineTraceMultiWithFilter(ShotHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, Params, bDebug);
-		
-
-	// Add this bullet's hit results to the final hit results
-	OutHitResults.Append(ShotHitResults);
+	LineTraceMultiWithFilter(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, Params, bDebug);
 }

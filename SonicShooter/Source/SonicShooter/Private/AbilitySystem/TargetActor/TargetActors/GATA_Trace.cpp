@@ -80,6 +80,13 @@ void AGATA_Trace::ConfirmTargetingAndContinue()
 	{
 		TArray<FHitResult> HitResults;
 		PerformTrace(HitResults, SourceActor);
+
+		if (bAllowMultipleHitsPerActor)
+		{
+			RemoveMultipleHitsPerActor(HitResults);
+		}
+		FilterHitResults(HitResults);
+
 		FGameplayAbilityTargetDataHandle TargetDataHandle = StartLocation.MakeTargetDataHandleFromHitResults(OwningAbility, HitResults);
 		TargetDataReadyDelegate.Broadcast(TargetDataHandle);
 	}
@@ -247,12 +254,12 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 		OutHitResults.Append(RicoHitResults);
 	}
 
-	// Remove duplicate hits on actors
+
+	TArray<FHitResult> DebugHitResults = OutHitResults;
 	if (!bAllowMultipleHitsPerActor)
 	{
-		RemoveMultipleHitsPerActor(OutHitResults);
+		RemoveMultipleHitsPerActor(DebugHitResults);
 	}
-
 
 	// Debug before we remove filtered hit results
 #if ENABLE_DRAW_DEBUG
@@ -262,12 +269,12 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 		const FColor TraceColor = FColor::Blue;
 		const FColor PassesFilterColor = FColor::Red;
 
-		const uint8 hitsNum = OutHitResults.Num();
+		const uint8 hitsNum = DebugHitResults.Num();
 		if (hitsNum > 0)
 		{
-			for (int32 i = 0; i < OutHitResults.Num(); ++i)
+			for (int32 i = 0; i < DebugHitResults.Num(); ++i)
 			{
-				const FHitResult Hit = OutHitResults[i];
+				const FHitResult Hit = DebugHitResults[i];
 				const FVector FromLocation = Hit.TraceStart;
 				const FVector ToLocation = Hit.Location;
 
@@ -283,17 +290,17 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 					DrawDebugPoint(World, Hit.ImpactPoint, 10, TraceColor, false, debugLifeTime);
 				}
 			}
-			if (OutHitResults.Last().bBlockingHit == false)
+			if (DebugHitResults.Last().bBlockingHit == false)
 			{
-				DrawDebugLine(World, OutHitResults.Last().Location, OutHitResults.Last().TraceEnd, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
+				DrawDebugLine(World, DebugHitResults.Last().Location, DebugHitResults.Last().TraceEnd, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
 			}
 			else if (Ricochets - r > 0)
 			{
-				const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(OutHitResults.Last().TraceStart, OutHitResults.Last().TraceEnd);
-				const FVector MirroredDir = TracedDir.MirrorByVector(OutHitResults.Last().ImpactNormal);
+				const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(DebugHitResults.Last().TraceStart, DebugHitResults.Last().TraceEnd);
+				const FVector MirroredDir = TracedDir.MirrorByVector(DebugHitResults.Last().ImpactNormal);
 
-				const FVector RicoStart = OutHitResults.Last().Location;
-				const FVector RicoEnd = RicoStart + ((MaxRange - OutHitResults.Last().Distance) * MirroredDir);
+				const FVector RicoStart = DebugHitResults.Last().Location;
+				const FVector RicoEnd = RicoStart + ((MaxRange - DebugHitResults.Last().Distance) * MirroredDir);
 
 				DrawDebugLine(World, RicoStart, RicoEnd, TraceColor, false, debugLifeTime);
 			}
@@ -304,9 +311,6 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 		}
 	}
 #endif // ENABLE_DRAW_DEBUG
-
-
-	FilterHitResults(OutHitResults);
 }
 
 void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug) const
@@ -349,12 +353,12 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 		OutHitResults.Append(RicoHitResults);
 	}
 
-	// Remove duplicate hits on actors
+
+	TArray<FHitResult> DebugHitResults = OutHitResults;
 	if (!bAllowMultipleHitsPerActor)
 	{
-		RemoveMultipleHitsPerActor(OutHitResults);
+		RemoveMultipleHitsPerActor(DebugHitResults);
 	}
-
 
 	// Debug before we remove filtered hit results
 #if ENABLE_DRAW_DEBUG
@@ -364,12 +368,12 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 		const FColor TraceColor = FColor::Blue;
 		const FColor PassesFilterColor = FColor::Red;
 
-		const uint8 hitsNum = OutHitResults.Num();
+		const uint8 hitsNum = DebugHitResults.Num();
 		if (hitsNum > 0)
 		{
-			for (int32 i = 0; i < OutHitResults.Num(); ++i)
+			for (int32 i = 0; i < DebugHitResults.Num(); ++i)
 			{
-				const FHitResult Hit = OutHitResults[i];
+				const FHitResult Hit = DebugHitResults[i];
 				const FVector FromLocation = Hit.TraceStart;
 				const FVector ToLocation = Hit.Location;
 
@@ -385,17 +389,17 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 					DrawDebugPoint(World, Hit.ImpactPoint, 10, TraceColor, false, debugLifeTime);
 				}
 			}
-			if (OutHitResults.Last().bBlockingHit == false)
+			if (DebugHitResults.Last().bBlockingHit == false)
 			{
-				DrawDebugLine(World, OutHitResults.Last().Location, OutHitResults.Last().TraceEnd, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
+				DrawDebugLine(World, DebugHitResults.Last().Location, DebugHitResults.Last().TraceEnd, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
 			}
 			else if (Ricochets - r > 0)
 			{
-				const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(OutHitResults.Last().TraceStart, OutHitResults.Last().TraceEnd);
-				const FVector MirroredDir = TracedDir.MirrorByVector(OutHitResults.Last().ImpactNormal);
+				const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(DebugHitResults.Last().TraceStart, DebugHitResults.Last().TraceEnd);
+				const FVector MirroredDir = TracedDir.MirrorByVector(DebugHitResults.Last().ImpactNormal);
 
-				const FVector RicoStart = OutHitResults.Last().Location;
-				const FVector RicoEnd = RicoStart + ((MaxRange - OutHitResults.Last().Distance) * MirroredDir);
+				const FVector RicoStart = DebugHitResults.Last().Location;
+				const FVector RicoEnd = RicoStart + ((MaxRange - DebugHitResults.Last().Distance) * MirroredDir);
 
 				DrawDebugLine(World, RicoStart, RicoEnd, TraceColor, false, debugLifeTime);
 			}
@@ -406,9 +410,6 @@ void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const 
 		}
 	}
 #endif // ENABLE_DRAW_DEBUG
-
-
-	FilterHitResults(OutHitResults);
 }
 
 void AGATA_Trace::RemoveMultipleHitsPerActor(TArray<FHitResult>& OutHitResults) const

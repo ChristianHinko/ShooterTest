@@ -34,4 +34,7 @@ public:
 
 protected:
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor);
+
+private:
+	uint8 currentBulletNumber;
 };

@@ -229,8 +229,8 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 
 		TArray<FHitResult> RicoHitResults;
 
-		FCollisionQueryParams RicoParams = Params;
-		RicoParams.AddIgnoredActor(LastHit.GetActor());
+		FCollisionQueryParams RicoCollisionQueryParams = Params;
+		RicoCollisionQueryParams.AddIgnoredActor(LastHit.GetActor());
 
 		
 		const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.TraceEnd);
@@ -240,7 +240,7 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 		const FVector RicoEnd = RicoStart + ((MaxRange - LastHit.Distance) * MirroredDir);
 
 
-		if (World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoParams) == false)
+		if (World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoCollisionQueryParams) == false)
 		{
 			break;
 		}

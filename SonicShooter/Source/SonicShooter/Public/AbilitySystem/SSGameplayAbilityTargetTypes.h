@@ -21,6 +21,10 @@ struct SONICSHOOTER_API FGameplayAbilityTargetData_BulletTraceTargetHit : public
 		: HitResult(MoveTemp(InHitResult))
 	{ }
 
+	/** Overrided version will apply the same effect but with different amount of dmg depending on bullet hit distance and ricochet times */
+	virtual TArray<FActiveGameplayEffectHandle> ApplyGameplayEffectSpec(FGameplayEffectSpec& Spec, FPredictionKey PredictionKey = FPredictionKey()) override;
+
+
 	// -------------------------------------
 
 	virtual TArray<TWeakObjectPtr<AActor> >	GetActors() const override

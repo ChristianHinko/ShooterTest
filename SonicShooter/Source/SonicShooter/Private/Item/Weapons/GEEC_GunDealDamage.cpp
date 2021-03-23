@@ -6,6 +6,7 @@
 #include "AbilitySystem/SSAbilitySystemComponent.h"
 #include "AbilitySystem\AttributeSets\AS_Health.h"
 #include "AbilitySystem/AttributeSets/AS_Damage.h"
+#include "Item/AS_Gun.h"
 
 
 // Declare the attributes to capture and define how we want to capture them from the Source and Target
@@ -13,6 +14,7 @@ struct SSDamageStatics
 {
 	// Source
 	DECLARE_ATTRIBUTE_CAPTUREDEF(OutgoingDamage);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(DamageFalloff);
 	
 	// Target
 	DECLARE_ATTRIBUTE_CAPTUREDEF(IncomingDamage);
@@ -26,6 +28,7 @@ struct SSDamageStatics
 
 		//Source captures
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UAS_Damage, OutgoingDamage, Source, true);	// This will be the value to damage the target by
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAS_Gun, DamageFalloff, Source, true);	// This will be the value to damage the target by
 
 		//Target captures
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UAS_Health, IncomingDamage, Target, false);	// This is the attribute we will change on the target
@@ -42,6 +45,7 @@ UGEEC_GunDealDamage::UGEEC_GunDealDamage()
 {
 	//Source
 	RelevantAttributesToCapture.Add(DamageStatics().OutgoingDamageDef);
+	RelevantAttributesToCapture.Add(DamageStatics().DamageFalloffDef);
 
 	//Target
 	RelevantAttributesToCapture.Add(DamageStatics().IncomingDamageDef);
@@ -91,11 +95,30 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 
 
 
+	float finalDamage = RawDamage;
+	//			\/\/\/\/\/\/\/\/ Do post processing work on the raw value \/\/\/\/\/\/\/\/
+
+
+	float DamageFalloff = 0.0f;
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageFalloffDef, EvaluationParameters, DamageFalloff);
+	finalDamage = finalDamage * DamageFalloff;	// THIS IS NOT A CORRECT IMPLEMENTATION FOR DAMAGE FALLOFF! JUST HERE TO TEST THINGS OUT!
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 	// Set the Target's IncomingDamage meta attribute
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().IncomingDamageProperty, EGameplayModOp::Additive, RawDamage));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().IncomingDamageProperty, EGameplayModOp::Additive, finalDamage));
 
 
 

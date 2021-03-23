@@ -78,7 +78,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 					}
 
 					
-					// If we got here, we are an unfiltered hit, make target data for us:
+					// If we got here, we are an unfiltered hit (ie. we hit a player), make target data for us:
 
 
 
@@ -87,7 +87,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 					ReturnData->HitResult = Hit;
 					ReturnData->totalDistanceTraveled = thisHitTotalDistance;
-					thisHitTotalDistance = 0.f; // reset back to zero
+					thisHitTotalDistance = 0.f; // reset back to zero for the next bullet
 
 					TargetDataHandle.Add(ReturnData);
 				}

@@ -41,6 +41,10 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 					thisHitTotalDistance += Hit.Distance;
 
 
+
+
+					// BEGIN copied code from AGATA_Trace::FilterHitResults()
+
 					if (MultiFilterHandle.MultiFilter.IsValid()) // if valid filter
 					{
 						const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.Actor);
@@ -76,6 +80,10 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 							continue;
 						}
 					}
+
+					// END copied code from AGATA_Trace::FilterHitResults()
+
+
 
 					
 					// If we got here, we are an unfiltered hit (ie. we hit a player), make target data for us:

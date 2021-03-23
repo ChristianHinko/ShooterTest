@@ -22,33 +22,84 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 	check(ShouldProduceTargetData());
 	if (SourceActor)
 	{
-		TArray<FHitResult> HitResults;
+		FGameplayAbilityTargetDataHandle TargetDataHandle;
+
+
 		for (currentBulletNumber = 0; currentBulletNumber < NumberOfBullets; ++currentBulletNumber)
 		{
-			TArray<FHitResult> ShotHitResults;
-			PerformTrace(ShotHitResults, SourceActor);
+			TArray<FHitResult> ThisBulletHitResults;
+			PerformTrace(ThisBulletHitResults, SourceActor);
 
-			// Remove multiple hits to the ShotHitResults rather than the final HitResults because if we did that, that would
-			// also remove multiple hits in general (not per bullet) it would make it so only one of the bullets could hit each actor which is bad
-			if (bAllowMultipleHitsPerActor)
+
+			// Manually filter the hit results (copied code from AGATA_Trace::FilterHitResults()) because we need access to filtered out hit results.
+			// And build our target data for non-filtered hit results
 			{
-				RemoveMultipleHitsPerActor(ShotHitResults);
+				float thisHitTotalDistance = 0.f; // for calculating ReturnData->totalDistanceTraveled (the distance of the non-filterd hit including distances of the previous filtered out traces)
+
+				for (int32 i = 0; i < ThisBulletHitResults.Num(); ++i)
+				{
+					const FHitResult Hit = ThisBulletHitResults[i];
+					thisHitTotalDistance += Hit.Distance;
+
+
+					if (MultiFilterHandle.MultiFilter.IsValid()) // if valid filter
+					{
+						const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.Actor);
+						if (!bPassesFilter)
+						{
+							ThisBulletHitResults.RemoveAt(i);
+							--i;
+							continue;
+						}
+					}
+
+					if (!bAllowMultipleHitsPerActor) // if we should remove multiple hits
+					{
+						// Loop through each hit result and check if the hits infront of it (the hit results less than the pending index) already have its actor.
+						// If so, remove the pending hit result because it has the actor that was already hit and is considered a duplicate hit.
+
+						bool removed = false; // if true, we removed a duplicate hit
+
+						// Check if the hit results that we've looped through so far contains a hit result with this actor already
+						for (int32 comparisonIndex = 0; comparisonIndex < i; ++comparisonIndex)
+						{
+							if (Hit.Actor == ThisBulletHitResults[comparisonIndex].Actor)
+							{
+								ThisBulletHitResults.RemoveAt(i);
+								--i;
+								removed = true;
+								break;
+							}
+						}
+
+						if (removed)
+						{
+							continue;
+						}
+					}
+
+					
+					// If we got here, we are an unfiltered hit, make target data for us:
+
+
+
+					/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
+					FGameplayAbilityTargetData_BulletTraceTargetHit* ReturnData = new FGameplayAbilityTargetData_BulletTraceTargetHit();
+
+					ReturnData->HitResult = Hit;
+					ReturnData->totalDistanceTraveled = thisHitTotalDistance;
+					thisHitTotalDistance = 0.f; // reset back to zero
+
+					TargetDataHandle.Add(ReturnData);
+				}
 			}
-			FilterHitResults(ShotHitResults);
 
 
-			HitResults.Append(ShotHitResults);
-		}
-		FGameplayAbilityTargetDataHandle TargetDataHandle;
+
+
+		} // end bullet number loop
 		
-		// For loop code copied from FGameplayAbilityTargetingLocationInfo::MakeTargetDataHandleFromHitResults. Not using that function to make target data handle because it uses FGameplayAbilityTargetData_SingleTargetHit and not our custom target data struct FGameplayAbilityTargetData_BulletTraceTargetHit
-		for (int32 i = 0; i < HitResults.Num(); i++)
-		{
-			/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
-			FGameplayAbilityTargetData_BulletTraceTargetHit* ReturnData = new FGameplayAbilityTargetData_BulletTraceTargetHit();
-			ReturnData->HitResult = HitResults[i];
-			TargetDataHandle.Add(ReturnData);
-		}
+
 
 		TargetDataReadyDelegate.Broadcast(TargetDataHandle);
 	}

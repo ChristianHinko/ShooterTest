@@ -81,11 +81,7 @@ void AGATA_Trace::ConfirmTargetingAndContinue()
 		TArray<FHitResult> HitResults;
 		PerformTrace(HitResults, SourceActor);
 
-		if (bAllowMultipleHitsPerActor)
-		{
-			RemoveMultipleHitsPerActor(HitResults);
-		}
-		FilterHitResults(HitResults);
+		FilterHitResults(HitResults, MultiFilterHandle, bAllowMultipleHitsPerActor);
 
 		FGameplayAbilityTargetDataHandle TargetDataHandle = StartLocation.MakeTargetDataHandleFromHitResults(OwningAbility, HitResults);
 		TargetDataReadyDelegate.Broadcast(TargetDataHandle);
@@ -255,16 +251,14 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	}
 
 
-	TArray<FHitResult> DebugHitResults = OutHitResults;
-	if (!bAllowMultipleHitsPerActor)
-	{
-		RemoveMultipleHitsPerActor(DebugHitResults);
-	}
 
-	// Debug before we remove filtered hit results
 #if ENABLE_DRAW_DEBUG
 	if (inDebug)
 	{
+		TArray<FHitResult> DebugHitResults = OutHitResults;
+		FilterHitResults(DebugHitResults, FGATDF_MultiFilterHandle(), bAllowMultipleHitsPerActor); // removes multiple hits if needed (but doesn't filter actors because we have different colors for whether it filters or not)
+
+
 		const float debugLifeTime = 5.f;
 		const FColor TraceColor = FColor::Blue;
 		const FColor PassesFilterColor = FColor::Red;
@@ -354,16 +348,14 @@ void AGATA_Trace::SweepMulti(TArray<FHitResult>& OutHitResults, const UWorld* Wo
 	}
 
 
-	TArray<FHitResult> DebugHitResults = OutHitResults;
-	if (!bAllowMultipleHitsPerActor)
-	{
-		RemoveMultipleHitsPerActor(DebugHitResults);
-	}
 
-	// Debug before we remove filtered hit results
 #if ENABLE_DRAW_DEBUG
 	if (inDebug)
 	{
+		TArray<FHitResult> DebugHitResults = OutHitResults;
+		FilterHitResults(DebugHitResults, FGATDF_MultiFilterHandle(), bAllowMultipleHitsPerActor); // removes multiple hits if needed (but doesn't filter actors because we have different colors for whether it filters or not)
+
+
 		const float debugLifeTime = 5.f;
 		const FColor TraceColor = FColor::Blue;
 		const FColor PassesFilterColor = FColor::Red;
@@ -412,36 +404,47 @@ void AGATA_Trace::SweepMulti(TArray<FHitResult>& OutHitResults, const UWorld* Wo
 #endif // ENABLE_DRAW_DEBUG
 }
 
-void AGATA_Trace::RemoveMultipleHitsPerActor(TArray<FHitResult>& OutHitResults) const
-{
-	// Loop through each hit result and check if the hits infront of it (the hit results less than the pending index) already have its actor.
-	// If so, remove the pending hit result because it has the actor that was already hit and is considered a duplicate hit.
-	for (int32 pendingIndex = 0; pendingIndex < OutHitResults.Num(); ++pendingIndex)
-	{
-		const FHitResult PendingHit = OutHitResults[pendingIndex];
-
-		// Check if the hit results that we've looped through so far contains a hit result with this actor already
-		for (int32 comparisonIndex = 0; comparisonIndex < pendingIndex; ++comparisonIndex)
-		{
-			if (PendingHit.Actor == OutHitResults[comparisonIndex].Actor)
-			{
-				OutHitResults.RemoveAt(pendingIndex);
-				pendingIndex--;		// put pendingIndex back in sync after removal		(this can be weird because on first iteration, this will make pendingIndex == -1 but it gets fixed next iteration)
-			}
-		}
-	}
-}
-void AGATA_Trace::FilterHitResults(TArray<FHitResult>& OutHitResults) const
+void AGATA_Trace::FilterHitResults(TArray<FHitResult>& OutHitResults, const FGATDF_MultiFilterHandle FilterHandle, const bool inAllowMultipleHitsPerActor) const
 {
 	for (int32 i = 0; i < OutHitResults.Num(); ++i)
 	{
 		const FHitResult Hit = OutHitResults[i];
 
-		const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.Actor);
-		if (!bPassesFilter)
+
+		if (FilterHandle.MultiFilter.IsValid()) // if valid filter
 		{
-			OutHitResults.RemoveAt(i);
-			--i;		// put i back in sync after removal		(this can be weird because on first iteration, this will make i == -1 but it gets fixed next iteration)
+			const bool bPassesFilter = FilterHandle.FilterPassesForActor(Hit.Actor);
+			if (!bPassesFilter)
+			{
+				OutHitResults.RemoveAt(i);
+				--i;
+				continue;
+			}
+		}
+
+		if (!inAllowMultipleHitsPerActor) // if we should remove multiple hits
+		{
+			// Loop through each hit result and check if the hits infront of it (the hit results less than the pending index) already have its actor.
+			// If so, remove the pending hit result because it has the actor that was already hit and is considered a duplicate hit.
+
+			bool removed = false; // if true, we removed a duplicate hit
+
+			// Check if the hit results that we've looped through so far contains a hit result with this actor already
+			for (int32 comparisonIndex = 0; comparisonIndex < i; ++comparisonIndex)
+			{
+				if (Hit.Actor == OutHitResults[comparisonIndex].Actor)
+				{
+					OutHitResults.RemoveAt(i);
+					--i;
+					removed = true;
+					break;
+				}
+			}
+
+			if (removed)
+			{
+				continue;
+			}
 		}
 	}
 }

@@ -88,6 +88,12 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 	// This recalculation will not run PreAttributeChange() clamps, so if there were any clamps in that, do it here too (or find a better way idk)
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().OutgoingDamageDef, EvaluationParameters, RawDamage);
 
+
+
+
+
+
+
 	// Set the Target's IncomingDamage meta attribute
 	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().IncomingDamageProperty, EGameplayModOp::Additive, RawDamage));
 
@@ -95,30 +101,4 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 
 
 
-	////Grab the weapon Stats. (Kaos's way)
-	//const FKaosBaseWeaponStats* WeaponStats = Weapon ? Weapon->GetWeaponStats() : nullptr;
-
-	//if (InRange(HitResultDistance, 0.f, WeaponStats->RangeMid))
-	//{
-	//	CalculatedDamage = UKismetMathLibrary::MapRangeClamped(HitResultDistance, WeaponStats->RangePB, WeaponStats->RangeMid, WeaponStats->DamagePB, WeaponStats->DamageMid);
-
-	//}
-	//else if (InRange(HitResultDistance, WeaponStats->RangeMid, WeaponStats->RangeLong))
-	//{
-	//	CalculatedDamage = UKismetMathLibrary::MapRangeClamped(HitResultDistance, WeaponStats->RangeMid, WeaponStats->RangeLong, WeaponStats->DamageMid, WeaponStats->DamageLong);
-	//}
-	//else
-	//{
-	//	CalculatedDamage = WeaponStats->DamageMaxRange;
-	//}
-
-	////If it was a head shot or DiceCritChance > 0 and roll is in range, then apply CritDamageMultiplier.
-	//if (bIsHeadshot || (WeaponStats->DiceCritChance > 0 && FMath::FRandRange(0, 100) <= WeaponStats->DiceCritChance))
-	//{
-	//	Context->bIsCriticalHit = true;
-	//	Context->bIsDiceCritical = !bIsHeadshot;
-	//	float CritMulti = 1.f;
-	//	ExecutionParams.AttemptCalculateCapturedAttributeMagnitudeWithBase(KaosDamageCalcStatics().CritMultiplierDef, EvaluationParameters, WeaponStats->CritDamageMultiplier, CritMulti);
-	//	CalculatedDamage *= CritMulti;
-	//}
 }

@@ -13,7 +13,7 @@ void UAS_Damage::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 }
 
 UAS_Damage::UAS_Damage()
-	: OutgoingDamage(100)
+	: OutgoingDamage(10)
 {
 
 

@@ -8,7 +8,7 @@
 #include "AbilitySystem/AttributeSets/AS_Damage.h"
 
 
-// Declare the attributes to capture and define how we want to capture them from the Source and Target.
+// Declare the attributes to capture and define how we want to capture them from the Source and Target
 struct SSDamageStatics
 {
 	// Source
@@ -85,7 +85,7 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 	EvaluationParameters.SourceTags = SourceTags;
 	EvaluationParameters.TargetTags = TargetTags;
 	float RawDamage = 0.0f;		// Raw because we havn't done any post process stuff yet (ie. crit multiplier, enemy armor)
-	// Capture optional damage value set on the damage GE as a CalculationModifier under the ExecutionCalculation
+	// This recalculation will not run PreAttributeChange() clamps, so if there were any clamps in that, do it here too (or find a better way idk)
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().OutgoingDamageDef, EvaluationParameters, RawDamage);
 
 	// Set the Target's IncomingDamage meta attribute

@@ -35,22 +35,22 @@ public:
 	ATTRIBUTE_ACCESSORS(UAS_Health, Health)
 
 
-	//	'meta' attributes: ie. "What do we do with this incomming Damage or Healing?" Good solution in place of an ExecutionCalculation
+	//	'meta' attributes: ie. "What do we do with this incomming IncomingDamage or Healing?" Good solution in place of an ExecutionCalculation
 	
-	/** This Damage attribute is just used for applying negative health mods. Its not a 'persistent' attribute. It is a 'meta' attribute (gets set back to 0 after it modifies Health) */
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromLevelInfos))	// You can't make a GameplayEffect 'powered' by Damage (Its transient). HideFromLevelInfos makes the attribute transient
-		FGameplayAttributeData Damage;
-	ATTRIBUTE_ACCESSORS(UAS_Health, Damage)
+	/** This IncomingDamage attribute is just used for applying negative health mods. Its not a 'persistent' attribute. It is a 'meta' attribute (gets set back to 0 after it modifies Health) */
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromLevelInfos))	// You can't make a GameplayEffect 'powered' by IncomingDamage (Its transient). HideFromLevelInfos makes the attribute transient
+		FGameplayAttributeData IncomingDamage;
+	ATTRIBUTE_ACCESSORS(UAS_Health, IncomingDamage)
 
 	/** This Healing attribute is just used for applying positive health mods. Its not a 'persistent' attribute. It is a 'meta' attribute (gets set back to 0 after it modifies Health) */
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromLevelInfos))	// You can't make a GameplayEffect 'powered' by Damage (Its transient). HideFromLevelInfos makes the attribute transient
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromLevelInfos))	// You can't make a GameplayEffect 'powered' by IncomingDamage (Its transient). HideFromLevelInfos makes the attribute transient
 		FGameplayAttributeData Healing;
 	ATTRIBUTE_ACCESSORS(UAS_Health, Healing)
 
 protected:
 	//	Server only. Handle applying any modifications to incomming effects (ie. subtracting incomming damage using a shield attribute)
 	virtual bool PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data) override;
-	//	Server only. Handle using 'meta' attributes for modifying 'persistant' attributes. Such as Damage modifying Health
+	//	Server only. Handle using 'meta' attributes for modifying 'persistant' attributes. Such as IncomingDamage modifying Health
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 
 	virtual void SetSoftAttributeDefaults() override;

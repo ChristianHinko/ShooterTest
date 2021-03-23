@@ -18,7 +18,6 @@ AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer
 
 void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 {
-	// Same as super, but we make our own target data handle since we want to use our bullet trace one
 	check(ShouldProduceTargetData());
 	if (SourceActor)
 	{

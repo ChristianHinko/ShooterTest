@@ -22,6 +22,6 @@ void AHUD_ShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CrosshairWidget = UWidgetBlueprintLibrary::Create(this, CrosshairWidgetTSub, GetOwningPlayerController());
-	CrosshairWidget->AddToViewport();
+	//MyWidget = UWidgetBlueprintLibrary::Create(this, MyWidgetTSub, GetOwningPlayerController());
+	//MyWidget->AddToViewport();
 }

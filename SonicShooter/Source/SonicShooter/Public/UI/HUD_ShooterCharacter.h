@@ -21,9 +21,9 @@ public:
 	AHUD_ShooterCharacter();
 
 
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<UUserWidget> CrosshairWidgetTSub;
-	UUserWidget* CrosshairWidget;
+	//UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	//	TSubclassOf<UUserWidget> MyWidgetTSub;
+	//UUserWidget* MyWidget;
 
 protected:
 	virtual void PostInitializeComponents() override;

@@ -76,6 +76,21 @@ public:
 	ATTRIBUTE_ACCESSORS(UAS_Gun, CurrentBulletSpread)
 
 
+
+	/**
+	 * The rate of decrease in bullet spread in degrees per second. Will be continuously decreasing spread by
+	 * this rate until reached minimum spread
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_DamageFalloff, Category = "Attributes")
+		FGameplayAttributeData DamageFalloff;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, DamageFalloff)
+
+
+
+
+
+
+
 	void IncCurrentBulletSpread();
 
 	uint8 bIsMovingForIncRate : 1;
@@ -126,4 +141,7 @@ protected:
 
 	UFUNCTION()
 		virtual void OnRep_BulletSpreadDecSpeed(const FGameplayAttributeData& ServerBaseValue);
+
+	UFUNCTION()
+		virtual void OnRep_DamageFalloff(const FGameplayAttributeData& ServerBaseValue);
 };

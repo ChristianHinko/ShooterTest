@@ -108,10 +108,10 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	//if (GetHealthAttributeSet())
-	//{
-	//	UKismetSystemLibrary::PrintString(this, FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
-	//}
+	if (GetHealthAttributeSet())
+	{
+		UKismetSystemLibrary::PrintString(this, FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
+	}
 
 	//for (int32 i = 0; i < SSInventoryComponentActive->ActiveItemHistory.Num(); ++i)
 	//{

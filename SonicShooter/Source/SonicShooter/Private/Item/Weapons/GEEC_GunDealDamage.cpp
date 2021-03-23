@@ -11,7 +11,7 @@
 // Declare the attributes to capture and define how we want to capture them from the Source and Target.
 struct SSDamageStatics
 {
-	DECLARE_ATTRIBUTE_CAPTUREDEF(Damage);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(IncomingDamage);
 
 	SSDamageStatics()
 	{
@@ -21,7 +21,7 @@ struct SSDamageStatics
 		//DEFINE_ATTRIBUTE_CAPTUREDEF(UAS_Gun, Damage, Source, true);	// This will be the value to damage the target by
 
 		//Target captures
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UAS_Health, Damage, Target, false);	// This is the attribute we will change on the target
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAS_Health, IncomingDamage, Target, false);	// This is the attribute we will change on the target
 	}
 };
 
@@ -33,7 +33,7 @@ static const SSDamageStatics& DamageStatics()
 
 UGEEC_GunDealDamage::UGEEC_GunDealDamage()
 {
-	RelevantAttributesToCapture.Add(DamageStatics().DamageDef);
+	RelevantAttributesToCapture.Add(DamageStatics().IncomingDamageDef);
 }
 
 // Need to make this get the damage attribute from a damage attribute set from the source
@@ -73,7 +73,7 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 	//float RawDamage = 0.0f;		// Raw because we havn't done any post process stuff yet (ie. crit multiplier, enemy armor)
 
 	//// Capture optional damage value set on the damage GE as a CalculationModifier under the ExecutionCalculation
-	//ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageDef, EvaluationParameters, RawDamage);
+	//ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().IncomingDamageDef, EvaluationParameters, RawDamage);
 
 	//// Set the Target's damage meta attribute
 	//OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().DamageProperty, EGameplayModOp::Additive, RawDamage));

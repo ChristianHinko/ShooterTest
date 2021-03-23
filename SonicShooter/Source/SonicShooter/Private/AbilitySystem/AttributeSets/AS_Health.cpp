@@ -14,7 +14,7 @@ void UAS_Health::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Health, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Health, Health, COND_None, REPNOTIFY_Always);
-	//	Damage and Healing not replicated since it's a 'meta' attribute
+	//	IncomingDamage and Healing not replicated since it's a 'meta' attribute
 }
 
 UAS_Health::UAS_Health()
@@ -42,7 +42,7 @@ bool UAS_Health::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
 
 
 
-	if (AttributeToModify == GetDamageAttribute())
+	if (AttributeToModify == GetIncomingDamageAttribute())
 	{
 		//Handle extra Attribute Modifications here (ie. armor buff, damage vulnerability)
 
@@ -68,10 +68,10 @@ void UAS_Health::PostGameplayEffectExecute(const FGameplayEffectModCallbackData&
 
 
 
-	if (ModifiedAttribute == GetDamageAttribute())
+	if (ModifiedAttribute == GetIncomingDamageAttribute())
 	{
-		const float damageToApply = Damage.GetCurrentValue();
-		SetDamage(0.f);
+		const float damageToApply = IncomingDamage.GetCurrentValue();
+		SetIncomingDamage(0.f);
 
 		SetHealth(FMath::Clamp(GetHealth() - damageToApply, 0.f, GetMaxHealth()));
 

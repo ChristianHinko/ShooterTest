@@ -102,15 +102,8 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 	float totalDistanceBulletTraveled = Spec.GetSetByCallerMagnitude(BulletTotalTravelDistanceBeforeHitTag, true, 0);
 
 
-
-
-
-
 	float finalDamage = RawDamage;
-	//			\/\/\/\/\/\/\/\/ Do post processing work on the raw value \/\/\/\/\/\/\/\/
-
-
-
+	// Lets start calculating
 	finalDamage = finalDamage * DamageFalloff;	// THIS IS NOT A CORRECT IMPLEMENTATION FOR DAMAGE FALLOFF! JUST HERE TO TEST THINGS OUT!
 
 

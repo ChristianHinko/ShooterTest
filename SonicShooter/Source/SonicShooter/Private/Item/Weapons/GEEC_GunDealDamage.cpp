@@ -86,17 +86,22 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 
 
 
-	// Get total distance the bullet traveled (not the same as FHitResult.Distance)
-	float totalDistanceBulletTraveled = Spec.GetSetByCallerMagnitude(BulletTotalTravelDistanceBeforeHitTag, true, 0);
+	
 
 
-
+	// Needed parameter for AttemptCalculateCapturedAttributeMagnitude()
 	FAggregatorEvaluateParameters EvaluationParameters;
 	EvaluationParameters.SourceTags = SourceTags;
 	EvaluationParameters.TargetTags = TargetTags;
-	float RawDamage = 0.0f;		// Raw because we havn't done any post process stuff yet (ie. crit multiplier, enemy armor)
-	// This recalculation will not run PreAttributeChange() clamps, so if there were any clamps in that, do it here too (or find a better way idk)
+
+	// Lets get the values we need for our damage calculation (ie. source/target attributes, passed in values)
+	float RawDamage = 0.0f;
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().OutgoingDamageDef, EvaluationParameters, RawDamage);
+	float DamageFalloff = 0.0f;
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageFalloffDef, EvaluationParameters, DamageFalloff);
+	float totalDistanceBulletTraveled = Spec.GetSetByCallerMagnitude(BulletTotalTravelDistanceBeforeHitTag, true, 0);
+
+
 
 
 
@@ -105,8 +110,7 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 	//			\/\/\/\/\/\/\/\/ Do post processing work on the raw value \/\/\/\/\/\/\/\/
 
 
-	float DamageFalloff = 0.0f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageFalloffDef, EvaluationParameters, DamageFalloff);
+
 	finalDamage = finalDamage * DamageFalloff;	// THIS IS NOT A CORRECT IMPLEMENTATION FOR DAMAGE FALLOFF! JUST HERE TO TEST THINGS OUT!
 
 
@@ -125,9 +129,4 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 
 	// Set the Target's IncomingDamage meta attribute
 	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().IncomingDamageProperty, EGameplayModOp::Additive, finalDamage));
-
-
-
-
-
 }

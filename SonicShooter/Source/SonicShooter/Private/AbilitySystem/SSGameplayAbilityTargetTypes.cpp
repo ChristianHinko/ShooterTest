@@ -31,6 +31,9 @@ TArray<FActiveGameplayEffectHandle> FGameplayAbilityTargetData_BulletTraceTarget
 			FGameplayEffectContextHandle EffectContext = SpecToApply.GetContext().Duplicate();
 			SpecToApply.SetContext(EffectContext);
 
+
+			SpecToApply.SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("SetByCaller.BulletTotalTravelDistanceBeforeHit"), bulletTotalTravelDistanceBeforeHit);	// Only line added
+
 			AddTargetDataToContext(EffectContext, false);
 
 			AppliedHandles.Add(EffectContext.GetInstigatorAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(SpecToApply, TargetComponent, PredictionKey));

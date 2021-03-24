@@ -33,7 +33,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 			// Manually filter the hit results (copied code from AGATA_Trace::FilterHitResults()) because we need access to filtered out hit results.
 			// And build our target data for non-filtered hit results
 			{
-				float thisHitTotalDistance = 0.f; // for calculating ReturnData->totalDistanceTraveled (the distance of the non-filterd hit including distances of the previous filtered out traces)
+				float thisHitTotalDistance = 0.f; // for calculating ReturnData->bulletTotalTravelDistanceBeforeHit (the distance of the non-filterd hit including distances of the previous filtered out traces)
 
 				for (int32 i = 0; i < ThisBulletHitResults.Num(); ++i)
 				{
@@ -94,7 +94,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 					FGameplayAbilityTargetData_BulletTraceTargetHit* ReturnData = new FGameplayAbilityTargetData_BulletTraceTargetHit();
 
 					ReturnData->HitResult = Hit;
-					ReturnData->totalDistanceTraveled = thisHitTotalDistance;
+					ReturnData->bulletTotalTravelDistanceBeforeHit = thisHitTotalDistance;
 					thisHitTotalDistance = 0.f; // reset back to zero for the next bullet
 
 					TargetDataHandle.Add(ReturnData);

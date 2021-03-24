@@ -321,11 +321,11 @@ void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 {
 	if (TSubclassOf<UGameplayEffect> BulletHitEffectTSub = GunToFire->BulletHitEffectTSub)
 	{
-		// Create our effect spec so we can pass target data stuff into it for the GEEC
-		FGameplayEffectSpecHandle BulletHitEffectSpec = MakeOutgoingGameplayEffectSpec(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), GunToFire->BulletHitEffectTSub, GetAbilityLevel());
-		//BulletHitEffectSpec.Data.Get()->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("SetByCaller.BackupAmmoDepletion"), -1 * AmmoToMove);
-
-		ApplyGameplayEffectSpecToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), BulletHitEffectSpec, Data);
+		if (Data.Num() > 0)
+		{
+			// Create our effect spec so we can pass target data stuff into it for the GEEC
+			ApplyGameplayEffectToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), Data, GunToFire->BulletHitEffectTSub, GetAbilityLevel());
+		}
 	}
 	else
 	{

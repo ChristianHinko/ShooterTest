@@ -21,7 +21,7 @@ struct SONICSHOOTER_API FGameplayAbilityTargetData_BulletTraceTargetHit : public
 		: HitResult(MoveTemp(InHitResult))
 	{ }
 
-	/** Overrided version will apply the same effect but with different amount of dmg depending on bullet hit distance and ricochet times */
+	/** Overrided version will apply the same effect but adds 2 set by callers distinct for each individual target (bulletTotalTravelDistanceBeforeHit, and amt of ricochets before hit) */
 	virtual TArray<FActiveGameplayEffectHandle> ApplyGameplayEffectSpec(FGameplayEffectSpec& Spec, FPredictionKey PredictionKey = FPredictionKey()) override;
 
 
@@ -88,7 +88,7 @@ struct SONICSHOOTER_API FGameplayAbilityTargetData_BulletTraceTargetHit : public
 	UPROPERTY()
 	FHitResult	HitResult;
 	UPROPERTY()
-	float totalDistanceTraveled;	// This data is important because it is the total distance traveled (all wall bounses accounted for). The HitResult itself doesn't always have an acurate distance variable because the bullet could ricochet. The accurate ditance would be to add all the distance vars from each ricochet's HitResult, but we don't send each hit result, so we store the added up distance using this variable.
+	float bulletTotalTravelDistanceBeforeHit;	// This data is important because it is the total distance traveled (all wall bounses accounted for). The HitResult itself doesn't always have an acurate distance variable because the bullet could ricochet. The accurate ditance would be to add all the distance vars from each ricochet's HitResult, but we don't send each hit result, so we store the added up distance using this variable.
 
 	UPROPERTY()
 	bool bHitReplaced = false;

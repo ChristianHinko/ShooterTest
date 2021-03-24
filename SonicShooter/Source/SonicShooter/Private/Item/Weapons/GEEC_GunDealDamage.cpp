@@ -43,6 +43,11 @@ static const SSDamageStatics& DamageStatics()
 
 UGEEC_GunDealDamage::UGEEC_GunDealDamage()
 {
+	// Cache GameplayTags
+	BulletTotalTravelDistanceBeforeHitTag = FGameplayTag::RequestGameplayTag("SetByCaller.BulletTotalTravelDistanceBeforeHit");
+
+
+
 	//Source
 	RelevantAttributesToCapture.Add(DamageStatics().OutgoingDamageDef);
 	RelevantAttributesToCapture.Add(DamageStatics().DamageFalloffDef);
@@ -81,7 +86,8 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 
 
 
-
+	// Get total distance the bullet traveled (not the same as FHitResult.Distance)
+	float totalDistanceBulletTraveled = Spec.GetSetByCallerMagnitude(BulletTotalTravelDistanceBeforeHitTag, true, 0);
 
 
 

@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSEffectExecutionCalculation.h"
+#include "Runtime\GameplayTags\Classes\GameplayTagContainer.h"
+
 #include "GEEC_GunDealDamage.generated.h"
 
 /**
@@ -18,6 +20,8 @@ public:
 	UGEEC_GunDealDamage();
 
 	virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
+
+	FGameplayTag BulletTotalTravelDistanceBeforeHitTag;
 
 protected:
 

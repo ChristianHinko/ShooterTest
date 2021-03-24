@@ -75,7 +75,7 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 	const FGameplayTagContainer* TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
 
 
-
+	const FHitResult* Hit = Spec.GetContext().GetHitResult();
 
 
 

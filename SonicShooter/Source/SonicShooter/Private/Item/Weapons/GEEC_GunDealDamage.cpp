@@ -99,12 +99,17 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().OutgoingDamageDef, EvaluationParameters, RawDamage);
 	float DamageFalloff = 0.0f;
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageFalloffDef, EvaluationParameters, DamageFalloff);
-	float totalDistanceBulletTraveled = Spec.GetSetByCallerMagnitude(BulletTotalTravelDistanceBeforeHitTag, true, 0);
+	const float totalDistanceBulletTraveled = Spec.GetSetByCallerMagnitude(BulletTotalTravelDistanceBeforeHitTag, true, 0);
 
 
-	float finalDamage = RawDamage;
+
 	// Lets start calculating
-	finalDamage = finalDamage * DamageFalloff;	// THIS IS NOT A CORRECT IMPLEMENTATION FOR DAMAGE FALLOFF! JUST HERE TO TEST THINGS OUT!
+	float finalDamage = RawDamage;
+
+
+	// DamageFalloff determines the amount of damage lost to the bullet base damage every 50000cm (1640.4ft) the bullet travels.
+	const float dmgFalloffMultiplier = FMath::Pow(DamageFalloff, (totalDistanceBulletTraveled / 50000));
+	finalDamage = finalDamage * dmgFalloffMultiplier;
 
 
 

@@ -22,6 +22,9 @@ void AHUD_ShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+
+	// NOTE: last time i tried using begin play for spawning a widget i got weirdness happening with the owning PC but give it a try anyways
+
 	//MyWidget = UWidgetBlueprintLibrary::Create(this, MyWidgetTSub, GetOwningPlayerController());
 	//MyWidget->AddToViewport();
 }

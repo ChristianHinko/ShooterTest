@@ -25,6 +25,8 @@ public:
 	//	TSubclassOf<UUserWidget> MyWidgetTSub;
 	//UUserWidget* MyWidget;
 
+	UUserWidget* CrosshairWidget;
+
 protected:
 	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;

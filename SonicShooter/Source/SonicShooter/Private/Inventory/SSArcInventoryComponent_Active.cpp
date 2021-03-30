@@ -10,6 +10,12 @@
 #include "Input/ArcInvInputBinder.h"
 #include "AbilitySystemGlobals.h"
 
+#include "Item/Weapons/WeaponDefinition.h"
+#include "UI/HUD_ShooterCharacter.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
+
+
+
 
 
 USSArcInventoryComponent_Active::USSArcInventoryComponent_Active(const FObjectInitializer& ObjectInitializer)
@@ -76,10 +82,64 @@ bool USSArcInventoryComponent_Active::MakeItemActive_Internal(const FArcInventor
 {
 	bool bSuccess = Super::MakeItemActive_Internal(ItemSlot, ItemStack);
 
-	if (bStartupItemsGiven)		// We don't want to touch the item history array if the startup items have not been given yet. Adding to it will be taken care of in OnItemEquipped
+
+	if (bSuccess)
 	{
-		AddToActiveItemHistory(ItemSlot);
+		if (bStartupItemsGiven)		// We don't want to touch the item history array if the startup items have not been given yet. Adding to it will be taken care of in OnItemEquipped
+		{
+			AddToActiveItemHistory(ItemSlot);
+		}
+
+
+		// Add crosshair widget
+		if (APlayerController* OwningPC = Cast<APlayerController>(Cast<APawn>(GetOwner())->GetController()))
+		{
+			if (OwningPC->IsLocalController())
+			{
+				if (UWeaponUIData* WeaponUIData = Cast<UWeaponUIData>(ItemStack->GetUIData()))
+				{
+					if (AHUD_ShooterCharacter* ShooterCharacterHUD = Cast<AHUD_ShooterCharacter>(OwningPC->GetHUD()))
+					{
+						// Create our widget and add it to viewport
+						ShooterCharacterHUD->CrosshairWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->CrosshairWidgetTSub, OwningPC);
+						if (ShooterCharacterHUD->CrosshairWidget)
+						{
+							ShooterCharacterHUD->CrosshairWidget->AddToViewport();
+						}
+					}
+				}
+			}
+		}
 	}
+
+
+	return bSuccess;
+}
+
+bool USSArcInventoryComponent_Active::MakeItemInactive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack)
+{
+	bool bSuccess = Super::MakeItemInactive_Internal(ItemSlot, ItemStack);
+
+
+	if (bSuccess)
+	{
+		// Remove crosshair widget
+		if (APlayerController* OwningPC = Cast<APlayerController>(Cast<APawn>(GetOwner())->GetController()))
+		{
+			if (OwningPC->IsLocalController())
+			{
+				if (AHUD_ShooterCharacter* ShooterCharacterHUD = Cast<AHUD_ShooterCharacter>(OwningPC->GetHUD()))
+				{
+					if (ShooterCharacterHUD->CrosshairWidget)
+					{
+						ShooterCharacterHUD->CrosshairWidget->RemoveFromViewport();
+						ShooterCharacterHUD->CrosshairWidget = nullptr;
+					}
+				}
+			}
+		}
+	}
+
 
 	return bSuccess;
 }

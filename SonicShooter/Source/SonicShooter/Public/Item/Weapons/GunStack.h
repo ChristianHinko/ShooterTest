@@ -71,4 +71,7 @@ public:
 	 */
 	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Gun Firing")
 		float AmmoCost;
+
+protected:
+	//UWeaponDefinition* WeaponDefinition;
 };

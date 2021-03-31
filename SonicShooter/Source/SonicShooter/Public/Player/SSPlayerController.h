@@ -18,6 +18,7 @@ class ASSGameMode;
  * and recreate or modify its pawn as needed (by calling UpdatePawn())
  */
 DECLARE_MULTICAST_DELEGATE(FPawnInfoChange);
+DECLARE_MULTICAST_DELEGATE(FPlayerControllerState);
 
 
 /**
@@ -62,6 +63,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)							// blueprint callable for testing =@REVIEW MARKER@=
 		APawn* SpawnPawnFromPendingInfo();
+
+
+	FPlayerControllerState OnPlayerStateValid;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PawnInfo")

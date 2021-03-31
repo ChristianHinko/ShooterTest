@@ -11,6 +11,7 @@
 
 class UAbilitySystemComponent;
 struct FOnAttributeChangeData;
+class ASSPlayerController;
 
 
 
@@ -35,12 +36,15 @@ public:
 
 protected:
 	UAbilitySystemComponent* PlayerASC;
+	ASSPlayerController* SSOwningPlayerController; // only have this for the PS valid delegate
 
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
+	void OnPlayerStateValid();
 
-	void SpreadAttributeChanged(const FOnAttributeChangeData& Data);
+
+	void OnSpreadAttributeChanged(const FOnAttributeChangeData& Data);
 
 	//UFUNCTION(BlueprintSetter)
 		void SetCurrentSpread(float NewSpread);

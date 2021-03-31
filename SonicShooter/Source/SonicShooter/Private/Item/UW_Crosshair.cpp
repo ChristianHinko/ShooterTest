@@ -3,7 +3,8 @@
 
 #include "Item/UW_Crosshair.h"
 
-#include "Player/SSPlayerState.h"
+#include "GameFramework/PlayerState.h"
+#include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
 #include "Item/AS_Gun.h"
 
@@ -22,9 +23,9 @@ void UUW_Crosshair::NativeConstruct()
 
 	if (GetOwningPlayer() && GetOwningPlayer()->PlayerState)
 	{
-		if (ASSPlayerState* SSPlayerState = Cast<ASSPlayerState>(GetOwningPlayer()->PlayerState))
+		if (IAbilitySystemInterface* AbilitySystem = Cast<IAbilitySystemInterface>(GetOwningPlayer()->PlayerState))
 		{
-			PlayerASC = SSPlayerState->GetAbilitySystemComponent();
+			PlayerASC = AbilitySystem->GetAbilitySystemComponent();
 		}
 	}
 
@@ -32,8 +33,8 @@ void UUW_Crosshair::NativeConstruct()
 	{
 		PlayerASC->GetGameplayAttributeValueChangeDelegate(SpreadAttribute).AddUObject(this, &UUW_Crosshair::SpreadAttributeChanged);
 
-		const float initialSpread = PlayerASC->GetNumericAttribute(SpreadAttribute);
-		SetCurrentSpread(initialSpread);
+		const float InitialSpread = PlayerASC->GetNumericAttribute(SpreadAttribute);
+		SetCurrentSpread(InitialSpread);
 	}
 }
 

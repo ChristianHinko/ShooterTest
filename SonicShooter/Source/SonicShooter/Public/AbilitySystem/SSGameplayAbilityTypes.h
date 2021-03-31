@@ -17,6 +17,9 @@ class USSArcInventoryComponent_Active;
 
 
 
+DECLARE_MULTICAST_DELEGATE(FAbilityActorInfoState)
+
+
 /**
  * Our custom FGameplayAbilityActorInfo
  */
@@ -56,6 +59,8 @@ struct SONICSHOOTER_API FSSGameplayAbilityActorInfo : public FGameplayAbilityAct
     UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")
         TWeakObjectPtr<USSArcInventoryComponent_Active> InventoryComponent;
 
+
+    FAbilityActorInfoState OnInited;
 
     virtual void InitFromActor(AActor* OwnerActor, AActor* AvatarActor, UAbilitySystemComponent* InAbilitySystemComponent) override;
     virtual void SetAvatarActor(AActor* AvatarActor) override;

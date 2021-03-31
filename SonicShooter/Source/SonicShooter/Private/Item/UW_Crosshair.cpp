@@ -7,6 +7,7 @@
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
 #include "Item/AS_Gun.h"
+#include "Utilities/LogCategories.h"
 
 
 
@@ -21,12 +22,27 @@ void UUW_Crosshair::NativeConstruct()
 	Super::NativeConstruct();
 
 
-	if (GetOwningPlayer() && GetOwningPlayer()->PlayerState)
+	if (GetOwningPlayer())
 	{
-		if (IAbilitySystemInterface* AbilitySystem = Cast<IAbilitySystemInterface>(GetOwningPlayer()->PlayerState))
+		if (GetOwningPlayer()->PlayerState)
 		{
-			PlayerASC = AbilitySystem->GetAbilitySystemComponent();
+			if (IAbilitySystemInterface* AbilitySystem = Cast<IAbilitySystemInterface>(GetOwningPlayer()->PlayerState))
+			{
+				PlayerASC = AbilitySystem->GetAbilitySystemComponent();
+			}
+			else
+			{
+				UE_LOG(LogUI, Error, TEXT("%s(): Cast from player state to ability system FAILED"), *FString(__FUNCTION__));
+			}
 		}
+		else
+		{
+			UE_LOG(LogUI, Error, TEXT("%s(): PlayerState was NULL"), *FString(__FUNCTION__));
+		}
+	}
+	else
+	{
+		UE_LOG(LogUI, Error, TEXT("%s(): OwningPlayer was NULL"), *FString(__FUNCTION__));
 	}
 
 	if (PlayerASC && SpreadAttribute.IsValid())

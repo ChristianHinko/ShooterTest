@@ -15,7 +15,8 @@ struct FOnAttributeChangeData;
 
 
 /**
- * 
+ * Base crosshair widget. No visuals and is meant for subclassing in BP.
+ * Provides the value of a spread attribute value and events for when to update UI.
  */
 UCLASS()
 class SONICSHOOTER_API UUW_Crosshair : public USSUserWidget
@@ -26,6 +27,7 @@ public:
 	UUW_Crosshair();
 
 
+	/** The current spread value of the attribute */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly/*, BlueprintReadWrite, BlueprintSetter = SetCurrentSpread*/, Category = "Crosshair")
 		float CurrentSpread;
 
@@ -43,6 +45,7 @@ protected:
 	//UFUNCTION(BlueprintSetter)
 		void SetCurrentSpread(float NewSpread);
 
+	/** Called on CurrentSpread changed. Use this to update CurrentSpread based UI */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Crosshair", meta = (Keywords = "Tick"))
 		void UpdateCrosshair();
 };

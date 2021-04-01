@@ -45,7 +45,7 @@ void UUW_Crosshair::NativeConstruct()
 				UE_LOG(LogUI, Error, TEXT("%s(): Cast from player state to ability system FAILED"), *FString(__FUNCTION__));
 			}
 		}
-		else
+		else // PS not valid
 		{
 			//UE_LOG(LogUI, Error, TEXT("%s(): PlayerState was NULL"), *FString(__FUNCTION__));
 

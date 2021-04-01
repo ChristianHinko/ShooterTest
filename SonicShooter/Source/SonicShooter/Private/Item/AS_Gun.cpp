@@ -4,12 +4,11 @@
 #include "Item/AS_Gun.h"
 
 #include "Net/UnrealNetwork.h"
-#include "Abilities/GameplayAbilityTypes.h"
 #include "AbilitySystem/SSGameplayAbilityTypes.h"
-
-#include "Kismet/KismetSystemLibrary.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
 #include "Character/SSCharacterMovementComponent.h"
+
+#include "Kismet/KismetSystemLibrary.h"
 
 
 
@@ -18,7 +17,7 @@ void UAS_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, MinBulletSpread, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, MaxBulletSpread, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, MovingBulletSpread, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadIncPerShot, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadMovingIncRate, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadDecSpeed, COND_None, REPNOTIFY_Always);
@@ -27,10 +26,10 @@ void UAS_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 
 UAS_Gun::UAS_Gun()
 	: MinBulletSpread(10.f),
-	MaxBulletSpread(20.f),
+	MovingBulletSpread(20.f),
 	BulletSpreadIncPerShot(50.f),
-	BulletSpreadMovingIncRate(50.f),
-	BulletSpreadDecSpeed(10.f),
+	BulletSpreadMovingIncRate(70.f),
+	BulletSpreadDecSpeed(15.f),
 	DamageFalloff(.9f)
 {
 	SetSoftAttributeDefaults();
@@ -64,12 +63,12 @@ void UAS_Gun::PostInitProperties()
 
 
 
+	UpdateFromActorInfo();
+
 	if (FSSGameplayAbilityActorInfo* SSActorInfo = static_cast<FSSGameplayAbilityActorInfo*>(GetActorInfo()))
 	{
 		SSActorInfo->OnInited.AddUObject(this, &UAS_Gun::OnActorInfoInited);
 	}
-
-	UpdateFromActorInfo();
 }
 
 void UAS_Gun::OnActorInfoInited()
@@ -133,16 +132,20 @@ void UAS_Gun::OnInventoryItemInactive(UArcInventoryComponent_Active* InventoryCo
 	}
 }
 
+float UAS_Gun::GetRestBulletSpread() const
+{
+	float RetVal = GetMinBulletSpread();
+	if (IsMovingToIncBulletSpread())
+	{
+		RetVal = GetMovingBulletSpread();
+	}
 
-void UAS_Gun::IncCurrentBulletSpread()
+	return RetVal;
+}
+
+void UAS_Gun::FireBulletSpread()
 {
 	SetCurrentBulletSpread(GetCurrentBulletSpread() + GetBulletSpreadIncPerShot());
-	//if (GetCurrentBulletSpread() > GetMaxBulletSpread())
-	//{
-	//	SetCurrentBulletSpread(GetMaxBulletSpread());
-	//}
-
-	//UKismetSystemLibrary::PrintString(this, "Current bullet spread: " + FString::SanitizeFloat(GetCurrentBulletSpread()), true, false);
 }
 
 bool UAS_Gun::IsMovingToIncBulletSpread() const
@@ -169,32 +172,36 @@ bool UAS_Gun::IsMovingToIncBulletSpread() const
 
 void UAS_Gun::Tick(float DeltaTime)
 {
+	//UKismetSystemLibrary::PrintString(this, "UAS_Gun::Tick()", true, false);
 	if (IsMovingToIncBulletSpread())
 	{
-		SetCurrentBulletSpread(GetCurrentBulletSpread() + (GetBulletSpreadMovingIncRate() * DeltaTime));
-		if (GetCurrentBulletSpread() > GetMaxBulletSpread())
+		if (GetCurrentBulletSpread() < GetMovingBulletSpread())
 		{
-			SetCurrentBulletSpread(GetMaxBulletSpread());
+			SetCurrentBulletSpread(GetCurrentBulletSpread() + (GetBulletSpreadMovingIncRate() * DeltaTime));
+			if (GetCurrentBulletSpread() > GetMovingBulletSpread())
+			{
+				SetCurrentBulletSpread(GetMovingBulletSpread());
+			}
+			return;
 		}
-		//UKismetSystemLibrary::PrintString(this, "Current bullet spread: " + FString::SanitizeFloat(GetCurrentBulletSpread()), true, false);
-		return;
 	}
 
-	float interptedBulletSpread = FMath::FInterpTo(GetCurrentBulletSpread(), GetMinBulletSpread(), DeltaTime, GetBulletSpreadDecSpeed());
+	float interptedBulletSpread = FMath::FInterpTo(GetCurrentBulletSpread(), GetRestBulletSpread(), DeltaTime, GetBulletSpreadDecSpeed());
 	SetCurrentBulletSpread(interptedBulletSpread);
-	if (GetCurrentBulletSpread() < GetMinBulletSpread())
+	if (GetCurrentBulletSpread() < GetRestBulletSpread())
 	{
-		SetCurrentBulletSpread(GetMinBulletSpread());
+		SetCurrentBulletSpread(GetRestBulletSpread());
 	}
-	//UKismetSystemLibrary::PrintString(this, "Current bullet spread: " + FString::SanitizeFloat(GetCurrentBulletSpread()), true, false);
 }
 bool UAS_Gun::ShouldTick() const
 {
-	if (IsMovingToIncBulletSpread())
+	if (IsMovingToIncBulletSpread()/* && GetCurrentBulletSpread() < GetMovingBulletSpread()*/)
 	{
 		return true;
 	}
-	if (GetCurrentBulletSpread() > GetMinBulletSpread())
+
+	// We are above our rest state, return true
+	if (GetCurrentBulletSpread() > GetRestBulletSpread())
 	{
 		return true;
 	}
@@ -249,9 +256,9 @@ void UAS_Gun::OnRep_MinBulletSpread(const FGameplayAttributeData& ServerBaseValu
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, MinBulletSpread, ServerBaseValue);
 }
 
-void UAS_Gun::OnRep_MaxBulletSpread(const FGameplayAttributeData& ServerBaseValue)
+void UAS_Gun::OnRep_MovingBulletSpread(const FGameplayAttributeData& ServerBaseValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, MaxBulletSpread, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, MovingBulletSpread, ServerBaseValue);
 }
 
 void UAS_Gun::OnRep_BulletSpreadMovingIncRate(const FGameplayAttributeData& ServerBaseValue)

@@ -303,7 +303,7 @@ void UGA_FireGun::Fire()
 	// Lets finally fire
 	AmmoAttributeSet->SetClipAmmo(AmmoAttributeSet->GetClipAmmo() - GunToFire->AmmoCost);
 	WaitTargetDataActorTask->ReadyForActivation();
-	GunAttributeSet->IncCurrentBulletSpread();
+	GunAttributeSet->FireBulletSpread();
 }
 
 

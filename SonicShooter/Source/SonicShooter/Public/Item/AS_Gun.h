@@ -30,38 +30,37 @@ public:
 	// Attributes:
 
 	/**
-	 * The minimum bullet spread in degrees (90 degs would be a right-angled cone)
+	 * The minimum bullet spread while staying still in degrees (90 degs would be a right-angled cone)
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MinBulletSpread, Category = "Attributes")
 		FGameplayAttributeData MinBulletSpread;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, MinBulletSpread)
 
 	/**
-	 * The maximum bullet spread in degrees (90 degs would be a right-angled cone)
+	 * The minimum bullet spread while moving in degrees (90 degs would be a right-angled cone)
 	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxBulletSpread, Category = "Attributes")
-		FGameplayAttributeData MaxBulletSpread;
-	ATTRIBUTE_ACCESSORS(UAS_Gun, MaxBulletSpread)
-
-	/**
-	 * The increase in bullet spread per shot in degrees. This amount of degs will be added to
-	 * current bullet spread every shot until reached maximum spread
-	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadIncPerShot, Category = "Attributes")
-		FGameplayAttributeData BulletSpreadIncPerShot;
-	ATTRIBUTE_ACCESSORS(UAS_Gun, BulletSpreadIncPerShot)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MovingBulletSpread, Category = "Attributes")
+		FGameplayAttributeData MovingBulletSpread;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, MovingBulletSpread)
 
 	/**
 	 * The rate of increase in bullet spread in degrees per second. Will be continuously increasing spread by
-	 * this rate while the avatar actor's velocity is greater than zero until reached maximum spread
+	 * this rate while moving until we've reached MovingBulletSpread
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadMovingIncRate, Category = "Attributes")
 		FGameplayAttributeData BulletSpreadMovingIncRate;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, BulletSpreadMovingIncRate)
 
 	/**
+	 * The increase in bullet spread per shot in degrees
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadIncPerShot, Category = "Attributes")
+		FGameplayAttributeData BulletSpreadIncPerShot;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, BulletSpreadIncPerShot)
+
+	/**
 	 * The rate of decrease in bullet spread in degrees per second. Will be continuously decreasing spread by
-	 * this rate until reached minimum spread
+	 * this rate until reached minimum spread (or moving spread if we are moving)
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadDecSpeed, Category = "Attributes")
 		FGameplayAttributeData BulletSpreadDecSpeed;
@@ -78,8 +77,7 @@ public:
 
 
 	/**
-	 * The rate of decrease in bullet spread in degrees per second. Will be continuously decreasing spread by
-	 * this rate until reached minimum spread
+	 * 
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_DamageFalloff, Category = "Attributes")
 		FGameplayAttributeData DamageFalloff;
@@ -88,19 +86,17 @@ public:
 
 
 
+	bool IsMovingToIncBulletSpread() const;
 
+	float GetRestBulletSpread() const;
 
+	void FireBulletSpread();
 
-	void IncCurrentBulletSpread();
-
-	uint8 bIsMovingForIncRate : 1;
-
-
-
-
-	virtual void PostInitProperties() override;
 
 protected:
+	virtual void PostInitProperties() override;
+
+
 	virtual void SetSoftAttributeDefaults() override;
 
 
@@ -116,13 +112,6 @@ protected:
 
 	USSCharacterMovementComponent* CMC;
 
-	bool IsMovingToIncBulletSpread() const;
-
-
-	virtual void Tick(float DeltaTime) override;
-	virtual bool ShouldTick() const override;
-
-
 	void OnAccelerationStartCMC();
 	void OnAccelerationStopCMC();
 
@@ -131,11 +120,18 @@ protected:
 
 
 
+	virtual void Tick(float DeltaTime) override;
+	virtual bool ShouldTick() const override;
+
+
+
+
+
 	UFUNCTION()
 		virtual void OnRep_MinBulletSpread(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
-		virtual void OnRep_MaxBulletSpread(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_MovingBulletSpread(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
 		virtual void OnRep_BulletSpreadIncPerShot(const FGameplayAttributeData& ServerBaseValue);

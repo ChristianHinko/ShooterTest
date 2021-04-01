@@ -18,19 +18,31 @@ void UAS_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, MinBulletSpread, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, MovingBulletSpread, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadIncPerShot, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadMovingIncRate, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadIncPerShot, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadDecSpeed, COND_None, REPNOTIFY_Always);
+
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, DamageFalloff, COND_None, REPNOTIFY_Always);
+
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, FireRate, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, NumBursts, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, AutoShootingRate, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, AmmoCost, COND_None, REPNOTIFY_Always);
 }
 
 UAS_Gun::UAS_Gun()
 	: MinBulletSpread(10.f),
 	MovingBulletSpread(20.f),
-	BulletSpreadIncPerShot(50.f),
 	BulletSpreadMovingIncRate(70.f),
+	BulletSpreadIncPerShot(50.f),
 	BulletSpreadDecSpeed(15.f),
-	DamageFalloff(.5f)
+
+	DamageFalloff(.5f),
+
+	FireRate(1.f),
+	NumBursts(3),
+	AutoShootingRate(1.f),
+	AmmoCost(1.f)
 {
 	SetSoftAttributeDefaults();
 
@@ -276,7 +288,31 @@ void UAS_Gun::OnRep_BulletSpreadDecSpeed(const FGameplayAttributeData& ServerBas
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, BulletSpreadDecSpeed, ServerBaseValue);
 }
 
+
+
 void UAS_Gun::OnRep_DamageFalloff(const FGameplayAttributeData& ServerBaseValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, DamageFalloff, ServerBaseValue);
+}
+
+
+
+void UAS_Gun::OnRep_FireRate(const FGameplayAttributeData& ServerBaseValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, FireRate, ServerBaseValue);
+}
+
+void UAS_Gun::OnRep_NumBursts(const FGameplayAttributeData& ServerBaseValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, NumBursts, ServerBaseValue);
+}
+
+void UAS_Gun::OnRep_AutoShootingRate(const FGameplayAttributeData& ServerBaseValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, AutoShootingRate, ServerBaseValue);
+}
+
+void UAS_Gun::OnRep_AmmoCost(const FGameplayAttributeData& ServerBaseValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, AmmoCost, ServerBaseValue);
 }

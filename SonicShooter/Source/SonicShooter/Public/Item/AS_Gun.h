@@ -85,6 +85,37 @@ public:
 
 
 
+	/**
+	 * Minimum time that must pass before we can fire again
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_FireRate, Category = "Attributes")
+		FGameplayAttributeData FireRate;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, FireRate)
+
+	/**
+	 * Number of bursts (ie. 3 for 3-round burst)
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_NumBursts, Category = "Attributes")
+		FGameplayAttributeData NumBursts;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, NumBursts)
+
+	/**
+	 * Bullets per second for auto-type shooting
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_AutoShootingRate, Category = "Attributes")
+		FGameplayAttributeData AutoShootingRate;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, AutoShootingRate)
+
+
+	/**
+	 * How much clip ammo will we lose for each shot. (Pretty much always just 1 but it's here if you need it)
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_AmmoCost, Category = "Attributes")
+		FGameplayAttributeData AmmoCost;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, AmmoCost)
+
+
+
 
 	bool IsMovingToIncBulletSpread() const;
 
@@ -134,14 +165,30 @@ protected:
 		virtual void OnRep_MovingBulletSpread(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
-		virtual void OnRep_BulletSpreadIncPerShot(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_BulletSpreadMovingIncRate(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
-		virtual void OnRep_BulletSpreadMovingIncRate(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_BulletSpreadIncPerShot(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
 		virtual void OnRep_BulletSpreadDecSpeed(const FGameplayAttributeData& ServerBaseValue);
 
+
+
 	UFUNCTION()
 		virtual void OnRep_DamageFalloff(const FGameplayAttributeData& ServerBaseValue);
+
+
+
+	UFUNCTION()
+		virtual void OnRep_FireRate(const FGameplayAttributeData& ServerBaseValue);
+
+	UFUNCTION()
+		virtual void OnRep_NumBursts(const FGameplayAttributeData& ServerBaseValue);
+
+	UFUNCTION()
+		virtual void OnRep_AutoShootingRate(const FGameplayAttributeData& ServerBaseValue);
+
+	UFUNCTION()
+		virtual void OnRep_AmmoCost(const FGameplayAttributeData& ServerBaseValue);
 };

@@ -44,31 +44,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Gun Firing")
 		EGunFireMode DefaultFiringMode;
 
-	/**
-	 * Minimum time that must pass before we can fire again
-	 */
-	UPROPERTY(EditDefaultsOnly, Category = "Gun Firing")
-		float DefaultFireRate;
-
-	/**
-	 * Number of bursts (ie. 3 for 3-round burst)
-	 */
-	UPROPERTY(EditDefaultsOnly, Category = "Gun Firing", meta = (EditCondition = "DefaultFiringMode == EGunFireMode::MODE_Burst"))
-		int32 DefaultNumBursts;
-
-	/**
-	 * Bullets per second for auto-type shooting
-	 */
-	UPROPERTY(EditDefaultsOnly, Category = "Gun Firing", meta = (EditCondition = "DefaultFiringMode != EGunFireMode::MODE_SemiAuto"))
-		float DefaultAutoShootingRate;
-
-
-	/**
-	 * How much clip ammo will we lose for each shot. (Pretty much always just 1 but it's here if you need it)
-	 */
-	UPROPERTY(EditDefaultsOnly, Category = "Gun Firing")
-		float DefaultAmmoCost;
-
 protected:
 	virtual UArcItemStack* GenerateItemStack_Implementation(const FArcItemGeneratorContext& Context) override;
 };

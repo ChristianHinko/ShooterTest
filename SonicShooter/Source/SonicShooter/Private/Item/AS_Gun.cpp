@@ -30,7 +30,7 @@ UAS_Gun::UAS_Gun()
 	BulletSpreadIncPerShot(50.f),
 	BulletSpreadMovingIncRate(70.f),
 	BulletSpreadDecSpeed(15.f),
-	DamageFalloff(.9f)
+	DamageFalloff(.5f)
 {
 	SetSoftAttributeDefaults();
 

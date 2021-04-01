@@ -17,12 +17,12 @@ void UAS_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, MinBulletSpread, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, NumberOfBulletsPerFire, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, MovingBulletSpread, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadMovingIncRate, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadIncPerShot, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadDecSpeed, COND_None, REPNOTIFY_Always);
 
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, NumberOfBulletsPerFire, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, DamageFalloff, COND_None, REPNOTIFY_Always);
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, FireRate, COND_None, REPNOTIFY_Always);
@@ -33,12 +33,12 @@ void UAS_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 
 UAS_Gun::UAS_Gun()
 	: MinBulletSpread(10.f),
-	NumberOfBulletsPerFire(1.f),
 	MovingBulletSpread(20.f),
 	BulletSpreadMovingIncRate(70.f),
 	BulletSpreadIncPerShot(50.f),
 	BulletSpreadDecSpeed(15.f),
 
+	NumberOfBulletsPerFire(1.f),
 	DamageFalloff(.5f),
 
 	FireRate(1.f),
@@ -270,11 +270,6 @@ void UAS_Gun::OnRep_MinBulletSpread(const FGameplayAttributeData& ServerBaseValu
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, MinBulletSpread, ServerBaseValue);
 }
 
-void UAS_Gun::OnRep_NumberOfBulletsPerFire(const FGameplayAttributeData& ServerBaseValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, NumberOfBulletsPerFire, ServerBaseValue);
-}
-
 void UAS_Gun::OnRep_MovingBulletSpread(const FGameplayAttributeData& ServerBaseValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, MovingBulletSpread, ServerBaseValue);
@@ -296,6 +291,11 @@ void UAS_Gun::OnRep_BulletSpreadDecSpeed(const FGameplayAttributeData& ServerBas
 }
 
 
+
+void UAS_Gun::OnRep_NumberOfBulletsPerFire(const FGameplayAttributeData& ServerBaseValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, NumberOfBulletsPerFire, ServerBaseValue);
+}
 
 void UAS_Gun::OnRep_DamageFalloff(const FGameplayAttributeData& ServerBaseValue)
 {

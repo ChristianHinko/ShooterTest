@@ -47,20 +47,20 @@ public:
 	 * The rate of increase in bullet spread in degrees per second. Will be continuously increasing spread by
 	 * this rate while moving until we've reached MovingBulletSpread
 	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadMovingIncRate, Category = "Attributes")
-		FGameplayAttributeData BulletSpreadMovingIncRate;
-	ATTRIBUTE_ACCESSORS(UAS_Gun, BulletSpreadMovingIncRate)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadIncRate, Category = "Attributes")
+		FGameplayAttributeData BulletSpreadIncRate;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, BulletSpreadIncRate)
 
 	/**
 	 * The increase in bullet spread per shot in degrees
 	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadIncPerShot, Category = "Attributes")
-		FGameplayAttributeData BulletSpreadIncPerShot;
-	ATTRIBUTE_ACCESSORS(UAS_Gun, BulletSpreadIncPerShot)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_FireBulletSpread, Category = "Attributes")
+		FGameplayAttributeData FireBulletSpread;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, FireBulletSpread)
 
 	/**
-	 * The rate of decrease in bullet spread in degrees per second. Will be continuously decreasing spread by
-	 * this rate until reached minimum spread (or moving spread if we are moving)
+	 * The speed of decrease in bullet spread to smooth interp to. Will be continuously interping spread at
+	 * this speed until reached minimum spread (or moving spread if we are moving)
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadDecSpeed, Category = "Attributes")
 		FGameplayAttributeData BulletSpreadDecSpeed;
@@ -78,8 +78,8 @@ public:
 
 
 	/**
-	* The number of bullets every fire will shoot out
-	*/
+	 * The number of bullets every fire will shoot out
+	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_NumberOfBulletsPerFire, Category = "Attributes")
 		FGameplayAttributeData NumberOfBulletsPerFire;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, NumberOfBulletsPerFire)
@@ -90,6 +90,8 @@ public:
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_DamageFalloff, Category = "Attributes")
 		FGameplayAttributeData DamageFalloff;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, DamageFalloff)
+
+
 
 	/**
 	 * Minimum time that must pass before we can fire again
@@ -127,7 +129,7 @@ public:
 
 	float GetRestBulletSpread() const;
 
-	void FireBulletSpread();
+	void ApplyFireBulletSpread();
 
 
 protected:
@@ -171,10 +173,10 @@ protected:
 		virtual void OnRep_MovingBulletSpread(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
-		virtual void OnRep_BulletSpreadMovingIncRate(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_BulletSpreadIncRate(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
-		virtual void OnRep_BulletSpreadIncPerShot(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_FireBulletSpread(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
 		virtual void OnRep_BulletSpreadDecSpeed(const FGameplayAttributeData& ServerBaseValue);

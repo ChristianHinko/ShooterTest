@@ -18,8 +18,8 @@ void UAS_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, MinBulletSpread, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, MovingBulletSpread, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadMovingIncRate, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadIncPerShot, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadIncRate, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, FireBulletSpread, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadDecSpeed, COND_None, REPNOTIFY_Always);
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, NumberOfBulletsPerFire, COND_None, REPNOTIFY_Always);
@@ -34,8 +34,8 @@ void UAS_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 UAS_Gun::UAS_Gun()
 	: MinBulletSpread(10.f),
 	MovingBulletSpread(20.f),
-	BulletSpreadMovingIncRate(70.f),
-	BulletSpreadIncPerShot(50.f),
+	BulletSpreadIncRate(70.f),
+	FireBulletSpread(50.f),
 	BulletSpreadDecSpeed(15.f),
 
 	NumberOfBulletsPerFire(1.f),
@@ -157,14 +157,14 @@ float UAS_Gun::GetRestBulletSpread() const
 	return RetVal;
 }
 
-void UAS_Gun::FireBulletSpread()
+void UAS_Gun::ApplyFireBulletSpread()
 {
-	SetCurrentBulletSpread(GetCurrentBulletSpread() + GetBulletSpreadIncPerShot());
+	SetCurrentBulletSpread(GetCurrentBulletSpread() + GetFireBulletSpread());
 }
 
 bool UAS_Gun::IsMovingToIncBulletSpread() const
 {
-	if (GetBulletSpreadMovingIncRate() <= 0)
+	if (GetBulletSpreadIncRate() <= 0)
 	{
 		return false;
 	}
@@ -191,7 +191,7 @@ void UAS_Gun::Tick(float DeltaTime)
 	{
 		if (GetCurrentBulletSpread() < GetMovingBulletSpread())
 		{
-			SetCurrentBulletSpread(GetCurrentBulletSpread() + (GetBulletSpreadMovingIncRate() * DeltaTime));
+			SetCurrentBulletSpread(GetCurrentBulletSpread() + (GetBulletSpreadIncRate() * DeltaTime));
 			if (GetCurrentBulletSpread() > GetMovingBulletSpread())
 			{
 				SetCurrentBulletSpread(GetMovingBulletSpread());
@@ -275,14 +275,14 @@ void UAS_Gun::OnRep_MovingBulletSpread(const FGameplayAttributeData& ServerBaseV
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, MovingBulletSpread, ServerBaseValue);
 }
 
-void UAS_Gun::OnRep_BulletSpreadMovingIncRate(const FGameplayAttributeData& ServerBaseValue)
+void UAS_Gun::OnRep_BulletSpreadIncRate(const FGameplayAttributeData& ServerBaseValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, BulletSpreadMovingIncRate, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, BulletSpreadIncRate, ServerBaseValue);
 }
 
-void UAS_Gun::OnRep_BulletSpreadIncPerShot(const FGameplayAttributeData& ServerBaseValue)
+void UAS_Gun::OnRep_FireBulletSpread(const FGameplayAttributeData& ServerBaseValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, BulletSpreadIncPerShot, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, FireBulletSpread, ServerBaseValue);
 }
 
 void UAS_Gun::OnRep_BulletSpreadDecSpeed(const FGameplayAttributeData& ServerBaseValue)

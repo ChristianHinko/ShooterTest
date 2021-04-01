@@ -36,13 +36,6 @@ public:
 		FGameplayAttributeData MinBulletSpread;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, MinBulletSpread)
 
-		/**
-	 * The minimum bullet spread while staying still in degrees (90 degs would be a right-angled cone)
-	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_NumberOfBulletsPerFire, Category = "Attributes")
-		FGameplayAttributeData NumberOfBulletsPerFire;
-	ATTRIBUTE_ACCESSORS(UAS_Gun, NumberOfBulletsPerFire)
-
 	/**
 	 * The minimum bullet spread while moving in degrees (90 degs would be a right-angled cone)
 	 */
@@ -83,14 +76,20 @@ public:
 
 
 
+
+	/**
+	* The number of bullets every fire will shoot out
+	*/
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_NumberOfBulletsPerFire, Category = "Attributes")
+		FGameplayAttributeData NumberOfBulletsPerFire;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, NumberOfBulletsPerFire)
+
 	/**
 	 * 
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_DamageFalloff, Category = "Attributes")
 		FGameplayAttributeData DamageFalloff;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, DamageFalloff)
-
-
 
 	/**
 	 * Minimum time that must pass before we can fire again

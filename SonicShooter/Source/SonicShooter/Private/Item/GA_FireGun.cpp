@@ -15,6 +15,7 @@
 #include "Item\Definitions\ArcItemDefinition_Active.h"
 #include "AbilitySystem/AbilityTasks/AT_Ticker.h"
 #include "AbilitySystem\AbilityTasks\AT_WaitInputReleaseCust.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -54,16 +55,16 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	}
 
 	// Spawn the Gun's target actor
-	FActorSpawnParameters TargetActorSpawnParameters;
-	TargetActorSpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	BulletTraceTargetActor = GetWorld()->SpawnActor<AGATA_BulletTrace>(GunToFire->BulletTraceTargetActorTSub, TargetActorSpawnParameters);
+	BulletTraceTargetActor = GetWorld()->SpawnActorDeferred<AGATA_BulletTrace>(GunToFire->BulletTraceTargetActorTSub, FTransform());
 	if (!BulletTraceTargetActor)
 	{
 		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid BulletTraceTargetActor in the GunStack when giving the fire ability. How the heck we supposed to fire the gun!?!?"), *FString(__FUNCTION__));
 		return;
 	}
+	BulletTraceTargetActor->OwningAbility = this;
 	BulletTraceTargetActor->bDestroyOnConfirmation = false;
+
+	UGameplayStatics::FinishSpawningActor(BulletTraceTargetActor, FTransform());
 
 
 	{
@@ -296,9 +297,6 @@ void UGA_FireGun::Fire()
 	const int16 predKey = GetCurrentActivationInfo().GetActivationPredictionKey().Current;	// Use the prediction key as a net safe random seed.
 	const int32 fireRandomSeed = predKey + fireNumber;										// Make the random seed unique to this particular fire
 	BulletTraceTargetActor->FireSpecificNetSafeRandomSeed = fireRandomSeed;							// Inject this random seed into our target actor (target actor will make random seed unique to each bullet in the fire if there are multible bullets in the fire)
-
-
-	BulletTraceTargetActor->BulletSpread = GunAttributeSet->GetCurrentBulletSpread();
 
 	// Lets finally fire
 	AmmoAttributeSet->SetClipAmmo(AmmoAttributeSet->GetClipAmmo() - GunAttributeSet->GetAmmoCost());

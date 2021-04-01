@@ -6,6 +6,8 @@
 #include "Abilities/GameplayAbility.h"
 #include "Utilities/CollisionChannels.h"
 #include "AbilitySystem/SSGameplayAbilityTargetTypes.h"
+#include "GameplayAbilities\Public\AbilitySystemComponent.h"
+#include "Item/AS_Gun.h"
 
 
 AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer)
@@ -14,6 +16,26 @@ AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer
 	TraceChannel = COLLISION_BULLET;
 	NumberOfBullets = 1;
 	BulletSpread = 0.f;
+}
+
+void AGATA_BulletTrace::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+
+	// We injected the OwningAbility using SpawnActorDeffered() so it should be valid
+	if (OwningAbility)
+	{
+		if (UAbilitySystemComponent* ASC = OwningAbility->GetAbilitySystemComponentFromActorInfo())
+		{
+			ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetCurrentBulletSpreadAttribute()).AddUObject(this, &AGATA_BulletTrace::OnBulletSpreadAttributeChanged);
+		}
+	}
+}
+
+void AGATA_BulletTrace::OnBulletSpreadAttributeChanged(const FOnAttributeChangeData& Data)
+{
+	BulletSpread = Data.NewValue;
 }
 
 void AGATA_BulletTrace::ConfirmTargetingAndContinue()
@@ -153,4 +175,25 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 
 	// Perform line trace 
 	LineTraceMulti(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, Params, bDebug);
+}
+
+
+
+
+
+
+
+
+void AGATA_BulletTrace::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	// Unbind all our listeners before destroy
+	if (OwningAbility)
+	{
+		if (UAbilitySystemComponent* ASC = OwningAbility->GetAbilitySystemComponentFromActorInfo())
+		{
+			OwningAbility->GetAbilitySystemComponentFromActorInfo()->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetCurrentBulletSpreadAttribute()).RemoveAll(this);
+		}
+	}
+
+	Super::EndPlay(EndPlayReason);
 }

@@ -17,6 +17,7 @@ void UAS_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, MinBulletSpread, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, NumberOfBulletsPerFire, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, MovingBulletSpread, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadMovingIncRate, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadIncPerShot, COND_None, REPNOTIFY_Always);
@@ -32,6 +33,7 @@ void UAS_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 
 UAS_Gun::UAS_Gun()
 	: MinBulletSpread(10.f),
+	NumberOfBulletsPerFire(1.f),
 	MovingBulletSpread(20.f),
 	BulletSpreadMovingIncRate(70.f),
 	BulletSpreadIncPerShot(50.f),
@@ -266,6 +268,11 @@ void UAS_Gun::OnStoppedFallingCMC()
 void UAS_Gun::OnRep_MinBulletSpread(const FGameplayAttributeData& ServerBaseValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, MinBulletSpread, ServerBaseValue);
+}
+
+void UAS_Gun::OnRep_NumberOfBulletsPerFire(const FGameplayAttributeData& ServerBaseValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, NumberOfBulletsPerFire, ServerBaseValue);
 }
 
 void UAS_Gun::OnRep_MovingBulletSpread(const FGameplayAttributeData& ServerBaseValue)

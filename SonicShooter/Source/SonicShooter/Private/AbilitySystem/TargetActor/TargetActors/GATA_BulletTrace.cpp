@@ -14,7 +14,7 @@ AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer
 	: Super(ObjectInitializer)
 {
 	TraceChannel = COLLISION_BULLET;
-	NumberOfBullets = 1;
+	NumberOfBulletsPerFire = 1;
 	BulletSpread = 0.f;
 }
 
@@ -29,6 +29,7 @@ void AGATA_BulletTrace::PostInitializeComponents()
 		if (UAbilitySystemComponent* ASC = OwningAbility->GetAbilitySystemComponentFromActorInfo())
 		{
 			ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetCurrentBulletSpreadAttribute()).AddUObject(this, &AGATA_BulletTrace::OnBulletSpreadAttributeChanged);
+			ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetNumberOfBulletsPerFireAttribute()).AddUObject(this, &AGATA_BulletTrace::OnNumberOfBulletsPerFireAttributeChanged);
 		}
 	}
 }
@@ -36,6 +37,10 @@ void AGATA_BulletTrace::PostInitializeComponents()
 void AGATA_BulletTrace::OnBulletSpreadAttributeChanged(const FOnAttributeChangeData& Data)
 {
 	BulletSpread = Data.NewValue;
+}
+void AGATA_BulletTrace::OnNumberOfBulletsPerFireAttributeChanged(const FOnAttributeChangeData& Data)
+{
+	NumberOfBulletsPerFire = Data.NewValue;
 }
 
 void AGATA_BulletTrace::ConfirmTargetingAndContinue()
@@ -46,7 +51,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 		FGameplayAbilityTargetDataHandle TargetDataHandle;
 
 
-		for (currentBulletNumber = 0; currentBulletNumber < NumberOfBullets; ++currentBulletNumber)
+		for (currentBulletNumber = 0; currentBulletNumber < NumberOfBulletsPerFire; ++currentBulletNumber)
 		{
 			TArray<FHitResult> ThisBulletHitResults;
 			PerformTrace(ThisBulletHitResults, SourceActor);
@@ -192,6 +197,7 @@ void AGATA_BulletTrace::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		if (UAbilitySystemComponent* ASC = OwningAbility->GetAbilitySystemComponentFromActorInfo())
 		{
 			OwningAbility->GetAbilitySystemComponentFromActorInfo()->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetCurrentBulletSpreadAttribute()).RemoveAll(this);
+			OwningAbility->GetAbilitySystemComponentFromActorInfo()->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetNumberOfBulletsPerFireAttribute()).RemoveAll(this);
 		}
 	}
 

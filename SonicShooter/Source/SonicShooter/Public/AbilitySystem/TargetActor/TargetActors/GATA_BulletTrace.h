@@ -21,14 +21,15 @@ public:
 
 	virtual void ConfirmTargetingAndContinue() override;
 
-	/** Number of line traces to perform, above 1 would be considered a shotgun */
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true, UIMin = 1), Category = "Bullet Config")
-		uint8 NumberOfBullets;
+	
 
 
 	/** Radius of cone which bullets can spread. In degrees (90 degs will make a right angle cone) */
 	float BulletSpread;
 	void OnBulletSpreadAttributeChanged(const FOnAttributeChangeData& Data);
+	/** Number of line traces to perform, above 1 would be considered a shotgun */
+	uint8 NumberOfBulletsPerFire;
+	void OnNumberOfBulletsPerFireAttributeChanged(const FOnAttributeChangeData& Data);
 
 
 	/** This is injected in every fire */

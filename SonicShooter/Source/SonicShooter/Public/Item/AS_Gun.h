@@ -36,6 +36,13 @@ public:
 		FGameplayAttributeData MinBulletSpread;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, MinBulletSpread)
 
+		/**
+	 * The minimum bullet spread while staying still in degrees (90 degs would be a right-angled cone)
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_NumberOfBulletsPerFire, Category = "Attributes")
+		FGameplayAttributeData NumberOfBulletsPerFire;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, NumberOfBulletsPerFire)
+
 	/**
 	 * The minimum bullet spread while moving in degrees (90 degs would be a right-angled cone)
 	 */
@@ -160,6 +167,9 @@ protected:
 
 	UFUNCTION()
 		virtual void OnRep_MinBulletSpread(const FGameplayAttributeData& ServerBaseValue);
+
+	UFUNCTION()
+		virtual void OnRep_NumberOfBulletsPerFire(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
 		virtual void OnRep_MovingBulletSpread(const FGameplayAttributeData& ServerBaseValue);

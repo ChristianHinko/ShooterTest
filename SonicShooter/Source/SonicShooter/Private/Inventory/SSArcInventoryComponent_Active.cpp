@@ -13,6 +13,7 @@
 #include "Item/Weapons/WeaponDefinition.h"
 #include "UI/HUD_ShooterCharacter.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
+//#include "AbilitySystem/SSAttributeSet.h"
 
 
 
@@ -210,6 +211,13 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 						}
 					}
 				}
+				
+				// TODO: get this working. I saved this for later because it may be acting weird because of another problem (items being set active a lot on startup)
+				////=@OVERRIDED CODE MARKER@= Make it run soft attribute defaults after setting hard default values
+				//if (USSAttributeSet* SSNewAttributeSet = Cast<USSAttributeSet>(NewAttributeSet))
+				//{
+				//	SSNewAttributeSet->SetSoftAttributeDefaults();
+				//}
 			}
 
 			//and then tell watchers that a new attribute set has been created

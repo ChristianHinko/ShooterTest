@@ -14,8 +14,4 @@ void UGunStack::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	DOREPLIFETIME_CONDITION(UGunStack, BulletTraceTargetActorTSub, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(UGunStack, BulletHitEffectTSub, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(UGunStack, FiringMode, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(UGunStack, FireRate, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(UGunStack, NumBursts, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(UGunStack, AutoShootingRate, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(UGunStack, AmmoCost, COND_OwnerOnly);
 }

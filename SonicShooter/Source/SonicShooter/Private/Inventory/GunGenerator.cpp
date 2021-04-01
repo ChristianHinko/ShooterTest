@@ -11,10 +11,6 @@ UGunGenerator::UGunGenerator(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	DefaultFiringMode = EGunFireMode::MODE_SemiAuto;
-	DefaultFireRate = 1.f;
-	DefaultNumBursts = 3;
-	DefaultAutoShootingRate = 1.f;
-	DefaultAmmoCost = 1.f;
 }
 
 
@@ -28,10 +24,6 @@ UArcItemStack* UGunGenerator::GenerateItemStack_Implementation(const FArcItemGen
 		NewGunStack->BulletTraceTargetActorTSub						= DefaultBulletTraceTargetActorTSub;
 		NewGunStack->BulletHitEffectTSub							= DefaultBulletHitEffectTSub;
 		NewGunStack->FiringMode										= DefaultFiringMode;
-		NewGunStack->FireRate										= DefaultFireRate;
-		NewGunStack->NumBursts										= DefaultNumBursts;
-		NewGunStack->AutoShootingRate								= DefaultAutoShootingRate;
-		NewGunStack->AmmoCost										= DefaultAmmoCost;
 	}
 
 

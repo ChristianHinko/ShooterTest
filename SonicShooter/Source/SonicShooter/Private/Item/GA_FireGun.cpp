@@ -140,7 +140,7 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 	}
 
 	// If we're firing too fast
-	if (GetWorld()->GetTimeSeconds() - timestampPreviousFireEnd < GunToFire->FireRate)
+	if (GetWorld()->GetTimeSeconds() - timestampPreviousFireEnd < GunAttributeSet->GetFireRate())
 	{
 		//UE_LOG(LogGameplayAbility, Log, TEXT("%s() Tried firing gun faster than the gun's FireRate allowed. returned false"), *FString(__FUNCTION__));
 		return false;
@@ -159,7 +159,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	UAT_Ticker* TickerTask = nullptr;
 	if (GunToFire->FiringMode != EGunFireMode::MODE_SemiAuto)
 	{
-		TickerTask = UAT_Ticker::Ticker(this, false, -1.f, 1 / GunToFire->AutoShootingRate);
+		TickerTask = UAT_Ticker::Ticker(this, false, -1.f, 1 / GunAttributeSet->GetAutoShootingRate());
 		if (!TickerTask)
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() TickerTask was NULL when trying to activate fire ability. Called EndAbility()"), *FString(__FUNCTION__));
@@ -246,7 +246,7 @@ void UGA_FireGun::OnFullAutoTick(float DeltaTime, float CurrentTime, float TimeR
 	// Burst logic
 	if (GunToFire->FiringMode == EGunFireMode::MODE_Burst)
 	{
-		const int32 TimesToBurst = GunToFire->NumBursts;
+		const int32 TimesToBurst = GunAttributeSet->GetNumBursts();
 		if (TimesToBurst > 0 && timesBursted < TimesToBurst)
 		{
 			Fire();
@@ -264,7 +264,7 @@ void UGA_FireGun::Fire()
 {
 	++fireNumber;
 	// Check if we have enough ammo first
-	if (AmmoAttributeSet->GetClipAmmo() < GunToFire->AmmoCost) // if we don't have enough ammo
+	if (AmmoAttributeSet->GetClipAmmo() < GunAttributeSet->GetAmmoCost()) // if we don't have enough ammo
 	{
 		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Not enough ammo to fire"), *FString(__FUNCTION__));
 
@@ -299,9 +299,9 @@ void UGA_FireGun::Fire()
 	BulletTraceTargetActor->FireSpecificNetSafeRandomSeed = fireRandomSeed;							// Inject this random seed into our target actor (target actor will make random seed unique to each bullet in the fire if there are multible bullets in the fire)
 
 	// Lets finally fire
-	AmmoAttributeSet->SetClipAmmo(AmmoAttributeSet->GetClipAmmo() - GunToFire->AmmoCost);
+	AmmoAttributeSet->SetClipAmmo(AmmoAttributeSet->GetClipAmmo() - GunAttributeSet->GetAmmoCost());
 	WaitTargetDataActorTask->ReadyForActivation();
-	GunAttributeSet->IncCurrentBulletSpread();
+	GunAttributeSet->FireBulletSpread();
 }
 
 

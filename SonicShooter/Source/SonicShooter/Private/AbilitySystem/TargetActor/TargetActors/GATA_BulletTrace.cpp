@@ -26,8 +26,13 @@ void AGATA_BulletTrace::PostInitializeComponents()
 	{
 		if (UAbilitySystemComponent* ASC = OwningAbility->GetAbilitySystemComponentFromActorInfo())
 		{
+			// Bind to attribte changes
 			ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetCurrentBulletSpreadAttribute()).AddUObject(this, &AGATA_BulletTrace::OnBulletSpreadAttributeChanged);
 			ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetNumberOfBulletsPerFireAttribute()).AddUObject(this, &AGATA_BulletTrace::OnNumberOfBulletsPerFireAttributeChanged);
+
+			// Set defaults
+			BulletSpread = ASC->GetNumericAttribute(UAS_Gun::GetCurrentBulletSpreadAttribute());
+			NumberOfBulletsPerFire = ASC->GetNumericAttribute(UAS_Gun::GetNumberOfBulletsPerFireAttribute());
 		}
 	}
 }

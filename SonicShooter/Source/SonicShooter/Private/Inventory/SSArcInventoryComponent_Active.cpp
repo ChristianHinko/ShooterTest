@@ -92,7 +92,7 @@ bool USSArcInventoryComponent_Active::MakeItemActive_Internal(const FArcInventor
 
 
 		// Add crosshair widget
-		if (APlayerController* OwningPC = Cast<APlayerController>(Cast<APawn>(GetOwner())->GetController()))
+		if (APlayerController* OwningPC = Cast<APlayerController>(GetTypedOuter<APawn>()->GetController()))
 		{
 			if (OwningPC->IsLocalController())
 			{
@@ -124,7 +124,7 @@ bool USSArcInventoryComponent_Active::MakeItemInactive_Internal(const FArcInvent
 	if (bSuccess)
 	{
 		// Remove crosshair widget
-		if (APlayerController* OwningPC = Cast<APlayerController>(Cast<APawn>(GetOwner())->GetController()))
+		if (APlayerController* OwningPC = Cast<APlayerController>(GetTypedOuter<APawn>()->GetController()))
 		{
 			if (OwningPC->IsLocalController())
 			{

@@ -14,8 +14,6 @@ AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer
 	: Super(ObjectInitializer)
 {
 	TraceChannel = COLLISION_BULLET;
-	NumberOfBulletsPerFire = 1;
-	BulletSpread = 0.f;
 }
 
 void AGATA_BulletTrace::PostInitializeComponents()

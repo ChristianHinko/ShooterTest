@@ -168,9 +168,6 @@ protected:
 		virtual void OnRep_MinBulletSpread(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
-		virtual void OnRep_NumberOfBulletsPerFire(const FGameplayAttributeData& ServerBaseValue);
-
-	UFUNCTION()
 		virtual void OnRep_MovingBulletSpread(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
@@ -183,6 +180,9 @@ protected:
 		virtual void OnRep_BulletSpreadDecSpeed(const FGameplayAttributeData& ServerBaseValue);
 
 
+
+	UFUNCTION()
+		virtual void OnRep_NumberOfBulletsPerFire(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
 		virtual void OnRep_DamageFalloff(const FGameplayAttributeData& ServerBaseValue);

@@ -11,7 +11,7 @@ ASSHUD::ASSHUD()
 }
 
 
-//Our owner (PlayerController) becomes valid after Super call
+// Our owner (PlayerController) becomes valid after Super call
 void ASSHUD::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();

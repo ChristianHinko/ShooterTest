@@ -104,6 +104,10 @@ protected:
 	virtual void SetSoftAttributeDefaults() override;
 
 
+	void OnActorInfoInited();
+
+	void UpdateFromActorInfo();
+
 	USSArcInventoryComponent_Active* Inventory;
 	UFUNCTION()
 		void OnInventoryItemActive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);

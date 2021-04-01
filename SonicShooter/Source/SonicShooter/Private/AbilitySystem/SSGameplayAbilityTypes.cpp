@@ -42,6 +42,9 @@ void FSSGameplayAbilityActorInfo::InitFromActor(AActor* InOwnerActor, AActor* In
     //    InventoryComponent = ShooterCharacter->GetInventoryComponent();
     //}
     InventoryComponent = Cast<USSArcInventoryComponent_Active>(InAvatarActor->GetComponentByClass(USSArcInventoryComponent_Active::StaticClass()));
+
+
+    OnInited.Broadcast();
 }
 
 void FSSGameplayAbilityActorInfo::SetAvatarActor(AActor* InAvatarActor)

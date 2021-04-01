@@ -34,6 +34,8 @@ void ASSPlayerController::InitPlayerState()
 	
 	SSPlayerState = Cast<ASSPlayerState>(PlayerState);
 	// This is where you would get any information you need from your PlayerState on the server
+
+	OnPlayerStateValid.Broadcast();
 }
 
 void ASSPlayerController::OnRep_PlayerState()
@@ -44,7 +46,7 @@ void ASSPlayerController::OnRep_PlayerState()
 	SSPlayerState = Cast<ASSPlayerState>(PlayerState);
 	// This is where you would get any information you need from your PlayerState on the client
 
-
+	OnPlayerStateValid.Broadcast();
 }
 
 void ASSPlayerController::OnPossess(APawn* P)

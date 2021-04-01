@@ -63,7 +63,37 @@ void UAS_Gun::PostInitProperties()
 	//---------------------------------------- safe "BeginPlay" logic here ------------------------
 
 
-	// TODO: this doesnt work on the client for the first weapon (i think its using the AI ASC when he hits this or something)
+
+	if (FSSGameplayAbilityActorInfo* SSActorInfo = static_cast<FSSGameplayAbilityActorInfo*>(GetActorInfo()))
+	{
+		SSActorInfo->OnInited.AddUObject(this, &UAS_Gun::OnActorInfoInited);
+	}
+
+	UpdateFromActorInfo();
+}
+
+void UAS_Gun::OnActorInfoInited()
+{
+	UpdateFromActorInfo();
+}
+
+void UAS_Gun::UpdateFromActorInfo()
+{
+	if (Inventory)
+	{
+		Inventory->OnItemActive.RemoveAll(this);
+		Inventory->OnItemInactive.RemoveAll(this);
+	}
+	if (CMC)
+	{
+		CMC->OnAccelerationStart.RemoveAll(this);
+		CMC->OnAccelerationStop.RemoveAll(this);
+
+		CMC->OnStartedFalling.RemoveAll(this);
+		CMC->OnStoppedFalling.RemoveAll(this);
+	}
+
+
 	if (const FSSGameplayAbilityActorInfo* const SSActorInfo = static_cast<const FSSGameplayAbilityActorInfo* const>(GetActorInfo()))
 	{
 		Inventory = SSActorInfo->GetInventoryComponent();

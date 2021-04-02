@@ -36,6 +36,10 @@ public:
 	int16 FireSpecificNetSafeRandomSeed;
 
 protected:
+#if WITH_EDITOR
+	virtual bool CanEditChange(const FProperty* InProperty) const override;
+#endif //WITH_EDITOR
+
 	// This override signifies performing a trace for a ricochetable bullet (but it also might not richochet based on how this GATA is configed). The OutHitResults are the hit results from 1 bullet ricocheting off walls and hitting player(s)
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) override;
 

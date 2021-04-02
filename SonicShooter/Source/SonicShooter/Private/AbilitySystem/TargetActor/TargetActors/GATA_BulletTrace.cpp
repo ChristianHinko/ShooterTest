@@ -10,11 +10,31 @@
 #include "Item/AS_Gun.h"
 
 
+
 AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	TraceChannel = COLLISION_BULLET;
 }
+
+#if WITH_EDITOR
+bool AGATA_BulletTrace::CanEditChange(const FProperty* InProperty) const
+{
+	FName PropertyName = InProperty->GetFName();
+
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(AGATA_BulletTrace, Ricochets))
+	{
+		return false;
+	}
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(AGATA_BulletTrace, MaxRange))
+	{
+		return false;
+	}
+
+
+	return true;
+}
+#endif //WITH_EDITOR
 
 void AGATA_BulletTrace::PostInitializeComponents()
 {

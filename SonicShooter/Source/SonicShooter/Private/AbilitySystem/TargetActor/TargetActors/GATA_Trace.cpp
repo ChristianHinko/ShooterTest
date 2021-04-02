@@ -210,15 +210,15 @@ bool AGATA_Trace::ClipCameraRayToAbilityRange(FVector CameraLocation, FVector Ca
 	return false;
 }
 
-void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams Params, const bool inDebug) const
+void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, int32 ricochets, const FCollisionQueryParams Params, const bool inDebug) const
 {
 	check(World);
 
 	World->LineTraceMultiByChannel(OutHitResults, Start, End, TraceChannel, Params);
 
-	// Ricochets
+	// ricochets
 	uint8 r = 0; // outside for bDebug to use maybe try to change this idk
-	for (r; r < Ricochets; ++r)
+	for (r; r < ricochets; ++r)
 	{
 		if (OutHitResults.Num() <= 0)
 		{
@@ -288,7 +288,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 			{
 				DrawDebugLine(World, DebugHitResults.Last().Location, DebugHitResults.Last().TraceEnd, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
 			}
-			else if (Ricochets - r > 0)
+			else if (ricochets - r > 0)
 			{
 				const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(DebugHitResults.Last().TraceStart, DebugHitResults.Last().TraceEnd);
 				const FVector MirroredDir = TracedDir.MirrorByVector(DebugHitResults.Last().ImpactNormal);
@@ -307,15 +307,15 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 #endif // ENABLE_DRAW_DEBUG
 }
 
-void AGATA_Trace::SweepMulti(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug) const
+void AGATA_Trace::SweepMulti(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, int32 ricochets, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug) const
 {
 	check(World);
 
 	World->SweepMultiByChannel(OutHitResults, Start, End, Rotation, TraceChannel, CollisionShape, Params);
 
-	// Ricochets
+	// ricochets
 	uint8 r = 0; // outside for bDebug to use maybe try to change this idk
-	for (r; r < Ricochets; ++r)
+	for (r; r < ricochets; ++r)
 	{
 		if (OutHitResults.Num() <= 0)
 		{
@@ -385,7 +385,7 @@ void AGATA_Trace::SweepMulti(TArray<FHitResult>& OutHitResults, const UWorld* Wo
 			{
 				DrawDebugLine(World, DebugHitResults.Last().Location, DebugHitResults.Last().TraceEnd, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
 			}
-			else if (Ricochets - r > 0)
+			else if (ricochets - r > 0)
 			{
 				const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(DebugHitResults.Last().TraceStart, DebugHitResults.Last().TraceEnd);
 				const FVector MirroredDir = TracedDir.MirrorByVector(DebugHitResults.Last().ImpactNormal);

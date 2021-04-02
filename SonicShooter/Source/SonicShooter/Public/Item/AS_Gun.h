@@ -103,7 +103,7 @@ public:
 	ATTRIBUTE_ACCESSORS(UAS_Gun, MaxRange)
 
 	/**
-	*
+	* Number of times the trace can ricochet off of blocking hits - Zero for no ricochet
 	*/
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Ricochets, Category = "Attributes")
 		FGameplayAttributeData Ricochets;

@@ -23,10 +23,6 @@ bool AGATA_BulletTrace::CanEditChange(const FProperty* InProperty) const
 {
 	FName PropertyName = InProperty->GetFName();
 
-	if (PropertyName == GET_MEMBER_NAME_CHECKED(AGATA_BulletTrace, Ricochets))
-	{
-		return false;
-	}
 	if (PropertyName == GET_MEMBER_NAME_CHECKED(AGATA_BulletTrace, MaxRange))
 	{
 		return false;
@@ -40,7 +36,8 @@ bool AGATA_BulletTrace::CanEditChange(const FProperty* InProperty) const
 void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 {
 	check(ShouldProduceTargetData());
-	if (SourceActor && GunAttributeSet)
+	check(GunAttributeSet);
+	if (SourceActor)
 	{
 		FGameplayAbilityTargetDataHandle TargetDataHandle;
 
@@ -136,6 +133,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor)
 {
+	check(GunAttributeSet);
 	OutHitResults.Empty();
 
 
@@ -174,8 +172,8 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 	// Calculate the end of the trace based off aim dir and max range
 	const FVector TraceEnd = TraceStart + (AimDir * MaxRange);
 
-	// Perform line trace 
-	LineTraceMulti(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, Params, bDebug);
+	// Perform line trace
+	LineTraceMulti(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, GunAttributeSet->GetRicochets(), Params, bDebug);
 }
 
 

@@ -130,7 +130,7 @@ public:
 	float GetRestBulletSpread() const;
 
 	void ApplyFireBulletSpread();
-
+	 
 
 protected:
 	virtual void PostInitProperties() override;

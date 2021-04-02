@@ -44,12 +44,18 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
 		float MaxRange;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
-		TEnumAsByte<ECollisionChannel> TraceChannel;
-
 	/** Number of times the trace can ricochet off of blocking hits - Zero for no ricochet */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
 		uint8 Ricochets;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
+		TEnumAsByte<ECollisionChannel> TraceChannel;
+
+
+
+
+
+
 
 	/** Does the trace affect the aiming pitch */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")

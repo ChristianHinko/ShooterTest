@@ -23,6 +23,8 @@ void UAS_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadDecSpeed, COND_None, REPNOTIFY_Always);
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, NumberOfBulletsPerFire, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, MaxRange, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, Ricochets, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, DamageFalloff, COND_None, REPNOTIFY_Always);
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, FireRate, COND_None, REPNOTIFY_Always);
@@ -39,6 +41,8 @@ UAS_Gun::UAS_Gun()
 	BulletSpreadDecSpeed(15.f),
 
 	NumberOfBulletsPerFire(1.f),
+	MaxRange(100000.f),
+	Ricochets(1),
 	DamageFalloff(.5f),
 
 	FireRate(1.f),
@@ -295,6 +299,16 @@ void UAS_Gun::OnRep_BulletSpreadDecSpeed(const FGameplayAttributeData& ServerBas
 void UAS_Gun::OnRep_NumberOfBulletsPerFire(const FGameplayAttributeData& ServerBaseValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, NumberOfBulletsPerFire, ServerBaseValue);
+}
+
+void UAS_Gun::OnRep_MaxRange(const FGameplayAttributeData& ServerBaseValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, MaxRange, ServerBaseValue);
+}
+
+void UAS_Gun::OnRep_Ricochets(const FGameplayAttributeData& ServerBaseValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, Ricochets, ServerBaseValue);
 }
 
 void UAS_Gun::OnRep_DamageFalloff(const FGameplayAttributeData& ServerBaseValue)

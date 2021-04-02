@@ -18,6 +18,7 @@ AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer
 }
 
 #if WITH_EDITOR
+// We don't want to expose any gun related properties to BP if there is one since we are just going to be reading the values from our gun AS
 bool AGATA_BulletTrace::CanEditChange(const FProperty* InProperty) const
 {
 	FName PropertyName = InProperty->GetFName();
@@ -36,45 +37,16 @@ bool AGATA_BulletTrace::CanEditChange(const FProperty* InProperty) const
 }
 #endif //WITH_EDITOR
 
-void AGATA_BulletTrace::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-
-
-	// We injected the OwningAbility using SpawnActorDeffered() so it should be valid
-	if (OwningAbility)
-	{
-		if (UAbilitySystemComponent* ASC = OwningAbility->GetAbilitySystemComponentFromActorInfo())
-		{
-			// Bind to attribte changes
-			ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetCurrentBulletSpreadAttribute()).AddUObject(this, &AGATA_BulletTrace::OnBulletSpreadAttributeChanged);
-			ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetNumberOfBulletsPerFireAttribute()).AddUObject(this, &AGATA_BulletTrace::OnNumberOfBulletsPerFireAttributeChanged);
-
-			// Set defaults
-			BulletSpread = ASC->GetNumericAttribute(UAS_Gun::GetCurrentBulletSpreadAttribute());
-			NumberOfBulletsPerFire = ASC->GetNumericAttribute(UAS_Gun::GetNumberOfBulletsPerFireAttribute());
-		}
-	}
-}
-
-void AGATA_BulletTrace::OnBulletSpreadAttributeChanged(const FOnAttributeChangeData& Data)
-{
-	BulletSpread = Data.NewValue;
-}
-void AGATA_BulletTrace::OnNumberOfBulletsPerFireAttributeChanged(const FOnAttributeChangeData& Data)
-{
-	NumberOfBulletsPerFire = Data.NewValue;
-}
-
 void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 {
 	check(ShouldProduceTargetData());
-	if (SourceActor)
+	if (SourceActor && GunAttributeSet)
 	{
 		FGameplayAbilityTargetDataHandle TargetDataHandle;
 
 
-		for (currentBulletNumber = 0; currentBulletNumber < NumberOfBulletsPerFire; ++currentBulletNumber)
+		float numberOfBulletsToFire = GunAttributeSet->GetNumberOfBulletsPerFire();
+		for (currentBulletNumber = 0; currentBulletNumber < numberOfBulletsToFire; ++currentBulletNumber)
 		{
 			TArray<FHitResult> ThisBulletHitResults;
 			PerformTrace(ThisBulletHitResults, SourceActor);
@@ -186,7 +158,8 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 	DirWithPlayerController(InSourceActor, Params, TraceStart, AimDir);		//Effective on server and launching client only
 
 	// Calculate new AimDir with random bullet spread offset if needed
-	if (BulletSpread > SMALL_NUMBER)
+	float currentBulletSpread = GunAttributeSet->GetCurrentBulletSpread();
+	if (currentBulletSpread > SMALL_NUMBER)
 	{
 		// Our injected random seed is only unique to each fire. We need a random seed that is also unique to each bullet in the fire, so we will do this by using t
 		const int32 fireAndBulletSpecificNetSafeRandomSeed = FireSpecificNetSafeRandomSeed - ((currentBulletNumber + 2) * FireSpecificNetSafeRandomSeed);	// Here, the 'number' multiplied to t makes the random pattern noticable after firing 'number' of times. I use the prediction key as that 'number' which i think eliminates the threshold for noticeability entirely. - its confusing to think about but i think it works
@@ -194,7 +167,7 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 		const FRandomStream RandomStream = FRandomStream(FMath::Rand());
 
 		// Add random offset to AimDir using randomStream
-		const float coneHalfAngleRadius = FMath::DegreesToRadians(BulletSpread * 0.5f);
+		const float coneHalfAngleRadius = FMath::DegreesToRadians(currentBulletSpread * 0.5f);
 		AimDir = RandomStream.VRandCone(AimDir, coneHalfAngleRadius);
 	}
 

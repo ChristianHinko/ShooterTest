@@ -164,6 +164,8 @@ float UAS_Gun::GetRestBulletSpread() const
 void UAS_Gun::ApplyFireBulletSpread()
 {
 	SetCurrentBulletSpread(GetCurrentBulletSpread() + GetFireBulletSpread());
+
+	GetOwningAbilitySystemComponent()->UpdateShouldTick();
 }
 
 bool UAS_Gun::IsMovingToIncBulletSpread() const
@@ -190,7 +192,7 @@ bool UAS_Gun::IsMovingToIncBulletSpread() const
 
 void UAS_Gun::Tick(float DeltaTime)
 {
-	//UKismetSystemLibrary::PrintString(this, "UAS_Gun::Tick()", true, false);
+	UKismetSystemLibrary::PrintString(this, "UAS_Gun::Tick()", true, false);
 	if (IsMovingToIncBulletSpread())
 	{
 		if (GetCurrentBulletSpread() < GetMovingBulletSpread())

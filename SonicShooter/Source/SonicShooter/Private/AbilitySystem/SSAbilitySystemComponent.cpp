@@ -119,7 +119,7 @@ void USSAbilitySystemComponent::TargetConfirmByAbility(UGameplayAbility* Ability
 			{
 				if (TargetActor->OwningAbility == AbilityToConfirmTargetOn)						// <-- our added if statement
 				{
-					//TODO: There might not be any cases where this bool is false
+					// There might not be any cases where this bool is false
 					if (!TargetActor->bDestroyOnConfirmation)
 					{
 						SpawnedTargetActors.Add(TargetActor);

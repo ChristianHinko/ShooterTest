@@ -164,6 +164,8 @@ float UAS_Gun::GetRestBulletSpread() const
 void UAS_Gun::ApplyFireBulletSpread()
 {
 	SetCurrentBulletSpread(GetCurrentBulletSpread() + GetFireBulletSpread());
+
+	GetOwningAbilitySystemComponent()->UpdateShouldTick();
 }
 
 bool UAS_Gun::IsMovingToIncBulletSpread() const

@@ -192,7 +192,7 @@ bool UAS_Gun::IsMovingToIncBulletSpread() const
 
 void UAS_Gun::Tick(float DeltaTime)
 {
-	UKismetSystemLibrary::PrintString(this, "UAS_Gun::Tick()", true, false);
+	//UKismetSystemLibrary::PrintString(this, "UAS_Gun::Tick()", true, false);
 	if (IsMovingToIncBulletSpread())
 	{
 		if (GetCurrentBulletSpread() < GetMovingBulletSpread())

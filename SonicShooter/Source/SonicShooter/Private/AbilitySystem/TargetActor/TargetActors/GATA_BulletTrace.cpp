@@ -18,6 +18,7 @@ AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer
 }
 
 #if WITH_EDITOR
+// We don't want to expose any gun related properties to BP if there is one since we are just going to be reading the values from our gun AS
 bool AGATA_BulletTrace::CanEditChange(const FProperty* InProperty) const
 {
 	FName PropertyName = InProperty->GetFName();

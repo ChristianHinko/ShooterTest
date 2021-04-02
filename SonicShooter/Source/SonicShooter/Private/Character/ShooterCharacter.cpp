@@ -110,7 +110,7 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 
 	if (GetHealthAttributeSet())
 	{
-		UKismetSystemLibrary::PrintString(this, FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
+		//UKismetSystemLibrary::PrintString(this, FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
 	}
 
 	//for (int32 i = 0; i < SSInventoryComponentActive->ActiveItemHistory.Num(); ++i)
@@ -126,30 +126,30 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 		//UKismetSystemLibrary::PrintString(this, "Pending Item Slot: " + FString::FromInt(SSInventoryComponentActive->PendingItemSlot), true, false);
 	}
 
-	if (GetAbilitySystemComponent())
-	{
-		for (UAttributeSet* AttributeSet : GetAbilitySystemComponent()->GetSpawnedAttributes())
-		{
-			if (UAS_Ammo* AmmoAttributeSet = Cast<UAS_Ammo>(AttributeSet))
-			{
-				UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetBackupAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetBackupAmmo()), true, false);
-				UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetClipAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetClipAmmo()), true, false);
-			}
-		}
+	//if (GetAbilitySystemComponent())
+	//{
+	//	for (UAttributeSet* AttributeSet : GetAbilitySystemComponent()->GetSpawnedAttributes())
+	//	{
+	//		if (UAS_Ammo* AmmoAttributeSet = Cast<UAS_Ammo>(AttributeSet))
+	//		{
+	//			UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetBackupAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetBackupAmmo()), true, false);
+	//			UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetClipAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetClipAmmo()), true, false);
+	//		}
+	//	}
 
-	}
+	//}
 
 	//	Item history debug
-	//UKismetSystemLibrary::PrintString(this, "------------", true, false);
-	//if (SSInventoryComponentActive)
-	//{
-	//	for (FArcInventoryItemSlotReference slotRef : SSInventoryComponentActive->ActiveItemHistory)
-	//	{
-	//		UKismetSystemLibrary::PrintString(this, UArcItemBPFunctionLibrary::GetItemFromSlot(slotRef)->GetItemDefinition().GetDefaultObject()->GetFName().ToString(), true, false);
+	UKismetSystemLibrary::PrintString(this, "------------", true, false);
+	if (SSInventoryComponentActive)
+	{
+		for (FArcInventoryItemSlotReference slotRef : SSInventoryComponentActive->ActiveItemHistory)
+		{
+			UKismetSystemLibrary::PrintString(this, UArcItemBPFunctionLibrary::GetItemFromSlot(slotRef)->GetItemDefinition().GetDefaultObject()->GetFName().ToString(), true, false);
 
-	//	}
-	//}
-	//UKismetSystemLibrary::PrintString(this, "-----------", true, false);
+		}
+	}
+	UKismetSystemLibrary::PrintString(this, "-----------", true, false);
 
 
 	

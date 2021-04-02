@@ -204,7 +204,14 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	switch (GunToFire->FiringMode)
 	{
 	case EGunFireMode::MODE_SemiAuto:
+
 		Fire();
+		if (bIsActive)
+		{
+			EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
+		}
+		return;
+
 		break;
 
 	case EGunFireMode::MODE_Burst:
@@ -228,6 +235,13 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	default:
 		break;
 	}
+
+	// If we ended ability within the above functions, return here
+	if (bIsActive == false)
+	{
+		return;
+	}
+
 
 }
 

@@ -51,6 +51,12 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
 		uint8 Ricochets;
 
+
+
+
+
+
+
 	/** Does the trace affect the aiming pitch */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
 		bool bTraceAffectsAimPitch;

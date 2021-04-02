@@ -28,7 +28,7 @@ public:
 
 
 	// Attributes:
-
+#pragma region BulletSpread
 	/**
 	 * The minimum bullet spread while staying still in degrees (90 degs would be a right-angled cone)
 	 */
@@ -36,43 +36,54 @@ public:
 		FGameplayAttributeData MinBulletSpread;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, MinBulletSpread)
 
-	/**
-	 * The minimum bullet spread while moving in degrees (90 degs would be a right-angled cone)
-	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MovingBulletSpread, Category = "Attributes")
+		/**
+		 * The minimum bullet spread while moving in degrees (90 degs would be a right-angled cone)
+		 */
+		UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MovingBulletSpread, Category = "Attributes")
 		FGameplayAttributeData MovingBulletSpread;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, MovingBulletSpread)
 
-	/**
-	 * The rate of increase in bullet spread in degrees per second. Will be continuously increasing spread by
-	 * this rate while moving until we've reached MovingBulletSpread
-	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadIncRate, Category = "Attributes")
+		/**
+		 * The rate of increase in bullet spread in degrees per second. Will be continuously increasing spread by
+		 * this rate while moving until we've reached MovingBulletSpread
+		 */
+		UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadIncRate, Category = "Attributes")
 		FGameplayAttributeData BulletSpreadIncRate;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, BulletSpreadIncRate)
 
-	/**
-	 * The increase in bullet spread per shot in degrees
-	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_FireBulletSpread, Category = "Attributes")
+		/**
+		 * The increase in bullet spread per shot in degrees
+		 */
+		UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_FireBulletSpread, Category = "Attributes")
 		FGameplayAttributeData FireBulletSpread;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, FireBulletSpread)
 
-	/**
-	 * The speed of decrease in bullet spread to smooth interp to. Will be continuously interping spread at
-	 * this speed until reached minimum spread (or moving spread if we are moving)
-	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadDecSpeed, Category = "Attributes")
+		/**
+		 * The speed of decrease in bullet spread to smooth interp to. Will be continuously interping spread at
+		 * this speed until reached minimum spread (or moving spread if we are moving)
+		 */
+		UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadDecSpeed, Category = "Attributes")
 		FGameplayAttributeData BulletSpreadDecSpeed;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, BulletSpreadDecSpeed)
 
 
-	/**
-	 * Current bullet spread. Non-replicated because set every frame
-	 */
-	UPROPERTY(BlueprintReadOnly/*, ReplicatedUsing = OnRep_CurrentBulletSpread*/, Category = "Attributes", meta = (HideFromModifiers))
+		/**
+		 * Current bullet spread. Non-replicated because set every frame
+		 */
+		UPROPERTY(BlueprintReadOnly/*, ReplicatedUsing = OnRep_CurrentBulletSpread*/, Category = "Attributes", meta = (HideFromModifiers))
 		FGameplayAttributeData CurrentBulletSpread;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, CurrentBulletSpread)
+#pragma endregion
+
+	
+
+
+
+
+
+
+
+
 
 
 
@@ -83,6 +94,20 @@ public:
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_NumberOfBulletsPerFire, Category = "Attributes")
 		FGameplayAttributeData NumberOfBulletsPerFire;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, NumberOfBulletsPerFire)
+
+	/**
+	*
+	*/
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxRange, Category = "Attributes")
+		FGameplayAttributeData MaxRange;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, MaxRange)
+
+	/**
+	*
+	*/
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Ricochets, Category = "Attributes")
+		FGameplayAttributeData Ricochets;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, Ricochets)
 
 	/**
 	 * 
@@ -185,6 +210,12 @@ protected:
 
 	UFUNCTION()
 		virtual void OnRep_NumberOfBulletsPerFire(const FGameplayAttributeData& ServerBaseValue);
+
+	UFUNCTION()
+		virtual void OnRep_MaxRange(const FGameplayAttributeData& ServerBaseValue);
+
+	UFUNCTION()
+		virtual void OnRep_Ricochets(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
 		virtual void OnRep_DamageFalloff(const FGameplayAttributeData& ServerBaseValue);

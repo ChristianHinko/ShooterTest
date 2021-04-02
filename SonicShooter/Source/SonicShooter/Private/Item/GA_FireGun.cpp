@@ -80,7 +80,7 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	}
 
 
-	// Spawn the Gun's target actor
+	// Inject the data our target actor needs and spawn it 
 	BulletTraceTargetActor = GetWorld()->SpawnActorDeferred<AGATA_BulletTrace>(GunToFire->BulletTraceTargetActorTSub, FTransform());
 	if (!BulletTraceTargetActor)
 	{

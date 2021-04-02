@@ -7,6 +7,9 @@
 
 #include "GATA_BulletTrace.generated.h"
 
+
+class UAS_Gun;
+
 /**
  * 
  */
@@ -17,21 +20,12 @@ class SONICSHOOTER_API AGATA_BulletTrace : public AGATA_Trace
 
 public:
 	AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer);
-	virtual void PostInitializeComponents() override;
 
 	virtual void ConfirmTargetingAndContinue() override;
 
-	
 
-
-	/** Radius of cone which bullets can spread. In degrees (90 degs will make a right angle cone) */
-	float BulletSpread;
-	void OnBulletSpreadAttributeChanged(const FOnAttributeChangeData& Data);
-	/** Number of line traces to perform, above 1 would be considered a shotgun */
-	uint8 NumberOfBulletsPerFire;
-	void OnNumberOfBulletsPerFireAttributeChanged(const FOnAttributeChangeData& Data);
-
-
+	UPROPERTY()
+		UAS_Gun* GunAttributeSet;
 	/** This is injected in every fire */
 	int16 FireSpecificNetSafeRandomSeed;
 

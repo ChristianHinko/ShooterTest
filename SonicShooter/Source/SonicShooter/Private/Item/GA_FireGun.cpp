@@ -54,19 +54,6 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 		return;
 	}
 
-	// Spawn the Gun's target actor
-	BulletTraceTargetActor = GetWorld()->SpawnActorDeferred<AGATA_BulletTrace>(GunToFire->BulletTraceTargetActorTSub, FTransform());
-	if (!BulletTraceTargetActor)
-	{
-		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid BulletTraceTargetActor in the GunStack when giving the fire ability. How the heck we supposed to fire the gun!?!?"), *FString(__FUNCTION__));
-		return;
-	}
-	BulletTraceTargetActor->OwningAbility = this;
-	BulletTraceTargetActor->bDestroyOnConfirmation = false;
-
-	UGameplayStatics::FinishSpawningActor(BulletTraceTargetActor, FTransform());
-
-
 	{
 		bool bFoundGunAS = false;
 		bool bFoundAmmoAS = false;
@@ -91,6 +78,20 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 			}
 		}
 	}
+
+
+	// Spawn the Gun's target actor
+	BulletTraceTargetActor = GetWorld()->SpawnActorDeferred<AGATA_BulletTrace>(GunToFire->BulletTraceTargetActorTSub, FTransform());
+	if (!BulletTraceTargetActor)
+	{
+		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid BulletTraceTargetActor in the GunStack when giving the fire ability. How the heck we supposed to fire the gun!?!?"), *FString(__FUNCTION__));
+		return;
+	}
+	BulletTraceTargetActor->OwningAbility = this;
+	BulletTraceTargetActor->bDestroyOnConfirmation = false;
+	BulletTraceTargetActor->GunAttributeSet = GunAttributeSet;
+
+	UGameplayStatics::FinishSpawningActor(BulletTraceTargetActor, FTransform());
 }
 
 // This ability is only granted to the player while his Gun is active

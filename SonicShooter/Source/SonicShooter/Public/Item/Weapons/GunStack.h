@@ -4,20 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "ArcItemStack.h"
+
 #include "GunStack.generated.h"
 
 
 class AGATA_BulletTrace;
 
 
-
-UENUM()
-enum class EGunFireMode : uint8
-{
-	MODE_SemiAuto									UMETA(DisplayName = "Semi-auto"),
-	MODE_FullAuto									UMETA(DisplayName = "Full-auto"),
-	MODE_Burst										UMETA(DisplayName = "Burst")
-};
 
 /**
  * 
@@ -42,10 +35,11 @@ public:
 
 
 	/**
-	 * Firing mode
+	 * If true, just hold down to fire gun - no need to keep clicking. This applies to burst guns aswell.
+	 * TODO: make this a tag instead
 	 */
 	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Gun Firing")
-		EGunFireMode FiringMode;
+		uint8 bFullAuto : 1;
 
 protected:
 	//UWeaponDefinition* WeaponDefinition;

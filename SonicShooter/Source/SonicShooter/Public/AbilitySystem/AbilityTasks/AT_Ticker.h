@@ -40,11 +40,12 @@ public:
 
 	void RemoveAllDelegates();
 	FString GetDebugString() const override;
-protected:
+
 	float duration;
 	bool skipFirstTick;
 	float tickInterval;
 
+protected:
 	float currentTime;
 	float continueTimestamp;
 	float timeRemaining;

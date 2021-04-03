@@ -11,6 +11,7 @@ class UAS_Gun;
 class UAS_Ammo;
 class UGunStack;
 class UAT_SSWaitTargetData;
+class UAT_Ticker;
 
 /**
  * 
@@ -29,7 +30,7 @@ protected:
 	FActiveGameplayEffectHandle FireEffectActiveHandle;
 
 	// Used to give each fire a unique random seed since machine guns only have 1 prediction key across fires
-	int32 fireNumber;
+	int32 shotNumber;
 
 
 	//BEGIN UGameplayAbility Interface
@@ -54,10 +55,11 @@ protected:
 	UPROPERTY()
 		UAS_Ammo* AmmoAttributeSet;
 
-	UFUNCTION()
-		void OnFullAutoTick(float DeltaTime, float CurrentTime, float TimeRemaining);
+	void Shoot();
 
-	void Fire();
+	UAT_Ticker* TickerTask;
+	UFUNCTION()
+		void OnShootTick(float DeltaTime, float CurrentTime, float TimeRemaining);
 
 	UFUNCTION()
 		void OnRelease(float TimeHeld);
@@ -67,7 +69,7 @@ protected:
 		void OnCancelled(const FGameplayAbilityTargetDataHandle& Data);
 
 private:
-	int32 timesBursted;
+	int32 timesBursted; // we could get the current burst by % modding shotNumber by NumShotsPerBurst but i think this would be less reliable: what if they cancel a burst and don't shoot all of the burst. Or what if NumShotsPerBurst changes while shooting
 
 	float timestampPreviousFireEnd;
 };

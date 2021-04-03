@@ -118,26 +118,49 @@ public:
 
 
 
-	/**
-	 * Minimum time that must pass before we can fire again
-	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_FireRate, Category = "Attributes")
-		FGameplayAttributeData FireRate;
-	ATTRIBUTE_ACCESSORS(UAS_Gun, FireRate)
+
 
 	/**
-	 * Number of bursts (ie. 3 for 3-round burst)
+	 * (For semi-auto, full-auto, and burst)
+	 * 
+	 * Time between firing/shooting.
+	 * Minimum time that must pass between each fires or shots. (Fires if semi-auto, Shots if full-auto)
 	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_NumBursts, Category = "Attributes")
-		FGameplayAttributeData NumBursts;
-	ATTRIBUTE_ACCESSORS(UAS_Gun, NumBursts)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_TimeBetweenShots, Category = "Attributes")
+		FGameplayAttributeData TimeBetweenShots;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, TimeBetweenShots)
 
 	/**
-	 * Bullets per second for auto-type shooting
+	 * (For full-auto)
+	 * 
+	 * Override time between fires for full-auto. NOT the time between shots! This allows full-auto guns to have a delay
+	 * between fires that differ from their time between shots.
+	 * 
+	 * Leave at -1 to not override (not overriding uses TimeBetweenShots as the time between fires)
 	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_AutoShootingRate, Category = "Attributes")
-		FGameplayAttributeData AutoShootingRate;
-	ATTRIBUTE_ACCESSORS(UAS_Gun, AutoShootingRate)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_TimeBetweenFiresOverride, Category = "Attributes")
+		FGameplayAttributeData TimeBetweenFiresOverride;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, TimeBetweenFiresOverride)
+
+	/**
+	 * (For burst)
+	 * 
+	 * Time between each burst (a burst is a collection of shots)
+	 * 
+	 * Leave at -1 to not override (not overriding uses TimeBetweenShots as the time between each burst)
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_TimeBetweenBurstsOverride, Category = "Attributes")
+		FGameplayAttributeData TimeBetweenBurstsOverride;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, TimeBetweenBurstsOverride)
+
+
+
+	/**
+	 * Number of shots per burst (ie. 3 for 3-round burst)
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_NumShotsPerBurst, Category = "Attributes")
+		FGameplayAttributeData NumShotsPerBurst;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, NumShotsPerBurst)
 
 
 	/**
@@ -223,13 +246,17 @@ protected:
 
 
 	UFUNCTION()
-		virtual void OnRep_FireRate(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_TimeBetweenShots(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
-		virtual void OnRep_NumBursts(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_TimeBetweenFiresOverride(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
-		virtual void OnRep_AutoShootingRate(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_TimeBetweenBurstsOverride(const FGameplayAttributeData& ServerBaseValue);
+
+
+	UFUNCTION()
+		virtual void OnRep_NumShotsPerBurst(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
 		virtual void OnRep_AmmoCost(const FGameplayAttributeData& ServerBaseValue);

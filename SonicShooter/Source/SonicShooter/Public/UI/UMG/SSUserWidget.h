@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "AttributeSet.h"
 
 #include "SSUserWidget.generated.h"
 
 
+struct FGameplayAttribute;
 class UAbilitySystemComponent;
 struct FOnAttributeChangeData;
 class ASSPlayerController;

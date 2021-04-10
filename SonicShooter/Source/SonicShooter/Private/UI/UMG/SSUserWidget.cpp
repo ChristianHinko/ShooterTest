@@ -115,7 +115,7 @@ void USSUserWidget::OnAttributeChanged(const FOnAttributeChangeData& Data)
 
 
 #if 0
-	if (Attribute == MyAttribute) // check which attribute changed
+	if (Attribute == UAS_MyAttributeSet::GetMyAttributeAttribute()) // check which attribute changed
 	{
 		SetMyValueForUI(NewValue); // update UI for this attribute
 	}

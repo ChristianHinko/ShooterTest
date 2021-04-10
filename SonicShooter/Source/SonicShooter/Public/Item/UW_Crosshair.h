@@ -4,14 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "UI/UMG/SSUserWidget.h"
-#include "AttributeSet.h"
 
 #include "UW_Crosshair.generated.h"
 
 
-class UAbilitySystemComponent;
 struct FOnAttributeChangeData;
-class ASSPlayerController;
 
 
 
@@ -32,19 +29,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly/*, BlueprintReadWrite, BlueprintSetter = SetCurrentSpread*/, Category = "Crosshair")
 		float CurrentSpread;
 
-	FGameplayAttribute SpreadAttribute;
-
 protected:
-	UAbilitySystemComponent* PlayerASC;
-	ASSPlayerController* SSOwningPlayerController; // only have this for the PS valid delegate
-
-	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
-
-	void OnPlayerStateValid();
-
-
-	void OnSpreadAttributeChanged(const FOnAttributeChangeData& Data);
+	virtual void OnAttributeChanged(const FOnAttributeChangeData& Data) override;
 
 	//UFUNCTION(BlueprintSetter)
 		void SetCurrentSpread(float NewSpread);

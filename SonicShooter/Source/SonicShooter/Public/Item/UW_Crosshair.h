@@ -25,7 +25,7 @@ class SONICSHOOTER_API UUW_Crosshair : public USSUserWidget
 	GENERATED_BODY()
 	
 public:
-	UUW_Crosshair();
+	UUW_Crosshair(const FObjectInitializer& ObjectInitializer);
 
 
 	/** The current spread value of the attribute */

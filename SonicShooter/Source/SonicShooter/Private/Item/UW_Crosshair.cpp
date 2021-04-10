@@ -12,7 +12,8 @@
 
 
 
-UUW_Crosshair::UUW_Crosshair()
+UUW_Crosshair::UUW_Crosshair(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	SpreadAttribute = UAS_Gun::GetCurrentBulletSpreadAttribute();
 }

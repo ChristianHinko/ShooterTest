@@ -119,6 +119,14 @@ public:
 
 
 
+	/**
+	 * If full-auto enabled or not (0 is false, 1 is true).
+	 * If true, just hold down to fire gun - no need to keep clicking. This applies to burst guns aswell.
+	 * This should be a tag but this feels better because its closer related to the gun rather than just added to the ASC
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_bFullAuto, Category = "Attributes")
+		FGameplayAttributeData bFullAuto;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, bFullAuto)
 
 	/**
 	 * (For semi-auto, full-auto, and burst)
@@ -244,6 +252,9 @@ protected:
 		virtual void OnRep_DamageFalloff(const FGameplayAttributeData& ServerBaseValue);
 
 
+
+	UFUNCTION()
+		virtual void OnRep_bFullAuto(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
 		virtual void OnRep_TimeBetweenShots(const FGameplayAttributeData& ServerBaseValue);

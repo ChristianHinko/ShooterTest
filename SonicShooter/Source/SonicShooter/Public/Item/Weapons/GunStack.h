@@ -33,14 +33,6 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Gun Firing")
 		TSubclassOf<UGameplayEffect> BulletHitEffectTSub;
 
-
-	/**
-	 * If true, just hold down to fire gun - no need to keep clicking. This applies to burst guns aswell.
-	 * TODO: make this a tag instead
-	 */
-	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Gun Firing")
-		uint8 bFullAuto : 1;
-
 protected:
 	//UWeaponDefinition* WeaponDefinition;
 };

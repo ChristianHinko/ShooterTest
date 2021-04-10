@@ -23,8 +23,6 @@ UArcItemStack* UGunGenerator::GenerateItemStack_Implementation(const FArcItemGen
 	{
 		NewGunStack->BulletTraceTargetActorTSub						= DefaultBulletTraceTargetActorTSub;
 		NewGunStack->BulletHitEffectTSub							= DefaultBulletHitEffectTSub;
-
-		NewGunStack->bFullAuto										= bDefaultFullAuto;
 	}
 
 

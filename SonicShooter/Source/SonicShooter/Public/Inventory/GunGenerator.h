@@ -38,14 +38,6 @@ public:
 		TSubclassOf<UGameplayEffect> DefaultBulletHitEffectTSub;
 
 
-	/**
-	 * If true, just hold down to fire gun - no need to keep clicking. This applies to burst guns aswell.
-	 * TODO: make this a tag instead
-	 */
-	UPROPERTY(EditDefaultsOnly, Category = "Gun Firing")
-		uint8 bDefaultFullAuto : 1;
-
-
 protected:
 	virtual UArcItemStack* GenerateItemStack_Implementation(const FArcItemGeneratorContext& Context) override;
 };

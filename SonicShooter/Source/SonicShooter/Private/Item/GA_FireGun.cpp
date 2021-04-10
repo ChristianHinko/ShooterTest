@@ -160,7 +160,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 
 	int32 flooredShotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
 
-	if (GunToFire->bFullAuto || flooredShotsPerBurst > 1) // if full auto or burst mode
+	if (GunAttributeSet->GetbFullAuto() != 0 || flooredShotsPerBurst > 1) // if full auto or burst mode
 	{
 		TickerTask = UAT_Ticker::Ticker(this, false, -1.f, GunAttributeSet->GetTimeBetweenShots());
 		if (!TickerTask)
@@ -173,7 +173,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	
 	// We only want a release task if we are a full auto fire
 	UAT_WaitInputReleaseCust* WaitInputReleaseTask = nullptr;
-	if (GunToFire->bFullAuto)
+	if (GunAttributeSet->GetbFullAuto() != 0)
 	{
 		WaitInputReleaseTask = UAT_WaitInputReleaseCust::WaitInputReleaseCust(this);
 		if (!WaitInputReleaseTask)
@@ -202,7 +202,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 
 
 
-	if (GunToFire->bFullAuto == false) // semi-auto
+	if (GunAttributeSet->GetbFullAuto() == 0) // semi-auto
 	{
 		if (flooredShotsPerBurst <= 1) // single shot
 		{
@@ -248,7 +248,7 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 	int32 flooredShotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
 
 
-	if (GunToFire->bFullAuto == false && (flooredShotsPerBurst <= 1 || timesBursted >= flooredShotsPerBurst)) // we're not full-auto and we shouldn't be bursting
+	if (GunAttributeSet->GetbFullAuto() == 0 && (flooredShotsPerBurst <= 1 || timesBursted >= flooredShotsPerBurst)) // we're not full-auto and we shouldn't be bursting
 	{
 		// We shouldn't be shoot ticking, end ability.
 		// We could've gotten here by bFullAuto changing or NumShotsPerBurst changing
@@ -276,7 +276,7 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 
 
 	// Semi-auto burst
-	if (GunToFire->bFullAuto == false)
+	if (GunAttributeSet->GetbFullAuto() == 0)
 	{
 		if (timesBursted < flooredShotsPerBurst)
 		{
@@ -384,7 +384,7 @@ void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 
 
 	int32 flooredShotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
-	if (GunToFire->bFullAuto == false && (flooredShotsPerBurst <= 1/* || timesBursted >= flooredShotsPerBurst*/))
+	if (GunAttributeSet->GetbFullAuto() == 0 && (flooredShotsPerBurst <= 1/* || timesBursted >= flooredShotsPerBurst*/))
 	{
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 		return;

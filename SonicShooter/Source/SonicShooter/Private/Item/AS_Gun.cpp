@@ -27,6 +27,7 @@ void UAS_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, Ricochets, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, DamageFalloff, COND_None, REPNOTIFY_Always);
 
+	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, bFullAuto, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, TimeBetweenShots, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, TimeBetweenFiresOverride, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, TimeBetweenBurstsOverride, COND_None, REPNOTIFY_Always);
@@ -47,6 +48,7 @@ UAS_Gun::UAS_Gun()
 	Ricochets(1),
 	DamageFalloff(.5f),
 
+	bFullAuto(0),
 	TimeBetweenShots(0.1f),
 	TimeBetweenFiresOverride(-1.f),
 	TimeBetweenBurstsOverride(-1.f),
@@ -323,6 +325,11 @@ void UAS_Gun::OnRep_DamageFalloff(const FGameplayAttributeData& ServerBaseValue)
 }
 
 
+
+void UAS_Gun::OnRep_bFullAuto(const FGameplayAttributeData& ServerBaseValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, bFullAuto, ServerBaseValue);
+}
 
 void UAS_Gun::OnRep_TimeBetweenShots(const FGameplayAttributeData& ServerBaseValue)
 {

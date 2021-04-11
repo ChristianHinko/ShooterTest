@@ -20,6 +20,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<UUserWidget> CrosshairWidgetTSub;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+		TSubclassOf<UUserWidget> AmmoWidgetTSub;
 };
 
 /**

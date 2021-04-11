@@ -26,6 +26,7 @@ public:
 	//UUserWidget* MyWidget;
 
 	UUserWidget* CrosshairWidget;
+	UUserWidget* AmmoWidget;
 
 protected:
 	virtual void PostInitializeComponents() override;

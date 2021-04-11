@@ -101,11 +101,18 @@ bool USSArcInventoryComponent_Active::MakeItemActive_Internal(const FArcInventor
 				{
 					if (AHUD_ShooterCharacter* ShooterCharacterHUD = Cast<AHUD_ShooterCharacter>(OwningPC->GetHUD()))
 					{
-						// Create our widget and add it to viewport
+						// Create our widgets and add them to viewport
+
 						ShooterCharacterHUD->CrosshairWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->CrosshairWidgetTSub, OwningPC);
 						if (ShooterCharacterHUD->CrosshairWidget)
 						{
 							ShooterCharacterHUD->CrosshairWidget->AddToViewport();
+						}
+
+						ShooterCharacterHUD->AmmoWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->AmmoWidgetTSub, OwningPC);
+						if (ShooterCharacterHUD->AmmoWidget)
+						{
+							ShooterCharacterHUD->AmmoWidget->AddToViewport();
 						}
 					}
 				}
@@ -135,6 +142,11 @@ bool USSArcInventoryComponent_Active::MakeItemInactive_Internal(const FArcInvent
 					{
 						ShooterCharacterHUD->CrosshairWidget->RemoveFromViewport();
 						ShooterCharacterHUD->CrosshairWidget = nullptr;
+					}
+					if (ShooterCharacterHUD->AmmoWidget)
+					{
+						ShooterCharacterHUD->AmmoWidget->RemoveFromViewport();
+						ShooterCharacterHUD->AmmoWidget = nullptr;
 					}
 				}
 			}

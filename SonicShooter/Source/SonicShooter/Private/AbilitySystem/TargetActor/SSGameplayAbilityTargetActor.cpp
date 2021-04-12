@@ -79,14 +79,9 @@ void ASSGameplayAbilityTargetActor::DirWithPlayerController(const AActor* InSour
 		return;
 	}
 
-	const APlayerController* PC = OwningAbility->GetCurrentActorInfo()->PlayerController.Get();
-	check(PC);
-
 	FVector ViewStart;
-	FRotator ViewRot;
-	PC->GetPlayerViewPoint(ViewStart, ViewRot);
-
-	const FVector ViewDir = ViewRot.Vector();
+	FVector ViewDir;
+	CalculateAimDirection(ViewStart, ViewDir);
 	FVector ViewEnd = ViewStart + (ViewDir * GetMaxRange());
 
 	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, GetMaxRange(), ViewEnd);
@@ -122,6 +117,17 @@ void ASSGameplayAbilityTargetActor::DirWithPlayerController(const AActor* InSour
 	}
 
 	OutTraceDir = AdjustedAimDir;
+}
+
+void ASSGameplayAbilityTargetActor::CalculateAimDirection(FVector& ViewStart, FVector& ViewDir) const
+{
+	const APlayerController* PC = OwningAbility->GetCurrentActorInfo()->PlayerController.Get();
+	check(PC);
+
+	FRotator ViewRot;
+	PC->GetPlayerViewPoint(ViewStart, ViewRot);
+
+	ViewDir = ViewRot.Vector();
 }
 
 bool ASSGameplayAbilityTargetActor::ClipCameraRayToAbilityRange(FVector CameraLocation, FVector CameraDirection, FVector AbilityCenter, float AbilityRange, FVector& ClippedPosition)

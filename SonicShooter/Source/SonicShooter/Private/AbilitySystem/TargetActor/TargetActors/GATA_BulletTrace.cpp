@@ -142,6 +142,26 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 	}
 }
 
+void AGATA_BulletTrace::CalculateAimDirection(FVector& ViewStart, FVector& ViewDir) const
+{
+	Super::CalculateAimDirection(ViewStart, ViewDir);
+
+
+	// Calculate new ViewDir with random bullet spread offset if needed
+	float currentBulletSpread = GunAttributeSet->GetCurrentBulletSpread();
+	if (currentBulletSpread > SMALL_NUMBER)
+	{
+		// Our injected random seed is only unique to each fire. We need a random seed that is also unique to each bullet in the fire, so we will do this by using t
+		const int32 fireAndBulletSpecificNetSafeRandomSeed = FireSpecificNetSafeRandomSeed - ((currentBulletNumber + 2) * FireSpecificNetSafeRandomSeed);	// Here, the 'number' multiplied to t makes the random pattern noticable after firing 'number' of times. I use the prediction key as that 'number' which i think eliminates the threshold for noticeability entirely. - its confusing to think about but i think it works
+		FMath::RandInit(fireAndBulletSpecificNetSafeRandomSeed);
+		const FRandomStream RandomStream = FRandomStream(FMath::Rand());
+
+		// Get and apply random offset to ViewDir using randomStream
+		const float coneHalfAngleRadius = FMath::DegreesToRadians(currentBulletSpread * 0.5f);
+		ViewDir = RandomStream.VRandCone(ViewDir, coneHalfAngleRadius);
+	}
+}
+
 void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor)
 {
 	check(GunAttributeSet);
@@ -165,20 +185,6 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 	// Get direction player is aiming
 	FVector AimDir;
 	DirWithPlayerController(InSourceActor, Params, TraceStart, AimDir);		//Effective on server and launching client only
-
-	// Calculate new AimDir with random bullet spread offset if needed
-	float currentBulletSpread = GunAttributeSet->GetCurrentBulletSpread();
-	if (currentBulletSpread > SMALL_NUMBER)
-	{
-		// Our injected random seed is only unique to each fire. We need a random seed that is also unique to each bullet in the fire, so we will do this by using t
-		const int32 fireAndBulletSpecificNetSafeRandomSeed = FireSpecificNetSafeRandomSeed - ((currentBulletNumber + 2) * FireSpecificNetSafeRandomSeed);	// Here, the 'number' multiplied to t makes the random pattern noticable after firing 'number' of times. I use the prediction key as that 'number' which i think eliminates the threshold for noticeability entirely. - its confusing to think about but i think it works
-		FMath::RandInit(fireAndBulletSpecificNetSafeRandomSeed);
-		const FRandomStream RandomStream = FRandomStream(FMath::Rand());
-
-		// Add random offset to AimDir using randomStream
-		const float coneHalfAngleRadius = FMath::DegreesToRadians(currentBulletSpread * 0.5f);
-		AimDir = RandomStream.VRandCone(AimDir, coneHalfAngleRadius);
-	}
 
 	// Calculate the end of the trace based off aim dir and max range
 	const FVector TraceEnd = TraceStart + (AimDir * GetMaxRange());

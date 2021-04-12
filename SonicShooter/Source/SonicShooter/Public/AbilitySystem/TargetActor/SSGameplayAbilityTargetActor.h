@@ -61,4 +61,13 @@ public:
 
 	static bool ClipCameraRayToAbilityRange(FVector CameraLocation, FVector CameraDirection, FVector AbilityCenter, float AbilityRange, FVector& ClippedPosition);
 
+
+protected:
+
+	/**
+	 * Calculates ViewDir which is used in DirWithPlayerController().
+	 * This can be overriden to add bullet spread for guns and stuff
+	 */
+	virtual void CalculateAimDirection(FVector& ViewStart, FVector& ViewDir) const;
+
 };

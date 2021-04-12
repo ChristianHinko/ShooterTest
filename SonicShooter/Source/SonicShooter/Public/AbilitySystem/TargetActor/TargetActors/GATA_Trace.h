@@ -35,7 +35,7 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 
-	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) PURE_VIRTUAL(AGameplayAbilityTargetActor_Trace);
+	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) PURE_VIRTUAL(AGATA_Trace);
 
 	TWeakObjectPtr<AGameplayAbilityWorldReticle> ReticleActor;
 };

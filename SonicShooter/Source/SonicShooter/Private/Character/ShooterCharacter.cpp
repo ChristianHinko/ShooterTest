@@ -60,7 +60,7 @@ void AShooterCharacter::PossessedBy(AController* NewController)
 			// If we end up here, we are a character on the server that is being controlled by a client (not controlled by a listening server)
 			if (SSInventoryComponentActive)
 			{
-				SSInventoryComponentActive->ClientRecieveStartingActiveItemHistoryArray(SSInventoryComponentActive->ActiveItemHistory);
+				//SSInventoryComponentActive->ClientRecieveStartingActiveItemHistoryArray(SSInventoryComponentActive->ActiveItemHistory);
 			}
 			else
 			{

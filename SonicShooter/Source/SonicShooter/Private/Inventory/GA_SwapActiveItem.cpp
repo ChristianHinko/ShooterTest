@@ -99,7 +99,7 @@ void UGA_SwapActiveItem::PerformSwap()
 		case ESwapMethod::ByIndex:
 			if (SSInventoryComponentActive->IsActiveItemSlotIndexValid(itemSlotIndexToSwitchTo) == false)
 			{
-				UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Invalid item slot index"), *FString(__FUNCTION__));
+				UE_LOG(LogGameplayAbility, Warning, TEXT("%s() No valid index to switch to"), *FString(__FUNCTION__));
 				break;
 			}
 			SSInventoryComponentActive->SwapActiveItems(itemSlotIndexToSwitchTo);
@@ -121,6 +121,7 @@ void UGA_SwapActiveItem::PerformSwap()
 		case ESwapMethod::ByItemHistory:
 			if (SSInventoryComponentActive->ActiveItemHistory.IsValidIndex(itemHistoryIndex) == false)
 			{
+				UE_LOG(LogGameplayAbility, Error, TEXT("%s() No valid index to switch to"), *FString(__FUNCTION__));
 				break;
 			}
 

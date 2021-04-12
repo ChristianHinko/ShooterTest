@@ -3,12 +3,17 @@
 
 #include "AbilitySystem/TargetActor/SSGameplayAbilityTargetActor.h"
 
+#include "Abilities/GameplayAbility.h"
+
 
 
 ASSGameplayAbilityTargetActor::ASSGameplayAbilityTargetActor(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-
+	MaxRange = 100000.f;
+	bTraceAffectsAimPitch = true;
+	TraceChannel = ECollisionChannel::ECC_Visibility;
+	bAllowMultipleHitsPerActor = false;
 }
 
 
@@ -55,4 +60,82 @@ void ASSGameplayAbilityTargetActor::FilterHitResults(TArray<FHitResult>& OutHitR
 			}
 		}
 	}
+}
+
+void ASSGameplayAbilityTargetActor::AimWithPlayerController(const AActor* InSourceActor, FCollisionQueryParams Params, const FVector& TraceStart, FVector& OutTraceEnd) const
+{
+	FVector TraceDir;
+	DirWithPlayerController(InSourceActor, Params, TraceStart, TraceDir);
+
+	OutTraceEnd = TraceStart + (TraceDir * MaxRange);
+}
+void ASSGameplayAbilityTargetActor::DirWithPlayerController(const AActor* InSourceActor, FCollisionQueryParams Params, const FVector& TraceStart, FVector& OutTraceDir) const
+{
+	if (!OwningAbility) // Server and launching client only
+	{
+		return;
+	}
+
+	const APlayerController* PC = OwningAbility->GetCurrentActorInfo()->PlayerController.Get();
+	check(PC);
+
+	FVector ViewStart;
+	FRotator ViewRot;
+	PC->GetPlayerViewPoint(ViewStart, ViewRot);
+
+	const FVector ViewDir = ViewRot.Vector();
+	FVector ViewEnd = ViewStart + (ViewDir * MaxRange);
+
+	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, MaxRange, ViewEnd);
+
+	TArray<FHitResult> HitResults;
+	InSourceActor->GetWorld()->LineTraceMultiByChannel(HitResults, ViewStart, ViewEnd, TraceChannel, Params);
+	FHitResult HitResult = HitResults.Num() ? HitResults[0] : FHitResult();
+
+	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
+
+	const FVector AdjustedEnd = (bUseTraceResult) ? HitResult.Location : ViewEnd;
+
+	FVector AdjustedAimDir = (AdjustedEnd - TraceStart).GetSafeNormal();
+	if (AdjustedAimDir.IsZero())
+	{
+		AdjustedAimDir = ViewDir;
+	}
+
+	if (!bTraceAffectsAimPitch && bUseTraceResult)
+	{
+		FVector OriginalAimDir = (ViewEnd - TraceStart).GetSafeNormal();
+
+		if (!OriginalAimDir.IsZero())
+		{
+			// Convert to angles and use original pitch
+			const FRotator OriginalAimRot = OriginalAimDir.Rotation();
+
+			FRotator AdjustedAimRot = AdjustedAimDir.Rotation();
+			AdjustedAimRot.Pitch = OriginalAimRot.Pitch;
+
+			AdjustedAimDir = AdjustedAimRot.Vector();
+		}
+	}
+
+	OutTraceDir = AdjustedAimDir;
+}
+
+bool ASSGameplayAbilityTargetActor::ClipCameraRayToAbilityRange(FVector CameraLocation, FVector CameraDirection, FVector AbilityCenter, float AbilityRange, FVector& ClippedPosition)
+{
+	const FVector CameraToCenter = AbilityCenter - CameraLocation;
+	const float DotToCenter = FVector::DotProduct(CameraToCenter, CameraDirection);
+	if (DotToCenter >= 0)		//If this fails, we're pointed away from the center, but we might be inside the sphere and able to find a good exit point.
+	{
+		const float DistanceSquared = CameraToCenter.SizeSquared() - (DotToCenter * DotToCenter);
+		const float RadiusSquared = (AbilityRange * AbilityRange);
+		if (DistanceSquared <= RadiusSquared)
+		{
+			const float DistanceFromCamera = FMath::Sqrt(RadiusSquared - DistanceSquared);
+			const float DistanceAlongRay = DotToCenter + DistanceFromCamera;					//Subtracting instead of adding will get the other intersection point
+			ClippedPosition = CameraLocation + (DistanceAlongRay * CameraDirection);			//Cam aim point clipped to range sphere
+			return true;
+		}
+	}
+	return false;
 }

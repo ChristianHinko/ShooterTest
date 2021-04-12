@@ -8,9 +8,6 @@
 #include "GATA_Trace.generated.h"
 
 
-class UGameplayAbility;
-
-
 
 /**
  * 

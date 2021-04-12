@@ -23,6 +23,7 @@ public:
 
 	virtual void ConfirmTargetingAndContinue() override;
 
+	virtual float GetMaxRange() const override;
 
 	UPROPERTY()
 		UAS_Gun* GunAttributeSet;

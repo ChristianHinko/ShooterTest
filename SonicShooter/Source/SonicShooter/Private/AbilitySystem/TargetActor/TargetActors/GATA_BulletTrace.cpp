@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/TargetActor/TargetActors/GATA_BulletTrace.h"
 
+#include "Utilities\LogCategories.h"
 #include "Abilities/GameplayAbility.h"
 #include "Utilities/CollisionChannels.h"
 #include "AbilitySystem/SSGameplayAbilityTargetTypes.h"
@@ -15,6 +16,16 @@ AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer
 	: Super(ObjectInitializer)
 {
 	TraceChannel = COLLISION_BULLET;
+}
+
+float AGATA_BulletTrace::GetMaxRange() const
+{
+	if (GunAttributeSet)
+	{
+		return GunAttributeSet->GetMaxRange();
+	}
+	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its MaxRange attribute! Will return 0 instead!"), *FString(__FUNCTION__));
+	return 0;
 }
 
 #if WITH_EDITOR

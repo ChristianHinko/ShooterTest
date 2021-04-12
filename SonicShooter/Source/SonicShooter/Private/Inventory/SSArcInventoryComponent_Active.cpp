@@ -92,7 +92,6 @@ bool USSArcInventoryComponent_Active::MakeItemActive_Internal(const FArcInventor
 		}
 
 
-		// Add crosshair widget
 		if (APlayerController* OwningPC = Cast<APlayerController>(Cast<APawn>(GetOwner())->GetController()))
 		{
 			if (OwningPC->IsLocalController())
@@ -155,6 +154,20 @@ bool USSArcInventoryComponent_Active::MakeItemInactive_Internal(const FArcInvent
 
 
 	return bSuccess;
+}
+
+void USSArcInventoryComponent_Active::MakeItemActive(int32 NewActiveItemSlot)
+{
+	Super::MakeItemActive(NewActiveItemSlot);
+
+
+}
+void USSArcInventoryComponent_Active::MakeItemInactive()
+{
+	Super::MakeItemInactive();
+
+
+
 }
 
 void USSArcInventoryComponent_Active::AddToActiveItemHistory(FArcInventoryItemSlotReference NewActiveItemSlotReference)

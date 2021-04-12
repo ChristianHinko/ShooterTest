@@ -100,33 +100,36 @@ void USSArcInventoryComponent_Active::MakeItemActive(int32 NewActiveItemSlot)
 {
 	Super::MakeItemActive(NewActiveItemSlot);
 
-	check(GetActiveItemStack());	// This should be valid
 	// Add UIData widgets
-	if (APlayerController* OwningPC = Cast<APlayerController>(Cast<APawn>(GetOwner())->GetController()))
+	if (IsValidActiveItemSlot(NewActiveItemSlot))	// If it's not valid, we don't have to warning because it he might just not have an item here
 	{
-		if (OwningPC->IsLocalController())
+		if (APlayerController* OwningPC = Cast<APlayerController>(Cast<APawn>(GetOwner())->GetController()))
 		{
-			if (UWeaponUIData* WeaponUIData = Cast<UWeaponUIData>(GetActiveItemStack()->GetUIData()))
+			if (OwningPC->IsLocalController())
 			{
-				if (AHUD_ShooterCharacter* ShooterCharacterHUD = Cast<AHUD_ShooterCharacter>(OwningPC->GetHUD()))
+				if (UWeaponUIData* WeaponUIData = Cast<UWeaponUIData>(GetActiveItemStack()->GetUIData()))
 				{
-					// Create our widgets and add them to viewport
-
-					ShooterCharacterHUD->CrosshairWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->CrosshairWidgetTSub, OwningPC);
-					if (ShooterCharacterHUD->CrosshairWidget)
+					if (AHUD_ShooterCharacter* ShooterCharacterHUD = Cast<AHUD_ShooterCharacter>(OwningPC->GetHUD()))
 					{
-						ShooterCharacterHUD->CrosshairWidget->AddToViewport();
-					}
+						// Create our widgets and add them to viewport
+						ShooterCharacterHUD->CrosshairWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->CrosshairWidgetTSub, OwningPC);
+						if (ShooterCharacterHUD->CrosshairWidget)
+						{
+							ShooterCharacterHUD->CrosshairWidget->AddToViewport();
+						}
 
-					ShooterCharacterHUD->AmmoWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->AmmoWidgetTSub, OwningPC);
-					if (ShooterCharacterHUD->AmmoWidget)
-					{
-						ShooterCharacterHUD->AmmoWidget->AddToViewport();
+						ShooterCharacterHUD->AmmoWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->AmmoWidgetTSub, OwningPC);
+						if (ShooterCharacterHUD->AmmoWidget)
+						{
+							ShooterCharacterHUD->AmmoWidget->AddToViewport();
+						}
 					}
 				}
 			}
 		}
 	}
+
+
 }
 void USSArcInventoryComponent_Active::MakeItemInactive()
 {

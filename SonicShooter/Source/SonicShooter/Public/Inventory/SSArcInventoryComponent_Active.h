@@ -40,6 +40,8 @@ public:
 
 	
 	virtual void OnItemEquipped(class UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack) override;
+	virtual void MakeItemActive(int32 NewActiveItemSlot) override;
+	virtual void MakeItemInactive() override;
 
 	UFUNCTION()
 		void AddToActiveItemHistory(FArcInventoryItemSlotReference NewActiveItemSlotReference);
@@ -47,7 +49,6 @@ public:
 protected:
 
 	virtual bool MakeItemActive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack) override;
-	virtual bool MakeItemInactive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack) override;
 	
 	virtual bool ApplyAbilityInfo_Internal(const FArcItemDefinition_AbilityInfo& AbilityInfo, FArcEquippedItemInfo& StoreInto, UArcItemStack* AbilitySource) override;
 

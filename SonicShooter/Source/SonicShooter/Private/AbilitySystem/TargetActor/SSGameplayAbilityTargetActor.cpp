@@ -90,7 +90,7 @@ void ASSGameplayAbilityTargetActor::DirWithPlayerController(const AActor* InSour
 	InSourceActor->GetWorld()->LineTraceMultiByChannel(HitResults, ViewStart, ViewEnd, TraceChannel, Params);
 	FHitResult HitResult = HitResults.Num() ? HitResults[0] : FHitResult();
 
-	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (GetMaxRange() * GetMaxRange()));
+	const bool bUseTraceResult = /*HitResult.bBlockingHit && */(FVector::DistSquared(TraceStart, HitResult.Location) <= (GetMaxRange() * GetMaxRange()));
 
 	const FVector AdjustedEnd = (bUseTraceResult) ? HitResult.Location : ViewEnd;
 

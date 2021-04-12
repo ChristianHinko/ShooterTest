@@ -43,9 +43,8 @@ public:
 
 
 
-	/** Max range of this target actor (not required for all target actors) */
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
-		float MaxRange;
+	/** Max range of this target actor (not required for all target actors)		(We made this virual so we can just return GunAttributeSet->GetMaxRange() that way we don't have to bind to that attribute's delegate)*/
+	virtual float GetMaxRange() const;
 
 	/** Trace channel for this target actor (not required for all target actors) */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")

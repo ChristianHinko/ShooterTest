@@ -113,7 +113,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 		const FVector MirroredDir = TracedDir.MirrorByVector(LastHit.ImpactNormal);
 
 		const FVector RicoStart = LastHit.Location;
-		const FVector RicoEnd = RicoStart + ((MaxRange - LastHit.Distance) * MirroredDir);
+		const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * MirroredDir);
 
 
 		if (World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoParams) == false)
@@ -167,7 +167,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 				const FVector MirroredDir = TracedDir.MirrorByVector(DebugHitResults.Last().ImpactNormal);
 
 				const FVector RicoStart = DebugHitResults.Last().Location;
-				const FVector RicoEnd = RicoStart + ((MaxRange - DebugHitResults.Last().Distance) * MirroredDir);
+				const FVector RicoEnd = RicoStart + ((GetMaxRange() - DebugHitResults.Last().Distance) * MirroredDir);
 
 				DrawDebugLine(World, RicoStart, RicoEnd, TraceColor, false, debugLifeTime);
 			}
@@ -210,7 +210,7 @@ void AGATA_Trace::SweepMulti(TArray<FHitResult>& OutHitResults, const UWorld* Wo
 		const FVector MirroredDir = TracedDir.MirrorByVector(LastHit.ImpactNormal);
 
 		const FVector RicoStart = LastHit.Location;
-		const FVector RicoEnd = RicoStart + ((MaxRange - LastHit.Distance) * MirroredDir);
+		const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * MirroredDir);
 
 
 		if (World->SweepMultiByChannel(RicoHitResults, RicoStart, RicoEnd, Rotation, TraceChannel, CollisionShape, RicoParams) == false)
@@ -264,7 +264,7 @@ void AGATA_Trace::SweepMulti(TArray<FHitResult>& OutHitResults, const UWorld* Wo
 				const FVector MirroredDir = TracedDir.MirrorByVector(DebugHitResults.Last().ImpactNormal);
 
 				const FVector RicoStart = DebugHitResults.Last().Location;
-				const FVector RicoEnd = RicoStart + ((MaxRange - DebugHitResults.Last().Distance) * MirroredDir);
+				const FVector RicoEnd = RicoStart + ((GetMaxRange() - DebugHitResults.Last().Distance) * MirroredDir);
 
 				DrawDebugLine(World, RicoStart, RicoEnd, TraceColor, false, debugLifeTime);
 			}

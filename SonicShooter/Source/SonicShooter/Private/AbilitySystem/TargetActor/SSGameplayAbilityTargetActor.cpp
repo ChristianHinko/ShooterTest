@@ -10,12 +10,15 @@
 ASSGameplayAbilityTargetActor::ASSGameplayAbilityTargetActor(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	MaxRange = 100000.f;
 	bTraceAffectsAimPitch = true;
 	TraceChannel = ECollisionChannel::ECC_Visibility;
 	bAllowMultipleHitsPerActor = false;
 }
 
+float ASSGameplayAbilityTargetActor::GetMaxRange() const
+{
+	return 100000.f;
+}
 
 void ASSGameplayAbilityTargetActor::FilterHitResults(TArray<FHitResult>& OutHitResults, const FGATDF_MultiFilterHandle FilterHandle, const bool inAllowMultipleHitsPerActor) const
 {
@@ -67,7 +70,7 @@ void ASSGameplayAbilityTargetActor::AimWithPlayerController(const AActor* InSour
 	FVector TraceDir;
 	DirWithPlayerController(InSourceActor, Params, TraceStart, TraceDir);
 
-	OutTraceEnd = TraceStart + (TraceDir * MaxRange);
+	OutTraceEnd = TraceStart + (TraceDir * GetMaxRange());
 }
 void ASSGameplayAbilityTargetActor::DirWithPlayerController(const AActor* InSourceActor, FCollisionQueryParams Params, const FVector& TraceStart, FVector& OutTraceDir) const
 {
@@ -84,15 +87,15 @@ void ASSGameplayAbilityTargetActor::DirWithPlayerController(const AActor* InSour
 	PC->GetPlayerViewPoint(ViewStart, ViewRot);
 
 	const FVector ViewDir = ViewRot.Vector();
-	FVector ViewEnd = ViewStart + (ViewDir * MaxRange);
+	FVector ViewEnd = ViewStart + (ViewDir * GetMaxRange());
 
-	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, MaxRange, ViewEnd);
+	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, GetMaxRange(), ViewEnd);
 
 	TArray<FHitResult> HitResults;
 	InSourceActor->GetWorld()->LineTraceMultiByChannel(HitResults, ViewStart, ViewEnd, TraceChannel, Params);
 	FHitResult HitResult = HitResults.Num() ? HitResults[0] : FHitResult();
 
-	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
+	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (GetMaxRange() * GetMaxRange()));
 
 	const FVector AdjustedEnd = (bUseTraceResult) ? HitResult.Location : ViewEnd;
 

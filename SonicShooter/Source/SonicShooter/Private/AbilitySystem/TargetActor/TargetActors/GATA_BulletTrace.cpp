@@ -23,7 +23,7 @@ bool AGATA_BulletTrace::CanEditChange(const FProperty* InProperty) const
 {
 	FName PropertyName = InProperty->GetFName();
 
-	if (PropertyName == GET_MEMBER_NAME_CHECKED(AGATA_BulletTrace, MaxRange))
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(AGATA_BulletTrace, GetMaxRange()))
 	{
 		return false;
 	}
@@ -170,7 +170,7 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 	}
 
 	// Calculate the end of the trace based off aim dir and max range
-	const FVector TraceEnd = TraceStart + (AimDir * MaxRange);
+	const FVector TraceEnd = TraceStart + (AimDir * GetMaxRange());
 
 	// Perform line trace
 	LineTraceMulti(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, GunAttributeSet->GetRicochets(), Params, bDebug);

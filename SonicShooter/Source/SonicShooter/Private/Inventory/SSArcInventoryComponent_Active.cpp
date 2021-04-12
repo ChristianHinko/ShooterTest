@@ -89,67 +89,7 @@ bool USSArcInventoryComponent_Active::MakeItemActive_Internal(const FArcInventor
 		if (bStartupItemsGiven)		// We don't want to touch the item history array if the startup items have not been given yet. Adding to it will be taken care of in OnItemEquipped
 		{
 			AddToActiveItemHistory(ItemSlot);
-		}
-
-
-		if (APlayerController* OwningPC = Cast<APlayerController>(Cast<APawn>(GetOwner())->GetController()))
-		{
-			if (OwningPC->IsLocalController())
-			{
-				if (UWeaponUIData* WeaponUIData = Cast<UWeaponUIData>(ItemStack->GetUIData()))
-				{
-					if (AHUD_ShooterCharacter* ShooterCharacterHUD = Cast<AHUD_ShooterCharacter>(OwningPC->GetHUD()))
-					{
-						// Create our widgets and add them to viewport
-
-						ShooterCharacterHUD->CrosshairWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->CrosshairWidgetTSub, OwningPC);
-						if (ShooterCharacterHUD->CrosshairWidget)
-						{
-							ShooterCharacterHUD->CrosshairWidget->AddToViewport();
-						}
-
-						ShooterCharacterHUD->AmmoWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->AmmoWidgetTSub, OwningPC);
-						if (ShooterCharacterHUD->AmmoWidget)
-						{
-							ShooterCharacterHUD->AmmoWidget->AddToViewport();
-						}
-					}
-				}
-			}
-		}
-	}
-
-
-	return bSuccess;
-}
-
-bool USSArcInventoryComponent_Active::MakeItemInactive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack)
-{
-	bool bSuccess = Super::MakeItemInactive_Internal(ItemSlot, ItemStack);
-
-
-	if (bSuccess)
-	{
-		// Remove crosshair widget
-		if (APlayerController* OwningPC = Cast<APlayerController>(Cast<APawn>(GetOwner())->GetController()))
-		{
-			if (OwningPC->IsLocalController())
-			{
-				if (AHUD_ShooterCharacter* ShooterCharacterHUD = Cast<AHUD_ShooterCharacter>(OwningPC->GetHUD()))
-				{
-					if (ShooterCharacterHUD->CrosshairWidget)
-					{
-						ShooterCharacterHUD->CrosshairWidget->RemoveFromViewport();
-						ShooterCharacterHUD->CrosshairWidget = nullptr;
-					}
-					if (ShooterCharacterHUD->AmmoWidget)
-					{
-						ShooterCharacterHUD->AmmoWidget->RemoveFromViewport();
-						ShooterCharacterHUD->AmmoWidget = nullptr;
-					}
-				}
-			}
-		}
+		}		
 	}
 
 
@@ -160,14 +100,58 @@ void USSArcInventoryComponent_Active::MakeItemActive(int32 NewActiveItemSlot)
 {
 	Super::MakeItemActive(NewActiveItemSlot);
 
+	check(GetActiveItemStack());	// This should be valid
+	// Add UIData widgets
+	if (APlayerController* OwningPC = Cast<APlayerController>(Cast<APawn>(GetOwner())->GetController()))
+	{
+		if (OwningPC->IsLocalController())
+		{
+			if (UWeaponUIData* WeaponUIData = Cast<UWeaponUIData>(GetActiveItemStack()->GetUIData()))
+			{
+				if (AHUD_ShooterCharacter* ShooterCharacterHUD = Cast<AHUD_ShooterCharacter>(OwningPC->GetHUD()))
+				{
+					// Create our widgets and add them to viewport
 
+					ShooterCharacterHUD->CrosshairWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->CrosshairWidgetTSub, OwningPC);
+					if (ShooterCharacterHUD->CrosshairWidget)
+					{
+						ShooterCharacterHUD->CrosshairWidget->AddToViewport();
+					}
+
+					ShooterCharacterHUD->AmmoWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->AmmoWidgetTSub, OwningPC);
+					if (ShooterCharacterHUD->AmmoWidget)
+					{
+						ShooterCharacterHUD->AmmoWidget->AddToViewport();
+					}
+				}
+			}
+		}
+	}
 }
 void USSArcInventoryComponent_Active::MakeItemInactive()
 {
 	Super::MakeItemInactive();
 
-
-
+	// Remove UIData widgets
+	if (APlayerController* OwningPC = Cast<APlayerController>(Cast<APawn>(GetOwner())->GetController()))
+	{
+		if (OwningPC->IsLocalController())
+		{
+			if (AHUD_ShooterCharacter* ShooterCharacterHUD = Cast<AHUD_ShooterCharacter>(OwningPC->GetHUD()))
+			{
+				if (ShooterCharacterHUD->CrosshairWidget)
+				{
+					ShooterCharacterHUD->CrosshairWidget->RemoveFromViewport();
+					ShooterCharacterHUD->CrosshairWidget = nullptr;
+				}
+				if (ShooterCharacterHUD->AmmoWidget)
+				{
+					ShooterCharacterHUD->AmmoWidget->RemoveFromViewport();
+					ShooterCharacterHUD->AmmoWidget = nullptr;
+				}
+			}
+		}
+	}
 }
 
 void USSArcInventoryComponent_Active::AddToActiveItemHistory(FArcInventoryItemSlotReference NewActiveItemSlotReference)

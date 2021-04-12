@@ -10,7 +10,10 @@
 ASSGameplayAbilityTargetActor::ASSGameplayAbilityTargetActor(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-
+	MaxRange = 100000.f;
+	bTraceAffectsAimPitch = true;
+	TraceChannel = ECollisionChannel::ECC_Visibility;
+	bAllowMultipleHitsPerActor = false;
 }
 
 

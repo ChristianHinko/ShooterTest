@@ -24,11 +24,6 @@ AGATA_Trace::AGATA_Trace(const FObjectInitializer& ObjectInitializer)
 
 	ShouldProduceTargetDataOnServer = true;
 
-	MaxRange = 100000.f;
-	bTraceAffectsAimPitch = true;
-	TraceChannel = ECollisionChannel::ECC_Visibility;
-	bAllowMultipleHitsPerActor = false;
-
 	MultiFilter.bReverseFilter = true;
 	MultiFilter.RequiredActorClasses.Add(AAbilitySystemCharacter::StaticClass());
 	MultiFilter.RequiredActorClasses.Add(AAbilitySystemPawn::StaticClass());

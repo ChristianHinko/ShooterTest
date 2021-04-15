@@ -32,6 +32,7 @@ public:
 	 * that actor to the hitresults multiple times.
 	 * 
 	 * TODO: should not apply to multiple hits from multiple ricochets
+	 * TODO: add option for picking the hit with highest damage
 	 */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Target Data")
 		bool bAllowMultipleHitsPerActor;
@@ -39,6 +40,11 @@ public:
 
 	/** Filter out hit results that do not pass filter and removes multiple hits per actor if needed */
 	void FilterHitResults(TArray<FHitResult>& OutHitResults, const FGATDF_MultiFilterHandle FilterHandle, const bool inAllowMultipleHitsPerActor) const;
+	/**
+	 * Filters out one hit result out of a given array. Is meant to be use in FHitResult loops.
+	 * Returns true if hit was filtered.
+	 */
+	bool FilterHitResult(TArray<FHitResult>& OutHitResults, const int32 index, const FGATDF_MultiFilterHandle FilterHandle, const bool inAllowMultipleHitsPerActor) const;
 
 
 

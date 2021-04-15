@@ -60,7 +60,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 			PerformTrace(ThisBulletHitResults, SourceActor);
 
 
-			// Manually filter the hit results (copied code from AGATA_Trace::FilterHitResults()) because we need access to filtered out hit results.
+			// Manually filter the hit results (using ASSGameplayAbilityTargetActor::FilterHitResult()) because we need access to filtered out hit results.
 			// And build our target data for non-filtered hit results
 			{
 				float thisHitTotalDistance = 0.f; // for calculating ReturnData->bulletTotalTravelDistanceBeforeHit (the distance of the non-filterd hit including distances of the previous filtered out traces)
@@ -71,51 +71,13 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 					thisHitTotalDistance += Hit.Distance;
 
 
-
-
-					// BEGIN copied code from AGATA_Trace::FilterHitResults()
-
-					if (MultiFilterHandle.MultiFilter.IsValid()) // if valid filter
+					if (FilterHitResult(ThisBulletHitResults, i, MultiFilterHandle, bAllowMultipleHitsPerActor))
 					{
-						const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.Actor);
-						if (!bPassesFilter)
-						{
-							ThisBulletHitResults.RemoveAt(i);
-							--i;
-							continue;
-						}
+						// This index did not pass the filter, stop here so that we don't add target data for it
+						continue;
 					}
 
-					if (!bAllowMultipleHitsPerActor) // if we should remove multiple hits
-					{
-						// Loop through each hit result and check if the hits infront of it (the hit results less than the pending index) already have its actor.
-						// If so, remove the pending hit result because it has the actor that was already hit and is considered a duplicate hit.
 
-						bool removed = false; // if true, we removed a duplicate hit
-
-						// Check if the hit results that we've looped through so far contains a hit result with this actor already
-						for (int32 comparisonIndex = 0; comparisonIndex < i; ++comparisonIndex)
-						{
-							if (Hit.Actor == ThisBulletHitResults[comparisonIndex].Actor)
-							{
-								ThisBulletHitResults.RemoveAt(i);
-								--i;
-								removed = true;
-								break;
-							}
-						}
-
-						if (removed)
-						{
-							continue;
-						}
-					}
-
-					// END copied code from AGATA_Trace::FilterHitResults()
-
-
-
-					
 					// If we got here, we are an unfiltered hit (ie. we hit a player), make target data for us:
 
 

@@ -161,7 +161,7 @@ void USSArcInventoryComponent_Active::AddToActiveItemHistory(const FArcInventory
 {
 	int32 sizeChange = 0;
 
-	if (ActiveItemHistory.RemoveSingle(NewActiveItemSlotReference) == 1)		// Remove the item from the history buffer so we can make it a new recent
+	if (ActiveItemHistory.RemoveSingle(NewActiveItemSlotReference) == 1)		// We don't want duplicates.... remove the item from the history buffer so we can make it a new recent
 	{
 		sizeChange--;
 	}

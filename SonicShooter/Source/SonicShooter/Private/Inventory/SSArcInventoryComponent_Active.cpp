@@ -89,10 +89,7 @@ bool USSArcInventoryComponent_Active::MakeItemActive_Internal(const FArcInventor
 
 	if (bSuccess)
 	{
-		if (bStartupItemsGiven)		// We don't want to touch the item history array if the startup items have not been given yet. Adding to it will be taken care of in OnItemEquipped
-		{
-			AddToActiveItemHistory(ItemSlot);
-		}		
+		AddToActiveItemHistory(ItemSlot);
 	}
 
 

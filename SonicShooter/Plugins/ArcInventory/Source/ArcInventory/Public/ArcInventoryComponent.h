@@ -52,12 +52,6 @@ public:
 	virtual void PostInitProperties() override;
 	virtual void InitializeComponent() override;
 
-
-	//------------------ =@MODIFIED MARKER@= new bool, set by the GameMode to be true after it gives the characters their items.
-		uint8 bStartupItemsGiven : 1;
-	//------------------
-
-
 protected:
 	//Creates a new slot with given tags
 	virtual void CreateInventorySlot(const FGameplayTagContainer& SlotTags, const FArcInventoryItemSlotFilterHandle& Filter);

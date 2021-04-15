@@ -89,8 +89,6 @@ void ASSGameMode::GiveInventoryStartupItems(UArcInventoryComponent* Inventory)
 			}
 		}
 	}
-
-	Inventory->bStartupItemsGiven = true;
 }
 
 

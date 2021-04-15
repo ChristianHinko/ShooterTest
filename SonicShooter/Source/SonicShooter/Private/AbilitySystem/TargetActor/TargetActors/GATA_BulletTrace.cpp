@@ -106,7 +106,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 void AGATA_BulletTrace::CalculateAimDirection(FVector& ViewStart, FVector& ViewDir) const
 {
-	Super::CalculateAimDirection(ViewStart, ViewDir);
+	Super::CalculateAimDirection(ViewStart, ViewDir); // call super so we get the PC's ViewDir, and then we can add bullet spread ontop of that
 
 
 	// Calculate new ViewDir with random bullet spread offset if needed

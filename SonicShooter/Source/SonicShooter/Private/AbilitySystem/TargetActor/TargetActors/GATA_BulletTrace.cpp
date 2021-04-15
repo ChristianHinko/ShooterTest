@@ -139,20 +139,16 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 	Params.bReturnPhysicalMaterial = true;
 	Params.AddIgnoredActors(ActorsToIgnore);
 
-	const FVector TraceStart = StartLocation.GetTargetingTransform().GetLocation();
+	FVector TraceStart = StartLocation.GetTargetingTransform().GetLocation();
+	FVector TraceEnd;
+	AimWithPlayerController(InSourceActor, Params, TraceStart, TraceEnd);		//Effective on server and launching client only
 
 	// ------------------------------------------------------
 
 
-	// Get direction player is aiming
-	FVector AimDir;
-	DirWithPlayerController(InSourceActor, Params, TraceStart, AimDir);		//Effective on server and launching client only
-
-	// Calculate the end of the trace based off aim dir and max range
-	const FVector TraceEnd = TraceStart + (AimDir * GetMaxRange());
-
 	// Perform line trace
 	LineTraceMulti(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, GunAttributeSet->GetRicochets(), Params, bDebug);
+
 }
 
 

@@ -9,7 +9,13 @@ void UAS_Damage::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Damage, OutgoingDamage, COND_None, REPNOTIFY_Always);
+
+	FDoRepLifetimeParams Params;
+	Params.Condition = COND_None;
+	Params.RepNotifyCondition = REPNOTIFY_Always;
+
+	Params.bIsPushBased = true;
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Damage, OutgoingDamage, Params);
 }
 
 UAS_Damage::UAS_Damage()

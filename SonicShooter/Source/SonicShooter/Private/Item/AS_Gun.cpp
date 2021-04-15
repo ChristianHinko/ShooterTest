@@ -16,24 +16,30 @@ void UAS_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, MinBulletSpread, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, MovingBulletSpread, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadIncRate, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, FireBulletSpread, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, BulletSpreadDecSpeed, COND_None, REPNOTIFY_Always);
 
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, NumberOfBulletsPerFire, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, MaxRange, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, Ricochets, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, DamageFalloff, COND_None, REPNOTIFY_Always);
+	FDoRepLifetimeParams Params;
+	Params.Condition = COND_None;
+	Params.RepNotifyCondition = REPNOTIFY_Always;
 
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, bFullAuto, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, TimeBetweenShots, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, TimeBetweenFiresOverride, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, TimeBetweenBurstsOverride, COND_None, REPNOTIFY_Always);
+	Params.bIsPushBased = true;
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, MinBulletSpread, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, MovingBulletSpread, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, BulletSpreadIncRate, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, FireBulletSpread, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, BulletSpreadDecSpeed, Params);
 
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, NumShotsPerBurst, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Gun, AmmoCost, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, NumberOfBulletsPerFire, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, MaxRange, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, Ricochets, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, DamageFalloff, Params);
+
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, bFullAuto, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, TimeBetweenShots, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, TimeBetweenFiresOverride, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, TimeBetweenBurstsOverride, Params);
+
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, NumShotsPerBurst, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, AmmoCost, Params);
 }
 
 UAS_Gun::UAS_Gun()

@@ -16,13 +16,18 @@ void UAS_Stamina::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Stamina, MaxStamina, COND_None, REPNOTIFY_Always);
+	FDoRepLifetimeParams Params;
+	Params.Condition = COND_None;
+	Params.RepNotifyCondition = REPNOTIFY_Always;
 
-	//DOREPLIFETIME_CONDITION_NOTIFY(UAS_Stamina, Stamina, COND_Custom, REPNOTIFY_Always);
+	Params.bIsPushBased = true;
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Stamina, MaxStamina, Params);
 
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Stamina, StaminaDrain, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Stamina, StaminaGain, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Stamina, StaminaRegenPause, COND_None, REPNOTIFY_Always);
+	//DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Stamina, Stamina, Params);
+
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Stamina, StaminaDrain, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Stamina, StaminaGain, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Stamina, StaminaRegenPause, Params);
 }
 //void UAS_Stamina::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) // this is only for AActors and UActorComponents, we will have to do something tricky instead of this
 //{

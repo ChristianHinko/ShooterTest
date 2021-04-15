@@ -11,7 +11,13 @@ void UAS_ExampleAbilitySystemCharacter::GetLifetimeReplicatedProps(TArray<FLifet
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_ExampleAbilitySystemCharacter, ExampleAttribute, COND_None, REPNOTIFY_Always);
+
+	FDoRepLifetimeParams Params;
+	Params.Condition = COND_None;
+	Params.RepNotifyCondition = REPNOTIFY_Always;
+
+	Params.bIsPushBased = true;
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_ExampleAbilitySystemCharacter, ExampleAttribute, Params);
 }
 
 UAS_ExampleAbilitySystemCharacter::UAS_ExampleAbilitySystemCharacter()

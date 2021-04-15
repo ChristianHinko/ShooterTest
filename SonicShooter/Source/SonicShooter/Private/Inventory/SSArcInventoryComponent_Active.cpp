@@ -3,6 +3,7 @@
 
 #include "Inventory/SSArcInventoryComponent_Active.h"
 
+#include "Net/UnrealNetwork.h"
 #include "ArcItemStack.h"
 #include "Item/Definitions/ArcItemDefinition_Active.h"
 #include "AbilitySystem/SSAbilitySystemComponent.h"
@@ -16,7 +17,17 @@
 //#include "AbilitySystem/SSAttributeSet.h"
 
 
+void USSArcInventoryComponent_Active::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+
+	FDoRepLifetimeParams Params;
+
+	Params.bIsPushBased = true;
+	Params.Condition = COND_OwnerOnly;
+	DOREPLIFETIME_WITH_PARAMS_FAST(USSArcInventoryComponent_Active, ActiveItemHistory, Params);
+}
 
 
 USSArcInventoryComponent_Active::USSArcInventoryComponent_Active(const FObjectInitializer& ObjectInitializer)
@@ -37,13 +48,6 @@ bool USSArcInventoryComponent_Active::IsActiveItemSlotIndexValid(int32 InActiveI
 	}
 	return true;
 }
-
-void USSArcInventoryComponent_Active::ClientRecieveStartingActiveItemHistoryArray_Implementation(const TArray<FArcInventoryItemSlotReference>& ServerActiveItemHistoryArr)
-{
-	ActiveItemHistory = ServerActiveItemHistoryArr;
-	bStartupItemsGiven = true;	// Since this bool is not replicated we must set it now since we just rpced to the client
-}
-
 
 void USSArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
 {

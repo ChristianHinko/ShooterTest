@@ -53,21 +53,7 @@ void AShooterCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	if (NewController->IsPlayerController())	// No point of doing a client RPC if no player is controlling it (ie. this is an AI)
-	{
-		if (IsLocallyControlled() == false)				// No point of doing a client RPC if this character is being controlled by a listening server (IsLocallyControlled called on server only is true if we are listening server)
-		{
-			// If we end up here, we are a character on the server that is being controlled by a client (not controlled by a listening server)
-			if (SSInventoryComponentActive)
-			{
-				//SSInventoryComponentActive->ClientRecieveStartingActiveItemHistoryArray(SSInventoryComponentActive->ActiveItemHistory);
-			}
-			else
-			{
-				UE_LOG(LogArcInventorySetup, Error, TEXT("%s() Failed to call ClientRecieveStartingActiveItemHistoryArray RPC. Item history array is not in sync!"), *FString(__FUNCTION__));
-			}
-		}
-	}
+
 }
 
 void AShooterCharacter::BeginPlay()

@@ -30,11 +30,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 		int32 maxItemHistoryBufferSize;
-	TArray<FArcInventoryItemSlotReference> ActiveItemHistory;
+	UPROPERTY(Replicated)
+		TArray<FArcInventoryItemSlotReference> ActiveItemHistory;
 
-	// This is the only time we sync the client and server ActiveItemHistory array. The very start of the game.
-	UFUNCTION(Client, Reliable)
-		void ClientRecieveStartingActiveItemHistoryArray(const TArray<FArcInventoryItemSlotReference>& ServerActiveItemHistoryArr);
 
 
 

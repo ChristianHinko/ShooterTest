@@ -160,7 +160,7 @@ void USSArcInventoryComponent_Active::MakeItemInactive()
 	}
 }
 
-void USSArcInventoryComponent_Active::AddToActiveItemHistory(FArcInventoryItemSlotReference NewActiveItemSlotReference)
+void USSArcInventoryComponent_Active::AddToActiveItemHistory(const FArcInventoryItemSlotReference& NewActiveItemSlotReference)
 {
 	int32 sizeChange = 0;
 

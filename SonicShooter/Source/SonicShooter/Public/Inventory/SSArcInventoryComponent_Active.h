@@ -42,7 +42,7 @@ public:
 	virtual void MakeItemInactive() override;
 
 	UFUNCTION()
-		void AddToActiveItemHistory(FArcInventoryItemSlotReference NewActiveItemSlotReference);
+		void AddToActiveItemHistory(const FArcInventoryItemSlotReference& NewActiveItemSlotReference);
 
 protected:
 

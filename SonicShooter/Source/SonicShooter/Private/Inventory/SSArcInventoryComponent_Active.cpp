@@ -51,10 +51,9 @@ bool USSArcInventoryComponent_Active::IsActiveItemSlotIndexValid(int32 InActiveI
 
 void USSArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
 {
-	if (!bStartupItemsGiven)
-	{
-		AddToActiveItemHistory(ItemSlotRef);
-	}
+
+
+
 
 	// In our game we want items to auto set active whenever we equip an active item. However, if we havn't begun play yet, equiping an item will still work, just only with the most recent one before beginplay happens
 	if (IsActiveItemSlot(ItemSlotRef) && IsValid(ItemStack))

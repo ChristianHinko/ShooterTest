@@ -175,25 +175,3 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 	// Perform line trace
 	LineTraceMulti(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, GunAttributeSet->GetRicochets(), Params, bDebug);
 }
-
-
-
-
-
-
-
-
-void AGATA_BulletTrace::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	// Unbind all our listeners before destroy
-	if (OwningAbility)
-	{
-		if (UAbilitySystemComponent* ASC = OwningAbility->GetAbilitySystemComponentFromActorInfo())
-		{
-			OwningAbility->GetAbilitySystemComponentFromActorInfo()->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetCurrentBulletSpreadAttribute()).RemoveAll(this);
-			OwningAbility->GetAbilitySystemComponentFromActorInfo()->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetNumberOfBulletsPerFireAttribute()).RemoveAll(this);
-		}
-	}
-
-	Super::EndPlay(EndPlayReason);
-}

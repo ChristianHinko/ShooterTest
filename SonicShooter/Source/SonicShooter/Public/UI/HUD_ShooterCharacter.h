@@ -8,6 +8,9 @@
 #include "HUD_ShooterCharacter.generated.h"
 
 
+class UUW_Health;
+
+
 
 /**
  * 
@@ -21,9 +24,17 @@ public:
 	AHUD_ShooterCharacter();
 
 
-	//UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-	//	TSubclassOf<UUserWidget> MyWidgetTSub;
-	//UUserWidget* MyWidget;
+#if 0
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+		TSubclassOf<UUserWidget> MyWidgetTSub;
+	UUserWidget* MyWidget;
+#endif
+
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+		TSubclassOf<UUW_Health> HealthWidgetTSub;
+	UUserWidget* HealthWidget;
+
 
 	UUserWidget* CrosshairWidget;
 	UUserWidget* AmmoWidget;

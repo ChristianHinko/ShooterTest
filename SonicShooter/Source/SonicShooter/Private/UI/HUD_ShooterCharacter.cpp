@@ -4,6 +4,7 @@
 #include "UI/HUD_ShooterCharacter.h"
 
 #include "Blueprint/WidgetBlueprintLibrary.h"
+#include "UI/UMG/Widgets/UW_Health.h"
 
 
 
@@ -25,6 +26,11 @@ void AHUD_ShooterCharacter::BeginPlay()
 
 	// NOTE: player state isnt valid right away (but we have event for when it is now in base SSUserWidget)
 
-	//MyWidget = UWidgetBlueprintLibrary::Create(this, MyWidgetTSub, GetOwningPlayerController());
-	//MyWidget->AddToViewport();
+#if 0
+	MyWidget = UWidgetBlueprintLibrary::Create(this, MyWidgetTSub, GetOwningPlayerController());
+	MyWidget->AddToViewport();
+#endif
+
+	HealthWidget = UWidgetBlueprintLibrary::Create(this, HealthWidgetTSub, GetOwningPlayerController());
+	HealthWidget->AddToViewport();
 }

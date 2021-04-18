@@ -4,6 +4,7 @@
 #include "UI/HUD_ShooterCharacter.h"
 
 #include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Utilities/LogCategories.h"
 #include "UI/UMG/Widgets/UW_Health.h"
 
 
@@ -28,9 +29,23 @@ void AHUD_ShooterCharacter::BeginPlay()
 
 #if 0
 	MyWidget = UWidgetBlueprintLibrary::Create(this, MyWidgetTSub, GetOwningPlayerController());
-	MyWidget->AddToViewport();
+	if (MyWidget)
+	{
+		MyWidget->AddToViewport();
+	}
+	else
+	{
+		UE_LOG(LogUI, Error, TEXT("%s(): Failed to create MyWidget. Ensure to fill out TSubs in BP"), *FString(__FUNCTION__));
+	}
 #endif
 
 	HealthWidget = UWidgetBlueprintLibrary::Create(this, HealthWidgetTSub, GetOwningPlayerController());
-	HealthWidget->AddToViewport();
+	if (HealthWidget)
+	{
+		HealthWidget->AddToViewport();
+	}
+	else
+	{
+		UE_LOG(LogUI, Error, TEXT("%s(): Failed to create HealthWidget. Ensure to fill out TSubs in BP"), *FString(__FUNCTION__));
+	}
 }

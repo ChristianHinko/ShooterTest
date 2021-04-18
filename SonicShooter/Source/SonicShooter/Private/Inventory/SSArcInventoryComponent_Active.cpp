@@ -10,9 +10,12 @@
 #include "Input/ArcInvInputBinder.h"
 #include "AbilitySystemGlobals.h"
 
-#include "Item/Weapons/WeaponDefinition.h"
 #include "UI/HUD_ShooterCharacter.h"
+#include "Item/Weapons/WeaponDefinition.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Item/UW_Crosshair.h"
+#include "UI/UMG/Widgets/UW_Ammo.h"
+
 //#include "AbilitySystem/SSAttributeSet.h"
 
 

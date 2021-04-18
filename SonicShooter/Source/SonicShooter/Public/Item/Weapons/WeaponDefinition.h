@@ -8,6 +8,10 @@
 #include "WeaponDefinition.generated.h"
 
 
+class UUW_Crosshair;
+class UUW_Ammo;
+
+
 
 UCLASS(Blueprintable, BlueprintType)
 class SONICSHOOTER_API UWeaponUIData : public UArcUIData_ItemDefinition
@@ -19,10 +23,10 @@ public:
 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<UUserWidget> CrosshairWidgetTSub;
+		TSubclassOf<UUW_Crosshair> CrosshairWidgetTSub;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<UUserWidget> AmmoWidgetTSub;
+		TSubclassOf<UUW_Ammo> AmmoWidgetTSub;
 };
 
 /**

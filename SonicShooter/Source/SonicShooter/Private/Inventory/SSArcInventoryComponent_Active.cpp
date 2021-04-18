@@ -97,17 +97,17 @@ void USSArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponen
 
 
 	//If we are an active item slot, make it active if we don't already have an active item
-	//if (ActiveItemSlot == INDEX_NONE && IsActiveItemSlot(ItemSlotRef) && IsValid(ItemStack))
-	//{
-	//	int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);
-	//	PendingItemSlot = ItemSlotIndex;
+	if (ActiveItemSlot == INDEX_NONE && IsActiveItemSlot(ItemSlotRef) && IsValid(ItemStack))
+	{
+		int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);
+		PendingItemSlot = ItemSlotIndex;
 
-	//	//If we've begun play, send the gameplay event now.  Otherwise we'll get it in BeginPlay
-	//	if (HasBegunPlay())
-	//	{
-	//		SwitchToPendingItemSlot();
-	//	}
-	//}
+		//If we've begun play, send the gameplay event now.  Otherwise we'll get it in BeginPlay
+		if (HasBegunPlay())
+		{
+			SwitchToPendingItemSlot();
+		}
+	}
 
 
 	//If we are unequipping an item and it's the currently active item, either go to the next available active item or go to neutral

@@ -34,6 +34,47 @@ USSArcInventoryComponent_Active::USSArcInventoryComponent_Active(const FObjectIn
 	: Super(ObjectInitializer)
 {
 	maxItemHistoryBufferSize = 30;
+
+	// The work below can be done in the constructor since we are dealing with CustomInventorySlots which is filled out in the editor 
+	// Figures out what active item to start on (first CustomInventorySlot with the tag "Inventory.Slot.Active"). We know there should be a valid item in this slot even though it may not be replicated yet so this convieniently sets the startingActiveItemSlot to the first active item slot regardless of wheather we have a valid item yet or not, however, this may limit certain gameplay mechanics related to runtime inventory startup editing or something since CustomInventorySlots are desined to be edited in editor. But who knows there may be a way to fix that
+	FGameplayTag ActiveSlotTag = GetDefault<UArcInventoryDeveloperSettings>()->ActiveItemSlotTag;
+	for (int32 i = 0; i < CustomInventorySlots.Num(); i++)
+	{
+		if (CustomInventorySlots[i].Tags.HasTag(ActiveSlotTag))
+		{
+			startingActiveItemSlot = i;
+		}
+	}
+}
+
+void USSArcInventoryComponent_Active::BeginPlay()
+{
+	//Make sure we have nothing stored when we begin play.  We want to have a clean start to this active slot if we reset
+	int32 OldActiveItem = ActiveItemSlot;
+	MakeItemInactive();
+	ActiveItemSlot = OldActiveItem;
+
+	GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
+		{
+			SwapActiveItems(startingActiveItemSlot);
+
+
+			//////////////////////// We aren't going to do this stuff from the super since it just makes things dufficult ////////////////////////
+			////Check to see if we have an active item in our first slot and set it to that to start with  
+			//if (PendingItemSlot != INDEX_NONE)
+			//{
+			//	this->SwitchToPendingItemSlot();
+			//}
+			////Sometimes, on the client, we get the initial ActiveItemSlot before we've begun play
+			////In that case, PendingItemSlot would be none, and we have a valid ActiveItemSlot that hasn't been made active yet
+			////So we'll do it here.
+			//else if (ActiveItemSlot != INDEX_NONE && GetOwnerRole() != ROLE_Authority)
+			//{
+			//	this->MakeItemActive(ActiveItemSlot);
+			//}
+		});
+
+	Super::Super::BeginPlay();
 }
 
 bool USSArcInventoryComponent_Active::IsActiveItemSlotIndexValid(int32 InActiveItemSlot)
@@ -56,17 +97,17 @@ void USSArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponen
 
 
 	//If we are an active item slot, make it active if we don't already have an active item
-	if (ActiveItemSlot == INDEX_NONE && IsActiveItemSlot(ItemSlotRef) && IsValid(ItemStack))
-	{
-		int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);
-		PendingItemSlot = ItemSlotIndex;
+	//if (ActiveItemSlot == INDEX_NONE && IsActiveItemSlot(ItemSlotRef) && IsValid(ItemStack))
+	//{
+	//	int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);
+	//	PendingItemSlot = ItemSlotIndex;
 
-		//If we've begun play, send the gameplay event now.  Otherwise we'll get it in BeginPlay
-		if (HasBegunPlay())
-		{
-			SwitchToPendingItemSlot();
-		}
-	}
+	//	//If we've begun play, send the gameplay event now.  Otherwise we'll get it in BeginPlay
+	//	if (HasBegunPlay())
+	//	{
+	//		SwitchToPendingItemSlot();
+	//	}
+	//}
 
 
 	//If we are unequipping an item and it's the currently active item, either go to the next available active item or go to neutral

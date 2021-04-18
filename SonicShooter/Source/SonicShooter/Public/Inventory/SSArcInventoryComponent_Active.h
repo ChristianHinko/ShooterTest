@@ -21,6 +21,8 @@ private:
 
 public:
 	USSArcInventoryComponent_Active(const FObjectInitializer& ObjectInitializer);
+	virtual void BeginPlay() override;
+	int32 startingActiveItemSlot;
 
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 		bool IsActiveItemSlotIndexValid(int32 InActiveItemSlot);

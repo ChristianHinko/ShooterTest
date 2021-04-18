@@ -34,6 +34,7 @@ USSArcInventoryComponent_Active::USSArcInventoryComponent_Active(const FObjectIn
 	: Super(ObjectInitializer)
 {
 	maxItemHistoryBufferSize = 30;
+	bUseOnEquipItemSwappingThingRoyMade = false;
 
 	// The work below can be done in the constructor since we are dealing with CustomInventorySlots which is filled out in the editor 
 	// Figures out what active item to start on (first CustomInventorySlot with the tag "Inventory.Slot.Active"). We know there should be a valid item in this slot even though it may not be replicated yet so this convieniently sets the startingActiveItemSlot to the first active item slot regardless of wheather we have a valid item yet or not, however, this may limit certain gameplay mechanics related to runtime inventory startup editing or something since CustomInventorySlots are desined to be edited in editor. But who knows there may be a way to fix that
@@ -95,32 +96,35 @@ void USSArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponen
 
 
 
-
-	//If we are an active item slot, make it active if we don't already have an active item
-	if (ActiveItemSlot == INDEX_NONE && IsActiveItemSlot(ItemSlotRef) && IsValid(ItemStack))
+	if (bUseOnEquipItemSwappingThingRoyMade)
 	{
-		int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);
-		PendingItemSlot = ItemSlotIndex;
-
-		//If we've begun play, send the gameplay event now.  Otherwise we'll get it in BeginPlay
-		if (HasBegunPlay())
+		//If we are an active item slot, make it active if we don't already have an active item		
+		if (ActiveItemSlot == INDEX_NONE && IsActiveItemSlot(ItemSlotRef) && IsValid(ItemStack))
 		{
-			SwitchToPendingItemSlot();
+
+			int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);
+			PendingItemSlot = ItemSlotIndex;
+
+			//If we've begun play, send the gameplay event now.  Otherwise we'll get it in BeginPlay
+			if (HasBegunPlay())
+			{
+				SwitchToPendingItemSlot();
+			}
+		}
+
+		//If we are unequipping an item and it's the currently active item, either go to the next available active item or go to neutral
+		if (!IsValid(ItemStack))
+		{
+			int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);
+			if (ItemSlotIndex == ActiveItemSlot)
+			{
+				PendingItemSlot = GetNextValidActiveItemSlot();
+				MakeItemInactive_Internal(ItemSlotRef, PreviousItemStack);
+				SwitchToPendingItemSlot();
+			}
 		}
 	}
 
-
-	//If we are unequipping an item and it's the currently active item, either go to the next available active item or go to neutral
-	if (!IsValid(ItemStack))
-	{
-		int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);
-		if (ItemSlotIndex == ActiveItemSlot)
-		{
-			PendingItemSlot = GetNextValidActiveItemSlot();
-			MakeItemInactive_Internal(ItemSlotRef, PreviousItemStack);
-			SwitchToPendingItemSlot();
-		}
-	}
 }
 
 bool USSArcInventoryComponent_Active::MakeItemActive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack)

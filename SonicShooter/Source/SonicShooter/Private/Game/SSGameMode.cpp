@@ -55,7 +55,7 @@ void ASSGameMode::GiveInventoryStartupItems(UArcInventoryComponent* Inventory)
 	USSArcInventoryComponent_Active* SSArcInventoryCompActive = Cast<USSArcInventoryComponent_Active>(Inventory);	// See if we are a USSArcInventoryComponent_Active so we can do extra logic on that specific type
 
 	// Loop through the SlotDefinitions we filled out in the inventory component's BP for this pawn so we can access the information of what item we should put in each slot
-	// We loop through them backwards since we call USSArcInventoryComponent_Active::AddToActiveItemHistory after every equip
+	// We loop through them backwards since we call USSArcInventoryComponent_Active::AddToActiveItemHistory every iteration
 	for (int32 i = Inventory->CustomInventorySlots.Num() - 1; i >= 0 ; --i)
 	{
 		//	Get the item generator the SlotDefinition specifies

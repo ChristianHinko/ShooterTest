@@ -55,7 +55,7 @@ void USSArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponen
 
 
 
-	// In our game we want items to auto set active whenever we equip an active item. However, if we havn't begun play yet, equiping an item will still work, just only with the most recent one before beginplay happens
+	//If we are an active item slot, make it active if we don't already have an active item
 	if (ActiveItemSlot == INDEX_NONE && IsActiveItemSlot(ItemSlotRef) && IsValid(ItemStack))
 	{
 		int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);

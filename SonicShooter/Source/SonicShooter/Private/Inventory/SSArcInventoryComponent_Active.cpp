@@ -181,21 +181,24 @@ void USSArcInventoryComponent_Active::MakeItemInactive()
 	Super::MakeItemInactive();
 
 	// Remove UIData widgets
-	if (APlayerController* OwningPC = Cast<APlayerController>(Cast<APawn>(GetOwner())->GetController()))
+	if (APawn* OwningPawn = Cast<APawn>(GetOwner()))
 	{
-		if (OwningPC->IsLocalController())
+		if (OwningPawn->IsLocallyControlled())
 		{
-			if (AHUD_ShooterCharacter* ShooterCharacterHUD = Cast<AHUD_ShooterCharacter>(OwningPC->GetHUD()))
+			if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
 			{
-				if (ShooterCharacterHUD->CrosshairWidget)
+				if (AHUD_ShooterCharacter* ShooterCharacterHUD = Cast<AHUD_ShooterCharacter>(OwningPC->GetHUD()))
 				{
-					ShooterCharacterHUD->CrosshairWidget->RemoveFromViewport();
-					ShooterCharacterHUD->CrosshairWidget = nullptr;
-				}
-				if (ShooterCharacterHUD->AmmoWidget)
-				{
-					ShooterCharacterHUD->AmmoWidget->RemoveFromViewport();
-					ShooterCharacterHUD->AmmoWidget = nullptr;
+					if (ShooterCharacterHUD->CrosshairWidget)
+					{
+						ShooterCharacterHUD->CrosshairWidget->RemoveFromViewport();
+						ShooterCharacterHUD->CrosshairWidget = nullptr;
+					}
+					if (ShooterCharacterHUD->AmmoWidget)
+					{
+						ShooterCharacterHUD->AmmoWidget->RemoveFromViewport();
+						ShooterCharacterHUD->AmmoWidget = nullptr;
+					}
 				}
 			}
 		}

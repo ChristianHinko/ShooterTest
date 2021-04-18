@@ -18,26 +18,7 @@ void AHUD_ShooterCharacter::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 
-}
-
-void AHUD_ShooterCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-
-
 	// NOTE: player state isnt valid right away (but we have event for when it is now in base SSUserWidget)
-
-#if 0
-	MyWidget = UWidgetBlueprintLibrary::Create(this, MyWidgetTSub, GetOwningPlayerController());
-	if (MyWidget)
-	{
-		MyWidget->AddToViewport();
-	}
-	else
-	{
-		UE_LOG(LogUI, Error, TEXT("%s(): Failed to create MyWidget. Ensure to fill out TSubs in BP"), *FString(__FUNCTION__));
-	}
-#endif
 
 	HealthWidget = UWidgetBlueprintLibrary::Create(this, HealthWidgetTSub, GetOwningPlayerController());
 	if (HealthWidget)

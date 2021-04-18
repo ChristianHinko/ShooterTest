@@ -13,7 +13,7 @@ class UUW_Health;
 
 
 /**
- * 
+ * ShooterCharacter specific HUD
  */
 UCLASS()
 class SONICSHOOTER_API AHUD_ShooterCharacter : public ASSHUD
@@ -23,12 +23,6 @@ class SONICSHOOTER_API AHUD_ShooterCharacter : public ASSHUD
 public:
 	AHUD_ShooterCharacter();
 
-
-#if 0
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<UUserWidget> MyWidgetTSub;
-	UUserWidget* MyWidget;
-#endif
 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
@@ -41,5 +35,4 @@ public:
 
 protected:
 	virtual void PostInitializeComponents() override;
-	virtual void BeginPlay() override;
 };

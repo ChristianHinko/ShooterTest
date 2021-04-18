@@ -3,11 +3,11 @@
 
 #include "UI/UMG/SSUserWidget.h"
 
+#include "Player/SSPlayerController.h"
 #include "GameFramework/PlayerState.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
 #include "Utilities/LogCategories.h"
-#include "Player/SSPlayerController.h"
 
 
 
@@ -27,32 +27,26 @@ void USSUserWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 
+	// Handle calling OnPlayerStateValid():
+
 	if (APlayerController* OwningPlayer = GetOwningPlayer())
 	{
 		if (OwningPlayer->PlayerState)
 		{
-			if (IAbilitySystemInterface* AbilitySystem = Cast<IAbilitySystemInterface>(OwningPlayer->PlayerState))
-			{
-				PlayerASC = AbilitySystem->GetAbilitySystemComponent();
-				OnPlayerASCValid();
-
-				SetUpAttributeListeningFor(PlayerASC);
-			}
-			else
-			{
-				UE_LOG(LogUI, Error, TEXT("%s(): Cast from player state to ability system FAILED"), *FString(__FUNCTION__));
-			}
+			OnPlayerStateValid();
 		}
 		else // PS not valid
 		{
-			//UE_LOG(LogUI, Error, TEXT("%s(): PlayerState was NULL"), *FString(__FUNCTION__));
-
-
 			SSOwningPlayerController = Cast<ASSPlayerController>(OwningPlayer);
+
 			if (SSOwningPlayerController)
 			{
 				// Player state was null, so try waiting for it to be valid
 				SSOwningPlayerController->OnPlayerStateValid.AddUObject(this, &USSUserWidget::OnPlayerStateValid);
+			}
+			else
+			{
+				UE_LOG(LogUI, Error, TEXT("%s(): OwningPlayer's Player State was NULL. And failed to wait for it to become valid because the OwningPlayer was not a %s"), *FString(__FUNCTION__), *(ASSPlayerController::StaticClass()->GetName()));
 			}
 		}
 	}
@@ -60,6 +54,49 @@ void USSUserWidget::NativeConstruct()
 	{
 		UE_LOG(LogUI, Error, TEXT("%s(): OwningPlayer was NULL"), *FString(__FUNCTION__));
 	}
+}
+
+void USSUserWidget::OnPlayerStateValid()
+{
+	if (SSOwningPlayerController)
+	{
+		SSOwningPlayerController->OnPlayerStateValid.RemoveAll(this);
+	}
+
+
+	// Handle calling OnPlayerASCValid():
+
+	if (APlayerController* OwningPlayer = GetOwningPlayer())
+	{
+		if (IAbilitySystemInterface* AbilitySystem = Cast<IAbilitySystemInterface>(OwningPlayer->PlayerState))
+		{
+			PlayerASC = AbilitySystem->GetAbilitySystemComponent();
+
+			if (PlayerASC)
+			{
+				OnPlayerASCValid();
+			}
+			else
+			{
+				UE_LOG(LogUI, Error, TEXT("%s(): Player State's AbilitySystem returned a NULL Ability System Component"), *FString(__FUNCTION__));
+			}
+		}
+		else
+		{
+			UE_LOG(LogUI, Error, TEXT("%s(): Cast from Player State to ability system FAILED"), *FString(__FUNCTION__));
+		}
+	}
+	else
+	{
+		UE_LOG(LogUI, Error, TEXT("%s(): OwningPlayer was NULL"), *FString(__FUNCTION__));
+	}
+}
+
+void USSUserWidget::OnPlayerASCValid()
+{
+	SetUpAttributeListeningFor(PlayerASC);
+
+
 }
 
 void USSUserWidget::SetUpAttributeListeningFor(UAbilitySystemComponent* ASC)
@@ -90,24 +127,6 @@ void USSUserWidget::SetUpAttributeListeningFor(UAbilitySystemComponent* ASC)
 	}
 }
 
-void USSUserWidget::OnPlayerStateValid()
-{
-	SSOwningPlayerController->OnPlayerStateValid.RemoveAll(this);
-
-
-	if (IAbilitySystemInterface* AbilitySystem = Cast<IAbilitySystemInterface>(SSOwningPlayerController->PlayerState))
-	{
-		PlayerASC = AbilitySystem->GetAbilitySystemComponent();
-		OnPlayerASCValid();
-
-		SetUpAttributeListeningFor(PlayerASC);
-	}
-	else
-	{
-		UE_LOG(LogUI, Error, TEXT("%s(): Cast from player state to ability system FAILED"), *FString(__FUNCTION__));
-	}
-}
-
 void USSUserWidget::OnAttributeChanged(const FOnAttributeChangeData& Data)
 {
 	const FGameplayAttribute Attribute = Data.Attribute;
@@ -121,6 +140,7 @@ void USSUserWidget::OnAttributeChanged(const FOnAttributeChangeData& Data)
 	}
 #endif
 }
+
 
 void USSUserWidget::NativeDestruct()
 {

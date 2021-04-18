@@ -30,6 +30,9 @@ public:
 	USSUserWidget(const FObjectInitializer& ObjectInitializer);
 
 
+	/**
+	 * Add to this array in constructor to have it listened for
+	 */
 	TArray<FGameplayAttribute> AttributesToListenFor;
 
 protected:
@@ -37,14 +40,22 @@ protected:
 	virtual void NativeDestruct() override;
 
 	UAbilitySystemComponent* PlayerASC;
-	virtual void OnPlayerASCValid() { }
 
-	ASSPlayerController* SSOwningPlayerController; // only have this for the PS valid delegate
+	/** Called when PlayerASC becomes valid */
+	virtual void OnPlayerASCValid();
+	/** Called when the owning Player Controller has a valid Player State */
 	virtual void OnPlayerStateValid();
 
+	/**
+	 * Event called whenever one of the AttributesToListenFor has changed.
+	 * Check the Data.Attribute to see which of the attributes has changed.
+	 */
 	virtual void OnAttributeChanged(const FOnAttributeChangeData& Data);
 
 private:
+	ASSPlayerController* SSOwningPlayerController; // we only have this for the PS valid delegate
+
+	/** Bind to the AttributeValueChangeDelegate for all of the AttributesToListenFor (and manually call OnAttributeChanged() for initial updates) */
 	void SetUpAttributeListeningFor(UAbilitySystemComponent* ASC);
 
 };

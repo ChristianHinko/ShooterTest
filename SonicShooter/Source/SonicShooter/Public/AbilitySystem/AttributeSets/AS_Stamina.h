@@ -30,13 +30,8 @@ public:
 		FGameplayAttributeData MaxStamina;
 	ATTRIBUTE_ACCESSORS(UAS_Stamina, MaxStamina)
 
-	UPROPERTY(BlueprintReadOnly/*, ReplicatedUsing = OnRep_Stamina*/, Category = "Attributes")
-		FGameplayAttributeData Stamina;
-	ATTRIBUTE_ACCESSORS(UAS_Stamina, Stamina)
-
-	UFUNCTION(Unreliable, Client)
-		void ClientReplicateStaminaState(float serverStamina, bool serverStaminaDraining);
-	void ClientReplicateStaminaState_Implementation(float serverStamina, bool serverStaminaDraining);
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Stamina, Category = "Attributes")
+		float Stamina;
 
 	/** How fast your stamina drains while running */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_StaminaDrain, Category = "Attributes")
@@ -71,8 +66,8 @@ protected:
 	UFUNCTION()
 		virtual void OnRep_MaxStamina(const FGameplayAttributeData& ServerBaseValue);
 
-	//UFUNCTION()
-	//	virtual void OnRep_Stamina(const FGameplayAttributeData& ServerBaseValue);
+	UFUNCTION()
+		virtual void OnRep_Stamina();
 
 	UFUNCTION()
 		virtual void OnRep_StaminaDrain(const FGameplayAttributeData& ServerBaseValue);

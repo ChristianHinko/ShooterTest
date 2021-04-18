@@ -12,10 +12,16 @@ void UAS_Ammo::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Ammo, MaxAmmo, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Ammo, BackupAmmo, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Ammo, MaxClipAmmo, COND_None, REPNOTIFY_Always);
-	//DOREPLIFETIME_CONDITION_NOTIFY(UAS_Ammo, ClipAmmo, COND_None, REPNOTIFY_Always);
+
+	FDoRepLifetimeParams Params;
+	Params.Condition = COND_None;
+	Params.RepNotifyCondition = REPNOTIFY_Always;
+
+	Params.bIsPushBased = true;
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Ammo, MaxAmmo, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Ammo, BackupAmmo, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Ammo, MaxClipAmmo, Params);
+	//DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Ammo, ClipAmmo, Params);
 }
 
 UAS_Ammo::UAS_Ammo()

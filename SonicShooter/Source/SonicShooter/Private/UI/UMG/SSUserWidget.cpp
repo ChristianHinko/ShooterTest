@@ -34,7 +34,7 @@ void USSUserWidget::NativeConstruct()
 			if (IAbilitySystemInterface* AbilitySystem = Cast<IAbilitySystemInterface>(OwningPlayer->PlayerState))
 			{
 				PlayerASC = AbilitySystem->GetAbilitySystemComponent();
-
+				OnPlayerASCValid();
 
 				SetUpAttributeListeningFor(PlayerASC);
 			}
@@ -98,7 +98,7 @@ void USSUserWidget::OnPlayerStateValid()
 	if (IAbilitySystemInterface* AbilitySystem = Cast<IAbilitySystemInterface>(SSOwningPlayerController->PlayerState))
 	{
 		PlayerASC = AbilitySystem->GetAbilitySystemComponent();
-
+		OnPlayerASCValid();
 
 		SetUpAttributeListeningFor(PlayerASC);
 	}

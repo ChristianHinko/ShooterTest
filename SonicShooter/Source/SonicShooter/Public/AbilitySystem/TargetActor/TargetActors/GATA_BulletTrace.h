@@ -38,9 +38,6 @@ protected:
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) override;
 
 
-
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
 private:
 	uint8 currentBulletNumber;
 };

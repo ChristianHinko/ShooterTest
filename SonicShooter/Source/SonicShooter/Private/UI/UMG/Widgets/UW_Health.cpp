@@ -11,6 +11,7 @@ UUW_Health::UUW_Health(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	AttributesToListenFor.Add(UAS_Health::GetHealthAttribute());
+	AttributesToListenFor.Add(UAS_Health::GetMaxHealthAttribute());
 }
 
 
@@ -24,10 +25,19 @@ void UUW_Health::OnAttributeChanged(const FOnAttributeChangeData& Data)
 	{
 		SetCurrentHealth(NewValue);
 	}
+	if (Attribute == UAS_Health::GetMaxHealthAttribute())
+	{
+		SetMaxHealth(NewValue);
+	}
 }
 
 void UUW_Health::SetCurrentHealth(float NewCurrentHealth)
 {
 	CurrentHealth = NewCurrentHealth;
+	UpdateHealthStatus();
+}
+void UUW_Health::SetMaxHealth(float NewMaxHealth)
+{
+	MaxHealth = NewMaxHealth;
 	UpdateHealthStatus();
 }

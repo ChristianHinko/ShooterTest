@@ -28,11 +28,15 @@ public:
 	/** The current health value of the attribute */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
 		float CurrentHealth;
+	/** The current max health value of the attribute */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
+		float MaxHealth;
 
 protected:
 	virtual void OnAttributeChanged(const FOnAttributeChangeData& Data) override;
 
 	void SetCurrentHealth(float NewCurrentHealth);
+	void SetMaxHealth(float NewMaxHealth);
 
 	/** Called on Health changed. Use this to update Health based UI */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Health", meta = (Keywords = "Tick"))

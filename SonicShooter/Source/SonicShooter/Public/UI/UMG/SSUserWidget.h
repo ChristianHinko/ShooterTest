@@ -36,12 +36,14 @@ protected:
 	virtual void NativeDestruct() override;
 
 	UAbilitySystemComponent* PlayerASC;
+	virtual void OnPlayerASCValid() { }
+
 	ASSPlayerController* SSOwningPlayerController; // only have this for the PS valid delegate
+	virtual void OnPlayerStateValid();
 
 	virtual void OnAttributeChanged(const FOnAttributeChangeData& Data);
 
 private:
 	void SetUpAttributeListeningFor(UAbilitySystemComponent* ASC);
 
-	void OnPlayerStateValid();
 };

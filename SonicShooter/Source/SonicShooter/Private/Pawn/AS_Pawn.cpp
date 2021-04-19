@@ -11,9 +11,13 @@ void UAS_Pawn::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	//DOREPLIFETIME( UMyAttributeSet, MyAttribute);     <---Chances are this is how you would ordinarily do it,
-	//however in the case of attributes this'll lead to confusing and annoying replication errors, usually involving client side ability prediction.
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Pawn, MyPawnAttribute, COND_None, REPNOTIFY_Always);	//    <-----This is how it is done properly for attributes.
+
+	FDoRepLifetimeParams Params;
+	Params.Condition = COND_None;
+	Params.RepNotifyCondition = REPNOTIFY_Always;
+
+	Params.bIsPushBased = true;
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Pawn, MyPawnAttribute, Params);
 }
 
 UAS_Pawn::UAS_Pawn()

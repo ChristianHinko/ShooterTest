@@ -12,8 +12,14 @@ void UAS_Health::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Health, MaxHealth, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Health, Health, COND_None, REPNOTIFY_Always);
+
+	FDoRepLifetimeParams Params;
+	Params.Condition = COND_None;
+	Params.RepNotifyCondition = REPNOTIFY_Always;
+
+	Params.bIsPushBased = true;
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Health, MaxHealth, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Health, Health, Params);
 	//	IncomingDamage and Healing not replicated since it's a 'meta' attribute
 }
 

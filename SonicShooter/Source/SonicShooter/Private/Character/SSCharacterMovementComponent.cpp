@@ -153,7 +153,7 @@ void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 	bool newWantsToRun = bWantsToRun;
 
 
-	if (StaminaAttributeSet && StaminaAttributeSet->GetStamina() <= 0.f)
+	if (StaminaAttributeSet && StaminaAttributeSet->Stamina <= 0.f)
 	{
 		if (IsMovingOnGround()) // only if we are on the ground. if we are in the air, the player will be expecting to run anyways
 		{
@@ -633,7 +633,7 @@ bool USSCharacterMovementComponent::CanRunInCurrentState() const
 	//{
 	//	return false;
 	//}
-	if (StaminaAttributeSet && StaminaAttributeSet->GetStamina() <= 0)
+	if (StaminaAttributeSet && StaminaAttributeSet->Stamina <= 0)
 	{
 		return false;
 	}

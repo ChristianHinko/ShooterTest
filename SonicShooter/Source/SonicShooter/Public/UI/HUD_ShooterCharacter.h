@@ -8,9 +8,12 @@
 #include "HUD_ShooterCharacter.generated.h"
 
 
+class UUW_Health;
+
+
 
 /**
- * 
+ * ShooterCharacter specific HUD
  */
 UCLASS()
 class SONICSHOOTER_API AHUD_ShooterCharacter : public ASSHUD
@@ -21,14 +24,15 @@ public:
 	AHUD_ShooterCharacter();
 
 
-	//UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-	//	TSubclassOf<UUserWidget> MyWidgetTSub;
-	//UUserWidget* MyWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+		TSubclassOf<UUW_Health> HealthWidgetTSub;
+	UUserWidget* HealthWidget;
+
 
 	UUserWidget* CrosshairWidget;
 	UUserWidget* AmmoWidget;
 
 protected:
 	virtual void PostInitializeComponents() override;
-	virtual void BeginPlay() override;
 };

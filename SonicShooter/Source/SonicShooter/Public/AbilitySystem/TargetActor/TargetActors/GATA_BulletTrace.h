@@ -40,9 +40,6 @@ protected:
 
 	virtual void CalculateAimDirection(FVector& ViewStart, FVector& ViewDir) const override;
 
-
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
 private:
 	uint8 currentBulletNumber;
 };

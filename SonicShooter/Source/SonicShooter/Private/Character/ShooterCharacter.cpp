@@ -116,16 +116,23 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 		//UKismetSystemLibrary::PrintString(this, "Pending Item Slot: " + FString::FromInt(SSInventoryComponentActive->PendingItemSlot), true, false);
 	}
 
-	//if (GetAbilitySystemComponent())
-	//{
-	//	for (UAttributeSet* AttributeSet : GetAbilitySystemComponent()->GetSpawnedAttributes())
-	//	{
-	//		if (UAS_Ammo* AmmoAttributeSet = Cast<UAS_Ammo>(AttributeSet))
-	//		{
-	//			UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetBackupAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetBackupAmmo()), true, false);
-	//			UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetClipAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetClipAmmo()), true, false);
-	//		}
-	//	}
+	if (GetAbilitySystemComponent())
+	{
+		for (UAttributeSet* AttributeSet : GetAbilitySystemComponent()->GetSpawnedAttributes())
+		{
+			//if (UAS_Ammo* AmmoAttributeSet = Cast<UAS_Ammo>(AttributeSet))
+			//{
+			//	UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetBackupAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetBackupAmmo()), true, false);
+			//	UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetClipAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetClipAmmo()), true, false);
+			//}
+
+			//if (UAS_Stamina* StaminaAttSet = Cast<UAS_Stamina>(AttributeSet))
+			//{
+			//	UKismetSystemLibrary::PrintString(this, "Stamina: " + FString::SanitizeFloat(StaminaAttSet->Stamina), true, false);
+			//}
+		}
+
+	}
 
 	//}
 

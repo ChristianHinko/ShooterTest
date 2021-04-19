@@ -20,6 +20,13 @@ class SONICSHOOTER_API ASSHUD : public AHUD
 public:
 	ASSHUD();
 
+
+#if 0
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+		TSubclassOf<UUW_My> MyWidgetTSub;
+	UUserWidget* MyWidget;
+#endif
+
 protected:
 	//BEGIN AActor interface
 	virtual void PostInitializeComponents() override;

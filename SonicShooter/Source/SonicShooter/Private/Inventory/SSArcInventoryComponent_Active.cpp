@@ -148,25 +148,28 @@ void USSArcInventoryComponent_Active::MakeItemActive(int32 NewActiveItemSlot)
 	// Add UIData widgets
 	if (IsValidActiveItemSlot(NewActiveItemSlot))	// If it's not valid, we don't have to warning because it he might just not have an item here
 	{
-		if (APlayerController* OwningPC = Cast<APlayerController>(Cast<APawn>(GetOwner())->GetController()))
+		if (APawn* OwningPawn = Cast<APawn>(GetOwner()))
 		{
-			if (OwningPC->IsLocalController())
+			if (OwningPawn->IsLocallyControlled())
 			{
-				if (UWeaponUIData* WeaponUIData = Cast<UWeaponUIData>(GetActiveItemStack()->GetUIData()))
+				if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
 				{
-					if (AHUD_ShooterCharacter* ShooterCharacterHUD = Cast<AHUD_ShooterCharacter>(OwningPC->GetHUD()))
+					if (UWeaponUIData* WeaponUIData = Cast<UWeaponUIData>(GetActiveItemStack()->GetUIData()))
 					{
-						// Create our widgets and add them to viewport
-						ShooterCharacterHUD->CrosshairWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->CrosshairWidgetTSub, OwningPC);
-						if (ShooterCharacterHUD->CrosshairWidget)
+						if (AHUD_ShooterCharacter* ShooterCharacterHUD = Cast<AHUD_ShooterCharacter>(OwningPC->GetHUD()))
 						{
-							ShooterCharacterHUD->CrosshairWidget->AddToViewport();
-						}
+							// Create our widgets and add them to viewport
+							ShooterCharacterHUD->CrosshairWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->CrosshairWidgetTSub, OwningPC);
+							if (ShooterCharacterHUD->CrosshairWidget)
+							{
+								ShooterCharacterHUD->CrosshairWidget->AddToViewport();
+							}
 
-						ShooterCharacterHUD->AmmoWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->AmmoWidgetTSub, OwningPC);
-						if (ShooterCharacterHUD->AmmoWidget)
-						{
-							ShooterCharacterHUD->AmmoWidget->AddToViewport();
+							ShooterCharacterHUD->AmmoWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->AmmoWidgetTSub, OwningPC);
+							if (ShooterCharacterHUD->AmmoWidget)
+							{
+								ShooterCharacterHUD->AmmoWidget->AddToViewport();
+							}
 						}
 					}
 				}

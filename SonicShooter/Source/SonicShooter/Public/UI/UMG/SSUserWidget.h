@@ -21,7 +21,7 @@ class ASSPlayerController;
 /**
  * Base UserWidget class.
  * 
- * Has ability to listen for attribute changes
+ * Has ability to listen to ASC events
  */
 UCLASS()
 class SONICSHOOTER_API USSUserWidget : public UUserWidget

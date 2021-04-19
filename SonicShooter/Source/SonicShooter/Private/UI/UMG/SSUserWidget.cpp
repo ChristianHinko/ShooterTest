@@ -17,7 +17,8 @@ USSUserWidget::USSUserWidget(const FObjectInitializer& ObjectInitializer)
 #if 0
 	AttributesToListenFor.Add(UAS_MyAttributeSet::GetMyAttributeAttribute());
 
-	TagsToListenFor.Add(FGameplayTag::RequestGameplayTag("My.Gameplay.Tag"));
+	MyGameplayTag = FGameplayTag::RequestGameplayTag("My.Gameplay.Tag");
+	TagsToListenFor.Add(MyGameplayTag);
 #endif
 
 
@@ -168,7 +169,7 @@ void USSUserWidget::OnTagChanged(const FGameplayTag Tag, int32 NewCount)
 
 
 #if 0
-	if (Tag == FGameplayTag::RequestGameplayTag("My.Gameplay.Tag")) // check which tag changed
+	if (Tag == FGameplayTag::RequestGameplayTag(MyGameplayTag)) // check which tag changed
 	{
 		// For tag treated as boolean
 
@@ -182,7 +183,7 @@ void USSUserWidget::OnTagChanged(const FGameplayTag Tag, int32 NewCount)
 		}
 	}
 
-	if (Tag == FGameplayTag::RequestGameplayTag("My.Gameplay.Tag")) // check which tag changed
+	if (Tag == FGameplayTag::RequestGameplayTag(MyGameplayTag)) // check which tag changed
 	{
 		// For tag counting
 

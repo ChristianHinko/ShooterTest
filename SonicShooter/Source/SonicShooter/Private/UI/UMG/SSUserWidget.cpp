@@ -195,9 +195,6 @@ void USSUserWidget::OnTagChanged(const FGameplayTag Tag, int32 NewCount)
 
 void USSUserWidget::NativeDestruct()
 {
-	Super::NativeDestruct();
-
-
 	if (SSOwningPlayerController)
 	{
 		// In case we were destructed before PS was valid (or in case something weird happened)
@@ -218,4 +215,8 @@ void USSUserWidget::NativeDestruct()
 			PlayerASC->RegisterGameplayTagEvent(Tag, EGameplayTagEventType::AnyCountChange).RemoveAll(this);
 		}
 	}
+
+
+
+	Super::NativeDestruct();
 }

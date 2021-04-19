@@ -16,6 +16,8 @@ USSUserWidget::USSUserWidget(const FObjectInitializer& ObjectInitializer)
 {
 #if 0
 	AttributesToListenFor.Add(UAS_MyAttributeSet::GetMyAttributeAttribute());
+
+	TagsToListenFor.Add(FGameplayTag::RequestGameplayTag("My.Gameplay.Tag"));
 #endif
 
 
@@ -95,7 +97,7 @@ void USSUserWidget::OnPlayerStateValid()
 void USSUserWidget::OnPlayerASCValid()
 {
 	SetUpAttributeListeningFor(PlayerASC);
-
+	SetUpTagListeningFor(PlayerASC);
 
 }
 
@@ -126,6 +128,27 @@ void USSUserWidget::SetUpAttributeListeningFor(UAbilitySystemComponent* ASC)
 		OnAttributeChanged(ChangeData); // manually call this so we get the initial attribute value
 	}
 }
+void USSUserWidget::SetUpTagListeningFor(UAbilitySystemComponent* ASC)
+{
+	if (!ASC)
+	{
+		UE_LOG(LogUI, Error, TEXT("%s(): the passed in ASC was NULL"), *FString(__FUNCTION__));
+		return;
+	}
+
+	for (FGameplayTag Tag : TagsToListenFor)
+	{
+		if (Tag.IsValid() == false)
+		{
+			UE_LOG(LogUI, Warning, TEXT("%s(): %s tag was not valid when trying to bind to change delegate"), *FString(__FUNCTION__), *(Tag.GetTagName().ToString()));
+			continue;
+		}
+
+		ASC->RegisterGameplayTagEvent(Tag, EGameplayTagEventType::AnyCountChange).AddUObject(this, &USSUserWidget::OnTagChanged);
+
+		OnTagChanged(Tag, ASC->GetTagCount(Tag)); // manually call this so we get the initial tag value
+	}
+}
 
 void USSUserWidget::OnAttributeChanged(const FOnAttributeChangeData& Data)
 {
@@ -136,7 +159,34 @@ void USSUserWidget::OnAttributeChanged(const FOnAttributeChangeData& Data)
 #if 0
 	if (Attribute == UAS_MyAttributeSet::GetMyAttributeAttribute()) // check which attribute changed
 	{
-		SetMyValueForUI(NewValue); // update UI for this attribute
+		SetMyValueForUI(NewValue); // update UI state for this attribute
+	}
+#endif
+}
+void USSUserWidget::OnTagChanged(const FGameplayTag Tag, int32 NewCount)
+{
+
+
+#if 0
+	if (Tag == FGameplayTag::RequestGameplayTag("My.Gameplay.Tag")) // check which tag changed
+	{
+		// For tag treated as boolean
+
+		if (NewCount > 0)
+		{
+			SetMyBoolForUI(true); // update UI state for this tag
+		}
+		else
+		{
+			SetMyBoolForUI(false); // update UI state for this tag
+		}
+	}
+
+	if (Tag == FGameplayTag::RequestGameplayTag("My.Gameplay.Tag")) // check which tag changed
+	{
+		// For tag counting
+
+		SetMyCountForUI(NewCount); // update UI state for this tag
 	}
 #endif
 }
@@ -155,10 +205,16 @@ void USSUserWidget::NativeDestruct()
 
 	if (PlayerASC)
 	{
-		// Stop listening
+		// Stop listening for attribute changes
 		for (FGameplayAttribute Attribute : AttributesToListenFor)
 		{
 			PlayerASC->GetGameplayAttributeValueChangeDelegate(Attribute).RemoveAll(this);
+		}
+
+		// Stop listening for tag changes
+		for (FGameplayTag Tag : TagsToListenFor)
+		{
+			PlayerASC->RegisterGameplayTagEvent(Tag, EGameplayTagEventType::AnyCountChange).RemoveAll(this);
 		}
 	}
 }

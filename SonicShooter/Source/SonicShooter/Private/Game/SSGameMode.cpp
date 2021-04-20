@@ -76,6 +76,12 @@ void ASSGameMode::GiveInventoryStartupItems(UArcInventoryComponent* Inventory)
 					if (SSArcInventoryCompActive)
 					{
 						SSArcInventoryCompActive->AddToActiveItemHistory(SlotToAddItemTo);
+
+						if (i == 0)
+						{
+							// This is a good time to sync the client's history array with the server's for the first time
+							MARK_PROPERTY_DIRTY_FROM_NAME(USSArcInventoryComponent_Active, ActiveItemHistory, SSArcInventoryCompActive);
+						}
 					}
 				}
 				else

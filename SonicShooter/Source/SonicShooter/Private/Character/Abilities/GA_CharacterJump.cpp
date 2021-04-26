@@ -32,20 +32,6 @@ void UGA_CharacterJump::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, 
 	{
 		return;
 	}
-	FString RoleString;
-	if (ActorInfo->OwnerActor.Get()->GetLocalRole() == ROLE_Authority)
-	{
-		RoleString = "Authority";
-	}
-	if (ActorInfo->OwnerActor.Get()->GetLocalRole() == ROLE_AutonomousProxy)
-	{
-		RoleString = "AutonomousProxy";
-	}
-	if (ActorInfo->OwnerActor.Get()->GetLocalRole() == ROLE_SimulatedProxy)
-	{
-		RoleString = "SimulatedProxy";
-	}
-	UE_LOG(LogTemp, Warning, TEXT("%s, Role: %s, Timestamp: %f"), *FString(__FUNCTION__), *RoleString, GetWorld() ? GetWorld()->GetTimeSeconds() : -1.f);
 	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
 	if (!AvatarActor)
 	{

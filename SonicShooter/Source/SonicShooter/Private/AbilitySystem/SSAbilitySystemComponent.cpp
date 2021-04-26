@@ -28,33 +28,79 @@ USSAbilitySystemComponent::USSAbilitySystemComponent()
 	Wrapper version of GiveAbility. Always call this instead for our games. InSourceObject is the actor that owns the granted ability. Make sure InSourceObject isset to a meaningful value (shouldn't pass null for it).
 	By default this method will look at the ability's AbilityInputID variable and use that as the ability's inputID. But if you specify one it will override it.
 */
-FGameplayAbilitySpecHandle USSAbilitySystemComponent::GrantAbility(TSubclassOf<USSGameplayAbility> NewAbility, UObject* InSourceObject, EAbilityInputID inputID, int32 level)
+FGameplayAbilitySpecHandle USSAbilitySystemComponent::GrantAbility(TSubclassOf<USSGameplayAbility> SSNewAbility, UObject* InSourceObject, int32 level)
 {
 	if (IsOwnerActorAuthoritative() == false)
 	{
+		UE_LOG(LogAbilitySystemSetup, Warning, TEXT("%s() called without Authority. Did nothing and returned empty spec handle"), *FString(__FUNCTION__));
 		return FGameplayAbilitySpecHandle();
 	}
 
-	if (NewAbility)
+	if (SSNewAbility)
 	{
-		USSGameplayAbility* AbilityToGive = NewAbility.GetDefaultObject();
-		// if we don't have the ability yet give it, else log an error and let it return an invalid spec handle
-		if (GetActivatableAbilities().ContainsByPredicate([&AbilityToGive](const FGameplayAbilitySpec& Spec) { return Spec.Ability == AbilityToGive; }) == false)
-		{
-			FGameplayAbilitySpecHandle AbilitySpecHandle = GiveAbility(FGameplayAbilitySpec(AbilityToGive, level, static_cast<int32>(inputID), InSourceObject));
-			
+		UGameplayAbility* AbilityToGive = SSNewAbility.GetDefaultObject();
+		//// if we don't have the ability yet give it, else log an error and let it return an invalid spec handle
+		//if (GetActivatableAbilities().ContainsByPredicate([&AbilityToGive](const FGameplayAbilitySpec& Spec)
+		//	{ return Spec.Ability == AbilityToGive; }) == false)
+		//{
+			FGameplayAbilitySpecHandle AbilitySpecHandle = GiveAbility(FGameplayAbilitySpec(AbilityToGive, level, static_cast<int32>(SSNewAbility.GetDefaultObject()->AbilityInputID), InSourceObject));
+
 			return AbilitySpecHandle;
-		}
-		else
-		{
-			UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Tried granting an already-activatable ability. %s was not granted"), *FString(__FUNCTION__), *(AbilityToGive->GetName()));
-		}
+		//}
+		//else
+		//{
+		//	UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Tried granting an already-activatable ability. %s was not granted"), *FString(__FUNCTION__), *(AbilityToGive->GetName()));
+		//}
 	}
 	else
 	{
-		UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Could'nt grant ability. NewAbility was null"), *FString(__FUNCTION__));
+		UE_LOG(LogAbilitySystemSetup, Error, TEXT("%s() Couldn't grant ability. NewAbility was null"), *FString(__FUNCTION__));
 	}
 	return FGameplayAbilitySpecHandle();
+}
+
+FGameplayAbilitySpecHandle USSAbilitySystemComponent::GrantAbility(TSubclassOf<UGameplayAbility> NewAbility, UObject* InSourceObject, int32 level)
+{
+	TSubclassOf<USSGameplayAbility> SSNewAbility = TSubclassOf<USSGameplayAbility>(NewAbility);
+	return GrantAbility(SSNewAbility, InSourceObject, level);
+}
+
+
+void USSAbilitySystemComponent::GrantAbilities(TArray<FGameplayAbilitySpec> Abilities)
+{
+	if (IsOwnerActorAuthoritative() == false)
+	{
+		UE_LOG(LogAbilitySystemSetup, Warning, TEXT("%s() called without Authority. Did nothing"), *FString(__FUNCTION__));
+		return;
+	}
+
+	for (FGameplayAbilitySpec SpecToGive : Abilities)
+	{
+		if (GetActivatableAbilities().ContainsByPredicate([&SpecToGive](const FGameplayAbilitySpec& Spec)
+			{ return Spec.Ability == SpecToGive.Ability; }) == false)
+		{
+			GiveAbility(SpecToGive);
+		}
+	}
+}
+
+void USSAbilitySystemComponent::RecieveAbilitiesFrom(UAbilitySystemComponent* From)
+{
+	if (IsOwnerActorAuthoritative() == false)
+	{
+		UE_LOG(LogAbilitySystemSetup, Warning, TEXT("%s() called without Authority. Did nothing"), *FString(__FUNCTION__));
+		return;
+	}
+
+	for (FGameplayAbilitySpec SpecToGive : From->GetActivatableAbilities())
+	{
+		if (GetActivatableAbilities().ContainsByPredicate([&SpecToGive](const FGameplayAbilitySpec& Spec)
+			{ return Spec.Ability == SpecToGive.Ability; }) == false)
+		{
+			//SpecToGive.ActiveCount = 0; // maybe
+			GiveAbility(SpecToGive);
+		}
+	}
 }
 
 void USSAbilitySystemComponent::TargetConfirmByAbility(UGameplayAbility* AbilityToConfirmTargetOn)
@@ -73,7 +119,7 @@ void USSAbilitySystemComponent::TargetConfirmByAbility(UGameplayAbility* Ability
 			{
 				if (TargetActor->OwningAbility == AbilityToConfirmTargetOn)						// <-- our added if statement
 				{
-					//TODO: There might not be any cases where this bool is false
+					// There might not be any cases where this bool is false
 					if (!TargetActor->bDestroyOnConfirmation)
 					{
 						SpawnedTargetActors.Add(TargetActor);
@@ -173,15 +219,15 @@ void USSAbilitySystemComponent::BindAbilityActivationToInputComponent(UInputComp
 	}
 }
 
-/* 
+/*
 										--- Our thought process here that took us few hours to decide what to do ---
 													relates to AAbilitySystemCharacter::BindASCInput()
 	Idk why this what the pourpose is for the first 2 if statements because they never passed even when you pass in the last 2 optional parameters for
 	the FGameplayAbilityInputBinds struct for the BindAbilityActivationToInputComponent() function and put confirm and cancel inputs in the Enum we made.
 	Decided to just not have this function run for confirm and cancel since nothing happens in this function for them. We did this by not including
-	confirm and cancel in the GAS input enum and not setting the optional parameters for the confirm and cancel input IDs for 
+	confirm and cancel in the GAS input enum and not setting the optional parameters for the confirm and cancel input IDs for
 	BindAbilityActivationToInputComponent(). We figure this is the right way to setup the ability system since LocalInputConfirm() and LocalInputCancel()
-	still get called and it prevents an extra call to this function which would have don't nothing anyways. Technically there may be importance to this 
+	still get called and it prevents an extra call to this function which would have don't nothing anyways. Technically there may be importance to this
 	function running for the confirm and cancel inputs since there seems to be some kind of logic in the beginning for them, but Dart does it our way
 	so at least were not the only ones. Dan doesn't do it this way though but we think he should have.
 */
@@ -301,7 +347,7 @@ void USSAbilitySystemComponent::FullReset()
 {
 	//	Stop ASC from doing things
 	DestroyActiveState();
-	
+
 
 	if (IsOwnerActorAuthoritative())
 	{
@@ -315,7 +361,7 @@ void USSAbilitySystemComponent::FullReset()
 		}
 
 		//	Remove Attribute Sets
-		SpawnedAttributes.Empty();
+		GetSpawnedAttributes_Mutable().Empty();
 	}
 
 
@@ -324,7 +370,7 @@ void USSAbilitySystemComponent::FullReset()
 
 	//	Now clean up any loose gameplay tags
 	ResetTagMap();
-	MinimalReplicationTags.RemoveAllTags();		//	This line may not be necessary
+	GetMinimalReplicationTags_Mutable().RemoveAllTags();		//	This line may not be necessary
 
 	//	Give clients changes ASAP
 	ForceReplication();

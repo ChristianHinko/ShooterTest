@@ -10,14 +10,22 @@
 
 USSGameplayAbility::USSGameplayAbility()
 {
+	AbilityInputID = EAbilityInputID::Unset;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	bServerRespectsRemoteAbilityCancellation = false;
+	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ServerOnlyTermination;
 }
 
 
 void USSGameplayAbility::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
+	if (AbilityInputID == EAbilityInputID::Unset)
+	{
+		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s()  Ability implementor forgot to set an AbilityInputID in the ability's constructor. Go back and set it so our grant ability calls know what input id to give it"), *FString(__FUNCTION__));
+	}
+
+	TryCallOnAvatarSetOnPrimaryInstance
 	Super::OnAvatarSet(ActorInfo, Spec);
 
 	if (ActivateAbilityOnGrant && ActorInfo)
@@ -29,13 +37,23 @@ void USSGameplayAbility::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo,
 	}
 }
 
+bool USSGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+	{
+		return false;
+	}
+
+	return true;
+}
+
 void USSGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	if (NetExecutionPolicy == EGameplayAbilityNetExecutionPolicy::LocalPredicted)
 	{
 		// Const cast is a red flag. 
 		FPredictionKey* Key = const_cast<FPredictionKey*>(&ActivationInfo.GetActivationPredictionKey());
-		Key->NewRejectedDelegate().BindUObject(this, &USSGameplayAbility::OnCurrentAbilityPredictionKeyRejected);
+		Key->NewRejectedDelegate().BindUObject(this, &USSGameplayAbility::OnActivationPredictionKeyRejected);
 
 		if (!HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo))	// If we are a client without a valid prediction key
 		{
@@ -73,15 +91,24 @@ void USSGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 #pragma endregion
 }
 
-void USSGameplayAbility::OnCurrentAbilityPredictionKeyRejected()
+void USSGameplayAbility::ExternalEndAbility()
 {
-	/*UKismetSystemLibrary::PrintString(this, "Prediction Key rejected ", true, false, FLinearColor::Red);
+	check(CurrentActorInfo);
 
-	if (PKey == CurrentActivationInfo.GetActivationPredictionKey())
-	{
-		OnActivationPredictionKeyRejected();
-	}*/
+	const bool bReplicateEndAbility = true;
+	const bool bWasCancelled = false;
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), bReplicateEndAbility, bWasCancelled);
 }
+
+//void USSGameplayAbility::OnCurrentAbilityPredictionKeyRejected()
+//{
+//	/*UKismetSystemLibrary::PrintString(this, "Prediction Key rejected ", true, false, FLinearColor::Red);
+//
+//	if (PKey == CurrentActivationInfo.GetActivationPredictionKey())
+//	{
+//		OnActivationPredictionKeyRejected();
+//	}*/
+//}
 
 void USSGameplayAbility::OnActivationPredictionKeyRejected()
 {

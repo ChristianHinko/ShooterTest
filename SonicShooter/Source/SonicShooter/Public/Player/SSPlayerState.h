@@ -13,7 +13,6 @@
 class UAS_PlayerState;
 
 
-
 /**
  * Base player state class (GAS implemented)
  */
@@ -35,4 +34,6 @@ protected:
 		USSAbilitySystemComponent* SSAbilitySystemComponent;
 	UPROPERTY()
 		UAS_PlayerState* AttributeSet;
+
+
 };

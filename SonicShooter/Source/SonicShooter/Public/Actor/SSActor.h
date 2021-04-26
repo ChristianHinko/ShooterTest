@@ -8,24 +8,22 @@
 #include "SSActor.generated.h"
 
 
-
 /**
- * Base actor class (without GAS implemeted)
+ *  Pooling:
+	If pooling is used, the CDO stores the pooled actors in TArray<TWeakObjectPtr<ASSActor>> Pooled
+	 Another few things to note :
+		1) Deactivate means it takes it out of the worldand puts it in the pool
+			-Also EndPlay() gets called when this happens
+		2) Recycle means it reactivates(brings it back into the world)
+			-BeginPlay() will be called every time this happens
  */
 UCLASS()
 class SONICSHOOTER_API ASSActor : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
+
+
+public:
 	ASSActor();
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 };

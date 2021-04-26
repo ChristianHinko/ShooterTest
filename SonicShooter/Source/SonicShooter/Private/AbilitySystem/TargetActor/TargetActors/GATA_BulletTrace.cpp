@@ -3,26 +3,133 @@
 
 #include "AbilitySystem/TargetActor/TargetActors/GATA_BulletTrace.h"
 
+#include "Utilities\LogCategories.h"
 #include "Abilities/GameplayAbility.h"
 #include "Utilities/CollisionChannels.h"
+#include "AbilitySystem/SSGameplayAbilityTargetTypes.h"
+#include "GameplayAbilities\Public\AbilitySystemComponent.h"
+#include "Item/AS_Gun.h"
 
 
 
 AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	ShouldProduceTargetDataOnServer = true;
-
-	MaxRange = 100000.f;
-	bTraceAffectsAimPitch = true;
 	TraceChannel = COLLISION_BULLET;
-	numberOfBullets = 1;
-	bulletSpread = 0.f;
 }
 
+float AGATA_BulletTrace::GetMaxRange() const
+{
+	if (GunAttributeSet)
+	{
+		return GunAttributeSet->GetMaxRange();
+	}
+	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its MaxRange attribute! Will return 0 instead!"), *FString(__FUNCTION__));
+	return 0;
+}
+
+#if WITH_EDITOR
+// We don't want to expose any gun related properties to BP if there is one since we are just going to be reading the values from our gun AS
+bool AGATA_BulletTrace::CanEditChange(const FProperty* InProperty) const
+{
+	FName PropertyName = InProperty->GetFName();
+
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(AGATA_BulletTrace, GetMaxRange()))
+	{
+		return false;
+	}
+
+
+	return true;
+}
+#endif //WITH_EDITOR
+
+void AGATA_BulletTrace::ConfirmTargetingAndContinue()
+{
+	check(ShouldProduceTargetData());
+	check(GunAttributeSet);
+	if (SourceActor)
+	{
+		FGameplayAbilityTargetDataHandle TargetDataHandle;
+
+
+		float numberOfBulletsToFire = GunAttributeSet->GetNumberOfBulletsPerFire();
+		for (currentBulletNumber = 0; currentBulletNumber < numberOfBulletsToFire; ++currentBulletNumber)
+		{
+			TArray<FHitResult> ThisBulletHitResults;
+			PerformTrace(ThisBulletHitResults, SourceActor);
+
+
+			// Manually filter the hit results (using ASSGameplayAbilityTargetActor::FilterHitResult()) because we need access to filtered out hit results.
+			// And build our target data for non-filtered hit results
+			{
+				float thisHitTotalDistance = 0.f; // for calculating ReturnData->bulletTotalTravelDistanceBeforeHit (the distance of the non-filterd hit including distances of the previous filtered out traces)
+
+				for (int32 i = 0; i < ThisBulletHitResults.Num(); ++i)
+				{
+					const FHitResult Hit = ThisBulletHitResults[i];
+					thisHitTotalDistance += Hit.Distance;
+
+
+					if (FilterHitResult(ThisBulletHitResults, i, MultiFilterHandle, bAllowMultipleHitsPerActor))
+					{
+						// This index did not pass the filter, stop here so that we don't add target data for it
+						continue;
+					}
+
+
+					// If we got here, we are an unfiltered hit (ie. we hit a player), make target data for us:
+
+
+
+					/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
+					FGameplayAbilityTargetData_BulletTraceTargetHit* ReturnData = new FGameplayAbilityTargetData_BulletTraceTargetHit();
+
+					ReturnData->HitResult = Hit;
+					ReturnData->bulletTotalTravelDistanceBeforeHit = thisHitTotalDistance;
+					thisHitTotalDistance = 0.f; // reset back to zero for the next bullet
+
+					TargetDataHandle.Add(ReturnData);
+				}
+			}
+
+
+
+
+		} // end bullet number loop
+		
+
+
+		TargetDataReadyDelegate.Broadcast(TargetDataHandle);
+	}
+}
+
+void AGATA_BulletTrace::CalculateAimDirection(FVector& ViewStart, FVector& ViewDir) const
+{
+	Super::CalculateAimDirection(ViewStart, ViewDir); // call super so we get the PC's ViewDir, and then we can add bullet spread ontop of that
+
+
+	// Calculate new ViewDir with random bullet spread offset if needed
+	float currentBulletSpread = GunAttributeSet->GetCurrentBulletSpread();
+	if (currentBulletSpread > SMALL_NUMBER)
+	{
+		// Our injected random seed is only unique to each fire. We need a random seed that is also unique to each bullet in the fire, so we will do this by using t
+		const int32 fireAndBulletSpecificNetSafeRandomSeed = FireSpecificNetSafeRandomSeed - ((currentBulletNumber + 2) * FireSpecificNetSafeRandomSeed);	// Here, the 'number' multiplied to t makes the random pattern noticable after firing 'number' of times. I use the prediction key as that 'number' which i think eliminates the threshold for noticeability entirely. - its confusing to think about but i think it works
+		FMath::RandInit(fireAndBulletSpecificNetSafeRandomSeed);
+		const FRandomStream RandomStream = FRandomStream(FMath::Rand());
+
+		// Get and apply random offset to ViewDir using randomStream
+		const float coneHalfAngleRadius = FMath::DegreesToRadians(currentBulletSpread * 0.5f);
+		ViewDir = RandomStream.VRandCone(ViewDir, coneHalfAngleRadius);
+	}
+}
 
 void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor)
 {
+	check(GunAttributeSet);
+	OutHitResults.Empty();
+
+
 	const bool bTraceComplex = false;
 	TArray<AActor*> ActorsToIgnore;
 
@@ -32,33 +139,14 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 	Params.bReturnPhysicalMaterial = true;
 	Params.AddIgnoredActors(ActorsToIgnore);
 
-	const FVector TraceStart = StartLocation.GetTargetingTransform().GetLocation();// InSourceActor->GetActorLocation();
+	FVector TraceStart = StartLocation.GetTargetingTransform().GetLocation();
+	FVector TraceEnd;
+	AimWithPlayerController(InSourceActor, Params, TraceStart, TraceEnd);		//Effective on server and launching client only
 
 	// ------------------------------------------------------
 
-	for (uint8 t = 0; t < numberOfBullets; t++)
-	{
-		// get direction player is aiming
-		FVector AimDir;
-		DirWithPlayerController(InSourceActor, Params, TraceStart, AimDir);		//Effective on server and launching client only
 
-		// Calculate new AimDir with random bullet spread offset if needed
-		if (bulletSpread > SMALL_NUMBER)
-		{
-			// create net-safe random seed stream
-			const int16 predKey = OwningAbility->GetCurrentActivationInfo().GetActivationPredictionKey().Current;
-			const int32 randomSeed = predKey - ((t + 1) * predKey);	//use the prediction key as a net safe seed. Subtrace by t so that each trace gets their own seed when numberOfBullets > 1 (add 1 to t so that when t is 0 the seed wont be 0). The 'number' multiplied to t makes the random pattern noticable after firing 'number' of times. I use the prediction key as that 'number' which i think eliminates the threshold for noticeability entirely. - its confusing to think about but i think it works
-			const FRandomStream randomStream = FRandomStream(randomSeed);
+	// Perform line trace
+	LineTraceMulti(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, GunAttributeSet->GetRicochets(), Params, bDebug);
 
-			// add random offset to AimDir using randomStream
-			const float coneHalfAngleRadius = FMath::DegreesToRadians(bulletSpread * 0.5f);
-			AimDir = randomStream.VRandCone(AimDir, coneHalfAngleRadius);
-		}
-
-		// calculate the end of the trace based off aim dir and max range
-		const FVector TraceEnd = TraceStart + (AimDir * MaxRange);
-
-		// perform line trace 
-		LineTraceMultiWithFilter(OutHitResults, InSourceActor->GetWorld(), MultiFilterHandle, TraceStart, TraceEnd, TraceChannel, Params, bAllowMultipleHitsPerActor, bDebug);
-	}
 }

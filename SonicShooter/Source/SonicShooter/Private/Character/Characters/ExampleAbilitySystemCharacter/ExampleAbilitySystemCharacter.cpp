@@ -22,19 +22,7 @@ void AExampleAbilitySystemCharacter::GetLifetimeReplicatedProps(TArray<FLifetime
 AExampleAbilitySystemCharacter::AExampleAbilitySystemCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	// Don't rotate when the controller rotates. Let that just affect the camera.
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
-	bUseControllerRotationRoll = false;
-	// Rotate the character in the movement direction
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-
-
-	// Third person, so let player see mesh
-	GetMesh()->SetOwnerNoSee(false);
-
-	// Configure CameraBoom arm length for third person
-	GetCameraBoom()->TargetArmLength = 300.f;
+	SetFirstPerson(false);
 }
 
 
@@ -59,7 +47,7 @@ void AExampleAbilitySystemCharacter::RegisterAttributeSets()
 	Super::RegisterAttributeSets();
 
 
-	if (ExampleAbilitySystemCharacterAttributeSet && !GetAbilitySystemComponent()->SpawnedAttributes.Contains(ExampleAbilitySystemCharacterAttributeSet))
+	if (ExampleAbilitySystemCharacterAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(ExampleAbilitySystemCharacterAttributeSet))
 	{
 		GetAbilitySystemComponent()->AddAttributeSetSubobject(ExampleAbilitySystemCharacterAttributeSet);
 	}
@@ -81,7 +69,7 @@ bool AExampleAbilitySystemCharacter::GrantStartingAbilities()
 
 
 
-	ExampleAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(ExampleAbilityTSub, this, EAbilityInputID::PrimaryFire/*, GetLevel()*/);
+	ExampleAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(ExampleAbilityTSub, this/*, GetLevel()*/);
 
 
 	return true;

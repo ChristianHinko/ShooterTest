@@ -14,11 +14,12 @@
 
 UGA_CharacterDurationInteract::UGA_CharacterDurationInteract()
 {
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.DurationInteract")));
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Interact.DurationInteract")));
 }
 
 void UGA_CharacterDurationInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
+	TryCallOnAvatarSetOnPrimaryInstance
 	Super::OnAvatarSet(ActorInfo, Spec);
 }
 
@@ -48,16 +49,18 @@ void UGA_CharacterDurationInteract::ActivateAbility(const FGameplayAbilitySpecHa
 	UAT_DurationInteractCallbacks* DurationInteractCallbacks = UAT_DurationInteractCallbacks::DurationInteractCallbacks(this, ShooterCharacter, Interactable);
 	if (!DurationInteractCallbacks)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DurationInteractCallbacks was NULL when trying to activate InteractDuration ability. May have been because a NULL Character or Interactable reference was passed in. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DurationInteractCallbacks was NULL when trying to activate InteractDuration ability. May have been because a NULL Character or Interactable reference was passed in. Called EndAbility()"), *FString(__FUNCTION__));
+		InteractEndReason = EDurationInteractEndReason::REASON_Unknown;
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 
 	UAbilityTask_WaitInputRelease* InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
 	if (!InputReleasedTask)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate InteractDuration ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate InteractDuration ability. Called EndAbility()"), *FString(__FUNCTION__));
+		InteractEndReason = EDurationInteractEndReason::REASON_Unknown;
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	InputReleasedTask->OnRelease.AddDynamic(this, &UGA_CharacterDurationInteract::OnRelease);
@@ -98,14 +101,14 @@ void UGA_CharacterDurationInteract::OnRelease(float TimeHeld)
 	timeHeld = TimeHeld;
 	InteractEndReason = EDurationInteractEndReason::REASON_InputRelease;
 
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);		// We don't replicate this end ability because both server and client should have this triggered
 }
 
 void UGA_CharacterDurationInteract::OnInteractionSweepMiss(float TimeHeld)
 {
 	timeHeld = TimeHeld;
 	InteractEndReason = EDurationInteractEndReason::REASON_SweepMiss;
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }
 
 
@@ -115,7 +118,7 @@ void UGA_CharacterDurationInteract::OnCharacterLeftInteractionOverlap(float Time
 {
 	timeHeld = TimeHeld;
 	InteractEndReason = EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap;
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }
 
 void UGA_CharacterDurationInteract::OnNewInteractionPriority(float TimeHeld)
@@ -132,7 +135,7 @@ void UGA_CharacterDurationInteract::OnSuccessfullInteract(float TimeHeld)
 {
 	timeHeld = TimeHeld;
 	InteractEndReason = EDurationInteractEndReason::REASON_SuccessfulInteract;
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }
 
 
@@ -180,20 +183,15 @@ void UGA_CharacterDurationInteract::EndAbility(const FGameplayAbilitySpecHandle 
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() RemoveActiveGameplayEffect(InteractEffectActiveHandle) failed. AbilitySystemComponent was NULL"), *FString(__FUNCTION__));
 	}
 
-	if (bWasCancelled)
+	
+	if (Interactable)
 	{
-		InteractEndReason = EDurationInteractEndReason::REASON_AbilityCanceled;
-		if (Interactable)	// If there is a valid interactable for this machine (it's ok if not. That may be why it was canceled)
+		// Commented out because right now we don't have a way of knowing if the server rejected the activation
+		/*if (InteractEndReason == EDurationInteractEndReason::REASON_PredictionCorrected)
 		{
-			if (InteractEndReason == EDurationInteractEndReason::REASON_AbilityCanceled)
-			{
-				Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_AbilityCanceled, timeHeld);
-			}
+			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_PredictionCorrected, timeHeld);
 		}
-	}
-	else
-	{
-		if (InteractEndReason == EDurationInteractEndReason::REASON_InputRelease)
+		else*/ if (InteractEndReason == EDurationInteractEndReason::REASON_InputRelease)
 		{
 			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_InputRelease, timeHeld);
 		}

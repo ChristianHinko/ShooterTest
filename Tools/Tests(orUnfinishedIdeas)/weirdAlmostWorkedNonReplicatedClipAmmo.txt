@@ -1,0 +1,42 @@
+void UAS_Ammo::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+{
+	Super::PreAttributeChange(Attribute, NewValue);
+
+	if (Attribute == GetClipAmmoAttribute())
+	{
+		if (GetOwningActor()->GetLocalRole() < ROLE_Authority)
+		{
+			if (moddingAttribute == false)
+			{
+				moddingAttribute = true;
+				UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
+
+				bool shouldEffect = true;
+
+				FGameplayEffectQuery EffectQuery;
+				EffectQuery.ModifyingAttribute = Attribute;
+				TArray<FActiveGameplayEffectHandle> ActiveHandles = ASC->GetActiveEffects(EffectQuery);
+				for (FActiveGameplayEffectHandle ActiveHandle : ActiveHandles)
+				{
+					const FActiveGameplayEffect* ActiveEffect = ASC->GetActiveGameplayEffect(ActiveHandle);
+				}
+				if (ActiveHandles.Num() <= 0)
+				{
+					shouldEffect = false;
+				}
+				
+				if (shouldEffect)
+				{
+					ASC->ApplyModToAttributeUnsafe(GetClipAmmoAttribute(), EGameplayModOp::Override, NewValue);
+				}
+				else
+				{
+					NewValue = GetClipAmmo(); // don't change this attribute, set the new value to the old value (do nothing)
+				}
+
+
+				moddingAttribute = false;
+			}
+		}
+	}
+}

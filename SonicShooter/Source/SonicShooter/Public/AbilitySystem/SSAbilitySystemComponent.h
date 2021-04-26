@@ -25,24 +25,48 @@ class USSGameplayAbility;
 UENUM()
 enum class EAbilityInputID : uint8
 {
-	// 0 None
-	None				UMETA(DisplayName = "None"),
-	// 1 Jump
+	// 0
+	// This means the ability implementor forgot to set an AbilityInputId in their ability's constructor
+	Unset				UMETA(DisplayName = "Unset"),
+	// 1
+	// This means the ability is triggered without input (probably gameplay code)
+	NoInput				UMETA(DisplayName = "NoInput"),
+	// 2
 	Jump				UMETA(DisplayName = "Jump"),
-	// 2 Interact
+	// 3
 	Interact			UMETA(DisplayName = "Interact"),
-	// 3 Run
-	Run					UMETA(DisplayName = "Sprint"),
-	// 4 PrimaryFire
+	// 4
+	Run					UMETA(DisplayName = "Run"),
+	// 5
 	PrimaryFire			UMETA(DisplayName = "Primary Fire"),
-	// 5 SecondaryFire
+	// 6
 	SecondaryFire		UMETA(DisplayName = "Secondary Fire"),
-	// 6 Reload
+	// 7
 	Reload				UMETA(DisplayName = "Reload"),
-	// 7 Crouch
+	// 8
 	Crouch				UMETA(DisplayName = "Crouch"),
-	// 8 Switch Weapon
-	SwitchWeapon		UMETA(DisplayName = "Switch Weapon")
+	// 9
+	SwitchWeapon		UMETA(DisplayName = "Switch Weapon"),
+	// 10
+	Item0				UMETA(DisplayName = "Item0"),
+	// 11
+	Item1				UMETA(DisplayName = "Item1"),
+	// 12
+	Item2				UMETA(DisplayName = "Item2"),
+	// 13
+	Item3				UMETA(DisplayName = "Item3"),
+	// 14
+	Item4				UMETA(DisplayName = "Item4"),
+	// 15
+	NextItem			UMETA(DisplayName = "NextItem"),
+	// 16
+	PreviousItem		UMETA(DisplayName = "PreviousItem"),
+	// 17
+	Pause				UMETA(DisplayName = "Pause"),
+	// 18
+	ScoreSheet			UMETA(DisplayName = "ScoreSheet"),
+	// 19
+	DropItem			UMETA(DisplayName = "DropItem")
 };
 
 /**
@@ -52,13 +76,19 @@ UCLASS()
 class SONICSHOOTER_API USSAbilitySystemComponent : public UAbilitySystemComponent
 {
 	GENERATED_BODY()
-	
+
 public:
 	USSAbilitySystemComponent();
 
 
+	virtual bool ShouldDoServerAbilityRPCBatch() const override { return true; }
 
-	FGameplayAbilitySpecHandle GrantAbility(TSubclassOf<USSGameplayAbility> NewAbility, UObject* InSourceObject, EAbilityInputID inputID, int32 level = 1);
+	FGameplayAbilitySpecHandle GrantAbility(TSubclassOf<USSGameplayAbility> SSNewAbility, UObject* InSourceObject, int32 level = 1);
+	FGameplayAbilitySpecHandle GrantAbility(TSubclassOf<UGameplayAbility> NewAbility, UObject* InSourceObject, int32 level = 1);
+	void GrantAbilities(TArray<FGameplayAbilitySpec> Abilities);
+
+	/** Gives abilities that an other given ASC has */
+	void RecieveAbilitiesFrom(UAbilitySystemComponent* From);
 
 	virtual void TargetConfirmByAbility(UGameplayAbility* AbilityToConfirmTargetOn);
 	virtual void TargetCancelByAbility(UGameplayAbility* AbilityToCancelTargetOn);
@@ -75,7 +105,7 @@ public:
 	/** Returns an ability spec handle from a class. If modifying call MarkAbilitySpecDirty */
 	FGameplayAbilitySpecHandle FindAbilitySpecHandleFromClass(TSubclassOf<UGameplayAbility> AbilityClass, UObject* OptionalSourceObject = nullptr);
 
-	// Gameplay Cue Helpers
+	// Gameplay cue helpers for running them locally
 	void ExecuteGameplayCueLocal(const FGameplayTag GameplayCueTag, const FGameplayCueParameters& GameplayCueParameters);
 	void AddGameplayCueLocal(const FGameplayTag GameplayCueTag, const FGameplayCueParameters& GameplayCueParameters);
 	void RemoveGameplayCueLocal(const FGameplayTag GameplayCueTag, const FGameplayCueParameters& GameplayCueParameters);

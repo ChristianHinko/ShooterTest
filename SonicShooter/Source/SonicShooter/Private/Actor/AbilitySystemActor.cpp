@@ -45,7 +45,7 @@ void AAbilitySystemActor::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 
-	//if (!bAbilitySystemSetupInitialized)		//maybe do this so we dont have to call AAbilitySystemActor::Super::?
+	//if (!bWithoutAbilitySystemComponentSubobject) // TODO: check this out, add this and we won't have to override PIC for subclasses that have this bool true
 	//{
 		SetupWithAbilitySystem();
 	//}
@@ -124,7 +124,7 @@ void AAbilitySystemActor::CreateAttributeSets()
 void AAbilitySystemActor::RegisterAttributeSets()
 {
 	// give the ASC the default Actor attribute set
-	if (ActorAttributeSet && !GetAbilitySystemComponent()->SpawnedAttributes.Contains(ActorAttributeSet))	// If ActorAttributeSet is valid and it's not yet registered with the Actor's ASC
+	if (ActorAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(ActorAttributeSet))	// If ActorAttributeSet is valid and it's not yet registered with the Actor's ASC
 	{
 		GetAbilitySystemComponent()->AddAttributeSetSubobject(ActorAttributeSet);
 	}
@@ -140,7 +140,7 @@ void AAbilitySystemActor::RegisterAttributeSets()
 	// \/\/\/\/ This is how you should register each of your attribute sets after calling the Super \/\/\/\/
 	// -------------------------------------------------------------------------------------------------- //
 	/*
-				if (MyAttributeSet && !GetAbilitySystemComponent()->SpawnedAttributes.Contains(MyAttributeSet))
+				if (MyAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(MyAttributeSet))
 				{
 					GetAbilitySystemComponent()->AddAttributeSetSubobject(MyAttributeSet);
 				}
@@ -194,7 +194,7 @@ void AAbilitySystemActor::ApplyStartupEffects()
 	FGameplayEffectContextHandle EffectContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
 	EffectContextHandle.AddInstigator(this, this);
 	EffectContextHandle.AddSourceObject(this);
-	for (int32 i = 0; i < EffectsToApplyOnStartup.Num(); i++)
+	for (int32 i = 0; i < EffectsToApplyOnStartup.Num(); ++i)
 	{
 		FGameplayEffectSpecHandle NewEffectSpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(EffectsToApplyOnStartup[i], 1/*GetLevel()*/, EffectContextHandle);
 		if (NewEffectSpecHandle.IsValid())

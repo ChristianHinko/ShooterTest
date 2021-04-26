@@ -14,7 +14,10 @@ public class SonicShooter : ModuleRules
 				"InputCore",
 				"GameplayAbilities",
 				"GameplayTags",
-				"GameplayTasks"
+				"GameplayTasks",
+				"NetCore", // for push model
+				"AutoSettings",
+				"ArcInventory"
 			}
 		);
 	}

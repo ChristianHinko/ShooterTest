@@ -13,11 +13,12 @@
 
 UGA_CharacterInstantInteract::UGA_CharacterInstantInteract()
 {
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.InstantInteract")));
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Interact.InstantInteract")));
 }
 
 void UGA_CharacterInstantInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
+	TryCallOnAvatarSetOnPrimaryInstance
 	Super::OnAvatarSet(ActorInfo, Spec);
 }
 
@@ -44,9 +45,10 @@ void UGA_CharacterInstantInteract::ActivateAbility(const FGameplayAbilitySpecHan
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
+	///////////////////////////////////// we are safe to proceed /////////
 
 	Interactable->OnInstantInteract(ShooterCharacter);
 

@@ -24,7 +24,7 @@ public:
 	UAS_Character();
 
 #pragma region Gameplay Tags
-	FGameplayTag TagOutOfStamina;
+	
 #pragma endregion
 
 	
@@ -47,48 +47,11 @@ public:
 	ATTRIBUTE_ACCESSORS(UAS_Character, RunAccelaration)
 #pragma endregion
 
-#pragma region Health Attributes
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxHealth, Category = "Attributes")
-		FGameplayAttributeData MaxHealth;
-	ATTRIBUTE_ACCESSORS(UAS_Character, MaxHealth)
-
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Health, Category = "Attributes", meta = (HideFromModifiers))	// HideFromModifiers removes it from the GE dropdown menu so you can't accidently modify it
-		FGameplayAttributeData Health;
-	ATTRIBUTE_ACCESSORS(UAS_Character, Health)
-
-
-	//	'meta' attributes: ie. "What do we do with this incomming Damage or Healing?" Good solution in place of an ExecutionCalculation
-	/** This Damage attribute is just used for applying negative health mods. Its not a 'persistent' attribute. It is a 'meta' attribute (gets set back to 0 after it modifies Health) */
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromLevelInfos))	// You can't make a GameplayEffect 'powered' by Damage (Its transient). HideFromLevelInfos makes the attribute transient
-		FGameplayAttributeData Damage;
-	ATTRIBUTE_ACCESSORS(UAS_Character, Damage)
-
-	/** This Healing attribute is just used for applying positive health mods. Its not a 'persistent' attribute. It is a 'meta' attribute (gets set back to 0 after it modifies Health) */
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromLevelInfos))	// You can't make a GameplayEffect 'powered' by Damage (Its transient). HideFromLevelInfos makes the attribute transient
-		FGameplayAttributeData Healing;
-	ATTRIBUTE_ACCESSORS(UAS_Character, Healing)
-#pragma endregion
-
-#pragma region Stamina Attributes
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxStamina, Category = "Attributes")
-		FGameplayAttributeData MaxStamina;
-	ATTRIBUTE_ACCESSORS(UAS_Character, MaxStamina)
-
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Stamina, Category = "Attributes", meta = (HideFromModifiers))
-		FGameplayAttributeData Stamina;
-	ATTRIBUTE_ACCESSORS(UAS_Character, Stamina)
-
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromLevelInfos))
-		FGameplayAttributeData StaminaDrain;
-	ATTRIBUTE_ACCESSORS(UAS_Character, StaminaDrain)
-
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromLevelInfos))
-		FGameplayAttributeData StaminaGain;
-	ATTRIBUTE_ACCESSORS(UAS_Character, StaminaGain)
-#pragma endregion
-	
 
 protected:
+	virtual void SetSoftAttributeDefaults() override;
+
+
 	//	Server only. Handle applying any modifications to incomming effects (ie. subtracting incomming damage using a shield attribute)
 	virtual bool PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data) override;
 	//	Server only. Handle using 'meta' attributes for modifying 'persistant' attributes. Such as Damage modifying Health
@@ -104,14 +67,4 @@ protected:
 		virtual void OnRep_RunSpeed(const FGameplayAttributeData& ServerBaseValue);
 	UFUNCTION()
 		virtual void OnRep_RunAccelaration(const FGameplayAttributeData& ServerBaseValue);
-
-	UFUNCTION()
-		virtual void OnRep_MaxHealth(const FGameplayAttributeData& ServerBaseValue);
-	UFUNCTION()
-		virtual void OnRep_Health(const FGameplayAttributeData& ServerBaseValue);
-
-	UFUNCTION()
-		virtual void OnRep_MaxStamina(const FGameplayAttributeData& ServerBaseValue);
-	UFUNCTION()
-		virtual void OnRep_Stamina(const FGameplayAttributeData& ServerBaseValue);
 };

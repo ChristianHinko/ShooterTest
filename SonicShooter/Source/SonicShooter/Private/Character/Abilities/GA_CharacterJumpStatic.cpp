@@ -6,13 +6,17 @@
 #include "Character/AbilitySystemCharacter.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 
-
+// THIS ABILITY IS WAYYYYYY OUTDATED!!!!!!!!!!!!!!!!
+// WE HAVE NOT IMPLEMENTED THE NEW WAY OF DOING MOVEMENT ABILITIES FOR THIS STATIC VERISON OF JUMP!!!!
+// IF YOU WANT TO USE THIS FOLLOW THE WAY THE STANDARD GA_CharacterJump DOES IT!!!!!!!!!
+// WE JUST HAVENT FIXED THIS STATIC VERSION BECAUSE WE AREN'T USING IT!!!!!!!
 
 UGA_CharacterJumpStatic::UGA_CharacterJumpStatic()
 {
+	AbilityInputID = EAbilityInputID::Jump;
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::NonInstanced;
 	bReplicateInputDirectly = true;		// bReplicateEndAbility in EndAbility() when replicating to the server doesn't always work because client's ability most likely isn't confirmed yet. So we do this bool instead to tell the server to run EndAbility(). (the better alternative to this bool is to use the input tasks but we can't because this is a non-instanced ability)
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.JumpStatic")));
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Movement.JumpStatic")));
 }
 
 
@@ -30,19 +34,22 @@ bool UGA_CharacterJumpStatic::CanActivateAbility(const FGameplayAbilitySpecHandl
 void UGA_CharacterJumpStatic::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
 
-	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
-	{
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
-		return;
-	}
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	if (!Character)
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Character was NULL when trying to activate static jump ability. Called CancelAbility()"), *FString(__FUNCTION__));
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Character was NULL when trying to activate static jump ability. Called EndAbility()"), *FString(__FUNCTION__));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
+
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		return;
+	}
+	///////////////////////////////////// we are safe to proceed /////////
 
 
 	Character->Jump();

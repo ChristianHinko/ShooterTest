@@ -137,16 +137,16 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 	//}
 
 	//	Item history debug
-	UKismetSystemLibrary::PrintString(this, "------------", true, false);
-	if (SSInventoryComponentActive)
-	{
-		for (FArcInventoryItemSlotReference slotRef : SSInventoryComponentActive->ActiveItemHistory)
-		{
-			UKismetSystemLibrary::PrintString(this, UArcItemBPFunctionLibrary::GetItemFromSlot(slotRef)->GetItemDefinition().GetDefaultObject()->GetFName().ToString(), true, false);
+	//UKismetSystemLibrary::PrintString(this, "------------", true, false);
+	//if (SSInventoryComponentActive)
+	//{
+	//	for (FArcInventoryItemSlotReference slotRef : SSInventoryComponentActive->ActiveItemHistory)
+	//	{
+	//		UKismetSystemLibrary::PrintString(this, UArcItemBPFunctionLibrary::GetItemFromSlot(slotRef)->GetItemDefinition().GetDefaultObject()->GetFName().ToString(), true, false);
 
-		}
-	}
-	UKismetSystemLibrary::PrintString(this, "-----------", true, false);
+	//	}
+	//}
+	//UKismetSystemLibrary::PrintString(this, "-----------", true, false);
 
 
 	

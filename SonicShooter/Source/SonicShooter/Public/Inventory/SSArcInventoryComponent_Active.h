@@ -22,6 +22,8 @@ private:
 public:
 	USSArcInventoryComponent_Active(const FObjectInitializer& ObjectInitializer);
 	virtual void BeginPlay() override;
+	virtual void InitializeComponent() override;
+
 	int32 startingActiveItemSlot;
 	uint8 bUseOnEquipItemSwappingThingRoyMade : 1;
 
@@ -41,14 +43,15 @@ public:
 
 	
 	virtual void OnItemEquipped(class UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack) override;
-	virtual void MakeItemActive(int32 NewActiveItemSlot) override;
-	virtual void MakeItemInactive() override;
-
+	
 	UFUNCTION()
 		void AddToActiveItemHistory(const FArcInventoryItemSlotReference& NewActiveItemSlotReference);
 
 protected:
-
+	UFUNCTION()
+		void OnItemActiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
+	UFUNCTION()
+		void OnItemInactiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
 	virtual bool MakeItemActive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack) override;
 	
 	virtual bool ApplyAbilityInfo_Internal(const FArcItemDefinition_AbilityInfo& AbilityInfo, FArcEquippedItemInfo& StoreInto, UArcItemStack* AbilitySource) override;

@@ -164,5 +164,7 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 
 void AGATA_BulletTrace::OnTraced(const TArray<FHitResult>& HitResults)
 {
+	Super::OnTraced(HitResults);
+
 
 }

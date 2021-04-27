@@ -11,7 +11,6 @@
 struct FOnAttributeChangeData;
 
 
-
 /**
  * Base ammo widget. No visuals and is meant for subclassing in BP.
  * Provides the value of a ammo attribute values and events for when to update UI.
@@ -24,7 +23,8 @@ class SONICSHOOTER_API UUW_Ammo : public USSUserWidget
 public:
 	UUW_Ammo(const FObjectInitializer& ObjectInitializer);
 
-
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+		FText ActiveItemName;
 	/** The current clip ammo value of the attribute */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ammo")
 		float ClipAmmo;

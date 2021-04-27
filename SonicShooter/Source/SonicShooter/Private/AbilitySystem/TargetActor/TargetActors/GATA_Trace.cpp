@@ -88,7 +88,7 @@ int32 AGATA_Trace::GetRicochets() const
 	return 0;
 }
 
-bool AGATA_Trace::OnRicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWorld* World, const FCollisionQueryParams Params) const
+bool AGATA_Trace::RicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWorld* World, const FCollisionQueryParams Params) const
 {
 	if (OutHitResults.Num() <= 0)
 	{
@@ -120,7 +120,7 @@ bool AGATA_Trace::OnRicochetLineTrace(TArray<FHitResult>& OutHitResults, const U
 	OutHitResults.Append(RicoHitResults);
 	return true;
 }
-bool AGATA_Trace::OnRicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld* World, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params) const
+bool AGATA_Trace::RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld* World, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params) const
 {
 	if (OutHitResults.Num() <= 0)
 	{
@@ -149,6 +149,7 @@ bool AGATA_Trace::OnRicochetSweep(TArray<FHitResult>& OutHitResults, const UWorl
 	{
 		return false;
 	}
+
 	OutHitResults.Append(RicoHitResults);
 	return true;
 }
@@ -163,7 +164,7 @@ void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults,
 	uint8 r = 0; // outside for bDebug to use maybe try to change this idk
 	for (r; r < GetRicochets(); ++r)
 	{
-		const bool bShouldContinue = OnRicochetLineTrace(OutHitResults, World, Params);
+		const bool bShouldContinue = RicochetLineTrace(OutHitResults, World, Params);
 
 		if (bShouldContinue == false)
 		{
@@ -191,7 +192,7 @@ void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, con
 	uint8 r = 0; // outside for bDebug to use maybe try to change this idk
 	for (r; r < GetRicochets(); ++r)
 	{
-		const bool bShouldContinue = OnRicochetSweep(OutHitResults, World, Rotation, CollisionShape, Params);
+		const bool bShouldContinue = RicochetSweep(OutHitResults, World, Rotation, CollisionShape, Params);
 
 		if (bShouldContinue == false)
 		{

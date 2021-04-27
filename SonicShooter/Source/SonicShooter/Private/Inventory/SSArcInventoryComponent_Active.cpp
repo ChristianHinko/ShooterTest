@@ -81,6 +81,13 @@ void USSArcInventoryComponent_Active::BeginPlay()
 	Super::Super::BeginPlay();
 }
 
+void USSArcInventoryComponent_Active::InitializeComponent()
+{
+	Super::InitializeComponent();
+
+	OnItemInactive.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemInactiveEvent);
+}
+
 bool USSArcInventoryComponent_Active::IsActiveItemSlotIndexValid(int32 InActiveItemSlot)
 {
 	if (InActiveItemSlot < 0)
@@ -181,34 +188,6 @@ void USSArcInventoryComponent_Active::MakeItemActive(int32 NewActiveItemSlot)
 	}
 
 
-}
-void USSArcInventoryComponent_Active::MakeItemInactive()
-{
-	Super::MakeItemInactive();
-
-	// Remove UIData widgets
-	if (APawn* OwningPawn = Cast<APawn>(GetOwner()))
-	{
-		if (OwningPawn->IsLocallyControlled())
-		{
-			if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
-			{
-				if (AHUD_ShooterCharacter* ShooterCharacterHUD = Cast<AHUD_ShooterCharacter>(OwningPC->GetHUD()))
-				{
-					if (ShooterCharacterHUD->CrosshairWidget)
-					{
-						ShooterCharacterHUD->CrosshairWidget->RemoveFromViewport();
-						ShooterCharacterHUD->CrosshairWidget = nullptr;
-					}
-					if (ShooterCharacterHUD->AmmoWidget)
-					{
-						ShooterCharacterHUD->AmmoWidget->RemoveFromViewport();
-						ShooterCharacterHUD->AmmoWidget = nullptr;
-					}
-				}
-			}
-		}
-	}
 }
 
 void USSArcInventoryComponent_Active::AddToActiveItemHistory(const FArcInventoryItemSlotReference& NewActiveItemSlotReference)
@@ -390,3 +369,36 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 
 	return true;
 }
+
+
+void USSArcInventoryComponent_Active::OnItemInactiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
+{
+
+
+
+
+	// Remove UIData widgets
+	if (APawn* OwningPawn = Cast<APawn>(GetOwner()))
+	{
+		if (OwningPawn->IsLocallyControlled())
+		{
+			if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
+			{
+				if (AHUD_ShooterCharacter* ShooterCharacterHUD = Cast<AHUD_ShooterCharacter>(OwningPC->GetHUD()))
+				{
+					if (ShooterCharacterHUD->CrosshairWidget)
+					{
+						ShooterCharacterHUD->CrosshairWidget->RemoveFromViewport();
+						ShooterCharacterHUD->CrosshairWidget = nullptr;
+					}
+					if (ShooterCharacterHUD->AmmoWidget)
+					{
+						ShooterCharacterHUD->AmmoWidget->RemoveFromViewport();
+						ShooterCharacterHUD->AmmoWidget = nullptr;
+					}
+				}
+			}
+		}
+	}
+}
+

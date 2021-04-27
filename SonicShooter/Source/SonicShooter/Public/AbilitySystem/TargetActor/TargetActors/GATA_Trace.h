@@ -25,9 +25,11 @@ public:
 	virtual void ConfirmTargetingAndContinue() override;
 
 	/** Traces as normal, but will manually filter all hit actors */
-	void LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, int32 ricochets, const FCollisionQueryParams Params, const bool inDebug) const;
+	void LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams Params, const bool inDebug) const;
 	/** Sweeps as normal, but will manually filter all hit actors */
-	void SweepMulti(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, int32 ricochets, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug) const;
+	void SweepMulti(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug) const;
+
+	virtual int32 GetRicochets() const;
 
 protected:
 	virtual void PreInitializeComponents() override;
@@ -38,4 +40,5 @@ protected:
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) PURE_VIRTUAL(AGATA_Trace);
 
 	TWeakObjectPtr<AGameplayAbilityWorldReticle> ReticleActor;
+
 };

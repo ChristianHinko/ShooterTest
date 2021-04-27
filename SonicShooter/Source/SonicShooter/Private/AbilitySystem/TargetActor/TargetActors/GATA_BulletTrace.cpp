@@ -24,7 +24,18 @@ float AGATA_BulletTrace::GetMaxRange() const
 	{
 		return GunAttributeSet->GetMaxRange();
 	}
+
 	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its MaxRange attribute! Will return 0 instead!"), *FString(__FUNCTION__));
+	return 0;
+}
+int32 AGATA_BulletTrace::GetRicochets() const
+{
+	if (GunAttributeSet)
+	{
+		return GunAttributeSet->GetRicochets();
+	}
+
+	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its Ricochets attribute! Will return 0 instead!"), *FString(__FUNCTION__));
 	return 0;
 }
 
@@ -147,6 +158,6 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 
 
 	// Perform line trace
-	LineTraceMulti(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, GunAttributeSet->GetRicochets(), Params, bDebug);
+	LineTraceMulti(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, Params, bDebug);
 
 }

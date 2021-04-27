@@ -88,7 +88,15 @@ int32 AGATA_Trace::GetRicochets() const
 	return 0;
 }
 
-bool AGATA_Trace::RicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWorld* World, const FCollisionQueryParams Params) const
+void AGATA_Trace::CalculateRicochetDirection(FVector& RicoDir, const FHitResult& FromHit) const
+{
+	const FVector FromDir = UKismetMathLibrary::GetDirectionUnitVector(FromHit.TraceStart, FromHit.Location);
+	const FVector MirroredDir = FromDir.MirrorByVector(FromHit.ImpactNormal);
+
+	RicoDir = MirroredDir;
+}
+
+bool AGATA_Trace::RicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWorld* World, const FCollisionQueryParams Params)
 {
 	if (OutHitResults.Num() <= 0)
 	{
@@ -100,27 +108,33 @@ bool AGATA_Trace::RicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWo
 		return false;
 	}
 
+	// This ricochet's hit results
 	TArray<FHitResult> RicoHitResults;
 
+	// Add the current hit actor on top of the ignored actors
 	FCollisionQueryParams RicoParams = Params;
 	RicoParams.AddIgnoredActor(LastHit.GetActor());
 
+	// Calculate ricochet direction
+	FVector RicoDir;
+	CalculateRicochetDirection(RicoDir, LastHit);
 
-	const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.TraceEnd);
-	const FVector MirroredDir = TracedDir.MirrorByVector(LastHit.ImpactNormal);
-
+	// Use direction to get the trace end
 	const FVector RicoStart = LastHit.Location;
-	const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * MirroredDir);
+	const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
 
-
+	// Perform ricochet
 	if (World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoParams) == false)
 	{
 		return false;
 	}
+
+	OnTraced(RicoHitResults);
+
 	OutHitResults.Append(RicoHitResults);
 	return true;
 }
-bool AGATA_Trace::RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld* World, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params) const
+bool AGATA_Trace::RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld* World, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params)
 {
 	if (OutHitResults.Num() <= 0)
 	{
@@ -132,33 +146,42 @@ bool AGATA_Trace::RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld*
 		return false;
 	}
 
+	// This ricochet's hit results
 	TArray<FHitResult> RicoHitResults;
 
+	// Add the current hit actor on top of the ignored actors
 	FCollisionQueryParams RicoParams = Params;
 	RicoParams.AddIgnoredActor(LastHit.GetActor());
 
+	// Calculate ricochet direction
+	FVector RicoDir;
+	CalculateRicochetDirection(RicoDir, LastHit);
 
-	const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.TraceEnd);
-	const FVector MirroredDir = TracedDir.MirrorByVector(LastHit.ImpactNormal);
-
+	// Use direction to get the trace end
 	const FVector RicoStart = LastHit.Location;
-	const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * MirroredDir);
+	const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
 
-
-	if (World->SweepMultiByChannel(RicoHitResults, RicoStart, RicoEnd, Rotation, TraceChannel, CollisionShape, RicoParams) == false)
+	// Perform ricochet
+	if (World->SweepMultiByChannel(OutHitResults, RicoStart, RicoEnd, Rotation, TraceChannel, CollisionShape, Params) == false)
 	{
 		return false;
 	}
+
+	OnTraced(RicoHitResults);
 
 	OutHitResults.Append(RicoHitResults);
 	return true;
 }
 
-void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams Params, const bool inDebug) const
+void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams Params, const bool inDebug)
 {
 	check(World);
 
-	World->LineTraceMultiByChannel(OutHitResults, Start, End, TraceChannel, Params);
+	TArray<FHitResult> HitResults;
+	World->LineTraceMultiByChannel(HitResults, Start, End, TraceChannel, Params);
+	OnTraced(HitResults);
+
+	OutHitResults.Append(HitResults);
 
 	// ricochets
 	uint8 r = 0; // outside for bDebug to use maybe try to change this idk
@@ -182,11 +205,15 @@ void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults,
 #endif // ENABLE_DRAW_DEBUG
 }
 
-void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug) const
+void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug)
 {
 	check(World);
 
+	TArray<FHitResult> HitResults;
 	World->SweepMultiByChannel(OutHitResults, Start, End, Rotation, TraceChannel, CollisionShape, Params);
+	OnTraced(HitResults);
+
+	OutHitResults.Append(HitResults);
 
 	// ricochets
 	uint8 r = 0; // outside for bDebug to use maybe try to change this idk

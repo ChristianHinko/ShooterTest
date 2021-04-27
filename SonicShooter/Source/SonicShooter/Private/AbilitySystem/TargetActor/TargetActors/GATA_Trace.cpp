@@ -88,7 +88,7 @@ int32 AGATA_Trace::GetRicochets() const
 	return 0;
 }
 
-void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams Params, const bool inDebug) const
+void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams Params, const bool inDebug) const
 {
 	check(World);
 
@@ -133,59 +133,12 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 #if ENABLE_DRAW_DEBUG
 	if (inDebug)
 	{
-		TArray<FHitResult> DebugHitResults = OutHitResults;
-		FilterHitResults(DebugHitResults, FGATDF_MultiFilterHandle(), bAllowMultipleHitsPerActor); // removes multiple hits if needed (but doesn't filter actors because we have different colors for whether it filters or not)
-
-
-		const float debugLifeTime = 5.f;
-		const FColor TraceColor = FColor::Blue;
-		const FColor PassesFilterColor = FColor::Red;
-
-		const uint8 hitsNum = DebugHitResults.Num();
-		if (hitsNum > 0)
-		{
-			for (int32 i = 0; i < DebugHitResults.Num(); ++i)
-			{
-				const FHitResult Hit = DebugHitResults[i];
-				const FVector FromLocation = Hit.TraceStart;
-				const FVector ToLocation = Hit.Location;
-
-				DrawDebugLine(World, FromLocation, ToLocation, TraceColor, false, debugLifeTime);
-
-				const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.Actor);
-				if (bPassesFilter)
-				{
-					DrawDebugPoint(World, Hit.ImpactPoint, 10, PassesFilterColor, false, debugLifeTime);
-				}
-				else
-				{
-					DrawDebugPoint(World, Hit.ImpactPoint, 10, TraceColor, false, debugLifeTime);
-				}
-			}
-			if (DebugHitResults.Last().bBlockingHit == false)
-			{
-				DrawDebugLine(World, DebugHitResults.Last().Location, DebugHitResults.Last().TraceEnd, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
-			}
-			else if (GetRicochets() - r > 0)
-			{
-				const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(DebugHitResults.Last().TraceStart, DebugHitResults.Last().TraceEnd);
-				const FVector MirroredDir = TracedDir.MirrorByVector(DebugHitResults.Last().ImpactNormal);
-
-				const FVector RicoStart = DebugHitResults.Last().Location;
-				const FVector RicoEnd = RicoStart + ((GetMaxRange() - DebugHitResults.Last().Distance) * MirroredDir);
-
-				DrawDebugLine(World, RicoStart, RicoEnd, TraceColor, false, debugLifeTime);
-			}
-		}
-		else // if we've traced in thin air
-		{
-			DrawDebugLine(World, Start, End, TraceColor, false, debugLifeTime);
-		}
+		DebugTrace(OutHitResults, World, Start, End, r);
 	}
 #endif // ENABLE_DRAW_DEBUG
 }
 
-void AGATA_Trace::SweepMulti(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug) const
+void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug) const
 {
 	check(World);
 
@@ -230,57 +183,64 @@ void AGATA_Trace::SweepMulti(TArray<FHitResult>& OutHitResults, const UWorld* Wo
 #if ENABLE_DRAW_DEBUG
 	if (inDebug)
 	{
-		TArray<FHitResult> DebugHitResults = OutHitResults;
-		FilterHitResults(DebugHitResults, FGATDF_MultiFilterHandle(), bAllowMultipleHitsPerActor); // removes multiple hits if needed (but doesn't filter actors because we have different colors for whether it filters or not)
-
-
-		const float debugLifeTime = 5.f;
-		const FColor TraceColor = FColor::Blue;
-		const FColor PassesFilterColor = FColor::Red;
-
-		const uint8 hitsNum = DebugHitResults.Num();
-		if (hitsNum > 0)
-		{
-			for (int32 i = 0; i < DebugHitResults.Num(); ++i)
-			{
-				const FHitResult Hit = DebugHitResults[i];
-				const FVector FromLocation = Hit.TraceStart;
-				const FVector ToLocation = Hit.Location;
-
-				DrawDebugLine(World, FromLocation, ToLocation, TraceColor, false, debugLifeTime);
-
-				const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.Actor);
-				if (bPassesFilter)
-				{
-					DrawDebugPoint(World, Hit.ImpactPoint, 10, PassesFilterColor, false, debugLifeTime);
-				}
-				else
-				{
-					DrawDebugPoint(World, Hit.ImpactPoint, 10, TraceColor, false, debugLifeTime);
-				}
-			}
-			if (DebugHitResults.Last().bBlockingHit == false)
-			{
-				DrawDebugLine(World, DebugHitResults.Last().Location, DebugHitResults.Last().TraceEnd, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
-			}
-			else if (GetRicochets() - r > 0)
-			{
-				const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(DebugHitResults.Last().TraceStart, DebugHitResults.Last().TraceEnd);
-				const FVector MirroredDir = TracedDir.MirrorByVector(DebugHitResults.Last().ImpactNormal);
-
-				const FVector RicoStart = DebugHitResults.Last().Location;
-				const FVector RicoEnd = RicoStart + ((GetMaxRange() - DebugHitResults.Last().Distance) * MirroredDir);
-
-				DrawDebugLine(World, RicoStart, RicoEnd, TraceColor, false, debugLifeTime);
-			}
-		}
-		else // if we've traced in thin air
-		{
-			DrawDebugLine(World, Start, End, TraceColor, false, debugLifeTime);
-		}
+		DebugTrace(OutHitResults, World, Start, End, r);
 	}
 #endif // ENABLE_DRAW_DEBUG
 }
+
+#if ENABLE_DRAW_DEBUG
+void AGATA_Trace::DebugTrace(const TArray<FHitResult>& HitResults, const UWorld* World, const FVector& Start, const FVector& End, const int32 timesRicocheted) const
+{
+	TArray<FHitResult> DebugHitResults = HitResults;
+	FilterHitResults(DebugHitResults, FGATDF_MultiFilterHandle(), bAllowMultipleHitsPerActor); // removes multiple hits if needed (but doesn't filter actors because we have different colors for whether it filters or not)
+
+
+	const float debugLifeTime = 5.f;
+	const FColor TraceColor = FColor::Blue;
+	const FColor PassesFilterColor = FColor::Red;
+
+	const uint8 hitsNum = DebugHitResults.Num();
+	if (hitsNum > 0)
+	{
+		for (int32 i = 0; i < DebugHitResults.Num(); ++i)
+		{
+			const FHitResult Hit = DebugHitResults[i];
+			const FVector FromLocation = Hit.TraceStart;
+			const FVector ToLocation = Hit.Location;
+
+			DrawDebugLine(World, FromLocation, ToLocation, TraceColor, false, debugLifeTime);
+
+			const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.Actor);
+			if (bPassesFilter)
+			{
+				DrawDebugPoint(World, Hit.ImpactPoint, 10, PassesFilterColor, false, debugLifeTime);
+			}
+			else
+			{
+				DrawDebugPoint(World, Hit.ImpactPoint, 10, TraceColor, false, debugLifeTime);
+			}
+		}
+		if (DebugHitResults.Last().bBlockingHit == false)
+		{
+			DrawDebugLine(World, DebugHitResults.Last().Location, DebugHitResults.Last().TraceEnd, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
+		}
+		else if (GetRicochets() - timesRicocheted > 0)
+		{
+			const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(DebugHitResults.Last().TraceStart, DebugHitResults.Last().TraceEnd);
+			const FVector MirroredDir = TracedDir.MirrorByVector(DebugHitResults.Last().ImpactNormal);
+
+			const FVector RicoStart = DebugHitResults.Last().Location;
+			const FVector RicoEnd = RicoStart + ((GetMaxRange() - DebugHitResults.Last().Distance) * MirroredDir);
+
+			DrawDebugLine(World, RicoStart, RicoEnd, TraceColor, false, debugLifeTime);
+		}
+	}
+	else // if we've traced in thin air
+	{
+		DrawDebugLine(World, Start, End, TraceColor, false, debugLifeTime);
+	}
+}
+#endif // ENABLE_DRAW_DEBUG
 
 
 void AGATA_Trace::Tick(float DeltaSeconds)

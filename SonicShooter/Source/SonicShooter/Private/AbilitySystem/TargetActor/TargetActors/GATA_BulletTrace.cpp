@@ -158,6 +158,6 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 
 
 	// Perform line trace
-	LineTraceMulti(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, Params, bDebug);
+	LineTraceMultiWithRicochets(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, Params, bDebug);
 
 }

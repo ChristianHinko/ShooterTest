@@ -51,6 +51,14 @@ USSArcInventoryComponent_Active::USSArcInventoryComponent_Active(const FObjectIn
 	}
 }
 
+void USSArcInventoryComponent_Active::InitializeComponent()
+{
+	Super::InitializeComponent();
+
+	OnItemInactive.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemInactiveEvent);
+	OnItemActive.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemActiveEvent);
+}
+
 void USSArcInventoryComponent_Active::BeginPlay()
 {
 	//Make sure we have nothing stored when we begin play.  We want to have a clean start to this active slot if we reset
@@ -79,13 +87,6 @@ void USSArcInventoryComponent_Active::BeginPlay()
 		});
 
 	Super::Super::BeginPlay();
-}
-
-void USSArcInventoryComponent_Active::InitializeComponent()
-{
-	Super::InitializeComponent();
-
-	OnItemInactive.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemInactiveEvent);
 }
 
 bool USSArcInventoryComponent_Active::IsActiveItemSlotIndexValid(int32 InActiveItemSlot)
@@ -149,45 +150,6 @@ bool USSArcInventoryComponent_Active::MakeItemActive_Internal(const FArcInventor
 
 
 	return bSuccess;
-}
-
-void USSArcInventoryComponent_Active::MakeItemActive(int32 NewActiveItemSlot)
-{
-	Super::MakeItemActive(NewActiveItemSlot);
-
-	// Add UIData widgets
-	if (IsValidActiveItemSlot(NewActiveItemSlot))	// If it's not valid, we don't have to warning because it he might just not have an item here
-	{
-		if (APawn* OwningPawn = Cast<APawn>(GetOwner()))
-		{
-			if (OwningPawn->IsLocallyControlled())
-			{
-				if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
-				{
-					if (UWeaponUIData* WeaponUIData = Cast<UWeaponUIData>(GetActiveItemStack()->GetUIData()))
-					{
-						if (AHUD_ShooterCharacter* ShooterCharacterHUD = Cast<AHUD_ShooterCharacter>(OwningPC->GetHUD()))
-						{
-							// Create our widgets and add them to viewport
-							ShooterCharacterHUD->CrosshairWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->CrosshairWidgetTSub, OwningPC);
-							if (ShooterCharacterHUD->CrosshairWidget)
-							{
-								ShooterCharacterHUD->CrosshairWidget->AddToViewport();
-							}
-
-							ShooterCharacterHUD->AmmoWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->AmmoWidgetTSub, OwningPC);
-							if (ShooterCharacterHUD->AmmoWidget)
-							{
-								ShooterCharacterHUD->AmmoWidget->AddToViewport();
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-
 }
 
 void USSArcInventoryComponent_Active::AddToActiveItemHistory(const FArcInventoryItemSlotReference& NewActiveItemSlotReference)
@@ -370,6 +332,54 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 	return true;
 }
 
+
+void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
+{
+
+	// Add UIData widgets
+	if (ItemStack)	// If it's not valid, we don't have to warning because it he might just not have an item here
+	{
+		if (APawn* OwningPawn = Cast<APawn>(GetOwner()))
+		{
+			if (OwningPawn->IsLocallyControlled())
+			{
+				if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
+				{
+					if (UWeaponUIData* WeaponUIData = Cast<UWeaponUIData>(ItemStack->GetUIData()))
+					{
+						if (AHUD_ShooterCharacter* ShooterCharacterHUD = Cast<AHUD_ShooterCharacter>(OwningPC->GetHUD()))
+						{
+							// Create our widgets and add them to viewport
+							ShooterCharacterHUD->CrosshairWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->CrosshairWidgetTSub, OwningPC);
+							if (ShooterCharacterHUD->CrosshairWidget)
+							{
+								ShooterCharacterHUD->CrosshairWidget->AddToViewport();
+							}
+
+							//	With this widget we want to inject the new weapon's name into the widget since the widget has no way of getting the new item stack since this event is too early for that
+							UUserWidget* NewAmmoWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->AmmoWidgetTSub, OwningPC);
+							if (UUW_Ammo* NewAmmoWidgetCasted = Cast<UUW_Ammo>(NewAmmoWidget))
+							{
+								NewAmmoWidgetCasted->ActiveItemName = ItemStack->ItemName;
+							}
+							else
+							{
+								UE_LOG(LogUI, Fatal, TEXT("%s(): When trying to inject the new active item name into UUW_Ammo on create, we couldn't, because the cast from UUserWidget to UUW_Ammo failed"), *FString(__FUNCTION__), *(ASSPlayerController::StaticClass()->GetName()));
+							}
+							ShooterCharacterHUD->AmmoWidget = NewAmmoWidget;
+							if (ShooterCharacterHUD->AmmoWidget)
+							{
+								ShooterCharacterHUD->AmmoWidget->AddToViewport();
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+}
 
 void USSArcInventoryComponent_Active::OnItemInactiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
 {

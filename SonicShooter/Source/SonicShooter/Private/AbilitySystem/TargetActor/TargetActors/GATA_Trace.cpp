@@ -188,9 +188,10 @@ void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, con
 #endif // ENABLE_DRAW_DEBUG
 }
 
-#if ENABLE_DRAW_DEBUG
+//#if ENABLE_DRAW_DEBUG
 void AGATA_Trace::DebugTrace(const TArray<FHitResult>& HitResults, const UWorld* World, const FVector& Start, const FVector& End, const int32 timesRicocheted) const
 {
+#if ENABLE_DRAW_DEBUG
 	TArray<FHitResult> DebugHitResults = HitResults;
 	FilterHitResults(DebugHitResults, FGATDF_MultiFilterHandle(), bAllowMultipleHitsPerActor); // removes multiple hits if needed (but doesn't filter actors because we have different colors for whether it filters or not)
 
@@ -239,8 +240,9 @@ void AGATA_Trace::DebugTrace(const TArray<FHitResult>& HitResults, const UWorld*
 	{
 		DrawDebugLine(World, Start, End, TraceColor, false, debugLifeTime);
 	}
-}
 #endif // ENABLE_DRAW_DEBUG
+}
+//#endif // ENABLE_DRAW_DEBUG
 
 
 void AGATA_Trace::Tick(float DeltaSeconds)

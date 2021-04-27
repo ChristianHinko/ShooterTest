@@ -51,6 +51,12 @@ protected:
 	virtual bool RicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWorld* World, const FCollisionQueryParams Params);
 	virtual bool RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld* World, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params);
 
+	/**
+	 * Calculates the direction to ricochet from the given hit.
+	 * This can be overriden for custom ricochet directions
+	 */
+	virtual void CalculateRicochetDirection(FVector& RicoDir, const FHitResult& FromHit) const;
+
 
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) PURE_VIRTUAL(AGATA_Trace);
 

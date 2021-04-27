@@ -88,6 +88,14 @@ int32 AGATA_Trace::GetRicochets() const
 	return 0;
 }
 
+void AGATA_Trace::CalculateRicochetDirection(FVector& RicoDir, const FHitResult& FromHit) const
+{
+	const FVector FromDir = UKismetMathLibrary::GetDirectionUnitVector(FromHit.TraceStart, FromHit.Location);
+	const FVector MirroredDir = FromDir.MirrorByVector(FromHit.ImpactNormal);
+
+	RicoDir = MirroredDir;
+}
+
 bool AGATA_Trace::RicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWorld* World, const FCollisionQueryParams Params)
 {
 	if (OutHitResults.Num() <= 0)
@@ -100,19 +108,22 @@ bool AGATA_Trace::RicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWo
 		return false;
 	}
 
+	// This ricochet's hit results
 	TArray<FHitResult> RicoHitResults;
 
+	// Add the current hit actor on top of the ignored actors
 	FCollisionQueryParams RicoParams = Params;
 	RicoParams.AddIgnoredActor(LastHit.GetActor());
 
+	// Calculate ricochet direction
+	FVector RicoDir;
+	CalculateRicochetDirection(RicoDir, LastHit);
 
-	const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.TraceEnd);
-	const FVector MirroredDir = TracedDir.MirrorByVector(LastHit.ImpactNormal);
-
+	// Use direction to get the trace end
 	const FVector RicoStart = LastHit.Location;
-	const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * MirroredDir);
+	const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
 
-
+	// Perform ricochet
 	if (World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoParams) == false)
 	{
 		return false;
@@ -135,20 +146,23 @@ bool AGATA_Trace::RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld*
 		return false;
 	}
 
+	// This ricochet's hit results
 	TArray<FHitResult> RicoHitResults;
 
+	// Add the current hit actor on top of the ignored actors
 	FCollisionQueryParams RicoParams = Params;
 	RicoParams.AddIgnoredActor(LastHit.GetActor());
 
+	// Calculate ricochet direction
+	FVector RicoDir;
+	CalculateRicochetDirection(RicoDir, LastHit);
 
-	const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.TraceEnd);
-	const FVector MirroredDir = TracedDir.MirrorByVector(LastHit.ImpactNormal);
-
+	// Use direction to get the trace end
 	const FVector RicoStart = LastHit.Location;
-	const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * MirroredDir);
+	const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
 
-
-	if (World->SweepMultiByChannel(RicoHitResults, RicoStart, RicoEnd, Rotation, TraceChannel, CollisionShape, RicoParams) == false)
+	// Perform ricochet
+	if (World->SweepMultiByChannel(OutHitResults, RicoStart, RicoEnd, Rotation, TraceChannel, CollisionShape, Params) == false)
 	{
 		return false;
 	}

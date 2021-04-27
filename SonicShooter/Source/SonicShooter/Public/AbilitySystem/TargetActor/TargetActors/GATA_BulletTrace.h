@@ -41,6 +41,8 @@ protected:
 
 	virtual void CalculateAimDirection(FVector& ViewStart, FVector& ViewDir) const override;
 
+	virtual void OnTraced(const TArray<FHitResult>& HitResults) override;
+
 private:
 	uint8 currentBulletNumber;
 };

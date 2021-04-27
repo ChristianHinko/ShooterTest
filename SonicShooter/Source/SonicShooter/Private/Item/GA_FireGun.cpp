@@ -24,6 +24,7 @@
 UGA_FireGun::UGA_FireGun()
 {
 	AbilityInputID = EAbilityInputID::PrimaryFire;
+	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ClientOrServer;
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Fire")));
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("AbilityInput.PrimaryFire")));
 
@@ -247,12 +248,11 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 {
 	int32 flooredShotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
 
-
 	if (GunAttributeSet->GetbFullAuto() == 0 && (flooredShotsPerBurst <= 1 || timesBursted >= flooredShotsPerBurst)) // we're not full-auto and we shouldn't be bursting
 	{
 		// We shouldn't be shoot ticking, end ability.
 		// We could've gotten here by bFullAuto changing or NumShotsPerBurst changing
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 		return;
 	}
 
@@ -286,7 +286,7 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 		}
 
 		// No more bursts left
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 		return;
 	}
 

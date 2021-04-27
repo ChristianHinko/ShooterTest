@@ -25,9 +25,9 @@ public:
 	virtual void ConfirmTargetingAndContinue() override;
 
 	/** Traces as normal, but does ricochet traces aswell (unless ricochets is 0) */
-	void LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams Params, const bool inDebug) const;
+	void LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams Params, const bool inDebug);
 	/** Sweeps as normal, but does ricochet traces aswell (unless ricochets is 0) */
-	void SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug) const;
+	void SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug);
 
 	virtual int32 GetRicochets() const;
 
@@ -37,14 +37,19 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	/**
+	 * Called on a successful trace/sweep. Gives the Hit Results from the trace/sweep that just occurred
+	 */
+	virtual void OnTraced(const TArray<FHitResult>& HitResults) { }
+
+	/**
 	 * Called in a loop "GetRicochets()" amount of times (unless unsuccessful rico occurs).
 	 * Expects the OutHitResults to already have hits.
 	 * 
 	 * Returns true if successful (we should continue ricocheting).
 	 * Returns false if didn't trace successfully (we should stop ricocheting).
 	 */
-	virtual bool RicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWorld* World, const FCollisionQueryParams Params) const;
-	virtual bool RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld* World, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params) const;
+	virtual bool RicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWorld* World, const FCollisionQueryParams Params);
+	virtual bool RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld* World, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params);
 
 
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) PURE_VIRTUAL(AGATA_Trace);

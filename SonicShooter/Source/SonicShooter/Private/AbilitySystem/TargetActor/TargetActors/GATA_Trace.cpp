@@ -88,7 +88,7 @@ int32 AGATA_Trace::GetRicochets() const
 	return 0;
 }
 
-bool AGATA_Trace::RicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWorld* World, const FCollisionQueryParams Params) const
+bool AGATA_Trace::RicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWorld* World, const FCollisionQueryParams Params)
 {
 	if (OutHitResults.Num() <= 0)
 	{
@@ -117,10 +117,13 @@ bool AGATA_Trace::RicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWo
 	{
 		return false;
 	}
+
+	OnTraced(RicoHitResults);
+
 	OutHitResults.Append(RicoHitResults);
 	return true;
 }
-bool AGATA_Trace::RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld* World, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params) const
+bool AGATA_Trace::RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld* World, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params)
 {
 	if (OutHitResults.Num() <= 0)
 	{
@@ -150,15 +153,21 @@ bool AGATA_Trace::RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld*
 		return false;
 	}
 
+	OnTraced(RicoHitResults);
+
 	OutHitResults.Append(RicoHitResults);
 	return true;
 }
 
-void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams Params, const bool inDebug) const
+void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams Params, const bool inDebug)
 {
 	check(World);
 
-	World->LineTraceMultiByChannel(OutHitResults, Start, End, TraceChannel, Params);
+	TArray<FHitResult> HitResults;
+	World->LineTraceMultiByChannel(HitResults, Start, End, TraceChannel, Params);
+	OnTraced(HitResults);
+
+	OutHitResults.Append(HitResults);
 
 	// ricochets
 	uint8 r = 0; // outside for bDebug to use maybe try to change this idk
@@ -182,11 +191,15 @@ void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults,
 #endif // ENABLE_DRAW_DEBUG
 }
 
-void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug) const
+void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug)
 {
 	check(World);
 
+	TArray<FHitResult> HitResults;
 	World->SweepMultiByChannel(OutHitResults, Start, End, Rotation, TraceChannel, CollisionShape, Params);
+	OnTraced(HitResults);
+
+	OutHitResults.Append(HitResults);
 
 	// ricochets
 	uint8 r = 0; // outside for bDebug to use maybe try to change this idk

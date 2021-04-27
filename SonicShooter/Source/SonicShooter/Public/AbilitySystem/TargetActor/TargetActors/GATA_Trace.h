@@ -36,6 +36,15 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+	/**
+	 * Called in a loop "GetRicochets()" amount of times.
+	 * 
+	 * Returns true if we should continue ricocheting.
+	 * Returns false if we should stop ricocheting.
+	 */
+	virtual bool OnRicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWorld* World, const FCollisionQueryParams Params) const;
+	virtual bool OnRicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld* World, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params) const;
+
 
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) PURE_VIRTUAL(AGATA_Trace);
 

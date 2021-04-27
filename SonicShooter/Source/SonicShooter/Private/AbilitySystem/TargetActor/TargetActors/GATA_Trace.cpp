@@ -88,6 +88,71 @@ int32 AGATA_Trace::GetRicochets() const
 	return 0;
 }
 
+bool AGATA_Trace::OnRicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWorld* World, const FCollisionQueryParams Params) const
+{
+	if (OutHitResults.Num() <= 0)
+	{
+		return false;
+	}
+	const FHitResult LastHit = OutHitResults.Last();
+	if (LastHit.bBlockingHit == false)
+	{
+		return false;
+	}
+
+	TArray<FHitResult> RicoHitResults;
+
+	FCollisionQueryParams RicoParams = Params;
+	RicoParams.AddIgnoredActor(LastHit.GetActor());
+
+
+	const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.TraceEnd);
+	const FVector MirroredDir = TracedDir.MirrorByVector(LastHit.ImpactNormal);
+
+	const FVector RicoStart = LastHit.Location;
+	const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * MirroredDir);
+
+
+	if (World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoParams) == false)
+	{
+		return false;
+	}
+	OutHitResults.Append(RicoHitResults);
+	return true;
+}
+bool AGATA_Trace::OnRicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld* World, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params) const
+{
+	if (OutHitResults.Num() <= 0)
+	{
+		return false;
+	}
+	const FHitResult LastHit = OutHitResults.Last();
+	if (LastHit.bBlockingHit == false)
+	{
+		return false;
+	}
+
+	TArray<FHitResult> RicoHitResults;
+
+	FCollisionQueryParams RicoParams = Params;
+	RicoParams.AddIgnoredActor(LastHit.GetActor());
+
+
+	const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.TraceEnd);
+	const FVector MirroredDir = TracedDir.MirrorByVector(LastHit.ImpactNormal);
+
+	const FVector RicoStart = LastHit.Location;
+	const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * MirroredDir);
+
+
+	if (World->SweepMultiByChannel(RicoHitResults, RicoStart, RicoEnd, Rotation, TraceChannel, CollisionShape, RicoParams) == false)
+	{
+		return false;
+	}
+	OutHitResults.Append(RicoHitResults);
+	return true;
+}
+
 void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams Params, const bool inDebug) const
 {
 	check(World);
@@ -98,34 +163,12 @@ void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults,
 	uint8 r = 0; // outside for bDebug to use maybe try to change this idk
 	for (r; r < GetRicochets(); ++r)
 	{
-		if (OutHitResults.Num() <= 0)
+		const bool bShouldContinue = OnRicochetLineTrace(OutHitResults, World, Params);
+
+		if (bShouldContinue == false)
 		{
 			break;
 		}
-		const FHitResult LastHit = OutHitResults.Last();
-		if (LastHit.bBlockingHit == false)
-		{
-			break;
-		}
-
-		TArray<FHitResult> RicoHitResults;
-
-		FCollisionQueryParams RicoParams = Params;
-		RicoParams.AddIgnoredActor(LastHit.GetActor());
-
-		
-		const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.TraceEnd);
-		const FVector MirroredDir = TracedDir.MirrorByVector(LastHit.ImpactNormal);
-
-		const FVector RicoStart = LastHit.Location;
-		const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * MirroredDir);
-
-
-		if (World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoParams) == false)
-		{
-			break;
-		}
-		OutHitResults.Append(RicoHitResults);
 	}
 
 
@@ -148,34 +191,12 @@ void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, con
 	uint8 r = 0; // outside for bDebug to use maybe try to change this idk
 	for (r; r < GetRicochets(); ++r)
 	{
-		if (OutHitResults.Num() <= 0)
+		const bool bShouldContinue = OnRicochetSweep(OutHitResults, World, Rotation, CollisionShape, Params);
+
+		if (bShouldContinue == false)
 		{
 			break;
 		}
-		const FHitResult LastHit = OutHitResults.Last();
-		if (LastHit.bBlockingHit == false)
-		{
-			break;
-		}
-
-		TArray<FHitResult> RicoHitResults;
-
-		FCollisionQueryParams RicoParams = Params;
-		RicoParams.AddIgnoredActor(LastHit.GetActor());
-
-		
-		const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.TraceEnd);
-		const FVector MirroredDir = TracedDir.MirrorByVector(LastHit.ImpactNormal);
-
-		const FVector RicoStart = LastHit.Location;
-		const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * MirroredDir);
-
-
-		if (World->SweepMultiByChannel(RicoHitResults, RicoStart, RicoEnd, Rotation, TraceChannel, CollisionShape, RicoParams) == false)
-		{
-			break;
-		}
-		OutHitResults.Append(RicoHitResults);
 	}
 
 

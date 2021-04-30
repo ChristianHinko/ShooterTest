@@ -39,22 +39,6 @@ int32 AGATA_BulletTrace::GetRicochets() const
 	return 0;
 }
 
-#if WITH_EDITOR
-// We don't want to expose any gun related properties to BP if there is one since we are just going to be reading the values from our gun AS
-bool AGATA_BulletTrace::CanEditChange(const FProperty* InProperty) const
-{
-	FName PropertyName = InProperty->GetFName();
-
-	if (PropertyName == GET_MEMBER_NAME_CHECKED(AGATA_BulletTrace, GetMaxRange()))
-	{
-		return false;
-	}
-
-
-	return true;
-}
-#endif //WITH_EDITOR
-
 void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 {
 	check(ShouldProduceTargetData());

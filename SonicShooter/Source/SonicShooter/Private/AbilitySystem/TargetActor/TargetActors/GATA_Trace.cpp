@@ -124,14 +124,15 @@ bool AGATA_Trace::RicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWo
 	const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
 
 	// Perform ricochet
-	if (World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoParams) == false)
-	{
-		return false;
-	}
-
+	const bool bHitBlockingHit = World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoParams);
 	OnTraced(RicoHitResults);
 
 	OutHitResults.Append(RicoHitResults);
+
+	if (!bHitBlockingHit)
+	{
+		return false;
+	}
 	return true;
 }
 bool AGATA_Trace::RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld* World, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params)
@@ -162,14 +163,15 @@ bool AGATA_Trace::RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld*
 	const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
 
 	// Perform ricochet
-	if (World->SweepMultiByChannel(OutHitResults, RicoStart, RicoEnd, Rotation, TraceChannel, CollisionShape, Params) == false)
-	{
-		return false;
-	}
-
+	const bool bHitBlockingHit = World->SweepMultiByChannel(OutHitResults, RicoStart, RicoEnd, Rotation, TraceChannel, CollisionShape, Params);
 	OnTraced(RicoHitResults);
 
 	OutHitResults.Append(RicoHitResults);
+
+	if (!bHitBlockingHit)
+	{
+		return false;
+	}
 	return true;
 }
 

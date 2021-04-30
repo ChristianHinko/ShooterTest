@@ -110,7 +110,7 @@ public:
 	ATTRIBUTE_ACCESSORS(UAS_Gun, Ricochets)
 
 	/**
-	 * 
+	 * The amount of damage lost to the bullet base damage every 10000cm (328ft) the bullet travels
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_DamageFalloff, Category = "Attributes")
 		FGameplayAttributeData DamageFalloff;

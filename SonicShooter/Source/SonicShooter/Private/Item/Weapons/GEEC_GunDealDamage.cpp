@@ -107,8 +107,8 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 	float finalDamage = RawDamage;
 
 
-	// DamageFalloff determines the amount of damage lost to the bullet base damage every 50000cm (1640.4ft) the bullet travels.
-	const float dmgFalloffMultiplier = FMath::Pow(DamageFalloff, (totalDistanceBulletTraveled / 50000));
+	// DamageFalloff determines the amount of damage lost to the bullet base damage every 100cm (3.28ft) the bullet travels.
+	const float dmgFalloffMultiplier = FMath::Pow(DamageFalloff, (totalDistanceBulletTraveled / 100));
 	finalDamage = finalDamage * dmgFalloffMultiplier;
 
 

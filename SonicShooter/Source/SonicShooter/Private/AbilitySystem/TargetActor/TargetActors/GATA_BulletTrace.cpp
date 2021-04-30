@@ -64,43 +64,56 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 		FGameplayAbilityTargetDataHandle TargetDataHandle;
 
 
-		float numberOfBulletsToFire = GunAttributeSet->GetNumberOfBulletsPerFire();
+		const float numberOfBulletsToFire = GunAttributeSet->GetNumberOfBulletsPerFire();
 		for (currentBulletNumber = 0; currentBulletNumber < numberOfBulletsToFire; ++currentBulletNumber)
 		{
 			TArray<FHitResult> ThisBulletHitResults;
 			PerformTrace(ThisBulletHitResults, SourceActor);
 
 
-			// Manually filter the hit results (using ASSGameplayAbilityTargetActor::FilterHitResult()) because we need access to filtered out hit results.
-			// And build our target data for non-filtered hit results
+			// Construct target datas (and filter hit results)
 			{
-				float thisHitTotalDistance = 0.f; // for calculating ReturnData->bulletTotalTravelDistanceBeforeHit (the distance of the non-filterd hit including distances of the previous filtered out traces)
+				float totalDistanceUpUntilThisTrace = 0.f; // accumulated distance of the previous traces
+				FHitResult PreviousHit;
 
 				for (int32 i = 0; i < ThisBulletHitResults.Num(); ++i)
 				{
 					const FHitResult Hit = ThisBulletHitResults[i];
-					thisHitTotalDistance += Hit.Distance;
+					
+					const bool bIsNewTrace = (Hit.TraceStart != PreviousHit.TraceStart && Hit.TraceEnd != PreviousHit.TraceEnd);
+					if (bIsNewTrace)
+					{
+						totalDistanceUpUntilThisTrace += PreviousHit.Distance;
+					}
 
 
 					if (FilterHitResult(ThisBulletHitResults, i, MultiFilterHandle, bAllowMultipleHitsPerActor))
 					{
 						// This index did not pass the filter, stop here so that we don't add target data for it
+						PreviousHit = Hit;
+						--i;
 						continue;
 					}
 
 
 					// If we got here, we are an unfiltered hit (ie. we hit a player), make target data for us:
+					{
+						/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
+						FGameplayAbilityTargetData_BulletTraceTargetHit* ReturnData = new FGameplayAbilityTargetData_BulletTraceTargetHit();
 
 
+						// This Hit Result's distance plus the previous ricochet(s)'s traveled distance
+						const float ricochetAwareDistance = totalDistanceUpUntilThisTrace + Hit.Distance;
 
-					/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
-					FGameplayAbilityTargetData_BulletTraceTargetHit* ReturnData = new FGameplayAbilityTargetData_BulletTraceTargetHit();
+						ReturnData->HitResult = Hit;
+						ReturnData->bulletTotalTravelDistanceBeforeHit = ricochetAwareDistance;
 
-					ReturnData->HitResult = Hit;
-					ReturnData->bulletTotalTravelDistanceBeforeHit = thisHitTotalDistance;
-					thisHitTotalDistance = 0.f; // reset back to zero for the next bullet
 
-					TargetDataHandle.Add(ReturnData);
+						TargetDataHandle.Add(ReturnData);
+					}
+
+
+					PreviousHit = Hit;
 				}
 			}
 

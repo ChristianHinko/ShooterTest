@@ -31,7 +31,6 @@ public:
 	 * If true, when a trace overlaps an actor's multiple collisions, those multiple collision hits will add
 	 * that actor to the hitresults multiple times.
 	 * 
-	 * TODO: should not apply to multiple hits from multiple ricochets
 	 * TODO: add option for picking the hit with highest damage
 	 */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Target Data")
@@ -57,9 +56,9 @@ public:
 		TEnumAsByte<ECollisionChannel> TraceChannel;
 
 
-	/** If true, sets StartLocation to the player controllers view point */
+	/** If true, sets StartLocation to the AimPoint determined in CalculateAimDirection() */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
-		bool bUsePlayerViewPointAsStartLocation;
+		bool bUseAimPointAsStartLocation;
 
 	/** Does the trace affect the aiming pitch */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
@@ -77,9 +76,11 @@ protected:
 	virtual void StartTargeting(UGameplayAbility* Ability) override;
 
 	/**
-	 * Calculates ViewDir which is used in DirWithPlayerController().
-	 * This can be overriden to add bullet spread for guns and stuff
+	 * Calculates AimDir which is used in DirWithPlayerController().
+	 * This can be overriden to add bullet spread for guns and stuff.
+	 * 
+	 * You can also determine AimStart if needed
 	 */
-	virtual void CalculateAimDirection(FVector& ViewStart, FVector& ViewDir) const;
+	virtual void CalculateAimDirection(FVector& AimStart, FVector& AimDir) const;
 
 };

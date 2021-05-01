@@ -341,7 +341,7 @@ void UGA_FireGun::Shoot()
 
 
 	// Update our target actor's start location
-	BulletTraceTargetActor->bUsePlayerViewPointAsStartLocation = true; // we just want to use the player camera position directly for our StartLocation
+	BulletTraceTargetActor->bUseAimPointAsStartLocation = true; // we just want to use the player camera position directly for our StartLocation
 	
 
 	const int16 predKey = GetCurrentActivationInfo().GetActivationPredictionKey().Current;	// Use the prediction key as a net safe random seed.

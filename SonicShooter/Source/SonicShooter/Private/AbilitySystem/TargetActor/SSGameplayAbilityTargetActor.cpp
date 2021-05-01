@@ -10,9 +10,36 @@
 ASSGameplayAbilityTargetActor::ASSGameplayAbilityTargetActor(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	bTraceAffectsAimPitch = true;
-	TraceChannel = ECollisionChannel::ECC_Visibility;
 	bAllowMultipleHitsPerActor = false;
+
+
+	TraceChannel = ECollisionChannel::ECC_Visibility;
+
+
+	bUsePlayerViewPointAsStartLocation = true;
+
+	bTraceAffectsAimPitch = true;
+
+
+
+}
+
+
+void ASSGameplayAbilityTargetActor::StartTargeting(UGameplayAbility* Ability)
+{
+	Super::StartTargeting(Ability);
+
+
+	if (bUsePlayerViewPointAsStartLocation)
+	{
+		StartLocation.LocationType = EGameplayAbilityTargetingLocationType::LiteralTransform;
+
+		FVector ViewStart;
+		FVector ViewDir;
+		CalculateAimDirection(ViewStart, ViewDir);
+
+		StartLocation.LiteralTransform.SetLocation(ViewStart);
+	}
 }
 
 float ASSGameplayAbilityTargetActor::GetMaxRange() const
@@ -82,11 +109,6 @@ void ASSGameplayAbilityTargetActor::AimWithPlayerController(const AActor* InSour
 }
 void ASSGameplayAbilityTargetActor::DirWithPlayerController(const AActor* InSourceActor, FCollisionQueryParams Params, const FVector& TraceStart, FVector& OutTraceDir) const
 {
-	if (!OwningAbility) // Server and launching client only
-	{
-		return;
-	}
-
 	FVector ViewStart;
 	FVector ViewDir;
 	CalculateAimDirection(ViewStart, ViewDir);
@@ -94,6 +116,15 @@ void ASSGameplayAbilityTargetActor::DirWithPlayerController(const AActor* InSour
 
 	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, GetMaxRange(), ViewEnd);
 
+	// If the TraceStart is nearly equal to the ViewStart, skip the useless camera trace and just return the aim direction
+	if ((TraceStart - ViewStart).IsNearlyZero(KINDA_SMALL_NUMBER))
+	{
+		// As an optimization, skip the extra trace and return here
+		OutTraceDir = (ViewEnd - TraceStart).GetSafeNormal();
+		return;
+	}
+
+	// Line trace from the TraceStart to the the point that player is looking at so we can calculate the direction
 	TArray<FHitResult> HitResults;
 	InSourceActor->GetWorld()->LineTraceMultiByChannel(HitResults, ViewStart, ViewEnd, TraceChannel, Params);
 	FHitResult HitResult = HitResults.Num() ? HitResults[0] : FHitResult();
@@ -129,6 +160,12 @@ void ASSGameplayAbilityTargetActor::DirWithPlayerController(const AActor* InSour
 
 void ASSGameplayAbilityTargetActor::CalculateAimDirection(FVector& ViewStart, FVector& ViewDir) const
 {
+	if (!OwningAbility) // Server and launching client only
+	{
+		return;
+	}
+
+
 	const APlayerController* PC = OwningAbility->GetCurrentActorInfo()->PlayerController.Get();
 	check(PC);
 

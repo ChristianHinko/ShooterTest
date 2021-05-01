@@ -341,8 +341,8 @@ void UGA_FireGun::Shoot()
 
 
 	// Update our target actor's start location
-	BulletTraceTargetActor->StartLocation = MakeTargetLocationInfoFromOwnerSkeletalMeshComponent(TEXT("None"));		// this will take the actor info's skeletal mesh, maybe make our own in SSGameplayAbility which you can specify a skeletal mesh to use
-
+	BulletTraceTargetActor->bUsePlayerViewPointAsStartLocation = true; // we just want to use the player camera position directly for our StartLocation
+	
 
 	const int16 predKey = GetCurrentActivationInfo().GetActivationPredictionKey().Current;	// Use the prediction key as a net safe random seed.
 	const int32 fireRandomSeed = predKey + shotNumber;										// Make the random seed unique to this particular fire

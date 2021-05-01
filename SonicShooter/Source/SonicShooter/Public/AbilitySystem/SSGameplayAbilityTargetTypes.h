@@ -14,12 +14,14 @@ struct SONICSHOOTER_API FGameplayAbilityTargetData_BulletTraceTargetHit : public
 {
 	GENERATED_USTRUCT_BODY()
 
-	FGameplayAbilityTargetData_BulletTraceTargetHit()
-	{ }
+		FGameplayAbilityTargetData_BulletTraceTargetHit()
+	{
+	}
 
 	FGameplayAbilityTargetData_BulletTraceTargetHit(FHitResult InHitResult)
 		: HitResult(MoveTemp(InHitResult))
-	{ }
+	{
+	}
 
 	/** Overrided version will apply the same effect but adds 2 set by callers distinct for each individual target (bulletTotalTravelDistanceBeforeHit, and amt of ricochets before hit) */
 	virtual TArray<FActiveGameplayEffectHandle> ApplyGameplayEffectSpec(FGameplayEffectSpec& Spec, FPredictionKey PredictionKey = FPredictionKey()) override;
@@ -83,13 +85,17 @@ struct SONICSHOOTER_API FGameplayAbilityTargetData_BulletTraceTargetHit : public
 	}
 
 	// -------------------------------------
+
+	/** If this hit resulted from a ricochet, this hit result will be the last one (the hit result from the last hit wall to the target) */
+	UPROPERTY()
+		FHitResult	HitResult;
 	UPROPERTY()
 		float bulletTotalTravelDistanceBeforeHit;	// Total distance bullet traveled across all ricochets until it hit the target (info for UAS_Gun::DamageFalloff)
 	UPROPERTY()
 		uint8 ricochetsBeforeHit;					// This is the amount of ricochets resulting from blocking hits (info for UAS_Gun::   fill in attribute name here)
 
 	UPROPERTY()
-	bool bHitReplaced = false;
+		bool bHitReplaced = false;
 
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
 

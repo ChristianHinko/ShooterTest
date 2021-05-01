@@ -56,6 +56,11 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
 		TEnumAsByte<ECollisionChannel> TraceChannel;
 
+
+	/** If true, sets StartLocation to the player controllers view point */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
+		bool bUsePlayerViewPointAsStartLocation;
+
 	/** Does the trace affect the aiming pitch */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Trace")
 		bool bTraceAffectsAimPitch;
@@ -69,6 +74,7 @@ public:
 
 
 protected:
+	virtual void StartTargeting(UGameplayAbility* Ability) override;
 
 	/**
 	 * Calculates ViewDir which is used in DirWithPlayerController().

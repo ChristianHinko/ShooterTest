@@ -83,10 +83,6 @@ struct SONICSHOOTER_API FGameplayAbilityTargetData_BulletTraceTargetHit : public
 	}
 
 	// -------------------------------------
-
-	/** If this hit resulted from a ricochet, this hit result will be the last one (the hit result from the last hit wall to the target) */
-	UPROPERTY()
-	FHitResult	HitResult;
 	UPROPERTY()
 		float bulletTotalTravelDistanceBeforeHit;	// Total distance bullet traveled across all ricochets until it hit the target (info for UAS_Gun::DamageFalloff)
 	UPROPERTY()

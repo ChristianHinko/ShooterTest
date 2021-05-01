@@ -60,22 +60,27 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 				float totalDistanceUpUntilThisTrace = 0.f; // accumulated distance of the previous traces
 				FHitResult PreviousHit;
 
-				for (int32 i = 0; i < ThisBulletHitResults.Num(); ++i)
+				uint8 ricochetsBeforeHit = 0;	// Used to tell target data how many times bullet ricocheted before hitting the target
+				for (int32 index = 0, iteration = 0; index < ThisBulletHitResults.Num(); ++index, ++iteration)
 				{
-					const FHitResult Hit = ThisBulletHitResults[i];
+					const FHitResult Hit = ThisBulletHitResults[index];
 					
-					const bool bIsNewTrace = (Hit.TraceStart != PreviousHit.TraceStart && Hit.TraceEnd != PreviousHit.TraceEnd);
-					if (bIsNewTrace)
+					if (iteration != 0)
 					{
-						totalDistanceUpUntilThisTrace += PreviousHit.Distance;
+						const bool bIsNewTrace = (Hit.TraceStart != PreviousHit.TraceStart && Hit.TraceEnd != PreviousHit.TraceEnd);
+						if (bIsNewTrace)	// A ricochet happened since we are a new trace
+						{
+							ricochetsBeforeHit++;
+							totalDistanceUpUntilThisTrace += PreviousHit.Distance;
+						}
 					}
 
 
-					if (FilterHitResult(ThisBulletHitResults, i, MultiFilterHandle, bAllowMultipleHitsPerActor))
+					if (FilterHitResult(ThisBulletHitResults, index, MultiFilterHandle, bAllowMultipleHitsPerActor))
 					{
 						// This index did not pass the filter, stop here so that we don't add target data for it
 						PreviousHit = Hit;
-						--i;
+						--index;
 						continue;
 					}
 
@@ -91,7 +96,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 						ReturnData->HitResult = Hit;
 						ReturnData->bulletTotalTravelDistanceBeforeHit = ricochetAwareDistance;
-
+						ReturnData->ricochetsBeforeHit = ricochetsBeforeHit;
 
 						TargetDataHandle.Add(ReturnData);
 					}

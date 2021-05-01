@@ -88,7 +88,9 @@ struct SONICSHOOTER_API FGameplayAbilityTargetData_BulletTraceTargetHit : public
 	UPROPERTY()
 	FHitResult	HitResult;
 	UPROPERTY()
-	float bulletTotalTravelDistanceBeforeHit;	// This data is important because it is the total distance traveled (all wall bounses accounted for). The HitResult itself doesn't always have an acurate distance variable because the bullet could ricochet. The accurate ditance would be to add all the distance vars from each ricochet's HitResult, but we don't send each hit result, so we store the added up distance using this variable.
+		float bulletTotalTravelDistanceBeforeHit;	// Total distance bullet traveled across all ricochets until it hit the target (info for UAS_Gun::DamageFalloff)
+	UPROPERTY()
+		uint8 ricochetsBeforeHit;					// This is the amount of ricochets resulting from blocking hits (info for UAS_Gun::   fill in attribute name here)
 
 	UPROPERTY()
 	bool bHitReplaced = false;

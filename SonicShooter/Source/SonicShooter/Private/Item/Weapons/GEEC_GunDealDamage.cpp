@@ -45,6 +45,7 @@ UGEEC_GunDealDamage::UGEEC_GunDealDamage()
 {
 	// Cache GameplayTags
 	BulletTotalTravelDistanceBeforeHitTag = FGameplayTag::RequestGameplayTag("SetByCaller.BulletTotalTravelDistanceBeforeHit");
+	RicochetsBeforeHitTag = FGameplayTag::RequestGameplayTag("SetByCaller.RicochetsBeforeHit");
 
 
 
@@ -55,7 +56,7 @@ UGEEC_GunDealDamage::UGEEC_GunDealDamage()
 	//Target
 	RelevantAttributesToCapture.Add(DamageStatics().IncomingDamageDef);
 }
-
+#include "Kismet/KismetSystemLibrary.h"
 // Need to make this get the OutgoingDamage attribute from a damage attribute set on the source
 void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
@@ -99,8 +100,10 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().OutgoingDamageDef, EvaluationParameters, RawDamage);
 	float DamageFalloff = 0.0f;
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageFalloffDef, EvaluationParameters, DamageFalloff);
-	const float totalDistanceBulletTraveled = Spec.GetSetByCallerMagnitude(BulletTotalTravelDistanceBeforeHitTag, true, 0);
 
+	// Get our Set By Callers
+	const float totalDistanceBulletTraveled = Spec.GetSetByCallerMagnitude(BulletTotalTravelDistanceBeforeHitTag, true, 0);
+	const float ricochetsBeforeHit = Spec.GetSetByCallerMagnitude(RicochetsBeforeHitTag, true, 0);
 
 
 	// Lets start calculating
@@ -108,11 +111,12 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 
 
 	// DamageFalloff determines the amount of damage lost to the bullet base damage every 10000cm (328ft) the bullet travels.
+	// We want to apply this nerf first so we get an accurate falloff amount (if we did it after ie. richochet/penetration dmg nerfs, it wouldn't be accurate
 	const float dmgFalloffMultiplier = FMath::Pow(DamageFalloff, (totalDistanceBulletTraveled / 10000));
 	finalDamage = finalDamage * dmgFalloffMultiplier;
 
-
-
+	// We want to nerf the outgoing dmg based on number of ricochets before the target hit
+	finalDamage = finalDamage / (ricochetsBeforeHit * 10);	// 10 is our hard coded value for now (if we ever decide to make the value dependent on certain things)
 
 
 

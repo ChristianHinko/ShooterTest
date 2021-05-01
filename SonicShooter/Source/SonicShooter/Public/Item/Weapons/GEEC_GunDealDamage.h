@@ -22,6 +22,7 @@ public:
 	virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
 
 	FGameplayTag BulletTotalTravelDistanceBeforeHitTag;
+	FGameplayTag RicochetsBeforeHitTag;
 
 protected:
 

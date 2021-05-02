@@ -22,7 +22,7 @@ AGATA_Trace::AGATA_Trace(const FObjectInitializer& ObjectInitializer)
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickGroup = TG_PostUpdateWork;
 
-	ShouldProduceTargetDataOnServer = true;
+	ShouldProduceTargetDataOnServer = false; // have the client send the server the Target Data
 
 	MultiFilter.bReverseFilter = true;
 	MultiFilter.RequiredActorClasses.Add(AAbilitySystemCharacter::StaticClass());

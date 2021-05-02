@@ -10,6 +10,9 @@
 ASSGameplayAbilityTargetActor::ASSGameplayAbilityTargetActor(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	ShouldProduceTargetDataOnServer = false;
+
+
 	bAllowMultipleHitsPerActor = false;
 
 

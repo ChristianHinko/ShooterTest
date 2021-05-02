@@ -7,6 +7,7 @@
 #include "AbilitySystem\AttributeSets\AS_Health.h"
 #include "AbilitySystem/AttributeSets/AS_Damage.h"
 #include "Item/AS_Gun.h"
+#include "AbilitySystem/SSGameplayEffectTypes.h"
 
 
 // Declare the attributes to capture and define how we want to capture them from the Source and Target
@@ -56,7 +57,7 @@ UGEEC_GunDealDamage::UGEEC_GunDealDamage()
 	//Target
 	RelevantAttributesToCapture.Add(DamageStatics().IncomingDamageDef);
 }
-#include "Kismet/KismetSystemLibrary.h"
+
 // Need to make this get the OutgoingDamage attribute from a damage attribute set on the source
 void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
@@ -81,7 +82,9 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 	const FGameplayTagContainer* TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
 
 
-	const FHitResult* Hit = Spec.GetContext().GetHitResult();
+	FGameplayEffectSpec* MutableSpec = ExecutionParams.GetOwningSpecForPreExecuteMod();
+	FSSGameplayEffectContext* Context = static_cast<FSSGameplayEffectContext*>(MutableSpec->GetContext().Get());
+	Context->SetIsCriticalHit(true);
 
 
 

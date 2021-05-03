@@ -40,11 +40,19 @@ public:
 
 
 	float operator=(const float& NewValue);
+	//float operator=(const FFloatValueProperty& NewValue)
+	//{
+	//	return operator=(NewValue.Value);
+	//}
 
 	bool operator==(const float& Other) const
 	{
 		return (Value == Other);
 	}
+	//bool operator==(const FFloatValueProperty& Other) const
+	//{
+	//	return operator==(Other.Value);
+	//}
 
 private:
 	float Value;

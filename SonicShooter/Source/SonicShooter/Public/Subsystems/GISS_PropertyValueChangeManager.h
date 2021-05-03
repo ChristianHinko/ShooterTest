@@ -12,7 +12,7 @@ class UGISS_PropertyValueChangeManager;
 
 
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(FFloatValueChange, const float& OldValue, const float& NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FFloatValueChange, const float&, OldValue, const float&, NewValue);
 
 
 USTRUCT()

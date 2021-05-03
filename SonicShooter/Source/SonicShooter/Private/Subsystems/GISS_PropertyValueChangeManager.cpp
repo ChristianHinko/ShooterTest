@@ -29,7 +29,7 @@ FFloatValueProperty::FFloatValueProperty(UObject* InOwner, FName InPropertyName)
 	ChangeManager = UGameplayStatics::GetGameInstance(PropertyOwner)->GetSubsystem<UGISS_PropertyValueChangeManager>();
 	if (ChangeManager.IsValid())
 	{
-		ValueChangeDelegate = ChangeManager->AddFloatValueChangeDelegate(InOwner, InPropertyName);
+		ValueChangeDelegate = &(ChangeManager->FloatValueChangeDelegates.Add(TTuple<UObject*, FName>(PropertyOwner, PropertyName)));
 	}
 }
 FFloatValueProperty::~FFloatValueProperty()
@@ -84,11 +84,8 @@ void UGISS_PropertyValueChangeManager::Deinitialize()
 
 
 
-FFloatValueChange* UGISS_PropertyValueChangeManager::AddFloatValueChangeDelegate(UObject* Owner, FName PropertyName)
-{
-	return &FloatValueChangeDelegates.Add(TTuple<UObject*, FName>(Owner, PropertyName));
-}
-const FFloatValueChange* UGISS_PropertyValueChangeManager::GetFloatValueChangeDelegate(UObject* Owner, FName PropertyName)
+
+FFloatValueChange* UGISS_PropertyValueChangeManager::GetFloatValueChangeDelegate(UObject* Owner, FName PropertyName)
 {
 	return FloatValueChangeDelegates.Find(TTuple<UObject*, FName>(Owner, PropertyName));
 }

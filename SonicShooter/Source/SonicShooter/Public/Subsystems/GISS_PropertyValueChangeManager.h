@@ -30,11 +30,13 @@ public:
 
 	~FFloatValueProperty();
 
-	const float GetValue() const { return Value; }
-	const FFloatValueChange* GetValueChangeDelegate() const { return ValueChangeDelegate; }
 
-	const UObject* GetOwner() const { return PropertyOwner; }
-	const FName GetPropertyName() const { return PropertyName; }
+	float GetValue() const { return Value; }
+
+	UObject* GetOwner() const { return PropertyOwner; }
+	FName GetPropertyName() const { return PropertyName; }
+
+	FFloatValueChange* GetValueChangeDelegate() const { return ValueChangeDelegate; }
 
 
 	float operator=(const float& NewValue);
@@ -46,14 +48,13 @@ public:
 
 private:
 	float Value;
-	FFloatValueChange* ValueChangeDelegate;
-
 
 
 	UObject* PropertyOwner;
 	FName PropertyName;
 
 	TWeakObjectPtr<UGISS_PropertyValueChangeManager> ChangeManager;
+	FFloatValueChange* ValueChangeDelegate;
 
 };
 
@@ -73,16 +74,11 @@ public:
 	UGISS_PropertyValueChangeManager();
 
 	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
-
-
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-
 	virtual void Deinitialize() override;
 
 
-
-	FFloatValueChange* AddFloatValueChangeDelegate(UObject* Owner, FName PropertyName);
-	const FFloatValueChange* GetFloatValueChangeDelegate(UObject* Owner, FName PropertyName);
+	FFloatValueChange* GetFloatValueChangeDelegate(UObject* Owner, FName PropertyName);
 
 private:
 	TMap<TTuple<UObject*, FName>, FFloatValueChange> FloatValueChangeDelegates;

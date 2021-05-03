@@ -12,8 +12,6 @@ FFloatValueProperty::FFloatValueProperty(UObject* InOwner)
 	Owner = InOwner;
 	ChangeManager = UGameplayStatics::GetGameInstance(Owner)->GetSubsystem<UGISS_PropertyValueChangeManager>();
 	Id = (ChangeManager->NextPropertyId)++;
-
-	ChangeManager->FloatValueChangeDelegates.Add(Id);
 }
 FFloatValueProperty::~FFloatValueProperty()
 {

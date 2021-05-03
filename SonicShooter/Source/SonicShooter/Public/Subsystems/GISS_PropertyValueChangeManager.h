@@ -26,13 +26,13 @@ public:
 	{
 
 	}
-	FFloatValueProperty(UObject* InOwner);
+	FFloatValueProperty(UObject* InOwner, FName InPropertyName);
 
 	~FFloatValueProperty();
 
 
-	UObject* GetOwner() const { return Owner; }
-	int32 GetId() const { return Id; }
+	UObject* GetOwner() const { return PropertyOwner; }
+	FName GetPropertyName() const { return PropertyName; }
 
 	FFloatValueChange& GetFloatValueChangeDelegate();
 
@@ -54,10 +54,11 @@ private:
 	float Value;
 
 
-	UObject* Owner;
+	UObject* PropertyOwner;
+	FName PropertyName;
 
 	TWeakObjectPtr<UGISS_PropertyValueChangeManager> ChangeManager;
-	int32 Id;
+
 };
 
 
@@ -84,10 +85,8 @@ public:
 
 
 
-	FFloatValueChange& GetFloatValueChangeDelegate(const int32& Id);
+	FFloatValueChange& GetFloatValueChangeDelegate(UObject* Owner, FName PropertyName);
 
 private:
-	TMap<int32, FFloatValueChange> FloatValueChangeDelegates;
-
-	int32 NextPropertyId;
+	TMap<TTuple<UObject*, FName>, FFloatValueChange> FloatValueChangeDelegates;
 };

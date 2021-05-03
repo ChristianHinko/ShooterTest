@@ -27,12 +27,16 @@ FFloatValueProperty::FFloatValueProperty(UObject* InOwner, FName InPropertyName)
 #endif
 
 	ChangeManager = UGameplayStatics::GetGameInstance(PropertyOwner)->GetSubsystem<UGISS_PropertyValueChangeManager>();
+	if (ChangeManager.IsValid())
+	{
+		ValueChangeDelegate = ChangeManager->AddFloatValueChangeDelegate(InOwner, InPropertyName);
+	}
 }
 FFloatValueProperty::~FFloatValueProperty()
 {
-	if (UGISS_PropertyValueChangeManager* ChangeManagerPtr = ChangeManager.Get())
+	if (ChangeManager.IsValid())
 	{
-		ChangeManagerPtr->FloatValueChangeDelegates.Remove(TTuple<UObject*, FName>(PropertyOwner, PropertyName));
+		ChangeManager->FloatValueChangeDelegates.Remove(TTuple<UObject*, FName>(PropertyOwner, PropertyName));
 	}
 }
 
@@ -50,15 +54,6 @@ float FFloatValueProperty::operator=(const float& NewValue)
 }
 
 
-FFloatValueChange& FFloatValueProperty::GetFloatValueChangeDelegate()
-{
-	return ChangeManager.Get()->GetFloatValueChangeDelegate(PropertyOwner, PropertyName);
-}
-
-float FFloatValueProperty::GetValue()
-{
-	return Value;
-}
 
 
 
@@ -92,7 +87,12 @@ void UGISS_PropertyValueChangeManager::Deinitialize()
 
 
 
-FFloatValueChange& UGISS_PropertyValueChangeManager::GetFloatValueChangeDelegate(UObject* Owner, FName PropertyName)
+FFloatValueChange* UGISS_PropertyValueChangeManager::AddFloatValueChangeDelegate(UObject* Owner, FName PropertyName)
 {
-	return FloatValueChangeDelegates.FindOrAdd(TTuple<UObject*, FName>(Owner, PropertyName));
+	return &FloatValueChangeDelegates.Add(TTuple<UObject*, FName>(Owner, PropertyName));
 }
+const FFloatValueChange* UGISS_PropertyValueChangeManager::GetFloatValueChangeDelegate(UObject* Owner, FName PropertyName)
+{
+	return FloatValueChangeDelegates.Find(TTuple<UObject*, FName>(Owner, PropertyName));
+}
+

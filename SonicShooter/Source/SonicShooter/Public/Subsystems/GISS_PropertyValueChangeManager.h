@@ -30,16 +30,15 @@ public:
 
 	~FFloatValueProperty();
 
+	const float GetValue() const { return Value; }
+	const FFloatValueChange* GetValueChangeDelegate() const { return ValueChangeDelegate; }
 
 	UObject* GetOwner() const { return PropertyOwner; }
 	FName GetPropertyName() const { return PropertyName; }
 
-	FFloatValueChange& GetFloatValueChangeDelegate();
-
 
 	float operator=(const float& NewValue);
 
-	float GetValue();
 	bool operator==(const float& Other) const
 	{
 		return (Value == Other);
@@ -47,6 +46,8 @@ public:
 
 private:
 	float Value;
+	FFloatValueChange* ValueChangeDelegate;
+
 
 
 	UObject* PropertyOwner;
@@ -80,7 +81,8 @@ public:
 
 
 
-	FFloatValueChange& GetFloatValueChangeDelegate(UObject* Owner, FName PropertyName);
+	FFloatValueChange* AddFloatValueChangeDelegate(UObject* Owner, FName PropertyName);
+	const FFloatValueChange* GetFloatValueChangeDelegate(UObject* Owner, FName PropertyName);
 
 private:
 	TMap<TTuple<UObject*, FName>, FFloatValueChange> FloatValueChangeDelegates;

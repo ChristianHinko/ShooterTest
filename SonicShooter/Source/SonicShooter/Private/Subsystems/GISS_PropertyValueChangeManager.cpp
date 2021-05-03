@@ -46,10 +46,7 @@ float FFloatValueProperty::operator=(const float& NewValue)
 
 	Value = NewValue;
 
-	if (FFloatValueChange* ChangeDelegate = ChangeManager.Get()->FloatValueChangeDelegates.Find(TTuple<UObject*, FName>(PropertyOwner, PropertyName)))
-	{
-		ChangeDelegate->Broadcast(OldValue, NewValue);
-	}
+	ValueChangeDelegate->Broadcast(OldValue, NewValue);
 	return Value;
 }
 

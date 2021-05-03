@@ -13,16 +13,21 @@ FFloatValueProperty::FFloatValueProperty(UObject* InOwner)
 	ChangeManager = UGameplayStatics::GetGameInstance(Owner)->GetSubsystem<UGISS_PropertyValueChangeManager>();
 	Id = (ChangeManager->NextPropertyId)++;
 
-	ChangeManager->FloatValueChangeDelegates.Add(*this);
+	ChangeManager->FloatValueChangeDelegates.Add(Id);
 }
 FFloatValueProperty::~FFloatValueProperty() // TODO: this gets hit and breaks on engine startup
 {
 	if (ChangeManager)
 	{
-		ChangeManager->FloatValueChangeDelegates.Remove(*this);
+		ChangeManager->FloatValueChangeDelegates.Remove(Id);
 	}
 }
 
+
+FFloatValueChange& FFloatValueProperty::GetFloatValueChangeDelegate()
+{
+	return ChangeManager->GetFloatValueChangeDelegate(Id);
+}
 
 void FFloatValueProperty::SetValue(float NewValue)
 {
@@ -30,13 +35,13 @@ void FFloatValueProperty::SetValue(float NewValue)
 
 	Value = NewValue;
 
-	if (FFloatValueChange* ChangeDelegate = ChangeManager->FloatValueChangeDelegates.Find(*this))
+	if (FFloatValueChange* ChangeDelegate = ChangeManager->FloatValueChangeDelegates.Find(Id))
 	{
 		ChangeDelegate->Broadcast(OldValue, NewValue);
 	}
 }
 
-double FFloatValueProperty::GetValue()
+float FFloatValueProperty::GetValue()
 {
 	return Value;
 }
@@ -73,7 +78,7 @@ void UGISS_PropertyValueChangeManager::Deinitialize()
 
 
 
-FFloatValueChange& UGISS_PropertyValueChangeManager::GetFloatValueChangeDelegate(const FFloatValueProperty& Property)
+FFloatValueChange& UGISS_PropertyValueChangeManager::GetFloatValueChangeDelegate(const int32& Id)
 {
-	return FloatValueChangeDelegates.FindOrAdd(Property);
+	return FloatValueChangeDelegates.FindOrAdd(Id);
 }

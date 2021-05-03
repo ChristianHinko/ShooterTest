@@ -28,37 +28,19 @@ public:
 	}
 	FFloatValueProperty(UObject* InOwner);
 
-
 	~FFloatValueProperty();
+
+	FFloatValueChange& GetFloatValueChangeDelegate();
 
 
 	void SetValue(float NewValue);
-
-	double GetValue();
-
-	//BEGIN TMap requirements
-	friend uint32 GetTypeHash(const FFloatValueProperty& InValueProperty)
-	{
-		return InValueProperty.Id;
-	}
-
-	/** Equality/Inequality operators */
-	bool operator==(const FFloatValueProperty& Other) const
-	{
-		return ((Other.Id == Id));
-	}
-	bool operator!=(const FFloatValueProperty& Other) const
-	{
-		return ((Other.Id != Id));
-	}
-	//END TMap requirements
-
 	float operator=(const float& NewValue)
 	{
 		SetValue(NewValue);
 		return Value;
 	}
 
+	float GetValue();
 	bool operator==(const float& Other) const
 	{
 		return (Value == Other);
@@ -97,10 +79,10 @@ public:
 
 
 
-	FFloatValueChange& GetFloatValueChangeDelegate(const FFloatValueProperty& Property);
+	FFloatValueChange& GetFloatValueChangeDelegate(const int32& Id);
 
 private:
-	TMap<FFloatValueProperty, FFloatValueChange> FloatValueChangeDelegates;
+	TMap<int32, FFloatValueChange> FloatValueChangeDelegates;
 
 	int32 NextPropertyId;
 };

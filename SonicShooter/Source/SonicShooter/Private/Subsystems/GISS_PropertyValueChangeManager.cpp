@@ -36,6 +36,19 @@ FFloatValueProperty::~FFloatValueProperty()
 	}
 }
 
+float FFloatValueProperty::operator=(const float& NewValue)
+{
+	const float OldValue = Value;
+
+	Value = NewValue;
+
+	if (FFloatValueChange* ChangeDelegate = ChangeManager.Get()->FloatValueChangeDelegates.Find(TTuple<UObject*, FName>(PropertyOwner, PropertyName)))
+	{
+		ChangeDelegate->Broadcast(OldValue, NewValue);
+	}
+	return Value;
+}
+
 
 FFloatValueChange& FFloatValueProperty::GetFloatValueChangeDelegate()
 {

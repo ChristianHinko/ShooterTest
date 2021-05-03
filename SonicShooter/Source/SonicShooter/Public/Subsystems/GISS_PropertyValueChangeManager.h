@@ -37,10 +37,16 @@ public:
 	FFloatValueChange& GetFloatValueChangeDelegate();
 
 
-	void SetValue(float NewValue);
 	float operator=(const float& NewValue)
 	{
-		SetValue(NewValue);
+		const float OldValue = Value;
+
+		Value = NewValue;
+
+		if (FFloatValueChange* ChangeDelegate = ChangeManager.Get()->FloatValueChangeDelegates.Find(TTuple<UObject*, FName>(PropertyOwner, PropertyName)))
+		{
+			ChangeDelegate->Broadcast(OldValue, NewValue);
+		}
 		return Value;
 	}
 

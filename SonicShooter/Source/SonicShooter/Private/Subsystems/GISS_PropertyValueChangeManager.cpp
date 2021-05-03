@@ -42,18 +42,6 @@ FFloatValueChange& FFloatValueProperty::GetFloatValueChangeDelegate()
 	return ChangeManager.Get()->GetFloatValueChangeDelegate(PropertyOwner, PropertyName);
 }
 
-void FFloatValueProperty::SetValue(float NewValue)
-{
-	const float OldValue = Value;
-
-	Value = NewValue;
-
-	if (FFloatValueChange* ChangeDelegate = ChangeManager.Get()->FloatValueChangeDelegates.Find(TTuple<UObject*, FName>(PropertyOwner, PropertyName)))
-	{
-		ChangeDelegate->Broadcast(OldValue, NewValue);
-	}
-}
-
 float FFloatValueProperty::GetValue()
 {
 	return Value;

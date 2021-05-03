@@ -47,12 +47,13 @@ public:
 	}
 
 private:
-	UObject* Owner;
-
 	float Value;
 
+
+	UObject* Owner;
+
+	TWeakObjectPtr<UGISS_PropertyValueChangeManager> ChangeManager;
 	int32 Id;
-	UGISS_PropertyValueChangeManager* ChangeManager;
 };
 
 

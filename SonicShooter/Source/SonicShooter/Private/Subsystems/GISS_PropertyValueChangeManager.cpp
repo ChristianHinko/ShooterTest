@@ -15,11 +15,11 @@ FFloatValueProperty::FFloatValueProperty(UObject* InOwner)
 
 	ChangeManager->FloatValueChangeDelegates.Add(Id);
 }
-FFloatValueProperty::~FFloatValueProperty() // TODO: this gets hit and breaks on engine startup
+FFloatValueProperty::~FFloatValueProperty()
 {
-	if (ChangeManager)
+	if (UGISS_PropertyValueChangeManager* ChangeManagerPtr = ChangeManager.Get())
 	{
-		ChangeManager->FloatValueChangeDelegates.Remove(Id);
+		ChangeManagerPtr->FloatValueChangeDelegates.Remove(Id);
 	}
 }
 

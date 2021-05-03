@@ -33,8 +33,8 @@ public:
 	const float GetValue() const { return Value; }
 	const FFloatValueChange* GetValueChangeDelegate() const { return ValueChangeDelegate; }
 
-	UObject* GetOwner() const { return PropertyOwner; }
-	FName GetPropertyName() const { return PropertyName; }
+	const UObject* GetOwner() const { return PropertyOwner; }
+	const FName GetPropertyName() const { return PropertyName; }
 
 
 	float operator=(const float& NewValue);

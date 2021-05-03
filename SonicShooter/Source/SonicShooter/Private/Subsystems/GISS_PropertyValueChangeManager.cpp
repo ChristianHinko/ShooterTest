@@ -46,7 +46,10 @@ float FFloatValueProperty::operator=(const float& NewValue)
 
 	Value = NewValue;
 
-	ValueChangeDelegate->Broadcast(OldValue, NewValue);
+	if (ValueChangeDelegate)
+	{
+		ValueChangeDelegate->Broadcast(OldValue, NewValue);
+	}
 	return Value;
 }
 

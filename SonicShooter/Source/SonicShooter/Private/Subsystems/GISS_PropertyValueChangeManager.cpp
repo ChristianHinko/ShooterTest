@@ -13,9 +13,9 @@ FFloatValueProperty::FFloatValueProperty(UObject* InOwner, FName InPropertyName)
 	PropertyName = InPropertyName;
 
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-	FProperty* FoundProperty = FindFProperty<FProperty>(PropertyOwner->GetClass(), PropertyName);
+	FProperty* FoundProperty = FindFProperty<FProperty>(PropertyOwner->GetClass(), PropertyName); // ensure this property exists on the owner!
 
-	if (FoundProperty == nullptr) // ensure this property exists on the owner!
+	if (FoundProperty == nullptr)
 	{
 		UE_LOG(LogTemp, Fatal, TEXT("%s(): The given PropertyName \"%s\" was not found on the PropertyOwner \"%s\". Ensure correct spelling for the property you are looking for and make sure it is a UPROPERTY so we can find it!"), *FString(__FUNCTION__), *(InPropertyName.ToString()), *(InOwner->GetName()));
 	}

@@ -30,6 +30,10 @@ public:
 
 	~FFloatValueProperty();
 
+
+	UObject* GetOwner() const { return Owner; }
+	int32 GetId() const { return Id; }
+
 	FFloatValueChange& GetFloatValueChangeDelegate();
 
 

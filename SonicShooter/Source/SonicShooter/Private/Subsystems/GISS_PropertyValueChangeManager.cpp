@@ -11,7 +11,7 @@ FFloatValueProperty::FFloatValueProperty(UObject* InOwner)
 {
 	Owner = InOwner;
 	ChangeManager = UGameplayStatics::GetGameInstance(Owner)->GetSubsystem<UGISS_PropertyValueChangeManager>();
-	Id = (ChangeManager->NextPropertyId)++;
+	Id = (ChangeManager.Get()->NextPropertyId)++;
 }
 FFloatValueProperty::~FFloatValueProperty()
 {
@@ -24,7 +24,7 @@ FFloatValueProperty::~FFloatValueProperty()
 
 FFloatValueChange& FFloatValueProperty::GetFloatValueChangeDelegate()
 {
-	return ChangeManager->GetFloatValueChangeDelegate(Id);
+	return ChangeManager.Get()->GetFloatValueChangeDelegate(Id);
 }
 
 void FFloatValueProperty::SetValue(float NewValue)
@@ -33,7 +33,7 @@ void FFloatValueProperty::SetValue(float NewValue)
 
 	Value = NewValue;
 
-	if (FFloatValueChange* ChangeDelegate = ChangeManager->FloatValueChangeDelegates.Find(Id))
+	if (FFloatValueChange* ChangeDelegate = ChangeManager.Get()->FloatValueChangeDelegates.Find(Id))
 	{
 		ChangeDelegate->Broadcast(OldValue, NewValue);
 	}

@@ -32,6 +32,7 @@ public:
 		return FFloatPropertyWrapper::StaticStruct();
 	}
 
+	virtual bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
 
 	float GetValue() const { return Value; }
 
@@ -61,11 +62,22 @@ public:
 	//}
 
 private:
-	float Value;
+	UPROPERTY()
+		float Value;
 
 
 	FName PropertyName;
 
 	FFloatValueChange* ValueChangeDelegate;
 
+};
+
+template<>
+struct TStructOpsTypeTraits<FFloatPropertyWrapper> : public TStructOpsTypeTraitsBase2<FFloatPropertyWrapper>
+{
+	enum
+	{
+		WithNetSerializer = true/*,
+		WithCopy = true*/			// Not sure if we need this but will leave it here just to remind
+	};
 };

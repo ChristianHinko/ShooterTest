@@ -29,8 +29,8 @@ UAS_Ammo::UAS_Ammo()
 	MaxClipAmmo(10)
 
 {
+	ClipAmmo = FFloatPropertyWrapper(this, FName(TEXT("ClipAmmo")), &OnClipAmmoChange);
 	SetSoftAttributeDefaults();
-
 
 
 }
@@ -41,7 +41,7 @@ void UAS_Ammo::SetSoftAttributeDefaults()
 
 
 	ClipAmmo = GetMaxClipAmmo();
-	BackupAmmo = GetMaxAmmo() - GetClipAmmo();
+	BackupAmmo = GetMaxAmmo() - ClipAmmo.GetValue();
 }
 
 

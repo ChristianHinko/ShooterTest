@@ -33,7 +33,11 @@ public:
 		float BackupAmmo;
 
 protected:
+	virtual void OnPlayerASCValid();
+
 	virtual void OnAttributeChanged(const FOnAttributeChangeData& Data) override;
+	UFUNCTION()
+		void OnClipAmmoChange(const float& OldValue, const float& NewValue);
 
 	void SetClipAmmo(float NewClipAmmo);
 	void SetBackupAmmo(float NewBackupAmmo);

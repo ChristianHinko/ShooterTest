@@ -11,7 +11,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FFloatValueChange, const float&, OldValue, const float&, NewValue);
 
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct SONICSHOOTER_API FFloatPropertyWrapper
 {
 	GENERATED_BODY()

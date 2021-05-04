@@ -11,7 +11,7 @@
 #include "ArcItemBPFunctionLibrary.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
 #include "ArcItemStack.h"
-#include "Utilities\USSArcItemBPFunctionLibrary.h"
+#include "Inventory\CustomArcInventoryFiles\SSArcItemBPFunctionLibrary.h"
 #include "Item/ArcItemDefinition_New.h"
 
 UGA_DropItem::UGA_DropItem()

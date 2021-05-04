@@ -26,6 +26,12 @@ public:
 
 	~FFloatPropertyWrapper();
 
+	/** Returns the actual struct used for serialization, subclasses must override this! */
+	virtual UScriptStruct* GetScriptStruct() const
+	{
+		return FFloatPropertyWrapper::StaticStruct();
+	}
+
 
 	float GetValue() const { return Value; }
 
@@ -44,6 +50,11 @@ public:
 	{
 		return (Value == Other);
 	}
+	bool operator!=(const float& Other) const
+	{
+		return !(FFloatPropertyWrapper::operator==(Other));
+	}
+
 	//bool operator==(const FFloatPropertyWrapper& Other) const
 	//{
 	//	return operator==(Other.Value);

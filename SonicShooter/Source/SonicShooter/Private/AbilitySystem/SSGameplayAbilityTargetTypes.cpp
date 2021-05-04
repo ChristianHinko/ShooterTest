@@ -5,6 +5,7 @@
 #include "GameplayEffect.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystem\SSGameplayEffectTypes.h"
 #include "AbilitySystemGlobals.h"
 
 TArray<FActiveGameplayEffectHandle> FGameplayAbilityTargetData_BulletTraceTargetHit::ApplyGameplayEffectSpec(FGameplayEffectSpec& InSpec, FPredictionKey PredictionKey)
@@ -32,6 +33,10 @@ TArray<FActiveGameplayEffectHandle> FGameplayAbilityTargetData_BulletTraceTarget
 			SpecToApply.SetContext(EffectContext);
 
 			/////////////////	only place we modified the super (this is for passing our TA's data into the GEEC
+			if (FSSGameplayEffectContext* Context = static_cast<FSSGameplayEffectContext*>(InSpec.GetContext().Get()))
+			{
+
+			}
 			SpecToApply.SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("SetByCaller.BulletTotalTravelDistanceBeforeHit"), bulletTotalTravelDistanceBeforeHit);
 			SpecToApply.SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("SetByCaller.RicochetsBeforeHit"), ricochetsBeforeHit);
 			/////////////////

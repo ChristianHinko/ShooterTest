@@ -10,9 +10,39 @@
 ASSGameplayAbilityTargetActor::ASSGameplayAbilityTargetActor(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	bTraceAffectsAimPitch = true;
-	TraceChannel = ECollisionChannel::ECC_Visibility;
+	ShouldProduceTargetDataOnServer = false;
+
+
 	bAllowMultipleHitsPerActor = false;
+
+
+	TraceChannel = ECollisionChannel::ECC_Visibility;
+
+
+	bUseAimPointAsStartLocation = true;
+
+	bTraceAffectsAimPitch = true;
+
+
+
+}
+
+
+void ASSGameplayAbilityTargetActor::StartTargeting(UGameplayAbility* Ability)
+{
+	Super::StartTargeting(Ability);
+
+
+	if (bUseAimPointAsStartLocation)
+	{
+		StartLocation.LocationType = EGameplayAbilityTargetingLocationType::LiteralTransform;
+
+		FVector AimStart;
+		FVector AimDir;
+		CalculateAimDirection(AimStart, AimDir);
+
+		StartLocation.LiteralTransform.SetLocation(AimStart);
+	}
 }
 
 float ASSGameplayAbilityTargetActor::GetMaxRange() const
@@ -82,35 +112,39 @@ void ASSGameplayAbilityTargetActor::AimWithPlayerController(const AActor* InSour
 }
 void ASSGameplayAbilityTargetActor::DirWithPlayerController(const AActor* InSourceActor, FCollisionQueryParams Params, const FVector& TraceStart, FVector& OutTraceDir) const
 {
-	if (!OwningAbility) // Server and launching client only
+	FVector AimStart;
+	FVector AimDir;
+	CalculateAimDirection(AimStart, AimDir);
+	FVector AimEnd = AimStart + (AimDir * GetMaxRange());
+
+	ClipCameraRayToAbilityRange(AimStart, AimDir, TraceStart, GetMaxRange(), AimEnd);
+
+	// If the TraceStart is nearly equal to the AimStart, skip the useless camera trace and just return the aim direction
+	if ((TraceStart - AimStart).IsNearlyZero(KINDA_SMALL_NUMBER))
 	{
+		// As an optimization, skip the extra trace and return here
+		OutTraceDir = (AimEnd - TraceStart).GetSafeNormal();
 		return;
 	}
 
-	FVector ViewStart;
-	FVector ViewDir;
-	CalculateAimDirection(ViewStart, ViewDir);
-	FVector ViewEnd = ViewStart + (ViewDir * GetMaxRange());
-
-	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, GetMaxRange(), ViewEnd);
-
+	// Line trace from the TraceStart to the the point that player is looking at so we can calculate the direction
 	TArray<FHitResult> HitResults;
-	InSourceActor->GetWorld()->LineTraceMultiByChannel(HitResults, ViewStart, ViewEnd, TraceChannel, Params);
+	InSourceActor->GetWorld()->LineTraceMultiByChannel(HitResults, AimStart, AimEnd, TraceChannel, Params);
 	FHitResult HitResult = HitResults.Num() ? HitResults[0] : FHitResult();
 
 	const bool bUseTraceResult = /*HitResult.bBlockingHit && */(FVector::DistSquared(TraceStart, HitResult.Location) <= (GetMaxRange() * GetMaxRange()));
 
-	const FVector AdjustedEnd = (bUseTraceResult) ? HitResult.Location : ViewEnd;
+	const FVector AdjustedEnd = (bUseTraceResult) ? HitResult.Location : AimEnd;
 
 	FVector AdjustedAimDir = (AdjustedEnd - TraceStart).GetSafeNormal();
 	if (AdjustedAimDir.IsZero())
 	{
-		AdjustedAimDir = ViewDir;
+		AdjustedAimDir = AimDir;
 	}
 
 	if (!bTraceAffectsAimPitch && bUseTraceResult)
 	{
-		FVector OriginalAimDir = (ViewEnd - TraceStart).GetSafeNormal();
+		FVector OriginalAimDir = (AimEnd - TraceStart).GetSafeNormal();
 
 		if (!OriginalAimDir.IsZero())
 		{
@@ -127,15 +161,21 @@ void ASSGameplayAbilityTargetActor::DirWithPlayerController(const AActor* InSour
 	OutTraceDir = AdjustedAimDir;
 }
 
-void ASSGameplayAbilityTargetActor::CalculateAimDirection(FVector& ViewStart, FVector& ViewDir) const
+void ASSGameplayAbilityTargetActor::CalculateAimDirection(FVector& AimStart, FVector& AimDir) const
 {
+	if (!OwningAbility) // Server and launching client only
+	{
+		return;
+	}
+
+
 	const APlayerController* PC = OwningAbility->GetCurrentActorInfo()->PlayerController.Get();
 	check(PC);
 
 	FRotator ViewRot;
-	PC->GetPlayerViewPoint(ViewStart, ViewRot);
+	PC->GetPlayerViewPoint(AimStart, ViewRot);
 
-	ViewDir = ViewRot.Vector();
+	AimDir = ViewRot.Vector();
 }
 
 bool ASSGameplayAbilityTargetActor::ClipCameraRayToAbilityRange(FVector CameraLocation, FVector CameraDirection, FVector AbilityCenter, float AbilityRange, FVector& ClippedPosition)

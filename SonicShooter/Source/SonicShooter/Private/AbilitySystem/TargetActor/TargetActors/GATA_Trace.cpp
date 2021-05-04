@@ -22,7 +22,7 @@ AGATA_Trace::AGATA_Trace(const FObjectInitializer& ObjectInitializer)
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickGroup = TG_PostUpdateWork;
 
-	ShouldProduceTargetDataOnServer = true;
+	ShouldProduceTargetDataOnServer = false; // have the client send the server the Target Data
 
 	MultiFilter.bReverseFilter = true;
 	MultiFilter.RequiredActorClasses.Add(AAbilitySystemCharacter::StaticClass());
@@ -113,7 +113,6 @@ bool AGATA_Trace::RicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWo
 
 	// Add the current hit actor on top of the ignored actors
 	FCollisionQueryParams RicoParams = Params;
-	RicoParams.AddIgnoredActor(LastHit.GetActor());
 
 	// Calculate ricochet direction
 	FVector RicoDir;
@@ -152,7 +151,6 @@ bool AGATA_Trace::RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld*
 
 	// Add the current hit actor on top of the ignored actors
 	FCollisionQueryParams RicoParams = Params;
-	RicoParams.AddIgnoredActor(LastHit.GetActor());
 
 	// Calculate ricochet direction
 	FVector RicoDir;
@@ -163,7 +161,7 @@ bool AGATA_Trace::RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld*
 	const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
 
 	// Perform ricochet
-	const bool bHitBlockingHit = World->SweepMultiByChannel(OutHitResults, RicoStart, RicoEnd, Rotation, TraceChannel, CollisionShape, Params);
+	const bool bHitBlockingHit = World->SweepMultiByChannel(RicoHitResults, RicoStart, RicoEnd, Rotation, TraceChannel, CollisionShape, RicoParams);
 	OnTraced(RicoHitResults);
 
 	OutHitResults.Append(RicoHitResults);

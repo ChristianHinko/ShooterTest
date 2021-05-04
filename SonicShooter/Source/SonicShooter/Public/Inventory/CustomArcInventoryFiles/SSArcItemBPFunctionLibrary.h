@@ -6,7 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "ArcInventoryItemTypes.h"
 
-#include "USSArcItemBPFunctionLibrary.generated.h"
+#include "SSArcItemBPFunctionLibrary.generated.h"
 
 
 /**

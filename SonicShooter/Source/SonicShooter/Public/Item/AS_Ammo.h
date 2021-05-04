@@ -5,8 +5,11 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSAttributeSet.h"
 #include "AbilitySystemComponent.h"
+#include "Utilities/PropertyWrappers.h"
 
 #include "AS_Ammo.generated.h"
+
+
 
 /**
  * 
@@ -33,8 +36,8 @@ public:
 	ATTRIBUTE_ACCESSORS(UAS_Ammo, MaxClipAmmo)
 
 	UPROPERTY(BlueprintReadOnly/*, ReplicatedUsing = OnRep_ClipAmmo*/, Category = "Attributes", meta = (HideFromModifiers))
-		FGameplayAttributeData ClipAmmo;
-	ATTRIBUTE_ACCESSORS(UAS_Ammo, ClipAmmo)
+		FFloatPropertyWrapper ClipAmmo;
+	FFloatValueChange OnClipAmmoChange;
 
 	//UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromLevelInfos))
 	//	FGameplayAttributeData BackupAmmoReceive;

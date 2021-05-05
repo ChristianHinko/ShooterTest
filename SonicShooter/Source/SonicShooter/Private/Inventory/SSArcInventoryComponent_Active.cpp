@@ -351,14 +351,16 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 						if (AHUD_Shooter* ShooterHUD = Cast<AHUD_Shooter>(OwningPC->GetHUD()))
 						{
 							// Create our widgets and add them to viewport
-							ShooterHUD->CrosshairWidget = UWidgetBlueprintLibrary::Create(this, ItemUIData->CrosshairWidgetTSub, OwningPC);
-							if (ShooterHUD->CrosshairWidget)
+							ShooterHUD->ActiveItemWidget = UWidgetBlueprintLibrary::Create(this, ItemUIData->ActiveItemWidgetTSub, OwningPC);
+							if (ShooterHUD->ActiveItemWidget)
 							{
-								ShooterHUD->CrosshairWidget->AddToViewport();
+								ShooterHUD->ActiveItemWidget->AddToViewport();
 							}
 
+
+							// COMMENTED OUT CODE FOR NOW SINCE WE MAY USE A SIMILAR METHOD LATER FOR INJECTING IN DATA ABOUT THE ITEM FOR THE ACTIVE ITEM WIDGET
 							//	With this widget we want to inject the new weapon's name into the widget since the widget has no way of getting the new item stack since this event is too early for that
-							UUserWidget* NewAmmoWidget = UWidgetBlueprintLibrary::Create(this, ItemUIData->AmmoWidgetTSub, OwningPC);
+							/*UUserWidget* NewAmmoWidget = UWidgetBlueprintLibrary::Create(this, ItemUIData->AmmoWidgetTSub, OwningPC);
 							if (UUW_Ammo* NewAmmoWidgetCasted = Cast<UUW_Ammo>(NewAmmoWidget))
 							{
 								NewAmmoWidgetCasted->ActiveItemName = ItemStack->ItemName;
@@ -371,7 +373,7 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 							if (ShooterHUD->AmmoWidget)
 							{
 								ShooterHUD->AmmoWidget->AddToViewport();
-							}
+							}*/
 						}
 					}
 				}
@@ -397,15 +399,10 @@ void USSArcInventoryComponent_Active::OnItemInactiveEvent(UArcInventoryComponent
 			{
 				if (AHUD_Shooter* ShooterCharacterHUD = Cast<AHUD_Shooter>(OwningPC->GetHUD()))
 				{
-					if (ShooterCharacterHUD->CrosshairWidget)
+					if (ShooterCharacterHUD->ActiveItemWidget)
 					{
-						ShooterCharacterHUD->CrosshairWidget->RemoveFromViewport();
-						ShooterCharacterHUD->CrosshairWidget = nullptr;
-					}
-					if (ShooterCharacterHUD->AmmoWidget)
-					{
-						ShooterCharacterHUD->AmmoWidget->RemoveFromViewport();
-						ShooterCharacterHUD->AmmoWidget = nullptr;
+						ShooterCharacterHUD->ActiveItemWidget->RemoveFromViewport();
+						ShooterCharacterHUD->ActiveItemWidget = nullptr;
 					}
 				}
 			}

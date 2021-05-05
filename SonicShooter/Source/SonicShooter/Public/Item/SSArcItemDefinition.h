@@ -4,12 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Item/Definitions/ArcItemDefinition_Active.h"
+#include "UI\UMG\Widgets\UW_ActiveItem.h"
 
 #include "SSArcItemDefinition.generated.h"
 
 
-class UUW_Crosshair;
-class UUW_Ammo;
 
 
 
@@ -23,10 +22,7 @@ public:
 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<UUW_Crosshair> CrosshairWidgetTSub;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<UUW_Ammo> AmmoWidgetTSub;
+		TSubclassOf<UUW_ActiveItem> ActiveItemWidgetTSub;
 };
 
 /**

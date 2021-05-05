@@ -30,8 +30,7 @@ public:
 	UUserWidget* HealthWidget;
 
 
-	UUserWidget* CrosshairWidget;
-	UUserWidget* AmmoWidget;
+	UUserWidget* ActiveItemWidget;
 
 protected:
 	virtual void PostInitializeComponents() override;

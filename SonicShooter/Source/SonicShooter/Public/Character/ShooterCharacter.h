@@ -25,7 +25,7 @@ class SONICSHOOTER_API AShooterCharacter : public AAbilitySystemCharacter, publi
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
-		class UArcInventoryComponent* InventoryComponent;
+		UArcInventoryComponent* InventoryComponent;
 
 
 	

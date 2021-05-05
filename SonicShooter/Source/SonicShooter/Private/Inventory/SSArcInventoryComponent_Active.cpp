@@ -11,11 +11,12 @@
 #include "Input/ArcInvInputBinder.h"
 #include "AbilitySystemGlobals.h"
 
-#include "UI/HUD_ShooterCharacter.h"
+#include "UI/HUD_Shooter.h"
 #include "Item/Weapons/WeaponDefinition.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Item/UW_Crosshair.h"
 #include "UI/UMG/Widgets/UW_Ammo.h"
+#include "Utilities/LogCategories.h"
 
 #include "AbilitySystem/SSAttributeSet.h"
 
@@ -347,13 +348,13 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 				{
 					if (UWeaponUIData* WeaponUIData = Cast<UWeaponUIData>(ItemStack->GetUIData()))
 					{
-						if (AHUD_ShooterCharacter* ShooterCharacterHUD = Cast<AHUD_ShooterCharacter>(OwningPC->GetHUD()))
+						if (AHUD_Shooter* ShooterHUD = Cast<AHUD_Shooter>(OwningPC->GetHUD()))
 						{
 							// Create our widgets and add them to viewport
-							ShooterCharacterHUD->CrosshairWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->CrosshairWidgetTSub, OwningPC);
-							if (ShooterCharacterHUD->CrosshairWidget)
+							ShooterHUD->CrosshairWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->CrosshairWidgetTSub, OwningPC);
+							if (ShooterHUD->CrosshairWidget)
 							{
-								ShooterCharacterHUD->CrosshairWidget->AddToViewport();
+								ShooterHUD->CrosshairWidget->AddToViewport();
 							}
 
 							//	With this widget we want to inject the new weapon's name into the widget since the widget has no way of getting the new item stack since this event is too early for that
@@ -364,12 +365,12 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 							}
 							else
 							{
-								UE_LOG(LogUI, Fatal, TEXT("%s(): When trying to inject the new active item name into UUW_Ammo on create, we couldn't, because the cast from UUserWidget to UUW_Ammo failed"), *FString(__FUNCTION__), *(ASSPlayerController::StaticClass()->GetName()));
+								UE_LOG(LogUI, Fatal, TEXT("%s(): When trying to inject the new active item name into UUW_Ammo on create, we couldn't, because the cast from UUserWidget to UUW_Ammo failed"), *FString(__FUNCTION__));
 							}
-							ShooterCharacterHUD->AmmoWidget = NewAmmoWidget;
-							if (ShooterCharacterHUD->AmmoWidget)
+							ShooterHUD->AmmoWidget = NewAmmoWidget;
+							if (ShooterHUD->AmmoWidget)
 							{
-								ShooterCharacterHUD->AmmoWidget->AddToViewport();
+								ShooterHUD->AmmoWidget->AddToViewport();
 							}
 						}
 					}
@@ -394,7 +395,7 @@ void USSArcInventoryComponent_Active::OnItemInactiveEvent(UArcInventoryComponent
 		{
 			if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
 			{
-				if (AHUD_ShooterCharacter* ShooterCharacterHUD = Cast<AHUD_ShooterCharacter>(OwningPC->GetHUD()))
+				if (AHUD_Shooter* ShooterCharacterHUD = Cast<AHUD_Shooter>(OwningPC->GetHUD()))
 				{
 					if (ShooterCharacterHUD->CrosshairWidget)
 					{

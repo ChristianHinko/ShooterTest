@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "UI/SSHUD.h"
 
-#include "HUD_ShooterCharacter.generated.h"
+#include "HUD_Shooter.generated.h"
 
 
 class UUW_Health;
@@ -16,12 +16,12 @@ class UUW_Health;
  * ShooterCharacter specific HUD
  */
 UCLASS()
-class SONICSHOOTER_API AHUD_ShooterCharacter : public ASSHUD
+class SONICSHOOTER_API AHUD_Shooter : public ASSHUD
 {
 	GENERATED_BODY()
 
 public:
-	AHUD_ShooterCharacter();
+	AHUD_Shooter();
 
 
 

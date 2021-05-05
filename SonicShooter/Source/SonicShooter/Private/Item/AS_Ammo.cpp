@@ -5,6 +5,8 @@
 
 #include "Net/UnrealNetwork.h"
 #include "GameplayAbilities/Public/GameplayEffectExtension.h"
+#include "AbilitySystem/SSGameplayAbilityTypes.h"
+#include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
 
 
 
@@ -29,7 +31,7 @@ UAS_Ammo::UAS_Ammo()
 	MaxClipAmmo(10)
 
 {
-	ClipAmmo = FFloatPropertyWrapper(this, FName(TEXT("ClipAmmo")), &OnClipAmmoChange);
+	ClipAmmo = FFloatPropertyWrapper(this, FName(TEXT("ClipAmmo")));
 	SetSoftAttributeDefaults();
 
 
@@ -42,6 +44,30 @@ void UAS_Ammo::SetSoftAttributeDefaults()
 
 	ClipAmmo = GetMaxClipAmmo();
 	BackupAmmo = GetMaxAmmo() - ClipAmmo.GetValue();
+}
+
+void UAS_Ammo::PostInitProperties()
+{
+	Super::PostInitProperties();
+
+	if (GetWorld() == nullptr || GetWorld()->IsGameWorld() == false)
+	{
+		return;
+	}
+	if (HasAnyFlags(RF_ClassDefaultObject))
+	{
+		return;
+	}
+	//---------------------------------------- safe "BeginPlay" logic here ------------------------
+
+
+	if (FSSGameplayAbilityActorInfo* SSActorInfo = static_cast<FSSGameplayAbilityActorInfo*>(GetActorInfo()))
+	{
+		if (UASC_Shooter* ShooterASC = SSActorInfo->GetShooterAbilitySystemComponent())
+		{
+			ClipAmmo.SetValueChangeDelegate(ShooterASC->OnClipAmmoChange);
+		}
+	}
 }
 
 

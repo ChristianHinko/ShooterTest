@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/HUD_ShooterCharacter.h"
+#include "UI/HUD_Shooter.h"
 
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Utilities/LogCategories.h"
@@ -9,11 +9,11 @@
 
 
 
-AHUD_ShooterCharacter::AHUD_ShooterCharacter()
+AHUD_Shooter::AHUD_Shooter()
 {
 
 }
-void AHUD_ShooterCharacter::PostInitializeComponents()
+void AHUD_Shooter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 

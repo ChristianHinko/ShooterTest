@@ -8,10 +8,13 @@
 
 
 
-ASSPlayerState::ASSPlayerState()
+FName ASSPlayerState::AbilitySystemComponentName(TEXT("AbilitySystemComponent"));
+
+ASSPlayerState::ASSPlayerState(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<USSAbilitySystemComponent>(AbilitySystemComponentName))
 {
 	// Create ability system component, and set it to be explicitly replicated
-	SSAbilitySystemComponent = CreateDefaultSubobject<USSAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	SSAbilitySystemComponent = CreateDefaultSubobject<USSAbilitySystemComponent>(AbilitySystemComponentName);
 	SSAbilitySystemComponent->SetIsReplicated(true);
 
 	// Mixed mode means we only are replicated the GEs to ourself, not the GEs to simulated proxies. If another GDPlayerState (Hero) receives a GE,

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "AttributeSet.h"
+#include "GameplayTags/Classes/GameplayTagContainer.h"
 
 #include "SSUserWidget.generated.h"
 

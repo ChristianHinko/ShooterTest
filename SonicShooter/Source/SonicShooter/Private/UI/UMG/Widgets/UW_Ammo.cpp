@@ -2,6 +2,7 @@
 
 
 #include "UI/UMG/Widgets/UW_Ammo.h"
+#include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
 #include "Item/AS_Ammo.h"
 
 #include "Item/AS_Ammo.h"
@@ -20,17 +21,22 @@ void UUW_Ammo::OnPlayerASCValid()
 	Super::OnPlayerASCValid();
 
 
-	for (UAttributeSet* AttributeSet : PlayerASC->GetSpawnedAttributes_Mutable())
-	{
-		if (UAS_Ammo* AmmoAttributeSet = Cast<UAS_Ammo>(AttributeSet))
-		{
-			AmmoAttributeSet->OnClipAmmoChange.AddDynamic(this, &UUW_Ammo::OnClipAmmoChange);
 
-			// Call for initial value
-			float clipAmmo = AmmoAttributeSet->ClipAmmo.GetValue();
-			OnClipAmmoChange(clipAmmo, clipAmmo);
-		}
+	if (UASC_Shooter* ShooterASC = Cast<UASC_Shooter>(PlayerASC))
+	{
+		for (UAttributeSet* AttributeSet : PlayerASC->GetSpawnedAttributes_Mutable())
+		{
+			if (UAS_Ammo* AmmoAttributeSet = Cast<UAS_Ammo>(AttributeSet))
+			{
+				ShooterASC->OnClipAmmoChange->AddDynamic(this, &UUW_Ammo::OnClipAmmoChange);
+
+				// Call for initial value
+				float clipAmmo = AmmoAttributeSet->ClipAmmo.GetValue();
+				OnClipAmmoChange(clipAmmo, clipAmmo);
+			}
+		}	
 	}
+
 }
 
 void UUW_Ammo::OnAttributeChanged(const FOnAttributeChangeData& Data)

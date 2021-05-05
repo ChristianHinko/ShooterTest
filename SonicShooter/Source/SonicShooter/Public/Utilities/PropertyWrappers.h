@@ -20,11 +20,13 @@ struct SONICSHOOTER_API FFloatPropertyWrapper
 public:
 	FFloatPropertyWrapper()
 	{
-
+		ValueChangeDelegate = nullptr;
 	}
+	FFloatPropertyWrapper(UObject* Owner, FName InPropertyName);
 	FFloatPropertyWrapper(UObject* Owner, FName InPropertyName, FFloatValueChange* InValueChangeDelegate);
+	FFloatPropertyWrapper(UObject* Owner, FName InPropertyName, const TSharedRef<FFloatValueChange>& InValueChangeDelegate);
 
-	~FFloatPropertyWrapper();
+	virtual ~FFloatPropertyWrapper();
 
 	/** Returns the actual struct used for serialization, subclasses must override this! */
 	virtual UScriptStruct* GetScriptStruct() const
@@ -37,14 +39,18 @@ public:
 
 	FName GetPropertyName() const { return PropertyName; }
 
-	FFloatValueChange* GetValueChangeDelegate() const { return ValueChangeDelegate; }
+	FFloatValueChange* GetValueChangeDelegate() const { return ValueChangeDelegate.Get(); }
+	void SetValueChangeDelegate(FFloatValueChange* InValueChangeDelegate)
+	{
+		MakeShared<FFloatValueChange>(*InValueChangeDelegate);
+	}
+	void SetValueChangeDelegate(const TSharedRef<FFloatValueChange>& InValueChangeDelegate)
+	{
+		ValueChangeDelegate = InValueChangeDelegate;
+	}
 
 
 	float operator=(const float& NewValue);
-	//float operator=(const FFloatPropertyWrapper& NewValue)
-	//{
-	//	return operator=(NewValue.Value);
-	//}
 
 	bool operator==(const float& Other) const
 	{
@@ -54,11 +60,22 @@ public:
 	{
 		return !(FFloatPropertyWrapper::operator==(Other));
 	}
-
-	//bool operator==(const FFloatPropertyWrapper& Other) const
-	//{
-	//	return operator==(Other.Value);
-	//}
+	bool operator>(const float& Other) const
+	{
+		return (Value > Other);
+	}
+	bool operator<(const float& Other) const
+	{
+		return (Value < Other);
+	}
+	bool operator>=(const float& Other) const
+	{
+		return (Value >= Other);
+	}
+	bool operator<=(const float& Other) const
+	{
+		return (Value <= Other);
+	}
 
 private:
 	float Value;
@@ -66,6 +83,6 @@ private:
 
 	FName PropertyName;
 
-	FFloatValueChange* ValueChangeDelegate;
+	TSharedPtr<FFloatValueChange> ValueChangeDelegate;
 
 };

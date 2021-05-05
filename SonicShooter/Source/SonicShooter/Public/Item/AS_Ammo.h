@@ -37,7 +37,6 @@ public:
 
 	UPROPERTY(BlueprintReadOnly/*, ReplicatedUsing = OnRep_ClipAmmo*/, Category = "Attributes", meta = (HideFromModifiers))
 		FFloatPropertyWrapper ClipAmmo;
-	FFloatValueChange OnClipAmmoChange;
 
 	//UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromLevelInfos))
 	//	FGameplayAttributeData BackupAmmoReceive;
@@ -45,6 +44,8 @@ public:
 
 protected:
 	virtual void SetSoftAttributeDefaults() override;
+
+	virtual void PostInitProperties() override;
 
 
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;

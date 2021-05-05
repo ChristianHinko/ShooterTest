@@ -9,6 +9,7 @@
 #include "Player/SSPlayerState.h"
 #include "Character/SSCharacterMovementComponent.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
+#include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
 
 
 
@@ -21,6 +22,9 @@ void FSSGameplayAbilityActorInfo::InitFromActor(AActor* InOwnerActor, AActor* In
 
     // Get our Shooter Character
     ShooterCharacter = Cast<AShooterCharacter>(InAvatarActor);
+
+    // Get our Shooter Character ASC
+    ShooterAbilitySystemComponent = Cast<UASC_Shooter>(SSAbilitySystemComponent);
 
     // Get our PC and PS
     if (PlayerController.IsValid())
@@ -63,6 +67,7 @@ void FSSGameplayAbilityActorInfo::ClearActorInfo()
     SSPlayerController = nullptr;
     SSPlayerState = nullptr;
     ShooterCharacter = nullptr;
+    ShooterAbilitySystemComponent = nullptr;
     SSCharacterMovementComponent = nullptr;
     InventoryComponent = nullptr;
 }

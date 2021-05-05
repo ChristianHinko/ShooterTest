@@ -5,7 +5,8 @@
 
 
 
-FFloatPropertyWrapper::FFloatPropertyWrapper(UObject* Owner, FName InPropertyName, FFloatValueChange* InValueChangeDelegate)
+FFloatPropertyWrapper::FFloatPropertyWrapper(UObject* Owner, FName InPropertyName)
+	: FFloatPropertyWrapper()
 {
 	PropertyName = InPropertyName;
 
@@ -25,20 +26,30 @@ FFloatPropertyWrapper::FFloatPropertyWrapper(UObject* Owner, FName InPropertyNam
 
 #endif
 
-	ValueChangeDelegate = InValueChangeDelegate;
-
 }
+FFloatPropertyWrapper::FFloatPropertyWrapper(UObject* Owner, FName InPropertyName, FFloatValueChange* InValueChangeDelegate)
+	: FFloatPropertyWrapper(Owner, InPropertyName)
+{
+	SetValueChangeDelegate(InValueChangeDelegate);
+}
+FFloatPropertyWrapper::FFloatPropertyWrapper(UObject* Owner, FName InPropertyName, const TSharedRef<FFloatValueChange>& InValueChangeDelegate)
+	: FFloatPropertyWrapper(Owner, InPropertyName)
+{
+	SetValueChangeDelegate(InValueChangeDelegate);
+}
+
 FFloatPropertyWrapper::~FFloatPropertyWrapper()
 {
 
 }
+
 
 float FFloatPropertyWrapper::operator=(const float& NewValue)
 {
 	const float OldValue = Value;
 
 	Value = NewValue;
-	if (LIKELY(ValueChangeDelegate))
+	if (ValueChangeDelegate.IsValid())
 	{
 		ValueChangeDelegate->Broadcast(OldValue, NewValue);
 	}

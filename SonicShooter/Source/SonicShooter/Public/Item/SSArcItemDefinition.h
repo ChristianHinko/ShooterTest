@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Item/Definitions/ArcItemDefinition_Active.h"
 
-#include "WeaponDefinition.generated.h"
+#include "SSArcItemDefinition.generated.h"
 
 
 class UUW_Crosshair;
@@ -14,12 +14,12 @@ class UUW_Ammo;
 
 
 UCLASS(Blueprintable, BlueprintType)
-class SONICSHOOTER_API UWeaponUIData : public UArcUIData_ItemDefinition
+class SONICSHOOTER_API USSUArcUIData_ItemDefinition : public UArcUIData_ItemDefinition
 {
 	GENERATED_BODY()
 
 public:
-	UWeaponUIData();
+	USSUArcUIData_ItemDefinition();
 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
@@ -33,12 +33,12 @@ public:
  * 
  */
 UCLASS(Abstract)
-class SONICSHOOTER_API UWeaponDefinition : public UArcItemDefinition_Active
+class SONICSHOOTER_API USSArcItemDefinition : public UArcItemDefinition_Active
 {
 	GENERATED_BODY()
 
 public:
-	UWeaponDefinition();
+	USSArcItemDefinition();
 
 
 };

@@ -12,7 +12,7 @@
 #include "AbilitySystemGlobals.h"
 
 #include "UI/HUD_Shooter.h"
-#include "Item/Weapons/WeaponDefinition.h"
+#include "Item/SSArcItemDefinition.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Item/UW_Crosshair.h"
 #include "UI/UMG/Widgets/UW_Ammo.h"
@@ -346,19 +346,19 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 			{
 				if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
 				{
-					if (UWeaponUIData* WeaponUIData = Cast<UWeaponUIData>(ItemStack->GetUIData()))
+					if (USSUArcUIData_ItemDefinition* ItemUIData = Cast<USSUArcUIData_ItemDefinition>(ItemStack->GetUIData()))
 					{
 						if (AHUD_Shooter* ShooterHUD = Cast<AHUD_Shooter>(OwningPC->GetHUD()))
 						{
 							// Create our widgets and add them to viewport
-							ShooterHUD->CrosshairWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->CrosshairWidgetTSub, OwningPC);
+							ShooterHUD->CrosshairWidget = UWidgetBlueprintLibrary::Create(this, ItemUIData->CrosshairWidgetTSub, OwningPC);
 							if (ShooterHUD->CrosshairWidget)
 							{
 								ShooterHUD->CrosshairWidget->AddToViewport();
 							}
 
 							//	With this widget we want to inject the new weapon's name into the widget since the widget has no way of getting the new item stack since this event is too early for that
-							UUserWidget* NewAmmoWidget = UWidgetBlueprintLibrary::Create(this, WeaponUIData->AmmoWidgetTSub, OwningPC);
+							UUserWidget* NewAmmoWidget = UWidgetBlueprintLibrary::Create(this, ItemUIData->AmmoWidgetTSub, OwningPC);
 							if (UUW_Ammo* NewAmmoWidgetCasted = Cast<UUW_Ammo>(NewAmmoWidget))
 							{
 								NewAmmoWidgetCasted->ActiveItemName = ItemStack->ItemName;

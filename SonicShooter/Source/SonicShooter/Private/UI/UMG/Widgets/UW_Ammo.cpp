@@ -5,8 +5,6 @@
 #include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
 #include "Item/AS_Ammo.h"
 
-#include "Item/AS_Ammo.h"
-
 
 
 UUW_Ammo::UUW_Ammo(const FObjectInitializer& ObjectInitializer)
@@ -21,20 +19,22 @@ void UUW_Ammo::OnPlayerASCValid()
 	Super::OnPlayerASCValid();
 
 
-
-	if (UASC_Shooter* ShooterASC = Cast<UASC_Shooter>(PlayerASC))
+	ShooterASC = Cast<UASC_Shooter>(PlayerASC);
+	if (ShooterASC)
 	{
+		ShooterASC->OnClipAmmoChange->AddDynamic(this, &UUW_Ammo::OnClipAmmoChange);
+
+
+		// Search for an Ammo AttributeSet
 		for (UAttributeSet* AttributeSet : PlayerASC->GetSpawnedAttributes_Mutable())
 		{
 			if (UAS_Ammo* AmmoAttributeSet = Cast<UAS_Ammo>(AttributeSet))
 			{
-				ShooterASC->OnClipAmmoChange->AddDynamic(this, &UUW_Ammo::OnClipAmmoChange);
-
-				// Call for initial value
+				// Call manually for initial value
 				float clipAmmo = AmmoAttributeSet->ClipAmmo.GetValue();
 				OnClipAmmoChange(clipAmmo, clipAmmo);
 			}
-		}	
+		}
 	}
 
 }
@@ -66,9 +66,20 @@ void UUW_Ammo::SetClipAmmo(float NewClipAmmo)
 	ClipAmmo = NewClipAmmo;
 	UpdateAmmoStatus();
 }
-
 void UUW_Ammo::SetBackupAmmo(float NewBackupAmmo)
 {
 	BackupAmmo = NewBackupAmmo;
 	UpdateAmmoStatus();
+}
+
+
+void UUW_Ammo::NativeDestruct()
+{
+	if (ShooterASC)
+	{
+		ShooterASC->OnClipAmmoChange->RemoveAll(this);
+	}
+
+
+	Super::NativeDestruct();
 }

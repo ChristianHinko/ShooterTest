@@ -9,6 +9,8 @@
 
 
 struct FOnAttributeChangeData;
+class UASC_Shooter;
+
 
 
 /**
@@ -33,11 +35,13 @@ public:
 		float BackupAmmo;
 
 protected:
-	virtual void OnPlayerASCValid();
+	virtual void OnPlayerASCValid() override;
+	UASC_Shooter* ShooterASC;
 
 	virtual void OnAttributeChanged(const FOnAttributeChangeData& Data) override;
 	UFUNCTION()
 		void OnClipAmmoChange(const float& OldValue, const float& NewValue);
+
 
 	void SetClipAmmo(float NewClipAmmo);
 	void SetBackupAmmo(float NewBackupAmmo);
@@ -45,4 +49,8 @@ protected:
 	/** Called on CurrentSpread changed. Use this to update CurrentSpread based UI */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Ammo", meta = (Keywords = "Tick"))
 		void UpdateAmmoStatus();
+
+
+
+	virtual void NativeDestruct() override;
 };

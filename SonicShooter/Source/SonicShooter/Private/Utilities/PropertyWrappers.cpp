@@ -56,3 +56,26 @@ float FFloatPropertyWrapper::operator=(const float& NewValue)
 
 	return Value;
 }
+
+bool FFloatPropertyWrapper::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess)
+{
+	uint8 RepBits = 0;
+	if (Ar.IsSaving())
+	{
+		RepBits |= 1 << 0;
+	}
+
+	Ar.SerializeBits(&RepBits, 0);
+
+
+
+	if (RepBits & (1 << 0))
+	{
+		Ar << Value;
+	}
+
+
+
+	bOutSuccess = true;
+	return true;
+}

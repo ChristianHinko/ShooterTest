@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Inventory/GA_DropItem.h"
+#include "Inventory/Abilities/GA_DropItem.h"
 
 #include "Utilities/LogCategories.h"
 #include "Character/ShooterCharacter.h"
@@ -11,7 +11,7 @@
 #include "ArcItemBPFunctionLibrary.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
 #include "ArcItemStack.h"
-#include "Inventory\CustomArcInventoryFiles\SSArcItemBPFunctionLibrary.h"
+#include "Inventory\SSArcItemBPFunctionLibrary.h"
 #include "Item/ArcItemDefinition_New.h"
 
 UGA_DropItem::UGA_DropItem()

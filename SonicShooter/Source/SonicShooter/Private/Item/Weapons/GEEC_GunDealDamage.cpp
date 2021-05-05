@@ -6,7 +6,8 @@
 #include "AbilitySystem/SSAbilitySystemComponent.h"
 #include "AbilitySystem\AttributeSets\AS_Health.h"
 #include "AbilitySystem/AttributeSets/AS_Damage.h"
-#include "Item/AS_Gun.h"
+
+#include "Item/Weapons/AS_Gun.h"
 #include "AbilitySystem/SSGameplayEffectTypes.h"
 
 

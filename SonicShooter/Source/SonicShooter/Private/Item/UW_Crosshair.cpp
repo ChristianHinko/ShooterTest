@@ -3,7 +3,7 @@
 
 #include "Item/UW_Crosshair.h"
 
-#include "Item/AS_Gun.h"
+#include "Item/Weapons/AS_Gun.h"
 
 
 

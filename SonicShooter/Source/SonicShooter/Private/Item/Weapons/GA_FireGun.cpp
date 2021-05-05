@@ -1,14 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Item/GA_FireGun.h"
+#include "Item/Weapons/GA_FireGun.h"
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/AbilityTasks/AT_SSWaitTargetData.h"
 #include "AbilitySystem/TargetActor/TargetActors/GATA_BulletTrace.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Utilities/CollisionChannels.h"
-#include "Item/AS_Gun.h"
+#include "Item/Weapons/AS_Gun.h"
 #include "Item/AS_Ammo.h"
 #include "Item\Weapons\GunStack.h"
 #include "ArcInventoryItemTypes.h"

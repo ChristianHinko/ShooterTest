@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Item/Definitions/ArcItemDefinition_Active.h"
 
-#include "SSArcItemDefinition.generated.h"
+#include "SSArcItemDefinition_Active.generated.h"
 
 
 class UUW_Crosshair;
@@ -33,12 +33,12 @@ public:
  * 
  */
 UCLASS(Abstract)
-class SONICSHOOTER_API USSArcItemDefinition : public UArcItemDefinition_Active
+class SONICSHOOTER_API USSArcItemDefinition_Active : public UArcItemDefinition_Active
 {
 	GENERATED_BODY()
 
 public:
-	USSArcItemDefinition();
+	USSArcItemDefinition_Active();
 
 
 };

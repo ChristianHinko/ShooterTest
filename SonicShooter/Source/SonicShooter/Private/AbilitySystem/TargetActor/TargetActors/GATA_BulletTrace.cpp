@@ -8,7 +8,7 @@
 #include "Utilities/CollisionChannels.h"
 #include "AbilitySystem/SSGameplayAbilityTargetTypes.h"
 #include "GameplayAbilities\Public\AbilitySystemComponent.h"
-#include "Item/AS_Gun.h"
+#include "Item/Weapons/AS_Gun.h"
 
 
 

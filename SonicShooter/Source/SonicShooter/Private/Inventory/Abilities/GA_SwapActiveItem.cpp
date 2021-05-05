@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Inventory/GA_SwapActiveItem.h"
+#include "Inventory/Abilities/GA_SwapActiveItem.h"
 
 
 #include "Character/ShooterCharacter.h"

@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Inventory\CustomArcInventoryFiles\SSArcItemBPFunctionLibrary.h"
+#include "Inventory\SSArcItemBPFunctionLibrary.h"
 
 #include "Inventory\SSArcItemStackWorldObject.h"
 #include "Kismet/GameplayStatics.h"

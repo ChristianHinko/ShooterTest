@@ -12,7 +12,7 @@
 #include "AbilitySystemGlobals.h"
 
 #include "UI/HUD_Shooter.h"
-#include "Item/SSArcItemDefinition.h"
+#include "Item/SSArcItemDefinition_Active.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Item/UW_Crosshair.h"
 #include "UI/UMG/Widgets/UW_Ammo.h"

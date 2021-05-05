@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Inventory/GunGenerator.h"
+#include "Item/Weapons/GunGenerator.h"
 
 #include "Item/Weapons/GunStack.h"
 

@@ -14,8 +14,7 @@ class UASC_Shooter;
 
 
 /**
- * Base ammo widget. No visuals and is meant for subclassing in BP.
- * Provides the value of a ammo attribute values and events for when to update UI.
+ * Base item widget. No visuals and is meant for subclassing in BP
  */
 UCLASS()
 class SONICSHOOTER_API UUW_ActiveItem : public USSUserWidget

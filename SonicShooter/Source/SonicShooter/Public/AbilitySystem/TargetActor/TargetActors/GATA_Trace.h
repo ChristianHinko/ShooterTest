@@ -32,7 +32,6 @@ public:
 	virtual int32 GetRicochets() const;
 
 protected:
-	virtual void Tick(float DeltaSeconds) override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	/**

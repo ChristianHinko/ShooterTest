@@ -18,9 +18,6 @@
 AGATA_Trace::AGATA_Trace(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.TickGroup = TG_PostUpdateWork;
-
 	ShouldProduceTargetDataOnServer = false; // have the client send the server the Target Data
 
 	MultiFilter.bReverseFilter = true;
@@ -285,23 +282,6 @@ void AGATA_Trace::DebugTrace(const TArray<FHitResult>& HitResults, const UWorld*
 }
 //#endif // ENABLE_DRAW_DEBUG
 
-
-void AGATA_Trace::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-
-
-	// very temp - do a mostly hardcoded trace from the source actor
-	if (SourceActor)
-	{
-		TArray<FHitResult> HitResults;
-		PerformTrace(HitResults, SourceActor);
-		const FHitResult HitResult = HitResults.Num() ? HitResults.Last() : FHitResult();		// get last hit
-		const FVector EndPoint = HitResult.Component.IsValid() ? HitResult.ImpactPoint : HitResult.TraceEnd;
-
-		SetActorLocationAndRotation(EndPoint, SourceActor->GetActorRotation());
-	}
-}
 
 void AGATA_Trace::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {

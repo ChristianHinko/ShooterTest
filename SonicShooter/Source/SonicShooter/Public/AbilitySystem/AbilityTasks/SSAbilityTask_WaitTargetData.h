@@ -5,19 +5,19 @@
 #include "CoreMinimal.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
 
-#include "AT_SSWaitTargetData.generated.h"
+#include "SSAbilityTask_WaitTargetData.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UAT_SSWaitTargetData : public UAbilityTask_WaitTargetData
+class SONICSHOOTER_API USSAbilityTask_WaitTargetData : public UAbilityTask_WaitTargetData
 {
 	GENERATED_BODY()
 
 public:
 	UFUNCTION(BlueprintCallable, meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "true", HideSpawnParms = "Instigator"), Category = "Ability|Tasks")
-		static UAT_SSWaitTargetData* SSWaitTargetDataUsingActor(UGameplayAbility* OwningAbility, FName TaskInstanceName, TEnumAsByte<EGameplayTargetingConfirmation::Type> ConfirmationType, AGameplayAbilityTargetActor* InTargetActor);
+		static USSAbilityTask_WaitTargetData* SSWaitTargetDataUsingActor(UGameplayAbility* OwningAbility, FName TaskInstanceName, TEnumAsByte<EGameplayTargetingConfirmation::Type> ConfirmationType, AGameplayAbilityTargetActor* InTargetActor);
 
 protected:
 	virtual void OnDestroy(bool AbilityEnded) override;

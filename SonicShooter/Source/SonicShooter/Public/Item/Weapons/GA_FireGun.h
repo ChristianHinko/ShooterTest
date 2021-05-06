@@ -10,7 +10,7 @@ class AGATA_BulletTrace;
 class UAS_Gun;
 class UAS_Ammo;
 class UGunStack;
-class UAT_SSWaitTargetData;
+class USSAbilityTask_WaitTargetData;
 class UAT_Ticker;
 
 /**

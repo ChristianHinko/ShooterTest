@@ -4,7 +4,7 @@
 #include "Item/Weapons/GA_FireGun.h"
 
 #include "AbilitySystemComponent.h"
-#include "AbilitySystem/AbilityTasks/AT_SSWaitTargetData.h"
+#include "AbilitySystem/AbilityTasks/SSAbilityTask_WaitTargetData.h"
 #include "AbilitySystem/TargetActor/TargetActors/GATA_BulletTrace.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Utilities/CollisionChannels.h"
@@ -328,7 +328,7 @@ void UGA_FireGun::Shoot()
 
 
 	// Try to make wait target data task for this shot
-	UAT_SSWaitTargetData* WaitTargetDataActorTask = UAT_SSWaitTargetData::SSWaitTargetDataUsingActor(this, TEXT("WaitTargetDataActorTask"), EGameplayTargetingConfirmation::Instant, BulletTraceTargetActor);
+	USSAbilityTask_WaitTargetData* WaitTargetDataActorTask = USSAbilityTask_WaitTargetData::SSWaitTargetDataUsingActor(this, TEXT("WaitTargetDataActorTask"), EGameplayTargetingConfirmation::Instant, BulletTraceTargetActor);
 	if (!WaitTargetDataActorTask)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitTargetDataActorTask was NULL when trying to shoot. Called EndAbility()"), *FString(__FUNCTION__));

@@ -5,7 +5,7 @@
 
 #include "AbilitySystem/SSAbilitySystemComponent.h"
 #include "GameplayAbilities/Public/GameplayEffectExtension.h"
-#include "AbilitySystem/GameplayEffect_DefaultAttributes.h"
+#include "AbilitySystem/AttributeSets/GameplayEffect_DefaultAttributes.h"
 
 
 

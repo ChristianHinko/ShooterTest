@@ -1,20 +1,20 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/AbilityTasks/AT_SSWaitTargetData.h"
+#include "AbilitySystem/AbilityTasks/SSAbilityTask_WaitTargetData.h"
 
 
 
-UAT_SSWaitTargetData* UAT_SSWaitTargetData::SSWaitTargetDataUsingActor(UGameplayAbility* OwningAbility, FName TaskInstanceName, TEnumAsByte<EGameplayTargetingConfirmation::Type> ConfirmationType, AGameplayAbilityTargetActor* InTargetActor)
+USSAbilityTask_WaitTargetData* USSAbilityTask_WaitTargetData::SSWaitTargetDataUsingActor(UGameplayAbility* OwningAbility, FName TaskInstanceName, TEnumAsByte<EGameplayTargetingConfirmation::Type> ConfirmationType, AGameplayAbilityTargetActor* InTargetActor)
 {
-	UAT_SSWaitTargetData* MyObj = NewAbilityTask<UAT_SSWaitTargetData>(OwningAbility, TaskInstanceName);		//Register for task list here, providing a given FName as a key
+	USSAbilityTask_WaitTargetData* MyObj = NewAbilityTask<USSAbilityTask_WaitTargetData>(OwningAbility, TaskInstanceName);		//Register for task list here, providing a given FName as a key
 	MyObj->TargetClass = nullptr;
 	MyObj->TargetActor = InTargetActor;
 	MyObj->ConfirmationType = ConfirmationType;
 	return MyObj;
 }
 
-void UAT_SSWaitTargetData::OnDestroy(bool AbilityEnded)
+void USSAbilityTask_WaitTargetData::OnDestroy(bool AbilityEnded)
 {
 	if (TargetActor)
 	{

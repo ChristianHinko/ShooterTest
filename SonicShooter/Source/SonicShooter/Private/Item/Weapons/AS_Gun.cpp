@@ -7,6 +7,7 @@
 #include "AbilitySystem/SSGameplayAbilityTypes.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
 #include "Character/SSCharacterMovementComponent.h"
+#include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -62,6 +63,7 @@ UAS_Gun::UAS_Gun()
 	NumShotsPerBurst(3),
 	AmmoCost(1.f)
 {
+	CurrentBulletSpread = FFloatPropertyWrapper(this, FName(TEXT("CurrentBulletSpread")));
 	SetSoftAttributeDefaults();
 
 
@@ -98,6 +100,11 @@ void UAS_Gun::PostInitProperties()
 	if (FSSGameplayAbilityActorInfo* SSActorInfo = static_cast<FSSGameplayAbilityActorInfo*>(GetActorInfo()))
 	{
 		SSActorInfo->OnInited.AddUObject(this, &UAS_Gun::OnActorInfoInited);
+
+		if (UASC_Shooter* ShooterASC = SSActorInfo->GetShooterAbilitySystemComponent())
+		{
+			CurrentBulletSpread.SetValueChangeDelegate(ShooterASC->OnCurrentBulletSpreadChange);
+		}
 	}
 }
 
@@ -147,18 +154,26 @@ void UAS_Gun::UpdateFromActorInfo()
 
 void UAS_Gun::OnInventoryItemActive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
 {
-	if (GetOwningAbilitySystemComponent()->HasAttributeSetForAttribute(GetCurrentBulletSpreadAttribute()))
+	for (const UAttributeSet* AttributeSet : GetOwningAbilitySystemComponent()->GetSpawnedAttributes())
 	{
-		SetCurrentBulletSpread(GetMinBulletSpread());
-		//UKismetSystemLibrary::PrintString(this, "RESETED", true, false, FLinearColor::Yellow);
+		if (AttributeSet->IsA<UAS_Gun>())
+		{
+			CurrentBulletSpread = GetMinBulletSpread();
+			//UKismetSystemLibrary::PrintString(this, "RESETED", true, false, FLinearColor::Yellow);
+		}
 	}
+
+
 }
 void UAS_Gun::OnInventoryItemInactive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
 {
-	if (GetOwningAbilitySystemComponent()->HasAttributeSetForAttribute(GetCurrentBulletSpreadAttribute()))
+	for (const UAttributeSet* AttributeSet : GetOwningAbilitySystemComponent()->GetSpawnedAttributes())
 	{
-		SetCurrentBulletSpread(GetMinBulletSpread());
-		//UKismetSystemLibrary::PrintString(this, "RESETED", true, false, FLinearColor::Yellow);
+		if (AttributeSet->IsA<UAS_Gun>())
+		{
+			CurrentBulletSpread = GetMinBulletSpread();
+			//UKismetSystemLibrary::PrintString(this, "RESETED", true, false, FLinearColor::Yellow);
+		}
 	}
 }
 
@@ -175,7 +190,7 @@ float UAS_Gun::GetRestBulletSpread() const
 
 void UAS_Gun::ApplyFireBulletSpread()
 {
-	SetCurrentBulletSpread(GetCurrentBulletSpread() + GetFireBulletSpread());
+	CurrentBulletSpread = CurrentBulletSpread + GetFireBulletSpread();
 
 	GetOwningAbilitySystemComponent()->UpdateShouldTick();
 }
@@ -207,33 +222,33 @@ void UAS_Gun::Tick(float DeltaTime)
 	//UKismetSystemLibrary::PrintString(this, "UAS_Gun::Tick()", true, false);
 	if (IsMovingToIncBulletSpread())
 	{
-		if (GetCurrentBulletSpread() < GetMovingBulletSpread())
+		if (CurrentBulletSpread < GetMovingBulletSpread())
 		{
-			SetCurrentBulletSpread(GetCurrentBulletSpread() + (GetBulletSpreadIncRate() * DeltaTime));
-			if (GetCurrentBulletSpread() > GetMovingBulletSpread())
+			CurrentBulletSpread = CurrentBulletSpread + (GetBulletSpreadIncRate() * DeltaTime);
+			if (CurrentBulletSpread > GetMovingBulletSpread())
 			{
-				SetCurrentBulletSpread(GetMovingBulletSpread());
+				CurrentBulletSpread = GetMovingBulletSpread();
 			}
 			return;
 		}
 	}
 
-	float interptedBulletSpread = FMath::FInterpTo(GetCurrentBulletSpread(), GetRestBulletSpread(), DeltaTime, GetBulletSpreadDecSpeed());
-	SetCurrentBulletSpread(interptedBulletSpread);
-	if (GetCurrentBulletSpread() < GetRestBulletSpread())
+	float interptedBulletSpread = FMath::FInterpTo(CurrentBulletSpread, GetRestBulletSpread(), DeltaTime, GetBulletSpreadDecSpeed());
+	CurrentBulletSpread = interptedBulletSpread;
+	if (CurrentBulletSpread < GetRestBulletSpread())
 	{
-		SetCurrentBulletSpread(GetRestBulletSpread());
+		CurrentBulletSpread = GetRestBulletSpread();
 	}
 }
 bool UAS_Gun::ShouldTick() const
 {
-	if (IsMovingToIncBulletSpread()/* && GetCurrentBulletSpread() < GetMovingBulletSpread()*/)
+	if (IsMovingToIncBulletSpread()/* && CurrentBulletSpread < GetMovingBulletSpread()*/)
 	{
 		return true;
 	}
 
 	// We are above our rest state, return true
-	if (GetCurrentBulletSpread() > GetRestBulletSpread())
+	if (CurrentBulletSpread > GetRestBulletSpread())
 	{
 		return true;
 	}

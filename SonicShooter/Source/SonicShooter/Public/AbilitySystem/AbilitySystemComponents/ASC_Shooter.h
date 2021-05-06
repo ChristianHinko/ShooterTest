@@ -25,6 +25,7 @@ public:
 	// Change delegates:
 
 	TSharedRef<FFloatValueChange> OnClipAmmoChange = MakeShared<FFloatValueChange>();
+	TSharedRef<FFloatValueChange> OnCurrentBulletSpreadChange = MakeShared<FFloatValueChange>();
 
 
 protected:

@@ -192,13 +192,13 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	}
 	///////////////////////////////////// we are safe to proceed /////////
 
-	if (FireEffectTSub)
+	if (IsFireingGunEffectTSub)
 	{
-		FireEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, FireEffectTSub.GetDefaultObject(), GetAbilityLevel());
+		IsFireingGunEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, IsFireingGunEffectTSub.GetDefaultObject(), GetAbilityLevel());
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("FireEffectTSub TSubclassOf empty in %s"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("IsFireingGunEffectTSub TSubclassOf empty in %s"), *FString(__FUNCTION__));
 	}
 
 
@@ -419,11 +419,11 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 
 	if (ActorInfo->AbilitySystemComponent.Get())
 	{
-		ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(FireEffectActiveHandle);
+		ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(IsFireingGunEffectActiveHandle);
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo->AbilitySystemComponent.Get() was NULL when trying to remove FireEffectActiveHandle"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo->AbilitySystemComponent.Get() was NULL when trying to remove IsFireingGunEffectActiveHandle"), *FString(__FUNCTION__));
 	}
 
 

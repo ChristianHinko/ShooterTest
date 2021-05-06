@@ -26,8 +26,8 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Effects To Apply")
-		TSubclassOf<UGameplayEffect> FireEffectTSub;
-	FActiveGameplayEffectHandle FireEffectActiveHandle;
+		TSubclassOf<UGameplayEffect> IsFireingGunEffectTSub;
+	FActiveGameplayEffectHandle IsFireingGunEffectActiveHandle;
 
 	// Used to give each fire a unique random seed since machine guns only have 1 prediction key across fires
 	int32 shotNumber;

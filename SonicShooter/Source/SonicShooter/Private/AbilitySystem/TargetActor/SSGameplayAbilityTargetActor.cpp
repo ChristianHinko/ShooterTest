@@ -44,6 +44,10 @@ void ASSGameplayAbilityTargetActor::StartTargeting(UGameplayAbility* Ability)
 		StartLocation.LiteralTransform.SetLocation(AimStart);
 	}
 }
+void ASSGameplayAbilityTargetActor::StopTargeting()
+{
+	//DestroyReticleActors();
+}
 
 float ASSGameplayAbilityTargetActor::GetMaxRange() const
 {

@@ -9,7 +9,7 @@
 
 
 class UUW_Health;
-
+class UUW_ActiveItem;
 
 
 /**
@@ -27,11 +27,11 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<UUW_Health> HealthWidgetTSub;
-	UUserWidget* HealthWidget;
+	UPROPERTY()
+		UUserWidget* HealthWidget;
 
-
-	UUserWidget* CrosshairWidget;
-	UUserWidget* AmmoWidget;
+	UPROPERTY()
+		UUW_ActiveItem* CurrentActiveItemWidget;
 
 protected:
 	virtual void PostInitializeComponents() override;

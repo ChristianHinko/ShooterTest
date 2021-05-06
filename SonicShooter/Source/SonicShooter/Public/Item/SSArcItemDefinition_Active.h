@@ -4,29 +4,25 @@
 
 #include "CoreMinimal.h"
 #include "Item/Definitions/ArcItemDefinition_Active.h"
+#include "UI\UMG\Widgets\UW_ActiveItem.h"
 
 #include "SSArcItemDefinition_Active.generated.h"
 
 
-class UUW_Crosshair;
-class UUW_Ammo;
 
 
 
 UCLASS(Blueprintable, BlueprintType)
-class SONICSHOOTER_API USSUArcUIData_ItemDefinition : public UArcUIData_ItemDefinition
+class SONICSHOOTER_API USSUArcUIData_ActiveItemDefinition : public UArcUIData_ItemDefinition
 {
 	GENERATED_BODY()
 
 public:
-	USSUArcUIData_ItemDefinition();
+	USSUArcUIData_ActiveItemDefinition();
 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<UUW_Crosshair> CrosshairWidgetTSub;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<UUW_Ammo> AmmoWidgetTSub;
+		TSubclassOf<UUW_ActiveItem> ActiveItemWidgetTSub;
 };
 
 /**

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ArcItemStack.h"
+#include "Item/SSArcItemStack.h"
 
 #include "GunStack.generated.h"
 
@@ -16,7 +16,7 @@ class AGATA_BulletTrace;
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UGunStack : public UArcItemStack
+class SONICSHOOTER_API UGunStack : public USSArcItemStack
 {
 	GENERATED_BODY()
 	

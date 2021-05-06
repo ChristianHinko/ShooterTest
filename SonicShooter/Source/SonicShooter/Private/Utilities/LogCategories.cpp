@@ -10,6 +10,7 @@ DEFINE_LOG_CATEGORY(LogAbilitySystemSetup)
 DEFINE_LOG_CATEGORY(LogGameplayAbility)
 DEFINE_LOG_CATEGORY(LogGameplayTask)
 DEFINE_LOG_CATEGORY(LogGameplayAbilityTargetActor)
+DEFINE_LOG_CATEGORY(LogGameplayAbilityTargetActorSetup)
 
 DEFINE_LOG_CATEGORY(LogCharacterMovementSetup)
 DEFINE_LOG_CATEGORY(LogCharacterMovement)

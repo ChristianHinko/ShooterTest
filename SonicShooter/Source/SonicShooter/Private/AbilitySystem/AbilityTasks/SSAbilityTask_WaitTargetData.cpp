@@ -5,6 +5,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/TargetActor/SSGameplayAbilityTargetActor.h"
+#include "Utilities/LogCategories.h"
 
 
 
@@ -34,6 +35,10 @@ void USSAbilityTask_WaitTargetData::OnDestroy(bool AbilityEnded)
 			{
 				// Tell the Target Actor he is being deactivated
 				SSTargetActor->StopTargeting();
+			}
+			else
+			{
+				UE_LOG(LogGameplayAbilityTargetActorSetup, Warning, TEXT("%s() Your not using our custom base target actor. Tried to call stop targeting but we couldn't because of this"), *FString(__FUNCTION__));
 			}
 
 			// Clear added callbacks

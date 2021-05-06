@@ -7,10 +7,10 @@
 
 
 
-FFloatPropertyWrapper::FFloatPropertyWrapper(UObject* Owner, FName InPropertyName)
+FFloatPropertyWrapper::FFloatPropertyWrapper(UObject* InPropertyOwner, FName InPropertyName)
 	: FFloatPropertyWrapper()
 {
-	PropertyOwner = Owner;
+	PropertyOwner = InPropertyOwner;
 	PropertyName = InPropertyName;
 
 	Property = FindFProperty<FProperty>(PropertyOwner->GetClass(), PropertyName);
@@ -19,24 +19,24 @@ FFloatPropertyWrapper::FFloatPropertyWrapper(UObject* Owner, FName InPropertyNam
 	if (Property == nullptr)
 	{
 		// Ensure this property exists on the owner!
-		UE_LOG(LogTemp, Fatal, TEXT("%s(): The given PropertyName \"%s\" was not found on the PropertyOwner \"%s\". Ensure correct spelling for the property you are looking for and make sure it is a UPROPERTY so we can find it!"), *FString(__FUNCTION__), *(InPropertyName.ToString()), *(Owner->GetName()));
+		UE_LOG(LogTemp, Fatal, TEXT("%s(): The given PropertyName \"%s\" was not found on the PropertyOwner \"%s\". Ensure correct spelling for the property you are looking for and make sure it is a UPROPERTY so we can find it!"), *FString(__FUNCTION__), *(InPropertyName.ToString()), *(InPropertyOwner->GetName()));
 	}
 	else if (!(CastField<FStructProperty>(Property) && CastField<FStructProperty>(Property)->Struct == FFloatPropertyWrapper::StaticStruct()))
 	{
 		// Ensure this property is a FFloatPropertyWrapper!
-		UE_LOG(LogTemp, Fatal, TEXT("%s(): The given FProperty \"%s::%s\" is not a %s!"), *FString(__FUNCTION__), *(Owner->GetClass()->GetName()), *(InPropertyName.ToString()), *(FFloatPropertyWrapper::StaticStruct()->GetName()));
+		UE_LOG(LogTemp, Fatal, TEXT("%s(): The given FProperty \"%s::%s\" is not a %s!"), *FString(__FUNCTION__), *(InPropertyOwner->GetClass()->GetName()), *(InPropertyName.ToString()), *(FFloatPropertyWrapper::StaticStruct()->GetName()));
 	}
 
 #endif
 
 }
-FFloatPropertyWrapper::FFloatPropertyWrapper(UObject* Owner, FName InPropertyName, FFloatValueChange* InValueChangeDelegate)
-	: FFloatPropertyWrapper(Owner, InPropertyName)
+FFloatPropertyWrapper::FFloatPropertyWrapper(UObject* InPropertyOwner, FName InPropertyName, FFloatValueChange* InValueChangeDelegate)
+	: FFloatPropertyWrapper(InPropertyOwner, InPropertyName)
 {
 	SetValueChangeDelegate(InValueChangeDelegate);
 }
-FFloatPropertyWrapper::FFloatPropertyWrapper(UObject* Owner, FName InPropertyName, const TSharedRef<FFloatValueChange>& InValueChangeDelegate)
-	: FFloatPropertyWrapper(Owner, InPropertyName)
+FFloatPropertyWrapper::FFloatPropertyWrapper(UObject* InPropertyOwner, FName InPropertyName, const TSharedRef<FFloatValueChange>& InValueChangeDelegate)
+	: FFloatPropertyWrapper(InPropertyOwner, InPropertyName)
 {
 	SetValueChangeDelegate(InValueChangeDelegate);
 }
@@ -61,18 +61,26 @@ float FFloatPropertyWrapper::operator=(const float& NewValue)
 {
 	const float OldValue = Value;
 
-	Value = NewValue;
-	if (ValueChangeDelegate.IsValid())
+	if (NewValue != OldValue)
 	{
-		ValueChangeDelegate->Broadcast(OldValue, NewValue);
-	}
+		Value = NewValue;
+		if (ValueChangeDelegate.IsValid())
+		{
+			ValueChangeDelegate->Broadcast(OldValue, NewValue);
+		}
 
-	if (bMarkNetDirtyOnChange)
-	{
-		MARK_PROPERTY_DIRTY(PropertyOwner, Property);
+		if (bMarkNetDirtyOnChange)
+		{
+			MARK_PROPERTY_DIRTY(PropertyOwner, Property);
+		}
 	}
 
 	return Value;
+}
+
+void FFloatPropertyWrapper::MarkNetDirty()
+{
+	MARK_PROPERTY_DIRTY(PropertyOwner, Property);
 }
 
 bool FFloatPropertyWrapper::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess)
@@ -87,10 +95,10 @@ bool FFloatPropertyWrapper::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& b
 
 
 
-	if (RepBits & (1 << 0))
-	{
+	//if (RepBits & (1 << 0))
+	//{
 		Ar << Value;
-	}
+	//}
 
 
 

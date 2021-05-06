@@ -26,9 +26,9 @@ public:
 
 		bMarkNetDirtyOnChange = false;
 	}
-	FFloatPropertyWrapper(UObject* Owner, FName InPropertyName);
-	FFloatPropertyWrapper(UObject* Owner, FName InPropertyName, FFloatValueChange* InValueChangeDelegate);
-	FFloatPropertyWrapper(UObject* Owner, FName InPropertyName, const TSharedRef<FFloatValueChange>& InValueChangeDelegate);
+	FFloatPropertyWrapper(UObject* InPropertyOwner, FName InPropertyName);
+	FFloatPropertyWrapper(UObject* InPropertyOwner, FName InPropertyName, FFloatValueChange* InValueChangeDelegate);
+	FFloatPropertyWrapper(UObject* InPropertyOwner, FName InPropertyName, const TSharedRef<FFloatValueChange>& InValueChangeDelegate);
 
 	virtual ~FFloatPropertyWrapper();
 
@@ -48,12 +48,12 @@ public:
 	// Property
 	FName GetPropertyName() const { return PropertyName; }
 	UObject* GetPropertyOwner() const { return PropertyOwner; }
+	FProperty* GetProperty() const { return Property; }
 
 	// Change delegate
 	FFloatValueChange* GetValueChangeDelegate() const { return ValueChangeDelegate.Get(); }
 	void SetValueChangeDelegate(FFloatValueChange* InValueChangeDelegate);
 	void SetValueChangeDelegate(const TSharedRef<FFloatValueChange>& InValueChangeDelegate);
-
 
 	/**
 	 * If true, will MARK_PROPERTY_DIRTY() when Value is assigned.
@@ -61,6 +61,8 @@ public:
 	 * This can be toggled whenever you want.
 	 */
 	uint8 bMarkNetDirtyOnChange : 1;
+	/** Marks the property dirty */
+	void MarkNetDirty();
 
 
 

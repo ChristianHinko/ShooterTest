@@ -3,6 +3,9 @@
 
 #include "AbilitySystem/AbilityTasks/SSAbilityTask_WaitTargetData.h"
 
+#include "AbilitySystemComponent.h"
+#include "AbilitySystem/TargetActor/SSGameplayAbilityTargetActor.h"
+
 
 
 USSAbilityTask_WaitTargetData* USSAbilityTask_WaitTargetData::SSWaitTargetDataUsingActor(UGameplayAbility* OwningAbility, FName TaskInstanceName, TEnumAsByte<EGameplayTargetingConfirmation::Type> ConfirmationType, AGameplayAbilityTargetActor* InTargetActor)
@@ -24,7 +27,24 @@ void USSAbilityTask_WaitTargetData::OnDestroy(bool AbilityEnded)
 		}
 		else
 		{
-			TargetActor->SourceActor = nullptr; // instead of destroying it, just deactivate it
+			// Instead of destroying it, just deactivate it:
+
+
+			if (ASSGameplayAbilityTargetActor* SSTargetActor = Cast<ASSGameplayAbilityTargetActor>(TargetActor))
+			{
+				// Tell the Target Actor he is being deactivated
+				SSTargetActor->StopTargeting();
+			}
+
+			TargetActor->SetActorTickEnabled(false);
+
+			// Clear added callbacks
+			TargetActor->TargetDataReadyDelegate.RemoveAll(this);
+			TargetActor->CanceledDelegate.RemoveAll(this);
+
+			AbilitySystemComponent->GenericLocalConfirmCallbacks.RemoveDynamic(TargetActor, &AGameplayAbilityTargetActor::ConfirmTargeting);
+			AbilitySystemComponent->GenericLocalCancelCallbacks.RemoveDynamic(TargetActor, &AGameplayAbilityTargetActor::CancelTargeting);
+			TargetActor->GenericDelegateBoundASC = nullptr;
 		}
 	}
 	

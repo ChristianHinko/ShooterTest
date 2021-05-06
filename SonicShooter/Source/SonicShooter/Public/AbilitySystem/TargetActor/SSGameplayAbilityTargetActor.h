@@ -46,6 +46,10 @@ public:
 	bool FilterHitResult(TArray<FHitResult>& OutHitResults, const int32 index, const FGATDF_MultiFilterHandle FilterHandle, const bool inAllowMultipleHitsPerActor) const;
 
 
+	/**
+	 * Called if this Target Actor is going to be reused at the end of Wait Target Data to disable this actor (good for reusing Target Actors across these task activations)
+	 */
+	virtual void StopTargeting();
 
 
 	/** Max range of this target actor (not required for all target actors)		(We made this virual so we can just return GunAttributeSet->GetMaxRange() that way we don't have to bind to that attribute's delegate)*/

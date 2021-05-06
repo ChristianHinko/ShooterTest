@@ -73,6 +73,7 @@ public:
 
 
 protected:
+	/** This is when the Wait Target Data Task starts using us */
 	virtual void StartTargeting(UGameplayAbility* Ability) override;
 
 	/**

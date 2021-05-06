@@ -4,12 +4,14 @@
 #include "AbilitySystem/TargetActor/SSGameplayAbilityTargetActor.h"
 
 #include "Abilities/GameplayAbility.h"
+#include "AbilitySystem/SSAbilitySystemBlueprintLibrary.h"
 
 
 
 ASSGameplayAbilityTargetActor::ASSGameplayAbilityTargetActor(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	PrimaryActorTick.bCanEverTick = false;
 	ShouldProduceTargetDataOnServer = false;
 
 
@@ -25,6 +27,22 @@ ASSGameplayAbilityTargetActor::ASSGameplayAbilityTargetActor(const FObjectInitia
 
 
 
+}
+void ASSGameplayAbilityTargetActor::PreInitializeComponents()
+{
+	Super::PreInitializeComponents();
+
+
+	MultiFilterHandle = USSAbilitySystemBlueprintLibrary::MakeMultiFilterHandle(MultiFilter/*, SourceActor*/);
+}
+void ASSGameplayAbilityTargetActor::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+
+	// Start with Tick disabled. We'll enable it in StartTargeting() and disable it again in StopTargeting().
+	// For instant confirmations, tick will never happen because we StartTargeting(), ConfirmTargeting(), and immediately StopTargeting().
+	SetActorTickEnabled(false);
 }
 
 

@@ -9,7 +9,6 @@
 #include "Character/AbilitySystemCharacter.h"
 #include "Pawn/AbilitySystemPawn.h"
 #include "Actor/AbilitySystemActor.h"
-#include "AbilitySystem/SSAbilitySystemBlueprintLibrary.h"
 
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -30,13 +29,6 @@ AGATA_Trace::AGATA_Trace(const FObjectInitializer& ObjectInitializer)
 	MultiFilter.RequiredActorClasses.Add(AAbilitySystemActor::StaticClass());
 
 	bDebug = true;
-}
-void AGATA_Trace::PreInitializeComponents()
-{
-	Super::PreInitializeComponents();
-
-
-	MultiFilterHandle = USSAbilitySystemBlueprintLibrary::MakeMultiFilterHandle(MultiFilter/*, SourceActor*/);
 }
 
 

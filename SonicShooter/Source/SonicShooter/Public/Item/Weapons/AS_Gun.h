@@ -70,6 +70,8 @@ public:
 
 	/**
 	 * Current bullet spread. Non-replicated because set every frame
+	 * 
+	 * TODO: when switching weapons this freazes sometimes i think
 	 */
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromModifiers))
 		FFloatPropertyWrapper CurrentBulletSpread;

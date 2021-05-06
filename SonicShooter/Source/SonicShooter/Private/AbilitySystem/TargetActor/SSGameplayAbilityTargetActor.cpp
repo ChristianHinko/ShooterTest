@@ -32,6 +32,10 @@ void ASSGameplayAbilityTargetActor::StartTargeting(UGameplayAbility* Ability)
 {
 	Super::StartTargeting(Ability);
 
+	// Ensure we are re-enabled in case we were re-used
+	SetActorTickEnabled(true);
+
+
 
 	if (bUseAimPointAsStartLocation)
 	{
@@ -46,6 +50,9 @@ void ASSGameplayAbilityTargetActor::StartTargeting(UGameplayAbility* Ability)
 }
 void ASSGameplayAbilityTargetActor::StopTargeting()
 {
+	// Disable tick while we aren't being used
+	SetActorTickEnabled(false);
+
 	//DestroyReticleActors();
 }
 

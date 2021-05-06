@@ -36,8 +36,6 @@ void USSAbilityTask_WaitTargetData::OnDestroy(bool AbilityEnded)
 				SSTargetActor->StopTargeting();
 			}
 
-			TargetActor->SetActorTickEnabled(false);
-
 			// Clear added callbacks
 			TargetActor->TargetDataReadyDelegate.RemoveAll(this);
 			TargetActor->CanceledDelegate.RemoveAll(this);

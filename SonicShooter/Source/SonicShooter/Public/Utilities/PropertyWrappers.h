@@ -26,9 +26,9 @@ public:
 
 		bMarkNetDirtyOnChange = false;
 	}
-	FFloatPropertyWrapper(UObject* Owner, FName InPropertyName);
-	FFloatPropertyWrapper(UObject* Owner, FName InPropertyName, FFloatValueChange* InValueChangeDelegate);
-	FFloatPropertyWrapper(UObject* Owner, FName InPropertyName, const TSharedRef<FFloatValueChange>& InValueChangeDelegate);
+	FFloatPropertyWrapper(UObject* InPropertyOwner, FName InPropertyName);
+	FFloatPropertyWrapper(UObject* InPropertyOwner, FName InPropertyName, FFloatValueChange* InValueChangeDelegate);
+	FFloatPropertyWrapper(UObject* InPropertyOwner, FName InPropertyName, const TSharedRef<FFloatValueChange>& InValueChangeDelegate);
 
 	virtual ~FFloatPropertyWrapper();
 

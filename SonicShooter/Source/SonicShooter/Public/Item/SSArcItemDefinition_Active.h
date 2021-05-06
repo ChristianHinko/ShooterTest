@@ -13,12 +13,12 @@
 
 
 UCLASS(Blueprintable, BlueprintType)
-class SONICSHOOTER_API USSUArcUIData_ItemDefinition : public UArcUIData_ItemDefinition
+class SONICSHOOTER_API USSUArcUIData_ActiveItemDefinition : public UArcUIData_ItemDefinition
 {
 	GENERATED_BODY()
 
 public:
-	USSUArcUIData_ItemDefinition();
+	USSUArcUIData_ActiveItemDefinition();
 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")

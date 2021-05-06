@@ -17,6 +17,7 @@
 #include "Item/UW_Crosshair.h"
 #include "UI/UMG/Widgets/UW_Ammo.h"
 #include "Utilities/LogCategories.h"
+#include "Item/SSArcItemStack.h"
 
 #include "AbilitySystem/SSAttributeSet.h"
 
@@ -105,6 +106,44 @@ bool USSArcInventoryComponent_Active::IsActiveItemSlotIndexValid(int32 InActiveI
 
 void USSArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
 {
+	// This UI logic should go in a function binded to a delegate: OnItemSlotChange. This delegate gets broadcasted on both client and server, so this would be perfect since it will be called on client and also listening servers can get their UI as well.
+	if (IsValid(ItemStack))		// If we are equiping
+	{
+		// We will create the item's widget so we can show it when it later becomes "Active"
+		if (USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(ItemStack))
+		{
+			if (USSUArcUIData_ActiveItemDefinition* ItemUIData = Cast<USSUArcUIData_ActiveItemDefinition>(ItemStack->GetUIData()))
+			{
+				if (APawn* OwningPawn = Cast<APawn>(GetOwner()))
+				{
+					if (OwningPawn->IsLocallyControlled())
+					{
+						if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
+						{
+							if (UUW_ActiveItem* WidgetToCreate = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, ItemUIData->ActiveItemWidgetTSub, OwningPC)))
+							{
+								SSArcItemStack->ActiveItemWidget = WidgetToCreate;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	else						// If we are UNequiping
+	{
+		// We completely get rid of the widget since the inventory now longer has the item
+		if (USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(PreviousItemStack))
+		{
+			UUW_ActiveItem* WidgetToRemove = SSArcItemStack->ActiveItemWidget;
+			if (WidgetToRemove)
+			{
+				WidgetToRemove->RemoveFromParent();
+			}
+		}
+	}
+
+
 
 
 
@@ -336,8 +375,8 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 
 void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
 {
-
-	// Add UIData widgets
+	// Add UIData widget
+	bool bSuccessfullyAdded = true;
 	if (ItemStack)	// If it's not valid, we don't have to warning because it he might just not have an item here
 	{
 		if (APawn* OwningPawn = Cast<APawn>(GetOwner()))
@@ -346,34 +385,55 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 			{
 				if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
 				{
-					if (USSUArcUIData_ItemDefinition* ItemUIData = Cast<USSUArcUIData_ItemDefinition>(ItemStack->GetUIData()))
+					if (USSUArcUIData_ActiveItemDefinition* ItemUIData = Cast<USSUArcUIData_ActiveItemDefinition>(ItemStack->GetUIData()))
 					{
 						if (AHUD_Shooter* ShooterHUD = Cast<AHUD_Shooter>(OwningPC->GetHUD()))
 						{
-							// Create our widgets and add them to viewport
-							ShooterHUD->ActiveItemWidget = UWidgetBlueprintLibrary::Create(this, ItemUIData->ActiveItemWidgetTSub, OwningPC);
-							if (ShooterHUD->ActiveItemWidget)
+							if (USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(ItemStack))
 							{
-								ShooterHUD->ActiveItemWidget->AddToViewport();
-							}
+								UUW_ActiveItem* WidgetToDisplay = nullptr;			// This ptr represents the widget that will show up on screen (whether it's already created or not)
+								if (SSArcItemStack->ActiveItemWidget == nullptr)	// If for some reason the widget wasn't created successfully on item equip
+								{
+									UE_LOG(UISetup, Warning, TEXT("%s() New active item stack did not point to a valid item widget when trying to make it visible. Equipping the item maybe didn't successfully create the widget so we have nothing. We will create the widget now but something seams to have messed up at some point"), *FString(__FUNCTION__));
+									// Create the widget and add to viewport
+									WidgetToDisplay = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, ItemUIData->ActiveItemWidgetTSub, OwningPC));
+									SSArcItemStack->ActiveItemWidget = WidgetToDisplay;
+									ShooterHUD->CurrentActiveItemWidget = WidgetToDisplay;
+
+									if (WidgetToDisplay)
+									{
+										WidgetToDisplay->AddToViewport();
+									}
+								}
+								else												// The widget from USSArcItemStack was valid as expected (it was created on item equip), so we will make it visible
+								{
+									WidgetToDisplay = SSArcItemStack->ActiveItemWidget;
+									if (WidgetToDisplay)
+									{
+										WidgetToDisplay->SetVisibility(ESlateVisibility::Visible);
+										ShooterHUD->CurrentActiveItemWidget = WidgetToDisplay;
+									}
+								}
+								
 
 
-							// COMMENTED OUT CODE FOR NOW SINCE WE MAY USE A SIMILAR METHOD LATER FOR INJECTING IN DATA ABOUT THE ITEM FOR THE ACTIVE ITEM WIDGET
-							//	With this widget we want to inject the new weapon's name into the widget since the widget has no way of getting the new item stack since this event is too early for that
-							/*UUserWidget* NewAmmoWidget = UWidgetBlueprintLibrary::Create(this, ItemUIData->AmmoWidgetTSub, OwningPC);
-							if (UUW_Ammo* NewAmmoWidgetCasted = Cast<UUW_Ammo>(NewAmmoWidget))
-							{
-								NewAmmoWidgetCasted->ActiveItemName = ItemStack->ItemName;
+								// COMMENTED OUT CODE FOR NOW SINCE WE MAY USE A SIMILAR METHOD LATER FOR INJECTING IN DATA ABOUT THE ITEM FOR THE ACTIVE ITEM WIDGET
+								//	With this widget we want to inject the new weapon's name into the widget since the widget has no way of getting the new item stack since this event is too early for that
+								/*UUserWidget* NewAmmoWidget = UWidgetBlueprintLibrary::Create(this, ItemUIData->AmmoWidgetTSub, OwningPC);
+								if (UUW_Ammo* NewAmmoWidgetCasted = Cast<UUW_Ammo>(NewAmmoWidget))
+								{
+									NewAmmoWidgetCasted->ActiveItemName = ItemStack->ItemName;
+								}
+								else
+								{
+									UE_LOG(LogUI, Fatal, TEXT("%s(): When trying to inject the new active item name into UUW_Ammo on create, we couldn't, because the cast from UUserWidget to UUW_Ammo failed"), *FString(__FUNCTION__));
+								}
+								ShooterHUD->AmmoWidget = NewAmmoWidget;
+								if (ShooterHUD->AmmoWidget)
+								{
+									ShooterHUD->AmmoWidget->AddToViewport();
+								}*/
 							}
-							else
-							{
-								UE_LOG(LogUI, Fatal, TEXT("%s(): When trying to inject the new active item name into UUW_Ammo on create, we couldn't, because the cast from UUserWidget to UUW_Ammo failed"), *FString(__FUNCTION__));
-							}
-							ShooterHUD->AmmoWidget = NewAmmoWidget;
-							if (ShooterHUD->AmmoWidget)
-							{
-								ShooterHUD->AmmoWidget->AddToViewport();
-							}*/
 						}
 					}
 				}
@@ -381,7 +441,10 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 		}
 	}
 
-
+	if (bSuccessfullyAdded == false)
+	{
+		UE_LOG(UISetup, Warning, TEXT("%s() Item's widget was not successfully displayed on item active (a cast must have failed in the process)"), *FString(__FUNCTION__));
+	}
 }
 
 void USSArcInventoryComponent_Active::OnItemInactiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
@@ -397,12 +460,17 @@ void USSArcInventoryComponent_Active::OnItemInactiveEvent(UArcInventoryComponent
 		{
 			if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
 			{
-				if (AHUD_Shooter* ShooterCharacterHUD = Cast<AHUD_Shooter>(OwningPC->GetHUD()))
+				if (AHUD_Shooter* ShooterHUD = Cast<AHUD_Shooter>(OwningPC->GetHUD()))
 				{
-					if (ShooterCharacterHUD->ActiveItemWidget)
+					if (USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(ItemStack))
 					{
-						ShooterCharacterHUD->ActiveItemWidget->RemoveFromViewport();
-						ShooterCharacterHUD->ActiveItemWidget = nullptr;
+						// We only to make item's widget not visible
+						UUW_ActiveItem* WidgetToHide = SSArcItemStack->ActiveItemWidget;
+						if (WidgetToHide)
+						{
+							WidgetToHide->SetVisibility(ESlateVisibility::Collapsed);
+							ShooterHUD->CurrentActiveItemWidget = nullptr;		// We set this pointer to null since at this point it's not visible to the player (indicating the item is no longer active)
+						}
 					}
 				}
 			}

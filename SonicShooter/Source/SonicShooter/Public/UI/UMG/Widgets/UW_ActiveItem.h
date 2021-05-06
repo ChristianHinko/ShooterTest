@@ -27,30 +27,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 		FText ActiveItemName;
-	/** The current clip ammo value of the attribute */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ammo")
-		float ClipAmmo;
-	/** The current backup ammo value of the attribute */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ammo")
-		float BackupAmmo;
 
 protected:
-	virtual void OnPlayerASCValid() override;
-	UASC_Shooter* ShooterASC;
-
-	virtual void OnAttributeChanged(const FOnAttributeChangeData& Data) override;
-	UFUNCTION()
-		void OnClipAmmoChange(const float& OldValue, const float& NewValue);
-
-
-	void SetClipAmmo(float NewClipAmmo);
-	void SetBackupAmmo(float NewBackupAmmo);
-
-	/** Called on CurrentSpread changed. Use this to update CurrentSpread based UI */
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Ammo", meta = (Keywords = "Tick"))
-		void UpdateAmmoStatus();
-
-
-
 	virtual void NativeDestruct() override;
 };

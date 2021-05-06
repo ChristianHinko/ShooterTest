@@ -23,7 +23,12 @@ void UAS_Ammo::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Ammo, MaxAmmo, Params);
 	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Ammo, BackupAmmo, Params);
 	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Ammo, MaxClipAmmo, Params);
-	//DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Ammo, ClipAmmo, Params);
+
+	Params.RepNotifyCondition = REPNOTIFY_OnChanged;
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Ammo, ClipAmmo, Params);
+	Params.RepNotifyCondition = REPNOTIFY_Always;
+
+
 }
 
 UAS_Ammo::UAS_Ammo()
@@ -106,8 +111,3 @@ void UAS_Ammo::OnRep_MaxClipAmmo(const FGameplayAttributeData& ServerBaseValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Ammo, MaxClipAmmo, ServerBaseValue);
 }
-
-//void UAS_Ammo::OnRep_ClipAmmo(const FGameplayAttributeData& ServerBaseValue)
-//{
-//	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Ammo, ClipAmmo, ServerBaseValue);
-//}

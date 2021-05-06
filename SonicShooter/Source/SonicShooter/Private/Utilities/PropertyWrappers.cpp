@@ -75,6 +75,11 @@ float FFloatPropertyWrapper::operator=(const float& NewValue)
 	return Value;
 }
 
+void FFloatPropertyWrapper::MarkNetDirty()
+{
+	MARK_PROPERTY_DIRTY(PropertyOwner, Property);
+}
+
 bool FFloatPropertyWrapper::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess)
 {
 	uint8 RepBits = 0;
@@ -87,10 +92,10 @@ bool FFloatPropertyWrapper::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& b
 
 
 
-	if (RepBits & (1 << 0))
-	{
+	//if (RepBits & (1 << 0))
+	//{
 		Ar << Value;
-	}
+	//}
 
 
 

@@ -35,7 +35,7 @@ public:
 		FGameplayAttributeData MaxClipAmmo;
 	ATTRIBUTE_ACCESSORS(UAS_Ammo, MaxClipAmmo)
 
-	UPROPERTY(BlueprintReadOnly/*, ReplicatedUsing = OnRep_ClipAmmo*/, Category = "Attributes", meta = (HideFromModifiers))
+	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Attributes", meta = (HideFromModifiers))
 		FFloatPropertyWrapper ClipAmmo;
 
 	//UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromLevelInfos))
@@ -61,6 +61,4 @@ protected:
 	UFUNCTION()
 		virtual void OnRep_MaxClipAmmo(const FGameplayAttributeData& ServerBaseValue);
 
-	//UFUNCTION()
-	//	virtual void OnRep_ClipAmmo(const FGameplayAttributeData& ServerBaseValue);
 };

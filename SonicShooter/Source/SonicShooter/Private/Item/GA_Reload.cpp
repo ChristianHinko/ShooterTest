@@ -141,6 +141,7 @@ void UGA_Reload::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 
 	// Move ammo into clip
 	AmmoAttributeSet->ClipAmmo = AmmoAttributeSet->ClipAmmo.GetValue() + AmmoToMove;
+	AmmoAttributeSet->ClipAmmo.MarkNetDirty();
 
 
 

@@ -82,7 +82,7 @@ bool UGA_Reload::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 		return false;
 	}
 
-	if (AmmoAttributeSet->ClipAmmo.GetValue() >= AmmoAttributeSet->GetMaxClipAmmo())
+	if (AmmoAttributeSet->ClipAmmo >= AmmoAttributeSet->GetMaxClipAmmo())
 	{
 		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Already have full ammo. Returned false"), *FString(__FUNCTION__));
 		return false;
@@ -120,7 +120,7 @@ void UGA_Reload::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 
 
 	// Amount to move out of BackupAmmo, and into ClipAmmo
-	float AmmoToMove = AmmoAttributeSet->GetMaxClipAmmo() - AmmoAttributeSet->ClipAmmo.GetValue();
+	float AmmoToMove = AmmoAttributeSet->GetMaxClipAmmo() - AmmoAttributeSet->ClipAmmo;
 
 	// Check if BackupAmmo went negative
 	{
@@ -140,8 +140,8 @@ void UGA_Reload::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 
 
 	// Move ammo into clip
-	AmmoAttributeSet->ClipAmmo = AmmoAttributeSet->ClipAmmo.GetValue() + AmmoToMove;
-	AmmoAttributeSet->ClipAmmo.MarkNetDirty();
+	AmmoAttributeSet->ClipAmmo = AmmoAttributeSet->ClipAmmo + AmmoToMove;
+	AmmoAttributeSet->ClipAmmo.MarkNetDirty(); // this actually isnt really a good spot to mark dirty
 
 
 

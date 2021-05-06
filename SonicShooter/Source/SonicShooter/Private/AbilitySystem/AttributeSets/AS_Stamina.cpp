@@ -22,7 +22,9 @@ void UAS_Stamina::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	Params.bIsPushBased = true;
 	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Stamina, MaxStamina, Params);
 
+	Params.RepNotifyCondition = REPNOTIFY_OnChanged;
 	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Stamina, Stamina, Params);
+	Params.RepNotifyCondition = REPNOTIFY_Always;
 
 	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Stamina, StaminaDrain, Params);
 	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Stamina, StaminaGain, Params);
@@ -36,6 +38,7 @@ UAS_Stamina::UAS_Stamina()
 	StaminaGain(1),
 	StaminaRegenPause(2)
 {
+	Stamina = FFloatPropertyWrapper(this, FName(TEXT("Stamina")));
 	SetSoftAttributeDefaults();
 
 
@@ -70,7 +73,7 @@ void UAS_Stamina::Tick(float DeltaTime)
 
 				if (GetStaminaRegenPause() >= 0.5f) // if the pause is at least .5 seconds, we are safe to replicate (because the packet should probably take no longer than 500ms when replcating) TODO: check the player ping instead of hardcoded number
 				{
-					MARK_PROPERTY_DIRTY_FROM_NAME(UAS_Stamina, Stamina, this);
+					Stamina.MarkNetDirty();
 				}
 			}
 		}
@@ -140,11 +143,6 @@ void UAS_Stamina::SetStaminaDraining(bool newStaminaDraining)
 void UAS_Stamina::OnRep_MaxStamina(const FGameplayAttributeData& ServerBaseValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Stamina, MaxStamina, ServerBaseValue);
-}
-
-void UAS_Stamina::OnRep_Stamina()
-{
-	//UKismetSystemLibrary::PrintString(this, "UAS_Stamina::OnRep_Stamina()", true, false, FLinearColor::Yellow);
 }
 
 void UAS_Stamina::OnRep_StaminaDrain(const FGameplayAttributeData& ServerBaseValue)

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/Characters/ExampleAbilitySystemCharacter/PushModelCharacter.h"
+#include "Character\Characters\ExampleCharacters\PushModelCharacter.h"
 
 #include "Net/UnrealNetwork.h"
 #include "Net/Core/PushModel/PushModel.h"

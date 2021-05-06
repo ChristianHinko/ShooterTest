@@ -48,7 +48,7 @@ void UAS_Ammo::SetSoftAttributeDefaults()
 
 
 	ClipAmmo = GetMaxClipAmmo();
-	BackupAmmo = GetMaxAmmo() - ClipAmmo.GetValue();
+	BackupAmmo = GetMaxAmmo() - ClipAmmo;
 }
 
 void UAS_Ammo::PostInitProperties()

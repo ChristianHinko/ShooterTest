@@ -31,7 +31,7 @@ void UUW_Ammo::OnPlayerASCValid()
 			if (UAS_Ammo* AmmoAttributeSet = Cast<UAS_Ammo>(AttributeSet))
 			{
 				// Call manually for initial value
-				float clipAmmo = AmmoAttributeSet->ClipAmmo.GetValue();
+				float clipAmmo = AmmoAttributeSet->ClipAmmo;
 				OnClipAmmoChange(clipAmmo, clipAmmo);
 			}
 		}

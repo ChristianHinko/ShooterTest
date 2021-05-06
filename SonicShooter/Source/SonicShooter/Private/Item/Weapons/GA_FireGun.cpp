@@ -313,7 +313,7 @@ void UGA_FireGun::Shoot()
 {
 	++shotNumber;
 	// Check if we have enough ammo first
-	if (AmmoAttributeSet->ClipAmmo.GetValue() < GunAttributeSet->GetAmmoCost()) // if we don't have enough ammo
+	if (AmmoAttributeSet->ClipAmmo < GunAttributeSet->GetAmmoCost()) // if we don't have enough ammo
 	{
 		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Not enough ammo to fire"), *FString(__FUNCTION__));
 
@@ -349,7 +349,7 @@ void UGA_FireGun::Shoot()
 	BulletTraceTargetActor->FireSpecificNetSafeRandomSeed = fireRandomSeed;							// Inject this random seed into our target actor (target actor will make random seed unique to each bullet in the fire if there are multible bullets in the fire)
 
 	// Lets finally fire
-	AmmoAttributeSet->ClipAmmo = AmmoAttributeSet->ClipAmmo.GetValue() - GunAttributeSet->GetAmmoCost();
+	AmmoAttributeSet->ClipAmmo = AmmoAttributeSet->ClipAmmo - GunAttributeSet->GetAmmoCost();
 	WaitTargetDataActorTask->ReadyForActivation();
 	GunAttributeSet->ApplyFireBulletSpread();
 }

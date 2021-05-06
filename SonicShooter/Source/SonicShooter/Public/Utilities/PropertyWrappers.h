@@ -42,8 +42,7 @@ public:
 	virtual bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
 
 
-	/** Gets the float value of this property */
-	float GetValue() const { return Value; }
+
 
 	// Property
 	FName GetPropertyName() const { return PropertyName; }
@@ -65,36 +64,15 @@ public:
 	void MarkNetDirty();
 
 
-
+	/** Where the magic happens. Broadcasts ValueChangeDelegate and does MARK_PROPERTY_DIRTY() */
 	float operator=(const float& NewValue);
 
+	/** An easy conversion from this struct to float */
+	operator float() const
+	{
+		return Value;
+	}
 
-	// Comparison operators
-
-	bool operator==(const float& Other) const
-	{
-		return (Value == Other);
-	}
-	bool operator!=(const float& Other) const
-	{
-		return !(FFloatPropertyWrapper::operator==(Other));
-	}
-	bool operator>(const float& Other) const
-	{
-		return (Value > Other);
-	}
-	bool operator<(const float& Other) const
-	{
-		return (Value < Other);
-	}
-	bool operator>=(const float& Other) const
-	{
-		return (Value >= Other);
-	}
-	bool operator<=(const float& Other) const
-	{
-		return (Value <= Other);
-	}
 
 private:
 	/** The actual value of this float property */

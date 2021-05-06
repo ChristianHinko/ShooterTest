@@ -6,6 +6,7 @@
 #include "AbilitySystem/SSAttributeSet.h"
 #include "GameplayAbilities/Public/TickableAttributeSetInterface.h"
 #include "AbilitySystemComponent.h"
+#include "Utilities/PropertyWrappers.h"
 
 #include "AS_Gun.generated.h"
 
@@ -36,43 +37,44 @@ public:
 		FGameplayAttributeData MinBulletSpread;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, MinBulletSpread)
 
-		/**
-		 * The minimum bullet spread while moving in degrees (90 degs would be a right-angled cone)
-		 */
-		UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MovingBulletSpread, Category = "Attributes")
+	/**
+	 * The minimum bullet spread while moving in degrees (90 degs would be a right-angled cone)
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MovingBulletSpread, Category = "Attributes")
 		FGameplayAttributeData MovingBulletSpread;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, MovingBulletSpread)
 
-		/**
-		 * The rate of increase in bullet spread in degrees per second. Will be continuously increasing spread by
-		 * this rate while moving until we've reached MovingBulletSpread
-		 */
-		UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadIncRate, Category = "Attributes")
+	/**
+	 * The rate of increase in bullet spread in degrees per second. Will be continuously increasing spread by
+	 * this rate while moving until we've reached MovingBulletSpread
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadIncRate, Category = "Attributes")
 		FGameplayAttributeData BulletSpreadIncRate;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, BulletSpreadIncRate)
 
-		/**
-		 * The increase in bullet spread per shot in degrees
-		 */
-		UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_FireBulletSpread, Category = "Attributes")
+	/**
+	 * The increase in bullet spread per shot in degrees
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_FireBulletSpread, Category = "Attributes")
 		FGameplayAttributeData FireBulletSpread;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, FireBulletSpread)
 
-		/**
-		 * The speed of decrease in bullet spread to smooth interp to. Will be continuously interping spread at
-		 * this speed until reached minimum spread (or moving spread if we are moving)
-		 */
-		UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadDecSpeed, Category = "Attributes")
+	/**
+	 * The speed of decrease in bullet spread to smooth interp to. Will be continuously interping spread at
+	 * this speed until reached minimum spread (or moving spread if we are moving)
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadDecSpeed, Category = "Attributes")
 		FGameplayAttributeData BulletSpreadDecSpeed;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, BulletSpreadDecSpeed)
 
 
-		/**
-		 * Current bullet spread. Non-replicated because set every frame
-		 */
-		UPROPERTY(BlueprintReadOnly/*, ReplicatedUsing = OnRep_CurrentBulletSpread*/, Category = "Attributes", meta = (HideFromModifiers))
-		FGameplayAttributeData CurrentBulletSpread;
-	ATTRIBUTE_ACCESSORS(UAS_Gun, CurrentBulletSpread)
+	/**
+	 * Current bullet spread. Non-replicated because set every frame
+	 * 
+	 * TODO: when switching weapons this freazes sometimes i think
+	 */
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromModifiers))
+		FFloatPropertyWrapper CurrentBulletSpread;
 #pragma endregion
 
 	
@@ -96,15 +98,15 @@ public:
 	ATTRIBUTE_ACCESSORS(UAS_Gun, NumberOfBulletsPerFire)
 
 	/**
-	*
-	*/
+	 *
+	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxRange, Category = "Attributes")
 		FGameplayAttributeData MaxRange;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, MaxRange)
 
 	/**
-	* Number of times the trace can ricochet off of blocking hits - Zero for no ricochet
-	*/
+	 * Number of times the trace can ricochet off of blocking hits - Zero for no ricochet
+	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Ricochets, Category = "Attributes")
 		FGameplayAttributeData Ricochets;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, Ricochets)

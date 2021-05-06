@@ -123,7 +123,7 @@ void AGATA_BulletTrace::CalculateAimDirection(FVector& ViewStart, FVector& ViewD
 
 
 	// Calculate new ViewDir with random bullet spread offset if needed
-	float currentBulletSpread = GunAttributeSet->GetCurrentBulletSpread();
+	float currentBulletSpread = GunAttributeSet->CurrentBulletSpread;
 	if (currentBulletSpread > SMALL_NUMBER)
 	{
 		// Our injected random seed is only unique to each fire. We need a random seed that is also unique to each bullet in the fire, so we will do this by using t

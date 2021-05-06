@@ -8,7 +8,7 @@
 #include "UW_Crosshair.generated.h"
 
 
-struct FOnAttributeChangeData;
+class UASC_Shooter;
 
 
 
@@ -30,7 +30,12 @@ public:
 		float CurrentSpread;
 
 protected:
-	virtual void OnAttributeChanged(const FOnAttributeChangeData& Data) override;
+	virtual void OnPlayerASCValid() override;
+	UASC_Shooter* ShooterASC;
+
+	UFUNCTION()
+		void OnCurrentBulletSpreadChange(const float& OldValue, const float& NewValue);
+
 
 	//UFUNCTION(BlueprintSetter)
 		void SetCurrentSpread(float NewSpread);
@@ -38,4 +43,7 @@ protected:
 	/** Called on CurrentSpread changed. Use this to update CurrentSpread based UI */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Crosshair", meta = (Keywords = "Tick"))
 		void UpdateCrosshair();
+
+
+	virtual void NativeDestruct() override;
 };

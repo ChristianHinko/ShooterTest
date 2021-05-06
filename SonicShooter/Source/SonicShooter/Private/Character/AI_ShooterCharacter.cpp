@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character\ShooterCharacterAnimInstance.h"
+#include "Character\AI_ShooterCharacter.h"
 
 #include "Kismet/KismetMathLibrary.h"
 #include "Character/ShooterCharacter.h"
 
-UShooterCharacterAnimInstance::UShooterCharacterAnimInstance()
+UAI_ShooterCharacter::UAI_ShooterCharacter()
 {
 	headLookAtRot = FRotator::ZeroRotator;
 	headLookSpeed = 3;
@@ -20,7 +20,7 @@ UShooterCharacterAnimInstance::UShooterCharacterAnimInstance()
 
 }
 
-void UShooterCharacterAnimInstance::NativeUpdateAnimation(float DeltaTimeX)
+void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 {
 	Super::NativeUpdateAnimation(DeltaTimeX);
 
@@ -32,7 +32,7 @@ void UShooterCharacterAnimInstance::NativeUpdateAnimation(float DeltaTimeX)
 	}
 }
 
-FRotator UShooterCharacterAnimInstance::GetHeadLookAtTargetRot(AActor* Target, float deltaTime)
+FRotator UAI_ShooterCharacter::GetHeadLookAtTargetRot(AActor* Target, float deltaTime)
 {
 	FRotator retVal = FRotator::ZeroRotator;
 	if (OwningShooterCharacter && Target)

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/SSAnimInstance.h"
-#include "ShooterCharacterAnimInstance.generated.h"
+#include "AI_ShooterCharacter.generated.h"
 
 class AShooterCharacter;
 
@@ -12,13 +12,13 @@ class AShooterCharacter;
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UShooterCharacterAnimInstance : public USSAnimInstance
+class SONICSHOOTER_API UAI_ShooterCharacter : public USSAnimInstance
 {
 	GENERATED_BODY()
 
 
 	public:
-		UShooterCharacterAnimInstance();
+		UAI_ShooterCharacter();
 		virtual void NativeUpdateAnimation(float DeltaTimeX) override;
 		AShooterCharacter* OwningShooterCharacter;
 

@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/ShooterCharacterAnimInstance.h"
+#include "Character/AI_ShooterCharacter.h"
 #include "SonicAnimInstance.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SONICSHOOTER_API USonicAnimInstance : public UShooterCharacterAnimInstance
+class SONICSHOOTER_API USonicAnimInstance : public UAI_ShooterCharacter
 {
 	GENERATED_BODY()
 

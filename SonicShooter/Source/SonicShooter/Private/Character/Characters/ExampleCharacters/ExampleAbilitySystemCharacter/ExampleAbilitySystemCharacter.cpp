@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/Characters/ExampleAbilitySystemCharacter/ExampleAbilitySystemCharacter.h"
+#include "Character\Characters\ExampleCharacters\ExampleAbilitySystemCharacter\ExampleAbilitySystemCharacter.h"
 
 #include "Net/UnrealNetwork.h"
-#include "Character/Characters/ExampleAbilitySystemCharacter/AS_ExampleAbilitySystemCharacter.h"
+#include "Character/Characters/ExampleCharacters/ExampleAbilitySystemCharacter/AS_ExampleAbilitySystemCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 

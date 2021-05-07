@@ -9,7 +9,7 @@
 
 #include "SSGameplayAbilityTargetActor.generated.h"
 
-
+class ASSGameplayAbilityWorldReticle;
 
 /**
  * Base target actor class
@@ -95,5 +95,7 @@ protected:
 	 * You can also determine AimStart if needed
 	 */
 	virtual void CalculateAimDirection(FVector& AimStart, FVector& AimDir) const;
+	
 
+	TArray<TWeakObjectPtr<ASSGameplayAbilityWorldReticle>> ReticleActors;
 };

@@ -164,6 +164,7 @@ void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults,
 {
 	check(World);
 
+	// Initial trace (non ricochets)
 	TArray<FHitResult> HitResults;
 	World->LineTraceMultiByChannel(HitResults, Start, End, TraceChannel, Params);
 	OnTraced(HitResults);

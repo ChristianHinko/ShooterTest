@@ -336,6 +336,7 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 
 void USSArcInventoryComponent_Active::OnItemSlotChangeEvent(UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
 {
+	// Problem: Right now only the server runs this when the game fills the players inventory with startup weapons, so we need this to somehow be called on client too
 	// Untested
 	if (IsValid(ItemStack))		// If we are equiping
 	{

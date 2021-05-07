@@ -227,3 +227,15 @@ bool ASSGameplayAbilityTargetActor::ClipCameraRayToAbilityRange(FVector CameraLo
 	return false;
 }
 
+void ASSGameplayAbilityTargetActor::DestroyReticleActors()
+{
+	for (int32 i = ReticleActors.Num() - 1; i >= 0; i--)
+	{
+		if (ReticleActors[i].IsValid())
+		{
+			ReticleActors[i].Get()->Destroy();
+		}
+	}
+
+	ReticleActors.Empty();
+}

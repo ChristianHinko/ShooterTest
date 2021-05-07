@@ -98,4 +98,6 @@ protected:
 	
 
 	TArray<TWeakObjectPtr<ASSGameplayAbilityWorldReticle>> ReticleActors;
+
+	virtual void DestroyReticleActors();
 };

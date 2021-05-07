@@ -13,6 +13,7 @@ ASSGameplayAbilityTargetActor::ASSGameplayAbilityTargetActor(const FObjectInitia
 {
 	PrimaryActorTick.bCanEverTick = false;
 	ShouldProduceTargetDataOnServer = false;
+	ReticleClass = ASSGameplayAbilityWorldReticle::StaticClass();
 
 
 	bAllowMultipleHitsPerActor = false;

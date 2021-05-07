@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbilityTargetActor.h"
+#include "AbilitySystem/SSGameplayAbilityWorldReticle.h"
 #include "AbilitySystem/TargetActor/GATDF_MultiFilter.h"
 
 #include "SSGameplayAbilityTargetActor.generated.h"
@@ -22,7 +23,11 @@ public:
 	ASSGameplayAbilityTargetActor(const FObjectInitializer& ObjectInitializer);
 
 
-	/** Our custom gameplay ability target data filter */
+	/** Our custom World Reticle Parameters */
+	UPROPERTY(BlueprintReadWrite, meta = (ExposeOnSpawn = true), Category = "Targeting")
+		FSSWorldReticleParameters SSReticleParams;
+
+	/** Our custom Gameplay Ability Target Data Filter */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Target Data")
 		FGATDF_MultiFilter MultiFilter;
 	FGATDF_MultiFilterHandle MultiFilterHandle;

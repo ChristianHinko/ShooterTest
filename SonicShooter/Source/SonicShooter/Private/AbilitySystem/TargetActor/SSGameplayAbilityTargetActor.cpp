@@ -69,10 +69,8 @@ void ASSGameplayAbilityTargetActor::StartTargeting(UGameplayAbility* Ability)
 }
 void ASSGameplayAbilityTargetActor::StopTargeting()
 {
-	// Disable tick while we aren't being used
-	SetActorTickEnabled(false);
-
-	//DestroyReticleActors();
+	SetActorTickEnabled(false); // disable tick while we aren't being used
+	DestroyReticleActors(); // we should have a Reticle pooling system for this eventually
 }
 
 float ASSGameplayAbilityTargetActor::GetMaxRange() const
@@ -227,6 +225,7 @@ bool ASSGameplayAbilityTargetActor::ClipCameraRayToAbilityRange(FVector CameraLo
 	return false;
 }
 
+
 ASSGameplayAbilityWorldReticle* ASSGameplayAbilityTargetActor::SpawnReticleActor(FVector Location, FRotator Rotation)
 {
 	if (ReticleClass)
@@ -234,7 +233,7 @@ ASSGameplayAbilityWorldReticle* ASSGameplayAbilityTargetActor::SpawnReticleActor
 		ASSGameplayAbilityWorldReticle* SpawnedReticleActor = GetWorld()->SpawnActor<ASSGameplayAbilityWorldReticle>(ReticleClass, Location, Rotation);
 		if (SpawnedReticleActor)
 		{
-			SpawnedReticleActor->InitializeReticle(this, MasterPC, ReticleParams);
+			SpawnedReticleActor->SSInitializeReticle(this, MasterPC, SSReticleParams);
 			SpawnedReticleActor->SetActorHiddenInGame(true);
 			ReticleActors.Add(SpawnedReticleActor);
 
@@ -253,4 +252,26 @@ ASSGameplayAbilityWorldReticle* ASSGameplayAbilityTargetActor::SpawnReticleActor
 	}
 
 	return nullptr;
+}
+
+void ASSGameplayAbilityTargetActor::DestroyReticleActors()
+{
+	for (int32 i = ReticleActors.Num() - 1; i >= 0; i--)
+	{
+		if (ReticleActors[i].IsValid())
+		{
+			ReticleActors[i].Get()->Destroy();
+		}
+	}
+
+	ReticleActors.Empty();
+}
+
+
+void ASSGameplayAbilityTargetActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	DestroyReticleActors();
+
+
+	Super::EndPlay(EndPlayReason);
 }

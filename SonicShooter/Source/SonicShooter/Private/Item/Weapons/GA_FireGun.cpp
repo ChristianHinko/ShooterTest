@@ -208,11 +208,6 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		if (flooredShotsPerBurst <= 1) // single shot
 		{
 			Shoot();
-
-			if (bIsActive)
-			{
-				EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
-			}
 			return;
 		}
 
@@ -238,7 +233,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	}
 
 
-
+	// OnValidData will end the ability
 }
 
 

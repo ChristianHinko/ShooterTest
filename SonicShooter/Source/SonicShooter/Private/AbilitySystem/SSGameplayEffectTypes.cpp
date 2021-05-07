@@ -43,11 +43,11 @@ bool FSSGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bool
         {
             RepBits |= 1 << 7;
         }
-        if (bIsCriticalHit)
+        if (bulletTotalTravelDistanceBeforeHit)
         {
             RepBits |= 1 << 8;
         }
-        if (bIsFatalHit)
+        if (ricochetsBeforeHit)
         {
             RepBits |= 1 << 9;
         }
@@ -109,12 +109,12 @@ bool FSSGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bool
 
     if (RepBits & (1 << 8))
     {
-        Ar << bIsCriticalHit;
+        Ar << bulletTotalTravelDistanceBeforeHit;
     }
 
     if (RepBits & (1 << 9))
     {
-        Ar << bIsFatalHit;
+        Ar << ricochetsBeforeHit;
     }
 
     if (RepBits & (1 << 10))

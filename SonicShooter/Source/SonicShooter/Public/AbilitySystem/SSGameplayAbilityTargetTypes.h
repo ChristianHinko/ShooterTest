@@ -23,8 +23,7 @@ struct SONICSHOOTER_API FGameplayAbilityTargetData_BulletTraceTargetHit : public
 	{
 	}
 
-	/** Overrided version will apply the same effect but adds 2 set by callers distinct for each individual target (bulletTotalTravelDistanceBeforeHit, and amt of ricochets before hit) */
-	virtual TArray<FActiveGameplayEffectHandle> ApplyGameplayEffectSpec(FGameplayEffectSpec& Spec, FPredictionKey PredictionKey = FPredictionKey()) override;
+	virtual void AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray) const override;
 
 
 	// -------------------------------------

@@ -18,22 +18,22 @@ struct SONICSHOOTER_API FSSGameplayEffectContext : public FGameplayEffectContext
     GENERATED_BODY()
 
 public:
-    bool IsFatalHit() const { return bIsFatalHit; }
-    bool IsCriticalHit() const { return bIsCriticalHit; }
+    uint8 GetRicochetsBeforeHit() const { return ricochetsBeforeHit; }
+    float GetBulletTotalTravelDistanceBeforeHit() const { return bulletTotalTravelDistanceBeforeHit; }
     float GetCartridgeID() const { return CartridgeID; }
     float GetSourceLevel() const { return SourceLevel; }
 
-    void SetIsFatalHit(bool bInIsFatalHit) { bIsFatalHit = bInIsFatalHit; }
-    void SetIsCriticalHit(bool bInIsCriticalHit) { bIsCriticalHit = bInIsCriticalHit; }
+    void SetRicochetsBeforeHit(uint8 inRicochetsBeforeHit) { ricochetsBeforeHit = inRicochetsBeforeHit; }
+    void SetBulletTotalTravelDistanceBeforeHit(float bInBulletTotalTravelDistanceBeforeHit) { bulletTotalTravelDistanceBeforeHit = bInBulletTotalTravelDistanceBeforeHit; }
     void SetCartridgeID(int32 InID) { CartridgeID = InID; }
     void SetSourceLevel(float InLevel) { SourceLevel = InLevel; }
 
 protected:
     UPROPERTY()
-        bool bIsFatalHit;
+        float bulletTotalTravelDistanceBeforeHit;
 
     UPROPERTY()
-        bool bIsCriticalHit;
+        uint8 ricochetsBeforeHit;
 
     UPROPERTY()
         int32 CartridgeID;

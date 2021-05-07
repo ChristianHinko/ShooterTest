@@ -7,52 +7,46 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem\SSGameplayEffectTypes.h"
 #include "AbilitySystemGlobals.h"
+#include "Utilities/LogCategories.h"
 
-TArray<FActiveGameplayEffectHandle> FGameplayAbilityTargetData_BulletTraceTargetHit::ApplyGameplayEffectSpec(FGameplayEffectSpec& InSpec, FPredictionKey PredictionKey)
+void FGameplayAbilityTargetData_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray) const
 {
-	TArray<FActiveGameplayEffectHandle>	AppliedHandles;
-
-	if (!ensure(InSpec.GetContext().IsValid() && InSpec.GetContext().GetInstigatorAbilitySystemComponent()))
+	if (FSSGameplayEffectContext* SSContext = static_cast<FSSGameplayEffectContext*>(Context.Get()))
 	{
-		return AppliedHandles;
+		SSContext->SetBulletTotalTravelDistanceBeforeHit(bulletTotalTravelDistanceBeforeHit);
+		SSContext->SetRicochetsBeforeHit(ricochetsBeforeHit);
 	}
-
-	TArray<TWeakObjectPtr<AActor> > Actors = GetActors();
-
-	AppliedHandles.Reserve(Actors.Num());
-
-	for (TWeakObjectPtr<AActor>& TargetActor : Actors)
+	else
 	{
-		UAbilitySystemComponent* TargetComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor.Get());
-
-		if (TargetComponent)
-		{
-			// We have to make a new effect spec and context here, because otherwise the targeting info gets accumulated and things take damage multiple times
-			FGameplayEffectSpec	SpecToApply(InSpec);
-			FGameplayEffectContextHandle EffectContext = SpecToApply.GetContext().Duplicate();
-			SpecToApply.SetContext(EffectContext);
-
-			/////////////////	only place we modified the super (this is for passing our TA's data into the GEEC
-			if (FSSGameplayEffectContext* Context = static_cast<FSSGameplayEffectContext*>(InSpec.GetContext().Get()))
-			{
-
-			}
-			SpecToApply.SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("SetByCaller.BulletTotalTravelDistanceBeforeHit"), bulletTotalTravelDistanceBeforeHit);
-			SpecToApply.SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("SetByCaller.RicochetsBeforeHit"), ricochetsBeforeHit);
-			/////////////////
-
-			AddTargetDataToContext(EffectContext, false);
-
-			AppliedHandles.Add(EffectContext.GetInstigatorAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(SpecToApply, TargetComponent, PredictionKey));
-		}
+		UE_LOG(LogGameplayAbilityTargetData, Warning, TEXT("%s() Cast to FSSGameplayEffectContext failed. Bullet specific target data info will not be in our GEEC"), *FString(__FUNCTION__));
 	}
-
-	return AppliedHandles;
 }
+
 
 bool FGameplayAbilityTargetData_BulletTraceTargetHit::NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
 {
 	HitResult.NetSerialize(Ar, Map, bOutSuccess);
+
+
+	uint32 RepBits = 0;
+	if (Ar.IsSaving())
+	{
+		RepBits |= 1 << 0;
+		RepBits |= 1 << 1;
+	}
+    Ar.SerializeBits(&RepBits, 2);	// Kaos wouldv used 1 here (based on how he did it with the effect context net serialize) but we get disconnected when we hit someone in game if it's 1. My guess is 1 is not big enough of a length (which makes sense to me since we have 2 bits but idk)
+
+
+	//	I have a feeling these if checks before archiving is for when you want to send something to the server. I think if it is the server replicating to the client, then you don't do these checks but idk.
+	if (RepBits & (1 << 0))
+	{
+		Ar << bulletTotalTravelDistanceBeforeHit;
+	}
+	if (RepBits & (1 << 1))
+	{
+		Ar << ricochetsBeforeHit;
+	}
+	
 
 	return true;
 }

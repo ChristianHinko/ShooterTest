@@ -13,6 +13,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogGameplayAbility, Log, All)
 DECLARE_LOG_CATEGORY_EXTERN(LogGameplayTask, Log, All)
 DECLARE_LOG_CATEGORY_EXTERN(LogGameplayAbilityTargetActor, Log, All)
 DECLARE_LOG_CATEGORY_EXTERN(LogGameplayAbilityTargetActorSetup, Log, All)
+DECLARE_LOG_CATEGORY_EXTERN(LogGameplayAbilityTargetData, Log, All)
 
 DECLARE_LOG_CATEGORY_EXTERN(LogCharacterMovementSetup, Log, All)
 DECLARE_LOG_CATEGORY_EXTERN(LogCharacterMovement, Log, All)

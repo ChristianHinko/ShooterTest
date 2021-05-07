@@ -366,7 +366,6 @@ void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 	{
 		if (Data.Num() > 0)	// No need to call if we have no targets
 		{
-			// Create our effect spec so we can pass target data stuff into it for the GEEC
 			ApplyGameplayEffectToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), Data, GunToFire->BulletHitEffectTSub, GetAbilityLevel());
 		}
 	}

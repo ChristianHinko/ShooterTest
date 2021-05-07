@@ -45,12 +45,6 @@ static const SSDamageStatics& DamageStatics()
 
 UGEEC_GunDealDamage::UGEEC_GunDealDamage()
 {
-	// Cache GameplayTags
-	BulletTotalTravelDistanceBeforeHitTag = FGameplayTag::RequestGameplayTag("SetByCaller.BulletTotalTravelDistanceBeforeHit");
-	RicochetsBeforeHitTag = FGameplayTag::RequestGameplayTag("SetByCaller.RicochetsBeforeHit");
-
-
-
 	//Source
 	RelevantAttributesToCapture.Add(DamageStatics().OutgoingDamageDef);
 	RelevantAttributesToCapture.Add(DamageStatics().DamageFalloffDef);
@@ -85,9 +79,6 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 
 	FGameplayEffectSpec* MutableSpec = ExecutionParams.GetOwningSpecForPreExecuteMod();
 	FSSGameplayEffectContext* Context = static_cast<FSSGameplayEffectContext*>(MutableSpec->GetContext().Get());
-	Context->SetIsCriticalHit(true);
-
-
 
 
 
@@ -105,10 +96,12 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 	float DamageFalloff = 0.0f;
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageFalloffDef, EvaluationParameters, DamageFalloff);
 
-	// Get our Set By Callers
-	const float totalDistanceBulletTraveled = Spec.GetSetByCallerMagnitude(BulletTotalTravelDistanceBeforeHitTag, true, 0);
-	const float ricochetsBeforeHit = Spec.GetSetByCallerMagnitude(RicochetsBeforeHitTag, true, 0);
+	// Example for if you want to get a SetByCaller
+	//const float totalDistanceBulletTraveled = Spec.GetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("SetByCaller.RicochetsBeforeHit"), true, 0);
 
+	// Lets get our effect context's data
+	const float totalDistanceBulletTraveled = Context->GetBulletTotalTravelDistanceBeforeHit();
+	const uint8 ricochetsBeforeHit = Context->GetRicochetsBeforeHit();
 
 	// Lets start calculating
 	float finalDamage = RawDamage;

@@ -57,8 +57,10 @@ void USSArcInventoryComponent_Active::InitializeComponent()
 {
 	Super::InitializeComponent();
 
-	OnItemInactive.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemInactiveEvent);
+	OnItemSlotChange.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemSlotChangeEvent);
+
 	OnItemActive.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemActiveEvent);
+	OnItemInactive.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemInactiveEvent);
 }
 
 void USSArcInventoryComponent_Active::BeginPlay()
@@ -106,47 +108,6 @@ bool USSArcInventoryComponent_Active::IsActiveItemSlotIndexValid(int32 InActiveI
 
 void USSArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
 {
-	// This UI logic should go in a function binded to a delegate: OnItemSlotChange. This delegate gets broadcasted on both client and server, so this would be perfect since it will be called on client and also listening servers can get their UI as well.
-	if (IsValid(ItemStack))		// If we are equiping
-	{
-		// We will create the item's widget so we can show it when it later becomes "Active"
-		if (USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(ItemStack))
-		{
-			if (USSUArcUIData_ActiveItemDefinition* ItemUIData = Cast<USSUArcUIData_ActiveItemDefinition>(ItemStack->GetUIData()))
-			{
-				if (APawn* OwningPawn = Cast<APawn>(GetOwner()))
-				{
-					if (OwningPawn->IsLocallyControlled())
-					{
-						if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
-						{
-							if (UUW_ActiveItem* WidgetToCreate = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, ItemUIData->ActiveItemWidgetTSub, OwningPC)))
-							{
-								SSArcItemStack->ActiveItemWidget = WidgetToCreate;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	else						// If we are UNequiping
-	{
-		// We completely get rid of the widget since the inventory now longer has the item
-		if (USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(PreviousItemStack))
-		{
-			UUW_ActiveItem* WidgetToRemove = SSArcItemStack->ActiveItemWidget;
-			if (WidgetToRemove)
-			{
-				WidgetToRemove->RemoveFromParent();
-			}
-		}
-	}
-
-
-
-
-
 	if (bUseOnEquipItemSwappingThingRoyMade)
 	{
 		//If we are an active item slot, make it active if we don't already have an active item		
@@ -373,6 +334,46 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 }
 
 
+void USSArcInventoryComponent_Active::OnItemSlotChangeEvent(UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
+{
+	// Untested
+	if (IsValid(ItemStack))		// If we are equiping
+	{
+		// We will create the item's widget so we can show it when it later becomes "Active"
+		if (USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(ItemStack))
+		{
+			if (USSUArcUIData_ActiveItemDefinition* ItemUIData = Cast<USSUArcUIData_ActiveItemDefinition>(ItemStack->GetUIData()))
+			{
+				if (APawn* OwningPawn = Cast<APawn>(GetOwner()))
+				{
+					if (OwningPawn->IsLocallyControlled())
+					{
+						if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
+						{
+							if (UUW_ActiveItem* WidgetToCreate = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, ItemUIData->ActiveItemWidgetTSub, OwningPC)))
+							{
+								SSArcItemStack->ActiveItemWidget = WidgetToCreate;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	else						// If we are UNequiping
+	{
+		// We completely get rid of the widget since the inventory now longer has the item
+		if (USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(PreviousItemStack))
+		{
+			UUW_ActiveItem* WidgetToRemove = SSArcItemStack->ActiveItemWidget;
+			if (WidgetToRemove)
+			{
+				WidgetToRemove->RemoveFromParent();
+			}
+		}
+	}
+}
+
 void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
 {
 	// Add UIData widget
@@ -449,10 +450,6 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 
 void USSArcInventoryComponent_Active::OnItemInactiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
 {
-
-
-
-
 	// Remove UIData widgets
 	if (APawn* OwningPawn = Cast<APawn>(GetOwner()))
 	{

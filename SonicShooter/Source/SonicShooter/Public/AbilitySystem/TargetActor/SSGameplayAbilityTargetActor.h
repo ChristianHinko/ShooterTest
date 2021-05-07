@@ -101,3 +101,11 @@ protected:
 
 	ASSGameplayAbilityWorldReticle* SpawnReticleActor(FVector Location, FRotator Rotation);
 };
+
+/*
+* Todo:
+*	1) Pooling system for reticles (assuming were using a reusable target actor)
+*		Resetting the reticles array in StartTargeting shouldn't just destroy all reticles for resetting. Reticles should be recycled (deactivated and activated)
+*	2) 
+*/
+

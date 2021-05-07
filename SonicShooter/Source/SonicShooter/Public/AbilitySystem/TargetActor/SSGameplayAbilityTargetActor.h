@@ -99,5 +99,7 @@ protected:
 
 	TArray<TWeakObjectPtr<ASSGameplayAbilityWorldReticle>> ReticleActors;
 
+	ASSGameplayAbilityWorldReticle* SpawnReticleActor(FVector Location, FRotator Rotation);
 	virtual void DestroyReticleActors();
+
 };

@@ -336,6 +336,7 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 
 void USSArcInventoryComponent_Active::OnItemSlotChangeEvent(UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
 {
+	// Problem: Not sure if this is a UI problem or if it's maybe just some problem with attribute initializers or something like that, but for some reason the ui starts you off with 0 backup ammo and you nmeed to reload in order for the backup ammo to update (happened on listening server but using that as a reference since client version doesn't exactly work rn since we are waiting on Roy to finish the prev item stack system)
 	// Problem: Right now only the server runs this when the game fills the players inventory with startup weapons, so we need this to somehow be called on client too
 	// Untested
 	if (IsValid(ItemStack))		// If we are equiping
@@ -353,6 +354,8 @@ void USSArcInventoryComponent_Active::OnItemSlotChangeEvent(UArcInventoryCompone
 						{
 							if (UUW_ActiveItem* WidgetToCreate = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, ItemUIData->ActiveItemWidgetTSub, OwningPC)))
 							{
+								WidgetToCreate->AddToViewport();
+								WidgetToCreate->SetVisibility(ESlateVisibility::Collapsed);
 								SSArcItemStack->ActiveItemWidget = WidgetToCreate;
 							}
 						}
@@ -399,11 +402,10 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 									UE_LOG(UISetup, Warning, TEXT("%s() New active item stack did not point to a valid item widget when trying to make it visible. Equipping the item maybe didn't successfully create the widget so we have nothing. We will create the widget now but something seams to have messed up at some point"), *FString(__FUNCTION__));
 									// Create the widget and add to viewport
 									WidgetToDisplay = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, ItemUIData->ActiveItemWidgetTSub, OwningPC));
-									SSArcItemStack->ActiveItemWidget = WidgetToDisplay;
-									ShooterHUD->CurrentActiveItemWidget = WidgetToDisplay;
-
 									if (WidgetToDisplay)
 									{
+										SSArcItemStack->ActiveItemWidget = WidgetToDisplay;
+										ShooterHUD->CurrentActiveItemWidget = WidgetToDisplay;
 										WidgetToDisplay->AddToViewport();
 									}
 								}

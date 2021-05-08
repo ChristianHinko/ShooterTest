@@ -25,8 +25,18 @@ float AGATA_BulletTrace::GetMaxRange() const
 		return GunAttributeSet->GetMaxRange();
 	}
 
-	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its MaxRange attribute! Will return 0 instead!"), *FString(__FUNCTION__));
-	return 0;
+	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its MaxRange attribute! Will return default value from Super instead!"), *FString(__FUNCTION__));
+	return Super::GetMaxRange();
+}
+int32 AGATA_BulletTrace::GetNumberOfTraces() const
+{
+	if (GunAttributeSet)
+	{
+		return GunAttributeSet->GetNumberOfBulletsPerFire();
+	}
+
+	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its NumberOfBulletsPerFire attribute! Will return 1 instead!"), *FString(__FUNCTION__));
+	return 1;
 }
 int32 AGATA_BulletTrace::GetRicochets() const
 {
@@ -35,8 +45,8 @@ int32 AGATA_BulletTrace::GetRicochets() const
 		return GunAttributeSet->GetRicochets();
 	}
 
-	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its Ricochets attribute! Will return 0 instead!"), *FString(__FUNCTION__));
-	return 0;
+	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its Ricochets attribute! Will return default value from Super instead!"), *FString(__FUNCTION__));
+	return Super::GetRicochets();
 }
 
 void AGATA_BulletTrace::ConfirmTargetingAndContinue()
@@ -48,7 +58,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 		FGameplayAbilityTargetDataHandle TargetDataHandle;
 
 
-		const float numberOfBulletsToFire = GunAttributeSet->GetNumberOfBulletsPerFire();
+		const float numberOfBulletsToFire = GetNumberOfTraces();
 		for (currentBulletNumber = 0; currentBulletNumber < numberOfBulletsToFire; ++currentBulletNumber)
 		{
 			TArray<FHitResult> ThisBulletHitResults;

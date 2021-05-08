@@ -6,12 +6,14 @@
 #include "Net/Core/PushModel/PushModel.h"
 
 
+
 FFloatPropertyWrapper::FFloatPropertyWrapper()
 {
-	Value = 0.f;
 	ValueChangeDelegate = nullptr;
 	PropertyOwner = nullptr;
+	PropertyName = NAME_None;
 	Property = nullptr;
+	Value = 0.f;
 
 	bMarkNetDirtyOnChange = false;
 }

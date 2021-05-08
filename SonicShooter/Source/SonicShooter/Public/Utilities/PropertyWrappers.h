@@ -50,25 +50,31 @@ public:
 	void SetValueChangeDelegate(FFloatValueChange* InValueChangeDelegate);
 	void SetValueChangeDelegate(const TSharedRef<FFloatValueChange>& InValueChangeDelegate);
 
-	/**
-	 * If true, will MARK_PROPERTY_DIRTY() when Value is assigned.
-	 * 
-	 * This can be toggled whenever you want.
-	 */
-	uint8 bMarkNetDirtyOnChange : 1;
-	/** Marks the property dirty */
-	void MarkNetDirty();
+
 
 
 	/** Where the magic happens. Broadcasts ValueChangeDelegate and does MARK_PROPERTY_DIRTY() */
 	float operator=(const float& NewValue);
 
-	/** An easy conversion from this struct to float */
+	/** An easy conversion from this struct to float. This allows FFloatPropertyWrapper to be treated as a float in code */
 	operator float() const
 	{
 		return Value;
 	}
 
+
+
+
+
+	/**
+	 * If true, will MARK_PROPERTY_DIRTY() when Value is assigned.
+	 *
+	 * This can be toggled whenever you want.
+	 */
+	uint8 bMarkNetDirtyOnChange : 1;
+
+	/** Marks the property dirty */
+	void MarkNetDirty();
 
 private:
 	/** The actual value of this float property */

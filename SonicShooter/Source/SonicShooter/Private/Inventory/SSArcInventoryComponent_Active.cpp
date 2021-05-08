@@ -382,7 +382,7 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 {
 	// Add UIData widget
 	bool bSuccessfullyAdded = true;
-	if (ItemStack)	// If it's not valid, we don't have to warning because it he might just not have an item here
+	if (ItemStack)
 	{
 		if (APawn* OwningPawn = Cast<APawn>(GetOwner()))
 		{

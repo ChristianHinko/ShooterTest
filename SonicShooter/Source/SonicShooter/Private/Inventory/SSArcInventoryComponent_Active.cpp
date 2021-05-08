@@ -344,19 +344,22 @@ void USSArcInventoryComponent_Active::OnItemSlotChangeEvent(UArcInventoryCompone
 		// We will create the item's widget so we can show it when it later becomes "Active"
 		if (USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(ItemStack))
 		{
-			if (USSUArcUIData_ActiveItemDefinition* ItemUIData = Cast<USSUArcUIData_ActiveItemDefinition>(ItemStack->GetUIData()))
+			if (!IsValid(SSArcItemStack->ActiveItemWidget))		// Only create a new widget if it doesn't already exist
 			{
-				if (APawn* OwningPawn = Cast<APawn>(GetOwner()))
+				if (USSUArcUIData_ActiveItemDefinition* ItemUIData = Cast<USSUArcUIData_ActiveItemDefinition>(ItemStack->GetUIData()))
 				{
-					if (OwningPawn->IsLocallyControlled())
+					if (APawn* OwningPawn = Cast<APawn>(GetOwner()))
 					{
-						if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
+						if (OwningPawn->IsLocallyControlled())
 						{
-							if (UUW_ActiveItem* WidgetToCreate = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, ItemUIData->ActiveItemWidgetTSub, OwningPC)))
+							if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
 							{
-								WidgetToCreate->AddToViewport();
-								WidgetToCreate->SetVisibility(ESlateVisibility::Collapsed);
-								SSArcItemStack->ActiveItemWidget = WidgetToCreate;
+								if (UUW_ActiveItem* WidgetToCreate = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, ItemUIData->ActiveItemWidgetTSub, OwningPC)))
+								{
+									WidgetToCreate->AddToViewport();
+									WidgetToCreate->SetVisibility(ESlateVisibility::Collapsed);
+									SSArcItemStack->ActiveItemWidget = WidgetToCreate;
+								}
 							}
 						}
 					}

@@ -61,7 +61,7 @@ protected:
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) PURE_VIRTUAL(AGATA_Trace);
 	void PerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AActor* InSourceActor);
 
-	uint32 CurrentTraceIndex;
+	int32 CurrentTraceIndex;
 
 
 //#if ENABLE_DRAW_DEBUG

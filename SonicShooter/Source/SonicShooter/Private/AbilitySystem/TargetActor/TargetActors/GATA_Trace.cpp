@@ -18,6 +18,9 @@
 AGATA_Trace::AGATA_Trace(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	CurrentTraceIndex = -1;
+
+
 	MultiFilter.bReverseFilter = true;
 	MultiFilter.RequiredActorClasses.Add(AAbilitySystemCharacter::StaticClass());
 	MultiFilter.RequiredActorClasses.Add(AAbilitySystemPawn::StaticClass());
@@ -92,13 +95,18 @@ void AGATA_Trace::PerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AAc
 	OutTraceResults.Empty();
 
 	const float NumberOfTraces = GetNumberOfTraces();
-	for (CurrentTraceIndex = 0; CurrentTraceIndex < NumberOfTraces; ++CurrentTraceIndex)
+
+	CurrentTraceIndex = 0;
+	for (CurrentTraceIndex; CurrentTraceIndex < NumberOfTraces; ++CurrentTraceIndex)
 	{
 		TArray<FHitResult> ThisTraceHitResults;
 		PerformTrace(ThisTraceHitResults, InSourceActor);
 
 		OutTraceResults.Add(ThisTraceHitResults);
 	}
+	CurrentTraceIndex = -1;
+
+
 }
 
 int32 AGATA_Trace::GetNumberOfTraces() const

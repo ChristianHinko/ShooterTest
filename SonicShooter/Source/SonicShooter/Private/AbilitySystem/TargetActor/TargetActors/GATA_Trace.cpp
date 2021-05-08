@@ -18,6 +18,9 @@
 AGATA_Trace::AGATA_Trace(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	CurrentTraceIndex = -1;
+
+
 	MultiFilter.bReverseFilter = true;
 	MultiFilter.RequiredActorClasses.Add(AAbilitySystemCharacter::StaticClass());
 	MultiFilter.RequiredActorClasses.Add(AAbilitySystemPawn::StaticClass());
@@ -60,16 +63,56 @@ void AGATA_Trace::ConfirmTargetingAndContinue()
 	check(ShouldProduceTargetData());
 	if (SourceActor)
 	{
-		TArray<FHitResult> HitResults;
-		PerformTrace(HitResults, SourceActor);
+		FGameplayAbilityTargetDataHandle TargetDataHandle;
+		
 
-		FilterHitResults(HitResults, MultiFilterHandle, bAllowMultipleHitsPerActor);
+		TArray<TArray<FHitResult>> TraceResults;
+		PerformTraces(TraceResults, SourceActor);
 
-		FGameplayAbilityTargetDataHandle TargetDataHandle = StartLocation.MakeTargetDataHandleFromHitResults(OwningAbility, HitResults);
+		// Loop through each of our traces
+		for (TArray<FHitResult>& HitResults : TraceResults)
+		{
+			FilterHitResults(HitResults, MultiFilterHandle, bAllowMultipleHitsPerActor);
+
+			// Loop through this trace's hits (that have been filtered)
+			for (const FHitResult& HitResult : HitResults)
+			{
+				/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
+				FGameplayAbilityTargetData_SingleTargetHit* ReturnData = new FGameplayAbilityTargetData_SingleTargetHit();
+				ReturnData->HitResult = HitResult;
+
+				TargetDataHandle.Add(ReturnData);
+			}
+		}
+
+
 		TargetDataReadyDelegate.Broadcast(TargetDataHandle);
 	}
 }
 
+void AGATA_Trace::PerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AActor* InSourceActor)
+{
+	OutTraceResults.Empty();
+
+	const float NumberOfTraces = GetNumberOfTraces();
+
+	CurrentTraceIndex = 0;
+	for (CurrentTraceIndex; CurrentTraceIndex < NumberOfTraces; ++CurrentTraceIndex)
+	{
+		TArray<FHitResult> ThisTraceHitResults;
+		PerformTrace(ThisTraceHitResults, InSourceActor);
+
+		OutTraceResults.Add(ThisTraceHitResults);
+	}
+	CurrentTraceIndex = -1;
+
+
+}
+
+int32 AGATA_Trace::GetNumberOfTraces() const
+{
+	return 1;
+}
 int32 AGATA_Trace::GetRicochets() const
 {
 	return 0;

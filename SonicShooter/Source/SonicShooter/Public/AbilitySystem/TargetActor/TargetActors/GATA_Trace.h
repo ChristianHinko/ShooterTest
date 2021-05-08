@@ -29,6 +29,7 @@ public:
 	/** Sweeps as normal, but does ricochet traces aswell (unless ricochets is 0) */
 	void SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug);
 
+	virtual int32 GetNumberOfTraces() const;
 	virtual int32 GetRicochets() const;
 
 protected:
@@ -58,6 +59,9 @@ protected:
 
 
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) PURE_VIRTUAL(AGATA_Trace);
+	void PerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AActor* InSourceActor);
+
+	int32 CurrentTraceIndex;
 
 
 //#if ENABLE_DRAW_DEBUG

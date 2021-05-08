@@ -35,8 +35,8 @@ int32 AGATA_BulletTrace::GetNumberOfTraces() const
 		return GunAttributeSet->GetNumberOfBulletsPerFire();
 	}
 
-	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its NumberOfBulletsPerFire attribute! Will return 1 instead!"), *FString(__FUNCTION__));
-	return 1;
+	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its NumberOfBulletsPerFire attribute! Will return default value from Super instead!"), *FString(__FUNCTION__));
+	return Super::GetNumberOfTraces();
 }
 int32 AGATA_BulletTrace::GetRicochets() const
 {
@@ -52,76 +52,71 @@ int32 AGATA_BulletTrace::GetRicochets() const
 void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 {
 	check(ShouldProduceTargetData());
-	check(GunAttributeSet);
+
+
 	if (SourceActor)
 	{
 		FGameplayAbilityTargetDataHandle TargetDataHandle;
 
 
-		const float numberOfBulletsToFire = GetNumberOfTraces();
-		for (currentBulletNumber = 0; currentBulletNumber < numberOfBulletsToFire; ++currentBulletNumber)
+		TArray<TArray<FHitResult>> TraceResults;
+		PerformTraces(TraceResults, SourceActor);
+
+
+		for (TArray<FHitResult>& ThisBulletHitResults : TraceResults)
 		{
-			TArray<FHitResult> ThisBulletHitResults;
-			PerformTrace(ThisBulletHitResults, SourceActor);
-
-
 			// Construct target datas (and filter hit results)
+
+
+			float totalDistanceUpUntilThisTrace = 0.f; // accumulated distance of the previous traces
+			FHitResult PreviousHit;
+
+			uint8 ricochetsBeforeHit = 0;	// Used to tell target data how many times bullet ricocheted before hitting the target
+			for (int32 index = 0, iteration = 0; index < ThisBulletHitResults.Num(); ++index, ++iteration)
 			{
-				float totalDistanceUpUntilThisTrace = 0.f; // accumulated distance of the previous traces
-				FHitResult PreviousHit;
+				const FHitResult Hit = ThisBulletHitResults[index];
 
-				uint8 ricochetsBeforeHit = 0;	// Used to tell target data how many times bullet ricocheted before hitting the target
-				for (int32 index = 0, iteration = 0; index < ThisBulletHitResults.Num(); ++index, ++iteration)
+				if (iteration != 0)
 				{
-					const FHitResult Hit = ThisBulletHitResults[index];
-					
-					if (iteration != 0)
+					const bool bIsNewTrace = !AreHitsFromSameTrace(Hit, PreviousHit);
+					if (bIsNewTrace)	// A ricochet happened since we are a new trace
 					{
-						const bool bIsNewTrace = !AreHitsFromSameTrace(Hit, PreviousHit);
-						if (bIsNewTrace)	// A ricochet happened since we are a new trace
-						{
-							ricochetsBeforeHit++;
-							totalDistanceUpUntilThisTrace += PreviousHit.Distance;
-						}
+						ricochetsBeforeHit++;
+						totalDistanceUpUntilThisTrace += PreviousHit.Distance;
 					}
-
-
-					if (FilterHitResult(ThisBulletHitResults, index, MultiFilterHandle, bAllowMultipleHitsPerActor))
-					{
-						// This index did not pass the filter, stop here so that we don't add target data for it
-						PreviousHit = Hit;
-						--index;
-						continue;
-					}
-
-
-					// If we got here, we are an unfiltered hit (ie. we hit a player), make target data for us:
-					{
-						/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
-						FGATD_BulletTraceTargetHit* ReturnData = new FGATD_BulletTraceTargetHit();
-
-
-						// This Hit Result's distance plus the previous ricochet(s)'s traveled distance
-						const float ricochetAwareDistance = totalDistanceUpUntilThisTrace + Hit.Distance;
-
-						ReturnData->HitResult = Hit;
-						ReturnData->bulletTotalTravelDistanceBeforeHit = ricochetAwareDistance;
-						ReturnData->ricochetsBeforeHit = ricochetsBeforeHit;
-
-						TargetDataHandle.Add(ReturnData);
-					}
-
-
-					PreviousHit = Hit;
 				}
+
+
+				if (FilterHitResult(ThisBulletHitResults, index, MultiFilterHandle, bAllowMultipleHitsPerActor))
+				{
+					// This index did not pass the filter, stop here so that we don't add target data for it
+					PreviousHit = Hit;
+					--index;
+					continue;
+				}
+
+
+				// If we got here, we are an unfiltered hit (ie. we hit a player), make target data for us:
+				{
+					/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
+					FGATD_BulletTraceTargetHit* ReturnData = new FGATD_BulletTraceTargetHit();
+
+
+					// This Hit Result's distance plus the previous ricochet(s)'s traveled distance
+					const float ricochetAwareDistance = totalDistanceUpUntilThisTrace + Hit.Distance;
+
+					ReturnData->HitResult = Hit;
+					ReturnData->bulletTotalTravelDistanceBeforeHit = ricochetAwareDistance;
+					ReturnData->ricochetsBeforeHit = ricochetsBeforeHit;
+
+					TargetDataHandle.Add(ReturnData);
+				}
+
+
+				PreviousHit = Hit;
 			}
-
-
-
-
-		} // end bullet number loop
+		}
 		
-
 
 		TargetDataReadyDelegate.Broadcast(TargetDataHandle);
 	}
@@ -129,7 +124,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 void AGATA_BulletTrace::CalculateAimDirection(FVector& ViewStart, FVector& ViewDir) const
 {
-	Super::CalculateAimDirection(ViewStart, ViewDir); // call super so we get the PC's ViewDir, and then we can add bullet spread ontop of that
+	Super::CalculateAimDirection(ViewStart, ViewDir); // call Super so we get the PC's ViewDir, and then we can add bullet spread ontop of that
 
 
 	// Calculate new ViewDir with random bullet spread offset if needed
@@ -137,7 +132,7 @@ void AGATA_BulletTrace::CalculateAimDirection(FVector& ViewStart, FVector& ViewD
 	if (currentBulletSpread > SMALL_NUMBER)
 	{
 		// Our injected random seed is only unique to each fire. We need a random seed that is also unique to each bullet in the fire, so we will do this by using t
-		const int32 fireAndBulletSpecificNetSafeRandomSeed = FireSpecificNetSafeRandomSeed - ((currentBulletNumber + 2) * FireSpecificNetSafeRandomSeed);	// Here, the 'number' multiplied to t makes the random pattern noticable after firing 'number' of times. I use the prediction key as that 'number' which i think eliminates the threshold for noticeability entirely. - its confusing to think about but i think it works
+		const int32 fireAndBulletSpecificNetSafeRandomSeed = FireSpecificNetSafeRandomSeed - ((CurrentTraceIndex + 2) * FireSpecificNetSafeRandomSeed);	// Here, the 'number' multiplied to t makes the random pattern noticable after firing 'number' of times. I use the prediction key as that 'number' which i think eliminates the threshold for noticeability entirely. - its confusing to think about but i think it works
 		FMath::RandInit(fireAndBulletSpecificNetSafeRandomSeed);
 		const FRandomStream RandomStream = FRandomStream(FMath::Rand());
 

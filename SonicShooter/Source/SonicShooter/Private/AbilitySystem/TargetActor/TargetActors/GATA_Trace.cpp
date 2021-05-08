@@ -225,7 +225,7 @@ void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults,
 	{
 		DebugTrace(OutHitResults, World, Start, End, r);
 	}
-#endif // ENABLE_DRAW_DEBUG
+#endif
 }
 
 void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug)
@@ -257,7 +257,7 @@ void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, con
 	{
 		DebugTrace(OutHitResults, World, Start, End, r);
 	}
-#endif // ENABLE_DRAW_DEBUG
+#endif
 }
 
 //#if ENABLE_DRAW_DEBUG

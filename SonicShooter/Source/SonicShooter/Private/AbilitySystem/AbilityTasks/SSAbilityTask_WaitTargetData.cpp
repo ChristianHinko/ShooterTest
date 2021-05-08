@@ -18,6 +18,50 @@ USSAbilityTask_WaitTargetData* USSAbilityTask_WaitTargetData::SSWaitTargetDataUs
 	return MyObj;
 }
 
+void USSAbilityTask_WaitTargetData::Activate()
+{
+	// Need to handle case where target actor was passed into task
+	if (Ability && (TargetClass == nullptr))
+	{
+		if (TargetActor)
+		{
+			AGameplayAbilityTargetActor* SpawnedActor = TargetActor;
+			TargetClass = SpawnedActor->GetClass();
+
+			RegisterTargetDataCallbacks();
+
+
+			if (IsPendingKill())
+			{
+				return;
+			}
+
+			if (ShouldSpawnTargetActor())
+			{
+				InitializeTargetActor(SpawnedActor);
+				FinalizeTargetActor(SpawnedActor);
+
+				// Note that the call to FinalizeTargetActor, this task could finish and our owning ability may be ended.
+			}
+			else
+			{
+				if (TargetActor->bDestroyOnConfirmation)
+				{
+					TargetActor = nullptr;
+
+					// We may need a better solution here.  We don't know the target actor isn't needed till after it's already been spawned.
+					SpawnedActor->Destroy();
+					SpawnedActor = nullptr;
+				}
+			}
+		}
+		else
+		{
+			EndTask();
+		}
+	}
+}
+
 void USSAbilityTask_WaitTargetData::OnDestroy(bool AbilityEnded)
 {
 	if (TargetActor)

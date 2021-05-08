@@ -20,5 +20,7 @@ public:
 		static USSAbilityTask_WaitTargetData* SSWaitTargetDataUsingActor(UGameplayAbility* OwningAbility, FName TaskInstanceName, TEnumAsByte<EGameplayTargetingConfirmation::Type> ConfirmationType, AGameplayAbilityTargetActor* InTargetActor);
 
 protected:
+	virtual void Activate() override;
+
 	virtual void OnDestroy(bool AbilityEnded) override;
 };

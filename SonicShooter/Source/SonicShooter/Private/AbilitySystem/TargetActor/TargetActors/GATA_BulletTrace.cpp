@@ -6,7 +6,7 @@
 #include "Utilities\LogCategories.h"
 #include "Abilities/GameplayAbility.h"
 #include "Utilities/CollisionChannels.h"
-#include "AbilitySystem/SSGameplayAbilityTargetTypes.h"
+#include "AbilitySystem/GATD_BulletTraceTargetHit.h"
 #include "GameplayAbilities\Public\AbilitySystemComponent.h"
 #include "Item/Weapons/AS_Gun.h"
 
@@ -88,7 +88,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 					// If we got here, we are an unfiltered hit (ie. we hit a player), make target data for us:
 					{
 						/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
-						FGameplayAbilityTargetData_BulletTraceTargetHit* ReturnData = new FGameplayAbilityTargetData_BulletTraceTargetHit();
+						FGATD_BulletTraceTargetHit* ReturnData = new FGATD_BulletTraceTargetHit();
 
 
 						// This Hit Result's distance plus the previous ricochet(s)'s traveled distance

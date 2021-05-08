@@ -21,14 +21,7 @@ struct SONICSHOOTER_API FFloatPropertyWrapper
 
 
 public:
-	FFloatPropertyWrapper()
-	{
-		ValueChangeDelegate = nullptr;
-		PropertyOwner = nullptr;
-		Property = nullptr;
-
-		bMarkNetDirtyOnChange = false;
-	}
+	FFloatPropertyWrapper();
 	FFloatPropertyWrapper(UObject* InPropertyOwner, FName InPropertyName);
 	FFloatPropertyWrapper(UObject* InPropertyOwner, FName InPropertyName, FFloatValueChange* InValueChangeDelegate);
 	FFloatPropertyWrapper(UObject* InPropertyOwner, FName InPropertyName, const TSharedRef<FFloatValueChange>& InValueChangeDelegate);

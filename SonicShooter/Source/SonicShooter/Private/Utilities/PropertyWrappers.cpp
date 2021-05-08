@@ -6,7 +6,15 @@
 #include "Net/Core/PushModel/PushModel.h"
 
 
+FFloatPropertyWrapper::FFloatPropertyWrapper()
+{
+	Value = 0.f;
+	ValueChangeDelegate = nullptr;
+	PropertyOwner = nullptr;
+	Property = nullptr;
 
+	bMarkNetDirtyOnChange = false;
+}
 FFloatPropertyWrapper::FFloatPropertyWrapper(UObject* InPropertyOwner, FName InPropertyName)
 	: FFloatPropertyWrapper()
 {

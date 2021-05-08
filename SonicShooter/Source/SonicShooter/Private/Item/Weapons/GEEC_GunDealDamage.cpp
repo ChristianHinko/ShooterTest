@@ -97,7 +97,7 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageFalloffDef, EvaluationParameters, DamageFalloff);
 
 	// Example for if you want to get a SetByCaller
-	//const float totalDistanceBulletTraveled = Spec.GetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("SetByCaller.RicochetsBeforeHit"), true, 0);
+	//const float totalDistanceBulletTraveled = Spec.GetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("SetByCaller.RicochetsBeforeHit"), true, 0);		// This is not an actual SetByCaller, just an example
 
 	// Lets get our effect context's data
 	const float totalDistanceBulletTraveled = Context->GetBulletTotalTravelDistanceBeforeHit();
@@ -112,8 +112,8 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 	const float dmgFalloffMultiplier = FMath::Pow(DamageFalloff, (totalDistanceBulletTraveled / 10000));
 	finalDamage = finalDamage * dmgFalloffMultiplier;
 
-	// We want to nerf the outgoing dmg based on number of ricochets before the target hit
-	finalDamage = finalDamage / (ricochetsBeforeHit * 10);	// 10 is our hard coded value for now (if we ever decide to make the value dependent on certain things)
+	// For every ricochet, we cut the damage down into a third
+	finalDamage = finalDamage / (ricochetsBeforeHit * 3);	// 3 is our hard coded value for now (if we ever decide to make the value dependent on certain things)
 
 
 

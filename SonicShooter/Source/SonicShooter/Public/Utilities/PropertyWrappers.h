@@ -72,7 +72,7 @@ public:
 
 private:
 	/** The actual value of this float property */
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 		float Value;
 
 

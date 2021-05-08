@@ -10,7 +10,7 @@
 
 
 /**
- * Our custom FGameplayEffectContext
+ * Our base FGameplayEffectContext
  */
 USTRUCT()
 struct SONICSHOOTER_API FSSGameplayEffectContext : public FGameplayEffectContext
@@ -18,30 +18,8 @@ struct SONICSHOOTER_API FSSGameplayEffectContext : public FGameplayEffectContext
     GENERATED_BODY()
 
 public:
-    uint8 GetRicochetsBeforeHit() const { return ricochetsBeforeHit; }
-    float GetBulletTotalTravelDistanceBeforeHit() const { return bulletTotalTravelDistanceBeforeHit; }
-    float GetCartridgeID() const { return CartridgeID; }
-    float GetSourceLevel() const { return SourceLevel; }
+    FSSGameplayEffectContext();
 
-    void SetRicochetsBeforeHit(uint8 inRicochetsBeforeHit) { ricochetsBeforeHit = inRicochetsBeforeHit; }
-    void SetBulletTotalTravelDistanceBeforeHit(float bInBulletTotalTravelDistanceBeforeHit) { bulletTotalTravelDistanceBeforeHit = bInBulletTotalTravelDistanceBeforeHit; }
-    void SetCartridgeID(int32 InID) { CartridgeID = InID; }
-    void SetSourceLevel(float InLevel) { SourceLevel = InLevel; }
-
-protected:
-    UPROPERTY()
-        float bulletTotalTravelDistanceBeforeHit;
-
-    UPROPERTY()
-        uint8 ricochetsBeforeHit;
-
-    UPROPERTY()
-        int32 CartridgeID;
-
-    UPROPERTY()
-        float SourceLevel;
-
-public:
     /** Returns the actual struct used for serialization, subclasses must override this! */
     virtual UScriptStruct* GetScriptStruct() const override
     {

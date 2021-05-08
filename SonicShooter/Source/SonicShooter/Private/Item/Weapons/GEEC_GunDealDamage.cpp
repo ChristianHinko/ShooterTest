@@ -8,7 +8,7 @@
 #include "AbilitySystem/AttributeSets/AS_Damage.h"
 
 #include "Item/Weapons/AS_Gun.h"
-#include "AbilitySystem/SSGameplayEffectTypes.h"
+#include "AbilitySystem/GEC_Bullet.h"
 
 
 // Declare the attributes to capture and define how we want to capture them from the Source and Target
@@ -78,7 +78,7 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 
 
 	FGameplayEffectSpec* MutableSpec = ExecutionParams.GetOwningSpecForPreExecuteMod();
-	FSSGameplayEffectContext* Context = static_cast<FSSGameplayEffectContext*>(MutableSpec->GetContext().Get());
+	FGEC_Bullet* Context = static_cast<FGEC_Bullet*>(MutableSpec->GetContext().Get());
 
 
 

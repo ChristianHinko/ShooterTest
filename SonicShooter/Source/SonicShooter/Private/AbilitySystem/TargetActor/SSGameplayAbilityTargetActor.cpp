@@ -115,9 +115,12 @@ bool ASSGameplayAbilityTargetActor::FilterHitResult(TArray<FHitResult>& OutHitRe
 		{
 			if (Hit.Actor == OutHitResults[comparisonIndex].Actor)
 			{
-				OutHitResults.RemoveAt(index);
-				removed = true;
-				break;
+				if (AreHitsFromSameTrace(Hit, OutHitResults[comparisonIndex]))
+				{
+					OutHitResults.RemoveAt(index);
+					removed = true;
+					break;
+				}
 			}
 		}
 

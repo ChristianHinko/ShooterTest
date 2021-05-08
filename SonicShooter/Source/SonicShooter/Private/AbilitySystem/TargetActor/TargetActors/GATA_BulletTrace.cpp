@@ -67,7 +67,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 					
 					if (iteration != 0)
 					{
-						const bool bIsNewTrace = (Hit.TraceStart != PreviousHit.TraceStart && Hit.TraceEnd != PreviousHit.TraceEnd);
+						const bool bIsNewTrace = !AreHitsFromSameTrace(Hit, PreviousHit);
 						if (bIsNewTrace)	// A ricochet happened since we are a new trace
 						{
 							ricochetsBeforeHit++;

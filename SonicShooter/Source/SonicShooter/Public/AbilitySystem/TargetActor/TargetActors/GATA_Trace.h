@@ -49,6 +49,7 @@ protected:
 	virtual bool RicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWorld* World, const FCollisionQueryParams Params);
 	virtual bool RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld* World, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params);
 
+
 	/**
 	 * Calculates the direction to ricochet from the given hit.
 	 * This can be overriden for custom ricochet directions

@@ -95,6 +95,18 @@ protected:
 	 * You can also determine AimStart if needed
 	 */
 	virtual void CalculateAimDirection(FVector& AimStart, FVector& AimDir) const;
+
+
+	/** Returns true if the two given hits were from the same trace */
+	static bool AreHitsFromSameTrace(const FHitResult& HitA, const FHitResult& HitB)
+	{
+		const bool bSameStart = (HitA.TraceStart == HitB.TraceStart);
+		const bool bSameEnd = (HitA.TraceEnd == HitB.TraceEnd);
+		//const bool bSamePenetration = (HitA.bStartPenetrating == HitB.bStartPenetrating);
+
+		const bool bSameTrace = (bSameStart && bSameEnd/* && bSamePenetration*/);
+		return bSameTrace;
+	}
 	
 
 	TArray<TWeakObjectPtr<ASSGameplayAbilityWorldReticle>> ReticleActors;

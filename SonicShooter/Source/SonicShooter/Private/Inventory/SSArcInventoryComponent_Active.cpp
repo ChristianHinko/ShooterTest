@@ -337,7 +337,7 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 void USSArcInventoryComponent_Active::OnItemSlotChangeEvent(UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
 {
 	// Problem: Not sure if this is a UI problem or if it's maybe just some problem with attribute initializers or something like that, but for some reason the ui starts you off with 0 backup ammo and you nmeed to reload in order for the backup ammo to update (happened on listening server but using that as a reference since client version doesn't exactly work rn since we are waiting on Roy to finish the prev item stack system)
-	// Problem: Right now only the server runs this when the game fills the players inventory with startup weapons, so we need this to somehow be called on client too
+	// Problem: Right now only the server runs this when the game fills the players inventory with startup weapons, so we need this to somehow be called on client too on startup
 	// Untested
 	if (IsValid(ItemStack))		// If we are equiping
 	{

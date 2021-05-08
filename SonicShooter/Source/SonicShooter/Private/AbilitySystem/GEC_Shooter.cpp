@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/GEC_Bullet.h"
+#include "AbilitySystem/GEC_Shooter.h"
 
 
 
-bool FGEC_Bullet::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess)
+bool FGEC_Shooter::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess)
 {
     uint32 RepBits = 0;
     if (Ar.IsSaving())

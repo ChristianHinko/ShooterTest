@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSGameplayEffectTypes.h"
 
-#include "GEC_Bullet.generated.h"
+#include "GEC_Shooter.generated.h"
 
 
 
@@ -13,7 +13,7 @@
  * 
  */
 USTRUCT()
-struct SONICSHOOTER_API FGEC_Bullet : public FSSGameplayEffectContext
+struct SONICSHOOTER_API FGEC_Shooter : public FSSGameplayEffectContext
 {
     GENERATED_BODY()
 
@@ -49,9 +49,9 @@ public:
     }
 
     /** Creates a copy of this context, used to duplicate for later modifications */
-    virtual FGEC_Bullet* Duplicate() const override
+    virtual FGEC_Shooter* Duplicate() const override
     {
-        FGEC_Bullet* NewContext = new FGEC_Bullet();
+        FGEC_Shooter* NewContext = new FGEC_Shooter();
         *NewContext = *this;
         NewContext->AddActors(Actors);
         if (GetHitResult())
@@ -66,7 +66,7 @@ public:
 };
 
 template<>
-struct TStructOpsTypeTraits<FGEC_Bullet> : public TStructOpsTypeTraitsBase2<FGEC_Bullet>
+struct TStructOpsTypeTraits<FGEC_Shooter> : public TStructOpsTypeTraitsBase2<FGEC_Shooter>
 {
 	enum
 	{

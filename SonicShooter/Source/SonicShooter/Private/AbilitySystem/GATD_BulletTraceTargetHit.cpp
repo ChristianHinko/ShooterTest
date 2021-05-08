@@ -3,14 +3,14 @@
 
 #include "AbilitySystem\GATD_BulletTraceTargetHit.h"
 
-#include "AbilitySystem\GEC_Bullet.h"
+#include "AbilitySystem\GEC_Shooter.h"
 #include "Utilities/LogCategories.h"
 
 
 
 void FGATD_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray) const
 {
-	if (FGEC_Bullet* SSContext = static_cast<FGEC_Bullet*>(Context.Get()))
+	if (FGEC_Shooter* SSContext = static_cast<FGEC_Shooter*>(Context.Get()))
 	{
 		SSContext->SetBulletTotalTravelDistanceBeforeHit(bulletTotalTravelDistanceBeforeHit);
 		SSContext->SetRicochetsBeforeHit(ricochetsBeforeHit);

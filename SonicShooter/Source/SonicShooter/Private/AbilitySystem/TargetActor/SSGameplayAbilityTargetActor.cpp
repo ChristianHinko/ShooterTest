@@ -88,46 +88,46 @@ void ASSGameplayAbilityTargetActor::FilterHitResults(TArray<FHitResult>& OutHitR
 		}
 	}
 }
-bool ASSGameplayAbilityTargetActor::FilterHitResult(TArray<FHitResult>& OutHitResults, const int32 index, const FGATDF_MultiFilterHandle FilterHandle, const bool inAllowMultipleHitsPerActor) const
+bool ASSGameplayAbilityTargetActor::FilterHitResult(TArray<FHitResult>& OutHitResults, const int32 indexToTryFilter, const FGATDF_MultiFilterHandle FilterHandle, const bool inAllowMultipleHitsPerActor) const
 {
-	const FHitResult Hit = OutHitResults[index];
+	const FHitResult HitToTryFilter = OutHitResults[indexToTryFilter];
 
 
 	if (FilterHandle.MultiFilter.IsValid()) // if valid filter
 	{
-		const bool bPassesFilter = FilterHandle.FilterPassesForActor(Hit.Actor);
+		const bool bPassesFilter = FilterHandle.FilterPassesForActor(HitToTryFilter.Actor);
 		if (!bPassesFilter)
 		{
-			OutHitResults.RemoveAt(index);
+			OutHitResults.RemoveAt(indexToTryFilter);
 			return true;
 		}
 	}
 
 	if (!inAllowMultipleHitsPerActor) // if we should remove multiple hits
 	{
-		// Loop through each hit result and check if the hits infront of it (the hit results less than the pending index) already have its actor.
-		// If so, remove the pending hit result because it has the actor that was already hit and is considered a duplicate hit.
+		// Loop through each Hit Result and check if the hits infront of it (the Hit Results less than the indexToTryFilter) already have its Actor.
+		// If so, remove the indexToTryFilter Hit Result because it has the Actor that was already hit and is considered a duplicate hit.
 
-		bool removed = false; // if true, we removed a duplicate hit
 
-		// Check if the hit results that we've looped through so far contains a hit result with this actor already
-		for (int32 comparisonIndex = 0; comparisonIndex < index; ++comparisonIndex)
+		// Check if any Hit Results before this hit contains a Hit Result with this Actor already
+		for (int32 i = 0; i < indexToTryFilter; ++i)
 		{
-			if (Hit.Actor == OutHitResults[comparisonIndex].Actor)
+			FHitResult Hit = OutHitResults[i];
+
+			if (HitToTryFilter.Actor == Hit.Actor) // if we already hit this actor
 			{
-				OutHitResults.RemoveAt(index);
-				removed = true;
-				break;
+				if (AreHitsFromSameTrace(HitToTryFilter, Hit)) // only remove if they were in the same trace (if they were from separate traces, they aren't considered a duplicate hit)
+				{
+					OutHitResults.RemoveAt(indexToTryFilter);
+					--i;
+					return true;
+					break;
+				}
 			}
-		}
-
-		if (removed)
-		{
-			return true;
 		}
 	}
 
-	// This index was filtered
+	// This index was not filtered
 	return false;
 }
 

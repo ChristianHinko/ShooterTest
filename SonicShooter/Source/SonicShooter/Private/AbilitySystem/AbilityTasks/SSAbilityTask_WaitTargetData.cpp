@@ -45,7 +45,7 @@ void USSAbilityTask_WaitTargetData::Activate()
 			}
 			else
 			{
-				if (TargetActor->bDestroyOnConfirmation)
+				if (TargetActor->bDestroyOnConfirmation)	// If this is true, the developer obiously is handling the GATA lifetime on his own. So we won't destroy it
 				{
 					TargetActor = nullptr;
 

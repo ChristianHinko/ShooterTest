@@ -48,7 +48,7 @@ public:
 	 * Filters out one hit result out of a given array. Is meant to be use in FHitResult loops.
 	 * Returns true if hit was filtered.
 	 */
-	bool FilterHitResult(TArray<FHitResult>& OutHitResults, const int32 index, const FGATDF_MultiFilterHandle FilterHandle, const bool inAllowMultipleHitsPerActor) const;
+	bool FilterHitResult(TArray<FHitResult>& OutHitResults, const int32 indexToTryFilter, const FGATDF_MultiFilterHandle FilterHandle, const bool inAllowMultipleHitsPerActor) const;
 
 
 	/**

@@ -130,13 +130,17 @@ void AGATA_Trace::CalculateRicochetDirection(FVector& RicoDir, const FHitResult&
 }
 
 
-void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams Params, const bool inDebug)
+void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& Params, const bool inDebug)
 {
 	check(World);
 
+
+	FCollisionQueryParams TraceParams = Params;
+	TraceParams.bReturnPhysicalMaterial = true;
+
 	// Initial trace (non ricochets)
 	TArray<FHitResult> HitResults;
-	World->LineTraceMultiByChannel(HitResults, Start, End, TraceChannel, Params);
+	World->LineTraceMultiByChannel(HitResults, Start, End, TraceChannel, TraceParams);
 	OnTraced(HitResults);
 
 	OutHitResults.Append(HitResults);
@@ -154,10 +158,16 @@ void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults,
 		{
 			break;
 		}
+		const EPhysicalSurface LastSurface = LastHit.PhysMaterial.Get()->SurfaceType;
+		if (RicochetableSurfaces.Contains(LastSurface) == false)
+		{
+			// This surface isn't ricochetable
+			break;
+		}
 
 
 		// Add the current hit actor on top of the ignored actors
-		FCollisionQueryParams RicoParams = Params;
+		FCollisionQueryParams RicoParams = TraceParams;
 
 		// Calculate ricochet direction
 		FVector RicoDir;
@@ -190,12 +200,16 @@ void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults,
 #endif
 }
 
-void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug)
+void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape& CollisionShape, const FCollisionQueryParams& Params, const bool inDebug)
 {
 	check(World);
 
+
+	FCollisionQueryParams TraceParams = Params;
+	TraceParams.bReturnPhysicalMaterial = true;
+
 	TArray<FHitResult> HitResults;
-	World->SweepMultiByChannel(OutHitResults, Start, End, Rotation, TraceChannel, CollisionShape, Params);
+	World->SweepMultiByChannel(OutHitResults, Start, End, Rotation, TraceChannel, CollisionShape, TraceParams);
 	OnTraced(HitResults);
 
 	OutHitResults.Append(HitResults);
@@ -213,10 +227,16 @@ void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, con
 		{
 			break;
 		}
+		const EPhysicalSurface LastSurface = LastHit.PhysMaterial.Get()->SurfaceType;
+		if (RicochetableSurfaces.Contains(LastSurface) == false)
+		{
+			// This surface isn't ricochetable
+			break;
+		}
 
 
 		// Add the current hit actor on top of the ignored actors
-		FCollisionQueryParams RicoParams = Params;
+		FCollisionQueryParams RicoParams = TraceParams;
 
 		// Calculate ricochet direction
 		FVector RicoDir;
@@ -286,7 +306,7 @@ void AGATA_Trace::DebugTrace(const TArray<FHitResult>& HitResults, const UWorld*
 		{
 			DrawDebugLine(World, DebugHitResults.Last().Location, DebugHitResults.Last().TraceEnd, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
 		}
-		else if (GetRicochets() - timesRicocheted > 0)
+		else if (GetRicochets() - timesRicocheted > 0 && timesRicocheted > 0)
 		{
 			const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(DebugHitResults.Last().TraceStart, DebugHitResults.Last().TraceEnd);
 			const FVector MirroredDir = TracedDir.MirrorByVector(DebugHitResults.Last().ImpactNormal);

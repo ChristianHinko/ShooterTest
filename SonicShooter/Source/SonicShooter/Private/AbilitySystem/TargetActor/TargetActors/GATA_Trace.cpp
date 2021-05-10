@@ -129,84 +129,6 @@ void AGATA_Trace::CalculateRicochetDirection(FVector& RicoDir, const FHitResult&
 	RicoDir = MirroredDir;
 }
 
-bool AGATA_Trace::RicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWorld* World, const FCollisionQueryParams Params)
-{
-	if (OutHitResults.Num() <= 0)
-	{
-		return false;
-	}
-	const FHitResult LastHit = OutHitResults.Last();
-	if (LastHit.bBlockingHit == false)
-	{
-		return false;
-	}
-
-
-	// Add the current hit actor on top of the ignored actors
-	FCollisionQueryParams RicoParams = Params;
-
-	// Calculate ricochet direction
-	FVector RicoDir;
-	CalculateRicochetDirection(RicoDir, LastHit);
-
-	// Use direction to get the trace end
-	const FVector RicoStart = LastHit.Location + (KINDA_SMALL_NUMBER * RicoDir);
-	const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
-
-	// Perform ricochet trace
-	TArray<FHitResult> RicoHitResults; // this ricochet's hit results
-	const bool bHitBlockingHit = World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoParams);
-	OnTraced(RicoHitResults);
-
-	OutHitResults.Append(RicoHitResults);
-
-	if (!bHitBlockingHit)
-	{
-		return false;
-	}
-
-
-	return true;
-}
-bool AGATA_Trace::RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld* World, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params)
-{
-	if (OutHitResults.Num() <= 0)
-	{
-		return false;
-	}
-	const FHitResult LastHit = OutHitResults.Last();
-	if (LastHit.bBlockingHit == false)
-	{
-		return false;
-	}
-
-
-	// Add the current hit actor on top of the ignored actors
-	FCollisionQueryParams RicoParams = Params;
-
-	// Calculate ricochet direction
-	FVector RicoDir;
-	CalculateRicochetDirection(RicoDir, LastHit);
-
-	// Use direction to get the trace end
-	const FVector RicoStart = LastHit.Location + (KINDA_SMALL_NUMBER * RicoDir);
-	const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
-
-	// Perform ricochet sweep
-	TArray<FHitResult> RicoHitResults; // this ricochet's hit results
-	const bool bHitBlockingHit = World->SweepMultiByChannel(RicoHitResults, RicoStart, RicoEnd, Rotation, TraceChannel, CollisionShape, RicoParams);
-	OnTraced(RicoHitResults);
-
-	OutHitResults.Append(RicoHitResults);
-
-	if (!bHitBlockingHit)
-	{
-		return false;
-	}
-
-
-	return true;
-}
 
 void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams Params, const bool inDebug)
 {
@@ -223,9 +145,36 @@ void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults,
 	uint8 r = 0; // outside for bDebug to use maybe try to change this idk
 	for (r; r < GetRicochets(); ++r)
 	{
-		const bool bShouldContinue = RicochetLineTrace(OutHitResults, World, Params);
+		if (OutHitResults.Num() <= 0)
+		{
+			break;
+		}
+		const FHitResult LastHit = OutHitResults.Last();
+		if (LastHit.bBlockingHit == false)
+		{
+			break;
+		}
 
-		if (bShouldContinue == false)
+
+		// Add the current hit actor on top of the ignored actors
+		FCollisionQueryParams RicoParams = Params;
+
+		// Calculate ricochet direction
+		FVector RicoDir;
+		CalculateRicochetDirection(RicoDir, LastHit);
+
+		// Use direction to get the trace end
+		const FVector RicoStart = LastHit.Location + (KINDA_SMALL_NUMBER * RicoDir);
+		const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
+
+		// Perform ricochet trace
+		TArray<FHitResult> RicoHitResults; // this ricochet's hit results
+		const bool bHitBlockingHit = World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoParams);
+		OnTraced(RicoHitResults);
+
+		OutHitResults.Append(RicoHitResults);
+
+		if (!bHitBlockingHit)
 		{
 			break;
 		}
@@ -255,9 +204,36 @@ void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, con
 	uint8 r = 0; // outside for bDebug to use maybe try to change this idk
 	for (r; r < GetRicochets(); ++r)
 	{
-		const bool bShouldContinue = RicochetSweep(OutHitResults, World, Rotation, CollisionShape, Params);
+		if (OutHitResults.Num() <= 0)
+		{
+			break;
+		}
+		const FHitResult LastHit = OutHitResults.Last();
+		if (LastHit.bBlockingHit == false)
+		{
+			break;
+		}
 
-		if (bShouldContinue == false)
+
+		// Add the current hit actor on top of the ignored actors
+		FCollisionQueryParams RicoParams = Params;
+
+		// Calculate ricochet direction
+		FVector RicoDir;
+		CalculateRicochetDirection(RicoDir, LastHit);
+
+		// Use direction to get the trace end
+		const FVector RicoStart = LastHit.Location + (KINDA_SMALL_NUMBER * RicoDir);
+		const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
+
+		// Perform ricochet sweep
+		TArray<FHitResult> RicoHitResults; // this ricochet's hit results
+		const bool bHitBlockingHit = World->SweepMultiByChannel(RicoHitResults, RicoStart, RicoEnd, Rotation, TraceChannel, CollisionShape, RicoParams);
+		OnTraced(RicoHitResults);
+
+		OutHitResults.Append(RicoHitResults);
+
+		if (!bHitBlockingHit)
 		{
 			break;
 		}

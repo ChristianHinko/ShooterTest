@@ -44,17 +44,6 @@ protected:
 	virtual void OnTraced(const TArray<FHitResult>& HitResults) { }
 
 	/**
-	 * Called in a loop "GetRicochets()" amount of times (unless unsuccessful rico occurs).
-	 * Expects the OutHitResults to already have hits.
-	 * 
-	 * Returns true if successful (we should continue ricocheting).
-	 * Returns false if didn't trace successfully (we should stop ricocheting).
-	 */
-	virtual bool RicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWorld* World, const FCollisionQueryParams Params);
-	virtual bool RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld* World, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params);
-
-
-	/**
 	 * Calculates the direction to ricochet from the given hit.
 	 * This can be overriden for custom ricochet directions
 	 */

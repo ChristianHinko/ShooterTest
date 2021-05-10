@@ -141,8 +141,6 @@ bool AGATA_Trace::RicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWo
 		return false;
 	}
 
-	// This ricochet's hit results
-	TArray<FHitResult> RicoHitResults;
 
 	// Add the current hit actor on top of the ignored actors
 	FCollisionQueryParams RicoParams = Params;
@@ -155,7 +153,9 @@ bool AGATA_Trace::RicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWo
 	const FVector RicoStart = LastHit.Location;
 	const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
 
-	// Perform ricochet
+	// This ricochet's hit results
+	TArray<FHitResult> RicoHitResults;
+	// Perform ricochet trace
 	const bool bHitBlockingHit = World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoParams);
 	OnTraced(RicoHitResults);
 
@@ -179,9 +179,6 @@ bool AGATA_Trace::RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld*
 		return false;
 	}
 
-	// This ricochet's hit results
-	TArray<FHitResult> RicoHitResults;
-
 	// Add the current hit actor on top of the ignored actors
 	FCollisionQueryParams RicoParams = Params;
 
@@ -193,7 +190,9 @@ bool AGATA_Trace::RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld*
 	const FVector RicoStart = LastHit.Location;
 	const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
 
-	// Perform ricochet
+	// This ricochet's hit results
+	TArray<FHitResult> RicoHitResults;
+	// Perform ricochet sweep
 	const bool bHitBlockingHit = World->SweepMultiByChannel(RicoHitResults, RicoStart, RicoEnd, Rotation, TraceChannel, CollisionShape, RicoParams);
 	OnTraced(RicoHitResults);
 

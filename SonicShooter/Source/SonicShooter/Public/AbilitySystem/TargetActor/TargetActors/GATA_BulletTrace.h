@@ -27,8 +27,8 @@ public:
 
 	virtual float GetMaxRange() const override;
 	virtual int32 GetNumberOfTraces() const override;
-	virtual int32 GetPenetrations() const override;
 	virtual int32 GetRicochets() const override;
+	virtual int32 GetPenetrations() const override;
 
 	UPROPERTY()
 		UAS_Gun* GunAttributeSet;

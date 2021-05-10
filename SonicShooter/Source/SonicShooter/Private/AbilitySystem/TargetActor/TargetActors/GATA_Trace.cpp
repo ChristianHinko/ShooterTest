@@ -150,12 +150,11 @@ bool AGATA_Trace::RicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWo
 	CalculateRicochetDirection(RicoDir, LastHit);
 
 	// Use direction to get the trace end
-	const FVector RicoStart = LastHit.Location;
+	const FVector RicoStart = LastHit.Location + (KINDA_SMALL_NUMBER * RicoDir);
 	const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
 
-	// This ricochet's hit results
-	TArray<FHitResult> RicoHitResults;
 	// Perform ricochet trace
+	TArray<FHitResult> RicoHitResults; // this ricochet's hit results
 	const bool bHitBlockingHit = World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoParams);
 	OnTraced(RicoHitResults);
 
@@ -165,6 +164,8 @@ bool AGATA_Trace::RicochetLineTrace(TArray<FHitResult>& OutHitResults, const UWo
 	{
 		return false;
 	}
+
+
 	return true;
 }
 bool AGATA_Trace::RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld* World, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params)
@@ -179,6 +180,7 @@ bool AGATA_Trace::RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld*
 		return false;
 	}
 
+
 	// Add the current hit actor on top of the ignored actors
 	FCollisionQueryParams RicoParams = Params;
 
@@ -187,12 +189,11 @@ bool AGATA_Trace::RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld*
 	CalculateRicochetDirection(RicoDir, LastHit);
 
 	// Use direction to get the trace end
-	const FVector RicoStart = LastHit.Location;
+	const FVector RicoStart = LastHit.Location + (KINDA_SMALL_NUMBER * RicoDir);
 	const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
 
-	// This ricochet's hit results
-	TArray<FHitResult> RicoHitResults;
 	// Perform ricochet sweep
+	TArray<FHitResult> RicoHitResults; // this ricochet's hit results
 	const bool bHitBlockingHit = World->SweepMultiByChannel(RicoHitResults, RicoStart, RicoEnd, Rotation, TraceChannel, CollisionShape, RicoParams);
 	OnTraced(RicoHitResults);
 
@@ -202,6 +203,8 @@ bool AGATA_Trace::RicochetSweep(TArray<FHitResult>& OutHitResults, const UWorld*
 	{
 		return false;
 	}
+
+
 	return true;
 }
 

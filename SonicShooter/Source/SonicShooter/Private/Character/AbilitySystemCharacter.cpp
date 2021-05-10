@@ -122,7 +122,7 @@ void AAbilitySystemCharacter::OnRep_Controller()
 
 	if (GetAbilitySystemComponent())
 	{
-		GetAbilitySystemComponent()->RefreshAbilityActorInfo();		// TODO: COME BACK TO THIS. ONLY REASON I HAVE THIS HERE RN IS BECAUSE KAOSSPECRUM SAID TO REFRESH IN HERE. i think it's mainly for AIs
+		GetAbilitySystemComponent()->RefreshAbilityActorInfo();		// Kaos said to do this here, not really sure what it's for, but might be for AIs? Also noticed ArcInventory example project does it
 	}
 }
 

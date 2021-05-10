@@ -338,7 +338,17 @@ void USSArcInventoryComponent_Active::OnItemSlotChangeEvent(UArcInventoryCompone
 {
 	// Problem: Not sure if this is a UI problem or if it's maybe just some problem with attribute initializers or something like that, but for some reason the ui starts you off with 0 backup ammo and you nmeed to reload in order for the backup ammo to update (happened on listening server but using that as a reference since client version doesn't exactly work rn since we are waiting on Roy to finish the prev item stack system)
 	// Problem: Right now only the server runs this when the game fills the players inventory with startup weapons, so we need this to somehow be called on client too on startup
-	// Untested
+	// Looks like Roy is working on fixing both these problems... Well just wait on the next ArcInventory update
+	/*
+		If we are getting egar to have problem 2 fixed before Roy gets out the new update, we can just paste this check in ArcInventoryItemTypes.cpp line 143:
+		if (IsValid(ItemStack))
+		{
+			Owner->OnItemSlotChange.Broadcast(Owner, FArcInventoryItemSlotReference(*this, Owner), ItemStack, nullptr);
+		}
+	*/
+
+
+	// Untested since we are waiting on these problems to be resolved for the next ArcInventory update
 	if (IsValid(ItemStack))		// If we are equiping
 	{
 		// We will create the item's widget so we can show it when it later becomes "Active"

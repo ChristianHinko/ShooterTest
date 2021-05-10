@@ -38,6 +38,10 @@ int32 AGATA_BulletTrace::GetNumberOfTraces() const
 	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its NumberOfBulletsPerFire attribute! Will return default value from Super instead!"), *FString(__FUNCTION__));
 	return Super::GetNumberOfTraces();
 }
+int32 AGATA_BulletTrace::GetPenetrations() const
+{
+	return 1; // TODO: make attribute for this
+}
 int32 AGATA_BulletTrace::GetRicochets() const
 {
 	if (GunAttributeSet)

@@ -30,6 +30,7 @@ public:
 	void SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape& CollisionShape, const FCollisionQueryParams& Params, const bool inDebug);
 
 	virtual int32 GetNumberOfTraces() const;
+	virtual int32 GetPenetrations() const;
 	virtual int32 GetRicochets() const;
 
 	/** Any Physical Surfaces added to this array will ricochet any Trace that hits them */

@@ -9,6 +9,7 @@
 #include "Character/AbilitySystemCharacter.h"
 #include "Pawn/AbilitySystemPawn.h"
 #include "Actor/AbilitySystemActor.h"
+#include "Utilities/SurfaceTypes.h"
 
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -27,6 +28,8 @@ AGATA_Trace::AGATA_Trace(const FObjectInitializer& ObjectInitializer)
 	MultiFilter.RequiredActorClasses.Add(AAbilitySystemActor::StaticClass());
 
 	bDebug = true;
+
+	RicochetableSurfaces.Add(SURFACE_METAL);
 }
 
 

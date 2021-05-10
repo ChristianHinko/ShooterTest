@@ -32,6 +32,9 @@ public:
 	virtual int32 GetNumberOfTraces() const;
 	virtual int32 GetRicochets() const;
 
+	/** Any Physical Surfaces added to this array will ricochet any Trace that hits them */
+	TArray<EPhysicalSurface> RicochetableSurfaces;
+
 protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 

@@ -172,10 +172,3 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 	LineTraceMultiWithRicochets(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, Params, bDebug);
 
 }
-
-void AGATA_BulletTrace::OnTraced(const TArray<FHitResult>& HitResults)
-{
-	Super::OnTraced(HitResults);
-
-
-}

@@ -40,11 +40,6 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	/**
-	 * Called on a successful trace/sweep. Gives the Hit Results from the trace/sweep that just occurred
-	 */
-	virtual void OnTraced(const TArray<FHitResult>& HitResults) { }
-
-	/**
 	 * Calculates the direction to ricochet from the given hit.
 	 * This can be overriden for custom ricochet directions
 	 */

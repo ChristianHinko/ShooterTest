@@ -116,11 +116,11 @@ int32 AGATA_Trace::GetNumberOfTraces() const
 {
 	return 1;
 }
-int32 AGATA_Trace::GetPenetrations() const
+int32 AGATA_Trace::GetRicochets() const
 {
 	return 0;
 }
-int32 AGATA_Trace::GetRicochets() const
+int32 AGATA_Trace::GetPenetrations() const
 {
 	return 0;
 }
@@ -149,9 +149,11 @@ void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults,
 
 	OutHitResults.Append(HitResults);
 
-	// ricochets
-	uint8 r = 0; // outside for bDebug to use maybe try to change this idk
-	for (r; r < GetRicochets(); ++r)
+	int32 maxRicochets = GetRicochets();
+	int32 timesRicocheted = 0;
+	int32 maxPenetrations = GetPenetrations();
+	int32 timesPenetrated = maxPenetrations/*0*/; // set to max for now because we don't have penetrations implemented
+	while (true)
 	{
 		if (OutHitResults.Num() <= 0)
 		{
@@ -162,36 +164,48 @@ void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults,
 		{
 			break;
 		}
+
 		const EPhysicalSurface LastSurface = LastHit.PhysMaterial.Get()->SurfaceType;
-		if (RicochetableSurfaces.Contains(LastSurface) == false)
+
+
+		// Try ricochet
+		if (timesRicocheted < maxRicochets && RicochetableSurfaces.Contains(LastSurface))
 		{
-			// This surface isn't ricochetable
-			break;
+			// Add the current hit actor on top of the ignored actors
+			FCollisionQueryParams RicoParams = TraceParams;
+
+			// Calculate ricochet direction
+			FVector RicoDir;
+			CalculateRicochetDirection(RicoDir, LastHit);
+
+			// Use direction to get the trace end
+			const FVector RicoStart = LastHit.Location + (KINDA_SMALL_NUMBER * RicoDir);
+			const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
+
+			// Perform ricochet trace
+			TArray<FHitResult> RicoHitResults; // this ricochet's hit results
+			const bool bHitBlockingHit = World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoParams);
+			++timesRicocheted;
+			OnTraced(RicoHitResults);
+
+			OutHitResults.Append(RicoHitResults);
+			continue;
+		}
+		else
+		{
+			if (timesPenetrated >= maxPenetrations)
+			{
+				break;
+			}
 		}
 
 
-		// Add the current hit actor on top of the ignored actors
-		FCollisionQueryParams RicoParams = TraceParams;
 
-		// Calculate ricochet direction
-		FVector RicoDir;
-		CalculateRicochetDirection(RicoDir, LastHit);
 
-		// Use direction to get the trace end
-		const FVector RicoStart = LastHit.Location + (KINDA_SMALL_NUMBER * RicoDir);
-		const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
 
-		// Perform ricochet trace
-		TArray<FHitResult> RicoHitResults; // this ricochet's hit results
-		const bool bHitBlockingHit = World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoParams);
-		OnTraced(RicoHitResults);
 
-		OutHitResults.Append(RicoHitResults);
 
-		if (!bHitBlockingHit)
-		{
-			break;
-		}
+
 	}
 
 
@@ -199,7 +213,7 @@ void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults,
 #if ENABLE_DRAW_DEBUG
 	if (inDebug)
 	{
-		DebugTrace(OutHitResults, World, Start, End, r);
+		DebugTrace(OutHitResults, World, Start, End, timesRicocheted);
 	}
 #endif
 }

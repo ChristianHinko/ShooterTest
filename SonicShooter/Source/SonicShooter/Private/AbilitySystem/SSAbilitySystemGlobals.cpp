@@ -3,7 +3,7 @@
 
 #include "AbilitySystem/SSAbilitySystemGlobals.h"
 
-#include "AbilitySystem/SSGameplayAbilityTypes.h"
+#include "AbilitySystem/GAAI_Shooter.h"
 #include "AbilitySystem/GEC_Shooter.h"
 
 
@@ -16,7 +16,7 @@ USSAbilitySystemGlobals::USSAbilitySystemGlobals()
 
 FGameplayAbilityActorInfo* USSAbilitySystemGlobals::AllocAbilityActorInfo() const
 {
-	return new FSSGameplayAbilityActorInfo();
+	return new FGAAI_Shooter();
 }
 FGameplayEffectContext* USSAbilitySystemGlobals::AllocGameplayEffectContext() const
 {

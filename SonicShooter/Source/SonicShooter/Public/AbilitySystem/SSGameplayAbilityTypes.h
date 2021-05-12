@@ -11,10 +11,8 @@
 class USSAbilitySystemComponent;
 class ASSPlayerController;
 class ASSPlayerState;
-class AShooterCharacter;
-class UASC_Shooter;
+class AAbilitySystemCharacter;
 class USSCharacterMovementComponent;
-class USSArcInventoryComponent_Active;
 
 
 
@@ -22,7 +20,8 @@ DECLARE_MULTICAST_DELEGATE(FAbilityActorInfoState)
 
 
 /**
- * Our custom FGameplayAbilityActorInfo
+ * Our base GameplayAbilityActorInfo.
+ * Put non-game-specific data in here - like base classes and stuff
  */
 USTRUCT()
 struct SONICSHOOTER_API FSSGameplayAbilityActorInfo : public FGameplayAbilityActorInfo
@@ -31,6 +30,7 @@ struct SONICSHOOTER_API FSSGameplayAbilityActorInfo : public FGameplayAbilityAct
     typedef Super FGameplayAbilityActorInfo;
 
 
+    FSSGameplayAbilityActorInfo();
     virtual ~FSSGameplayAbilityActorInfo()
     {
 
@@ -48,23 +48,19 @@ struct SONICSHOOTER_API FSSGameplayAbilityActorInfo : public FGameplayAbilityAct
     UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")
         TWeakObjectPtr<ASSPlayerState> SSPlayerState;
 
-    // Our ShooterCharacter. Often nullptr.
+    // Our AbilitySystemCharacter. Often nullptr.
     UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")
-        TWeakObjectPtr<AShooterCharacter> ShooterCharacter;
-
-    // Our Shooter specific ASC.
-    UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")
-        TWeakObjectPtr<UASC_Shooter> ShooterAbilitySystemComponent;
+        TWeakObjectPtr<AAbilitySystemCharacter> AbilitySystemCharacter;
 
     // Our CMC. Often nullptr.
     UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")
         TWeakObjectPtr<USSCharacterMovementComponent> SSCharacterMovementComponent;
 
-    // Our Inventory Component. Often nullptr.
-    UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")
-        TWeakObjectPtr<USSArcInventoryComponent_Active> InventoryComponent;
 
-
+    /**
+     * Broadcast this at the end of your InitFromActor().
+     * The reason this base class can't is because it would be done in the Super call and wouldn't be done after the subclass initialization.
+     */
     FAbilityActorInfoState OnInited;
 
     virtual void InitFromActor(AActor* OwnerActor, AActor* AvatarActor, UAbilitySystemComponent* InAbilitySystemComponent) override;
@@ -77,15 +73,9 @@ struct SONICSHOOTER_API FSSGameplayAbilityActorInfo : public FGameplayAbilityAct
     // Gets the PS. This is often nullptr.
     ASSPlayerState* GetSSPlayerState() const { return SSPlayerState.IsValid() ? SSPlayerState.Get() : nullptr; }
 
-    // Gets the ShooterCharacter. This is often nullptr.
-    AShooterCharacter* GetShooterCharacter() const { return ShooterCharacter.IsValid() ? ShooterCharacter.Get() : nullptr; }
-
-    // Gets the ShooterAbilitySystemComponent.
-    UASC_Shooter* GetShooterAbilitySystemComponent() const { return ShooterAbilitySystemComponent.IsValid() ? ShooterAbilitySystemComponent.Get() : nullptr; }
+    // Gets the AbilitySystemCharacter. This is often nullptr.
+    AAbilitySystemCharacter* GetAbilitySystemCharacter() const { return AbilitySystemCharacter.IsValid() ? AbilitySystemCharacter.Get() : nullptr; }
 
     // Gets the CMC. This is often nullptr.
     USSCharacterMovementComponent* GetSSCharacterMovementComponent() const { return SSCharacterMovementComponent.IsValid() ? SSCharacterMovementComponent.Get() : nullptr; }
-
-    // Gets the Inventory Component. This is often nullptr.
-    USSArcInventoryComponent_Active* GetInventoryComponent() const { return InventoryComponent.IsValid() ? InventoryComponent.Get() : nullptr; }
 };

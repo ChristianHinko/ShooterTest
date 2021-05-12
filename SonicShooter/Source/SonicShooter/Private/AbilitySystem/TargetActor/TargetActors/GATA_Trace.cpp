@@ -155,32 +155,53 @@ void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults,
 	FCollisionQueryParams TraceParams = Params;
 	TraceParams.bReturnPhysicalMaterial = true;
 
-	FVector CurrentStart = Start;
-	FVector CurrentEnd = End;
+	TArray<FHitResult> HitResults;
+	World->LineTraceMultiByChannel(HitResults, Start, End, TraceChannel, TraceParams);
+	OutHitResults.Append(HitResults);
 
 	int32 maxRicochets = GetRicochets();
-	int32 timesRicocheted = -1; // this is weird. try to fix this. -1 because the first loop is the initial trace - not a ricochet
+	int32 timesRicocheted = 0;
 	int32 maxPenetrations = GetPenetrations();
-	int32 timesPenetrated = 0; // not implemented yet
-	for (timesRicocheted; timesRicocheted < maxRicochets; ++timesRicocheted)
+	int32 timesPenetrated = maxPenetrations; // not implemented yet so we set to max for now so we don't do any
+	while (true)
 	{
-		TArray<FHitResult> HitResults;
-		World->LineTraceMultiByChannel(HitResults, CurrentStart, CurrentEnd, TraceChannel, TraceParams);
-
-		for (const FHitResult& Hit : HitResults)
+		if (OutHitResults.Num() <= 0)
 		{
-			OutHitResults.Add(Hit);
+			break;
+		}
+		const FHitResult LastHit = OutHitResults.Last();
+		if (LastHit.bBlockingHit == false)
+		{
+			// We only ricochet and penetrate for blocking hits
+			break;
+		}
 
-			if (ShouldRicochetOffOf(Hit))
+		
+		if (timesRicocheted < maxRicochets && ShouldRicochetOffOf(LastHit))
+		{
+			// Calculate ricochet direction
+			FVector RicoDir;
+			CalculateRicochetDirection(RicoDir, LastHit);
+
+			// Use direction to get the trace end
+			FVector RicoStart = LastHit.Location + (KINDA_SMALL_NUMBER * RicoDir);
+			FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
+
+			// Perform ricochet trace
+			TArray<FHitResult> RicoHitResults; // this ricochet's hit results
+			const bool bHitBlockingHit = World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, TraceParams);
+			OutHitResults.Append(RicoHitResults);
+			++timesRicocheted;
+
+			if (!bHitBlockingHit)
 			{
-				// Calculate ricochet direction
-				FVector RicoDir;
-				CalculateRicochetDirection(RicoDir, Hit);
-
-				// Use direction to get the trace end
-				CurrentStart = Hit.Location + (KINDA_SMALL_NUMBER * RicoDir);
-				CurrentEnd = CurrentStart + ((GetMaxRange() - Hit.Distance) * RicoDir);
-
+				break;
+			}
+		}
+		else
+		{
+			if (timesPenetrated >= maxPenetrations)
+			{
 				break;
 			}
 		}

@@ -39,6 +39,12 @@ public:
 protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+
+	/**
+	 * Determines whether we should ricochet off of the given Hit or not.
+	 * This can be overriden for custom ricochet determination.
+	 */
+	virtual bool ShouldRicochetOffOf(const FHitResult& Hit) const;
 	/**
 	 * Calculates the direction to ricochet from the given hit.
 	 * This can be overriden for custom ricochet directions

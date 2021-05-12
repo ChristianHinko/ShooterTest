@@ -125,6 +125,19 @@ int32 AGATA_Trace::GetPenetrations() const
 	return 0;
 }
 
+bool AGATA_Trace::ShouldRicochetOffOf(const FHitResult& Hit) const
+{
+	if (const UPhysicalMaterial* HitPhysMaterial = Hit.PhysMaterial.Get())
+	{
+		const EPhysicalSurface HitSurfaceType = HitPhysMaterial->SurfaceType;
+		if (RicochetableSurfaces.Contains(HitSurfaceType))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
 void AGATA_Trace::CalculateRicochetDirection(FVector& RicoDir, const FHitResult& FromHit) const
 {
 	const FVector FromDir = UKismetMathLibrary::GetDirectionUnitVector(FromHit.TraceStart, FromHit.Location);
@@ -158,8 +171,7 @@ void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults,
 		{
 			OutHitResults.Add(Hit);
 
-			const EPhysicalSurface HitSurfaceType = Hit.PhysMaterial.Get()->SurfaceType;
-			if (RicochetableSurfaces.Contains(HitSurfaceType))
+			if (ShouldRicochetOffOf(Hit))
 			{
 				// Calculate ricochet direction
 				FVector RicoDir;

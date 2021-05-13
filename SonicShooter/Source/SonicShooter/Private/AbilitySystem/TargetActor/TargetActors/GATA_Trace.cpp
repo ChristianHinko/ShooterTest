@@ -220,11 +220,25 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 			// Ensure Trace Complex for this trace
 			FCollisionQueryParams PenetrateParams = TraceParams;
-			PenetrateParams.bTraceComplex = true; // we need bTraceComplex because we are starting from inside the geometry and shooting out (this won't work for CTF_UseSimpleAsComplex and Physics Assest colliders so TODO: we will need a case that covers this)
+			PenetrateParams.bTraceComplex = true; // we need bTraceComplex because we are starting from inside the geometry and shooting out (this won't work for CTF_UseSimpleAsComplex and Physics Assest colliders but we have a fallback for them)
 
 			// Perform penetrate trace
 			TArray<FHitResult> PenetrateHitResults; // this penetration's hit results
-			const bool bHitBlockingHit = World->LineTraceMultiByChannel(PenetrateHitResults, PenetrateStart, PenetrateEnd, TraceChannel, PenetrateParams);
+			World->LineTraceMultiByChannel(PenetrateHitResults, PenetrateStart, PenetrateEnd, TraceChannel, PenetrateParams);
+			
+
+
+			// Our fallback if the trace messed up (if we hit ourselves instead of going through to the next hit). This happens if we are a CTF_UseSimpleAsComplex or a Physics Asset collider.
+			if (PenetrateHitResults.Num() > 0 && PenetrateHitResults.Last().Distance == 0)
+			{
+				// Try again with this component ignored
+				PenetrateParams.AddIgnoredComponent(PenetrateHitResults.Last().GetComponent());
+				PenetrateHitResults.Empty();
+				World->LineTraceMultiByChannel(PenetrateHitResults, PenetrateStart, PenetrateEnd, TraceChannel, PenetrateParams);
+			}
+
+
+			
 			OutHitResults.Append(PenetrateHitResults); // add these results to the end of OutHitResults
 			LastHit = OutHitResults.Last(); // update LastHit
 			++timesPenetrated;

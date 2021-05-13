@@ -147,18 +147,23 @@ void AGATA_Trace::CalculateRicochetDirection(FVector& RicoDir, const FHitResult&
 }
 
 
-void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& Params, const bool inDebug)
+void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& Params, const bool inDebug)
 {
+	OutHitResults.Empty();
 	check(World);
 
 
+	// Ensure we return Physical Material for the ricochet determination
 	FCollisionQueryParams TraceParams = Params;
 	TraceParams.bReturnPhysicalMaterial = true;
 
+	// Perform initial trace
 	TArray<FHitResult> HitResults;
 	World->LineTraceMultiByChannel(HitResults, Start, End, TraceChannel, TraceParams);
 	OutHitResults.Append(HitResults);
 
+
+	// Ricochet and Penetrate loop
 	int32 maxRicochets = GetRicochets();
 	int32 timesRicocheted = 0;
 	int32 maxPenetrations = GetPenetrations();
@@ -167,6 +172,7 @@ void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults,
 	{
 		if (OutHitResults.Num() <= 0)
 		{
+			// Nothing to work with, break here
 			break;
 		}
 		FHitResult LastHit = OutHitResults.Last();
@@ -188,7 +194,7 @@ void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults,
 				CalculateRicochetDirection(RicoDir, LastHit);
 
 				// Use direction to get the trace end
-				FVector RicoStart = LastHit.Location + ((KINDA_SMALL_NUMBER * 100) * RicoDir); // for PhysX support we have to bump it outwards a bit
+				FVector RicoStart = LastHit.Location + ((KINDA_SMALL_NUMBER * 100) * RicoDir); // for PhysX support (and reassurance) we have to bump it outwards a bit
 				FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
 
 				// Perform ricochet trace
@@ -209,7 +215,7 @@ void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults,
 			const FVector FromDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.Location);
 
 			// Use direction to get the trace end
-			FVector PenetrateStart = LastHit.Location + ((KINDA_SMALL_NUMBER * 100) * FromDir); // for PhysX support we have to bump it into it a bit
+			FVector PenetrateStart = LastHit.Location + ((KINDA_SMALL_NUMBER * 100) * FromDir); // for PhysX support (and reassurance) we have to bump it into it a bit
 			FVector PenetrateEnd = PenetrateStart + ((GetMaxRange() - LastHit.Distance) * FromDir);
 
 			// Ensure Trace Complex for this trace
@@ -234,6 +240,9 @@ void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults,
 		}
 
 	}
+
+
+
 
 
 

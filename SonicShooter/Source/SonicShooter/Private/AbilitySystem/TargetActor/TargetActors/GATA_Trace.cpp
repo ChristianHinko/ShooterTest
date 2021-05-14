@@ -222,7 +222,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 			// Ensure Trace Complex for this trace
 			FCollisionQueryParams PenetrateParams = TraceParams;
-			PenetrateParams.bTraceComplex = true; // we need bTraceComplex because we are starting from inside the geometry and shooting out (this won't work for CTF_UseSimpleAsComplex and Physics Assest colliders but we have a fallback for them)
+			PenetrateParams.bTraceComplex = true; // we need bTraceComplex because we are starting from inside the geometry and shooting out (this won't work for CTF_UseSimpleAsComplex and Physics Assest colliders but we have a fallback method for them)
 
 			// Perform penetrate trace
 			TArray<FHitResult> PenetrateHitResults; // this penetration's hit results
@@ -261,7 +261,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	// Array of distances parallel to the OutHitResults array. A value is -1 if the hit wasn't a penetration or if something went wrong
 	TArray<float> PenetrationDistances;
 
-	// Loop backwards through each blocking hit
+	// Loop backwards through each blocking hit (backwards traces)
 	FHitResult InFrontOfHit; // the hit from previous iteration
 	FHitResult LastRevHit;
 	for (int32 i = OutHitResults.Num() - 1; i >= 0; InFrontOfHit = OutHitResults[i], --i)

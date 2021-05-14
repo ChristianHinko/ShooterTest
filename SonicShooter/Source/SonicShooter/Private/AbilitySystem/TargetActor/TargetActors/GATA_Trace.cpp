@@ -165,7 +165,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	OutHitResults.Append(HitResults);
 
 
-	// Ricochet and Penetrate loop
+	// Extra traces loop
 	int32 maxRicochets = GetRicochets();
 	int32 timesRicocheted = 0;
 	int32 maxPenetrations = GetPenetrations();

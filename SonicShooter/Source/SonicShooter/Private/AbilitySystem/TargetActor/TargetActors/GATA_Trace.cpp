@@ -196,7 +196,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 				CalculateRicochetDirection(RicoDir, LastHit);
 
 				// Use direction to get the trace end
-				FVector RicoStart = LastHit.Location;												// if you want PhysX support for some reason add " + ((KINDA_SMALL_NUMBER * 100) * RicoDir)" to bump it outwards a little bit
+				FVector RicoStart = LastHit.Location + ((KINDA_SMALL_NUMBER * 100) * RicoDir);			// bump it outwards a bit for reassurance (sometimes works without this if using Chaos)
 				FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
 
 				// Perform ricochet trace
@@ -217,7 +217,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 			const FVector FromDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.Location);
 
 			// Use direction to get the trace end
-			FVector PenetrateStart = LastHit.Location;												// if you want PhysX support for some reason add " + ((KINDA_SMALL_NUMBER * 100) * FromDir)" to bump it into it a little bit
+			FVector PenetrateStart = LastHit.Location + ((KINDA_SMALL_NUMBER * 100) * FromDir);			// bump it into itself a bit for reassurance (sometimes works without this if using Chaos)
 			FVector PenetrateEnd = PenetrateStart + ((GetMaxRange() - LastHit.Distance) * FromDir);
 
 			// Ensure Trace Complex for this trace
@@ -282,8 +282,8 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 		const FVector FromDir = UKismetMathLibrary::GetDirectionUnitVector(Hit.TraceStart, Hit.Location);
 		const FVector RevDir = -1 * FromDir; // get the opposite direction
 
-		FVector RevStart = /*LastRevHit*/InFrontOfHit.Location; // we should be using LastRevHit for this i think but it is not always valid
-		FVector RevEnd = Hit.TraceStart;
+		FVector RevStart = /*LastRevHit*/InFrontOfHit.Location + ((KINDA_SMALL_NUMBER * 100) * RevDir); // we should be using LastRevHit for this i think but it is not always valid
+		FVector RevEnd = Hit.TraceStart + ((KINDA_SMALL_NUMBER * 100) * FromDir);
 
 		// Ensure Trace Complex for this trace
 		FCollisionQueryParams RevParams = TraceParams;

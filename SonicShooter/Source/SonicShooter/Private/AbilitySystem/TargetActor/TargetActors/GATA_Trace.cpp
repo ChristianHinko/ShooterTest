@@ -14,6 +14,8 @@
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
 
+#include "Kismet/KismetSystemLibrary.h"
+
 
 
 AGATA_Trace::AGATA_Trace(const FObjectInitializer& ObjectInitializer)
@@ -256,6 +258,69 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	}
 
 
+	// Array of distances parallel to the OutHitResults array. A value is -1 if the hit wasn't a penetration or if something went wrong
+	TArray<float> PenetrationDistances;
+
+	// Loop backwards through each blocking hit
+	FHitResult InFrontOfHit; // the hit from previous iteration
+	FHitResult LastRevHit;
+	for (int32 i = OutHitResults.Num() - 1; i >= 0; InFrontOfHit = OutHitResults[i], --i)
+	{
+		const FHitResult Hit = OutHitResults[i];
+
+		const bool bIsFirstIteration = (i == OutHitResults.Num() - 1);
+		if (Hit.bBlockingHit == false || bIsFirstIteration)
+		{
+			PenetrationDistances.Insert(-1, 0);
+			continue;
+		}
+
+
+
+
+		// Get trace dir from this hit
+		const FVector FromDir = UKismetMathLibrary::GetDirectionUnitVector(Hit.TraceStart, Hit.Location);
+		const FVector RevDir = -1 * FromDir; // get the opposite direction
+
+		FVector RevStart = /*LastRevHit*/InFrontOfHit.Location + ((KINDA_SMALL_NUMBER * 100) * RevDir); // we should be using LastRevHit for this i think but it is not always valid
+		FVector RevEnd = Hit.TraceStart + ((KINDA_SMALL_NUMBER * 100) * FromDir);
+
+		// Ensure Trace Complex for this trace
+		FCollisionQueryParams RevParams = TraceParams;
+		RevParams.bTraceComplex = true; // we need bTraceComplex because we are starting from inside the geometry and shooting out (this won't work for CTF_UseSimpleAsComplex and Physics Assest colliders so TODO: we will need a case that covers this)
+
+		// Perform reverse trace
+		TArray<FHitResult> RevHitResults; // this reverse trace's hit results
+		World->LineTraceMultiByChannel(RevHitResults, RevStart, RevEnd, TraceChannel, RevParams);
+
+		if (RevHitResults.Num() > 0 && RevHitResults.Last().Distance == 0)
+		{
+			// Try again with this component ignored
+			RevParams.AddIgnoredComponent(RevHitResults.Last().GetComponent());
+			RevHitResults.Empty();
+			World->LineTraceMultiByChannel(RevHitResults, RevStart, RevEnd, TraceChannel, RevParams);
+		}
+
+		// If the reverse trace didn't hit anything
+		if (RevHitResults.Num() <= 0)
+		{
+			PenetrationDistances.Insert(-1, 0);
+			continue;
+		}
+
+		// The location of RevHitResults's last hit is the other side of this Hit's geometry
+		float PenetrationDistance = FVector::Distance(RevHitResults.Last().Location, Hit.Location);
+		PenetrationDistances.Insert(PenetrationDistance, 0); // insert at the first index (instead of adding to the end) because we are looping backwards
+		LastRevHit = RevHitResults.Last();
+	}
+	// All of the values are shifted backwards so shift them forward
+	PenetrationDistances.Insert(-1, 0);
+	PenetrationDistances.RemoveAt(PenetrationDistances.Num() - 1);
+
+	for (const float& dist : PenetrationDistances)
+	{
+		UKismetSystemLibrary::PrintString(this, "penetration distance: " + FString::SanitizeFloat(dist), true, false);
+	}
 
 
 

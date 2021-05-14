@@ -276,8 +276,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	 */
 
 
-	// Array of distances parallel to the OutHitResults array. A value is -1 if the hit wasn't a penetration or if something went wrong
-	TArray<float> PenetrationDistances;
+	TArray<FBodyPenetrationInfo> Penetrations;
 
 	FHitResult PreviousHit;
 	for (int32 i = OutHitResults.Num() - 1; i >= 0; PreviousHit = OutHitResults[i], --i)
@@ -285,7 +284,6 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 		const FHitResult Hit = OutHitResults[i];
 		if (Hit.bBlockingHit == false)
 		{
-			PenetrationDistances.Insert(-1, 0);
 			continue;
 		}
 
@@ -328,20 +326,19 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 		// If the reverse trace didn't hit anything
 		if (!bHit && !bFallbackHit)
 		{
-			// Just add -1 and continue
-			PenetrationDistances.Insert(-1, 0);
+			// Just continue
 			continue;
 		}
 
 		// This is where the magic happens. Get the distance between the front and back of the object
 		// (The location of RevHitResult is the other side of this Hit's geometry)
 		float PenetrationDistance = FVector::Distance(RevHitResult.Location, Hit.Location);
-		PenetrationDistances.Insert(PenetrationDistance, 0); // insert at the first index (instead of adding to the end) because we are looping backwards
+		Penetrations.Insert(FBodyPenetrationInfo(Hit.PhysMaterial.Get(), PenetrationDistance), 0); // insert at the first index (instead of adding to the end) because we are looping backwards
 	}
 
-	for (const float& dist : PenetrationDistances)
+	for (const FBodyPenetrationInfo& Penetration : Penetrations)
 	{
-		UKismetSystemLibrary::PrintString(this, "penetration distance: " + FString::SanitizeFloat(dist), true, false);
+		UKismetSystemLibrary::PrintString(this, "penetration distance: " + FString::SanitizeFloat(Penetration.PenetrationDistance), true, false);
 	}
 
 

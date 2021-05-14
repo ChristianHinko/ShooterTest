@@ -69,3 +69,20 @@ protected:
 	TWeakObjectPtr<AGameplayAbilityWorldReticle> ReticleActor;
 
 };
+
+struct FBodyPenetrationInfo
+{
+	FBodyPenetrationInfo()
+	{
+		PhysMaterial = nullptr;
+		PenetrationDistance = -1;
+	}
+	FBodyPenetrationInfo(UPhysicalMaterial* InPhysMaterial, float InPenetrationDistance)
+	{
+		PhysMaterial = InPhysMaterial;
+		PenetrationDistance = InPenetrationDistance;
+	}
+
+	UPhysicalMaterial* PhysMaterial;
+	float PenetrationDistance;
+};

@@ -50,7 +50,7 @@ int32 AGATA_BulletTrace::GetRicochets() const
 }
 int32 AGATA_BulletTrace::GetPenetrations() const
 {
-	return 1; // TODO: make attribute for this
+	return 2; // TODO: make attribute for this
 }
 
 void AGATA_BulletTrace::ConfirmTargetingAndContinue()
@@ -169,6 +169,6 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 
 
 	// Perform line trace
-	LineTraceMultiWithRicochets(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, Params, bDebug);
+	LineTraceMulti(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, Params, bDebug);
 
 }

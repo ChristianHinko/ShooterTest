@@ -5,7 +5,7 @@
 
 #include "Net/UnrealNetwork.h"
 #include "GameplayAbilities/Public/GameplayEffectExtension.h"
-#include "AbilitySystem/SSGameplayAbilityTypes.h"
+#include "AbilitySystem/GAAI_Shooter.h"
 #include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
 
 
@@ -66,9 +66,9 @@ void UAS_Ammo::PostInitProperties()
 	//---------------------------------------- safe "BeginPlay" logic here ------------------------
 
 
-	if (FSSGameplayAbilityActorInfo* SSActorInfo = static_cast<FSSGameplayAbilityActorInfo*>(GetActorInfo()))
+	if (FGAAI_Shooter* ShooterActorInfo = static_cast<FGAAI_Shooter*>(GetActorInfo()))
 	{
-		if (UASC_Shooter* ShooterASC = SSActorInfo->GetShooterAbilitySystemComponent())
+		if (UASC_Shooter* ShooterASC = ShooterActorInfo->GetShooterAbilitySystemComponent())
 		{
 			ClipAmmo.SetValueChangeDelegate(ShooterASC->OnClipAmmoChange);
 		}

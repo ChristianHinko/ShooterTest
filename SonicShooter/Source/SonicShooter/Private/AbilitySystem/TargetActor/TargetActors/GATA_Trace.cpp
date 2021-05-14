@@ -125,6 +125,19 @@ int32 AGATA_Trace::GetPenetrations() const
 	return 0;
 }
 
+bool AGATA_Trace::ShouldRicochetOffOf(const FHitResult& Hit) const
+{
+	if (const UPhysicalMaterial* HitPhysMaterial = Hit.PhysMaterial.Get())
+	{
+		const EPhysicalSurface HitSurfaceType = HitPhysMaterial->SurfaceType;
+		if (RicochetableSurfaces.Contains(HitSurfaceType))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
 void AGATA_Trace::CalculateRicochetDirection(FVector& RicoDir, const FHitResult& FromHit) const
 {
 	const FVector FromDir = UKismetMathLibrary::GetDirectionUnitVector(FromHit.TraceStart, FromHit.Location);
@@ -134,50 +147,116 @@ void AGATA_Trace::CalculateRicochetDirection(FVector& RicoDir, const FHitResult&
 }
 
 
-void AGATA_Trace::LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& Params, const bool inDebug)
+void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& Params, const bool inDebug)
 {
+	OutHitResults.Empty();
 	check(World);
 
 
+	// Ensure we return Physical Material for the ricochet determination
 	FCollisionQueryParams TraceParams = Params;
 	TraceParams.bReturnPhysicalMaterial = true;
 
-	FVector CurrentStart = Start;
-	FVector CurrentEnd = End;
+	// Perform initial trace
+	TArray<FHitResult> HitResults;
+	World->LineTraceMultiByChannel(HitResults, Start, End, TraceChannel, TraceParams);
+	OutHitResults.Append(HitResults);
 
+
+	// Ricochet and Penetrate loop
 	int32 maxRicochets = GetRicochets();
-	int32 timesRicocheted = -1; // this is weird. try to fix this. -1 because the first loop is the initial trace - not a ricochet
+	int32 timesRicocheted = 0;
 	int32 maxPenetrations = GetPenetrations();
-	int32 timesPenetrated = 0; // not implemented yet
-	for (timesRicocheted; timesRicocheted < maxRicochets; ++timesRicocheted)
+	int32 timesPenetrated = 0;
+	while (true)
 	{
-		TArray<FHitResult> HitResults;
-		World->LineTraceMultiByChannel(HitResults, CurrentStart, CurrentEnd, TraceChannel, TraceParams);
-
-		for (const FHitResult& Hit : HitResults)
+		if (OutHitResults.Num() <= 0)
 		{
-			OutHitResults.Add(Hit);
+			// Nothing to work with, break here
+			break;
+		}
+		FHitResult LastHit = OutHitResults.Last();
+		if (LastHit.bBlockingHit == false)
+		{
+			// We only ricochet and penetrate for blocking hits
+			break;
+		}
 
-			const EPhysicalSurface HitSurfaceType = Hit.PhysMaterial.Get()->SurfaceType;
-			if (RicochetableSurfaces.Contains(HitSurfaceType))
+		
+		// Ricochet
+		bool bRicocheted = false;
+		if (timesRicocheted < maxRicochets)
+		{
+			if (ShouldRicochetOffOf(LastHit))
 			{
 				// Calculate ricochet direction
 				FVector RicoDir;
-				CalculateRicochetDirection(RicoDir, Hit);
+				CalculateRicochetDirection(RicoDir, LastHit);
 
 				// Use direction to get the trace end
-				CurrentStart = Hit.Location + (KINDA_SMALL_NUMBER * RicoDir);
-				CurrentEnd = CurrentStart + ((GetMaxRange() - Hit.Distance) * RicoDir);
+				FVector RicoStart = LastHit.Location + ((KINDA_SMALL_NUMBER * 100) * RicoDir); // for PhysX support (and reassurance) we have to bump it outwards a bit
+				FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
 
-				break;
+				// Perform ricochet trace
+				TArray<FHitResult> RicoHitResults; // this ricochet's hit results
+				const bool bHitBlockingHit = World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, TraceParams);
+				OutHitResults.Append(RicoHitResults); // add these results to the end of OutHitResults
+				LastHit = OutHitResults.Last(); // update LastHit
+				++timesRicocheted;
+				bRicocheted = true;
 			}
+		}
+
+		// Penetrate
+		bool bPenetrated = false;
+		if (timesPenetrated < maxPenetrations)
+		{
+			// The direction we traced from
+			const FVector FromDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.Location);
+
+			// Use direction to get the trace end
+			FVector PenetrateStart = LastHit.Location + ((KINDA_SMALL_NUMBER * 100) * FromDir); // for PhysX support (and reassurance) we have to bump it into it a bit
+			FVector PenetrateEnd = PenetrateStart + ((GetMaxRange() - LastHit.Distance) * FromDir);
+
+			// Ensure Trace Complex for this trace
+			FCollisionQueryParams PenetrateParams = TraceParams;
+			PenetrateParams.bTraceComplex = true; // we need bTraceComplex because we are starting from inside the geometry and shooting out (this won't work for CTF_UseSimpleAsComplex and Physics Assest colliders but we have a fallback for them)
+
+			// Perform penetrate trace
+			TArray<FHitResult> PenetrateHitResults; // this penetration's hit results
+			World->LineTraceMultiByChannel(PenetrateHitResults, PenetrateStart, PenetrateEnd, TraceChannel, PenetrateParams);
+			
+
+
+			// Our fallback if the trace messed up (if we hit ourselves instead of going through to the next hit). This happens if we are a CTF_UseSimpleAsComplex or a Physics Asset collider.
+			if (PenetrateHitResults.Num() > 0 && PenetrateHitResults.Last().Distance == 0)
+			{
+				// Try again with this component ignored
+				PenetrateParams.AddIgnoredComponent(PenetrateHitResults.Last().GetComponent());
+				PenetrateHitResults.Empty();
+				World->LineTraceMultiByChannel(PenetrateHitResults, PenetrateStart, PenetrateEnd, TraceChannel, PenetrateParams);
+			}
+
+
+			
+			OutHitResults.Append(PenetrateHitResults); // add these results to the end of OutHitResults
+			LastHit = OutHitResults.Last(); // update LastHit
+			++timesPenetrated;
+			bPenetrated = true;
 		}
 
 
 
-
+		if (bRicocheted == false && bPenetrated == false)
+		{
+			// We weren't able to ricochet nor penetrate, stop here
+			break;
+		}
 
 	}
+
+
+
 
 
 

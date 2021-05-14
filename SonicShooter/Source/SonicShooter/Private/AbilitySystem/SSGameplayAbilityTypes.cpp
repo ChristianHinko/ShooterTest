@@ -4,13 +4,17 @@
 #include "AbilitySystem/SSGameplayAbilityTypes.h"
 
 #include "AbilitySystem/SSAbilitySystemComponent.h"
-#include "Character/ShooterCharacter.h"
+#include "Character/AbilitySystemCharacter.h"
 #include "Player/SSPlayerController.h"
 #include "Player/SSPlayerState.h"
 #include "Character/SSCharacterMovementComponent.h"
-#include "Inventory/SSArcInventoryComponent_Active.h"
-#include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
 
+
+
+FSSGameplayAbilityActorInfo::FSSGameplayAbilityActorInfo()
+{
+
+}
 
 
 void FSSGameplayAbilityActorInfo::InitFromActor(AActor* InOwnerActor, AActor* InAvatarActor, UAbilitySystemComponent* InAbilitySystemComponent)
@@ -20,11 +24,8 @@ void FSSGameplayAbilityActorInfo::InitFromActor(AActor* InOwnerActor, AActor* In
     // Get our ASC
     SSAbilitySystemComponent = Cast<USSAbilitySystemComponent>(InAbilitySystemComponent);
 
-    // Get our Shooter Character
-    ShooterCharacter = Cast<AShooterCharacter>(InAvatarActor);
-
-    // Get our Shooter Character ASC
-    ShooterAbilitySystemComponent = Cast<UASC_Shooter>(SSAbilitySystemComponent);
+    // Get our AbilitySystemCharacter
+    AbilitySystemCharacter = Cast<AAbilitySystemCharacter>(InAvatarActor);
 
     // Get our PC and PS
     if (PlayerController.IsValid())
@@ -39,16 +40,8 @@ void FSSGameplayAbilityActorInfo::InitFromActor(AActor* InOwnerActor, AActor* In
         SSCharacterMovementComponent = SSCharacter->GetSSCharacterMovementComponent();
     }
 
-    // Get our Inventory
 
-    //if (ShooterCharacter.IsValid())
-    //{
-    //    InventoryComponent = ShooterCharacter->GetInventoryComponent();
-    //}
-    InventoryComponent = Cast<USSArcInventoryComponent_Active>(InAvatarActor->GetComponentByClass(USSArcInventoryComponent_Active::StaticClass()));
-
-
-    OnInited.Broadcast();
+    //OnInited.Broadcast();
 }
 
 void FSSGameplayAbilityActorInfo::SetAvatarActor(AActor* InAvatarActor)
@@ -66,8 +59,6 @@ void FSSGameplayAbilityActorInfo::ClearActorInfo()
     SSAbilitySystemComponent = nullptr;
     SSPlayerController = nullptr;
     SSPlayerState = nullptr;
-    ShooterCharacter = nullptr;
-    ShooterAbilitySystemComponent = nullptr;
+    AbilitySystemCharacter = nullptr;
     SSCharacterMovementComponent = nullptr;
-    InventoryComponent = nullptr;
 }

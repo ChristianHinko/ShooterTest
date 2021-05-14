@@ -4,7 +4,7 @@
 #include "Item/Weapons/AS_Gun.h"
 
 #include "Net/UnrealNetwork.h"
-#include "AbilitySystem/SSGameplayAbilityTypes.h"
+#include "AbilitySystem/GAAI_Shooter.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
 #include "Character/SSCharacterMovementComponent.h"
 #include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
@@ -97,11 +97,11 @@ void UAS_Gun::PostInitProperties()
 
 	UpdateFromActorInfo();
 
-	if (FSSGameplayAbilityActorInfo* SSActorInfo = static_cast<FSSGameplayAbilityActorInfo*>(GetActorInfo()))
+	if (FGAAI_Shooter* ShooterActorInfo = static_cast<FGAAI_Shooter*>(GetActorInfo()))
 	{
-		SSActorInfo->OnInited.AddUObject(this, &UAS_Gun::OnActorInfoInited);
+		ShooterActorInfo->OnInited.AddUObject(this, &UAS_Gun::OnActorInfoInited);
 
-		if (UASC_Shooter* ShooterASC = SSActorInfo->GetShooterAbilitySystemComponent())
+		if (UASC_Shooter* ShooterASC = ShooterActorInfo->GetShooterAbilitySystemComponent())
 		{
 			CurrentBulletSpread.SetValueChangeDelegate(ShooterASC->OnCurrentBulletSpreadChange);
 		}
@@ -130,10 +130,10 @@ void UAS_Gun::UpdateFromActorInfo()
 	}
 
 
-	if (const FSSGameplayAbilityActorInfo* const SSActorInfo = static_cast<const FSSGameplayAbilityActorInfo* const>(GetActorInfo()))
+	if (const FGAAI_Shooter* const ShooterActorInfo = static_cast<const FGAAI_Shooter* const>(GetActorInfo()))
 	{
-		Inventory = SSActorInfo->GetInventoryComponent();
-		CMC = SSActorInfo->GetSSCharacterMovementComponent();
+		Inventory = ShooterActorInfo->GetInventoryComponent();
+		CMC = ShooterActorInfo->GetSSCharacterMovementComponent();
 	}
 
 	if (Inventory)

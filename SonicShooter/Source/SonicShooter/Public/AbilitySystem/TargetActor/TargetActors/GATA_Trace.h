@@ -24,8 +24,8 @@ public:
 	virtual void StartTargeting(UGameplayAbility* Ability) override;
 	virtual void ConfirmTargetingAndContinue() override;
 
-	/** Traces as normal, but does ricochet traces aswell (unless ricochets is 0) */
-	void LineTraceMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& Params, const bool inDebug);
+	/** Traces as normal, but does ricochet and penetration traces aswell if needed */
+	void LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& Params, const bool inDebug);
 	/** Sweeps as normal, but does ricochet traces aswell (unless ricochets is 0) */
 	void SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape& CollisionShape, const FCollisionQueryParams& Params, const bool inDebug);
 
@@ -39,6 +39,12 @@ public:
 protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+
+	/**
+	 * Determines whether we should ricochet off of the given Hit or not.
+	 * This can be overriden for custom ricochet determination.
+	 */
+	virtual bool ShouldRicochetOffOf(const FHitResult& Hit) const;
 	/**
 	 * Calculates the direction to ricochet from the given hit.
 	 * This can be overriden for custom ricochet directions

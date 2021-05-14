@@ -314,7 +314,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 		FHitResult RevHitResult; // this reverse trace's hit results
 		const bool bHit = World->LineTraceSingleByChannel(RevHitResult, RevStart, RevEnd, TraceChannel, RevParams);
 
-		// The fallback method for weird cases
+		// The fallback method for weird cases (may have been a non complex collision)
 		bool bFallbackHit = false;
 		if (bHit && RevHitResult.Distance == 0)
 		{

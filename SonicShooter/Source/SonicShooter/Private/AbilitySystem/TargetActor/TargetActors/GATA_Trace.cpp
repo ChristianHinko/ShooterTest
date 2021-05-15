@@ -347,14 +347,21 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 		UPhysicalMaterial* FwdPhysMaterial = FwdBlockingHitResults[i].PhysMaterial.Get();
 		UPhysicalMaterial* BkwdPhysMaterial = BkwdHitResult.PhysMaterial.Get();
 
-		FBodyPenetrationInfo BodyPenetrationInfo = FBodyPenetrationInfo();	// Goal... fill out this struct's members and continue
-		BodyPenetrationInfo.PhysMaterial = BkwdPhysMaterial;	// We already know what phys material it should be
+
+
+
+		// ---------- Create this body's penetration info ----------
+		FBodyPenetrationInfo BodyPenetrationInfo = FBodyPenetrationInfo();
+		BodyPenetrationInfo.PhysMaterial = BkwdPhysMaterial;
+		BodyPenetrationInfo.DebugName = BkwdHitResult.Actor.Get()->GetActorLabel();
+		// ---------------------------------------------------------
+
+
 
 		if (FwdBlockingHitResults[i].PhysMaterial.Get() == BkwdPhysMaterial)
 		{
 			// We found our correct fwd
 			BodyPenetrationInfo.PenetrationDistance = FVector::Distance(BkwdHitResult.Location, FwdBlockingHitResults[i].Location);
-			BodyPenetrationInfo.DebugName = FwdBlockingHitResults[i].Actor.Get()->GetActorLabel();
 			Penetrations.Insert(BodyPenetrationInfo, 0);			// insert at the first index (instead of adding to the end) because we are looping backwards
 			
 			PreviousBkwdHit = BkwdHitResult;
@@ -381,7 +388,6 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 			{
 				// We found our correct fwd
 				BodyPenetrationInfo.PenetrationDistance = FVector::Distance(BkwdHitResult.Location, PoppedFwdHitResult.Location);
-				BodyPenetrationInfo.DebugName = PoppedFwdHitResult.Actor.Get()->GetActorLabel();
 				Penetrations.Insert(BodyPenetrationInfo, 0);		// insert at the first index (instead of adding to the end) because we are looping backwards
 
 				PreviousBkwdHit = BkwdHitResult;

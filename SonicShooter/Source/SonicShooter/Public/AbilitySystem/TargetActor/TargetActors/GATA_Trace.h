@@ -77,7 +77,7 @@ struct FBodyPenetrationInfo
 		PhysMaterial = nullptr;
 		PenetrationDistance = -1;
 	}
-	FBodyPenetrationInfo(UPhysicalMaterial* InPhysMaterial, float InPenetrationDistance)
+	FBodyPenetrationInfo(UPhysicalMaterial* InPhysMaterial, float InPenetrationDistance, FString InDebugName)
 	{
 		PhysMaterial = InPhysMaterial;
 		PenetrationDistance = InPenetrationDistance;
@@ -85,4 +85,6 @@ struct FBodyPenetrationInfo
 
 	UPhysicalMaterial* PhysMaterial;
 	float PenetrationDistance;
+
+	FString DebugName;
 };

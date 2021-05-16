@@ -295,11 +295,6 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	for (int32 i = FwdBlockingHitResults.Num() - 1; i >= 0; --i)
 	{
 		const FHitResult FwdHit = FwdBlockingHitResults[i];
-		//if (FwdHit.bBlockingHit == false)
-		//{
-		//	continue;
-		//}
-
 
 		// Get trace dir from this hit
 		const FVector FwdDir = UKismetMathLibrary::GetDirectionUnitVector(FwdHit.TraceStart, FwdHit.Location);

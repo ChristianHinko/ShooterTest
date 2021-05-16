@@ -292,7 +292,6 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const UWorld* World, const FCollisionQueryParams& TraceParams)  const
 {
 	/**
-	 *
 	 *						GENERAL GOAL
 	 *
 	 * 
@@ -310,6 +309,8 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetra
 	 *				|		|				|		|
 	 *				|		|				|		|
 	 *				_________				_________
+	 * 
+	 *		We can simplify this concept by visualizing it in 2d
 	 */
 
 	

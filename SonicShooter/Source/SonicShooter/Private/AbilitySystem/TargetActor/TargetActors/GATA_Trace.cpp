@@ -10,7 +10,7 @@
 #include "Pawn/AbilitySystemPawn.h"
 #include "Actor/AbilitySystemActor.h"
 #include "Utilities/SurfaceTypes.h"
-#include "Algo/Reverse.h"
+#include "Utilities/LogCategories.h"
 
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -313,7 +313,8 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetra
 	 *		We can simplify this concept by visualizing it in 2d
 	 */
 
-	
+	TArray<FHitResult> BkwdsBlockingHits;	// For loop will create this BkwdsBlockingHits arr
+
 	FHitResult PreviousBkwdHit;
 	for (int32 i = FwdBlockingHits.Num() - 1; i >= 0; --i)
 	{
@@ -323,47 +324,69 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetra
 		const FVector FwdDir = UKismetMathLibrary::GetDirectionUnitVector(FwdHit.TraceStart, FwdHit.Location);
 		const FVector BkwdDir = -1 * FwdDir; // get the opposite direction
 
-		FVector RevStart;
-		FVector RevEnd;
+		FVector BkwdStart;
+		FVector BkwdEnd;
 		if (i == FwdBlockingHits.Num() - 1)
 		{
-			RevStart = FwdHit.TraceEnd + ((KINDA_SMALL_NUMBER * 100) * BkwdDir);
+			BkwdStart = FwdHit.TraceEnd + ((KINDA_SMALL_NUMBER * 100) * BkwdDir);
 		}
 		else
 		{
-			RevStart = PreviousBkwdHit.Location + ((KINDA_SMALL_NUMBER * 100) * BkwdDir);
+			BkwdStart = PreviousBkwdHit.Location + ((KINDA_SMALL_NUMBER * 100) * BkwdDir);
 		}
-		RevEnd = FwdHit.Location + ((KINDA_SMALL_NUMBER * 100) * FwdDir);
+		BkwdEnd = FwdHit.Location + ((KINDA_SMALL_NUMBER * 100) * FwdDir);
 
 
-		// Ensure Trace Complex for this trace
-		FCollisionQueryParams RevParams = TraceParams;
-		RevParams.bTraceComplex = true; // we need bTraceComplex because we are starting from inside the geometry and shooting out (this won't work for CTF_UseSimpleAsComplex and Physics Assest colliders so TODO: we will need a case that covers this)
-		RevParams.bIgnoreTouches = true;
+		
 
-		// Perform reverse trace
-		FHitResult BkwdHitResult; // this reverse trace's hit result
-		const bool bHit = World->LineTraceSingleByChannel(BkwdHitResult, RevStart, RevEnd, TraceChannel, RevParams);
 
-		// The fallback method for weird cases (may have been a non complex collision)
-		bool bFallbackHit = false;
-		if (bHit && BkwdHitResult.Distance == 0)
+
+
+
+
+		FCollisionQueryParams BkwdParams = TraceParams;
+		BkwdParams.bTraceComplex = true; // Use complex collision if the collider has it. We need this because we are starting from inside the geometry and shooting out (this won't work for CTF_UseSimpleAsComplex and Physics Assest colliders so TODO: we will need a case that covers this)
+		BkwdParams.bIgnoreTouches = true;
+
+
+		// Perform backwards trace
+		FHitResult BkwdHitResult;
+		const bool bFirstTraceHit = World->LineTraceSingleByChannel(BkwdHitResult, BkwdStart, BkwdEnd, TraceChannel, BkwdParams);
+		if (!bFirstTraceHit)
 		{
-			// Try again with this component ignored
-			RevParams.AddIgnoredComponent(BkwdHitResult.GetComponent());
-			bFallbackHit = World->LineTraceSingleByChannel(BkwdHitResult, RevStart, RevEnd, TraceChannel, RevParams);
+			break;	// We've reached the end
 		}
 
-		// If the reverse trace didn't hit anything
-		if (!bHit && !bFallbackHit)
+
+		if (bFirstTraceHit && BkwdHitResult.Distance != 0)	// This is a correct and successful backwards trace
 		{
-			// Just continue
+			BkwdsBlockingHits.Insert(BkwdHitResult, 0);
+			PreviousBkwdHit = BkwdHitResult;
 			continue;
 		}
 
 
-		UPhysicalMaterial* FwdPhysMaterial = FwdBlockingHits[i].PhysMaterial.Get();
-		UPhysicalMaterial* BkwdPhysMaterial = BkwdHitResult.PhysMaterial.Get();
+
+		// Unsuccessful backwards trace (we didn't travel anywhere but hit something)
+		// Likely reason: It's stuck inside a collider that's using simple collision
+		
+		// Fallback method...........
+		// Try again with this component (collider) ignored
+		BkwdParams.AddIgnoredComponent(BkwdHitResult.GetComponent());
+		bool bFallbackTraceHit = World->LineTraceSingleByChannel(BkwdHitResult, BkwdStart, BkwdEnd, TraceChannel, BkwdParams);
+		if (bFallbackTraceHit)
+		{
+			BkwdsBlockingHits.Insert(BkwdHitResult, 0);
+			PreviousBkwdHit = BkwdHitResult;
+		}
+	}
+
+
+	// Lets finaly build our OutPenetrationInfos
+	for (int32 i = FwdBlockingHits.Num() - 1; i >= 0; --i)
+	{
+		UPhysicalMaterial* FwdPhysMaterial	= FwdBlockingHits[i].PhysMaterial.Get();
+		UPhysicalMaterial* BkwdPhysMaterial = BkwdsBlockingHits[i].PhysMaterial.Get();
 
 
 
@@ -371,7 +394,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetra
 		// ---------- Create this body's penetration info ----------
 		FBodyPenetrationInfo BodyPenetrationInfo = FBodyPenetrationInfo();
 		BodyPenetrationInfo.PhysMaterial = BkwdPhysMaterial;
-		BodyPenetrationInfo.DebugName = BkwdHitResult.Actor.Get()->GetActorLabel();
+		BodyPenetrationInfo.DebugName = BkwdsBlockingHits[i].Actor.Get()->GetActorLabel();
 		// ---------------------------------------------------------
 
 
@@ -379,10 +402,8 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetra
 		if (FwdPhysMaterial == BkwdPhysMaterial)
 		{
 			// We found our correct fwd
-			BodyPenetrationInfo.PenetrationDistance = FVector::Distance(BkwdHitResult.Location, FwdBlockingHits[i].Location);
+			BodyPenetrationInfo.PenetrationDistance = FVector::Distance(BkwdsBlockingHits[i].Location, FwdBlockingHits[i].Location);
 			OutPenetrationInfos.Insert(BodyPenetrationInfo, 0);			// insert at the first index (instead of adding to the end) because we are looping backwards (CAREFUL!!! WE NEED TO UPDATE THIS, IT WON'T ALWAYS BE AN INSERT IF ENGULFING IS HAPPENING!!)
-
-			PreviousBkwdHit = BkwdHitResult;
 			continue;
 		}
 
@@ -398,16 +419,15 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetra
 			if (PoppedFwdHitResult.PhysMaterial.Get() == BkwdPhysMaterial)
 			{
 				// We found our correct fwd
-				BodyPenetrationInfo.PenetrationDistance = FVector::Distance(BkwdHitResult.Location, PoppedFwdHitResult.Location);
+				BodyPenetrationInfo.PenetrationDistance = FVector::Distance(BkwdsBlockingHits[i].Location, PoppedFwdHitResult.Location);
 				OutPenetrationInfos.Add(BodyPenetrationInfo);	// We just add to the end in this case since the left side of BkwdPhysMaterial's geometry is to the LEFT of the left side of FwdPhysMaterial's geometry
-
-				PreviousBkwdHit = BkwdHitResult;
 				break;
 			}
 		}
-
-
 	}
+	
+
+
 }
 
 void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape& CollisionShape, const FCollisionQueryParams& Params, const bool inDebug)

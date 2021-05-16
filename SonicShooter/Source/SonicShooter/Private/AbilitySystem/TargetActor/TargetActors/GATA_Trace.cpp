@@ -164,11 +164,9 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	World->LineTraceMultiByChannel(HitResults, Start, End, TraceChannel, TraceParams);
 	OutHitResults.Append(HitResults);
 
-	TArray<FHitResult> FwdBlockingHitResults;
-	if (HitResults.Num() > 0 && HitResults.Last().bBlockingHit)
-	{
-		FwdBlockingHitResults.Add(HitResults.Last());
-	}
+	TArray<FHitResult> ThisRicochetBlockingHits;
+	TArray<FBodyPenetrationInfo> Penetrations;
+
 	// Extra traces loop
 	int32 maxRicochets = GetRicochets();
 	int32 timesRicocheted = 0;
@@ -187,13 +185,30 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 			// We only ricochet and penetrate for blocking hits
 			break;
 		}
-		
+
+		if (!ShouldRicochetOffOf(LastHit))
+		{
+			// Only add to this if we are not ricochetable. (If we were, this array would get reset for the next ricochet hits)
+			ThisRicochetBlockingHits.Add(LastHit);
+		}
+
+
 		// Ricochet
 		bool bRicocheted = false;
-		if (timesRicocheted < maxRicochets)
+		if (ShouldRicochetOffOf(LastHit))
 		{
-			if (ShouldRicochetOffOf(LastHit))
+			if (timesRicocheted < maxRicochets)
 			{
+				// We are about to ricochet so calculate Penetrations for these blocking Hits before we move on to the next ricochet
+				TArray<FBodyPenetrationInfo> ThisRicochetPenetrations;
+				BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, LastHit.Location, World, TraceParams);
+				Penetrations.Append(ThisRicochetPenetrations);
+				ThisRicochetBlockingHits.Empty(); // we are about to begin our next ricochet so reset the blocking Hit Results for next ricochet
+
+
+
+
+
 				// Calculate ricochet direction
 				FVector RicoDir;
 				CalculateRicochetDirection(RicoDir, LastHit);
@@ -204,17 +219,39 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 				// Perform ricochet trace
 				TArray<FHitResult> RicoHitResults; // this ricochet's hit results
-				const bool bHitBlockingHit = World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, TraceParams);
-				OutHitResults.Append(RicoHitResults); // add these results to the end of OutHitResults
-				LastHit = OutHitResults.Last(); // update LastHit
-				++timesRicocheted;
+				World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, TraceParams);
+				
 
-				if (RicoHitResults.Num() > 0 && RicoHitResults.Last().bBlockingHit)
+
+				if (RicoHitResults.Num() > 0)
 				{
-					FwdBlockingHitResults.Add(RicoHitResults.Last());
+					OutHitResults.Append(RicoHitResults); // add these results to the end of OutHitResults
+					LastHit = OutHitResults.Last(); // update LastHit
+					++timesRicocheted;
+					bRicocheted = true;
 				}
 			}
+
+
+
+			if (bRicocheted == false)
+			{
+				// We should've ricocheted but didn't so stop here. (we don't want to proceed to penetration logic on ricochetable surfaces).
+				// Possible ways of getting to this point:
+				//		1. This ricochet didn't hit anything
+				//		2. We ran out of ricochets / speed
+				break;
+			}
 		}
+
+		if (bRicocheted)
+		{
+			// Continue here because we always want to check whether we should ricochet first before we try to penetrate.
+			// For example. If we ricocheted, and then hit another surface that can be ricocheted off of, we want to run ricochet logic on that. If we don't continue here, the penetration logic below would run on that ricochetable surface instead of ricochet logic
+			continue;
+		}
+
+
 
 		// Penetrate
 		bool bPenetrated = false;
@@ -248,14 +285,12 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 
 			
-			OutHitResults.Append(PenetrateHitResults); // add these results to the end of OutHitResults
-			LastHit = OutHitResults.Last(); // update LastHit
-			++timesPenetrated;
-			bPenetrated = true;
-
-			if (PenetrateHitResults.Num() > 0 && PenetrateHitResults.Last().bBlockingHit)
+			if (PenetrateHitResults.Num() > 0)
 			{
-				FwdBlockingHitResults.Add(PenetrateHitResults.Last());
+				OutHitResults.Append(PenetrateHitResults); // add these results to the end of OutHitResults
+				LastHit = OutHitResults.Last(); // update LastHit
+				++timesPenetrated;
+				bPenetrated = true;
 			}
 		}
 
@@ -269,9 +304,14 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 	}
 
+	if (ThisRicochetBlockingHits.Num() > 0)
+	{
+		TArray<FBodyPenetrationInfo> ThisRicochetPenetrations;
+		BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, ThisRicochetBlockingHits.Last().TraceEnd, World, TraceParams);
+		Penetrations.Append(ThisRicochetPenetrations);
+		ThisRicochetBlockingHits.Empty();
+	}
 
-	TArray<FBodyPenetrationInfo> Penetrations;
-	BuildPenetrationInfos(Penetrations, FwdBlockingHitResults, World, TraceParams);
 
 	for (const FBodyPenetrationInfo& Penetration : Penetrations)
 	{
@@ -289,16 +329,18 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 #endif
 }
 
-void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const UWorld* World, const FCollisionQueryParams& TraceParams)  const
+void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const FVector& FwdEndLocation, const UWorld* World, const FCollisionQueryParams& TraceParams)  const
 {
+	OutPenetrationInfos.Empty();
+
 	/**
 	 *						GENERAL GOAL
 	 *
-	 * 
+	 *
 	 *			OutPenetrationInfos[0]	OutPenetrationInfos[1]
 	 *				|-------|				|-------|
-	 * 
-	 * 
+	 *
+	 *
 	 *				_________				_________
 	 *				|		|				|		|
 	 *	------------O-------|---------------O-------|---------------> // forward traces
@@ -309,11 +351,11 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetra
 	 *				|		|				|		|
 	 *				|		|				|		|
 	 *				_________				_________
-	 * 
+	 *
 	 *		We can simplify this concept by visualizing it in 2d
 	 */
 
-	
+
 	FHitResult PreviousBkwdHit;
 	for (int32 i = FwdBlockingHits.Num() - 1; i >= 0; --i)
 	{
@@ -327,7 +369,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetra
 		FVector RevEnd;
 		if (i == FwdBlockingHits.Num() - 1)
 		{
-			RevStart = FwdHit.TraceEnd + ((KINDA_SMALL_NUMBER * 100) * BkwdDir);
+			RevStart = FwdEndLocation + ((KINDA_SMALL_NUMBER * 100) * BkwdDir);
 		}
 		else
 		{

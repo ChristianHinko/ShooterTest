@@ -270,10 +270,10 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	}
 
 
-	TArray<FBodyPenetrationInfo> Penetrations;
+	TArray<FPhysMaterialPenetrationInfo> Penetrations;
 	BuildPenetrationInfos(Penetrations, FwdBlockingHitResults, World, TraceParams);
 
-	for (const FBodyPenetrationInfo& Penetration : Penetrations)
+	for (const FPhysMaterialPenetrationInfo& Penetration : Penetrations)
 	{
 		UKismetSystemLibrary::PrintString(this, Penetration.DebugName + " " + "penetration distance: " + FString::SanitizeFloat(Penetration.PenetrationDistance), true, false, FLinearColor::Green, 10.f);
 	}
@@ -289,7 +289,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 #endif
 }
 
-void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const UWorld* World, const FCollisionQueryParams& TraceParams)  const
+void AGATA_Trace::BuildPenetrationInfos(TArray<FPhysMaterialPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const UWorld* World, const FCollisionQueryParams& TraceParams)  const
 {
 	/**
 	 *						GENERAL GOAL
@@ -313,8 +313,8 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetra
 	 *		We can simplify this concept by visualizing it in 2d
 	 */
 
-	TArray<FHitResult> BkwdsBlockingHits;	// For loop will create this BkwdsBlockingHits arr
 
+	TArray<FHitResult> BkwdsBlockingHits;	// For loop will create this BkwdsBlockingHits arr
 	FHitResult PreviousBkwdHit;
 	for (int32 i = FwdBlockingHits.Num() - 1; i >= 0; --i)
 	{
@@ -393,10 +393,10 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetra
 	{
 		UPhysicalMaterial* CurrentPhysMaterial = BkwdsBlockingHits[i].PhysMaterial.Get();
 
-		// ---------- Create this body's penetration info ----------
-		FBodyPenetrationInfo BodyPenetrationInfo = FBodyPenetrationInfo();
-		BodyPenetrationInfo.PhysMaterial = CurrentPhysMaterial;
-		BodyPenetrationInfo.DebugName = BkwdsBlockingHits[i].Actor.Get()->GetActorLabel();
+		// ---------- Create this phys material's penetration info ----------
+		FPhysMaterialPenetrationInfo PenetrationInfo = FPhysMaterialPenetrationInfo();
+		PenetrationInfo.PhysMaterial = CurrentPhysMaterial;
+		PenetrationInfo.DebugName = BkwdsBlockingHits[i].Actor.Get()->GetActorLabel();
 		// ---------------------------------------------------------
 		// Now time to find the other side of this phys material
 
@@ -405,16 +405,15 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetra
 		if (FwdBlockingHits[i].PhysMaterial.Get() == CurrentPhysMaterial)
 		{
 			// We found our correct fwd
-			BodyPenetrationInfo.PenetrationDistance = FVector::Distance(BkwdsBlockingHits[i].Location, FwdBlockingHits[i].Location);
-			OutPenetrationInfos.Insert(BodyPenetrationInfo, 0);			// insert at the first index (instead of adding to the end) because we are looping backwards (CAREFUL!!! WE NEED TO UPDATE THIS, IT WON'T ALWAYS BE AN INSERT IF ENGULFING IS HAPPENING!!)
+			PenetrationInfo.PenetrationDistance = FVector::Distance(BkwdsBlockingHits[i].Location, FwdBlockingHits[i].Location);
+			OutPenetrationInfos.Insert(PenetrationInfo, 0);			// insert at the first index (instead of adding to the end) because we are looping backwards (CAREFUL!!! WE NEED TO UPDATE THIS, IT WON'T ALWAYS BE AN INSERT IF ENGULFING IS HAPPENING!!)
 			continue;
 		}
 
-		// This was not the easy case, that means the other side of our phys material is <= FwdBlockingHits[i]
+		// This is not the easy case, that means the other side of our phys material is <= FwdBlockingHits[i]
 		// Either there are phys material(s) within the current one, or the current one is inside 1 or more phys materials
 		TArray<FHitResult> FwdBlockingHitsReversed = FwdBlockingHits;
 		Algo::Reverse(FwdBlockingHitsReversed);
-
 
 		// Lets pop the whole stack and compare
 		while (FwdBlockingHitsReversed.Num() > 0)
@@ -423,15 +422,12 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetra
 			if (PoppedFwdHitResult.PhysMaterial.Get() == CurrentPhysMaterial)
 			{
 				// We found our correct fwd
-				BodyPenetrationInfo.PenetrationDistance = FVector::Distance(BkwdsBlockingHits[i].Location, PoppedFwdHitResult.Location);
-				OutPenetrationInfos.Add(BodyPenetrationInfo);	// We just add to the end in this case since the left side of BkwdPhysMaterial's geometry is to the LEFT of the left side of FwdPhysMaterial's geometry
+				PenetrationInfo.PenetrationDistance = FVector::Distance(BkwdsBlockingHits[i].Location, PoppedFwdHitResult.Location);
+				OutPenetrationInfos.Add(PenetrationInfo);	// We just add to the end in this case since the left side of BkwdPhysMaterial's geometry is to the LEFT of the left side of FwdPhysMaterial's geometry
 				break;
 			}
 		}
 	}
-	
-
-
 }
 
 void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape& CollisionShape, const FCollisionQueryParams& Params, const bool inDebug)

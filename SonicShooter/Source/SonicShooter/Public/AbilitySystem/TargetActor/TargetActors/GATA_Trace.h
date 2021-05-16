@@ -12,14 +12,14 @@
 /**
  * 
  */
-struct FBodyPenetrationInfo
+struct FPhysMaterialPenetrationInfo
 {
-	FBodyPenetrationInfo()
+	FPhysMaterialPenetrationInfo()
 	{
 		PhysMaterial = nullptr;
 		PenetrationDistance = -1;
 	}
-	FBodyPenetrationInfo(UPhysicalMaterial* InPhysMaterial, float InPenetrationDistance, FString InDebugName)
+	FPhysMaterialPenetrationInfo(UPhysicalMaterial* InPhysMaterial, float InPenetrationDistance, FString InDebugName)
 	{
 		PhysMaterial = InPhysMaterial;
 		PenetrationDistance = InPenetrationDistance;
@@ -73,7 +73,7 @@ protected:
 	 */
 	virtual void CalculateRicochetDirection(FVector& RicoDir, const FHitResult& FromHit) const;
 
-	void BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const UWorld* World, const FCollisionQueryParams& TraceParams) const;
+	void BuildPenetrationInfos(TArray<FPhysMaterialPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const UWorld* World, const FCollisionQueryParams& TraceParams) const;
 
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) PURE_VIRTUAL(AGATA_Trace);
 	void PerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AActor* InSourceActor);

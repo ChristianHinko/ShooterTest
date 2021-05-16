@@ -380,7 +380,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetra
 		{
 			// We found our correct fwd
 			BodyPenetrationInfo.PenetrationDistance = FVector::Distance(BkwdHitResult.Location, FwdBlockingHits[i].Location);
-			OutPenetrationInfos.Insert(BodyPenetrationInfo, 0);			// insert at the first index (instead of adding to the end) because we are looping backwards
+			OutPenetrationInfos.Insert(BodyPenetrationInfo, 0);			// insert at the first index (instead of adding to the end) because we are looping backwards (CAREFUL!!! WE NEED TO UPDATE THIS, IT WON'T ALWAYS BE AN INSERT IF ENGULFING IS HAPPENING!!)
 
 			PreviousBkwdHit = BkwdHitResult;
 			continue;

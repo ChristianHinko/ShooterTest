@@ -50,7 +50,7 @@ int32 AGATA_BulletTrace::GetRicochets() const
 }
 int32 AGATA_BulletTrace::GetPenetrations() const
 {
-	return 4; // TODO: make attribute for this
+	return 10; // TODO: make attribute for this
 }
 
 void AGATA_BulletTrace::ConfirmTargetingAndContinue()

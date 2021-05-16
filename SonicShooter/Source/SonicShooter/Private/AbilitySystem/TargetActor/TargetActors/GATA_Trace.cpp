@@ -270,9 +270,34 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	}
 
 
+	TArray<FBodyPenetrationInfo> Penetrations;
+	BuildPenetrationInfos(Penetrations, FwdBlockingHitResults, World, TraceParams);
+
+	for (const FBodyPenetrationInfo& Penetration : Penetrations)
+	{
+		UKismetSystemLibrary::PrintString(this, Penetration.DebugName + " " + "penetration distance: " + FString::SanitizeFloat(Penetration.PenetrationDistance), true, false, FLinearColor::Green, 10.f);
+	}
+
+
+
+
+#if ENABLE_DRAW_DEBUG
+	if (inDebug)
+	{
+		DebugTrace(OutHitResults, World, Start, End, timesRicocheted);
+	}
+#endif
+}
+
+void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const UWorld* World, const FCollisionQueryParams& TraceParams)  const
+{
 	/**
-	 * 
+	 *
 	 *						GENERAL GOAL
+	 *
+	 * 
+	 *			OutPenetrationInfos[0]	OutPenetrationInfos[1]
+	 *				|-------|				|-------|
 	 * 
 	 * 
 	 *				_________				_________
@@ -287,22 +312,18 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	 *				_________				_________
 	 */
 
-
-	TArray<FBodyPenetrationInfo> Penetrations;
-
-
 	FHitResult PreviousBkwdHit;
-	for (int32 i = FwdBlockingHitResults.Num() - 1; i >= 0; --i)
+	for (int32 i = FwdBlockingHits.Num() - 1; i >= 0; --i)
 	{
-		const FHitResult FwdHit = FwdBlockingHitResults[i];
+		const FHitResult FwdHit = FwdBlockingHits[i];
 
 		// Get trace dir from this hit
 		const FVector FwdDir = UKismetMathLibrary::GetDirectionUnitVector(FwdHit.TraceStart, FwdHit.Location);
 		const FVector BkwdDir = -1 * FwdDir; // get the opposite direction
-		
+
 		FVector RevStart;
 		FVector RevEnd;
-		if (i == FwdBlockingHitResults.Num() - 1)
+		if (i == FwdBlockingHits.Num() - 1)
 		{
 			RevStart = FwdHit.TraceEnd + ((KINDA_SMALL_NUMBER * 100) * BkwdDir);
 		}
@@ -339,7 +360,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 		}
 
 
-		UPhysicalMaterial* FwdPhysMaterial = FwdBlockingHitResults[i].PhysMaterial.Get();
+		UPhysicalMaterial* FwdPhysMaterial = FwdBlockingHits[i].PhysMaterial.Get();
 		UPhysicalMaterial* BkwdPhysMaterial = BkwdHitResult.PhysMaterial.Get();
 
 
@@ -353,12 +374,12 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 
 
-		if (FwdBlockingHitResults[i].PhysMaterial.Get() == BkwdPhysMaterial)
+		if (FwdBlockingHits[i].PhysMaterial.Get() == BkwdPhysMaterial)
 		{
 			// We found our correct fwd
-			BodyPenetrationInfo.PenetrationDistance = FVector::Distance(BkwdHitResult.Location, FwdBlockingHitResults[i].Location);
-			Penetrations.Insert(BodyPenetrationInfo, 0);			// insert at the first index (instead of adding to the end) because we are looping backwards
-			
+			BodyPenetrationInfo.PenetrationDistance = FVector::Distance(BkwdHitResult.Location, FwdBlockingHits[i].Location);
+			OutPenetrationInfos.Insert(BodyPenetrationInfo, 0);			// insert at the first index (instead of adding to the end) because we are looping backwards
+
 			PreviousBkwdHit = BkwdHitResult;
 			continue;
 		}
@@ -367,12 +388,12 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 
 
-		// If they weren't the same, lets make a stack, pushing from FwdBlockingHitResults[i] to FwdBlockingHitResults[0]
+		// If they weren't the same, lets make a stack, pushing from FwdBlockingHits[i] to FwdBlockingHits[0]
 		TArray<FHitResult> FwdHitStack;
-		for (int32 j = FwdBlockingHitResults.Num() - 1; j >= 0; --j)
+		for (int32 j = FwdBlockingHits.Num() - 1; j >= 0; --j)
 		{
 			// Load our stack so we can compare each fwd phys mat from top to bottom with our bkwd phys mat
-			FwdHitStack.Push(FwdBlockingHitResults[j]);
+			FwdHitStack.Push(FwdBlockingHits[j]);
 		}
 
 		// Lets pop the whole stack and compare
@@ -383,7 +404,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 			{
 				// We found our correct fwd
 				BodyPenetrationInfo.PenetrationDistance = FVector::Distance(BkwdHitResult.Location, PoppedFwdHitResult.Location);
-				Penetrations.Insert(BodyPenetrationInfo, 0);		// insert at the first index (instead of adding to the end) because we are looping backwards
+				OutPenetrationInfos.Insert(BodyPenetrationInfo, 0);		// insert at the first index (instead of adding to the end) because we are looping backwards
 
 				PreviousBkwdHit = BkwdHitResult;
 				break;
@@ -392,21 +413,6 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 
 	}
-
-	for (const FBodyPenetrationInfo& Penetration : Penetrations)
-	{
-		UKismetSystemLibrary::PrintString(this, Penetration.DebugName + " " + "penetration distance: " + FString::SanitizeFloat(Penetration.PenetrationDistance), true, false, FLinearColor::Green, 10.f);
-	}
-
-
-
-
-#if ENABLE_DRAW_DEBUG
-	if (inDebug)
-	{
-		DebugTrace(OutHitResults, World, Start, End, timesRicocheted);
-	}
-#endif
 }
 
 void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape& CollisionShape, const FCollisionQueryParams& Params, const bool inDebug)

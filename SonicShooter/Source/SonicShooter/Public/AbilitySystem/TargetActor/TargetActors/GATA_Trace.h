@@ -12,6 +12,28 @@
 /**
  * 
  */
+struct FBodyPenetrationInfo
+{
+	FBodyPenetrationInfo()
+	{
+		PhysMaterial = nullptr;
+		PenetrationDistance = -1;
+	}
+	FBodyPenetrationInfo(UPhysicalMaterial* InPhysMaterial, float InPenetrationDistance, FString InDebugName)
+	{
+		PhysMaterial = InPhysMaterial;
+		PenetrationDistance = InPenetrationDistance;
+	}
+
+	UPhysicalMaterial* PhysMaterial;
+	float PenetrationDistance;
+
+	FString DebugName;
+};
+
+/**
+ * 
+ */
 UCLASS(Abstract, notplaceable)
 class SONICSHOOTER_API AGATA_Trace : public ASSGameplayAbilityTargetActor
 {
@@ -51,6 +73,7 @@ protected:
 	 */
 	virtual void CalculateRicochetDirection(FVector& RicoDir, const FHitResult& FromHit) const;
 
+	void BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const UWorld* World, const FCollisionQueryParams& TraceParams) const;
 
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) PURE_VIRTUAL(AGATA_Trace);
 	void PerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AActor* InSourceActor);
@@ -68,23 +91,4 @@ protected:
 
 	TWeakObjectPtr<AGameplayAbilityWorldReticle> ReticleActor;
 
-};
-
-struct FBodyPenetrationInfo
-{
-	FBodyPenetrationInfo()
-	{
-		PhysMaterial = nullptr;
-		PenetrationDistance = -1;
-	}
-	FBodyPenetrationInfo(UPhysicalMaterial* InPhysMaterial, float InPenetrationDistance, FString InDebugName)
-	{
-		PhysMaterial = InPhysMaterial;
-		PenetrationDistance = InPenetrationDistance;
-	}
-
-	UPhysicalMaterial* PhysMaterial;
-	float PenetrationDistance;
-
-	FString DebugName;
 };

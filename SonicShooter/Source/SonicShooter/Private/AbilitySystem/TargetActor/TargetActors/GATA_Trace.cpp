@@ -374,8 +374,8 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetra
 		// ---------------------------------------------------------
 
 
-
-		if (FwdBlockingHits[i].PhysMaterial.Get() == BkwdPhysMaterial)
+		// If this is true, the left side of BkwdPhysMaterial's geometry is to the RIGHT of the left side of FwdPhysMaterial's geometry. This is the easy case
+		if (FwdPhysMaterial == BkwdPhysMaterial)
 		{
 			// We found our correct fwd
 			BodyPenetrationInfo.PenetrationDistance = FVector::Distance(BkwdHitResult.Location, FwdBlockingHits[i].Location);
@@ -385,9 +385,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetra
 			continue;
 		}
 
-
-
-		// If they weren't the same, lets make a stack, pushing from FwdBlockingHits[i] to FwdBlockingHits[0]
+		// (FwdPhysMaterial == BkwdPhysMaterial) was false, so that means the left side of BkwdPhysMaterial's geometry is to the LEFT of the left side of FwdPhysMaterial's geometry. This is the more complex case
 		TArray<FHitResult> FwdBlockingHitsReversed = FwdBlockingHits;
 		Algo::Reverse(FwdBlockingHitsReversed);
 
@@ -400,7 +398,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetra
 			{
 				// We found our correct fwd
 				BodyPenetrationInfo.PenetrationDistance = FVector::Distance(BkwdHitResult.Location, PoppedFwdHitResult.Location);
-				OutPenetrationInfos.Insert(BodyPenetrationInfo, 0);		// insert at the first index (instead of adding to the end) because we are looping backwards
+				OutPenetrationInfos.Add(BodyPenetrationInfo);	// We just add to the end in this case since the left side of BkwdPhysMaterial's geometry is to the LEFT of the left side of FwdPhysMaterial's geometry
 
 				PreviousBkwdHit = BkwdHitResult;
 				break;

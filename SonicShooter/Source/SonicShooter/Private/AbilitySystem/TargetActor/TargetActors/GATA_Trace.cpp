@@ -389,23 +389,20 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetra
 
 
 	// Lets finaly build our OutPenetrationInfos
-	for (int32 i = FwdBlockingHits.Num() - 1; i >= 0; --i)
+	for (int32 i = BkwdsBlockingHits.Num() - 1; i >= 0; --i)
 	{
-		UPhysicalMaterial* FwdPhysMaterial	= FwdBlockingHits[i].PhysMaterial.Get();
-		UPhysicalMaterial* BkwdPhysMaterial = BkwdsBlockingHits[i].PhysMaterial.Get();
-
-
-
+		UPhysicalMaterial* CurrentPhysMaterial = BkwdsBlockingHits[i].PhysMaterial.Get();
 
 		// ---------- Create this body's penetration info ----------
 		FBodyPenetrationInfo BodyPenetrationInfo = FBodyPenetrationInfo();
-		BodyPenetrationInfo.PhysMaterial = BkwdPhysMaterial;
+		BodyPenetrationInfo.PhysMaterial = CurrentPhysMaterial;
 		BodyPenetrationInfo.DebugName = BkwdsBlockingHits[i].Actor.Get()->GetActorLabel();
 		// ---------------------------------------------------------
+		// Now time to find the other side of this phys material
 
 
-		// If this is true, the left side of BkwdPhysMaterial's geometry is to the RIGHT of the left side of FwdPhysMaterial's geometry. This is the easy case
-		if (FwdPhysMaterial == BkwdPhysMaterial)
+		// If this is true, the other side of this phys material is to the RIGHT of the left side of FwdBlockingHits[i-1]'s phys material. This is the easy case
+		if (FwdBlockingHits[i].PhysMaterial.Get() == CurrentPhysMaterial)
 		{
 			// We found our correct fwd
 			BodyPenetrationInfo.PenetrationDistance = FVector::Distance(BkwdsBlockingHits[i].Location, FwdBlockingHits[i].Location);
@@ -413,7 +410,8 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetra
 			continue;
 		}
 
-		// (FwdPhysMaterial == BkwdPhysMaterial) was false, so that means the left side of BkwdPhysMaterial's geometry is to the LEFT of the left side of FwdPhysMaterial's geometry. This is the more complex case
+		// This was not the easy case, that means the other side of our phys material is <= FwdBlockingHits[i]
+		// Either there are phys material(s) within the current one, or the current one is inside 1 or more phys materials
 		TArray<FHitResult> FwdBlockingHitsReversed = FwdBlockingHits;
 		Algo::Reverse(FwdBlockingHitsReversed);
 
@@ -422,7 +420,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetra
 		while (FwdBlockingHitsReversed.Num() > 0)
 		{
 			FHitResult PoppedFwdHitResult = FwdBlockingHitsReversed.Pop();	// This might be our guy....
-			if (PoppedFwdHitResult.PhysMaterial.Get() == BkwdPhysMaterial)
+			if (PoppedFwdHitResult.PhysMaterial.Get() == CurrentPhysMaterial)
 			{
 				// We found our correct fwd
 				BodyPenetrationInfo.PenetrationDistance = FVector::Distance(BkwdsBlockingHits[i].Location, PoppedFwdHitResult.Location);

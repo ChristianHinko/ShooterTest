@@ -10,12 +10,12 @@
 #include "Pawn/AbilitySystemPawn.h"
 #include "Actor/AbilitySystemActor.h"
 #include "Utilities/SurfaceTypes.h"
+#include "Algo/Reverse.h"
 
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
 
 #include "Kismet/KismetSystemLibrary.h"
-
 
 
 AGATA_Trace::AGATA_Trace(const FObjectInitializer& ObjectInitializer)
@@ -312,6 +312,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetra
 	 *				_________				_________
 	 */
 
+	
 	FHitResult PreviousBkwdHit;
 	for (int32 i = FwdBlockingHits.Num() - 1; i >= 0; --i)
 	{
@@ -386,20 +387,15 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FBodyPenetrationInfo>& OutPenetra
 
 
 
-
-
 		// If they weren't the same, lets make a stack, pushing from FwdBlockingHits[i] to FwdBlockingHits[0]
-		TArray<FHitResult> FwdHitStack;
-		for (int32 j = FwdBlockingHits.Num() - 1; j >= 0; --j)
-		{
-			// Load our stack so we can compare each fwd phys mat from top to bottom with our bkwd phys mat
-			FwdHitStack.Push(FwdBlockingHits[j]);
-		}
+		TArray<FHitResult> FwdBlockingHitsReversed = FwdBlockingHits;
+		Algo::Reverse(FwdBlockingHitsReversed);
+
 
 		// Lets pop the whole stack and compare
-		while (FwdHitStack.Num() > 0)
+		while (FwdBlockingHitsReversed.Num() > 0)
 		{
-			FHitResult PoppedFwdHitResult = FwdHitStack.Pop();	// This might be our guy....
+			FHitResult PoppedFwdHitResult = FwdBlockingHitsReversed.Pop();	// This might be our guy....
 			if (PoppedFwdHitResult.PhysMaterial.Get() == BkwdPhysMaterial)
 			{
 				// We found our correct fwd

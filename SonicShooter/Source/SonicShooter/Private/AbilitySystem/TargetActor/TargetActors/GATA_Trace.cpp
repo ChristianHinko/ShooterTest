@@ -487,25 +487,6 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FMaterialPenetrationInfo>& OutPen
 
 
 
-			// Old code. We will not have to do this much to figure out the other side anymore since we can just compare the material pointers
-			// -------------------------------------------------------------------------------------------------------------------------------
-		//// This is not the easy case, that means the other side of our material is <= FwdBlockingHits[i]
-		//// Either there are material(s) within the current one, or the current one is inside 1 or more materials
-		//TArray<FHitResult> FwdBlockingHitsReversed = FwdBlockingHits;
-		//Algo::Reverse(FwdBlockingHitsReversed);
-
-		//// Lets pop the whole stack and compare
-		//while (FwdBlockingHitsReversed.Num() > 0)
-		//{
-		//	FHitResult PoppedFwdHitResult = FwdBlockingHitsReversed.Pop();	// This might be our guy....
-		//	if (PoppedFwdHitResult.PhysMaterial.Get() == CurrentPenetratedMaterial)
-		//	{
-		//		// We found our correct fwd
-		//		PenetrationInfo.PenetrationDistance = FVector::Distance(BkwdsBlockingHits[i].Location, PoppedFwdHitResult.Location);
-		//		OutPenetrationInfos.Add(PenetrationInfo);	// We just add to the end in this case since the left side of BkwdPhysMaterial's geometry is to the LEFT of the left side of FwdPhysMaterial's geometry
-		//		break;
-		//	}
-		//}
 	}
 }
 

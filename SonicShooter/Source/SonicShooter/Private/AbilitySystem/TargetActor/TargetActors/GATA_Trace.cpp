@@ -433,9 +433,9 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FMaterialPenetrationInfo>& OutPen
 
 
 	// Lets finaly build our OutPenetrationInfos
-	for (int32 i = BkwdsBlockingHits.Num() - 1; i >= 0; --i)
+	for (int32 i = 0; i < FwdBlockingHits.Num(); ++i)
 	{
-		UMaterialInterface* CurrentPenetratedMaterial = UBFL_HitResultHelpers::GetHitMaterial(BkwdsBlockingHits[i]);
+		UMaterialInterface* CurrentPenetratedMaterial = UBFL_HitResultHelpers::GetHitMaterial(FwdBlockingHits[i]);
 		if (!IsValid(CurrentPenetratedMaterial))
 		{
 			UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() One of the penetrated materials is not valid"), *FString(__FUNCTION__));
@@ -446,11 +446,11 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FMaterialPenetrationInfo>& OutPen
 		// ---------- Create this material's penetration info ----------
 		FMaterialPenetrationInfo PenetrationInfo;
 		PenetrationInfo.Material = CurrentPenetratedMaterial;
-		PenetrationInfo.DebugName = BkwdsBlockingHits[i].Actor.Get()->GetActorLabel();
+		PenetrationInfo.DebugName = FwdBlockingHits[i].Actor.Get()->GetActorLabel();
 		// ---------------------------------------------------------
 		// Now time to find the other side of this material
 
-		UMaterialInterface* TestAgainstMaterial = UBFL_HitResultHelpers::GetHitMaterial(FwdBlockingHits[i]);
+		UMaterialInterface* TestAgainstMaterial = UBFL_HitResultHelpers::GetHitMaterial(BkwdsBlockingHits[i]);
 		if (!IsValid(TestAgainstMaterial))
 		{
 			UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() The material we are testing against is not valid"), *FString(__FUNCTION__));
@@ -462,7 +462,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FMaterialPenetrationInfo>& OutPen
 		{
 			// We found our correct fwd
 			PenetrationInfo.PenetrationDistance = FVector::Distance(BkwdsBlockingHits[i].Location, FwdBlockingHits[i].Location);
-			OutPenetrationInfos.Insert(PenetrationInfo, 0);			// insert at the first index (instead of adding to the end) because we are looping backwards (CAREFUL!!! WE NEED TO UPDATE THIS, IT WON'T ALWAYS BE AN INSERT IF ENGULFING IS HAPPENING!!)
+			OutPenetrationInfos.Add(PenetrationInfo);
 			continue;
 		}
 

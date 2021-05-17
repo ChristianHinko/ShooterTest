@@ -458,15 +458,31 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FMaterialPenetrationInfo>& OutPen
 		}
 
 		// If this is true, the other side of this material is to the RIGHT of the left side of FwdBlockingHits[i-1]'s material. This is the easy case
-		if (TestAgainstMaterial == CurrentPenetratedMaterial)
+		if (CurrentPenetratedMaterial == TestAgainstMaterial)
 		{
 			// We found our correct fwd
-			PenetrationInfo.PenetrationDistance = FVector::Distance(BkwdsBlockingHits[i].Location, FwdBlockingHits[i].Location);
+			PenetrationInfo.PenetrationDistance = FVector::Distance(FwdBlockingHits[i].Location, BkwdsBlockingHits[i].Location);
 			OutPenetrationInfos.Add(PenetrationInfo);
 			continue;
 		}
 
 
+
+
+
+
+		// Loop through every Bkwds Blocking Hit until we find one with the same material ptr as this Fwd Blocking Hit					TODO: we can optimize this
+		for (int32 j = 0; j < BkwdsBlockingHits.Num(); ++j)
+		{
+			TestAgainstMaterial = UBFL_HitResultHelpers::GetHitMaterial(BkwdsBlockingHits[j]);
+			if (CurrentPenetratedMaterial == TestAgainstMaterial)
+			{
+				// We found our correct fwd
+				PenetrationInfo.PenetrationDistance = FVector::Distance(FwdBlockingHits[i].Location, BkwdsBlockingHits[j].Location);
+				OutPenetrationInfos.Add(PenetrationInfo);
+				break;
+			}
+		}
 
 
 

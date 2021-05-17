@@ -159,6 +159,8 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(AGATA_BulletTrace), bTraceComplex);
 	Params.bReturnPhysicalMaterial = true;
+	Params.bTraceComplex = true;
+	Params.bReturnFaceIndex = true;
 	Params.AddIgnoredActors(ActorsToIgnore);
 
 	FVector TraceStart = StartLocation.GetTargetingTransform().GetLocation();

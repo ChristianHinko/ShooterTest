@@ -11,6 +11,8 @@
 #include "Actor/AbilitySystemActor.h"
 #include "Utilities/SurfaceTypes.h"
 #include "Utilities/LogCategories.h"
+#include "Utilities/BlueprintFunctionLibraries/BFL_MaterialHelpers.h"
+#include "Utilities/BlueprintFunctionLibraries/BFL_HitResultHelpers.h"
 
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -165,7 +167,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	OutHitResults.Append(HitResults);
 
 	TArray<FHitResult> ThisRicochetBlockingHits;
-	TArray<FPhysMaterialPenetrationInfo> Penetrations;
+	TArray<FMaterialPenetrationInfo> Penetrations;
 
 	// Extra traces loop
 	int32 maxRicochets = GetRicochets();
@@ -200,7 +202,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 			if (timesRicocheted < maxRicochets)
 			{
 				// We are about to ricochet so calculate Penetrations for these blocking Hits before we move on to the next ricochet
-				TArray<FPhysMaterialPenetrationInfo> ThisRicochetPenetrations;
+				TArray<FMaterialPenetrationInfo> ThisRicochetPenetrations;
 				BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, LastHit.Location, World, TraceParams);
 				Penetrations.Append(ThisRicochetPenetrations);
 				ThisRicochetBlockingHits.Empty(); // we are about to begin our next ricochet so reset the blocking Hit Results for next ricochet
@@ -264,9 +266,9 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 			FVector PenetrateStart = LastHit.Location + ((KINDA_SMALL_NUMBER * 100) * FromDir);			// bump it into itself a bit for reassurance (sometimes works without this if using Chaos)
 			FVector PenetrateEnd = PenetrateStart + ((GetMaxRange() - LastHit.Distance) * FromDir);
 
-			// Ensure Trace Complex for this trace
 			FCollisionQueryParams PenetrateParams = TraceParams;
-			PenetrateParams.bTraceComplex = true; // we need bTraceComplex because we are starting from inside the geometry and shooting out (this won't work for CTF_UseSimpleAsComplex and Physics Assest colliders but we have a fallback method for them)
+			PenetrateParams.bTraceComplex = true; // Use complex collision if the collider has it. We need this because we are starting from inside the geometry and shooting out (this won't work for CTF_UseSimpleAsComplex and Physics Assest colliders so TODO: we will need a case that covers this)
+			PenetrateParams.bReturnFaceIndex = true;
 
 			// Perform penetrate trace
 			TArray<FHitResult> PenetrateHitResults; // this penetration's hit results
@@ -306,13 +308,13 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 	if (ThisRicochetBlockingHits.Num() > 0)
 	{
-		TArray<FPhysMaterialPenetrationInfo> ThisRicochetPenetrations;
+		TArray<FMaterialPenetrationInfo> ThisRicochetPenetrations;
 		BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, ThisRicochetBlockingHits.Last().TraceEnd, World, TraceParams);
 		Penetrations.Append(ThisRicochetPenetrations);
 		ThisRicochetBlockingHits.Empty();
 	}
 
-	for (const FPhysMaterialPenetrationInfo& Penetration : Penetrations)
+	for (const FMaterialPenetrationInfo& Penetration : Penetrations)
 	{
 		UKismetSystemLibrary::PrintString(this, Penetration.DebugName + " " + "penetration distance: " + FString::SanitizeFloat(Penetration.PenetrationDistance), true, false, FLinearColor::Green, 10.f);
 	}
@@ -328,7 +330,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 #endif
 }
 
-void AGATA_Trace::BuildPenetrationInfos(TArray<FPhysMaterialPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const FVector& FwdEndLocation, const UWorld* World, const FCollisionQueryParams& TraceParams)  const
+void AGATA_Trace::BuildPenetrationInfos(TArray<FMaterialPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const FVector& FwdEndLocation, const UWorld* World, const FCollisionQueryParams& TraceParams)  const
 {
 	OutPenetrationInfos.Empty();
 
@@ -387,6 +389,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FPhysMaterialPenetrationInfo>& Ou
 
 		FCollisionQueryParams BkwdParams = TraceParams;
 		BkwdParams.bTraceComplex = true; // Use complex collision if the collider has it. We need this because we are starting from inside the geometry and shooting out (this won't work for CTF_UseSimpleAsComplex and Physics Assest colliders so TODO: we will need a case that covers this)
+		BkwdParams.bReturnFaceIndex = true;
 		BkwdParams.bIgnoreTouches = true;
 
 
@@ -432,18 +435,30 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FPhysMaterialPenetrationInfo>& Ou
 	// Lets finaly build our OutPenetrationInfos
 	for (int32 i = BkwdsBlockingHits.Num() - 1; i >= 0; --i)
 	{
-		UPhysicalMaterial* CurrentPhysMaterial = BkwdsBlockingHits[i].PhysMaterial.Get();
+		UMaterialInterface* CurrentPenetratedMaterial = UBFL_HitResultHelpers::GetHitMaterial(BkwdsBlockingHits[i]);
+		if (!IsValid(CurrentPenetratedMaterial))
+		{
+			UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() One of the penetrated materials is not valid"), *FString(__FUNCTION__));
+			continue;
+		}
+		
 
-		// ---------- Create this phys material's penetration info ----------
-		FPhysMaterialPenetrationInfo PenetrationInfo = FPhysMaterialPenetrationInfo();
-		PenetrationInfo.PhysMaterial = CurrentPhysMaterial;
+		// ---------- Create this material's penetration info ----------
+		FMaterialPenetrationInfo PenetrationInfo;
+		PenetrationInfo.Material = CurrentPenetratedMaterial;
 		PenetrationInfo.DebugName = BkwdsBlockingHits[i].Actor.Get()->GetActorLabel();
 		// ---------------------------------------------------------
-		// Now time to find the other side of this phys material
+		// Now time to find the other side of this material
 
+		UMaterialInterface* TestAgainstMaterial = UBFL_HitResultHelpers::GetHitMaterial(FwdBlockingHits[i]);
+		if (!IsValid(TestAgainstMaterial))
+		{
+			UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() The material we are testing against is not valid"), *FString(__FUNCTION__));
+			continue;
+		}
 
-		// If this is true, the other side of this phys material is to the RIGHT of the left side of FwdBlockingHits[i-1]'s phys material. This is the easy case
-		if (FwdBlockingHits[i].PhysMaterial.Get() == CurrentPhysMaterial)
+		// If this is true, the other side of this material is to the RIGHT of the left side of FwdBlockingHits[i-1]'s material. This is the easy case
+		if (TestAgainstMaterial == CurrentPenetratedMaterial)
 		{
 			// We found our correct fwd
 			PenetrationInfo.PenetrationDistance = FVector::Distance(BkwdsBlockingHits[i].Location, FwdBlockingHits[i].Location);
@@ -451,23 +466,30 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FPhysMaterialPenetrationInfo>& Ou
 			continue;
 		}
 
-		// This is not the easy case, that means the other side of our phys material is <= FwdBlockingHits[i]
-		// Either there are phys material(s) within the current one, or the current one is inside 1 or more phys materials
-		TArray<FHitResult> FwdBlockingHitsReversed = FwdBlockingHits;
-		Algo::Reverse(FwdBlockingHitsReversed);
 
-		// Lets pop the whole stack and compare
-		while (FwdBlockingHitsReversed.Num() > 0)
-		{
-			FHitResult PoppedFwdHitResult = FwdBlockingHitsReversed.Pop();	// This might be our guy....
-			if (PoppedFwdHitResult.PhysMaterial.Get() == CurrentPhysMaterial)
-			{
-				// We found our correct fwd
-				PenetrationInfo.PenetrationDistance = FVector::Distance(BkwdsBlockingHits[i].Location, PoppedFwdHitResult.Location);
-				OutPenetrationInfos.Add(PenetrationInfo);	// We just add to the end in this case since the left side of BkwdPhysMaterial's geometry is to the LEFT of the left side of FwdPhysMaterial's geometry
-				break;
-			}
-		}
+
+
+
+
+			// Old code. We will not have to do this much to figure out the other side anymore since we can just compare the material pointers
+			// -------------------------------------------------------------------------------------------------------------------------------
+		//// This is not the easy case, that means the other side of our material is <= FwdBlockingHits[i]
+		//// Either there are material(s) within the current one, or the current one is inside 1 or more materials
+		//TArray<FHitResult> FwdBlockingHitsReversed = FwdBlockingHits;
+		//Algo::Reverse(FwdBlockingHitsReversed);
+
+		//// Lets pop the whole stack and compare
+		//while (FwdBlockingHitsReversed.Num() > 0)
+		//{
+		//	FHitResult PoppedFwdHitResult = FwdBlockingHitsReversed.Pop();	// This might be our guy....
+		//	if (PoppedFwdHitResult.PhysMaterial.Get() == CurrentPenetratedMaterial)
+		//	{
+		//		// We found our correct fwd
+		//		PenetrationInfo.PenetrationDistance = FVector::Distance(BkwdsBlockingHits[i].Location, PoppedFwdHitResult.Location);
+		//		OutPenetrationInfos.Add(PenetrationInfo);	// We just add to the end in this case since the left side of BkwdPhysMaterial's geometry is to the LEFT of the left side of FwdPhysMaterial's geometry
+		//		break;
+		//	}
+		//}
 	}
 }
 

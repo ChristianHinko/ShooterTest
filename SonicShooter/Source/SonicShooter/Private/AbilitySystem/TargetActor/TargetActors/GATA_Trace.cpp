@@ -316,7 +316,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 	for (const FSectionPenetrationInfo& Penetration : Penetrations)
 	{
-		UKismetSystemLibrary::PrintString(this, Penetration.DebugName + " " + "penetration distance: " + FString::SanitizeFloat(Penetration.PenetrationDistance), true, false, FLinearColor::Green, 10.f);
+		UKismetSystemLibrary::PrintString(this, Penetration.DebugName + "    " + "penetration distance: " + FString::SanitizeFloat(Penetration.PenetrationDistance), true, false, FLinearColor::Green, 10.f);
 	}
 
 
@@ -449,7 +449,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 		FSectionPenetrationInfo PenetrationInfo;
 		PenetrationInfo.PenetratedSectionIndex = sectionIndexPenetrated;
 		PenetrationInfo.EntrancePoint = FwdBlockingHits[i].ImpactPoint;
-		PenetrationInfo.DebugName = FwdBlockingHits[i].Actor.Get()->GetActorLabel();
+		PenetrationInfo.DebugName = "Actor: " + FwdBlockingHits[i].Actor.Get()->GetActorLabel() + "    Component: " + PrimitiveComponentPenetrated->GetName();;
 		// ------------------------------------------------------------------------------
 
 

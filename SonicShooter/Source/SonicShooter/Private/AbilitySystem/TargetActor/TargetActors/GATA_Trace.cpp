@@ -358,7 +358,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 
 
 	TArray<FHitResult> BkwdBlockingHits;	// For loop will create this BkwdBlockingHits arr
-	FHitResult PreviousBkwdHit;
+	FVector BkwdStart;
 	for (int32 i = FwdBlockingHits.Num() - 1; i >= 0; --i)
 	{
 		const FHitResult FwdHit = FwdBlockingHits[i];
@@ -367,15 +367,10 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 		const FVector FwdDir = UKismetMathLibrary::GetDirectionUnitVector(FwdHit.TraceStart, FwdHit.Location);
 		const FVector BkwdDir = -1 * FwdDir; // get the opposite direction
 
-		FVector BkwdStart;
 		FVector BkwdEnd;
 		if (i == FwdBlockingHits.Num() - 1)
 		{
 			BkwdStart = FwdEndLocation + ((KINDA_SMALL_NUMBER * 100) * BkwdDir);
-		}
-		else
-		{
-			BkwdStart = PreviousBkwdHit.Location + ((KINDA_SMALL_NUMBER * 100) * BkwdDir);
 		}
 		BkwdEnd = FwdHit.Location + ((KINDA_SMALL_NUMBER * 100) * FwdDir);
 
@@ -398,14 +393,14 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 		const bool bFirstTraceHit = World->LineTraceSingleByChannel(BkwdHitResult, BkwdStart, BkwdEnd, TraceChannel, BkwdParams);
 		if (!bFirstTraceHit)
 		{
-			break;	// We've reached the end
+			continue;	// we've either reached the end or we just didn't hit anything because we started inside the geometry
 		}
 
 
 		if (bFirstTraceHit && BkwdHitResult.Distance != 0)	// This is a correct and successful backwards trace
 		{
 			BkwdBlockingHits.Insert(BkwdHitResult, 0);
-			PreviousBkwdHit = BkwdHitResult;
+			BkwdStart = BkwdHitResult.Location + ((KINDA_SMALL_NUMBER * 100) * BkwdDir);
 			continue;
 		}
 
@@ -421,13 +416,9 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 		if (bFallbackTraceHit)
 		{
 			BkwdBlockingHits.Insert(BkwdHitResult, 0);
-			PreviousBkwdHit = BkwdHitResult;
+			BkwdStart = BkwdHitResult.Location + ((KINDA_SMALL_NUMBER * 100) * BkwdDir);
 		}
 	}
-
-
-
-	UE_CLOG(FwdBlockingHits.Num() != BkwdBlockingHits.Num(), LogGameplayAbilityTargetActor, Fatal, TEXT("%s() FwdBlockingHits.Num() != BkwdBlockingHits.Num(). This means we don't have a corresponding fwd hit result for each bkwd hit result which doesn't make sense. Something went wrong and proceeding would probably end poorly"), *FString(__FUNCTION__));
 
 
 
@@ -496,6 +487,8 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 		OutPenetrationInfos.Add(PenetrationInfo);
 
 	}
+
+
 }
 
 void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape& CollisionShape, const FCollisionQueryParams& Params, const bool inDebug)

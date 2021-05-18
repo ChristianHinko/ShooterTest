@@ -357,7 +357,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FMaterialPenetrationInfo>& OutPen
 	 */
 
 
-	TArray<FHitResult> BkwdsBlockingHits;	// For loop will create this BkwdsBlockingHits arr
+	TArray<FHitResult> BkwdBlockingHits;	// For loop will create this BkwdBlockingHits arr
 	FHitResult PreviousBkwdHit;
 	for (int32 i = FwdBlockingHits.Num() - 1; i >= 0; --i)
 	{
@@ -404,7 +404,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FMaterialPenetrationInfo>& OutPen
 
 		if (bFirstTraceHit && BkwdHitResult.Distance != 0)	// This is a correct and successful backwards trace
 		{
-			BkwdsBlockingHits.Insert(BkwdHitResult, 0);
+			BkwdBlockingHits.Insert(BkwdHitResult, 0);
 			PreviousBkwdHit = BkwdHitResult;
 			continue;
 		}
@@ -420,14 +420,14 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FMaterialPenetrationInfo>& OutPen
 		bool bFallbackTraceHit = World->LineTraceSingleByChannel(BkwdHitResult, BkwdStart, BkwdEnd, TraceChannel, BkwdParams);
 		if (bFallbackTraceHit)
 		{
-			BkwdsBlockingHits.Insert(BkwdHitResult, 0);
+			BkwdBlockingHits.Insert(BkwdHitResult, 0);
 			PreviousBkwdHit = BkwdHitResult;
 		}
 	}
 
 
 
-	UE_CLOG(FwdBlockingHits.Num() != BkwdsBlockingHits.Num(), LogGameplayAbilityTargetActor, Fatal, TEXT("%s() FwdBlockingHits.Num() != BkwdsBlockingHits.Num(). This means we don't have a corresponding fwd hit result for each bkwd hit result which doesn't make sense. Something went wrong and proceeding would probably end poorly"), *FString(__FUNCTION__));
+	UE_CLOG(FwdBlockingHits.Num() != BkwdBlockingHits.Num(), LogGameplayAbilityTargetActor, Fatal, TEXT("%s() FwdBlockingHits.Num() != BkwdBlockingHits.Num(). This means we don't have a corresponding fwd hit result for each bkwd hit result which doesn't make sense. Something went wrong and proceeding would probably end poorly"), *FString(__FUNCTION__));
 
 
 
@@ -460,7 +460,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FMaterialPenetrationInfo>& OutPen
 		// Get detaled information about the wall/object we hit going backward at index [i]
 		UPrimitiveComponent* TestAgainstPrimitiveComponent = nullptr;
 		int32 testAgainstSectionIndex = -1;
-		UBFL_HitResultHelpers::GetSectionLevelHitInfo(BkwdsBlockingHits[i], TestAgainstPrimitiveComponent, testAgainstSectionIndex);
+		UBFL_HitResultHelpers::GetSectionLevelHitInfo(BkwdBlockingHits[i], TestAgainstPrimitiveComponent, testAgainstSectionIndex);
 
 
 
@@ -468,7 +468,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FMaterialPenetrationInfo>& OutPen
 		if (PrimitiveComponentPenetrated == TestAgainstPrimitiveComponent && sectionIndexPenetrated == testAgainstSectionIndex)
 		{
 			// We found the other side of the specific section we are penetrating
-			PenetrationInfo.PenetrationDistance = FVector::Distance(FwdBlockingHits[i].Location, BkwdsBlockingHits[i].Location);
+			PenetrationInfo.PenetrationDistance = FVector::Distance(FwdBlockingHits[i].Location, BkwdBlockingHits[i].Location);
 			OutPenetrationInfos.Add(PenetrationInfo);
 			continue;
 		}
@@ -477,13 +477,13 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FMaterialPenetrationInfo>& OutPen
 
 
 		// Loop through every Bkwds Blocking Hit until we find the same section that belongs to the same primative component					TODO: we can optimize this
-		for (int32 j = 0; j < BkwdsBlockingHits.Num(); ++j)
+		for (int32 j = 0; j < BkwdBlockingHits.Num(); ++j)
 		{
-			UBFL_HitResultHelpers::GetSectionLevelHitInfo(BkwdsBlockingHits[j], TestAgainstPrimitiveComponent, testAgainstSectionIndex);
+			UBFL_HitResultHelpers::GetSectionLevelHitInfo(BkwdBlockingHits[j], TestAgainstPrimitiveComponent, testAgainstSectionIndex);
 			if (PrimitiveComponentPenetrated == TestAgainstPrimitiveComponent && sectionIndexPenetrated == testAgainstSectionIndex)
 			{
 				// We found the other side of the specific section we are penetrating
-				PenetrationInfo.PenetrationDistance = FVector::Distance(FwdBlockingHits[i].Location, BkwdsBlockingHits[j].Location);
+				PenetrationInfo.PenetrationDistance = FVector::Distance(FwdBlockingHits[i].Location, BkwdBlockingHits[j].Location);
 				OutPenetrationInfos.Add(PenetrationInfo);
 				break;
 			}

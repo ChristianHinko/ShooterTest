@@ -456,35 +456,25 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 		// ------------------------------------------------------------------------------
 
 
-		// Now time to find the other side of this section
-		// Get detaled information about the wall/object we hit going backward at index [i]
-		UPrimitiveComponent* TestAgainstPrimitiveComponent = nullptr;
-		int32 testAgainstSectionIndex = -1;
-		UBFL_HitResultHelpers::GetSectionLevelHitInfo(BkwdBlockingHits[i], TestAgainstPrimitiveComponent, testAgainstSectionIndex);
 
 
-
-		// If this is true, we are the same primative component with the same section index
-		if (PrimitiveComponentPenetrated == TestAgainstPrimitiveComponent && sectionIndexPenetrated == testAgainstSectionIndex)
-		{
-			// We found the other side of the specific section we are penetrating
-			PenetrationInfo.PenetrationDistance = FVector::Distance(FwdBlockingHits[i].Location, BkwdBlockingHits[i].Location);
-			OutPenetrationInfos.Add(PenetrationInfo);
-			continue;
-		}
+		// Now time to find the other side of this Fwd Hit's section
 
 
-
-
-		// Loop through every Bkwds Blocking Hit until we find the same section that belongs to the same primative component					TODO: we can optimize this
+		// Loop through every Bkwd Blocking Hit until we find the same section that belongs to the same primative component
 		for (int32 j = 0; j < BkwdBlockingHits.Num(); ++j)
 		{
+			// Get detaled information about the wall/object we hit going backward at index [i]
+			UPrimitiveComponent* TestAgainstPrimitiveComponent = nullptr;
+			int32 testAgainstSectionIndex = -1;
 			UBFL_HitResultHelpers::GetSectionLevelHitInfo(BkwdBlockingHits[j], TestAgainstPrimitiveComponent, testAgainstSectionIndex);
+
 			if (PrimitiveComponentPenetrated == TestAgainstPrimitiveComponent && sectionIndexPenetrated == testAgainstSectionIndex)
 			{
 				// We found the other side of the specific section we are penetrating
 				PenetrationInfo.PenetrationDistance = FVector::Distance(FwdBlockingHits[i].Location, BkwdBlockingHits[j].Location);
 				OutPenetrationInfos.Add(PenetrationInfo);
+				BkwdBlockingHits.RemoveAt(j); // we've just paired this index of BkwdBlockingHits with us so remove it so other FwdBlockingHits don't try to pair themselves with it
 				break;
 			}
 		}

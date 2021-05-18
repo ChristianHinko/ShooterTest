@@ -357,29 +357,18 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 	 */
 
 
-	TArray<FHitResult> BkwdBlockingHits;	// For loop will create this BkwdBlockingHits arr
-	FVector BkwdStart;
-	for (int32 i = FwdBlockingHits.Num() - 1; i >= 0; --i)
+
+	TArray<FHitResult> BkwdBlockingHits;
+
+	// Bkwd traces loop. This fills up our BkwdBlockingHits
 	{
-		const FHitResult FwdHit = FwdBlockingHits[i];
-
 		// Get trace dir from this hit
-		const FVector FwdDir = UKismetMathLibrary::GetDirectionUnitVector(FwdHit.TraceStart, FwdHit.Location);
+		const FVector FwdDir = UKismetMathLibrary::GetDirectionUnitVector(FwdBlockingHits[0].TraceStart, FwdBlockingHits[0].TraceEnd);
 		const FVector BkwdDir = -1 * FwdDir; // get the opposite direction
-
-		FVector BkwdEnd;
-		if (i == FwdBlockingHits.Num() - 1)
-		{
-			BkwdStart = FwdEndLocation + ((KINDA_SMALL_NUMBER * 100) * BkwdDir);
-		}
-		BkwdEnd = FwdHit.Location + ((KINDA_SMALL_NUMBER * 100) * FwdDir);
-
-
 		
 
-
-
-
+		FVector BkwdStart = FwdEndLocation + ((KINDA_SMALL_NUMBER * 100) * BkwdDir);
+		FVector BkwdEnd = FwdBlockingHits[0].TraceStart + ((KINDA_SMALL_NUMBER * 100) * FwdDir);
 
 
 		FCollisionQueryParams BkwdParams = TraceParams;
@@ -388,35 +377,28 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 		BkwdParams.bIgnoreTouches = true;
 
 
-		// Perform backwards trace
-		FHitResult BkwdHitResult;
-		const bool bFirstTraceHit = World->LineTraceSingleByChannel(BkwdHitResult, BkwdStart, BkwdEnd, TraceChannel, BkwdParams);
-		if (!bFirstTraceHit)
+		for (FHitResult BkwdHitResult; World->LineTraceSingleByChannel(BkwdHitResult, BkwdStart, BkwdEnd, TraceChannel, BkwdParams); BkwdStart = BkwdHitResult.Location + ((KINDA_SMALL_NUMBER * 100) * BkwdDir))
 		{
-			continue;	// we've either reached the end or we just didn't hit anything because we started inside the geometry
-		}
+			// If the trace messed up
+			if (BkwdHitResult.Distance == 0)
+			{
+				// Unsuccessful backwards trace (we didn't travel anywhere but hit something)
+				// Likely reason: It's stuck inside a collider that's using simple collision
+
+				// Fallback method...........
+				// Try again with this component (collider) ignored
+				BkwdParams.AddIgnoredComponent(BkwdHitResult.GetComponent());
+
+				if (!World->LineTraceSingleByChannel(BkwdHitResult, BkwdStart, BkwdEnd, TraceChannel, BkwdParams))
+				{
+					// Our fallback didn't hit anything, stop here
+					break;
+				}
+			}
 
 
-		if (bFirstTraceHit && BkwdHitResult.Distance != 0)	// This is a correct and successful backwards trace
-		{
-			BkwdBlockingHits.Insert(BkwdHitResult, 0);
-			BkwdStart = BkwdHitResult.Location + ((KINDA_SMALL_NUMBER * 100) * BkwdDir);
-			continue;
-		}
-
-
-
-		// Unsuccessful backwards trace (we didn't travel anywhere but hit something)
-		// Likely reason: It's stuck inside a collider that's using simple collision
-		
-		// Fallback method...........
-		// Try again with this component (collider) ignored
-		BkwdParams.AddIgnoredComponent(BkwdHitResult.GetComponent());
-		bool bFallbackTraceHit = World->LineTraceSingleByChannel(BkwdHitResult, BkwdStart, BkwdEnd, TraceChannel, BkwdParams);
-		if (bFallbackTraceHit)
-		{
-			BkwdBlockingHits.Insert(BkwdHitResult, 0);
-			BkwdStart = BkwdHitResult.Location + ((KINDA_SMALL_NUMBER * 100) * BkwdDir);
+			// Add this result to our BkwdBlockingHits
+			BkwdBlockingHits.Insert(BkwdHitResult, 0); // insert at beginning (instead of adding to the end) because we are going backwards
 		}
 	}
 

@@ -314,10 +314,6 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 		ThisRicochetBlockingHits.Empty();
 	}
 
-	for (const FSectionPenetrationInfo& Penetration : Penetrations)
-	{
-		UKismetSystemLibrary::PrintString(this, Penetration.DebugName + "    " + "penetration distance: " + FString::SanitizeFloat(Penetration.PenetrationDistance), true, false, FLinearColor::Green, 10.f);
-	}
 
 
 
@@ -325,6 +321,10 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 #if ENABLE_DRAW_DEBUG
 	if (inDebug)
 	{
+		for (const FSectionPenetrationInfo& Penetration : Penetrations)
+		{
+			UKismetSystemLibrary::PrintString(this, Penetration.DebugName + "    " + "penetration distance: " + FString::SanitizeFloat(Penetration.PenetrationDistance), true, false, FLinearColor::Green, 10.f);
+		}
 		DebugTrace(OutHitResults, World, Start, End, timesRicocheted);
 	}
 #endif
@@ -445,7 +445,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 		PenetrationInfo.PenetratedSectionIndex = sectionIndexPenetrated;
 		PenetrationInfo.PenetratedPhysicsMaterial = FwdBlockingHits[i].PhysMaterial.Get();
 		PenetrationInfo.EntrancePoint = FwdBlockingHits[i].ImpactPoint;
-		PenetrationInfo.DebugName = "Actor: " + FwdBlockingHits[i].Actor.Get()->GetActorLabel() + "    Component: " + PrimitiveComponentPenetrated->GetName();;
+		PenetrationInfo.DebugName = "Actor: " + FwdBlockingHits[i].Actor.Get()->GetActorLabel() + "    Component: " + PrimitiveComponentPenetrated->GetName();
 		// ------------------------------------------------------------------------------
 
 

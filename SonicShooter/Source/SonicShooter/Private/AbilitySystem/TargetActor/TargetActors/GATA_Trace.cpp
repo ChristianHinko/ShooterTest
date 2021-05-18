@@ -463,6 +463,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 
 
 		// Loop through every Bkwd Blocking Hit until we find the same section that belongs to the same primative component
+		bool bPaired = false;
 		for (int32 j = 0; j < BkwdBlockingHits.Num(); ++j)
 		{
 			// Get detaled information about the wall/object we hit going backward at index [i]
@@ -477,9 +478,23 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 				PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
 				OutPenetrationInfos.Add(PenetrationInfo);
 				BkwdBlockingHits.RemoveAt(j); // we've just paired this index of BkwdBlockingHits with us so remove it so other FwdBlockingHits don't try to pair themselves with it
+				bPaired = true;
 				break;
 			}
 		}
+		if (bPaired)
+		{
+			// This Fwd Blocking Hit has been paired up with a Bkwd Blocking Hit, continue to the next one
+			continue;
+		}
+
+		// If we end up here, that means this Fwd Blocking Hit was not able to be paired with any BkwdBlockingHits
+
+
+		// Just give the distance between this Fwd Blocking Hit and the FwdEndLocation because we probably began the Bkwd trace starting from the inside the geometry
+		PenetrationInfo.PenetrationDistance = FVector::Distance(FwdBlockingHits[i].Location, FwdEndLocation);
+		OutPenetrationInfos.Add(PenetrationInfo);
+
 	}
 }
 

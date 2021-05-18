@@ -427,10 +427,6 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 
 
 
-	UE_CLOG(FwdBlockingHits.Num() != BkwdBlockingHits.Num(), LogGameplayAbilityTargetActor, Fatal, TEXT("%s() FwdBlockingHits.Num() != BkwdBlockingHits.Num(). This means we don't have a corresponding fwd hit result for each bkwd hit result which doesn't make sense. Something went wrong and proceeding would probably end poorly"), *FString(__FUNCTION__));
-
-
-
 
 	// Lets finaly build our OutPenetrationInfos
 	/*

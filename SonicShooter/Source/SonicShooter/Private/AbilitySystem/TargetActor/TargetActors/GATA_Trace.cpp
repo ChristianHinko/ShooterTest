@@ -433,12 +433,14 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FMaterialPenetrationInfo>& OutPen
 
 
 	// Lets finaly build our OutPenetrationInfos
-	/* 
-	We will make use of sections to be specific enough to know what parts of a mesh should be penetrated in certain ways.
-	A section has a material associated with it and that material stores the physical material so this is how we can know how to 
-	penetrate that part of the mesh. Since we don't have pointers to sections to work with, we will use the section index associated with 
-	a pointer to the primitive component that has that section. This fixes the problem of having reoccuring section indexes when there
-	are multible objects. to differentiate between since each PrimativeComponent/StaticMeshComponent just store their section indexes from 0-n.
+	/*
+	*	We will make use of sections to be specific enough to know what parts of a mesh should be penetrated in certain ways.
+	*	A section has a material associated with it and that material stores the physical material so this is how we can know how to
+	*	penetrate that part of the mesh. Since we don't have pointers to sections to work with, we will use the section index associated with
+	*	a pointer to the primitive component that has that section. This fixes the problem of having reoccuring section indexes in the case where
+	*	there are multible primative components. To differentiate between them we can use the primative component pointer.
+	*
+	*	(As an update, I did find that you could just get the section index's pointer, but I left it this way for now since I was unsure if that makes it less genaric or not since I noticed there was a cast to UStaticMesh in order to retrieve the pointer)
 	*/
 	for (int32 i = 0; i < FwdBlockingHits.Num(); ++i)
 	{

@@ -17,6 +17,8 @@ struct FSectionPenetrationInfo
 	FSectionPenetrationInfo()
 	{
 		PenetratedSectionIndex = -1;
+		EntrancePoint	= FVector::ZeroVector;
+		ExitPoint		= FVector::ZeroVector;
 		PenetrationDistance = -1;
 	}
 	FSectionPenetrationInfo(int32 InPenetratedSectionIndex, float InPenetrationDistance, FVector inEntrancePoint, FVector inExitPoint, FString InDebugName)

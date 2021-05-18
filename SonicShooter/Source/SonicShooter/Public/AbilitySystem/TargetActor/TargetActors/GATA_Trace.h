@@ -21,16 +21,18 @@ struct FSectionPenetrationInfo
 		ExitPoint		= FVector::ZeroVector;
 		PenetrationDistance = -1;
 	}
-	FSectionPenetrationInfo(int32 InPenetratedSectionIndex, float InPenetrationDistance, FVector inEntrancePoint, FVector inExitPoint, FString InDebugName)
+	FSectionPenetrationInfo(int32 InPenetratedSectionIndex, float InPenetrationDistance, FVector inEntrancePoint, FVector inExitPoint, UPhysicalMaterial* inPenetratedPhysicsMaterial, FString InDebugName)
 	{
 		PenetratedSectionIndex = InPenetratedSectionIndex;
-		PenetrationDistance = InPenetrationDistance;
+		PenetratedPhysicsMaterial = inPenetratedPhysicsMaterial;
 
 		EntrancePoint = inEntrancePoint;
 		ExitPoint = inExitPoint;
+		PenetrationDistance = InPenetrationDistance;
 	}
 
 	int32 PenetratedSectionIndex;
+	UPhysicalMaterial* PenetratedPhysicsMaterial;
 
 	FVector EntrancePoint;
 	FVector ExitPoint;

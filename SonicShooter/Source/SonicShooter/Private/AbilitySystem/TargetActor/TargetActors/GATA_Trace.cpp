@@ -390,9 +390,10 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 
 				// Fallback method...........
 				// Try again with this component (collider) ignored
-				BkwdParams.AddIgnoredComponent(BkwdHitResult.GetComponent());
+				FCollisionQueryParams FallbackQueryParams = TraceParams;
+				FallbackQueryParams.AddIgnoredComponent(BkwdHitResult.GetComponent());
 
-				if (!World->LineTraceSingleByChannel(BkwdHitResult, BkwdStart, BkwdEnd, TraceChannel, BkwdParams))
+				if (!World->LineTraceSingleByChannel(BkwdHitResult, BkwdStart, BkwdEnd, TraceChannel, FallbackQueryParams))
 				{
 					// Our fallback didn't hit anything, stop here
 					break;

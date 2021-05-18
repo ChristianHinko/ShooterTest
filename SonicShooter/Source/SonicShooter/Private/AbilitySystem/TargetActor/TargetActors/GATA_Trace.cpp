@@ -167,7 +167,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	OutHitResults.Append(HitResults);
 
 	TArray<FHitResult> ThisRicochetBlockingHits;
-	TArray<FMaterialPenetrationInfo> Penetrations;
+	TArray<FSectionPenetrationInfo> Penetrations;
 
 	// Extra traces loop
 	int32 maxRicochets = GetRicochets();
@@ -202,7 +202,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 			if (timesRicocheted < maxRicochets)
 			{
 				// We are about to ricochet so calculate Penetrations for these blocking Hits before we move on to the next ricochet
-				TArray<FMaterialPenetrationInfo> ThisRicochetPenetrations;
+				TArray<FSectionPenetrationInfo> ThisRicochetPenetrations;
 				BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, LastHit.Location, World, TraceParams);
 				Penetrations.Append(ThisRicochetPenetrations);
 				ThisRicochetBlockingHits.Empty(); // we are about to begin our next ricochet so reset the blocking Hit Results for next ricochet
@@ -308,13 +308,13 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 	if (ThisRicochetBlockingHits.Num() > 0)
 	{
-		TArray<FMaterialPenetrationInfo> ThisRicochetPenetrations;
+		TArray<FSectionPenetrationInfo> ThisRicochetPenetrations;
 		BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, ThisRicochetBlockingHits.Last().TraceEnd, World, TraceParams);
 		Penetrations.Append(ThisRicochetPenetrations);
 		ThisRicochetBlockingHits.Empty();
 	}
 
-	for (const FMaterialPenetrationInfo& Penetration : Penetrations)
+	for (const FSectionPenetrationInfo& Penetration : Penetrations)
 	{
 		UKismetSystemLibrary::PrintString(this, Penetration.DebugName + " " + "penetration distance: " + FString::SanitizeFloat(Penetration.PenetrationDistance), true, false, FLinearColor::Green, 10.f);
 	}
@@ -330,7 +330,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 #endif
 }
 
-void AGATA_Trace::BuildPenetrationInfos(TArray<FMaterialPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const FVector& FwdEndLocation, const UWorld* World, const FCollisionQueryParams& TraceParams)  const
+void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const FVector& FwdEndLocation, const UWorld* World, const FCollisionQueryParams& TraceParams)  const
 {
 	OutPenetrationInfos.Empty();
 
@@ -449,8 +449,8 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FMaterialPenetrationInfo>& OutPen
 		int32 sectionIndexPenetrated = -1;
 		UBFL_HitResultHelpers::GetSectionLevelHitInfo(FwdBlockingHits[i], PrimitiveComponentPenetrated, sectionIndexPenetrated);
 		
-		// ------ Create this material's penetration info from what we know so far ------
-		FMaterialPenetrationInfo PenetrationInfo;
+		// ------ Create this section's penetration info from what we know so far ------
+		FSectionPenetrationInfo PenetrationInfo;
 		PenetrationInfo.PenetratedSectionIndex = sectionIndexPenetrated;
 		PenetrationInfo.DebugName = FwdBlockingHits[i].Actor.Get()->GetActorLabel();
 		// ------------------------------------------------------------------------------

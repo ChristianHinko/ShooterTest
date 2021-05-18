@@ -433,34 +433,39 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FMaterialPenetrationInfo>& OutPen
 
 
 	// Lets finaly build our OutPenetrationInfos
+	/* 
+	We will make use of sections to be specific enough to know what parts of a mesh should be penetrated in certain ways.
+	A section has a material associated with it and that material stores the physical material so this is how we can know how to 
+	penetrate that part of the mesh. Since we don't have pointers to sections to work with, we will use the section index associated with 
+	a pointer to the primitive component that has that section. This fixes the problem of having reoccuring section indexes when there
+	are multible objects. to differentiate between since each PrimativeComponent/StaticMeshComponent just store their section indexes from 0-n.
+	*/
 	for (int32 i = 0; i < FwdBlockingHits.Num(); ++i)
 	{
-		UMaterialInterface* CurrentPenetratedMaterial = UBFL_HitResultHelpers::GetHitMaterial(FwdBlockingHits[i]);
-		if (!IsValid(CurrentPenetratedMaterial))
-		{
-			UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() One of the penetrated materials is not valid"), *FString(__FUNCTION__));
-			continue;
-		}
+		// Get detaled information about the wall/object we hit going forward at index [i]
+		UPrimitiveComponent* PrimitiveComponentPenetrated = nullptr;
+		int32 sectionIndexPenetrated = -1;
+		UBFL_HitResultHelpers::GetSectionLevelHitInfo(FwdBlockingHits[i], PrimitiveComponentPenetrated, sectionIndexPenetrated);
 		
-
-		// ---------- Create this material's penetration info ----------
+		// ------ Create this material's penetration info from what we know so far ------
 		FMaterialPenetrationInfo PenetrationInfo;
-		PenetrationInfo.Material = CurrentPenetratedMaterial;
+		PenetrationInfo.PenetratedSectionIndex = sectionIndexPenetrated;
 		PenetrationInfo.DebugName = FwdBlockingHits[i].Actor.Get()->GetActorLabel();
-		// ---------------------------------------------------------
-		// Now time to find the other side of this material
+		// ------------------------------------------------------------------------------
 
-		UMaterialInterface* TestAgainstMaterial = UBFL_HitResultHelpers::GetHitMaterial(BkwdsBlockingHits[i]);
-		if (!IsValid(TestAgainstMaterial))
-		{
-			UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() The material we are testing against is not valid"), *FString(__FUNCTION__));
-			continue;
-		}
 
-		// If this is true, the other side of this material is to the RIGHT of the left side of FwdBlockingHits[i-1]'s material. This is the easy case
-		if (CurrentPenetratedMaterial == TestAgainstMaterial)
+		// Now time to find the other side of this section
+		// Get detaled information about the wall/object we hit going backward at index [i]
+		UPrimitiveComponent* TestAgainstPrimitiveComponent = nullptr;
+		int32 testAgainstSectionIndex = -1;
+		UBFL_HitResultHelpers::GetSectionLevelHitInfo(BkwdsBlockingHits[i], TestAgainstPrimitiveComponent, testAgainstSectionIndex);
+
+
+
+		// If this is true, we are the same primative component with the same section index
+		if (PrimitiveComponentPenetrated == TestAgainstPrimitiveComponent && sectionIndexPenetrated == testAgainstSectionIndex)
 		{
-			// We found our correct other side
+			// We found the other side of the specific section we are penetrating
 			PenetrationInfo.PenetrationDistance = FVector::Distance(FwdBlockingHits[i].Location, BkwdsBlockingHits[i].Location);
 			OutPenetrationInfos.Add(PenetrationInfo);
 			continue;
@@ -469,24 +474,18 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FMaterialPenetrationInfo>& OutPen
 
 
 
-
-
-		// Loop through every Bkwds Blocking Hit until we find one with the same material ptr as this Fwd Blocking Hit					TODO: we can optimize this
+		// Loop through every Bkwds Blocking Hit until we find the same section that belongs to the same primative component					TODO: we can optimize this
 		for (int32 j = 0; j < BkwdsBlockingHits.Num(); ++j)
 		{
-			TestAgainstMaterial = UBFL_HitResultHelpers::GetHitMaterial(BkwdsBlockingHits[j]);
-			if (CurrentPenetratedMaterial == TestAgainstMaterial)
+			UBFL_HitResultHelpers::GetSectionLevelHitInfo(BkwdsBlockingHits[j], TestAgainstPrimitiveComponent, testAgainstSectionIndex);
+			if (PrimitiveComponentPenetrated == TestAgainstPrimitiveComponent && sectionIndexPenetrated == testAgainstSectionIndex)
 			{
-				// We found our correct other side
+				// We found the other side of the specific section we are penetrating
 				PenetrationInfo.PenetrationDistance = FVector::Distance(FwdBlockingHits[i].Location, BkwdsBlockingHits[j].Location);
 				OutPenetrationInfos.Add(PenetrationInfo);
 				break;
 			}
 		}
-
-
-
-
 	}
 }
 

@@ -16,16 +16,16 @@ struct FMaterialPenetrationInfo
 {
 	FMaterialPenetrationInfo()
 	{
-		Material = nullptr;
+		PenetratedSectionIndex = -1;
 		PenetrationDistance = -1;
 	}
-	FMaterialPenetrationInfo(UMaterialInterface* InMaterial, float InPenetrationDistance, FString InDebugName)
+	FMaterialPenetrationInfo(int32 InPenetratedSectionIndex, float InPenetrationDistance, FString InDebugName)
 	{
-		Material = InMaterial;
+		PenetratedSectionIndex = InPenetratedSectionIndex;
 		PenetrationDistance = InPenetrationDistance;
 	}
 
-	UMaterialInterface* Material;
+	int32 PenetratedSectionIndex;
 	float PenetrationDistance;
 
 	FString DebugName;

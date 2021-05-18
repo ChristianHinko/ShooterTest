@@ -15,7 +15,11 @@ class SONICSHOOTER_API UBFL_HitResultHelpers : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 	
 public:
-	/** Returns the MaterialIndex given the material's section index */
+	/** Returns the material that was hit from the trace */
 	UFUNCTION(BlueprintPure, Category = "HitResultHelpers")
 		static UMaterialInterface* GetHitMaterial(const FHitResult& InHitResult);
+
+	/** Returns the section index of the Primitive Component that was hit from the trace */
+	UFUNCTION(BlueprintPure, Category = "HitResultHelpers|HitInfo")
+		static void GetSectionLevelHitInfo(const FHitResult& InHitResult, UPrimitiveComponent*& OutHitPrimitiveComponent, int32& outHitSectionIndex);
 };

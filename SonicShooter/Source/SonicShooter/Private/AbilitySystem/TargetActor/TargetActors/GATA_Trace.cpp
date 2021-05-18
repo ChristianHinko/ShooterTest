@@ -474,26 +474,26 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 
 	// Code for handling unmatched Bkwd Blocking Hits (untested):
 
-	//for (int32 i = 0; i < BkwdBlockingHits.Num(); ++i)
-	//{
-	//	UPrimitiveComponent* PrimitiveComponentPenetrated = nullptr;
-	//	int32 sectionIndexPenetrated = -1;
-	//	UBFL_HitResultHelpers::GetSectionLevelHitInfo(BkwdBlockingHits[i], PrimitiveComponentPenetrated, sectionIndexPenetrated);
+	for (int32 i = 0; i < BkwdBlockingHits.Num(); ++i)
+	{
+		UPrimitiveComponent* PrimitiveComponentPenetrated = nullptr;
+		int32 sectionIndexPenetrated = -1;
+		UBFL_HitResultHelpers::GetSectionLevelHitInfo(BkwdBlockingHits[i], PrimitiveComponentPenetrated, sectionIndexPenetrated);
 
-	//	FSectionPenetrationInfo PenetrationInfo;
-	//	PenetrationInfo.PenetratedSectionIndex = sectionIndexPenetrated;
-	//	PenetrationInfo.DebugName = BkwdBlockingHits[i].Actor.Get()->GetActorLabel();
-
-
-	//	PenetrationInfo.ExitPoint = BkwdBlockingHits[i].Location;
-	//	PenetrationInfo.PenetrationDistance = FVector::Distance(BkwdBlockingHits[i].Location, FwdEndLocation);
-	//	OutPenetrationInfos.Insert(PenetrationInfo, 0);
-	//	BkwdBlockingHits.RemoveAt(i);
-	//	--i;
-	//	continue;
+		FSectionPenetrationInfo PenetrationInfo;
+		PenetrationInfo.PenetratedSectionIndex = sectionIndexPenetrated;
+		PenetrationInfo.DebugName = BkwdBlockingHits[i].Actor.Get()->GetActorLabel();
 
 
-	//}
+		PenetrationInfo.ExitPoint = BkwdBlockingHits[i].Location;
+		PenetrationInfo.PenetrationDistance = FVector::Distance(BkwdBlockingHits[i].Location, FwdBlockingHits[0].TraceStart);
+		OutPenetrationInfos.Insert(PenetrationInfo, 0);
+		BkwdBlockingHits.RemoveAt(i);
+		--i;
+		continue;
+
+
+	}
 
 
 }

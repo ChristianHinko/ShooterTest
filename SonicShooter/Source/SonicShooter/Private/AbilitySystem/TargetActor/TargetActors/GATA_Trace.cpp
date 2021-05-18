@@ -316,7 +316,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 	for (const FSectionPenetrationInfo& Penetration : Penetrations)
 	{
-		UKismetSystemLibrary::PrintString(this, Penetration.DebugName + " " + "penetration distance: " + FString::SanitizeFloat(Penetration.PenetrationDistance), true, false, FLinearColor::Green, 10.f);
+		UKismetSystemLibrary::PrintString(this, Penetration.DebugName + "    " + "penetration distance: " + FString::SanitizeFloat(Penetration.PenetrationDistance), true, false, FLinearColor::Green, 10.f);
 	}
 
 
@@ -444,7 +444,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 		FSectionPenetrationInfo PenetrationInfo;
 		PenetrationInfo.PenetratedSectionIndex = sectionIndexPenetrated;
 		PenetrationInfo.EntrancePoint = FwdBlockingHits[i].ImpactPoint;
-		PenetrationInfo.DebugName = FwdBlockingHits[i].Actor.Get()->GetActorLabel();
+		PenetrationInfo.DebugName = "Actor: " + FwdBlockingHits[i].Actor.Get()->GetActorLabel() + "    Component: " + PrimitiveComponentPenetrated->GetName();;
 		// ------------------------------------------------------------------------------
 
 
@@ -467,6 +467,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 				// We found the other side of the specific section we are penetrating
 				PenetrationInfo.ExitPoint = BkwdBlockingHits[j].Location;
 				PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
+				PenetrationInfo.PenetratedPhysicsMaterial = BkwdBlockingHits[j].PhysMaterial.Get();
 				OutPenetrationInfos.Add(PenetrationInfo);
 				BkwdBlockingHits.RemoveAt(j); // we've just paired this index of BkwdBlockingHits with us so remove it so other FwdBlockingHits don't try to pair themselves with it
 				bPaired = true;

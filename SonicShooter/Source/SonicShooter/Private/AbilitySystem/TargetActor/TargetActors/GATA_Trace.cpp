@@ -490,6 +490,30 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 	}
 
 
+	// Code for handling unmatched Bkwd Blocking Hits (untested):
+
+	//for (int32 i = 0; i < BkwdBlockingHits.Num(); ++i)
+	//{
+	//	UPrimitiveComponent* PrimitiveComponentPenetrated = nullptr;
+	//	int32 sectionIndexPenetrated = -1;
+	//	UBFL_HitResultHelpers::GetSectionLevelHitInfo(BkwdBlockingHits[i], PrimitiveComponentPenetrated, sectionIndexPenetrated);
+
+	//	FSectionPenetrationInfo PenetrationInfo;
+	//	PenetrationInfo.PenetratedSectionIndex = sectionIndexPenetrated;
+	//	PenetrationInfo.DebugName = BkwdBlockingHits[i].Actor.Get()->GetActorLabel();
+
+
+	//	PenetrationInfo.ExitPoint = BkwdBlockingHits[i].Location;
+	//	PenetrationInfo.PenetrationDistance = FVector::Distance(BkwdBlockingHits[i].Location, FwdEndLocation);
+	//	OutPenetrationInfos.Insert(PenetrationInfo, 0);
+	//	BkwdBlockingHits.RemoveAt(i);
+	//	--i;
+	//	continue;
+
+
+	//}
+
+
 }
 
 void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape& CollisionShape, const FCollisionQueryParams& Params, const bool inDebug)

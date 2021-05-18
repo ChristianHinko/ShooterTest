@@ -12,14 +12,14 @@
 /**
  * 
  */
-struct FMaterialPenetrationInfo
+struct FSectionPenetrationInfo
 {
-	FMaterialPenetrationInfo()
+	FSectionPenetrationInfo()
 	{
 		PenetratedSectionIndex = -1;
 		PenetrationDistance = -1;
 	}
-	FMaterialPenetrationInfo(int32 InPenetratedSectionIndex, float InPenetrationDistance, FString InDebugName)
+	FSectionPenetrationInfo(int32 InPenetratedSectionIndex, float InPenetrationDistance, FString InDebugName)
 	{
 		PenetratedSectionIndex = InPenetratedSectionIndex;
 		PenetrationDistance = InPenetrationDistance;
@@ -73,7 +73,7 @@ protected:
 	 */
 	virtual void CalculateRicochetDirection(FVector& RicoDir, const FHitResult& FromHit) const;
 
-	void BuildPenetrationInfos(TArray<FMaterialPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const FVector& FwdEndLocation, const UWorld* World, const FCollisionQueryParams& TraceParams) const;
+	void BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const FVector& FwdEndLocation, const UWorld* World, const FCollisionQueryParams& TraceParams) const;
 
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) PURE_VIRTUAL(AGATA_Trace);
 	void PerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AActor* InSourceActor);

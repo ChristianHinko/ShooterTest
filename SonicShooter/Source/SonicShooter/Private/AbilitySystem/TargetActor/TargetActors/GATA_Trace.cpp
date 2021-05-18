@@ -356,7 +356,10 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 	 *		We can simplify this concept by visualizing it in 2d
 	 */
 
-
+	if (FwdBlockingHits.Num() <= 0)
+	{
+		return;
+	}
 
 	TArray<FHitResult> BkwdBlockingHits;
 

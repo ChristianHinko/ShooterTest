@@ -482,7 +482,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 
 		FSectionPenetrationInfo PenetrationInfo;
 		PenetrationInfo.PenetratedSectionIndex = sectionIndexPenetrated;
-		PenetrationInfo.DebugName = BkwdBlockingHits[i].Actor.Get()->GetActorLabel();
+		PenetrationInfo.DebugName = "Actor: " + FwdBlockingHits[i].Actor.Get()->GetActorLabel() + "    Component: " + PrimitiveComponentPenetrated->GetName();
 
 
 		PenetrationInfo.ExitPoint = BkwdBlockingHits[i].Location;

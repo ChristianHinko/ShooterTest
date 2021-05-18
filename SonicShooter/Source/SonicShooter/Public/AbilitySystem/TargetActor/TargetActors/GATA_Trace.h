@@ -19,13 +19,19 @@ struct FSectionPenetrationInfo
 		PenetratedSectionIndex = -1;
 		PenetrationDistance = -1;
 	}
-	FSectionPenetrationInfo(int32 InPenetratedSectionIndex, float InPenetrationDistance, FString InDebugName)
+	FSectionPenetrationInfo(int32 InPenetratedSectionIndex, float InPenetrationDistance, FVector inEntrancePoint, FVector inExitPoint, FString InDebugName)
 	{
 		PenetratedSectionIndex = InPenetratedSectionIndex;
 		PenetrationDistance = InPenetrationDistance;
+
+		EntrancePoint = inEntrancePoint;
+		ExitPoint = inExitPoint;
 	}
 
 	int32 PenetratedSectionIndex;
+
+	FVector EntrancePoint;
+	FVector ExitPoint;
 	float PenetrationDistance;
 
 	FString DebugName;

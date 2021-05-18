@@ -29,10 +29,10 @@ struct FSectionPenetrationInfo
 	}
 
 	int32 PenetratedSectionIndex;
-	float PenetrationDistance;
 
 	FVector EntrancePoint;
 	FVector ExitPoint;
+	float PenetrationDistance;
 
 	FString DebugName;
 };

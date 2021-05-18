@@ -452,6 +452,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 		// ------ Create this section's penetration info from what we know so far ------
 		FSectionPenetrationInfo PenetrationInfo;
 		PenetrationInfo.PenetratedSectionIndex = sectionIndexPenetrated;
+		PenetrationInfo.EntrancePoint = FwdBlockingHits[i].ImpactPoint;
 		PenetrationInfo.DebugName = FwdBlockingHits[i].Actor.Get()->GetActorLabel();
 		// ------------------------------------------------------------------------------
 
@@ -472,7 +473,8 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 			if (PrimitiveComponentPenetrated == TestAgainstPrimitiveComponent && sectionIndexPenetrated == testAgainstSectionIndex)
 			{
 				// We found the other side of the specific section we are penetrating
-				PenetrationInfo.PenetrationDistance = FVector::Distance(FwdBlockingHits[i].Location, BkwdBlockingHits[j].Location);
+				PenetrationInfo.ExitPoint = BkwdBlockingHits[j].Location;
+				PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
 				OutPenetrationInfos.Add(PenetrationInfo);
 				BkwdBlockingHits.RemoveAt(j); // we've just paired this index of BkwdBlockingHits with us so remove it so other FwdBlockingHits don't try to pair themselves with it
 				break;

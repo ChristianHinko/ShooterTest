@@ -51,6 +51,24 @@ struct FSectionPenetrationInfo
 	FString PenetratedComponentName;
 	FString PenetratedBoneName;
 };
+/**
+ *
+ */
+struct FPenetrationHitResult
+{
+	FPenetrationHitResult()
+	{
+		bIsExit = false;
+	}
+	FPenetrationHitResult(FHitResult& inHitResult, bool inIsExit)
+	{
+		HitResult = inHitResult;
+		bIsExit = inIsExit;
+	}
+
+	FHitResult HitResult;
+	uint8 bIsExit : 1;
+};
 
 /**
  * 

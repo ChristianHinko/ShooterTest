@@ -463,7 +463,33 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 	}
 
 
+	TArray<FPenetrationHitResult> PenetrationStack;
+	FPenetrationHitResult PreviousPenetrationHitResult;
+	for (const FPenetrationHitResult& PenetrationHitResult : PenetrationHitResults)
+	{
 
+		if (PenetrationHitResult.bIsExit == false)
+		{
+			PenetrationStack.Push(PenetrationHitResult);
+		}
+		else
+		{
+			PenetrationStack.Pop();
+		}
+
+
+		if (PenetrationStack.Num() > 0)
+		{
+			FSectionPenetrationInfo PenetrationInfo;
+			PenetrationInfo.EntrancePoint = PreviousPenetrationHitResult.HitResult.ImpactPoint;
+			PenetrationInfo.ExitPoint = PenetrationHitResult.HitResult.ImpactPoint;
+			PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
+		}
+
+
+
+		PreviousPenetrationHitResult = PenetrationHitResult;
+	}
 
 }
 

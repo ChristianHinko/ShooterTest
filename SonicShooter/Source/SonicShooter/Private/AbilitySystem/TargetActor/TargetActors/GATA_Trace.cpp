@@ -403,7 +403,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 		BkwdParams.bIgnoreTouches = true;
 
 
-		int32 LastFwdBlockingHitsIndex = FwdBlockingHits.Num() - 1;
+		int32 NextFwdBlockingHitToInsert = FwdBlockingHits.Num() - 1;
 		for (FHitResult BkwdHitResult; World->LineTraceSingleByChannel(BkwdHitResult, BkwdStart, BkwdEnd, TraceChannel, BkwdParams); BkwdStart = BkwdHitResult.Location + ((KINDA_SMALL_NUMBER * 100) * BkwdDir))
 		{
 			// If the trace messed up
@@ -426,7 +426,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 
 
 			// Loop to fill PenetrationHitResults
-			for (int32 i = LastFwdBlockingHitsIndex; i >= 0; --i)
+			for (int32 i = FwdBlockingHits.Num() - 1; i >= 0; --i)
 			{
 				const FHitResult FwdBlockingHit = FwdBlockingHits[i];
 
@@ -443,7 +443,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 				{
 					// Add this Fwd result
 					PenetrationHitResults.Insert(FPenetrationHitResult(FwdBlockingHit, true), 0);
-					LastFwdBlockingHitsIndex = i;
+					--NextFwdBlockingHitToInsert;
 					continue;
 				}
 
@@ -452,7 +452,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 		}
 
 		// Loop to finish filling PenetrationHitResults
-		for (int32 i = LastFwdBlockingHitsIndex; i >= 0; --i)
+		for (int32 i = NextFwdBlockingHitToInsert; i >= 0; --i)
 		{
 			const FHitResult FwdBlockingHit = FwdBlockingHits[i];
 
@@ -464,7 +464,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 
 
 	TArray<FPenetrationHitResult> CurrentEntrances;
-	FPenetrationHitResult* PreviousPenetrationHitResult = nullptr;
+	FPenetrationHitResult* PenetrationHitResultToStartAt = nullptr;
 	for (FPenetrationHitResult& CurrentPenetrationHitResult : PenetrationHitResults)
 	{
 		// This stack is only ever used to know what our last entrance was
@@ -474,15 +474,15 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 		}
 
 
-		if (CurrentEntrances.Num() > 0 && PreviousPenetrationHitResult)
+		if (CurrentEntrances.Num() > 0 && PenetrationHitResultToStartAt)
 		{
 			FSectionPenetrationInfo PenetrationInfo;
-			PenetrationInfo.EntrancePoint = PreviousPenetrationHitResult->HitResult.ImpactPoint;
+			PenetrationInfo.EntrancePoint = PenetrationHitResultToStartAt->HitResult.ImpactPoint;
 			PenetrationInfo.ExitPoint = CurrentPenetrationHitResult.HitResult.ImpactPoint;
 			PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
 			if (CurrentPenetrationHitResult.bIsEntrance)
 			{
-				PenetrationInfo.PenetratedPhysMaterial = PreviousPenetrationHitResult->HitResult.PhysMaterial.Get();
+				PenetrationInfo.PenetratedPhysMaterial = PenetrationHitResultToStartAt->HitResult.PhysMaterial.Get();
 			}
 			else
 			{
@@ -494,8 +494,14 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 		}
 
 
-
-		PreviousPenetrationHitResult = &CurrentPenetrationHitResult;
+		if (CurrentEntrances.Num() > 0)
+		{
+			PenetrationHitResultToStartAt = &CurrentPenetrationHitResult;
+		}
+		else
+		{
+			PenetrationHitResultToStartAt = nullptr;
+		}
 	}
 
 }

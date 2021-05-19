@@ -323,7 +323,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	{
 		for (const FSectionPenetrationInfo& Penetration : Penetrations)
 		{
-			UKismetSystemLibrary::PrintString(this, Penetration.DebugString + "    " + "penetration distance: " + FString::SanitizeFloat(Penetration.PenetrationDistance), true, false, FLinearColor::Green, 10.f);
+			UKismetSystemLibrary::PrintString(this, Penetration.GetDebugString(), true, false, FLinearColor::Green, 10.f);
 		}
 		DebugTrace(OutHitResults, World, Start, End, timesRicocheted);
 	}
@@ -431,7 +431,8 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 		PenetrationInfo.PenetratedSectionIndex = sectionIndexPenetrated;
 		PenetrationInfo.PenetratedPhysicsMaterial = FwdBlockingHits[i].PhysMaterial.Get();
 		PenetrationInfo.EntrancePoint = FwdBlockingHits[i].ImpactPoint;
-		PenetrationInfo.DebugString = "Actor: " + FwdBlockingHits[i].Actor.Get()->GetActorLabel() + "    Component: " + PrimitiveComponentPenetrated->GetName();
+		PenetrationInfo.PenetratedActorName = FwdBlockingHits[i].Actor.Get() ? FwdBlockingHits[i].Actor.Get()->GetActorLabel() : "NULL";
+		PenetrationInfo.PenetratedComponentName = PrimitiveComponentPenetrated ? PrimitiveComponentPenetrated->GetName() : "NULL";
 		// ------------------------------------------------------------------------------
 
 
@@ -486,8 +487,8 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 
 		FSectionPenetrationInfo PenetrationInfo;
 		PenetrationInfo.PenetratedSectionIndex = sectionIndexPenetrated;
-		PenetrationInfo.DebugString = "Actor: " + FwdBlockingHits[i].Actor.Get()->GetActorLabel() + "    Component: " + PrimitiveComponentPenetrated->GetName();
-
+		PenetrationInfo.PenetratedActorName = FwdBlockingHits[i].Actor.Get() ? FwdBlockingHits[i].Actor.Get()->GetActorLabel() : "NULL";
+		PenetrationInfo.PenetratedComponentName = PrimitiveComponentPenetrated ? PrimitiveComponentPenetrated->GetName() : "NULL";
 
 		PenetrationInfo.ExitPoint = BkwdBlockingHits[i].Location;
 		PenetrationInfo.PenetrationDistance = FVector::Distance(BkwdBlockingHits[i].Location, FwdBlockingHits[0].TraceStart);

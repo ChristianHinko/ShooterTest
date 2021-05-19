@@ -96,9 +96,9 @@ protected:
 //#if ENABLE_DRAW_DEBUG
 	/**
 	 * Debugs given hit results.
-	 * TODO: get rid of timesRicocheted! and clean this up a lot
 	 */
-	virtual void DebugTrace(const TArray<FHitResult>& HitResults, const UWorld* World, const FVector& Start, const FVector& End, const int32 timesRicocheted) const;
+	virtual void DebugTrace(const TArray<FHitResult>& HitResults, const UWorld* World, const FVector& Start, const FVector& End) const;
+	virtual void DebugTrace(const TArray<FHitResult>& HitResults, const UWorld* World, const FVector& Start, const FVector& End, const FVector& ExtraTraceEnd) const;
 //#endif // ENABLE_DRAW_DEBUG
 
 	TWeakObjectPtr<AGameplayAbilityWorldReticle> ReticleActor;

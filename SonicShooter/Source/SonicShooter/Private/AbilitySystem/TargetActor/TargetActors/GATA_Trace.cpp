@@ -169,6 +169,8 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	TArray<FHitResult> ThisRicochetBlockingHits;
 	TArray<FSectionPenetrationInfo> Penetrations;
 
+	FVector LastTraceEnd = End;
+
 	// Extra traces loop
 	int32 maxRicochets = GetRicochets();
 	int32 timesRicocheted = 0;
@@ -232,6 +234,8 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 					++timesRicocheted;
 					bRicocheted = true;
 				}
+
+				LastTraceEnd = RicoEnd;
 			}
 
 
@@ -294,6 +298,8 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 				++timesPenetrated;
 				bPenetrated = true;
 			}
+
+			LastTraceEnd = PenetrateEnd;
 		}
 
 
@@ -325,7 +331,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 		{
 			UKismetSystemLibrary::PrintString(this, Penetration.DebugString + "    " + "penetration distance: " + FString::SanitizeFloat(Penetration.PenetrationDistance), true, false, FLinearColor::Green, 10.f);
 		}
-		DebugTrace(OutHitResults, World, Start, End, timesRicocheted);
+		DebugTrace(OutHitResults, World, Start, End, LastTraceEnd);
 	}
 #endif
 }
@@ -564,13 +570,21 @@ void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, con
 #if ENABLE_DRAW_DEBUG
 	if (inDebug)
 	{
-		DebugTrace(OutHitResults, World, Start, End, r);
+		DebugTrace(OutHitResults, World, Start, End/*, r*/);
 	}
 #endif
 }
 
 //#if ENABLE_DRAW_DEBUG
-void AGATA_Trace::DebugTrace(const TArray<FHitResult>& HitResults, const UWorld* World, const FVector& Start, const FVector& End, const int32 timesRicocheted) const
+void AGATA_Trace::DebugTrace(const TArray<FHitResult>& HitResults, const UWorld* World, const FVector& Start, const FVector& End) const
+{
+	if (HitResults.Num() > 0)
+	{
+		DebugTrace(HitResults, World, Start, End, HitResults.Last().Location);
+	}
+}
+
+void AGATA_Trace::DebugTrace(const TArray<FHitResult>& HitResults, const UWorld* World, const FVector& Start, const FVector& End, const FVector& ExtraTraceEnd) const
 {
 #if ENABLE_DRAW_DEBUG
 	TArray<FHitResult> DebugHitResults = HitResults;
@@ -581,8 +595,7 @@ void AGATA_Trace::DebugTrace(const TArray<FHitResult>& HitResults, const UWorld*
 	const FColor TraceColor = FColor::Blue;
 	const FColor PassesFilterColor = FColor::Red;
 
-	const uint8 hitsNum = DebugHitResults.Num();
-	if (hitsNum > 0)
+	if (DebugHitResults.Num() > 0)
 	{
 		for (int32 i = 0; i < DebugHitResults.Num(); ++i)
 		{
@@ -606,15 +619,12 @@ void AGATA_Trace::DebugTrace(const TArray<FHitResult>& HitResults, const UWorld*
 		{
 			DrawDebugLine(World, DebugHitResults.Last().Location, DebugHitResults.Last().TraceEnd, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
 		}
-		else if (GetRicochets() - timesRicocheted > 0 && timesRicocheted > 0)
+		else
 		{
-			const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(DebugHitResults.Last().TraceStart, DebugHitResults.Last().TraceEnd);
-			const FVector MirroredDir = TracedDir.MirrorByVector(DebugHitResults.Last().ImpactNormal);
-
-			const FVector RicoStart = DebugHitResults.Last().Location;
-			const FVector RicoEnd = RicoStart + ((GetMaxRange() - DebugHitResults.Last().Distance) * MirroredDir);
-
-			DrawDebugLine(World, RicoStart, RicoEnd, TraceColor, false, debugLifeTime);
+			if ((ExtraTraceEnd - DebugHitResults.Last().Location).IsNearlyZero() == false)
+			{
+				DrawDebugLine(World, DebugHitResults.Last().Location, ExtraTraceEnd, TraceColor, false, debugLifeTime);
+			}
 		}
 	}
 	else // if we've traced in thin air

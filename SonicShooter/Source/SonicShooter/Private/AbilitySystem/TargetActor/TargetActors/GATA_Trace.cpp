@@ -169,6 +169,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	TArray<FHitResult> ThisRicochetBlockingHits;
 	TArray<FSectionPenetrationInfo> Penetrations;
 
+	// This is only for passing into DebugHitResults()
 	FVector LastTraceEnd = End;
 
 	// Extra traces loop
@@ -235,7 +236,15 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 					bRicocheted = true;
 				}
 
-				LastTraceEnd = RicoEnd;
+				// Update LastTraceEnd for bDebug
+				if (timesRicocheted < maxRicochets)
+				{
+					LastTraceEnd = RicoEnd;
+				}
+				else
+				{
+					LastTraceEnd = OutHitResults.Last().Location;
+				}
 			}
 
 
@@ -299,7 +308,15 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 				bPenetrated = true;
 			}
 
-			LastTraceEnd = PenetrateEnd;
+			// Update LastTraceEnd for bDebug
+			if (timesPenetrated < maxPenetrations)
+			{
+				LastTraceEnd = PenetrateEnd;
+			}
+			else
+			{
+				LastTraceEnd = OutHitResults.Last().Location;
+			}
 		}
 
 
@@ -331,7 +348,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 		{
 			UKismetSystemLibrary::PrintString(this, Penetration.GetDebugString(), true, false, FLinearColor::Green, 10.f);
 		}
-		DebugTrace(OutHitResults, World, Start, End, LastTraceEnd);
+		DebugTrace(OutHitResults, World, Start, End);
 	}
 #endif
 }
@@ -624,7 +641,7 @@ void AGATA_Trace::DebugTrace(const TArray<FHitResult>& HitResults, const UWorld*
 		}
 		else
 		{
-			if ((ExtraTraceEnd - DebugHitResults.Last().Location).IsNearlyZero() == false)
+			if ((ExtraTraceEnd - DebugHitResults.Last().Location).IsNearlyZero() == false) // only draw this extra trace if it is different then the last trace
 			{
 				DrawDebugLine(World, DebugHitResults.Last().Location, ExtraTraceEnd, TraceColor, false, debugLifeTime);
 			}

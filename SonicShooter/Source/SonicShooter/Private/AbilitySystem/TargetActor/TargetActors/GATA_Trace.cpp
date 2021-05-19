@@ -482,11 +482,11 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 			PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
 			if (CurrentPenetrationHitResult.bIsEntrance)
 			{
-				PenetrationInfo.PenetratedPhysicsMaterial = PreviousPenetrationHitResult->HitResult.PhysMaterial.Get();
+				PenetrationInfo.PenetratedPhysMaterial = PreviousPenetrationHitResult->HitResult.PhysMaterial.Get();
 			}
 			else
 			{
-				PenetrationInfo.PenetratedPhysicsMaterial = CurrentPenetrationHitResult.HitResult.PhysMaterial.Get();
+				PenetrationInfo.PenetratedPhysMaterial = CurrentPenetrationHitResult.HitResult.PhysMaterial.Get();
 				CurrentEntrances.Pop();
 			}
 

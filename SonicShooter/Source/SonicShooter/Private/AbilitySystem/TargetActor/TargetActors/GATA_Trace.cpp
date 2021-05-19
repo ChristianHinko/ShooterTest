@@ -348,7 +348,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 		{
 			UKismetSystemLibrary::PrintString(this, Penetration.GetDebugString(), true, false, FLinearColor::Green, 10.f);
 		}
-		DebugTrace(OutHitResults, World, Start, End);
+		DebugTrace(OutHitResults, World, Start, End, LastTraceEnd);
 	}
 #endif
 }

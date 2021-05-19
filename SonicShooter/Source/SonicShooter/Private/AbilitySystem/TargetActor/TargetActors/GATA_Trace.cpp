@@ -439,6 +439,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 		PenetrationInfo.EntrancePoint = FwdBlockingHits[i].ImpactPoint;
 		PenetrationInfo.PenetratedActorName = FwdBlockingHits[i].Actor.Get() ? FwdBlockingHits[i].Actor.Get()->GetActorLabel() : "NULL";
 		PenetrationInfo.PenetratedComponentName = PrimitiveComponentPenetrated ? PrimitiveComponentPenetrated->GetName() : "NULL";
+		PenetrationInfo.PenetratedBoneName = FwdBlockingHits[i].BoneName.ToString();
 		// ------------------------------------------------------------------------------
 
 
@@ -495,6 +496,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 		PenetrationInfo.PenetratedSectionIndex = sectionIndexPenetrated;
 		PenetrationInfo.PenetratedActorName = FwdBlockingHits[i].Actor.Get() ? FwdBlockingHits[i].Actor.Get()->GetActorLabel() : "NULL";
 		PenetrationInfo.PenetratedComponentName = PrimitiveComponentPenetrated ? PrimitiveComponentPenetrated->GetName() : "NULL";
+		PenetrationInfo.PenetratedBoneName = FwdBlockingHits[i].BoneName.ToString();
 
 		PenetrationInfo.ExitPoint = BkwdBlockingHits[i].Location;
 		PenetrationInfo.PenetrationDistance = FVector::Distance(BkwdBlockingHits[i].Location, FwdBlockingHits[0].TraceStart);

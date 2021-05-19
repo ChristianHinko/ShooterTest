@@ -403,6 +403,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 		BkwdParams.bIgnoreTouches = true;
 
 
+		int32 LastFwdBlockingHitsIndex = FwdBlockingHits.Num() - 1;
 		for (FHitResult BkwdHitResult; World->LineTraceSingleByChannel(BkwdHitResult, BkwdStart, BkwdEnd, TraceChannel, BkwdParams); BkwdStart = BkwdHitResult.Location + ((KINDA_SMALL_NUMBER * 100) * BkwdDir))
 		{
 			// If the trace messed up
@@ -424,10 +425,46 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 			}
 
 
-			// Add this result to our PenetrationHitResults
-			PenetrationHitResults.Insert(FPenetrationHitResult(BkwdHitResult, true), 0); // insert at beginning (instead of adding to the end) because we are going backwards
+			// Loop to fill PenetrationHitResults
+			for (int32 i = LastFwdBlockingHitsIndex; i >= 0; --i)
+			{
+				const FHitResult FwdBlockingHit = FwdBlockingHits[i];
+
+				// We want to add the after-most hits first (both the Fwd and Bkwd hits)
+				const FVector BkwdToFwd = (FwdBlockingHit.ImpactPoint - BkwdHitResult.ImpactPoint);
+				const bool bIsAfterFwd = (FVector::DotProduct(BkwdToFwd, FwdDir) <= 0); // if this BkwdHitResult is after FwdBlockingHit
+				if (bIsAfterFwd)
+				{
+					// Add this Bkwd result
+					PenetrationHitResults.Insert(FPenetrationHitResult(BkwdHitResult, true), 0);
+					break; // break here because we need our next Bkwd hit
+				}
+				else
+				{
+					// Add this Fwd result
+					PenetrationHitResults.Insert(FPenetrationHitResult(FwdBlockingHit, false), 0);
+					LastFwdBlockingHitsIndex = i;
+					continue;
+				}
+
+			}
+
 		}
+
+		// Loop to finish filling PenetrationHitResults
+		for (int32 i = LastFwdBlockingHitsIndex; i >= 0; --i)
+		{
+			const FHitResult FwdBlockingHit = FwdBlockingHits[i];
+
+			// Add this Fwd result
+			PenetrationHitResults.Insert(FPenetrationHitResult(FwdBlockingHit, false), 0);
+		}
+
 	}
+
+
+
+
 }
 
 void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape& CollisionShape, const FCollisionQueryParams& Params, const bool inDebug)

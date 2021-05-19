@@ -61,7 +61,7 @@ struct FPenetrationHitResult
 	{
 		bIsExit = false;
 	}
-	FPenetrationHitResult(FHitResult& inHitResult, bool inIsExit)
+	FPenetrationHitResult(const FHitResult& inHitResult, bool inIsExit)
 	{
 		HitResult = inHitResult;
 		bIsExit = inIsExit;

@@ -436,13 +436,13 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 				if (bIsAfterFwd)
 				{
 					// Add this Bkwd result
-					PenetrationHitResults.Insert(FPenetrationHitResult(BkwdHitResult, true), 0);
+					PenetrationHitResults.Insert(FPenetrationHitResult(BkwdHitResult, false), 0);
 					break; // break here because we need our next Bkwd hit
 				}
 				else
 				{
 					// Add this Fwd result
-					PenetrationHitResults.Insert(FPenetrationHitResult(FwdBlockingHit, false), 0);
+					PenetrationHitResults.Insert(FPenetrationHitResult(FwdBlockingHit, true), 0);
 					LastFwdBlockingHitsIndex = i;
 					continue;
 				}
@@ -457,38 +457,45 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 			const FHitResult FwdBlockingHit = FwdBlockingHits[i];
 
 			// Add this Fwd result
-			PenetrationHitResults.Insert(FPenetrationHitResult(FwdBlockingHit, false), 0);
+			PenetrationHitResults.Insert(FPenetrationHitResult(FwdBlockingHit, true), 0);
 		}
 
 	}
 
 
-	TArray<FPenetrationHitResult> PenetrationStack;
-	FPenetrationHitResult PreviousPenetrationHitResult;
-	for (const FPenetrationHitResult& PenetrationHitResult : PenetrationHitResults)
+	TArray<FPenetrationHitResult> CurrentEntrances;
+	FPenetrationHitResult* PreviousPenetrationHitResult = nullptr;
+	for (FPenetrationHitResult& CurrentPenetrationHitResult : PenetrationHitResults)
 	{
-
-		if (PenetrationHitResult.bIsExit == false)
+		// This stack is only ever used to know what our last entrance was
+		if (CurrentPenetrationHitResult.bIsEntrance)
 		{
-			PenetrationStack.Push(PenetrationHitResult);
-		}
-		else
-		{
-			PenetrationStack.Pop();
+			CurrentEntrances.Push(CurrentPenetrationHitResult);
 		}
 
 
-		if (PenetrationStack.Num() > 0)
+		if (CurrentEntrances.Num() > 0 && PreviousPenetrationHitResult)
 		{
 			FSectionPenetrationInfo PenetrationInfo;
-			PenetrationInfo.EntrancePoint = PreviousPenetrationHitResult.HitResult.ImpactPoint;
-			PenetrationInfo.ExitPoint = PenetrationHitResult.HitResult.ImpactPoint;
+			PenetrationInfo.EntrancePoint = PreviousPenetrationHitResult->HitResult.ImpactPoint;
+			PenetrationInfo.ExitPoint = CurrentPenetrationHitResult.HitResult.ImpactPoint;
 			PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
+			if (CurrentPenetrationHitResult.bIsEntrance)
+			{
+				PenetrationInfo.PenetratedPhysicsMaterial = PreviousPenetrationHitResult->HitResult.PhysMaterial.Get();
+			}
+			else
+			{
+				PenetrationInfo.PenetratedPhysicsMaterial = CurrentPenetrationHitResult.HitResult.PhysMaterial.Get();
+				CurrentEntrances.Pop();
+			}
+
+			OutPenetrationInfos.Add(PenetrationInfo);
 		}
 
 
 
-		PreviousPenetrationHitResult = PenetrationHitResult;
+		PreviousPenetrationHitResult = &CurrentPenetrationHitResult;
 	}
 
 }

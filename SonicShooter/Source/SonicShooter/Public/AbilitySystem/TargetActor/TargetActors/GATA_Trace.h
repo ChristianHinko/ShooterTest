@@ -51,6 +51,7 @@ struct FSectionPenetrationInfo
 	FString PenetratedComponentName;
 	FString PenetratedBoneName;
 };
+
 /**
  *
  */

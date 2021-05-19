@@ -384,9 +384,9 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 		return;
 	}
 
-	TArray<FHitResult> BkwdBlockingHits;
+	TArray<FPenetrationHitResult> PenetrationHitResults;
 
-	// Bkwd traces loop. This fills up our BkwdBlockingHits
+	// Bkwd traces loop. This fills up our PenetrationHitResults
 	{
 		// Get trace dir from this hit
 		const FVector FwdDir = UKismetMathLibrary::GetDirectionUnitVector(FwdBlockingHits[0].TraceStart, FwdBlockingHits[0].TraceEnd);
@@ -424,108 +424,10 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 			}
 
 
-			// Add this result to our BkwdBlockingHits
-			BkwdBlockingHits.Insert(BkwdHitResult, 0); // insert at beginning (instead of adding to the end) because we are going backwards
+			// Add this result to our PenetrationHitResults
+			PenetrationHitResults.Insert(FPenetrationHitResult(BkwdHitResult, true), 0); // insert at beginning (instead of adding to the end) because we are going backwards
 		}
 	}
-
-
-
-
-	// Lets finaly build our OutPenetrationInfos
-	/*
-	*	We will make use of sections to be specific enough to know what parts of a mesh should be penetrated in certain ways.
-	*	A section has a material associated with it and that material stores the physical material so this is how we can know how to
-	*	penetrate that part of the mesh. Since we don't have pointers to sections to work with, we will use the section index associated with
-	*	a pointer to the primitive component that has that section. This fixes the problem of having reoccuring section indexes in the case where
-	*	there are multible primative components. To differentiate between them we can use the primative component pointer.
-	*
-	*	(As an update, I did find that you could just get the section index's pointer, but I left it this way for now since I was unsure if that makes it less genaric or not since I noticed there was a cast to UStaticMesh in order to retrieve the pointer)
-	*/
-	for (int32 i = 0; i < FwdBlockingHits.Num(); ++i)
-	{
-		// Get detaled information about the wall/object we hit going forward at index [i]
-		UPrimitiveComponent* PrimitiveComponentPenetrated = nullptr;
-		int32 sectionIndexPenetrated = -1;
-		UBFL_HitResultHelpers::GetSectionLevelHitInfo(FwdBlockingHits[i], PrimitiveComponentPenetrated, sectionIndexPenetrated);
-		
-		// ------ Create this section's penetration info from what we know so far ------
-		FSectionPenetrationInfo PenetrationInfo;
-		PenetrationInfo.PenetratedSectionIndex = sectionIndexPenetrated;
-		PenetrationInfo.PenetratedPhysicsMaterial = FwdBlockingHits[i].PhysMaterial.Get();
-		PenetrationInfo.EntrancePoint = FwdBlockingHits[i].ImpactPoint;
-		PenetrationInfo.PenetratedActorName = FwdBlockingHits[i].Actor.Get() ? FwdBlockingHits[i].Actor.Get()->GetActorLabel() : "NULL";
-		PenetrationInfo.PenetratedComponentName = PrimitiveComponentPenetrated ? PrimitiveComponentPenetrated->GetName() : "NULL";
-		PenetrationInfo.PenetratedBoneName = FwdBlockingHits[i].BoneName.ToString();
-		// ------------------------------------------------------------------------------
-
-
-
-
-		// Now time to find the other side of this Fwd Hit's section
-
-
-		// Loop through every Bkwd Blocking Hit until we find the same section that belongs to the same primative component
-		bool bPaired = false;
-		for (int32 j = 0; j < BkwdBlockingHits.Num(); ++j)
-		{
-			// Get detaled information about the wall/object we hit going backward at index [i]
-			UPrimitiveComponent* TestAgainstPrimitiveComponent = nullptr;
-			int32 testAgainstSectionIndex = -1;
-			UBFL_HitResultHelpers::GetSectionLevelHitInfo(BkwdBlockingHits[j], TestAgainstPrimitiveComponent, testAgainstSectionIndex);
-
-			if (PrimitiveComponentPenetrated == TestAgainstPrimitiveComponent && sectionIndexPenetrated == testAgainstSectionIndex)
-			{
-				// We found the other side of the specific section we are penetrating
-				PenetrationInfo.ExitPoint = BkwdBlockingHits[j].Location;
-				PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
-				OutPenetrationInfos.Add(PenetrationInfo);
-				BkwdBlockingHits.RemoveAt(j); // we've just paired this index of BkwdBlockingHits with us so remove it so other FwdBlockingHits don't try to pair themselves with it
-				bPaired = true;
-				break;
-			}
-		}
-		if (bPaired)
-		{
-			// This Fwd Blocking Hit has been paired up with a Bkwd Blocking Hit, continue to the next one
-			continue;
-		}
-
-		// If we end up here, that means this Fwd Blocking Hit was not able to be paired with any BkwdBlockingHits
-
-
-		// Just give the distance between this Fwd Blocking Hit and the FwdEndLocation because we probably began the Bkwd trace starting from the inside the geometry
-		PenetrationInfo.PenetrationDistance = FVector::Distance(FwdBlockingHits[i].Location, FwdEndLocation);
-		OutPenetrationInfos.Add(PenetrationInfo);
-
-	}
-
-
-	// Code for handling unmatched Bkwd Blocking Hits (untested):
-
-	for (int32 i = 0; i < BkwdBlockingHits.Num(); ++i)
-	{
-		UPrimitiveComponent* PrimitiveComponentPenetrated = nullptr;
-		int32 sectionIndexPenetrated = -1;
-		UBFL_HitResultHelpers::GetSectionLevelHitInfo(BkwdBlockingHits[i], PrimitiveComponentPenetrated, sectionIndexPenetrated);
-
-		FSectionPenetrationInfo PenetrationInfo;
-		PenetrationInfo.PenetratedSectionIndex = sectionIndexPenetrated;
-		PenetrationInfo.PenetratedActorName = FwdBlockingHits[i].Actor.Get() ? FwdBlockingHits[i].Actor.Get()->GetActorLabel() : "NULL";
-		PenetrationInfo.PenetratedComponentName = PrimitiveComponentPenetrated ? PrimitiveComponentPenetrated->GetName() : "NULL";
-		PenetrationInfo.PenetratedBoneName = FwdBlockingHits[i].BoneName.ToString();
-
-		PenetrationInfo.ExitPoint = BkwdBlockingHits[i].Location;
-		PenetrationInfo.PenetrationDistance = FVector::Distance(BkwdBlockingHits[i].Location, FwdBlockingHits[0].TraceStart);
-		OutPenetrationInfos.Insert(PenetrationInfo, 0);
-		BkwdBlockingHits.RemoveAt(i);
-		--i;
-		continue;
-
-
-	}
-
-
 }
 
 void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape& CollisionShape, const FCollisionQueryParams& Params, const bool inDebug)

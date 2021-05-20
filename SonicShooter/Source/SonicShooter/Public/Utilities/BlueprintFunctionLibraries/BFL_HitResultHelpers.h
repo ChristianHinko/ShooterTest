@@ -18,7 +18,7 @@ class SONICSHOOTER_API UBFL_HitResultHelpers : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 	
 public:
-	/** Returns the material that was hit from the trace */
+	/** Returns the material that was hit from the trace (requires passed in Hit Result to have a face index) */
 	UFUNCTION(BlueprintPure, Category = "HitResultHelpers")
 		static UMaterialInterface* GetHitMaterial(const FHitResult& InHitResult);
 

@@ -472,7 +472,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FPenetrationInfo>& OutPenetration
 		}
 
 
-		if (CurrentEntrancePhysMaterials.Num() > 0 && PenetrationHitResultToStartAt)	// If true, we should calculate a distance and create a new SectionPenetrationInfo
+		if (CurrentEntrancePhysMaterials.Num() > 0 && PenetrationHitResultToStartAt)	// If true, we should calculate a distance and create a new PenetrationInfo
 		{
 			FPenetrationInfo PenetrationInfo;
 			PenetrationInfo.EntrancePoint = PenetrationHitResultToStartAt->HitResult.ImpactPoint;

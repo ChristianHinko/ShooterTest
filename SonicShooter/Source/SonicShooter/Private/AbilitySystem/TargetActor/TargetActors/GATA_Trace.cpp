@@ -443,7 +443,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 				{
 					// Add this Fwd result
 					PenetrationHitResults.Insert(FPenetrationHitResult(FwdBlockingHit, true), 0);
-					--NextFwdBlockingHitToInsert;
+					--NextFwdBlockingHitToInsert; // make it so next time, we only look at the Fwd Blocking Hits before this one we just inserted
 					continue;
 				}
 

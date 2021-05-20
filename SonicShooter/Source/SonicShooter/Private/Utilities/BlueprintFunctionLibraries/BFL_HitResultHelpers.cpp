@@ -5,6 +5,8 @@
 
 #include "Utilities/LogCategories.h"
 
+
+
 UMaterialInterface* UBFL_HitResultHelpers::GetHitMaterial(const FHitResult& InHitResult)
 {
 	UMaterialInterface* RetVal = nullptr;

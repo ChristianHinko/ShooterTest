@@ -3,6 +3,8 @@
 
 #include "Utilities/BlueprintFunctionLibraries/BFL_MaterialHelpers.h"
 
+
+
 int32 UBFL_MaterialHelpers::GetMaterialIndexFromSectionIndex(const UStaticMeshComponent* StaticMeshComponent, const int32 SectionIndex)
 {
     //adapted from GetMaterialFromCollisionFaceIndex

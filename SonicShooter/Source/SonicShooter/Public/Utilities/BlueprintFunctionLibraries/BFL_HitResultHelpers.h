@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+
 #include "BFL_HitResultHelpers.generated.h"
+
+
 
 /**
  * 
@@ -22,4 +25,5 @@ public:
 	/** Returns the section index of the Primitive Component that was hit from the trace */
 	UFUNCTION(BlueprintPure, Category = "HitResultHelpers|HitInfo")
 		static void GetSectionLevelHitInfo(const FHitResult& InHitResult, UPrimitiveComponent*& OutHitPrimitiveComponent, int32& outHitSectionIndex);
+
 };

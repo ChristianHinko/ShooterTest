@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+
 #include "BFL_MaterialHelpers.generated.h"
+
+
 
 /**
  * 
@@ -18,4 +21,5 @@ public:
 	/** Returns the MaterialIndex given the material's section index */
 	UFUNCTION(BlueprintPure, Category = "MaterialHelpers|MaterialFinding")
 		static int32 GetMaterialIndexFromSectionIndex(const UStaticMeshComponent* StaticMeshComponent, const int32 SectionIndex);
+
 };

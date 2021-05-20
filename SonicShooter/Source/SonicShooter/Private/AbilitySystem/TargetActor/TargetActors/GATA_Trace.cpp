@@ -426,7 +426,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 
 
 			// Loop to fill PenetrationHitResults
-			for (int32 i = FwdBlockingHits.Num() - 1; i >= 0; --i)
+			for (int32 i = NextFwdBlockingHitToInsert; i >= 0; --i)
 			{
 				const FHitResult FwdBlockingHit = FwdBlockingHits[i];
 

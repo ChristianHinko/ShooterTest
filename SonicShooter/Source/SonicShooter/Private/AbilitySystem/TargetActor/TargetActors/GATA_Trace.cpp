@@ -467,14 +467,14 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 	FPenetrationHitResult* PenetrationHitResultToStartAt = nullptr;
 	for (FPenetrationHitResult& CurrentPenetrationHitResult : PenetrationHitResults)
 	{
-		// This stack is only ever used to know what our last entrance was
 		if (CurrentPenetrationHitResult.bIsEntrance)
 		{
+			// This stack tells us how deep we are and provides us with the phys materials of the entrance hits
 			CurrentEntrancePhysMaterials.Push(CurrentPenetrationHitResult.HitResult.PhysMaterial.Get());
 		}
 
 
-		if (CurrentEntrancePhysMaterials.Num() > 0 && PenetrationHitResultToStartAt)
+		if (CurrentEntrancePhysMaterials.Num() > 0 && PenetrationHitResultToStartAt)	// If true, we should calculate a distance and create a new SectionPenetrationInfo
 		{
 			FSectionPenetrationInfo PenetrationInfo;
 			PenetrationInfo.EntrancePoint = PenetrationHitResultToStartAt->HitResult.ImpactPoint;
@@ -501,7 +501,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 			OutPenetrationInfos.Add(PenetrationInfo);
 		}
 
-
+		// This gives PenetrationHitResultToStartAt its correct value. This is basicly just a "PreviousPenetrationHitResult" variable, but is NULL whenever we don't want to make a FSectionPenetrationInfo (because we are in an empty space)
 		if (CurrentEntrancePhysMaterials.Num() > 0)
 		{
 			PenetrationHitResultToStartAt = &CurrentPenetrationHitResult;

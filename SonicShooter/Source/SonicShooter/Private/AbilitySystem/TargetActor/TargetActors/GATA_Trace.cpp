@@ -501,7 +501,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 			OutPenetrationInfos.Add(PenetrationInfo);
 		}
 
-
+		// This gives PenetrationHitResultToStartAt its correct value. This is basicly just a "PreviousPenetrationHitResult" variable, but is NULL whenever we don't want to make a FSectionPenetrationInfo (because we are in an empty space)
 		if (CurrentEntrancePhysMaterials.Num() > 0)
 		{
 			PenetrationHitResultToStartAt = &CurrentPenetrationHitResult;

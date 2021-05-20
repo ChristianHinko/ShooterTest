@@ -135,12 +135,17 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 			PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
 			if (CurrentPenetrationHitResult.bIsEntrance)
 			{
-				PenetrationInfo.PenetratedPhysMaterial = PenetrationHitResultToStartAt->HitResult.PhysMaterial.Get();	// We always want to just use the phys material from our starting location's HitResult if we are entering a new object
+				for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num() - 1; i++)
+				{
+					PenetrationInfo.PenetratedPhysMaterials.Add(CurrentEntrancePhysMaterials[i]);
+				}
 			}
 			else
 			{
-				// Set our PenetratedPhysMaterial to the Phys Mat that we are exiting from
-				PenetrationInfo.PenetratedPhysMaterial = CurrentEntrancePhysMaterials.Top(); // we want to always use the inner-most Physical Material (which is the Top of the Phys Mat stack) because that is the one we are exiting
+				for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num(); i++)
+				{
+					PenetrationInfo.PenetratedPhysMaterials.Add(CurrentEntrancePhysMaterials[i]);
+				}
 
 				// Remove this Phys Mat from the Phys Mat stack because we are exiting it
 				UPhysicalMaterial* PhysMatThatWeAreExiting = CurrentPenetrationHitResult.HitResult.PhysMaterial.Get();

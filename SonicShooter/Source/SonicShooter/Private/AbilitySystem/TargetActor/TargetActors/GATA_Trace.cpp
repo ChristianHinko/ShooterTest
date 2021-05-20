@@ -463,14 +463,14 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 	}
 
 
-	TArray<FPenetrationHitResult> CurrentEntrances;
+	TArray<UPhysicalMaterial*> CurrentEntrances;
 	FPenetrationHitResult* PenetrationHitResultToStartAt = nullptr;
 	for (FPenetrationHitResult& CurrentPenetrationHitResult : PenetrationHitResults)
 	{
 		// This stack is only ever used to know what our last entrance was
 		if (CurrentPenetrationHitResult.bIsEntrance)
 		{
-			CurrentEntrances.Push(CurrentPenetrationHitResult);
+			CurrentEntrances.Push(CurrentPenetrationHitResult.HitResult.PhysMaterial.Get());
 		}
 
 
@@ -486,8 +486,8 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 			}
 			else
 			{
-				PenetrationInfo.PenetratedPhysMaterial = CurrentPenetrationHitResult.HitResult.PhysMaterial.Get();
-				CurrentEntrances.Pop();
+				PenetrationInfo.PenetratedPhysMaterial = CurrentEntrances.Top();
+				CurrentEntrances.RemoveAt(CurrentEntrances.FindLast(CurrentPenetrationHitResult.HitResult.PhysMaterial.Get()));
 			}
 
 			OutPenetrationInfos.Add(PenetrationInfo);

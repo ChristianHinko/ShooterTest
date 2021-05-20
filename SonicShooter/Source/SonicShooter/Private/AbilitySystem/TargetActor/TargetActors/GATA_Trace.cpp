@@ -463,18 +463,18 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 	}
 
 
-	TArray<UPhysicalMaterial*> CurrentEntrances;
+	TArray<UPhysicalMaterial*> CurrentEntrancePhysMaterials;
 	FPenetrationHitResult* PenetrationHitResultToStartAt = nullptr;
 	for (FPenetrationHitResult& CurrentPenetrationHitResult : PenetrationHitResults)
 	{
 		// This stack is only ever used to know what our last entrance was
 		if (CurrentPenetrationHitResult.bIsEntrance)
 		{
-			CurrentEntrances.Push(CurrentPenetrationHitResult.HitResult.PhysMaterial.Get());
+			CurrentEntrancePhysMaterials.Push(CurrentPenetrationHitResult.HitResult.PhysMaterial.Get());
 		}
 
 
-		if (CurrentEntrances.Num() > 0 && PenetrationHitResultToStartAt)
+		if (CurrentEntrancePhysMaterials.Num() > 0 && PenetrationHitResultToStartAt)
 		{
 			FSectionPenetrationInfo PenetrationInfo;
 			PenetrationInfo.EntrancePoint = PenetrationHitResultToStartAt->HitResult.ImpactPoint;
@@ -482,19 +482,19 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 			PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
 			if (CurrentPenetrationHitResult.bIsEntrance)
 			{
-				PenetrationInfo.PenetratedPhysMaterial = PenetrationHitResultToStartAt->HitResult.PhysMaterial.Get();
+				PenetrationInfo.PenetratedPhysMaterial = PenetrationHitResultToStartAt->HitResult.PhysMaterial.Get();	// We always want to just use the phys material from our starting location's HitResult if we are entering a new object
 			}
 			else
 			{
 				// Set our PenetratedPhysMaterial to the Phys Mat that we are exiting from
-				PenetrationInfo.PenetratedPhysMaterial = CurrentEntrances.Top(); // we want to always use the inner-most Physical Material (which is the Top of the Phys Mat stack) because that is the one we are exiting
-				
+				PenetrationInfo.PenetratedPhysMaterial = CurrentEntrancePhysMaterials.Top(); // we want to always use the inner-most Physical Material (which is the Top of the Phys Mat stack) because that is the one we are exiting
+
 				// Remove this Phys Mat from the Phys Mat stack because we are exiting it
 				UPhysicalMaterial* PhysMatThatWeAreExiting = CurrentPenetrationHitResult.HitResult.PhysMaterial.Get();
-				int32 IndexOfPhysMatThatWeAreExiting = CurrentEntrances.FindLast(PhysMatThatWeAreExiting); // the inner-most (last) occurrence of this Phys Mat is the one that we are exiting
+				int32 IndexOfPhysMatThatWeAreExiting = CurrentEntrancePhysMaterials.FindLast(PhysMatThatWeAreExiting); // the inner-most (last) occurrence of this Phys Mat is the one that we are exiting
 				if (IndexOfPhysMatThatWeAreExiting != INDEX_NONE)
 				{
-					CurrentEntrances.RemoveAt(IndexOfPhysMatThatWeAreExiting); // remove this Phys Mat that we are exiting from the Phys Mat stack
+					CurrentEntrancePhysMaterials.RemoveAt(IndexOfPhysMatThatWeAreExiting); // remove this Phys Mat that we are exiting from the Phys Mat stack
 				}
 			}
 
@@ -502,7 +502,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 		}
 
 
-		if (CurrentEntrances.Num() > 0)
+		if (CurrentEntrancePhysMaterials.Num() > 0)
 		{
 			PenetrationHitResultToStartAt = &CurrentPenetrationHitResult;
 		}

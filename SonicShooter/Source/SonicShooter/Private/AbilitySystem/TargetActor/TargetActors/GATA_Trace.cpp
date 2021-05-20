@@ -281,7 +281,6 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 			FCollisionQueryParams PenetrateParams = TraceParams;
 			PenetrateParams.bTraceComplex = true; // Use complex collision if the collider has it. We need this because we are starting from inside the geometry and shooting out (this won't work for CTF_UseSimpleAsComplex and Physics Assest colliders so TODO: we will need a case that covers this)
-			PenetrateParams.bReturnFaceIndex = true;
 
 			// Perform penetrate trace
 			TArray<FHitResult> PenetrateHitResults; // this penetration's hit results
@@ -399,7 +398,6 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 
 		FCollisionQueryParams BkwdParams = TraceParams;
 		BkwdParams.bTraceComplex = true; // Use complex collision if the collider has it. We need this because we are starting from inside the geometry and shooting out (this won't work for CTF_UseSimpleAsComplex and Physics Assest colliders so TODO: we will need a case that covers this)
-		BkwdParams.bReturnFaceIndex = true;
 		BkwdParams.bIgnoreTouches = true;
 
 

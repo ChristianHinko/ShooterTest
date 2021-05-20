@@ -16,14 +16,12 @@ struct FPenetrationInfo
 {
 	FPenetrationInfo()
 	{
-		PenetratedSectionIndex = -1;
 		EntrancePoint	= FVector::ZeroVector;
 		ExitPoint		= FVector::ZeroVector;
 		PenetrationDistance = -1;
 	}
-	FPenetrationInfo(int32 InPenetratedSectionIndex, float InPenetrationDistance, const FVector& inEntrancePoint, const FVector& inExitPoint, UPhysicalMaterial* inPenetratedPhysicsMaterial, const FString& inPenetratedActorName, const FString& inPenetratedComponentName, const FString& inPenetratedBoneName)
+	FPenetrationInfo(float InPenetrationDistance, const FVector& inEntrancePoint, const FVector& inExitPoint, UPhysicalMaterial* inPenetratedPhysicsMaterial, const FString& inPenetratedActorName, const FString& inPenetratedComponentName, const FString& inPenetratedBoneName)
 	{
-		PenetratedSectionIndex = InPenetratedSectionIndex;
 		PenetratedPhysMaterial = inPenetratedPhysicsMaterial;
 
 		EntrancePoint = inEntrancePoint;
@@ -40,7 +38,6 @@ struct FPenetrationInfo
 		return "PenetratedActor = " + PenetratedActorName + "    PenetratedComponent = " + PenetratedComponentName + "    PenetratedBone = " + PenetratedBoneName + "    PenetratedPhysMaterial = " + (PenetratedPhysMaterial ? PenetratedPhysMaterial->GetName() + "    penetration distance: " : "NULL") + FString::SanitizeFloat(PenetrationDistance);
 	}
 
-	int32 PenetratedSectionIndex;
 	UPhysicalMaterial* PenetratedPhysMaterial;
 
 	FVector EntrancePoint;

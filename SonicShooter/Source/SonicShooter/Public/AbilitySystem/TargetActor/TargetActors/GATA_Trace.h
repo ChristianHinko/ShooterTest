@@ -12,16 +12,16 @@
 /**
  * 
  */
-struct FSectionPenetrationInfo
+struct FPenetrationInfo
 {
-	FSectionPenetrationInfo()
+	FPenetrationInfo()
 	{
 		PenetratedSectionIndex = -1;
 		EntrancePoint	= FVector::ZeroVector;
 		ExitPoint		= FVector::ZeroVector;
 		PenetrationDistance = -1;
 	}
-	FSectionPenetrationInfo(int32 InPenetratedSectionIndex, float InPenetrationDistance, const FVector& inEntrancePoint, const FVector& inExitPoint, UPhysicalMaterial* inPenetratedPhysicsMaterial, const FString& inPenetratedActorName, const FString& inPenetratedComponentName, const FString& inPenetratedBoneName)
+	FPenetrationInfo(int32 InPenetratedSectionIndex, float InPenetrationDistance, const FVector& inEntrancePoint, const FVector& inExitPoint, UPhysicalMaterial* inPenetratedPhysicsMaterial, const FString& inPenetratedActorName, const FString& inPenetratedComponentName, const FString& inPenetratedBoneName)
 	{
 		PenetratedSectionIndex = InPenetratedSectionIndex;
 		PenetratedPhysMaterial = inPenetratedPhysicsMaterial;
@@ -113,7 +113,7 @@ protected:
 	 */
 	virtual void CalculateRicochetDirection(FVector& RicoDir, const FHitResult& FromHit) const;
 
-	void BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const FVector& FwdEndLocation, const UWorld* World, const FCollisionQueryParams& TraceParams) const;
+	void BuildPenetrationInfos(TArray<FPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const FVector& FwdEndLocation, const UWorld* World, const FCollisionQueryParams& TraceParams) const;
 
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) PURE_VIRTUAL(AGATA_Trace);
 	void PerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AActor* InSourceActor);

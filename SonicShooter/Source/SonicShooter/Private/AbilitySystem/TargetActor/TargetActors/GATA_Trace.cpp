@@ -167,7 +167,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	OutHitResults.Append(HitResults);
 
 	TArray<FHitResult> ThisRicochetBlockingHits;
-	TArray<FSectionPenetrationInfo> Penetrations;
+	TArray<FPenetrationInfo> Penetrations;
 
 	// This is only for passing into DebugHitResults()
 	FVector LastTraceEnd = End;
@@ -205,7 +205,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 			if (timesRicocheted < maxRicochets)
 			{
 				// We are about to ricochet so calculate Penetrations for these blocking Hits before we move on to the next ricochet
-				TArray<FSectionPenetrationInfo> ThisRicochetPenetrations;
+				TArray<FPenetrationInfo> ThisRicochetPenetrations;
 				BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, LastHit.Location, World, TraceParams);
 				Penetrations.Append(ThisRicochetPenetrations);
 				ThisRicochetBlockingHits.Empty(); // we are about to begin our next ricochet so reset the blocking Hit Results for next ricochet
@@ -330,7 +330,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 	if (ThisRicochetBlockingHits.Num() > 0)
 	{
-		TArray<FSectionPenetrationInfo> ThisRicochetPenetrations;
+		TArray<FPenetrationInfo> ThisRicochetPenetrations;
 		BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, ThisRicochetBlockingHits.Last().TraceEnd, World, TraceParams);
 		Penetrations.Append(ThisRicochetPenetrations);
 		ThisRicochetBlockingHits.Empty();
@@ -343,7 +343,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 #if ENABLE_DRAW_DEBUG
 	if (inDebug)
 	{
-		for (const FSectionPenetrationInfo& Penetration : Penetrations)
+		for (const FPenetrationInfo& Penetration : Penetrations)
 		{
 			UKismetSystemLibrary::PrintString(this, Penetration.GetDebugString(), true, false, FLinearColor::Green, 10.f);
 		}
@@ -352,7 +352,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 #endif
 }
 
-void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const FVector& FwdEndLocation, const UWorld* World, const FCollisionQueryParams& TraceParams)  const
+void AGATA_Trace::BuildPenetrationInfos(TArray<FPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const FVector& FwdEndLocation, const UWorld* World, const FCollisionQueryParams& TraceParams)  const
 {
 	OutPenetrationInfos.Empty();
 
@@ -474,7 +474,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 
 		if (CurrentEntrancePhysMaterials.Num() > 0 && PenetrationHitResultToStartAt)	// If true, we should calculate a distance and create a new SectionPenetrationInfo
 		{
-			FSectionPenetrationInfo PenetrationInfo;
+			FPenetrationInfo PenetrationInfo;
 			PenetrationInfo.EntrancePoint = PenetrationHitResultToStartAt->HitResult.ImpactPoint;
 			PenetrationInfo.ExitPoint = CurrentPenetrationHitResult.HitResult.ImpactPoint;
 			PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
@@ -499,7 +499,7 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 			OutPenetrationInfos.Add(PenetrationInfo);
 		}
 
-		// This gives PenetrationHitResultToStartAt its correct value. This is basicly just a "PreviousPenetrationHitResult" variable, but is NULL whenever we don't want to make a FSectionPenetrationInfo (because we are in an empty space)
+		// This gives PenetrationHitResultToStartAt its correct value. This is basicly just a "PreviousPenetrationHitResult" variable, but is NULL whenever we don't want to make a FPenetrationInfo (because we are in an empty space)
 		if (CurrentEntrancePhysMaterials.Num() > 0)
 		{
 			PenetrationHitResultToStartAt = &CurrentPenetrationHitResult;

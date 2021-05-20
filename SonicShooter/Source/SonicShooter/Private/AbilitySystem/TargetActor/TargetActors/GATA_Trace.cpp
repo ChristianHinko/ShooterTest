@@ -486,8 +486,16 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 			}
 			else
 			{
-				PenetrationInfo.PenetratedPhysMaterial = CurrentEntrances.Top();
-				CurrentEntrances.RemoveAt(CurrentEntrances.FindLast(CurrentPenetrationHitResult.HitResult.PhysMaterial.Get()));
+				// Set our PenetratedPhysMaterial to the Phys Mat that we are exiting from
+				PenetrationInfo.PenetratedPhysMaterial = CurrentEntrances.Top(); // we want to always use the inner-most Physical Material (which is the Top of the Phys Mat stack) because that is the one we are exiting
+				
+				// Remove this Phys Mat from the Phys Mat stack because we are exiting it
+				UPhysicalMaterial* PhysMatThatWeAreExiting = CurrentPenetrationHitResult.HitResult.PhysMaterial.Get();
+				int32 IndexOfPhysMatThatWeAreExiting = CurrentEntrances.FindLast(PhysMatThatWeAreExiting); // the inner-most (last) occurrence of this Phys Mat is the one that we are exiting
+				if (IndexOfPhysMatThatWeAreExiting != INDEX_NONE)
+				{
+					CurrentEntrances.RemoveAt(IndexOfPhysMatThatWeAreExiting); // remove this Phys Mat that we are exiting from the Phys Mat stack
+				}
 			}
 
 			OutPenetrationInfos.Add(PenetrationInfo);

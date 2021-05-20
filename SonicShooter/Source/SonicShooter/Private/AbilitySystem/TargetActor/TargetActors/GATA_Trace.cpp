@@ -463,18 +463,18 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 	}
 
 
-	TArray<UPhysicalMaterial*> CurrentEntrances;
+	TArray<UPhysicalMaterial*> CurrentEntrancePhysMaterials;
 	FPenetrationHitResult* PenetrationHitResultToStartAt = nullptr;
 	for (FPenetrationHitResult& CurrentPenetrationHitResult : PenetrationHitResults)
 	{
 		// This stack is only ever used to know what our last entrance was
 		if (CurrentPenetrationHitResult.bIsEntrance)
 		{
-			CurrentEntrances.Push(CurrentPenetrationHitResult.HitResult.PhysMaterial.Get());
+			CurrentEntrancePhysMaterials.Push(CurrentPenetrationHitResult.HitResult.PhysMaterial.Get());
 		}
 
 
-		if (CurrentEntrances.Num() > 0 && PenetrationHitResultToStartAt)
+		if (CurrentEntrancePhysMaterials.Num() > 0 && PenetrationHitResultToStartAt)
 		{
 			FSectionPenetrationInfo PenetrationInfo;
 			PenetrationInfo.EntrancePoint = PenetrationHitResultToStartAt->HitResult.ImpactPoint;
@@ -482,19 +482,19 @@ void AGATA_Trace::BuildPenetrationInfos(TArray<FSectionPenetrationInfo>& OutPene
 			PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
 			if (CurrentPenetrationHitResult.bIsEntrance)
 			{
-				PenetrationInfo.PenetratedPhysMaterial = PenetrationHitResultToStartAt->HitResult.PhysMaterial.Get();
+				PenetrationInfo.PenetratedPhysMaterial = PenetrationHitResultToStartAt->HitResult.PhysMaterial.Get();	// We always want to just use the phys material from our starting location's HitResult if we are entering a new object
 			}
 			else
 			{
-				PenetrationInfo.PenetratedPhysMaterial = CurrentEntrances.Top();
-				CurrentEntrances.RemoveAt(CurrentEntrances.FindLast(CurrentPenetrationHitResult.HitResult.PhysMaterial.Get()));
+				PenetrationInfo.PenetratedPhysMaterial = CurrentEntrancePhysMaterials.Top();
+				CurrentEntrancePhysMaterials.RemoveAt(CurrentEntrancePhysMaterials.FindLast(CurrentPenetrationHitResult.HitResult.PhysMaterial.Get()));
 			}
 
 			OutPenetrationInfos.Add(PenetrationInfo);
 		}
 
 
-		if (CurrentEntrances.Num() > 0)
+		if (CurrentEntrancePhysMaterials.Num() > 0)
 		{
 			PenetrationHitResultToStartAt = &CurrentPenetrationHitResult;
 		}

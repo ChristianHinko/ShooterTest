@@ -122,7 +122,7 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 				{
 					// Add this Bkwd result
 					PenetrationHitResults.Insert(FPenetrationHitResult(BkwdHitResult, false), 0);
-					break; // break here because we need our next Bkwd hit
+					break; // break here because we don't yet have our next Bkwd hit
 				}
 				else
 				{
@@ -149,8 +149,8 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 
 
 
-
-	TArray<UPhysicalMaterial*> CurrentEntrancePhysMaterials;
+	
+	TArray<UPhysicalMaterial*> CurrentEntrancePhysMaterials;		// These don't point to a specific instance of a phys material in the game (not possible). They just point to the type.
 	FPenetrationHitResult* PreviousPenetrationHitResult = nullptr;
 	for (FPenetrationHitResult& CurrentPenetrationHitResult : PenetrationHitResults)
 	{

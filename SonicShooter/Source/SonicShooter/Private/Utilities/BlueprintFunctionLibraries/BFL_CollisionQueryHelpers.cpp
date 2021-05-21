@@ -7,6 +7,8 @@
 #include "Utilities/LogCategories.h"
 #include "Kismet/KismetMathLibrary.h"
 
+
+
 void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const FVector& FwdEndLocation, const UWorld* World, const FCollisionQueryParams& TraceParams, const TEnumAsByte<ECollisionChannel> TraceChannel)
 {
 	OutPenetrationInfos.Empty();
@@ -135,14 +137,14 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 			PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
 			if (CurrentPenetrationHitResult.bIsEntrance)
 			{
-				for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num() - 1; i++)
+				for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num() - 1; ++i)
 				{
 					PenetrationInfo.PenetratedPhysMaterials.Add(CurrentEntrancePhysMaterials[i]);
 				}
 			}
 			else
 			{
-				for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num(); i++)
+				for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num(); ++i)
 				{
 					PenetrationInfo.PenetratedPhysMaterials.Add(CurrentEntrancePhysMaterials[i]);
 				}
@@ -170,7 +172,22 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 		}
 	}
 
+
+	if (PenetrationHitResultToStartAt)
+	{
+		FPenetrationInfo PenetrationInfo;
+		PenetrationInfo.EntrancePoint = PenetrationHitResultToStartAt->HitResult.ImpactPoint;
+		PenetrationInfo.ExitPoint = FwdEndLocation;
+		PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
+
+		for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num(); ++i)
+		{
+			PenetrationInfo.PenetratedPhysMaterials.Add(CurrentEntrancePhysMaterials[i]);
+		}
+		CurrentEntrancePhysMaterials.Empty();
+
+
+		OutPenetrationInfos.Add(PenetrationInfo);
+	}
+
 }
-
-
-

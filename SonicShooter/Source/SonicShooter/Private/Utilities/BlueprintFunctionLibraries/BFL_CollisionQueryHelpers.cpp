@@ -158,13 +158,12 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 	{
 		FPenetrationInfo PenetrationInfo;
 
-		if (PreviousPenetrationHitResult)	// If true, we should calculate a distance and create a new PenetrationInfo
+		if (PreviousPenetrationHitResult) // if we have a valid PreviousPenetrationHitResult, we can calculate the distance
 		{
 			PenetrationInfo.EntrancePoint = PreviousPenetrationHitResult->HitResult.ImpactPoint;
 			PenetrationInfo.ExitPoint = CurrentPenetrationHitResult.HitResult.ImpactPoint;
 			PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
 			PenetrationInfo.PenetratedPhysMaterials = CurrentEntrancePhysMaterials;
-
 		}
 
 		OutPenetrationInfos.Add(PenetrationInfo);
@@ -180,9 +179,11 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 			}
 			else
 			{
+				// We've just realized that we have been inside of something from the start (because we just exited something that we've never entered).
+				// Add this something to all of the Penetrations we have made so far
 				for (FPenetrationInfo& PenetrationInfoToAddTo : OutPenetrationInfos)
 				{
-					PenetrationInfoToAddTo.PenetratedPhysMaterials.Insert(PhysMatThatWeAreExiting, 0);
+					PenetrationInfoToAddTo.PenetratedPhysMaterials.Insert(PhysMatThatWeAreExiting, 0); // insert at the bottom
 				}
 			}
 		}
@@ -198,11 +199,26 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 		PreviousPenetrationHitResult = &CurrentPenetrationHitResult;
 	}
 
+	if (OutPenetrationInfos.IsValidIndex(0))
+	{
+		// Fix up the beginning Penetration Info
 
+		OutPenetrationInfos[0].EntrancePoint = FwdStartLocation;
+		if (OutPenetrationInfos.IsValidIndex(1))
+		{
+			OutPenetrationInfos[0].ExitPoint = OutPenetrationInfos[1].EntrancePoint;
+			OutPenetrationInfos[0].PenetrationDistance = FVector::Distance(OutPenetrationInfos[0].EntrancePoint, OutPenetrationInfos[0].ExitPoint);
+		}
+	}
+
+
+	// If we ended up never exiting a Phys Mat
 	if (CurrentEntrancePhysMaterials.Num() > 0)
 	{
 		check(OutPenetrationInfos.Num() > 0); // i have no idea when this would be false but just in case. also we should UE_LOG this when we log up this function
 
+
+		// Since we never got to exit these Phys Mats, make a last Penetration Info for these that extend to the FwdEndLocation
 
 		FPenetrationInfo PenetrationInfo;
 		PenetrationInfo.EntrancePoint = OutPenetrationInfos.Last().ExitPoint;
@@ -217,16 +233,6 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 
 
 		OutPenetrationInfos.Add(PenetrationInfo);
-	}
-
-	if (OutPenetrationInfos.IsValidIndex(0))
-	{
-		OutPenetrationInfos[0].EntrancePoint = FwdStartLocation;
-		if (OutPenetrationInfos.IsValidIndex(1))
-		{
-			OutPenetrationInfos[0].ExitPoint = OutPenetrationInfos[1].EntrancePoint;
-		}
-		OutPenetrationInfos[0].PenetrationDistance = FVector::Distance(OutPenetrationInfos[0].EntrancePoint, OutPenetrationInfos[0].ExitPoint);
 	}
 
 

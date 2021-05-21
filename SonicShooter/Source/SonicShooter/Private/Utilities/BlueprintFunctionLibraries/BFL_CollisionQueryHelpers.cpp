@@ -59,23 +59,50 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 		int32 NextFwdBlockingHitToInsert = FwdBlockingHits.Num() - 1;
 		for (FHitResult BkwdHitResult; World->LineTraceSingleByChannel(BkwdHitResult, BkwdStart, BkwdEnd, TraceChannel, BkwdParams); BkwdStart = BkwdHitResult.Location + ((KINDA_SMALL_NUMBER * 100) * BkwdDir))
 		{
-			// If the trace messed up
-			if (BkwdHitResult.Distance == 0)
+			if (BkwdHitResult.Distance == 0)	// If the trace messed up
 			{
 				// Unsuccessful backwards trace (we didn't travel anywhere but hit something)
 				// Likely reason: It's stuck inside a collider that's using simple collision
 
-				// Fallback method...........
-				// Try again with this component (collider) ignored
-				FCollisionQueryParams FallbackQueryParams = TraceParams;
-				FallbackQueryParams.AddIgnoredComponent(BkwdHitResult.GetComponent());
 
-				if (!World->LineTraceSingleByChannel(BkwdHitResult, BkwdStart, BkwdEnd, TraceChannel, FallbackQueryParams))
+				// Fallback method...........
+				// Try again with this component (collider) ignored so we can move on
+				uint8 amtOfFallbackTracesToTry = 5;
+				if (amtOfFallbackTracesToTry > 0)
 				{
-					// Our fallback didn't hit anything, stop here
-					break;
+					bool bFallbackMethodReachedBkwdEnd = false;
+					FCollisionQueryParams FallbackQueryParams = TraceParams;
+					for (uint8 i = 0; i < amtOfFallbackTracesToTry; i++)
+					{
+						FallbackQueryParams.AddIgnoredComponent(BkwdHitResult.GetComponent());	// ignore our last trace's blocking hit
+						if (!World->LineTraceSingleByChannel(BkwdHitResult, BkwdStart, BkwdEnd, TraceChannel, FallbackQueryParams))
+						{
+							//	We want to stop doing fallback traces since we are at the end of our bkwd trace now
+							//	We will also tell the outer loop to break as well by setting this bool
+							bFallbackMethodReachedBkwdEnd = true;
+							break;
+						}
+						// If we did hit something.....
+						
+						if (BkwdHitResult.Distance == 0)	// if the distance is still 0, we will keep trying again until loop ends
+						{
+							continue;
+						}
+						else
+						{
+							break;
+						}
+					}
+
+
+					if (bFallbackMethodReachedBkwdEnd)
+					{
+						break;		// Fallback method broke the loop since it reached BkwdEnd
+					}
 				}
 			}
+
+			
 
 
 			// Loop to fill PenetrationHitResults
@@ -114,6 +141,8 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 		}
 
 	}
+
+
 
 
 	TArray<UPhysicalMaterial*> CurrentEntrancePhysMaterials;

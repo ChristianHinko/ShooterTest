@@ -37,6 +37,7 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 
 	if (FwdBlockingHits.Num() <= 0)
 	{
+		UE_LOG(LogBlueprintFunctionLibrary, Warning, TEXT("%s(): Wasn't given any FwdBlockingHits to build any penetration info of. Returned and did nothing"), *FString(__FUNCTION__));
 		return;
 	}
 
@@ -213,7 +214,7 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 	// If we ended up never exiting a Phys Mat
 	if (CurrentEntrancePhysMaterials.Num() > 0)
 	{
-		check(OutPenetrationInfos.Num() > 0); // i have no idea when this would be false but just in case. also we should UE_LOG this when we log up this function
+		UE_CLOG((OutPenetrationInfos.Num() <= 0), LogBlueprintFunctionLibrary, Fatal, TEXT("%s(): When trying to make Penetration Info for un-exited entrance Phys Mats, we somehow don't have any OutPenetrationInfos to work with"), *FString(__FUNCTION__));
 
 
 		// Since we never got to exit these Phys Mats, make a last Penetration Info for these that extend to the FwdEndLocation

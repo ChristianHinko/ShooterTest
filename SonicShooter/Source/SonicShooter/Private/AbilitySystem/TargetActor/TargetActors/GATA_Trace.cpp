@@ -221,9 +221,12 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 				FVector RicoStart = LastHit.Location + ((KINDA_SMALL_NUMBER * 100) * RicoDir);			// bump it outwards a bit for reassurance (sometimes works without this if using Chaos)
 				FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
 
+				FCollisionQueryParams RicoParams = TraceParams;
+				RicoParams.bTraceComplex = true; // ricochet doesn't need Trace Complex but because we are mixed in with penetration logic (which uses Trace Complex), we have to consider it
+
 				// Perform ricochet trace
 				TArray<FHitResult> RicoHitResults; // this ricochet's hit results
-				World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, TraceParams);
+				World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoParams);
 				
 
 

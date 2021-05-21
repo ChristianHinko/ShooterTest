@@ -7,6 +7,8 @@
 #include "Utilities/LogCategories.h"
 #include "Kismet/KismetMathLibrary.h"
 
+
+
 void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const FVector& FwdEndLocation, const UWorld* World, const FCollisionQueryParams& TraceParams, const TEnumAsByte<ECollisionChannel> TraceChannel)
 {
 	OutPenetrationInfos.Empty();
@@ -38,17 +40,20 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 		return;
 	}
 
+	const FVector FwdStartLocation = FwdBlockingHits[0].TraceStart; // maybe make this a parameter since FwdEndLocation is one
+
+
 	TArray<FPenetrationHitResult> PenetrationHitResults;
 
 	// Bkwd traces loop. This fills up our PenetrationHitResults
 	{
 		// Get trace dir from this hit
-		const FVector FwdDir = UKismetMathLibrary::GetDirectionUnitVector(FwdBlockingHits[0].TraceStart, FwdBlockingHits[0].TraceEnd);
+		const FVector FwdDir = UKismetMathLibrary::GetDirectionUnitVector(FwdStartLocation, FwdEndLocation);
 		const FVector BkwdDir = -1 * FwdDir; // get the opposite direction
 
 
 		FVector BkwdStart = FwdEndLocation + ((KINDA_SMALL_NUMBER * 100) * BkwdDir);
-		FVector BkwdEnd = FwdBlockingHits[0].TraceStart + ((KINDA_SMALL_NUMBER * 100) * FwdDir);
+		FVector BkwdEnd = FwdStartLocation + ((KINDA_SMALL_NUMBER * 100) * FwdDir);
 
 
 		FCollisionQueryParams BkwdParams = TraceParams;
@@ -164,14 +169,14 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 			PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
 			if (CurrentPenetrationHitResult.bIsEntrance)
 			{
-				for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num() - 1; i++)
+				for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num() - 1; ++i)
 				{
 					PenetrationInfo.PenetratedPhysMaterials.Add(CurrentEntrancePhysMaterials[i]);
 				}
 			}
 			else
 			{
-				for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num(); i++)
+				for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num(); ++i)
 				{
 					PenetrationInfo.PenetratedPhysMaterials.Add(CurrentEntrancePhysMaterials[i]);
 				}
@@ -199,7 +204,25 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 		}
 	}
 
+
+	if (CurrentEntrancePhysMaterials.Num() > 0)
+	{
+		check(OutPenetrationInfos.Num() > 0); // i have no idea when this would be false but just in case. also we should UE_LOG this when we log up this function
+		
+
+		FPenetrationInfo PenetrationInfo;
+		PenetrationInfo.EntrancePoint = OutPenetrationInfos.Last().ExitPoint;
+		PenetrationInfo.ExitPoint = FwdEndLocation;
+		PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
+
+		for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num(); ++i)
+		{
+			PenetrationInfo.PenetratedPhysMaterials.Add(CurrentEntrancePhysMaterials[i]);
+		}
+		CurrentEntrancePhysMaterials.Empty();
+
+
+		OutPenetrationInfos.Add(PenetrationInfo);
+	}
+
 }
-
-
-

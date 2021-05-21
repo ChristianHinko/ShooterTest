@@ -132,26 +132,34 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 		}
 
 
-		if (CurrentEntrancePhysMaterials.Num() > 0 && PenetrationHitResultToStartAt)	// If true, we should calculate a distance and create a new PenetrationInfo
+		if (CurrentEntrancePhysMaterials.Num() > 0)
 		{
-			FPenetrationInfo PenetrationInfo;
-			PenetrationInfo.EntrancePoint = PenetrationHitResultToStartAt->HitResult.ImpactPoint;
-			PenetrationInfo.ExitPoint = CurrentPenetrationHitResult.HitResult.ImpactPoint;
-			PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
-			if (CurrentPenetrationHitResult.bIsEntrance)
+			if (PenetrationHitResultToStartAt)	// If true, we should calculate a distance and create a new PenetrationInfo
 			{
-				for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num() - 1; ++i)
+				FPenetrationInfo PenetrationInfo;
+				PenetrationInfo.EntrancePoint = PenetrationHitResultToStartAt->HitResult.ImpactPoint;
+				PenetrationInfo.ExitPoint = CurrentPenetrationHitResult.HitResult.ImpactPoint;
+				PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
+				if (CurrentPenetrationHitResult.bIsEntrance)
 				{
-					PenetrationInfo.PenetratedPhysMaterials.Add(CurrentEntrancePhysMaterials[i]);
+					for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num() - 1; ++i)
+					{
+						PenetrationInfo.PenetratedPhysMaterials.Add(CurrentEntrancePhysMaterials[i]);
+					}
 				}
-			}
-			else
-			{
-				for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num(); ++i)
+				else
 				{
-					PenetrationInfo.PenetratedPhysMaterials.Add(CurrentEntrancePhysMaterials[i]);
+					for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num(); ++i)
+					{
+						PenetrationInfo.PenetratedPhysMaterials.Add(CurrentEntrancePhysMaterials[i]);
+					}
 				}
 
+				OutPenetrationInfos.Add(PenetrationInfo);
+			}
+
+			if (CurrentPenetrationHitResult.bIsEntrance == false)
+			{
 				// Remove this Phys Mat from the Phys Mat stack because we are exiting it
 				UPhysicalMaterial* PhysMatThatWeAreExiting = CurrentPenetrationHitResult.HitResult.PhysMaterial.Get();
 				int32 IndexOfPhysMatThatWeAreExiting = CurrentEntrancePhysMaterials.FindLast(PhysMatThatWeAreExiting); // the inner-most (last) occurrence of this Phys Mat is the one that we are exiting
@@ -160,8 +168,6 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 					CurrentEntrancePhysMaterials.RemoveAt(IndexOfPhysMatThatWeAreExiting); // remove this Phys Mat that we are exiting from the Phys Mat stack
 				}
 			}
-
-			OutPenetrationInfos.Add(PenetrationInfo);
 		}
 
 		// This gives PenetrationHitResultToStartAt its correct value. This is basicly just a "PreviousPenetrationHitResult" variable, but is NULL whenever we don't want to make a FPenetrationInfo (because we are in an empty space)

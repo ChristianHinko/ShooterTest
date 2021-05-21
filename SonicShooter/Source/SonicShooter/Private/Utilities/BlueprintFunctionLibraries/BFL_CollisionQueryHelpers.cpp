@@ -88,7 +88,7 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 							break;
 						}
 						// If we did hit something.....
-						
+
 						if (BkwdHitResult.Distance == 0)	// if the distance is still 0, we will keep trying again until loop ends
 						{
 							continue;
@@ -107,7 +107,7 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 				}
 			}
 
-			
+
 
 
 			// Loop to fill PenetrationHitResults
@@ -151,42 +151,40 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 
 
 	TArray<UPhysicalMaterial*> CurrentEntrancePhysMaterials;
-	TArray<UPhysicalMaterial*> UnpairedExitPhysMaterials; // only used for post-forloop
-	FPenetrationHitResult* PenetrationHitResultToStartAt = nullptr;
+	FPenetrationHitResult* PreviousPenetrationHitResult = nullptr;
 	for (FPenetrationHitResult& CurrentPenetrationHitResult : PenetrationHitResults)
 	{
-		if (CurrentEntrancePhysMaterials.Num() > 0)
+		FPenetrationInfo PenetrationInfo;
+
+		if (PreviousPenetrationHitResult)	// If true, we should calculate a distance and create a new PenetrationInfo
 		{
-			if (PenetrationHitResultToStartAt)	// If true, we should calculate a distance and create a new PenetrationInfo
-			{
-				FPenetrationInfo PenetrationInfo;
-				PenetrationInfo.EntrancePoint = PenetrationHitResultToStartAt->HitResult.ImpactPoint;
-				PenetrationInfo.ExitPoint = CurrentPenetrationHitResult.HitResult.ImpactPoint;
-				PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
-				PenetrationInfo.PenetratedPhysMaterials = CurrentEntrancePhysMaterials;
+			PenetrationInfo.EntrancePoint = PreviousPenetrationHitResult->HitResult.ImpactPoint;
+			PenetrationInfo.ExitPoint = CurrentPenetrationHitResult.HitResult.ImpactPoint;
+			PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
+			PenetrationInfo.PenetratedPhysMaterials = CurrentEntrancePhysMaterials;
 
-				OutPenetrationInfos.Add(PenetrationInfo);
+		}
+
+		OutPenetrationInfos.Add(PenetrationInfo);
+
+		if (CurrentPenetrationHitResult.bIsEntrance == false)
+		{
+			// Remove this Phys Mat from the Phys Mat stack because we are exiting it
+			UPhysicalMaterial* PhysMatThatWeAreExiting = CurrentPenetrationHitResult.HitResult.PhysMaterial.Get();
+			int32 IndexOfPhysMatThatWeAreExiting = CurrentEntrancePhysMaterials.FindLast(PhysMatThatWeAreExiting); // the inner-most (last) occurrence of this Phys Mat is the one that we are exiting
+			if (IndexOfPhysMatThatWeAreExiting != INDEX_NONE)
+			{
+				CurrentEntrancePhysMaterials.RemoveAt(IndexOfPhysMatThatWeAreExiting); // remove this Phys Mat that we are exiting from the Phys Mat stack
 			}
-
-			if (CurrentPenetrationHitResult.bIsEntrance == false)
+			else
 			{
-				// Remove this Phys Mat from the Phys Mat stack because we are exiting it
-				UPhysicalMaterial* PhysMatThatWeAreExiting = CurrentPenetrationHitResult.HitResult.PhysMaterial.Get();
-				int32 IndexOfPhysMatThatWeAreExiting = CurrentEntrancePhysMaterials.FindLast(PhysMatThatWeAreExiting); // the inner-most (last) occurrence of this Phys Mat is the one that we are exiting
-				if (IndexOfPhysMatThatWeAreExiting != INDEX_NONE)
+				for (FPenetrationInfo& PenetrationInfoToAddTo : OutPenetrationInfos)
 				{
-					CurrentEntrancePhysMaterials.RemoveAt(IndexOfPhysMatThatWeAreExiting); // remove this Phys Mat that we are exiting from the Phys Mat stack
-				}
-				else
-				{
-					UnpairedExitPhysMaterials.Push(PhysMatThatWeAreExiting);
-					for (FPenetrationInfo& PenetrationInfo : OutPenetrationInfos)
-					{
-						PenetrationInfo.PenetratedPhysMaterials.Insert(PhysMatThatWeAreExiting, 0);
-					}
+					PenetrationInfoToAddTo.PenetratedPhysMaterials.Insert(PhysMatThatWeAreExiting, 0);
 				}
 			}
 		}
+
 
 		if (CurrentPenetrationHitResult.bIsEntrance)
 		{
@@ -194,22 +192,15 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 			CurrentEntrancePhysMaterials.Push(CurrentPenetrationHitResult.HitResult.PhysMaterial.Get());
 		}
 
-		// This gives PenetrationHitResultToStartAt its correct value. This is basicly just a "PreviousPenetrationHitResult" variable, but is NULL whenever we don't want to make a FPenetrationInfo (because we are in an empty space)
-		if (CurrentEntrancePhysMaterials.Num() > 0)
-		{
-			PenetrationHitResultToStartAt = &CurrentPenetrationHitResult;
-		}
-		else
-		{
-			PenetrationHitResultToStartAt = nullptr;
-		}
+
+		PreviousPenetrationHitResult = &CurrentPenetrationHitResult;
 	}
 
 
 	if (CurrentEntrancePhysMaterials.Num() > 0)
 	{
 		check(OutPenetrationInfos.Num() > 0); // i have no idea when this would be false but just in case. also we should UE_LOG this when we log up this function
-		
+
 
 		FPenetrationInfo PenetrationInfo;
 		PenetrationInfo.EntrancePoint = OutPenetrationInfos.Last().ExitPoint;
@@ -226,24 +217,15 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 		OutPenetrationInfos.Add(PenetrationInfo);
 	}
 
-	if (UnpairedExitPhysMaterials.Num() > 0)
+	if (OutPenetrationInfos.IsValidIndex(0))
 	{
-		check(OutPenetrationInfos.Num() > 0); // i have no idea when this would be false but just in case. also we should UE_LOG this when we log up this function
-		
-
-		FPenetrationInfo PenetrationInfo;
-		PenetrationInfo.EntrancePoint = FwdStartLocation;
-		PenetrationInfo.ExitPoint = OutPenetrationInfos[0].EntrancePoint;
-		PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
-
-		for (int32 i = 0; i < UnpairedExitPhysMaterials.Num(); ++i)
+		OutPenetrationInfos[0].EntrancePoint = FwdStartLocation;
+		if (OutPenetrationInfos.IsValidIndex(1))
 		{
-			PenetrationInfo.PenetratedPhysMaterials.Add(UnpairedExitPhysMaterials[i]);
+			OutPenetrationInfos[0].ExitPoint = OutPenetrationInfos[1].EntrancePoint;
 		}
-		UnpairedExitPhysMaterials.Empty();
-
-
-		OutPenetrationInfos.Insert(PenetrationInfo, 0);
+		OutPenetrationInfos[0].PenetrationDistance = FVector::Distance(OutPenetrationInfos[0].EntrancePoint, OutPenetrationInfos[0].ExitPoint);
 	}
+
 
 }

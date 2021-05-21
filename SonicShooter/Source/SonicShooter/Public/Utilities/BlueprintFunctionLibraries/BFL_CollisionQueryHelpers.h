@@ -83,6 +83,7 @@ class SONICSHOOTER_API UBFL_CollisionQueryHelpers : public UBlueprintFunctionLib
 	GENERATED_BODY()
 	
 public:
+	// Important note: When passing in any hit results that hit a CTF_UseSimpleAsComplex collider (ie. a bone), things can get inacurrate, but only if that collider's mesh has multible material slots. This is because once we hit any simple colliders, we ignore the rest of it so backwards tracing doesn't get stuck inside it.
 	static void BuildPenetrationInfos(TArray<FPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const FVector& FwdEndLocation, const UWorld* World, const FCollisionQueryParams& TraceParams, const TEnumAsByte<ECollisionChannel> TraceChannel);
 
 };

@@ -154,13 +154,6 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 	FPenetrationHitResult* PenetrationHitResultToStartAt = nullptr;
 	for (FPenetrationHitResult& CurrentPenetrationHitResult : PenetrationHitResults)
 	{
-		if (CurrentPenetrationHitResult.bIsEntrance)
-		{
-			// This stack tells us how deep we are and provides us with the phys materials of the entrance hits
-			CurrentEntrancePhysMaterials.Push(CurrentPenetrationHitResult.HitResult.PhysMaterial.Get());
-		}
-
-
 		if (CurrentEntrancePhysMaterials.Num() > 0)
 		{
 			if (PenetrationHitResultToStartAt)	// If true, we should calculate a distance and create a new PenetrationInfo
@@ -169,20 +162,7 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 				PenetrationInfo.EntrancePoint = PenetrationHitResultToStartAt->HitResult.ImpactPoint;
 				PenetrationInfo.ExitPoint = CurrentPenetrationHitResult.HitResult.ImpactPoint;
 				PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
-				if (CurrentPenetrationHitResult.bIsEntrance)
-				{
-					for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num() - 1; ++i)
-					{
-						PenetrationInfo.PenetratedPhysMaterials.Add(CurrentEntrancePhysMaterials[i]);
-					}
-				}
-				else
-				{
-					for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num(); ++i)
-					{
-						PenetrationInfo.PenetratedPhysMaterials.Add(CurrentEntrancePhysMaterials[i]);
-					}
-				}
+				PenetrationInfo.PenetratedPhysMaterials = CurrentEntrancePhysMaterials;
 
 				OutPenetrationInfos.Add(PenetrationInfo);
 			}
@@ -197,6 +177,12 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 					CurrentEntrancePhysMaterials.RemoveAt(IndexOfPhysMatThatWeAreExiting); // remove this Phys Mat that we are exiting from the Phys Mat stack
 				}
 			}
+		}
+
+		if (CurrentPenetrationHitResult.bIsEntrance)
+		{
+			// This stack tells us how deep we are and provides us with the phys materials of the entrance hits
+			CurrentEntrancePhysMaterials.Push(CurrentPenetrationHitResult.HitResult.PhysMaterial.Get());
 		}
 
 		// This gives PenetrationHitResultToStartAt its correct value. This is basicly just a "PreviousPenetrationHitResult" variable, but is NULL whenever we don't want to make a FPenetrationInfo (because we are in an empty space)

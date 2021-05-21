@@ -151,6 +151,7 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 
 
 	TArray<UPhysicalMaterial*> CurrentEntrancePhysMaterials;
+	TArray<UPhysicalMaterial*> UnpairedExitPhysMaterials; // only used for post-forloop
 	FPenetrationHitResult* PenetrationHitResultToStartAt = nullptr;
 	for (FPenetrationHitResult& CurrentPenetrationHitResult : PenetrationHitResults)
 	{
@@ -175,6 +176,14 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 				if (IndexOfPhysMatThatWeAreExiting != INDEX_NONE)
 				{
 					CurrentEntrancePhysMaterials.RemoveAt(IndexOfPhysMatThatWeAreExiting); // remove this Phys Mat that we are exiting from the Phys Mat stack
+				}
+				else
+				{
+					UnpairedExitPhysMaterials.Push(PhysMatThatWeAreExiting);
+					for (FPenetrationInfo& PenetrationInfo : OutPenetrationInfos)
+					{
+						PenetrationInfo.PenetratedPhysMaterials.Insert(PhysMatThatWeAreExiting, 0);
+					}
 				}
 			}
 		}
@@ -215,6 +224,26 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 
 
 		OutPenetrationInfos.Add(PenetrationInfo);
+	}
+
+	if (UnpairedExitPhysMaterials.Num() > 0)
+	{
+		check(OutPenetrationInfos.Num() > 0); // i have no idea when this would be false but just in case. also we should UE_LOG this when we log up this function
+		
+
+		FPenetrationInfo PenetrationInfo;
+		PenetrationInfo.EntrancePoint = FwdStartLocation;
+		PenetrationInfo.ExitPoint = OutPenetrationInfos[0].EntrancePoint;
+		PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
+
+		for (int32 i = 0; i < UnpairedExitPhysMaterials.Num(); ++i)
+		{
+			PenetrationInfo.PenetratedPhysMaterials.Add(UnpairedExitPhysMaterials[i]);
+		}
+		UnpairedExitPhysMaterials.Empty();
+
+
+		OutPenetrationInfos.Insert(PenetrationInfo, 0);
 	}
 
 }

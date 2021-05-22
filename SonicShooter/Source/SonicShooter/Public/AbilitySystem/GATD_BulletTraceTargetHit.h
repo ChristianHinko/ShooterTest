@@ -102,6 +102,7 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 		bool bHitReplaced = false;
 
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
+	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms);
 
 	virtual UScriptStruct* GetScriptStruct() const override
 	{
@@ -114,6 +115,7 @@ struct TStructOpsTypeTraits<FGATD_BulletTraceTargetHit> : public TStructOpsTypeT
 {
 	enum
 	{
-		WithNetSerializer = true	// For now this is REQUIRED for FGameplayAbilityTargetDataHandle net serialization to work
+		WithNetSerializer = true,	// For now this is REQUIRED for FGameplayAbilityTargetDataHandle net serialization to work
+		WithNetDeltaSerializer = true
 	};
 };

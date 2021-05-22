@@ -49,3 +49,9 @@ bool FGATD_BulletTraceTargetHit::NetSerialize(FArchive& Ar, class UPackageMap* M
 
 	return true;
 }
+
+bool FGATD_BulletTraceTargetHit::NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms)
+{
+
+	return true;
+}

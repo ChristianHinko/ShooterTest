@@ -3,19 +3,25 @@
 #include "SonicShooter.h"
 
 #include "Modules/ModuleManager.h"
-//#include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "SonicShooter/Private/Utilities/LogCategories.h"
 
 
 
-//void FSonicShooter::StartupModule()
-//{
-//	UE_LOG(LogSonicShooterModule, Log, TEXT("SonicShooter module start up"))
-//}
-//
-//void FSonicShooter::ShutdownModule()
-//{
-//	UE_LOG(LogSonicShooterModule, Log, TEXT("SonicShooter module shutting down"))
-//}
+void FSonicShooter::StartupModule()
+{
+	Super::StartupModule();
 
 
-IMPLEMENT_PRIMARY_GAME_MODULE(FDefaultGameModuleImpl, SonicShooter, "SonicShooter");
+	UE_LOG(LogSonicShooterModule, Log, TEXT("%s primary game module start up!"), *FString(SONICSHOOTER_MODULE_NAME))
+}
+
+void FSonicShooter::ShutdownModule()
+{
+	Super::ShutdownModule();
+
+
+	UE_LOG(LogSonicShooterModule, Log, TEXT("Primary game module %s shutting down."), *FString(SONICSHOOTER_MODULE_NAME))
+}
+
+
+IMPLEMENT_PRIMARY_GAME_MODULE(FSonicShooter, SonicShooter, SONICSHOOTER_MODULE_NAME);

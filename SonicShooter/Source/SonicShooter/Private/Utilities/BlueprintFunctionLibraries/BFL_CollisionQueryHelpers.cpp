@@ -40,6 +40,8 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 		UE_LOG(LogBlueprintFunctionLibrary, Warning, TEXT("%s(): Wasn't given any FwdBlockingHits to build any penetration info of. Returned and did nothing"), *FString(__FUNCTION__));
 		return;
 	}
+	OutPenetrationInfos.Reserve(FwdBlockingHits.Num() * 2);		// We know most of the time we will have at least double the elements from FwdBlockingHits (most of the time)
+
 
 	const FVector FwdStartLocation = FwdBlockingHits[0].TraceStart; // maybe make this a parameter since FwdEndLocation is one
 

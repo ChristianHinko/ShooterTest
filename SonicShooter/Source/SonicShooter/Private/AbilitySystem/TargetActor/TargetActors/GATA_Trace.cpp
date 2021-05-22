@@ -19,6 +19,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 
 
+
 AGATA_Trace::AGATA_Trace(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -156,6 +157,8 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	check(World);
 
 
+	float currentMaxRange = GetMaxRange();
+
 	// Ensure we return Physical Material for the ricochet determination
 	FCollisionQueryParams TraceParams = Params;
 	TraceParams.bReturnPhysicalMaterial = true;
@@ -163,6 +166,10 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	// Perform initial trace
 	TArray<FHitResult> HitResults;
 	World->LineTraceMultiByChannel(HitResults, Start, End, TraceChannel, TraceParams);
+	if (HitResults.Num() > 0)
+	{
+		currentMaxRange -= HitResults.Last().Distance;
+	}
 	OutHitResults.Append(HitResults);
 
 	TArray<FHitResult> ThisRicochetBlockingHits;
@@ -219,7 +226,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 				// Use direction to get the trace end
 				FVector RicoStart = LastHit.Location + ((KINDA_SMALL_NUMBER * 100) * RicoDir);			// bump it outwards a bit for reassurance (sometimes works without this if using Chaos)
-				FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
+				FVector RicoEnd = RicoStart + (currentMaxRange * RicoDir);
 
 				FCollisionQueryParams RicoParams = TraceParams;
 				RicoParams.bTraceComplex = true; // ricochet doesn't need Trace Complex but because we are mixed in with penetration logic (which uses Trace Complex), we have to consider it
@@ -232,6 +239,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 				if (RicoHitResults.Num() > 0)
 				{
+					currentMaxRange -= RicoHitResults.Last().Distance;
 					OutHitResults.Append(RicoHitResults); // add these results to the end of OutHitResults
 					LastHit = OutHitResults.Last(); // update LastHit
 					++timesRicocheted;
@@ -279,7 +287,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 			// Use direction to get the trace end
 			FVector PenetrateStart = LastHit.Location + ((KINDA_SMALL_NUMBER * 100) * FromDir);			// bump it into itself a bit for reassurance (sometimes works without this if using Chaos)
-			FVector PenetrateEnd = PenetrateStart + ((GetMaxRange() - LastHit.Distance) * FromDir);
+			FVector PenetrateEnd = PenetrateStart + (currentMaxRange * FromDir);
 
 			FCollisionQueryParams PenetrateParams = TraceParams;
 			PenetrateParams.bTraceComplex = true; // Use complex collision if the collider has it. We need this because we are starting from inside the geometry and shooting out (this won't work for CTF_UseSimpleAsComplex and Physics Assest colliders so TODO: we will need a case that covers this)
@@ -303,6 +311,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 			
 			if (PenetrateHitResults.Num() > 0)
 			{
+				currentMaxRange -= PenetrateHitResults.Last().Distance;
 				OutHitResults.Append(PenetrateHitResults); // add these results to the end of OutHitResults
 				LastHit = OutHitResults.Last(); // update LastHit
 				++timesPenetrated;

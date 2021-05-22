@@ -101,7 +101,7 @@ bool FFloatPropertyWrapper::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& b
 		RepBits |= 1 << 0;
 	}
 
-	Ar.SerializeBits(&RepBits, 0);
+	Ar.SerializeBits(&RepBits, 1);
 
 
 

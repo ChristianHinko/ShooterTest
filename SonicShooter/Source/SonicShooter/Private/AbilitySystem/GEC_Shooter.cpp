@@ -58,7 +58,7 @@ bool FGEC_Shooter::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSucces
     }
 
 
-    Ar.SerializeBits(&RepBits, 10);
+    Ar.SerializeBits(&RepBits, 11);
 
 
     if (RepBits & (1 << 0))

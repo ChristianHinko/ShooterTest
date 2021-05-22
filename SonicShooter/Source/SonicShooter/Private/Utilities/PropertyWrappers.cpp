@@ -95,20 +95,56 @@ void FFloatPropertyWrapper::MarkNetDirty()
 
 bool FFloatPropertyWrapper::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess)
 {
-	uint8 RepBits = 0;
+	// Our optimizations
+	bool bValueIsJustZero = false; // we're doing an overkill and useless optimization for example purposes
+
+
+	uint8 RepBits;
 	if (Ar.IsSaving())
 	{
-		RepBits |= 1 << 0;
+		// We are a writer, lets find some optimizations and pack them into RepBits
+
+		if (Value == 0.f)
+		{
+			bValueIsJustZero = true;
+		}
+
+
+		RepBits = (bValueIsJustZero << 0);
 	}
 
-	Ar.SerializeBits(&RepBits, 0);
+	// Pack/unpack our RepBits into/outof the Archive
+	Ar.SerializeBits(&RepBits, 1);
+	if (Ar.IsLoading())
+	{
+		// We are a reader, lets unpack our optimization bools from RepBits
+
+		bValueIsJustZero = (RepBits & (1 << 0));
+	}
+
+
+	if (Ar.IsSaving())
+	{
+		if (!bValueIsJustZero) // only serialize Value if it wasn't zero
+		{
+			Ar << Value;
+		}
+	}
+
+	if (Ar.IsLoading())
+	{
+		if (!bValueIsJustZero) // only unpack Value if it wasn't zero (because we can just do a quick set instead)
+		{
+			Ar << Value;
+		}
+		else
+		{
+			Value = 0.f;
+		}
+	}
 
 
 
-	//if (RepBits & (1 << 0))
-	//{
-		Ar << Value;
-	//}
 
 
 

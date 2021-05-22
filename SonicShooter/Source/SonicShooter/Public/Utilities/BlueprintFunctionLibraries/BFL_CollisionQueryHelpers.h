@@ -11,7 +11,7 @@
 
 
 /**
- *
+ * 
  */
 struct FPenetrationInfo
 {
@@ -59,7 +59,7 @@ struct FPenetrationInfo
 };
 
 /**
- *
+ * 
  */
 struct FPenetrationHitResult
 {

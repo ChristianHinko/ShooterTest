@@ -3,7 +3,6 @@
 
 #include "Utilities/BlueprintFunctionLibraries/BFL_CollisionQueryHelpers.h"
 
-#include "Utilities/SurfaceTypes.h"
 #include "Utilities/LogCategories.h"
 #include "Kismet/KismetMathLibrary.h"
 

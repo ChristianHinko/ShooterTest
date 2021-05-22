@@ -44,6 +44,9 @@ struct FPenetrationInfo
 		return "PenetratedActor = " + PenetratedActorName + "    PenetratedComponent = " + PenetratedComponentName + "    PenetratedBone = " + PenetratedBoneName + "    PenetratedPhysMaterials = " + PenetratedPhysMats + "    penetration distance: " + FString::SanitizeFloat(PenetrationDistance);
 	}
 
+	/**
+	 * This is the stack of phys materials that this penetration is penetrating. Top of the stack is the most inner (most recent) phys material
+	*/
 	TArray<UPhysicalMaterial*> PenetratedPhysMaterials;
 
 	FVector EntrancePoint;

@@ -20,6 +20,11 @@ struct SONICSHOOTER_API FGEC_Shooter : public FSSGameplayEffectContext
 public:
     float GetBulletTotalTravelDistanceBeforeHit() const { return BulletTotalTravelDistanceBeforeHit; }
     TArray<FVector_NetQuantize> GetBulletTracePoints() const { return BulletTracePoints; }
+    int32 GetNumRicochetsBeforeHit() const
+    {
+        // This adds up all of the ricochet points (if any) disregarding the last hit location
+        return (BulletTracePoints.Num() - 1);
+    }
 
     void SetBulletTotalTravelDistanceBeforeHit(float inBulletTotalTravelDistanceBeforeHit) { BulletTotalTravelDistanceBeforeHit = inBulletTotalTravelDistanceBeforeHit; }
     void SetBulletTracePoints(const TArray<FVector_NetQuantize>& InBulletTracePoints) { BulletTracePoints = InBulletTracePoints; }

@@ -37,14 +37,19 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 	//	return FTransform((HitResult.TraceEnd - HitResult.TraceStart).Rotation(), HitResult.TraceStart);
 	//}
 
-	//virtual bool HasEndPoint() const override
-	//{
-	//	return true;
-	//}
-	//virtual FVector GetEndPoint() const override
-	//{
-	//	return HitResult.Location;
-	//}
+	virtual bool HasEndPoint() const override
+	{
+		return true;
+	}
+	virtual FVector GetEndPoint() const override
+	{
+		if (BulletTracePoints.Num() > 0)
+		{
+			return BulletTracePoints.Last();
+		}
+
+		return FVector();
+	}
 
 
 	// -------------------------------------
@@ -55,10 +60,17 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 
 	/**
 	 * The points which describe this bullet's path. If you "connect the dots" you will get the bullet's path. The last point is the hit location.
-	 * To get the number of times ricocheted, do (BulletTracePoints.Num() - 1). This adds up all of the ricochet points (if any) and ignores the last hit location.
+	 * To get the number of times ricocheted, do (BulletTracePoints.Num() - 1). This adds up all of the ricochet points (if any) disregarding the last hit location.
 	 */
 	UPROPERTY()
 		TArray<FVector_NetQuantize> BulletTracePoints;
+
+	int32 GetNumRicochetsBeforeHit() const
+	{
+		// This adds up all of the ricochet points (if any) disregarding the last hit location
+		return (BulletTracePoints.Num() - 1);
+	}
+
 
 
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);

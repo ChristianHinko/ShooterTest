@@ -39,11 +39,11 @@ bool FGEC_Shooter::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSucces
             RepBits |= 1 << 6;
         }
 
-        if (CartridgeID > 0)
+        if (BulletTotalTravelDistanceBeforeHit)
         {
             RepBits |= 1 << 7;
         }
-        if (bulletTotalTravelDistanceBeforeHit)
+        if (BulletTracePoints.Num() > 0)
         {
             RepBits |= 1 << 8;
         }
@@ -71,7 +71,9 @@ bool FGEC_Shooter::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSucces
     }
     if (RepBits & (1 << 4))
     {
-        SafeNetSerializeTArray_Default<31>(Ar, Actors);
+        bool bOutSuccessLocal = true;
+        bOutSuccessLocal = SafeNetSerializeTArray_Default<31>(Ar, Actors);
+        bOutSuccess &= bOutSuccessLocal;
     }
     if (RepBits & (1 << 5))
     {
@@ -96,12 +98,13 @@ bool FGEC_Shooter::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSucces
 
     if (RepBits & (1 << 7))
     {
-        Ar << CartridgeID;
+        Ar << BulletTotalTravelDistanceBeforeHit;
     }
-
     if (RepBits & (1 << 8))
     {
-        Ar << bulletTotalTravelDistanceBeforeHit;
+        bool bOutSuccessLocal = true;
+        bOutSuccessLocal = SafeNetSerializeTArray_WithNetSerialize<31>(Ar, BulletTracePoints, Map);
+        bOutSuccess &= bOutSuccessLocal;
     }
 
 

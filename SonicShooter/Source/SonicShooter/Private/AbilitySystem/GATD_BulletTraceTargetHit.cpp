@@ -18,7 +18,8 @@ void FGATD_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHa
 {
 	if (FGEC_Shooter* SSContext = static_cast<FGEC_Shooter*>(Context.Get()))
 	{
-		SSContext->SetBulletTotalTravelDistanceBeforeHit(bulletTotalTravelDistanceBeforeHit);
+		SSContext->SetBulletTotalTravelDistanceBeforeHit(BulletTotalTravelDistanceBeforeHit);
+		SSContext->SetBulletTracePoints(BulletTracePoints);
 	}
 	else
 	{
@@ -46,7 +47,7 @@ bool FGATD_BulletTraceTargetHit::NetSerialize(FArchive& Ar, class UPackageMap* M
 	}
 
 
-	Ar << bulletTotalTravelDistanceBeforeHit;
+	Ar << BulletTotalTravelDistanceBeforeHit;
 
 	bool bOutSuccessLocal = true;
 	bOutSuccessLocal = SafeNetSerializeTArray_WithNetSerialize<31>(Ar, BulletTracePoints, Map);

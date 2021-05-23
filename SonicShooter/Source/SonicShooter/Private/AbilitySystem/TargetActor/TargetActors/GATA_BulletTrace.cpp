@@ -75,7 +75,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 			float totalDistanceUpUntilThisTrace = 0.f; // accumulated distance of the previous traces
 			FHitResult PreviousHit;
 
-			uint8 ricochetsBeforeHit = 0;	// Used to tell target data how many times bullet ricocheted before hitting the target
+			TArray<FVector_NetQuantize> BulletTracePoints; // used to tell target data where this bullet went and can but used to see how many times bullet ricocheted before hitting the target
 			for (int32 index = 0, iteration = 0; index < ThisBulletHitResults.Num(); ++index, ++iteration)
 			{
 				const FHitResult Hit = ThisBulletHitResults[index];
@@ -85,7 +85,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 					const bool bIsNewTrace = !AreHitsFromSameTrace(Hit, PreviousHit);
 					if (bIsNewTrace)	// A ricochet happened since we are a new trace
 					{
-						ricochetsBeforeHit++;
+						BulletTracePoints.Add(Hit.TraceStart);
 						totalDistanceUpUntilThisTrace += PreviousHit.Distance;
 					}
 				}
@@ -99,6 +99,8 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 					continue;
 				}
 
+				TArray<FVector_NetQuantize> ThisReturnDataBulletTracePoints = BulletTracePoints;
+				ThisReturnDataBulletTracePoints.Add(Hit.Location);
 
 				// If we got here, we are an unfiltered hit (ie. we hit a player), make target data for us:
 				{
@@ -109,8 +111,8 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 					// This Hit Result's distance plus the previous ricochet(s)'s traveled distance
 					const float ricochetAwareDistance = totalDistanceUpUntilThisTrace + Hit.Distance;
 
-					ReturnData->bulletTotalTravelDistanceBeforeHit = ricochetAwareDistance;
-					ReturnData->ricochetsBeforeHit = ricochetsBeforeHit;
+					ReturnData->BulletTotalTravelDistanceBeforeHit = ricochetAwareDistance;
+					ReturnData->BulletTracePoints = ThisReturnDataBulletTracePoints;
 
 					TargetDataHandle.Add(ReturnData);
 				}

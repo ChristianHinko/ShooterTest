@@ -46,13 +46,15 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 	
 	/** Total distance bullet traveled across all ricochets until it hit the target (info for UAS_Gun::DamageFalloff) */
 	UPROPERTY()
-		float bulletTotalTravelDistanceBeforeHit;	
-	UPROPERTY()
-		uint8 ricochetsBeforeHit;					// This is the amount of ricochets resulting from blocking hits (info for UAS_Gun::   fill in attribute name here)
+		float BulletTotalTravelDistanceBeforeHit;
 
-	/** The points which describe this bullet's path. If you "connect the dots" you will get the bullet's path. The last point is the endpoint of the bullet. */
+	/**
+	 * The points which describe this bullet's path. If you "connect the dots" you will get the bullet's path. The last point is the hit location.
+	 * To get the number of times ricocheted, do (BulletTracePoints.Num() - 1). This adds up all of the ricochet points (if any) and ignores the last hit location.
+	 */
 	UPROPERTY()
 		TArray<FVector_NetQuantize> BulletTracePoints;
+
 
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
 

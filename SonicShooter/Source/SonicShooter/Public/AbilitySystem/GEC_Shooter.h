@@ -18,18 +18,18 @@ struct SONICSHOOTER_API FGEC_Shooter : public FSSGameplayEffectContext
     GENERATED_BODY()
 
 public:
-    float GetBulletTotalTravelDistanceBeforeHit() const { return bulletTotalTravelDistanceBeforeHit; }
-    float GetCartridgeID() const { return CartridgeID; }
+    float GetBulletTotalTravelDistanceBeforeHit() const { return BulletTotalTravelDistanceBeforeHit; }
+    TArray<FVector_NetQuantize> GetBulletTracePoints() const { return BulletTracePoints; }
 
-    void SetBulletTotalTravelDistanceBeforeHit(float bInBulletTotalTravelDistanceBeforeHit) { bulletTotalTravelDistanceBeforeHit = bInBulletTotalTravelDistanceBeforeHit; }
-    void SetCartridgeID(int32 InID) { CartridgeID = InID; }
+    void SetBulletTotalTravelDistanceBeforeHit(float inBulletTotalTravelDistanceBeforeHit) { BulletTotalTravelDistanceBeforeHit = inBulletTotalTravelDistanceBeforeHit; }
+    void SetBulletTracePoints(const TArray<FVector_NetQuantize>& InBulletTracePoints) { BulletTracePoints = InBulletTracePoints; }
 
 protected:
     UPROPERTY()
-        float bulletTotalTravelDistanceBeforeHit;
+        float BulletTotalTravelDistanceBeforeHit;
 
     UPROPERTY()
-        int32 CartridgeID;
+        TArray<FVector_NetQuantize> BulletTracePoints;
 
 public:
     /** Returns the actual struct used for serialization, subclasses must override this! */

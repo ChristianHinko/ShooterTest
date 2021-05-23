@@ -47,18 +47,10 @@ bool FGEC_Shooter::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSucces
         {
             RepBits |= 1 << 8;
         }
-        if (ricochetsBeforeHit)
-        {
-            RepBits |= 1 << 9;
-        }
-        if (SourceLevel > 0)
-        {
-            RepBits |= 1 << 10;
-        }
     }
 
 
-    Ar.SerializeBits(&RepBits, 11);
+    Ar.SerializeBits(&RepBits, 9);
 
 
     if (RepBits & (1 << 0))
@@ -110,16 +102,6 @@ bool FGEC_Shooter::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSucces
     if (RepBits & (1 << 8))
     {
         Ar << bulletTotalTravelDistanceBeforeHit;
-    }
-
-    if (RepBits & (1 << 9))
-    {
-        Ar << ricochetsBeforeHit;
-    }
-
-    if (RepBits & (1 << 10))
-    {
-        Ar << SourceLevel;
     }
 
 

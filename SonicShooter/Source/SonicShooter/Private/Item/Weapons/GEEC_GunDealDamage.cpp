@@ -101,7 +101,7 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 
 	// Lets get our effect context's data
 	const float totalDistanceBulletTraveled = Context->GetBulletTotalTravelDistanceBeforeHit();
-	const uint8 ricochetsBeforeHit = Context->GetRicochetsBeforeHit();
+	const uint8 ricochetsBeforeHit = 1/*Context->GetRicochetsBeforeHit()*/;	// Update this to use our upcomming ricochet vector's .Num().
 
 	// Lets start calculating
 	float finalDamage = RawDamage;

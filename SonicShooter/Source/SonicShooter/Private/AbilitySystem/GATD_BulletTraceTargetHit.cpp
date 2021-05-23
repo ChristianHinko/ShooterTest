@@ -19,7 +19,6 @@ void FGATD_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHa
 	if (FGEC_Shooter* SSContext = static_cast<FGEC_Shooter*>(Context.Get()))
 	{
 		SSContext->SetBulletTotalTravelDistanceBeforeHit(bulletTotalTravelDistanceBeforeHit);
-		SSContext->SetRicochetsBeforeHit(ricochetsBeforeHit);
 	}
 	else
 	{

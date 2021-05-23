@@ -29,24 +29,34 @@ void FGATD_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHa
 
 bool FGATD_BulletTraceTargetHit::NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
 {
-	uint32 RepBits = 0;
+	uint8 RepBits;
 	if (Ar.IsSaving())
 	{
-		RepBits |= 1 << 0;
-		RepBits |= 1 << 1;
+		// We are a writer, lets find some optimizations and pack them into RepBits
+
+
 	}
-    Ar.SerializeBits(&RepBits, 2);
 
-
-	if (RepBits & (1 << 0))
+	// Pack/unpack our RepBits into/outof the Archive
+	Ar.SerializeBits(&RepBits, 0);
+	if (Ar.IsLoading())
 	{
-		Ar << bulletTotalTravelDistanceBeforeHit;
-	}
-	if (RepBits & (1 << 1))
-	{
-		Ar << ricochetsBeforeHit;
-	}
-	
+		// We are a reader, lets unpack our optimization bools from RepBits
 
+	}
+
+
+	Ar << bulletTotalTravelDistanceBeforeHit;
+
+	bool bOutSuccessLocal = true;
+	bOutSuccessLocal = SafeNetSerializeTArray_WithNetSerialize<31>(Ar, BulletTracePoints, Map);
+	bOutSuccess &= bOutSuccessLocal;
+
+
+
+
+
+
+	bOutSuccess = true;
 	return true;
 }

@@ -22,6 +22,11 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 
 	virtual void AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray) const override;
 
+	/** Return true in subclasses if GetHitResult will work */
+	virtual bool HasHitResult() const override
+	{
+		return false;
+	}
 
 	//virtual bool HasOrigin() const override
 	//{

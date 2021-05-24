@@ -10,6 +10,47 @@
 
 
 /**
+ *
+ */
+USTRUCT()
+struct FActorHitInfo
+{
+	GENERATED_BODY()
+
+	FActorHitInfo()
+	{
+
+	}
+	FActorHitInfo(const TWeakObjectPtr<AActor>& inHitActor, float inTotalTraveledDistanceBeforeHit)
+	{
+		HitActor = inHitActor;
+		totalTraveledDistanceBeforeHit = inTotalTraveledDistanceBeforeHit;
+	}
+	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
+	{
+		Ar << HitActor;
+		Ar << totalTraveledDistanceBeforeHit;
+
+		bOutSuccess = true;
+		return true;
+	}
+
+	UPROPERTY()
+		TWeakObjectPtr<AActor> HitActor;
+	UPROPERTY()
+		float totalTraveledDistanceBeforeHit;
+};
+
+template<>
+struct TStructOpsTypeTraits<FActorHitInfo> : public TStructOpsTypeTraitsBase2<FActorHitInfo>
+{
+	enum
+	{
+		WithNetSerializer = true
+	};
+};
+
+/**
  * 
  */
 USTRUCT(BlueprintType)
@@ -24,7 +65,12 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 
 	virtual TArray<TWeakObjectPtr<AActor> >	GetActors() const override
 	{
-		return HitActors;
+		TArray<TWeakObjectPtr<AActor> > RetVal;
+		for (const FActorHitInfo& ActorHitInfo : ActorHitInfos)
+		{
+			RetVal.Emplace(ActorHitInfo.HitActor);
+		}
+		return RetVal;
 	}
 
 	/** Return true in subclasses if GetHitResult will work */
@@ -58,10 +104,6 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 
 
 	// -------------------------------------
-	
-	/** Total distance bullet traveled across all ricochets until it hit the target (info for UAS_Gun::DamageFalloff) */
-	UPROPERTY()
-		float BulletTotalTravelDistanceBeforeHit;
 	/**
 	 * The points which describe this bullet's path. If you "connect the dots" you will get the bullet's path. The last point is the hit location.
 	 * To get the number of times ricocheted, do (BulletTracePoints.Num() - 1). This adds up all of the ricochet points (if any) disregarding the last hit location.
@@ -69,7 +111,7 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 	UPROPERTY()
 		TArray<FVector_NetQuantize> BulletTracePoints;
 	UPROPERTY()
-		TArray<TWeakObjectPtr<AActor> >	HitActors;
+		TArray<FActorHitInfo> ActorHitInfos;
 
 	int32 GetNumRicochetsBeforeHit() const
 	{

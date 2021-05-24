@@ -49,11 +49,10 @@ bool FGATD_BulletTraceTargetHit::NetSerialize(FArchive& Ar, class UPackageMap* M
 
 	Ar << BulletTotalTravelDistanceBeforeHit;
 
-	bool bOutSuccessLocal = true;
-	bOutSuccessLocal = SafeNetSerializeTArray_WithNetSerialize<31>(Ar, BulletTracePoints, Map);
-	bOutSuccess &= bOutSuccessLocal;
+	bOutSuccess &= SafeNetSerializeTArray_WithNetSerialize<31>(Ar, BulletTracePoints, Map);
+	bOutSuccess &= SafeNetSerializeTArray_Default<31>(Ar, HitActors);
 
-
+	
 
 
 

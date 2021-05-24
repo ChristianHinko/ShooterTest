@@ -22,6 +22,11 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 
 	virtual void AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray) const override;
 
+	virtual TArray<TWeakObjectPtr<AActor> >	GetActors() const override
+	{
+		return HitActors;
+	}
+
 	/** Return true in subclasses if GetHitResult will work */
 	virtual bool HasHitResult() const override
 	{
@@ -57,13 +62,14 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 	/** Total distance bullet traveled across all ricochets until it hit the target (info for UAS_Gun::DamageFalloff) */
 	UPROPERTY()
 		float BulletTotalTravelDistanceBeforeHit;
-
 	/**
 	 * The points which describe this bullet's path. If you "connect the dots" you will get the bullet's path. The last point is the hit location.
 	 * To get the number of times ricocheted, do (BulletTracePoints.Num() - 1). This adds up all of the ricochet points (if any) disregarding the last hit location.
 	 */
 	UPROPERTY()
 		TArray<FVector_NetQuantize> BulletTracePoints;
+	UPROPERTY()
+		TArray<TWeakObjectPtr<AActor> >	HitActors;
 
 	int32 GetNumRicochetsBeforeHit() const
 	{

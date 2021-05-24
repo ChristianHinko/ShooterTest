@@ -113,6 +113,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 					ReturnData->BulletTotalTravelDistanceBeforeHit = ricochetAwareDistance;
 					ReturnData->BulletTracePoints = ThisReturnDataBulletTracePoints;
+					ReturnData->HitActors.Add(Hit.Actor);
 
 					TargetDataHandle.Add(ReturnData);
 				}

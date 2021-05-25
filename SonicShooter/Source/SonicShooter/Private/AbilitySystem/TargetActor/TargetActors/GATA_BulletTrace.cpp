@@ -69,55 +69,63 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 		for (TArray<FHitResult>& ThisBulletHitResults : TraceResults)
 		{
-			// Construct target datas (and filter hit results)
+			/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
+			FGATD_BulletTraceTargetHit* ThisBulletTargetData = new FGATD_BulletTraceTargetHit();
 
 
 			float totalDistanceUpUntilThisTrace = 0.f; // accumulated distance of the previous traces
-			FHitResult PreviousHit;
 
-			uint8 ricochetsBeforeHit = 0;	// Used to tell target data how many times bullet ricocheted before hitting the target
+			TArray<FVector_NetQuantize> BulletTracePoints; // used to tell target data where this bullet went
+			if (ThisBulletHitResults.Num() > 0)
+			{
+				BulletTracePoints.Emplace(ThisBulletHitResults[0].TraceStart);
+			}
+
+			FHitResult PreviousHit;
 			for (int32 index = 0, iteration = 0; index < ThisBulletHitResults.Num(); ++index, ++iteration)
 			{
-				const FHitResult Hit = ThisBulletHitResults[index];
+				const FHitResult& Hit = ThisBulletHitResults[index];
 
 				if (iteration != 0)
 				{
 					const bool bIsNewTrace = !AreHitsFromSameTrace(Hit, PreviousHit);
 					if (bIsNewTrace)	// A ricochet happened since we are a new trace
 					{
-						ricochetsBeforeHit++;
+						BulletTracePoints.Emplace(Hit.TraceStart);
 						totalDistanceUpUntilThisTrace += PreviousHit.Distance;
 					}
 				}
 
 
-				if (FilterHitResult(ThisBulletHitResults, index, MultiFilterHandle, bAllowMultipleHitsPerActor))
+				if (HitResultFailsFilter(ThisBulletHitResults, index, MultiFilterHandle, bAllowMultipleHitsPerActor)) // don't actually filter it, just check if it passes the filter
 				{
 					// This index did not pass the filter, stop here so that we don't add target data for it
 					PreviousHit = Hit;
-					--index;
 					continue;
 				}
 
 
-				// If we got here, we are an unfiltered hit (ie. we hit a player), make target data for us:
-				{
-					/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
-					FGATD_BulletTraceTargetHit* ReturnData = new FGATD_BulletTraceTargetHit();
+				// If we got here, we are an unfiltered hit (ie. we hit a character), add info to our target data:
+
+				// This Hit Result's distance plus the previous ricochet(s)'s traveled distance
+				const float ricochetAwareDistance = totalDistanceUpUntilThisTrace + Hit.Distance;
+
+				ThisBulletTargetData->ActorHitInfos.Emplace(Hit.Actor, ricochetAwareDistance);
 
 
-					// This Hit Result's distance plus the previous ricochet(s)'s traveled distance
-					const float ricochetAwareDistance = totalDistanceUpUntilThisTrace + Hit.Distance;
-
-					ReturnData->bulletTotalTravelDistanceBeforeHit = ricochetAwareDistance;
-					ReturnData->ricochetsBeforeHit = ricochetsBeforeHit;
-
-					TargetDataHandle.Add(ReturnData);
-				}
 
 
 				PreviousHit = Hit;
 			}
+
+			if (ThisBulletHitResults.Num() > 0)
+			{
+				BulletTracePoints.Emplace(ThisBulletHitResults.Last().TraceEnd);
+			}
+			ThisBulletTargetData->BulletTracePoints = BulletTracePoints;
+
+
+			TargetDataHandle.Add(ThisBulletTargetData);
 		}
 		
 
@@ -172,4 +180,14 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 	// Perform line trace
 	LineTraceMulti(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, Params, bDebug);
 
+	if (OutHitResults.Num() <= 0)
+	{
+		// Our ConfirmTargetingAndContinue() depends on us returning at least one Hit Result so it can get TraceStart and TraceEnd.
+		// Make an empty Hit Result containing this info (this will just end up getting filtered)
+		FHitResult TraceInfo;
+		TraceInfo.TraceStart = TraceStart;
+		TraceInfo.TraceEnd = TraceEnd;
+
+		OutHitResults.Emplace(TraceInfo);
+	}
 }

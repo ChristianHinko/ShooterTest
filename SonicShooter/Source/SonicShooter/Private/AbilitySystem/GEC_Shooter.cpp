@@ -7,109 +7,47 @@
 
 bool FGEC_Shooter::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess)
 {
-    uint32 RepBits = 0;
+    Super::NetSerialize(Ar, Map, bOutSuccess);
+
+
+    uint8 RepBits;
     if (Ar.IsSaving())
     {
-        if (Instigator.IsValid())
+        // Since only one GEC class is able to be in use it will have a lot of clutter that won't always be needed.
+        // Because of this, we should rely on SerializeBits() optimizations to only replicate what we need.
+        // For example, BulletTotalTravelDistanceBeforeHit is very specific to bullet tracing. When a GE doesn't use this, its value will be 0.f.
+        // If it is 0.f, we know it isn't needed and doesn't need to replicate so its (1 << 0) spot in RepBits won't be added and hence it won't be serialized into/outof the Archive.
+
+        if (HitInfo.HitActor.IsValid())
         {
             RepBits |= 1 << 0;
         }
-        if (EffectCauser.IsValid())
+        if (BulletTracePoints.Num() > 0)
         {
             RepBits |= 1 << 1;
         }
-        if (AbilityCDO.IsValid())
-        {
-            RepBits |= 1 << 2;
-        }
-        if (bReplicateSourceObject && SourceObject.IsValid())
-        {
-            RepBits |= 1 << 3;
-        }
-        if (Actors.Num() > 0)
-        {
-            RepBits |= 1 << 4;
-        }
-        if (HitResult.IsValid())
-        {
-            RepBits |= 1 << 5;
-        }
-        if (bHasWorldOrigin)
-        {
-            RepBits |= 1 << 6;
-        }
-
-        if (CartridgeID > 0)
-        {
-            RepBits |= 1 << 7;
-        }
-        if (bulletTotalTravelDistanceBeforeHit)
-        {
-            RepBits |= 1 << 8;
-        }
     }
 
-
-    Ar.SerializeBits(&RepBits, 9);
+    // Pack/unpack our RepBits into/outof the Archive
+    Ar.SerializeBits(&RepBits, 2);
 
 
     if (RepBits & (1 << 0))
     {
-        Ar << Instigator;
+        bool bOutSuccessLocal = true;
+        HitInfo.NetSerialize(Ar, Map, bOutSuccessLocal);
+        bOutSuccess &= bOutSuccessLocal;
     }
     if (RepBits & (1 << 1))
     {
-        Ar << EffectCauser;
-    }
-    if (RepBits & (1 << 2))
-    {
-        Ar << AbilityCDO;
-    }
-    if (RepBits & (1 << 3))
-    {
-        Ar << SourceObject;
-    }
-    if (RepBits & (1 << 4))
-    {
-        SafeNetSerializeTArray_Default<31>(Ar, Actors);
-    }
-    if (RepBits & (1 << 5))
-    {
-        if (Ar.IsLoading())
-        {
-            if (!HitResult.IsValid())
-            {
-                HitResult = MakeShared<FHitResult>();
-            }
-        }
-        HitResult->NetSerialize(Ar, Map, bOutSuccess);
-    }
-    if (RepBits & (1 << 6))
-    {
-        Ar << WorldOrigin;
-        bHasWorldOrigin = true;
-    }
-    else
-    {
-        bHasWorldOrigin = false;
-    }
-
-    if (RepBits & (1 << 7))
-    {
-        Ar << CartridgeID;
-    }
-
-    if (RepBits & (1 << 8))
-    {
-        Ar << bulletTotalTravelDistanceBeforeHit;
+        bool bOutSuccessLocal = true;
+        bOutSuccessLocal = SafeNetSerializeTArray_WithNetSerialize<31>(Ar, BulletTracePoints, Map);
+        bOutSuccess &= bOutSuccessLocal;
     }
 
 
 
-    if (Ar.IsLoading())
-    {
-        AddInstigator(Instigator.Get(), EffectCauser.Get()); // Just to initialize InstigatorAbilitySystemComponent
-    }
+
 
 
     bOutSuccess = true;

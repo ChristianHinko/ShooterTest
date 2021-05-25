@@ -4,10 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSGameplayEffectTypes.h"
+#include "AbilitySystem\GATD_BulletTraceTargetHit.h"
 
 #include "GEC_Shooter.generated.h"
-
-
 
 /**
  * 
@@ -18,18 +17,23 @@ struct SONICSHOOTER_API FGEC_Shooter : public FSSGameplayEffectContext
     GENERATED_BODY()
 
 public:
-    float GetBulletTotalTravelDistanceBeforeHit() const { return bulletTotalTravelDistanceBeforeHit; }
-    float GetCartridgeID() const { return CartridgeID; }
+    FActorHitInfo GetHitInfo() const { return HitInfo; }
+    TArray<FVector_NetQuantize> GetBulletTracePoints() const { return BulletTracePoints; }
+    int32 GetNumRicochetsBeforeHit() const
+    {
+        // This adds up all of the ricochet points (if any) disregarding the start and end location
+        return (BulletTracePoints.Num() - 2);
+    }
 
-    void SetBulletTotalTravelDistanceBeforeHit(float bInBulletTotalTravelDistanceBeforeHit) { bulletTotalTravelDistanceBeforeHit = bInBulletTotalTravelDistanceBeforeHit; }
-    void SetCartridgeID(int32 InID) { CartridgeID = InID; }
+    void SetHitInfo(const FActorHitInfo& inHitInfo) { HitInfo = inHitInfo; }
+    void SetBulletTracePoints(const TArray<FVector_NetQuantize>& InBulletTracePoints) { BulletTracePoints = InBulletTracePoints; }
 
 protected:
     UPROPERTY()
-        float bulletTotalTravelDistanceBeforeHit;
+        FActorHitInfo HitInfo;
 
     UPROPERTY()
-        int32 CartridgeID;
+        TArray<FVector_NetQuantize> BulletTracePoints;
 
 public:
     /** Returns the actual struct used for serialization, subclasses must override this! */

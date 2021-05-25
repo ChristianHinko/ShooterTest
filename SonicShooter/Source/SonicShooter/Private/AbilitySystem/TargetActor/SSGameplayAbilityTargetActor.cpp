@@ -90,7 +90,18 @@ void ASSGameplayAbilityTargetActor::FilterHitResults(TArray<FHitResult>& OutHitR
 }
 bool ASSGameplayAbilityTargetActor::FilterHitResult(TArray<FHitResult>& OutHitResults, const int32 indexToTryFilter, const FGATDF_MultiFilterHandle FilterHandle, const bool inAllowMultipleHitsPerActor) const
 {
-	const FHitResult HitToTryFilter = OutHitResults[indexToTryFilter];
+	if (HitResultFailsFilter(OutHitResults, indexToTryFilter, FilterHandle, inAllowMultipleHitsPerActor))
+	{
+		OutHitResults.RemoveAt(indexToTryFilter);
+		return true;
+	}
+
+	// This index was not filtered
+	return false;
+}
+bool ASSGameplayAbilityTargetActor::HitResultFailsFilter(const TArray<FHitResult>& InHitResults, const int32 indexToTryFilter, const FGATDF_MultiFilterHandle FilterHandle, const bool inAllowMultipleHitsPerActor) const
+{
+	const FHitResult& HitToTryFilter = InHitResults[indexToTryFilter];
 
 
 	if (FilterHandle.MultiFilter.IsValid()) // if valid filter
@@ -98,7 +109,6 @@ bool ASSGameplayAbilityTargetActor::FilterHitResult(TArray<FHitResult>& OutHitRe
 		const bool bPassesFilter = FilterHandle.FilterPassesForActor(HitToTryFilter.Actor);
 		if (!bPassesFilter)
 		{
-			OutHitResults.RemoveAt(indexToTryFilter);
 			return true;
 		}
 	}
@@ -112,14 +122,12 @@ bool ASSGameplayAbilityTargetActor::FilterHitResult(TArray<FHitResult>& OutHitRe
 		// Check if any Hit Results before this hit contains a Hit Result with this Actor already
 		for (int32 i = 0; i < indexToTryFilter; ++i)
 		{
-			FHitResult Hit = OutHitResults[i];
+			const FHitResult& Hit = InHitResults[i];
 
 			if (HitToTryFilter.Actor == Hit.Actor) // if we already hit this actor
 			{
 				if (AreHitsFromSameTrace(HitToTryFilter, Hit)) // only remove if they were in the same trace (if they were from separate traces, they aren't considered a duplicate hit)
 				{
-					OutHitResults.RemoveAt(indexToTryFilter);
-					--i;
 					return true;
 					break;
 				}

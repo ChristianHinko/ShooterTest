@@ -26,13 +26,11 @@ TArray<FActiveGameplayEffectHandle> FGATD_BulletTraceTargetHit::ApplyGameplayEff
 		return AppliedHandles;
 	}
 
-	TArray<TWeakObjectPtr<AActor> > Actors = GetActors();
+	AppliedHandles.Reserve(ActorHitInfos.Num());	// Modified: We will use our ActorHitInfos to loop through, since that is the actual array, instead of just using GetActors
 
-	AppliedHandles.Reserve(Actors.Num());
-
-	for (TWeakObjectPtr<AActor>& TargetActor : Actors)
+	for (int32 i = 0; i < ActorHitInfos.Num(); i++)
 	{
-		UAbilitySystemComponent* TargetComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor.Get());
+		UAbilitySystemComponent* TargetComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(ActorHitInfos[i].HitActor.Get());
 
 		if (TargetComponent)
 		{
@@ -41,7 +39,7 @@ TArray<FActiveGameplayEffectHandle> FGATD_BulletTraceTargetHit::ApplyGameplayEff
 			FGameplayEffectContextHandle EffectContext = SpecToApply.GetContext().Duplicate();
 			SpecToApply.SetContext(EffectContext);
 
-			AddTargetDataToContext(EffectContext, false);
+			AddTargetDataToContext(EffectContext, false, i);
 
 
 			AppliedHandles.Add(EffectContext.GetInstigatorAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(SpecToApply, TargetComponent, PredictionKey));
@@ -53,9 +51,14 @@ TArray<FActiveGameplayEffectHandle> FGATD_BulletTraceTargetHit::ApplyGameplayEff
 
 void FGATD_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray) const
 {
+	UE_LOG(LogGameplayAbilityTargetData, Warning, TEXT("%s() This should not be called for this specific GATD. Use our custom overload instead (passes in index)"), *FString(__FUNCTION__));
+}
+
+void FGATD_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray, int32 hitInfosIndex) const
+{
 	if (FGEC_Shooter* SSContext = static_cast<FGEC_Shooter*>(Context.Get()))
 	{
-		//SSContext->SetBulletTotalTravelDistanceBeforeHit(BulletTotalTravelDistanceBeforeHit);	// COME BACK TO THIS AND HAVE NEW SOLUTION!!!!!!!!!!!!!!!!!!!!!!!!
+		SSContext->SetHitInfo(ActorHitInfos[hitInfosIndex]);
 		SSContext->SetBulletTracePoints(BulletTracePoints);
 	}
 	else

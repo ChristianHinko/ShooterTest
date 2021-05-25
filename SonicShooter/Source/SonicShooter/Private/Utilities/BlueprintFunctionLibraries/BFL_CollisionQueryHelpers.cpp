@@ -84,7 +84,7 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 						FallbackQueryParams.AddIgnoredComponent(BkwdHitResult.GetComponent());	// ignore our last trace's blocking hit
 						if (!World->LineTraceSingleByChannel(BkwdHitResult, BkwdStart, BkwdEnd, TraceChannel, FallbackQueryParams))
 						{
-							//	We want to stop doing fallback traces since we are at the end of our bkwd trace now
+							//	We want to stop doing fallback traces since we are at the end of our bkwd trace now (the beginning of our fwd traces)
 							//	We will also tell the outer loop to break as well by setting this bool
 							bFallbackMethodReachedBkwdEnd = true;
 							break;

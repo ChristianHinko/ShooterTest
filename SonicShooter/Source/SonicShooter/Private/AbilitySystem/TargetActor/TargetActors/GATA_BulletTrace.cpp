@@ -69,8 +69,6 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 		for (TArray<FHitResult>& ThisBulletHitResults : TraceResults)
 		{
-			// Construct target datas (and filter hit results)
-
 			/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
 			FGATD_BulletTraceTargetHit* ThisBulletTargetData = new FGATD_BulletTraceTargetHit();
 
@@ -86,7 +84,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 			FHitResult PreviousHit;
 			for (int32 index = 0, iteration = 0; index < ThisBulletHitResults.Num(); ++index, ++iteration)
 			{
-				const FHitResult Hit = ThisBulletHitResults[index];
+				const FHitResult& Hit = ThisBulletHitResults[index];
 
 				if (iteration != 0)
 				{
@@ -99,11 +97,10 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 				}
 
 
-				if (FilterHitResult(ThisBulletHitResults, index, MultiFilterHandle, bAllowMultipleHitsPerActor))
+				if (HitResultFailsFilter(ThisBulletHitResults, index, MultiFilterHandle, bAllowMultipleHitsPerActor)) // don't actually filter it, just check if it passes the filter
 				{
 					// This index did not pass the filter, stop here so that we don't add target data for it
 					PreviousHit = Hit;
-					--index;
 					continue;
 				}
 
@@ -125,6 +122,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 				BulletTracePoints.Emplace(ThisBulletHitResults.Last().TraceEnd);
 			}
 			ThisBulletTargetData->BulletTracePoints = BulletTracePoints;
+
 
 			TargetDataHandle.Add(ThisBulletTargetData);
 		}

@@ -49,6 +49,11 @@ public:
 	 * Returns true if hit was filtered.
 	 */
 	bool FilterHitResult(TArray<FHitResult>& OutHitResults, const int32 indexToTryFilter, const FGATDF_MultiFilterHandle FilterHandle, const bool inAllowMultipleHitsPerActor) const;
+	/**
+	 * Returns true if hit does not pass the filter.
+	 * Does NOT remove the hit from the given HitResults.
+	 */	
+	bool HitResultFailsFilter(const TArray<FHitResult>& InHitResults, const int32 indexToTryFilter, const FGATDF_MultiFilterHandle FilterHandle, const bool inAllowMultipleHitsPerActor) const;
 
 
 	/**

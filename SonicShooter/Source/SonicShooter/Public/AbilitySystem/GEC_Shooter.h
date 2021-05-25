@@ -21,8 +21,8 @@ public:
     TArray<FVector_NetQuantize> GetBulletTracePoints() const { return BulletTracePoints; }
     int32 GetNumRicochetsBeforeHit() const
     {
-        // This adds up all of the ricochet points (if any) disregarding the last hit location
-        return (BulletTracePoints.Num() - 1);
+        // This adds up all of the ricochet points (if any) disregarding the start and end location
+        return (BulletTracePoints.Num() - 2);
     }
 
     void SetHitInfo(const FActorHitInfo& inHitInfo) { HitInfo = inHitInfo; }

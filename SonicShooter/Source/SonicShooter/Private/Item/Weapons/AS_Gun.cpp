@@ -51,7 +51,7 @@ UAS_Gun::UAS_Gun()
 	BulletSpreadDecSpeed(15.f),
 
 	NumberOfBulletsPerFire(1.f),
-	MaxRange(20000.f),
+	MaxRange(100000.f),
 	Ricochets(1),
 	DamageFalloff(.5f),
 

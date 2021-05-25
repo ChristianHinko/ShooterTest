@@ -8,6 +8,55 @@
 
 
 
+void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const UWorld* World, const FCollisionQueryParams& TraceParams, const TEnumAsByte<ECollisionChannel> TraceChannel)
+{
+	OutPenetrationInfos.Empty();
+
+	if (FwdBlockingHits.Num() <= 0)
+	{
+		UE_LOG(LogBlueprintFunctionLibrary, Warning, TEXT("%s(): Wasn't given any FwdBlockingHits to build any penetration info of. Returned and did nothing"), *FString(__FUNCTION__));
+		return;
+	}
+
+
+
+	// This is the furthest possible FwdEndLocation for the given FwdBlockingHits
+	FVector FurthestPossibleEnd;
+
+	// Calculate the FurthestPossibleEnd point out of these FwdBlockingHits
+	{
+		const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(FwdBlockingHits[0].TraceStart, FwdBlockingHits[0].TraceEnd);
+		
+		float currentFurthestPossibleSize = 0.f;
+		for (const FHitResult& Hit : FwdBlockingHits)
+		{
+			if (Hit.Component.IsValid() == false)
+			{
+				continue;
+			}
+
+			// The Impact Point plus the bounding diameter
+			const FVector ThisHitFurthestPossibleEnd = Hit.ImpactPoint + (TracedDir * (Hit.Component.Get()->Bounds.SphereRadius * 2));
+
+			// If this ThisHitFurthestPossibleEnd is further than our current FurthestPossibleEnd then update FurthestPossibleEnd
+			const float thisHitFurthestPossibleSize = (ThisHitFurthestPossibleEnd - FwdBlockingHits[0].TraceStart).SizeSquared();
+			if (thisHitFurthestPossibleSize > currentFurthestPossibleSize)
+			{
+				FurthestPossibleEnd = ThisHitFurthestPossibleEnd;
+				currentFurthestPossibleSize = thisHitFurthestPossibleSize;
+			}
+
+		}
+
+		// Bump out a little because the BuildPenetrationInfos() will bump us in a little
+		FurthestPossibleEnd += (TracedDir * ((KINDA_SMALL_NUMBER * 100) * 2));
+	}
+
+
+	// Use this FurthestPossibleEnd as a Bkwd trace start location
+	BuildPenetrationInfos(OutPenetrationInfos, FwdBlockingHits, FurthestPossibleEnd, World, TraceParams, TraceChannel);
+}
+
 void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const FVector& FwdEndLocation, const UWorld* World, const FCollisionQueryParams& TraceParams, const TEnumAsByte<ECollisionChannel> TraceChannel)
 {
 	OutPenetrationInfos.Empty();

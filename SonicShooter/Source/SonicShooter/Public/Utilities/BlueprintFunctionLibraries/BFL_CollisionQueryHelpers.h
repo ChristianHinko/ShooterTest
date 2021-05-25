@@ -87,12 +87,13 @@ class SONICSHOOTER_API UBFL_CollisionQueryHelpers : public UBlueprintFunctionLib
 	
 public:
 	/**
-	 * Important note: If any hit results that are passed in is a Hit Result from a component's collider that uses CTF_UseSimpleAsComplex, things can get inacurrate,
-	 * but only if that collider's mesh has multible material slots. This is because once we hit any simple collider,we ignore the rest of it so we don't get stuck inside it (distance being 0 every time).
-	 * Another note is that skeletal mesh bones are all a part of 1 component (skeletal mesh component), and each of the bones use simple collision. This means that if you hit a skeletal mesh bone,
-	 * it won't just only ignore that specific bone. It will ignore all of the bones in that skeletal mesh component (since it just ignores the skeletal mesh component). So when using this, only one bone
-	 * will be hit.
+	 * BuildPenetrationInfos Important note: This is mainly a system for used for when we are using complex collision. If any hit results that are passed in is a Hit Result from a component's collider that uses
+	 * CTF_UseSimpleAsComplex, things can get inacurrate,	 * but only if that collider's mesh has multible material slots. This is because once we hit any simple collider,we ignore the rest of it so we don't get stuck
+	 * inside it (distance being 0 every time).	 * Another note is that skeletal mesh bones are all a part of 1 component (skeletal mesh component), and each of the bones use simple collision.
+	 * This means that if you hit a skeletal mesh bone, it won't just only ignore that specific bone. It will ignore all of the bones in that skeletal mesh component (since it just ignores the skeletal mesh component).
+	 * So when using this against skeletal meshes, only one bone will be hit.
 	*/
+	static void BuildPenetrationInfos(TArray<FPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const UWorld* World, const FCollisionQueryParams& TraceParams, const TEnumAsByte<ECollisionChannel> TraceChannel);
 	static void BuildPenetrationInfos(TArray<FPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const FVector& FwdEndLocation, const UWorld* World, const FCollisionQueryParams& TraceParams, const TEnumAsByte<ECollisionChannel> TraceChannel);
 
 };

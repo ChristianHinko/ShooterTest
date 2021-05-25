@@ -56,7 +56,7 @@ struct TStructOpsTypeTraits<FActorHitInfo> : public TStructOpsTypeTraitsBase2<FA
 };
 
 /**
- * 
+ *	This is the target data struct that represents the targets that were hit by a certain bullet. This is a pretty good GATD code wise :O
  */
 USTRUCT(BlueprintType)
 struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTargetData

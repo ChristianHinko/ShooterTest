@@ -39,7 +39,7 @@ struct FPenetrationInfo
 		FString PenetratedPhysMats;
 		for (UPhysicalMaterial* physMat : PenetratedPhysMaterials)
 		{
-			PenetratedPhysMats += physMat->GetName() + ", ";
+			PenetratedPhysMats += (IsValid(physMat) ? physMat->GetName() : "NULL") + ", ";
 		}
 		return "PenetratedActor = " + PenetratedActorName + "    PenetratedComponent = " + PenetratedComponentName + "    PenetratedBone = " + PenetratedBoneName + "    PenetratedPhysMaterials = " + PenetratedPhysMats + "    penetration distance: " + FString::SanitizeFloat(PenetrationDistance);
 	}

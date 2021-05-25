@@ -4,10 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSGameplayEffectTypes.h"
+#include "AbilitySystem\GATD_BulletTraceTargetHit.h"
 
 #include "GEC_Shooter.generated.h"
-
-
 
 /**
  * 
@@ -18,7 +17,7 @@ struct SONICSHOOTER_API FGEC_Shooter : public FSSGameplayEffectContext
     GENERATED_BODY()
 
 public:
-    float GetBulletTotalTravelDistanceBeforeHit() const { return BulletTotalTravelDistanceBeforeHit; }
+    FActorHitInfo GetHitInfo() const { return HitInfo; }
     TArray<FVector_NetQuantize> GetBulletTracePoints() const { return BulletTracePoints; }
     int32 GetNumRicochetsBeforeHit() const
     {
@@ -26,12 +25,12 @@ public:
         return (BulletTracePoints.Num() - 1);
     }
 
-    void SetBulletTotalTravelDistanceBeforeHit(float inBulletTotalTravelDistanceBeforeHit) { BulletTotalTravelDistanceBeforeHit = inBulletTotalTravelDistanceBeforeHit; }
+    void SetHitInfo(FActorHitInfo inHitInfo) { HitInfo = inHitInfo; }
     void SetBulletTracePoints(const TArray<FVector_NetQuantize>& InBulletTracePoints) { BulletTracePoints = InBulletTracePoints; }
 
 protected:
     UPROPERTY()
-        float BulletTotalTravelDistanceBeforeHit;
+        FActorHitInfo HitInfo;
 
     UPROPERTY()
         TArray<FVector_NetQuantize> BulletTracePoints;

@@ -100,7 +100,7 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 	//const float totalDistanceBulletTraveled = Spec.GetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("SetByCaller.RicochetsBeforeHit"), true, 0);		// This is not an actual SetByCaller, just an example
 
 	// Lets get our effect context's data
-	const float totalDistanceBulletTraveled = Context->GetBulletTotalTravelDistanceBeforeHit();
+	const float totalDistanceBulletTraveled = Context->GetHitInfo().totalTraveledDistanceBeforeHit;
 	const uint8 ricochetsBeforeHit = Context->GetNumRicochetsBeforeHit();
 
 	// Lets start calculating

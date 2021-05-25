@@ -18,7 +18,7 @@ bool FGEC_Shooter::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSucces
         // For example, BulletTotalTravelDistanceBeforeHit is very specific to bullet tracing. When a GE doesn't use this, its value will be 0.f.
         // If it is 0.f, we know it isn't needed and doesn't need to replicate so its (1 << 0) spot in RepBits won't be added and hence it won't be serialized into/outof the Archive.
 
-        if (BulletTotalTravelDistanceBeforeHit)
+        if (HitInfo.HitActor.IsValid())
         {
             RepBits |= 1 << 0;
         }
@@ -34,7 +34,9 @@ bool FGEC_Shooter::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSucces
 
     if (RepBits & (1 << 0))
     {
-        Ar << BulletTotalTravelDistanceBeforeHit;
+        bool bOutSuccessLocal = true;
+        HitInfo.NetSerialize(Ar, Map, bOutSuccessLocal);
+        bOutSuccess &= bOutSuccessLocal;
     }
     if (RepBits & (1 << 1))
     {

@@ -26,6 +26,11 @@ struct FActorHitInfo
 		HitActor = inHitActor;
 		totalTraveledDistanceBeforeHit = inTotalTraveledDistanceBeforeHit;
 	}
+	void operator = (const FActorHitInfo& Other)
+	{
+		HitActor = Other.HitActor;
+		totalTraveledDistanceBeforeHit = Other.totalTraveledDistanceBeforeHit;
+	}
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
 	{
 		Ar << HitActor;

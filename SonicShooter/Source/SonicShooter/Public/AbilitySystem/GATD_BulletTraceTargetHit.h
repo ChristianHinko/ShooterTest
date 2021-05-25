@@ -10,7 +10,7 @@
 
 
 /**
- *
+ * 
  */
 USTRUCT()
 struct FActorHitInfo
@@ -71,6 +71,7 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 	virtual void AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray) const override;
 	virtual void AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray, int32 hitInfosIndex) const;		// Custom overload that asks for the hit target actor (by passing in the ActorHitInfos index)
 
+
 	virtual TArray<TWeakObjectPtr<AActor>> GetActors() const override
 	{
 		TArray<TWeakObjectPtr<AActor>> RetVal;
@@ -79,12 +80,6 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 			RetVal.Emplace(ActorHitInfo.HitActor);
 		}
 		return RetVal;
-	}
-
-	/** Return true in subclasses if GetHitResult will work */
-	virtual bool HasHitResult() const override
-	{
-		return false;
 	}
 
 	virtual bool HasOrigin() const override

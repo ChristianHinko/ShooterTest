@@ -26,6 +26,11 @@ struct FActorHitInfo
 		HitActor = inHitActor;
 		totalTraveledDistanceBeforeHit = inTotalTraveledDistanceBeforeHit;
 	}
+	void operator = (const FActorHitInfo& Other)
+	{
+		HitActor = Other.HitActor;
+		totalTraveledDistanceBeforeHit = Other.totalTraveledDistanceBeforeHit;
+	}
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
 	{
 		Ar << HitActor;
@@ -60,6 +65,8 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 
 	FGATD_BulletTraceTargetHit();
 
+	/** Applies a previously created gameplay effect spec to each target represented */
+	virtual TArray<FActiveGameplayEffectHandle> ApplyGameplayEffectSpec(FGameplayEffectSpec& Spec, FPredictionKey PredictionKey = FPredictionKey());
 
 	virtual void AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray) const override;
 

@@ -5,6 +5,9 @@
 
 #include "AbilitySystem\GEC_Shooter.h"
 #include "Utilities/LogCategories.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "GameplayEffect.h"
+#include "AbilitySystemComponent.h"
 
 
 
@@ -13,6 +16,40 @@ FGATD_BulletTraceTargetHit::FGATD_BulletTraceTargetHit()
 
 }
 
+
+TArray<FActiveGameplayEffectHandle> FGATD_BulletTraceTargetHit::ApplyGameplayEffectSpec(FGameplayEffectSpec& Spec, FPredictionKey PredictionKey)
+{
+	TArray<FActiveGameplayEffectHandle>	AppliedHandles;
+
+	if (!ensure(Spec.GetContext().IsValid() && Spec.GetContext().GetInstigatorAbilitySystemComponent()))
+	{
+		return AppliedHandles;
+	}
+
+	TArray<TWeakObjectPtr<AActor> > Actors = GetActors();
+
+	AppliedHandles.Reserve(Actors.Num());
+
+	for (TWeakObjectPtr<AActor>& TargetActor : Actors)
+	{
+		UAbilitySystemComponent* TargetComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor.Get());
+
+		if (TargetComponent)
+		{
+			// We have to make a new effect spec and context here, because otherwise the targeting info gets accumulated and things take damage multiple times
+			FGameplayEffectSpec	SpecToApply(Spec);
+			FGameplayEffectContextHandle EffectContext = SpecToApply.GetContext().Duplicate();
+			SpecToApply.SetContext(EffectContext);
+
+			AddTargetDataToContext(EffectContext, false);
+
+
+			AppliedHandles.Add(EffectContext.GetInstigatorAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(SpecToApply, TargetComponent, PredictionKey));
+		}
+	}
+
+	return AppliedHandles;
+}
 
 void FGATD_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray) const
 {

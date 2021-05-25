@@ -25,7 +25,7 @@ public:
         return (BulletTracePoints.Num() - 2);
     }
 
-    void SetHitInfo(FActorHitInfo inHitInfo) { HitInfo = inHitInfo; }
+    void SetHitInfo(const FActorHitInfo& inHitInfo) { HitInfo = inHitInfo; }
     void SetBulletTracePoints(const TArray<FVector_NetQuantize>& InBulletTracePoints) { BulletTracePoints = InBulletTracePoints; }
 
 protected:

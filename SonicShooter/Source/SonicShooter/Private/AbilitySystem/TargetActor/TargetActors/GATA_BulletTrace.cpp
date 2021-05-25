@@ -71,11 +71,19 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 		{
 			// Construct target datas (and filter hit results)
 
+			/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
+			FGATD_BulletTraceTargetHit* ThisBulletTargetData = new FGATD_BulletTraceTargetHit();
+
 
 			float totalDistanceUpUntilThisTrace = 0.f; // accumulated distance of the previous traces
-			FHitResult PreviousHit;
 
-			TArray<FVector_NetQuantize> BulletTracePoints; // used to tell target data where this bullet went and can but used to see how many times bullet ricocheted before hitting the target
+			TArray<FVector_NetQuantize> BulletTracePoints; // used to tell target data where this bullet went
+			if (ThisBulletHitResults.Num() > 0)
+			{
+				BulletTracePoints.Emplace(ThisBulletHitResults[0].TraceStart);
+			}
+
+			FHitResult PreviousHit;
 			for (int32 index = 0, iteration = 0; index < ThisBulletHitResults.Num(); ++index, ++iteration)
 			{
 				const FHitResult Hit = ThisBulletHitResults[index];
@@ -85,7 +93,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 					const bool bIsNewTrace = !AreHitsFromSameTrace(Hit, PreviousHit);
 					if (bIsNewTrace)	// A ricochet happened since we are a new trace
 					{
-						BulletTracePoints.Add(Hit.TraceStart);
+						BulletTracePoints.Emplace(Hit.TraceStart);
 						totalDistanceUpUntilThisTrace += PreviousHit.Distance;
 					}
 				}
@@ -99,27 +107,26 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 					continue;
 				}
 
-				TArray<FVector_NetQuantize> ThisReturnDataBulletTracePoints = BulletTracePoints;
-				ThisReturnDataBulletTracePoints.Add(Hit.Location);
 
-				// If we got here, we are an unfiltered hit (ie. we hit a player), make target data for us:
-				{
-					/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
-					FGATD_BulletTraceTargetHit* ReturnData = new FGATD_BulletTraceTargetHit();
+				// If we got here, we are an unfiltered hit (ie. we hit a character), add info to our target data:
+
+				// This Hit Result's distance plus the previous ricochet(s)'s traveled distance
+				const float ricochetAwareDistance = totalDistanceUpUntilThisTrace + Hit.Distance;
+
+				ThisBulletTargetData->ActorHitInfos.Emplace(Hit.Actor, ricochetAwareDistance);
 
 
-					// This Hit Result's distance plus the previous ricochet(s)'s traveled distance
-					const float ricochetAwareDistance = totalDistanceUpUntilThisTrace + Hit.Distance;
-
-					ReturnData->BulletTracePoints = ThisReturnDataBulletTracePoints;
-					ReturnData->ActorHitInfos.Emplace(Hit.Actor, ricochetAwareDistance);
-
-					TargetDataHandle.Add(ReturnData);
-				}
 
 
 				PreviousHit = Hit;
 			}
+			if (ThisBulletHitResults.Num() > 0)
+			{
+				BulletTracePoints.Emplace(ThisBulletHitResults.Last().TraceEnd);
+			}
+			ThisBulletTargetData->BulletTracePoints = BulletTracePoints;
+
+			TargetDataHandle.Add(ThisBulletTargetData);
 		}
 		
 

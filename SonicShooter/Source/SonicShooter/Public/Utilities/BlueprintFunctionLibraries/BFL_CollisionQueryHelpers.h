@@ -88,7 +88,11 @@ class SONICSHOOTER_API UBFL_CollisionQueryHelpers : public UBlueprintFunctionLib
 public:
 	/**
 	 * Important note: When passing in any hit results that hit a CTF_UseSimpleAsComplex collider (ie. a bone), things can get inacurrate, but only if that collider's mesh has multible material slots. This is because once we hit any simple collider, we ignore the rest of it so backwards tracing doesn't get stuck inside it.
-	*/
+	 */
+	static void BuildPenetrationInfos(TArray<FPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const UWorld* World, const FCollisionQueryParams& TraceParams, const TEnumAsByte<ECollisionChannel> TraceChannel);
+	/**
+	 * Allows to pass in a location to begin Bkwd traces at (FwdEndLocation). We used this for ricochets because you don't want the FwdBlockingHits before the ricochet to start all the way at TraceEnd, you want them to start at the ricochet location
+	 */
 	static void BuildPenetrationInfos(TArray<FPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const FVector& FwdEndLocation, const UWorld* World, const FCollisionQueryParams& TraceParams, const TEnumAsByte<ECollisionChannel> TraceChannel);
 
 };

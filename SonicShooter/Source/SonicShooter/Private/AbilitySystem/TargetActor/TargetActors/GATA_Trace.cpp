@@ -342,7 +342,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	if (ThisRicochetBlockingHits.Num() > 0)
 	{
 		TArray<FPenetrationInfo> ThisRicochetPenetrations;
-		UBFL_CollisionQueryHelpers::BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, ThisRicochetBlockingHits.Last().TraceEnd, World, TraceParams, TraceChannel);
+		UBFL_CollisionQueryHelpers::BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, World, TraceParams, TraceChannel);
 		Penetrations.Append(ThisRicochetPenetrations);
 		ThisRicochetBlockingHits.Empty();
 	}

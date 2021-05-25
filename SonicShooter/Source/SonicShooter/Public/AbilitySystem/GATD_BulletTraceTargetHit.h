@@ -101,11 +101,15 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 
 	virtual bool HasEndPoint() const override
 	{
-		return true;
+		if (BulletTracePoints.Num() > 0)
+		{
+			return true;
+		}
+		return false;
 	}
 	virtual FVector GetEndPoint() const override
 	{
-		if (BulletTracePoints.Num() > 0)
+		if (HasEndPoint())
 		{
 			return BulletTracePoints.Last();
 		}

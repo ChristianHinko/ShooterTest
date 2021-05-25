@@ -63,9 +63,9 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 
 	virtual void AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray) const override;
 
-	virtual TArray<TWeakObjectPtr<AActor> >	GetActors() const override
+	virtual TArray<TWeakObjectPtr<AActor>> GetActors() const override
 	{
-		TArray<TWeakObjectPtr<AActor> > RetVal;
+		TArray<TWeakObjectPtr<AActor>> RetVal;
 		for (const FActorHitInfo& ActorHitInfo : ActorHitInfos)
 		{
 			RetVal.Emplace(ActorHitInfo.HitActor);
@@ -79,14 +79,25 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 		return false;
 	}
 
-	//virtual bool HasOrigin() const override
-	//{
-	//	return true;
-	//}
-	//virtual FTransform GetOrigin() const override
-	//{
-	//	return FTransform((HitResult.TraceEnd - HitResult.TraceStart).Rotation(), HitResult.TraceStart);
-	//}
+	virtual bool HasOrigin() const override
+	{
+		return true;
+	}
+	virtual FTransform GetOrigin() const override
+	{
+		if (BulletTracePoints.Num() > 0)
+		{
+			FRotator Rotation;
+			if (BulletTracePoints.Num() >= 2)
+			{
+				Rotation = (BulletTracePoints[1] - BulletTracePoints[0]).Rotation();
+			}
+
+			return FTransform(Rotation, BulletTracePoints[0]);
+		}
+
+		return FTransform();
+	}
 
 	virtual bool HasEndPoint() const override
 	{
@@ -105,8 +116,8 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 
 	// -------------------------------------
 	/**
-	 * The points which describe this bullet's path. If you "connect the dots" you will get the bullet's path. The last point is the hit location.
-	 * To get the number of times ricocheted, do (BulletTracePoints.Num() - 1). This adds up all of the ricochet points (if any) disregarding the last hit location.
+	 * The points which describe this bullet's path. If you "connect the dots" you will get the bullet's path. The first point is the start point and the last point is the end point.
+	 * To get the number of times ricocheted, do (BulletTracePoints.Num() - 2). This adds up all of the ricochet points (if any) disregarding the start and end location.
 	 */
 	UPROPERTY()
 		TArray<FVector_NetQuantize> BulletTracePoints;
@@ -115,8 +126,8 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 
 	int32 GetNumRicochetsBeforeHit() const
 	{
-		// This adds up all of the ricochet points (if any) disregarding the last hit location
-		return (BulletTracePoints.Num() - 1);
+		// This adds up all of the ricochet points (if any) disregarding the start and end location
+		return (BulletTracePoints.Num() - 2);
 	}
 
 

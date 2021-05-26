@@ -186,14 +186,4 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 	// Perform line trace
 	LineTraceMulti(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, Params, bDebug);
 
-	if (OutHitResults.Num() <= 0)
-	{
-		// Our ConfirmTargetingAndContinue() depends on us returning at least one Hit Result so it can get TraceStart and TraceEnd.
-		// Make an empty Hit Result containing this info (this will just end up getting filtered)
-		FHitResult TraceInfo;
-		TraceInfo.TraceStart = TraceStart;
-		TraceInfo.TraceEnd = TraceEnd;
-
-		OutHitResults.Emplace(TraceInfo);
-	}
 }

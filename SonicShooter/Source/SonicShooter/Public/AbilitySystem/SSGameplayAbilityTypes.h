@@ -27,7 +27,6 @@ USTRUCT()
 struct SONICSHOOTER_API FSSGameplayAbilityActorInfo : public FGameplayAbilityActorInfo
 {
 	GENERATED_BODY()
-    typedef Super FGameplayAbilityActorInfo;
 
 
     FSSGameplayAbilityActorInfo();
@@ -99,7 +98,6 @@ USTRUCT()
 struct SONICSHOOTER_API FGAAI_Shooter : public FSSGameplayAbilityActorInfo
 {
     GENERATED_BODY()
-        typedef Super FSSGameplayAbilityActorInfo;
 
 
     FGAAI_Shooter();

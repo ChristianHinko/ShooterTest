@@ -158,7 +158,7 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 	int32 GetNumRicochetsBeforeHit() const
 	{
 		// This adds up all of the ricochet points (if any) disregarding the start and end location
-		return (BulletTracePoints.Num() - 2);
+		return FMath::Max((BulletTracePoints.Num() - 2), 0);
 	}
 
 

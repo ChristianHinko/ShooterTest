@@ -89,10 +89,16 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 				if (iteration != 0)
 				{
 					const bool bIsNewTrace = !AreHitsFromSameTrace(Hit, PreviousHit);
-					if (bIsNewTrace)	// A ricochet happened since we are a new trace
+					if (bIsNewTrace)
 					{
-						BulletTracePoints.Emplace(Hit.TraceStart);
+						// Accumulate last trace's distance
 						totalDistanceUpUntilThisTrace += PreviousHit.Distance;
+
+						if (ShouldRicochetOffOf(PreviousHit))
+						{
+							// We ricocheted and are changing trace direction so add this point to the BulletTracePoints
+							BulletTracePoints.Emplace(Hit.TraceStart);
+						}
 					}
 				}
 

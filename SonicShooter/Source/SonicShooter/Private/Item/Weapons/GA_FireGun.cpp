@@ -362,6 +362,7 @@ void UGA_FireGun::OnRelease(float TimeHeld)
 
 void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 {
+	GetAbilitySystemComponentFromActorInfo()->AddGameplayCue(FGameplayTag::RequestGameplayTag("GameplayCue.Test"));	// Very temp. This is just to see a gc work
 	if (TSubclassOf<UGameplayEffect> BulletHitEffectTSub = GunToFire->BulletHitEffectTSub)
 	{
 		if (Data.Num() > 0)	// No need to call if we have no targets

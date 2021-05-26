@@ -4,7 +4,7 @@
 #include "Item/Weapons/AS_Gun.h"
 
 #include "Net/UnrealNetwork.h"
-#include "AbilitySystem/GAAI_Shooter.h"
+#include "AbilitySystem/SSGameplayAbilityTypes.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
 #include "Character/SSCharacterMovementComponent.h"
 #include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"

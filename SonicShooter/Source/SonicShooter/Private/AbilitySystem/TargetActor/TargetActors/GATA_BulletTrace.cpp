@@ -6,7 +6,7 @@
 #include "Utilities\LogCategories.h"
 #include "Abilities/GameplayAbility.h"
 #include "Utilities/CollisionChannels.h"
-#include "AbilitySystem/GATD_BulletTraceTargetHit.h"
+#include "AbilitySystem/SSGameplayAbilityTargetTypes.h"
 #include "GameplayAbilities\Public\AbilitySystemComponent.h"
 #include "Item/Weapons/AS_Gun.h"
 

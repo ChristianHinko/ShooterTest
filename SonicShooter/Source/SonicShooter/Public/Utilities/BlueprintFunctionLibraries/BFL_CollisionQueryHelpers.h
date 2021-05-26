@@ -87,9 +87,13 @@ class SONICSHOOTER_API UBFL_CollisionQueryHelpers : public UBlueprintFunctionLib
 	
 public:
 	/**
-	 * BuildPenetrationInfos Important note: This is mainly a system for used for when we are using complex collision. If any hit results that are passed in is a Hit Result from a component's collider that uses
-	 * CTF_UseSimpleAsComplex, things can get inacurrate,	 * but only if that collider's mesh has multible material slots. This is because once we hit any simple collider,we ignore the rest of it so we don't get stuck
-	 * inside it (distance being 0 every time).	 * Another note is that skeletal mesh bones are all a part of 1 component (skeletal mesh component), and each of the bones use simple collision.
+	 * BuildPenetrationInfos Important notes:
+	 * This gathers data on the geometry level. If there are faces with normals pointing at an incomming trace, it will hit. This can get really (pointlessly) expensive if a model has lots of faces not visible and inside the mesh
+	 * since it will penetrate those as well. I think in most cases it's pointless to do penetrations on those inner geometry parts, but we are just doing that for now. We could make an implementation that runs on the section level
+	 * instead of the geometry level (using HitResult.GetComponent()->GetMaterialFromCollisionFaceIndex(HitResult.FaceIndex); ). We were just kinda too lazy to do this. We did this in a pervious commit but changed the system.
+	 * This is mainly a system for used for when we are using complex collision. If any hit results that are passed in is a Hit Result from a component's collider that uses
+	 * CTF_UseSimpleAsComplex, things can get inacurrate, but only if that collider's mesh has multible material slots. This is because once we hit any simple collider,we ignore the rest of it so we don't get stuck
+	 * inside it (distance being 0 every time).	Another note is that skeletal mesh bones are all a part of 1 component (skeletal mesh component), and each of the bones use simple collision.
 	 * This means that if you hit a skeletal mesh bone, it won't just only ignore that specific bone. It will ignore all of the bones in that skeletal mesh component (since it just ignores the skeletal mesh component).
 	 * So when using this against skeletal meshes, only one bone will be hit.
 	*/

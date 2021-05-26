@@ -19,4 +19,6 @@ class SONICSHOOTER_API USSGameplayCueManager : public UGameplayCueManager
 
 
 	virtual bool ShouldAsyncLoadRuntimeObjectLibraries() const override;
+
+	virtual void FlushPendingCues() override;
 };

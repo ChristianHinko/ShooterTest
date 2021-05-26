@@ -12,3 +12,10 @@ bool USSGameplayCueManager::ShouldAsyncLoadRuntimeObjectLibraries() const
 
 	return false;
 }
+
+void USSGameplayCueManager::FlushPendingCues()
+{
+	Super::FlushPendingCues();
+
+
+}

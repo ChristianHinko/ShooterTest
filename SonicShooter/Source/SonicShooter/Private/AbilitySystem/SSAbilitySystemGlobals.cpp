@@ -3,8 +3,8 @@
 
 #include "AbilitySystem/SSAbilitySystemGlobals.h"
 
-#include "AbilitySystem/GAAI_Shooter.h"
-#include "AbilitySystem/GEC_Shooter.h"
+#include "AbilitySystem/SSGameplayAbilityTypes.h"
+#include "AbilitySystem/SSGameplayEffectTypes.h"
 
 
 

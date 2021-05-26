@@ -61,6 +61,7 @@ protected:
 	/**
 	 * Debugs given hit results.
 	 */
+	virtual void DebugHitResults(const TArray<FHitResult>& HitResults, const UWorld* World) const;
 	virtual void DebugTrace(const TArray<FHitResult>& HitResults, const UWorld* World, const FVector& Start, const FVector& End) const;
 	virtual void DebugTrace(const TArray<FHitResult>& HitResults, const UWorld* World, const FVector& Start, const FVector& End, const FVector& ExtraTraceEnd) const;
 //#endif // ENABLE_DRAW_DEBUG

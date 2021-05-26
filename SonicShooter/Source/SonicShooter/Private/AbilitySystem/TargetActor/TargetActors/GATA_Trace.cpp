@@ -175,9 +175,6 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	TArray<FHitResult> ThisRicochetBlockingHits;
 	TArray<FPenetrationInfo> Penetrations;
 
-	// This is only for passing into DebugHitResults()
-	FVector LastTraceEnd = End;
-
 	// Extra traces loop
 	int32 maxRicochets = GetRicochets();
 	int32 timesRicocheted = 0;
@@ -245,16 +242,17 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 					++timesRicocheted;
 					bRicocheted = true;
 				}
+				else // this ricochet didn't hit anything
+				{
+					// Our caller may depend on us returning at least one Hit Result so it can get TraceStart and TraceEnd.
+					// Make an empty Hit Result containing this info (this will just end up getting filtered)
+					FHitResult TraceInfo;
+					TraceInfo.TraceStart = RicoStart;
+					TraceInfo.TraceEnd = RicoEnd;
 
-				// Update LastTraceEnd for bDebug
-				if (timesRicocheted < maxRicochets)
-				{
-					LastTraceEnd = RicoEnd;
+					OutHitResults.Emplace(TraceInfo);
 				}
-				else
-				{
-					LastTraceEnd = OutHitResults.Last().Location;
-				}
+
 			}
 
 
@@ -317,16 +315,17 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 				++timesPenetrated;
 				bPenetrated = true;
 			}
+			else // this penetration didn't hit anything
+			{
+				// Our caller may depend on us returning at least one Hit Result so it can get TraceStart and TraceEnd.
+				// Make an empty Hit Result containing this info (this will just end up getting filtered)
+				FHitResult TraceInfo;
+				TraceInfo.TraceStart = PenetrateStart;
+				TraceInfo.TraceEnd = PenetrateEnd;
 
-			// Update LastTraceEnd for bDebug
-			if (timesPenetrated < maxPenetrations)
-			{
-				LastTraceEnd = PenetrateEnd;
+				OutHitResults.Emplace(TraceInfo);
 			}
-			else
-			{
-				LastTraceEnd = OutHitResults.Last().Location;
-			}
+
 		}
 
 
@@ -348,6 +347,19 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	}
 
 
+	// If we didn't hit anything (ei. we traced into thin air)
+	if (OutHitResults.Num() <= 0)
+	{
+		// Our caller may depend on us returning at least one Hit Result so it can get TraceStart and TraceEnd.
+		// Make an empty Hit Result containing this info (this will just end up getting filtered)
+		FHitResult TraceInfo;
+		TraceInfo.TraceStart = Start;
+		TraceInfo.TraceEnd = End;
+
+		OutHitResults.Emplace(TraceInfo);
+	}
+
+
 
 
 
@@ -356,9 +368,9 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 	{
 		for (const FPenetrationInfo& Penetration : Penetrations)
 		{
-			UKismetSystemLibrary::PrintString(this, Penetration.GetDebugString(), true, false, FLinearColor::Green, 10.f);
+			UKismetSystemLibrary::PrintString(this, Penetration.GetDebugString(), true, false, FLinearColor::Green, 5.f);
 		}
-		DebugTrace(OutHitResults, World, Start, End, LastTraceEnd);
+		DebugHitResults(OutHitResults, World);
 	}
 #endif
 }
@@ -431,15 +443,7 @@ void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, con
 }
 
 //#if ENABLE_DRAW_DEBUG
-void AGATA_Trace::DebugTrace(const TArray<FHitResult>& HitResults, const UWorld* World, const FVector& Start, const FVector& End) const
-{
-	if (HitResults.Num() > 0)
-	{
-		DebugTrace(HitResults, World, Start, End, HitResults.Last().Location);
-	}
-}
-
-void AGATA_Trace::DebugTrace(const TArray<FHitResult>& HitResults, const UWorld* World, const FVector& Start, const FVector& End, const FVector& ExtraTraceEnd) const
+void AGATA_Trace::DebugHitResults(const TArray<FHitResult>& HitResults, const UWorld* World) const
 {
 #if ENABLE_DRAW_DEBUG
 	TArray<FHitResult> DebugHitResults = HitResults;
@@ -454,37 +458,88 @@ void AGATA_Trace::DebugTrace(const TArray<FHitResult>& HitResults, const UWorld*
 	{
 		for (int32 i = 0; i < DebugHitResults.Num(); ++i)
 		{
-			const FHitResult Hit = DebugHitResults[i];
-			const FVector FromLocation = Hit.TraceStart;
-			const FVector ToLocation = Hit.Location;
+			const FHitResult& Hit = DebugHitResults[i];
+
+			FVector FromLocation = Hit.TraceStart;
+			FVector ToLocation = Hit.Location;
+			if (Hit.Location == FVector::ZeroVector) // if invalid Location (this is only to support empty Hit Results that hold TraceStart and TraceEnd locations and this is weird but i don't care about this function enough to fix it)
+			{
+				ToLocation = Hit.TraceEnd; // to get a line that makes sense, just draw to TraceEnd
+			}
 
 			DrawDebugLine(World, FromLocation, ToLocation, TraceColor, false, debugLifeTime);
-
-			const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.Actor);
-			if (bPassesFilter)
+			
+			if (Hit.Location != FVector::ZeroVector) // if Location is valid
 			{
-				DrawDebugPoint(World, Hit.ImpactPoint, 10, PassesFilterColor, false, debugLifeTime);
-			}
-			else
-			{
-				DrawDebugPoint(World, Hit.ImpactPoint, 10, TraceColor, false, debugLifeTime);
+				const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.Actor);
+				if (bPassesFilter)
+				{
+					DrawDebugPoint(World, Hit.ImpactPoint, 10, PassesFilterColor, false, debugLifeTime);
+				}
+				else
+				{
+					DrawDebugPoint(World, Hit.ImpactPoint, 10, TraceColor, false, debugLifeTime);
+				}
 			}
 		}
+	}
+#endif // ENABLE_DRAW_DEBUG
+}
+
+void AGATA_Trace::DebugTrace(const TArray<FHitResult>& HitResults, const UWorld* World, const FVector& Start, const FVector& End) const
+{
+#if ENABLE_DRAW_DEBUG
+	DebugHitResults(HitResults, World);
+
+
+	TArray<FHitResult> DebugHitResults = HitResults;
+	FilterHitResults(DebugHitResults, FGATDF_MultiFilterHandle(), bAllowMultipleHitsPerActor); // removes multiple hits if needed (but doesn't filter actors because we have different colors for whether it filters or not)
+
+
+	const float debugLifeTime = 5.f;
+	const FColor TraceColor = FColor::Blue;
+	const FColor PassesFilterColor = FColor::Red;
+
+	if (DebugHitResults.Num() > 0)
+	{
 		if (DebugHitResults.Last().bBlockingHit == false)
 		{
+			// If our last hit was an overlap, draw out one last Trace End to show that it went through
 			DrawDebugLine(World, DebugHitResults.Last().Location, DebugHitResults.Last().TraceEnd, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
 		}
-		else
+	}
+	else // if we've traced in thin air
+	{
+		// Draw the line that didn't hit anything
+		DrawDebugLine(World, Start, End, TraceColor, false, debugLifeTime);
+	}
+
+#endif // ENABLE_DRAW_DEBUG
+}
+
+void AGATA_Trace::DebugTrace(const TArray<FHitResult>& HitResults, const UWorld* World, const FVector& Start, const FVector& End, const FVector& ExtraTraceEnd) const
+{
+#if ENABLE_DRAW_DEBUG
+	DebugTrace(HitResults, World, Start, End);
+
+
+	TArray<FHitResult> DebugHitResults = HitResults;
+	FilterHitResults(DebugHitResults, FGATDF_MultiFilterHandle(), bAllowMultipleHitsPerActor); // removes multiple hits if needed (but doesn't filter actors because we have different colors for whether it filters or not)
+
+
+	const float debugLifeTime = 5.f;
+	const FColor TraceColor = FColor::Blue;
+	const FColor PassesFilterColor = FColor::Red;
+
+	if (DebugHitResults.Num() > 0)
+	{
+		if (DebugHitResults.Last().bBlockingHit)
 		{
 			if ((ExtraTraceEnd - DebugHitResults.Last().Location).IsNearlyZero() == false) // only draw this extra trace if it is different then the last trace
 			{
 				DrawDebugLine(World, DebugHitResults.Last().Location, ExtraTraceEnd, TraceColor, false, debugLifeTime);
 			}
 		}
-	}
-	else // if we've traced in thin air
-	{
-		DrawDebugLine(World, Start, End, TraceColor, false, debugLifeTime);
 	}
 #endif // ENABLE_DRAW_DEBUG
 }

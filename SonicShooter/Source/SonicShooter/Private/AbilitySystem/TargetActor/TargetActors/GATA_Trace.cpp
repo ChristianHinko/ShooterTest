@@ -471,7 +471,7 @@ void AGATA_Trace::DebugHitResults(const TArray<FHitResult>& HitResults, const UW
 			
 			if (Hit.Location != FVector::ZeroVector) // if Location is valid
 			{
-				const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.Actor);
+				const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.GetActor());
 				if (bPassesFilter)
 				{
 					DrawDebugPoint(World, Hit.ImpactPoint, 10, PassesFilterColor, false, debugLifeTime);

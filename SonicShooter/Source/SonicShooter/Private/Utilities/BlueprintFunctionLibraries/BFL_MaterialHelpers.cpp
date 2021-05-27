@@ -9,10 +9,10 @@ int32 UBFL_MaterialHelpers::GetMaterialIndexFromSectionIndex(const UStaticMeshCo
 {
     //adapted from GetMaterialFromCollisionFaceIndex
     const UStaticMesh* Mesh = StaticMeshComponent->GetStaticMesh();
-    if (Mesh && Mesh->RenderData.IsValid() && SectionIndex >= 0)
+    const FStaticMeshRenderData* RenderData = Mesh->GetRenderData();
+    if (Mesh && RenderData && SectionIndex >= 0)
     {
         const int32 LODIndex = Mesh->LODForCollision;
-        const FStaticMeshRenderData* RenderData = Mesh->RenderData.Get();
         if (RenderData->LODResources.IsValidIndex(LODIndex))
         {
             const FStaticMeshLODResources& LODResource = RenderData->LODResources[LODIndex];

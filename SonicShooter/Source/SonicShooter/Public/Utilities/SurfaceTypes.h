@@ -6,4 +6,4 @@
 
 
 
-#define SURFACE_METAL						EPhysicalSurface::SurfaceType1
+#define SURFACETYPE_METAL						EPhysicalSurface::SurfaceType1

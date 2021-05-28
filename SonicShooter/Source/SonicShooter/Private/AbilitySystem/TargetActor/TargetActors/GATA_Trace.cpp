@@ -33,7 +33,7 @@ AGATA_Trace::AGATA_Trace(const FObjectInitializer& ObjectInitializer)
 
 	bDebug = true;
 
-	RicochetableSurfaces.Add(SURFACE_METAL);
+	RicochetableSurfaces.Add(SURFACETYPE_METAL);
 }
 
 

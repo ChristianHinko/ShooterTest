@@ -20,4 +20,8 @@ public:
 	/** This affects the bullet's speed when penetrating this physical material  */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Shooter)
 		float BulletPenetrationSpeedMultiplier;
+
+	/** This affects the bullet's speed when ricocheting this physical material  */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Shooter)
+		float BulletRicochetSpeedMultiplier;
 };

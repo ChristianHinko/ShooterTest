@@ -29,6 +29,7 @@ public:
 	virtual int32 GetNumberOfTraces() const override;
 	virtual int32 GetRicochets() const override;
 	virtual int32 GetPenetrations() const override;
+	virtual float GetInitialTraceSpeed() const;
 
 	UPROPERTY()
 		UAS_Gun* GunAttributeSet;

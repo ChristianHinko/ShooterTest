@@ -50,7 +50,11 @@ int32 AGATA_BulletTrace::GetRicochets() const
 }
 int32 AGATA_BulletTrace::GetPenetrations() const
 {
-	return 10; // TODO: make attribute for this
+	return 10;
+}
+float AGATA_BulletTrace::GetInitialTraceSpeed() const
+{
+	return 100.f; // TODO: make attribute for this
 }
 
 void AGATA_BulletTrace::ConfirmTargetingAndContinue()

@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS(BlueprintType, Blueprintable, CollapseCategories, HideCategories = Object)
+UCLASS()
 class SONICSHOOTER_API UShooterPhysicalMaterial : public UPhysicalMaterial
 {
 	GENERATED_BODY()

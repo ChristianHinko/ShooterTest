@@ -23,7 +23,7 @@ class SONICSHOOTER_API ASSPlayerState : public APlayerState, public IAbilitySyst
 
 
 public:
-	ASSPlayerState();
+	ASSPlayerState(const FObjectInitializer& ObjectInitializer);
 
 
 	USSAbilitySystemComponent* GetAbilitySystemComponent() const override { return SSAbilitySystemComponent; }
@@ -32,6 +32,8 @@ public:
 protected:
 	UPROPERTY()
 		USSAbilitySystemComponent* SSAbilitySystemComponent;
+	static FName AbilitySystemComponentName;
+
 	UPROPERTY()
 		UAS_PlayerState* AttributeSet;
 

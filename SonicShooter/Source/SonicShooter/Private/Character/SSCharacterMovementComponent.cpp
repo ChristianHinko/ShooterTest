@@ -153,7 +153,7 @@ void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 	bool newWantsToRun = bWantsToRun;
 
 
-	if (StaminaAttributeSet && StaminaAttributeSet->GetStamina() <= 0.f)
+	if (StaminaAttributeSet && StaminaAttributeSet->Stamina <= 0.f)
 	{
 		if (IsMovingOnGround()) // only if we are on the ground. if we are in the air, the player will be expecting to run anyways
 		{
@@ -395,6 +395,25 @@ void USSCharacterMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
 }
 #pragma endregion
 
+void USSCharacterMovementComponent::ServerMove_PerformMovement(const FCharacterNetworkMoveData& MoveData)
+{
+	const float previousAccelerationSize = Acceleration.SizeSquared();
+	Super::ServerMove_PerformMovement(MoveData);
+
+
+	const float currentAccelerationSize = Acceleration.SizeSquared();
+
+	if (previousAccelerationSize <= KINDA_SMALL_NUMBER && currentAccelerationSize > KINDA_SMALL_NUMBER)
+	{
+		// We started acceleration
+		OnAccelerationStart.Broadcast();
+	}
+	if (previousAccelerationSize > KINDA_SMALL_NUMBER && currentAccelerationSize <= KINDA_SMALL_NUMBER)
+	{
+		// We stopped acceleration
+		OnAccelerationStop.Broadcast();
+	}
+}
 
 #pragma region Client Adjust
 //void USSCharacterMovementComponent::ClientAdjustPosition(float TimeStamp, FVector NewLoc, FVector NewVel, UPrimitiveComponent* NewBase, FName NewBaseBoneName, bool bHasBase, bool bBaseRelativePosition, uint8 ServerMovementMode)
@@ -614,7 +633,7 @@ bool USSCharacterMovementComponent::CanRunInCurrentState() const
 	//{
 	//	return false;
 	//}
-	if (StaminaAttributeSet && StaminaAttributeSet->GetStamina() <= 0)
+	if (StaminaAttributeSet && StaminaAttributeSet->Stamina <= 0)
 	{
 		return false;
 	}
@@ -841,6 +860,17 @@ void USSCharacterMovementComponent::OnMovementModeChanged(EMovementMode Previous
 	{
 		bJumpedInAir = false;
 	}
+
+	if (MovementMode == MOVE_Falling && PreviousMovementMode != MOVE_Falling)
+	{
+		// We started falling
+		OnStartedFalling.Broadcast();
+	}
+	if (MovementMode != MOVE_Falling && PreviousMovementMode == MOVE_Falling)
+	{
+		// We stopped falling
+		OnStoppedFalling.Broadcast();
+	}
 }
 
 void USSCharacterMovementComponent::PhysCustom(float deltaTime, int32 Iterations)
@@ -910,10 +940,25 @@ void USSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 		BroadcastMovementDelegates(); // the server's movement delegates are broadcasted on UpdateFromCompressedFlags()
 	}
 
-	
+	const float previousAccelerationSize = Acceleration.SizeSquared();
 
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	const float currentAccelerationSize = Acceleration.SizeSquared();
+
+	if (PawnOwner->IsLocallyControlled())
+	{
+		if (previousAccelerationSize <= KINDA_SMALL_NUMBER && currentAccelerationSize > KINDA_SMALL_NUMBER)
+		{
+			// We started acceleration
+			OnAccelerationStart.Broadcast();
+		}
+		if (previousAccelerationSize > KINDA_SMALL_NUMBER && currentAccelerationSize <= KINDA_SMALL_NUMBER)
+		{
+			// We stopped acceleration
+			OnAccelerationStop.Broadcast();
+		}
+	}
 
 
 	PreviousRotation = PawnOwner->GetActorRotation();

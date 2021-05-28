@@ -3,7 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ArcItemStack.h"
+#include "Item/SSArcItemStack.h"
+
 #include "GunStack.generated.h"
 
 
@@ -11,19 +12,11 @@ class AGATA_BulletTrace;
 
 
 
-UENUM()
-enum class EGunFireMode : uint8
-{
-	MODE_SemiAuto									UMETA(DisplayName = "Semi-auto"),
-	MODE_FullAuto									UMETA(DisplayName = "Full-auto"),
-	MODE_Burst										UMETA(DisplayName = "Burst")
-};
-
 /**
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UGunStack : public UArcItemStack
+class SONICSHOOTER_API UGunStack : public USSArcItemStack
 {
 	GENERATED_BODY()
 	
@@ -40,35 +33,6 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Gun Firing")
 		TSubclassOf<UGameplayEffect> BulletHitEffectTSub;
 
-
-	/**
-	 * Firing mode
-	 */
-	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Gun Firing")
-		EGunFireMode FiringMode;
-
-	/**
-	 * Minimum time that must pass before we can fire again
-	 */
-	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Gun Firing")
-		float FireRate;
-
-	/**
-	 * Number of bursts (ie. 3 for 3-round burst)
-	 */
-	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Gun Firing", meta = (EditCondition = "DefaultFiringMode == EGunFireMode::MODE_Burst"))
-		int32 NumBursts;
-
-	/**
-	 * Bullets per second for auto-type shooting
-	 */
-	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Gun Firing", meta = (EditCondition = "DefaultFiringMode != EGunFireMode::MODE_SemiAuto"))
-		float AutoShootingRate;
-
-
-	/**
-	 * How much clip ammo will we lose for each shot. (Pretty much always just 1 but it's here if you need it)
-	 */
-	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Gun Firing")
-		float AmmoCost;
+protected:
+	//UWeaponDefinition* WeaponDefinition;
 };

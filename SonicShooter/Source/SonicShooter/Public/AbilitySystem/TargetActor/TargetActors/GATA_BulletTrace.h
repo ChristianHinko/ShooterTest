@@ -8,6 +8,9 @@
 #include "GATA_BulletTrace.generated.h"
 
 
+class UAS_Gun;
+
+
 
 /**
  * 
@@ -20,16 +23,24 @@ class SONICSHOOTER_API AGATA_BulletTrace : public AGATA_Trace
 public:
 	AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer);
 
-	/** Number of line traces to perform, above 1 would be considered a shotgun */
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true, UIMin = 1), Category = "Bullet Config")
-		uint8 NumberOfBullets;
-	/** Radius of cone which bullets can spread. In degrees (90 degs will make a right angle cone) */
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true, UIMin = 0, UIMax = 360), Category = "Bullet Config")
-		float BulletSpread;
+	virtual void ConfirmTargetingAndContinue() override;
 
+	virtual float GetMaxRange() const override;
+	virtual int32 GetNumberOfTraces() const override;
+	virtual int32 GetRicochets() const override;
+	virtual int32 GetPenetrations() const override;
+
+	UPROPERTY()
+		UAS_Gun* GunAttributeSet;
 	/** This is injected in every fire */
 	int16 FireSpecificNetSafeRandomSeed;
 
 protected:
-	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor);
+
+	// This override signifies performing a trace for a ricochetable bullet (but it also might not richochet based on how this GATA is configed). The OutHitResults are the hit results from 1 bullet ricocheting off walls and hitting player(s)
+	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) override;
+
+	virtual void CalculateAimDirection(FVector& ViewStart, FVector& ViewDir) const override;
+
+
 };

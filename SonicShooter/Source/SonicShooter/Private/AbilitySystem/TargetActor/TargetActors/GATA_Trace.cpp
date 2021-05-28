@@ -9,25 +9,22 @@
 #include "Character/AbilitySystemCharacter.h"
 #include "Pawn/AbilitySystemPawn.h"
 #include "Actor/AbilitySystemActor.h"
-#include "AbilitySystem/SSAbilitySystemBlueprintLibrary.h"
+#include "Utilities/SurfaceTypes.h"
+#include "Utilities/LogCategories.h"
 
+#include "Utilities\BlueprintFunctionLibraries\BFL_CollisionQueryHelpers.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
+
+#include "Kismet/KismetSystemLibrary.h"
 
 
 
 AGATA_Trace::AGATA_Trace(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.TickGroup = TG_PostUpdateWork;
+	CurrentTraceIndex = -1;
 
-	ShouldProduceTargetDataOnServer = true;
-
-	MaxRange = 100000.f;
-	bTraceAffectsAimPitch = true;
-	TraceChannel = ECollisionChannel::ECC_Visibility;
-	bAllowMultipleHitsPerActor = false;
 
 	MultiFilter.bReverseFilter = true;
 	MultiFilter.RequiredActorClasses.Add(AAbilitySystemCharacter::StaticClass());
@@ -35,13 +32,8 @@ AGATA_Trace::AGATA_Trace(const FObjectInitializer& ObjectInitializer)
 	MultiFilter.RequiredActorClasses.Add(AAbilitySystemActor::StaticClass());
 
 	bDebug = true;
-}
-void AGATA_Trace::PreInitializeComponents()
-{
-	Super::PreInitializeComponents();
 
-
-	MultiFilterHandle = USSAbilitySystemBlueprintLibrary::MakeMultiFilterHandle(MultiFilter/*, SourceActor*/);
+	RicochetableSurfaces.Add(SURFACE_METAL);
 }
 
 
@@ -78,144 +70,327 @@ void AGATA_Trace::ConfirmTargetingAndContinue()
 	check(ShouldProduceTargetData());
 	if (SourceActor)
 	{
-		TArray<FHitResult> HitResults;
-		PerformTrace(HitResults, SourceActor);
-		FGameplayAbilityTargetDataHandle TargetDataHandle = StartLocation.MakeTargetDataHandleFromHitResults(OwningAbility, HitResults);
+		FGameplayAbilityTargetDataHandle TargetDataHandle;
+		
+
+		TArray<TArray<FHitResult>> TraceResults;
+		PerformTraces(TraceResults, SourceActor);
+
+		// Loop through each of our traces
+		for (TArray<FHitResult>& HitResults : TraceResults)
+		{
+			FilterHitResults(HitResults, MultiFilterHandle, bAllowMultipleHitsPerActor);
+
+			// Loop through this trace's hits (that have been filtered)
+			for (const FHitResult& HitResult : HitResults)
+			{
+				/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
+				FGameplayAbilityTargetData_SingleTargetHit* ReturnData = new FGameplayAbilityTargetData_SingleTargetHit();
+				ReturnData->HitResult = HitResult;
+
+				TargetDataHandle.Add(ReturnData);
+			}
+		}
+
+
 		TargetDataReadyDelegate.Broadcast(TargetDataHandle);
 	}
 }
 
-void AGATA_Trace::AimWithPlayerController(const AActor* InSourceActor, FCollisionQueryParams Params, const FVector& TraceStart, FVector& OutTraceEnd, bool bIgnorePitch) const
+void AGATA_Trace::PerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AActor* InSourceActor)
 {
-	if (!OwningAbility) // Server and launching client only
+	OutTraceResults.Empty();
+
+	const float NumberOfTraces = GetNumberOfTraces();
+
+	CurrentTraceIndex = 0;
+	for (CurrentTraceIndex; CurrentTraceIndex < NumberOfTraces; ++CurrentTraceIndex)
 	{
-		return;
+		TArray<FHitResult> ThisTraceHitResults;
+		PerformTrace(ThisTraceHitResults, InSourceActor);
+
+		OutTraceResults.Add(ThisTraceHitResults);
 	}
+	CurrentTraceIndex = -1;
 
-	const APlayerController* PC = OwningAbility->GetCurrentActorInfo()->PlayerController.Get();
-	check(PC);
 
-	FVector ViewStart;
-	FRotator ViewRot;
-	PC->GetPlayerViewPoint(ViewStart, ViewRot);
-
-	const FVector ViewDir = ViewRot.Vector();
-	FVector ViewEnd = ViewStart + (ViewDir * MaxRange);
-
-	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, MaxRange, ViewEnd);
-
-	TArray<FHitResult> HitResults;
-	InSourceActor->GetWorld()->LineTraceMultiByChannel(HitResults, ViewStart, ViewEnd, TraceChannel, Params);
-	FHitResult HitResult = HitResults.Num() ? HitResults[0] : FHitResult();
-
-	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
-
-	const FVector AdjustedEnd = (bUseTraceResult) ? HitResult.Location : ViewEnd;
-
-	FVector AdjustedAimDir = (AdjustedEnd - TraceStart).GetSafeNormal();
-	if (AdjustedAimDir.IsZero())
-	{
-		AdjustedAimDir = ViewDir;
-	}
-
-	if (!bTraceAffectsAimPitch && bUseTraceResult)
-	{
-		FVector OriginalAimDir = (ViewEnd - TraceStart).GetSafeNormal();
-
-		if (!OriginalAimDir.IsZero())
-		{
-			// Convert to angles and use original pitch
-			const FRotator OriginalAimRot = OriginalAimDir.Rotation();
-
-			FRotator AdjustedAimRot = AdjustedAimDir.Rotation();
-			AdjustedAimRot.Pitch = OriginalAimRot.Pitch;
-
-			AdjustedAimDir = AdjustedAimRot.Vector();
-		}
-	}
-
-	OutTraceEnd = TraceStart + (AdjustedAimDir * MaxRange);
-}
-void AGATA_Trace::DirWithPlayerController(const AActor* InSourceActor, FCollisionQueryParams Params, const FVector& TraceStart, FVector& OutTraceDir, bool bIgnorePitch) const
-{
-	if (!OwningAbility) // Server and launching client only
-	{
-		return;
-	}
-
-	const APlayerController* PC = OwningAbility->GetCurrentActorInfo()->PlayerController.Get();
-	check(PC);
-
-	FVector ViewStart;
-	FRotator ViewRot;
-	PC->GetPlayerViewPoint(ViewStart, ViewRot);
-
-	const FVector ViewDir = ViewRot.Vector();
-	FVector ViewEnd = ViewStart + (ViewDir * MaxRange);
-
-	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, MaxRange, ViewEnd);
-
-	TArray<FHitResult> HitResults;
-	InSourceActor->GetWorld()->LineTraceMultiByChannel(HitResults, ViewStart, ViewEnd, TraceChannel, Params);
-	FHitResult HitResult = HitResults.Num() ? HitResults[0] : FHitResult();
-
-	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
-
-	const FVector AdjustedEnd = (bUseTraceResult) ? HitResult.Location : ViewEnd;
-
-	FVector AdjustedAimDir = (AdjustedEnd - TraceStart).GetSafeNormal();
-	if (AdjustedAimDir.IsZero())
-	{
-		AdjustedAimDir = ViewDir;
-	}
-
-	if (!bTraceAffectsAimPitch && bUseTraceResult)
-	{
-		FVector OriginalAimDir = (ViewEnd - TraceStart).GetSafeNormal();
-
-		if (!OriginalAimDir.IsZero())
-		{
-			// Convert to angles and use original pitch
-			const FRotator OriginalAimRot = OriginalAimDir.Rotation();
-
-			FRotator AdjustedAimRot = AdjustedAimDir.Rotation();
-			AdjustedAimRot.Pitch = OriginalAimRot.Pitch;
-
-			AdjustedAimDir = AdjustedAimRot.Vector();
-		}
-	}
-
-	OutTraceDir = AdjustedAimDir;
 }
 
-bool AGATA_Trace::ClipCameraRayToAbilityRange(FVector CameraLocation, FVector CameraDirection, FVector AbilityCenter, float AbilityRange, FVector& ClippedPosition)
+int32 AGATA_Trace::GetNumberOfTraces() const
 {
-	const FVector CameraToCenter = AbilityCenter - CameraLocation;
-	const float DotToCenter = FVector::DotProduct(CameraToCenter, CameraDirection);
-	if (DotToCenter >= 0)		//If this fails, we're pointed away from the center, but we might be inside the sphere and able to find a good exit point.
+	return 1;
+}
+int32 AGATA_Trace::GetRicochets() const
+{
+	return 0;
+}
+int32 AGATA_Trace::GetPenetrations() const
+{
+	return 0;
+}
+
+bool AGATA_Trace::ShouldRicochetOffOf(const FHitResult& Hit) const
+{
+	if (const UPhysicalMaterial* HitPhysMaterial = Hit.PhysMaterial.Get())
 	{
-		const float DistanceSquared = CameraToCenter.SizeSquared() - (DotToCenter * DotToCenter);
-		const float RadiusSquared = (AbilityRange * AbilityRange);
-		if (DistanceSquared <= RadiusSquared)
+		const EPhysicalSurface HitSurfaceType = HitPhysMaterial->SurfaceType;
+		if (RicochetableSurfaces.Contains(HitSurfaceType))
 		{
-			const float DistanceFromCamera = FMath::Sqrt(RadiusSquared - DistanceSquared);
-			const float DistanceAlongRay = DotToCenter + DistanceFromCamera;					//Subtracting instead of adding will get the other intersection point
-			ClippedPosition = CameraLocation + (DistanceAlongRay * CameraDirection);			//Cam aim point clipped to range sphere
 			return true;
 		}
 	}
+
 	return false;
 }
+void AGATA_Trace::CalculateRicochetDirection(FVector& RicoDir, const FHitResult& FromHit) const
+{
+	const FVector FromDir = UKismetMathLibrary::GetDirectionUnitVector(FromHit.TraceStart, FromHit.Location);
+	const FVector MirroredDir = FromDir.MirrorByVector(FromHit.ImpactNormal);
 
-void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams Params, const bool inDebug) const
+	RicoDir = MirroredDir;
+}
+
+
+void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& Params, const bool inDebug)
+{
+	OutHitResults.Empty();
+	check(World);
+
+
+	float currentMaxRange = GetMaxRange();
+
+	// Ensure we return Physical Material for the ricochet determination
+	FCollisionQueryParams TraceParams = Params;
+	TraceParams.bReturnPhysicalMaterial = true;
+
+	// Perform initial trace
+	TArray<FHitResult> HitResults;
+	World->LineTraceMultiByChannel(HitResults, Start, End, TraceChannel, TraceParams);
+	if (HitResults.Num() > 0)
+	{
+		currentMaxRange -= HitResults.Last().Distance;
+	}
+	OutHitResults.Append(HitResults);
+
+	TArray<FHitResult> ThisRicochetBlockingHits;
+	TArray<FPenetrationInfo> Penetrations;
+
+	// Extra traces loop
+	int32 maxRicochets = GetRicochets();
+	int32 timesRicocheted = 0;
+	int32 maxPenetrations = GetPenetrations();
+	int32 timesPenetrated = 0;
+	while (true)
+	{
+		if (OutHitResults.Num() <= 0)
+		{
+			// Nothing to work with, break here
+			break;
+		}
+		FHitResult LastHit = OutHitResults.Last();
+		if (LastHit.bBlockingHit == false)
+		{
+			// We only ricochet and penetrate for blocking hits
+			break;
+		}
+
+		if (!ShouldRicochetOffOf(LastHit))
+		{
+			// Only add to this if we are not ricochetable. (If we were, this array would get reset for the next ricochet hits)
+			ThisRicochetBlockingHits.Add(LastHit);
+		}
+
+
+		// Ricochet
+		bool bRicocheted = false;
+		if (ShouldRicochetOffOf(LastHit))
+		{
+			if (timesRicocheted < maxRicochets)
+			{
+				// We are about to ricochet so calculate Penetrations for these blocking Hits before we move on to the next ricochet
+				TArray<FPenetrationInfo> ThisRicochetPenetrations;
+				UBFL_CollisionQueryHelpers::BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, LastHit.Location, World, TraceParams, TraceChannel);
+				Penetrations.Append(ThisRicochetPenetrations);
+				ThisRicochetBlockingHits.Empty(); // we are about to begin our next ricochet so reset the blocking Hit Results for next ricochet
+
+
+
+
+
+				// Calculate ricochet direction
+				FVector RicoDir;
+				CalculateRicochetDirection(RicoDir, LastHit);
+
+				// Use direction to get the trace end
+				FVector RicoStart = LastHit.Location + ((KINDA_SMALL_NUMBER * 100) * RicoDir);			// bump it outwards a bit for reassurance (sometimes works without this if using Chaos)
+				FVector RicoEnd = RicoStart + (currentMaxRange * RicoDir);
+
+				FCollisionQueryParams RicoParams = TraceParams;
+				RicoParams.bTraceComplex = true; // ricochet doesn't need Trace Complex but because we are mixed in with penetration logic (which uses Trace Complex), we have to consider it
+
+				// Perform ricochet trace
+				TArray<FHitResult> RicoHitResults; // this ricochet's hit results
+				World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoParams);
+				
+
+
+				if (RicoHitResults.Num() > 0)
+				{
+					currentMaxRange -= RicoHitResults.Last().Distance;
+					OutHitResults.Append(RicoHitResults); // add these results to the end of OutHitResults
+					LastHit = OutHitResults.Last(); // update LastHit
+					++timesRicocheted;
+					bRicocheted = true;
+				}
+				else // this ricochet didn't hit anything
+				{
+					// Our caller may depend on us returning at least one Hit Result so it can get TraceStart and TraceEnd.
+					// Make an empty Hit Result containing this info (this will just end up getting filtered)
+					FHitResult TraceInfo;
+					TraceInfo.TraceStart = RicoStart;
+					TraceInfo.TraceEnd = RicoEnd;
+
+					OutHitResults.Emplace(TraceInfo);
+				}
+
+			}
+
+
+
+			if (bRicocheted == false)
+			{
+				// We should've ricocheted but didn't so stop here. (we don't want to proceed to penetration logic on ricochetable surfaces).
+				// Possible ways of getting to this point:
+				//		1. This ricochet didn't hit anything
+				//		2. We ran out of ricochets / speed
+				break;
+			}
+		}
+
+		if (bRicocheted)
+		{
+			// Continue here because we always want to check whether we should ricochet first before we try to penetrate.
+			// For example. If we ricocheted, and then hit another surface that can be ricocheted off of, we want to run ricochet logic on that. If we don't continue here, the penetration logic below would run on that ricochetable surface instead of ricochet logic
+			continue;
+		}
+
+
+
+		// Penetrate
+		bool bPenetrated = false;
+		if (timesPenetrated < maxPenetrations)
+		{
+			// The direction we traced from
+			const FVector FromDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.Location);
+
+			// Use direction to get the trace end
+			FVector PenetrateStart = LastHit.Location + ((KINDA_SMALL_NUMBER * 100) * FromDir);			// bump it into itself a bit for reassurance (sometimes works without this if using Chaos)
+			FVector PenetrateEnd = PenetrateStart + (currentMaxRange * FromDir);
+
+			FCollisionQueryParams PenetrateParams = TraceParams;
+			PenetrateParams.bTraceComplex = true; // Use complex collision if the collider has it. We need this because we are starting from inside the geometry and shooting out (this won't work for CTF_UseSimpleAsComplex and Physics Assest colliders so TODO: we will need a case that covers this)
+
+			// Perform penetrate trace
+			TArray<FHitResult> PenetrateHitResults; // this penetration's hit results
+			World->LineTraceMultiByChannel(PenetrateHitResults, PenetrateStart, PenetrateEnd, TraceChannel, PenetrateParams);
+			
+
+
+			// Our fallback if the trace messed up (if we hit ourselves instead of going through to the next hit). This happens if we are a CTF_UseSimpleAsComplex or a Physics Asset collider.
+			if (PenetrateHitResults.Num() > 0 && PenetrateHitResults.Last().Distance == 0)
+			{
+				// Try again with this component ignored
+				PenetrateParams.AddIgnoredComponent(PenetrateHitResults.Last().GetComponent());
+				PenetrateHitResults.Empty();
+				World->LineTraceMultiByChannel(PenetrateHitResults, PenetrateStart, PenetrateEnd, TraceChannel, PenetrateParams);
+			}
+
+
+			
+			if (PenetrateHitResults.Num() > 0)
+			{
+				currentMaxRange -= PenetrateHitResults.Last().Distance;
+				OutHitResults.Append(PenetrateHitResults); // add these results to the end of OutHitResults
+				LastHit = OutHitResults.Last(); // update LastHit
+				++timesPenetrated;
+				bPenetrated = true;
+			}
+			else // this penetration didn't hit anything
+			{
+				// Our caller may depend on us returning at least one Hit Result so it can get TraceStart and TraceEnd.
+				// Make an empty Hit Result containing this info (this will just end up getting filtered)
+				FHitResult TraceInfo;
+				TraceInfo.TraceStart = PenetrateStart;
+				TraceInfo.TraceEnd = PenetrateEnd;
+
+				OutHitResults.Emplace(TraceInfo);
+			}
+
+		}
+
+
+
+		if (bRicocheted == false && bPenetrated == false)
+		{
+			// We weren't able to ricochet nor penetrate, stop here
+			break;
+		}
+
+	}
+
+	if (ThisRicochetBlockingHits.Num() > 0)
+	{
+		TArray<FPenetrationInfo> ThisRicochetPenetrations;
+		UBFL_CollisionQueryHelpers::BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, World, TraceParams, TraceChannel);
+		Penetrations.Append(ThisRicochetPenetrations);
+		ThisRicochetBlockingHits.Empty();
+	}
+
+
+	// If we didn't hit anything (ei. we traced into thin air)
+	if (OutHitResults.Num() <= 0)
+	{
+		// Our caller may depend on us returning at least one Hit Result so it can get TraceStart and TraceEnd.
+		// Make an empty Hit Result containing this info (this will just end up getting filtered)
+		FHitResult TraceInfo;
+		TraceInfo.TraceStart = Start;
+		TraceInfo.TraceEnd = End;
+
+		OutHitResults.Emplace(TraceInfo);
+	}
+
+
+
+
+
+#if ENABLE_DRAW_DEBUG
+	if (inDebug)
+	{
+		for (const FPenetrationInfo& Penetration : Penetrations)
+		{
+			UKismetSystemLibrary::PrintString(this, Penetration.GetDebugString(), true, false, FLinearColor::Green, 5.f);
+		}
+		DebugHitResults(OutHitResults, World);
+	}
+#endif
+}
+
+void AGATA_Trace::SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape& CollisionShape, const FCollisionQueryParams& Params, const bool inDebug)
 {
 	check(World);
 
-	World->LineTraceMultiByChannel(OutHitResults, Start, End, TraceChannel, Params);
 
-	// Ricochets
+	FCollisionQueryParams TraceParams = Params;
+	TraceParams.bReturnPhysicalMaterial = true;
+
+	TArray<FHitResult> HitResults;
+	World->SweepMultiByChannel(OutHitResults, Start, End, Rotation, TraceChannel, CollisionShape, TraceParams);
+
+	OutHitResults.Append(HitResults);
+
+	// ricochets
 	uint8 r = 0; // outside for bDebug to use maybe try to change this idk
-	for (r; r < Ricochets; ++r)
+	for (r; r < GetRicochets(); ++r)
 	{
 		if (OutHitResults.Num() <= 0)
 		{
@@ -226,72 +401,77 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 		{
 			break;
 		}
-
-		TArray<FHitResult> RicoHitResults;
-
-		FCollisionQueryParams RicoParams = Params;
-		RicoParams.AddIgnoredActor(LastHit.GetActor());
-
-		
-		const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.TraceEnd);
-		const FVector MirroredDir = TracedDir.MirrorByVector(LastHit.ImpactNormal);
-
-		const FVector RicoStart = LastHit.Location;
-		const FVector RicoEnd = RicoStart + ((MaxRange - LastHit.Distance) * MirroredDir);
+		const EPhysicalSurface LastSurface = LastHit.PhysMaterial.Get()->SurfaceType;
+		if (RicochetableSurfaces.Contains(LastSurface) == false)
+		{
+			// This surface isn't ricochetable
+			break;
+		}
 
 
-		if (World->LineTraceMultiByChannel(RicoHitResults, RicoStart, RicoEnd, TraceChannel, RicoParams) == false)
+		// Add the current hit actor on top of the ignored actors
+		FCollisionQueryParams RicoParams = TraceParams;
+
+		// Calculate ricochet direction
+		FVector RicoDir;
+		CalculateRicochetDirection(RicoDir, LastHit);
+
+		// Use direction to get the trace end
+		const FVector RicoStart = LastHit.Location + (KINDA_SMALL_NUMBER * RicoDir);
+		const FVector RicoEnd = RicoStart + ((GetMaxRange() - LastHit.Distance) * RicoDir);
+
+		// Perform ricochet sweep
+		TArray<FHitResult> RicoHitResults; // this ricochet's hit results
+		const bool bHitBlockingHit = World->SweepMultiByChannel(RicoHitResults, RicoStart, RicoEnd, Rotation, TraceChannel, CollisionShape, RicoParams);
+
+		OutHitResults.Append(RicoHitResults);
+
+		if (!bHitBlockingHit)
 		{
 			break;
 		}
-		OutHitResults.Append(RicoHitResults);
-	}
-
-	// Remove duplicate hits on actors
-	if (!bAllowMultipleHitsPerActor)
-	{
-		// Loop through each hit result and check if the hits infront of it (the hit results less than the pending index) already have its actor.
-		// If so, remove the pending hit result because it has the actor that was already hit and is considered a duplicate hit.
-		for (int32 pendingIndex = 0; pendingIndex < OutHitResults.Num(); ++pendingIndex)
-		{
-			const FHitResult PendingHit = OutHitResults[pendingIndex];
-
-			// check if the hit results that we've looped through so far contains a hit result with this actor already
-			for (int32 comparisonIndex = 0; comparisonIndex < pendingIndex; ++comparisonIndex)
-			{
-				if (PendingHit.Actor == OutHitResults[comparisonIndex].Actor) // if we've already hit this actor
-				{
-					if (MultiFilterHandle.FilterPassesForActor(PendingHit.Actor)) // only remove if it passes the filter (to avoid double damage and stuff)
-					{
-						OutHitResults.RemoveAt(pendingIndex);
-						pendingIndex--;		// put pendingIndex back in sync after removal		(this can be weird because on first iteration, this will make pendingIndex == -1 but it gets fixed next iteration) 
-					}
-				}
-			}
-		}
 	}
 
 
-	// Debug before we remove filtered hit results
+
 #if ENABLE_DRAW_DEBUG
 	if (inDebug)
 	{
-		const float debugLifeTime = 5.f;
-		const FColor TraceColor = FColor::Blue;
-		const FColor PassesFilterColor = FColor::Red;
+		DebugTrace(OutHitResults, World, Start, End/*, r*/);
+	}
+#endif
+}
 
-		const uint8 hitsNum = OutHitResults.Num();
-		if (hitsNum > 0)
+//#if ENABLE_DRAW_DEBUG
+void AGATA_Trace::DebugHitResults(const TArray<FHitResult>& HitResults, const UWorld* World) const
+{
+#if ENABLE_DRAW_DEBUG
+	TArray<FHitResult> DebugHitResults = HitResults;
+	FilterHitResults(DebugHitResults, FGATDF_MultiFilterHandle(), bAllowMultipleHitsPerActor); // removes multiple hits if needed (but doesn't filter actors because we have different colors for whether it filters or not)
+
+
+	const float debugLifeTime = 5.f;
+	const FColor TraceColor = FColor::Blue;
+	const FColor PassesFilterColor = FColor::Red;
+
+	if (DebugHitResults.Num() > 0)
+	{
+		for (int32 i = 0; i < DebugHitResults.Num(); ++i)
 		{
-			for (int32 i = 0; i < OutHitResults.Num(); ++i)
+			const FHitResult& Hit = DebugHitResults[i];
+
+			FVector FromLocation = Hit.TraceStart;
+			FVector ToLocation = Hit.Location;
+			if (Hit.Location == FVector::ZeroVector) // if invalid Location (this is only to support empty Hit Results that hold TraceStart and TraceEnd locations and this is weird but i don't care about this function enough to fix it)
 			{
-				const FHitResult Hit = OutHitResults[i];
-				const FVector FromLocation = Hit.TraceStart;
-				const FVector ToLocation = Hit.Location;
+				ToLocation = Hit.TraceEnd; // to get a line that makes sense, just draw to TraceEnd
+			}
 
-				DrawDebugLine(World, FromLocation, ToLocation, TraceColor, false, debugLifeTime);
-
-				const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.Actor);
+			DrawDebugLine(World, FromLocation, ToLocation, TraceColor, false, debugLifeTime);
+			
+			if (Hit.Location != FVector::ZeroVector) // if Location is valid
+			{
+				const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.GetActor());
 				if (bPassesFilter)
 				{
 					DrawDebugPoint(World, Hit.ImpactPoint, 10, PassesFilterColor, false, debugLifeTime);
@@ -301,189 +481,70 @@ void AGATA_Trace::LineTraceMultiWithFilter(TArray<FHitResult>& OutHitResults, co
 					DrawDebugPoint(World, Hit.ImpactPoint, 10, TraceColor, false, debugLifeTime);
 				}
 			}
-			if (OutHitResults.Last().bBlockingHit == false)
-			{
-				DrawDebugLine(World, OutHitResults.Last().Location, OutHitResults.Last().TraceEnd, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
-			}
-			else if (Ricochets - r > 0)
-			{
-				const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(OutHitResults.Last().TraceStart, OutHitResults.Last().TraceEnd);
-				const FVector MirroredDir = TracedDir.MirrorByVector(OutHitResults.Last().ImpactNormal);
-
-				const FVector RicoStart = OutHitResults.Last().Location;
-				const FVector RicoEnd = RicoStart + ((MaxRange - OutHitResults.Last().Distance) * MirroredDir);
-
-				DrawDebugLine(World, RicoStart, RicoEnd, TraceColor, false, debugLifeTime);
-			}
-		}
-		else // if we've traced in thin air
-		{
-			DrawDebugLine(World, Start, End, TraceColor, false, debugLifeTime);
 		}
 	}
 #endif // ENABLE_DRAW_DEBUG
-
-
-	// Filter out hit results that do not pass filter
-	for (int32 i = 0; i < OutHitResults.Num(); ++i)
-	{
-		const FHitResult Hit = OutHitResults[i];
-
-		const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.Actor);
-		if (!bPassesFilter)
-		{
-			OutHitResults.RemoveAt(i);
-			--i;		// put i back in sync after removal		(this can be weird because on first iteration, this will make i == -1 but it gets fixed next iteration)
-		}
-	}
 }
 
-void AGATA_Trace::SweepMultiWithFilter(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape CollisionShape, const FCollisionQueryParams Params, const bool inDebug) const
+void AGATA_Trace::DebugTrace(const TArray<FHitResult>& HitResults, const UWorld* World, const FVector& Start, const FVector& End) const
 {
-	check(World);
-
-	World->SweepMultiByChannel(OutHitResults, Start, End, Rotation, TraceChannel, CollisionShape, Params);
-
-	// Ricochets
-	uint8 r = 0; // outside for bDebug to use maybe try to change this idk
-	for (r; r < Ricochets; ++r)
-	{
-		if (OutHitResults.Num() <= 0)
-		{
-			break;
-		}
-		const FHitResult LastHit = OutHitResults.Last();
-		if (LastHit.bBlockingHit == false)
-		{
-			break;
-		}
-
-		TArray<FHitResult> RicoHitResults;
-
-		FCollisionQueryParams RicoParams = Params;
-		RicoParams.AddIgnoredActor(LastHit.GetActor());
-
-		
-		const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.TraceEnd);
-		const FVector MirroredDir = TracedDir.MirrorByVector(LastHit.ImpactNormal);
-
-		const FVector RicoStart = LastHit.Location;
-		const FVector RicoEnd = RicoStart + ((MaxRange - LastHit.Distance) * MirroredDir);
-
-
-		if (World->SweepMultiByChannel(RicoHitResults, RicoStart, RicoEnd, Rotation, TraceChannel, CollisionShape, RicoParams) == false)
-		{
-			break;
-		}
-		OutHitResults.Append(RicoHitResults);
-	}
-
-	// remove duplicate hits on actors
-	if (!bAllowMultipleHitsPerActor)
-	{
-		/*
-			Loop through each hit result and check if the hits infront of it (the hit results less than the pending index) already have its actor.
-			If so, remove the pending hit result because it has the actor that was already hit and is considered a duplicate hit.
-		*/
-		for (int32 pendingIndex = 0; pendingIndex < OutHitResults.Num(); ++pendingIndex)
-		{
-			const FHitResult PendingHit = OutHitResults[pendingIndex];
-
-			// check if the hit results that we've looped through so far contains a hit result with this actor already
-			for (int32 comparisonIndex = 0; comparisonIndex < pendingIndex; ++comparisonIndex)
-			{
-				if (PendingHit.Actor == OutHitResults[comparisonIndex].Actor)
-				{
-					OutHitResults.RemoveAt(pendingIndex);
-					pendingIndex--;		// put pendingIndex back in sync after removal		(this can be weird because on first iteration, this will make pendingIndex == -1 but it gets fixed next iteration)
-				}
-			}
-		}
-	}
-
-
-	// Debug before we remove filtered hit results
 #if ENABLE_DRAW_DEBUG
-	if (inDebug)
+	DebugHitResults(HitResults, World);
+
+
+	TArray<FHitResult> DebugHitResults = HitResults;
+	FilterHitResults(DebugHitResults, FGATDF_MultiFilterHandle(), bAllowMultipleHitsPerActor); // removes multiple hits if needed (but doesn't filter actors because we have different colors for whether it filters or not)
+
+
+	const float debugLifeTime = 5.f;
+	const FColor TraceColor = FColor::Blue;
+	const FColor PassesFilterColor = FColor::Red;
+
+	if (DebugHitResults.Num() > 0)
 	{
-		const float debugLifeTime = 5.f;
-		const FColor TraceColor = FColor::Blue;
-		const FColor PassesFilterColor = FColor::Red;
-
-		const uint8 hitsNum = OutHitResults.Num();
-		if (hitsNum > 0)
+		if (DebugHitResults.Last().bBlockingHit == false)
 		{
-			for (int32 i = 0; i < OutHitResults.Num(); ++i)
-			{
-				const FHitResult Hit = OutHitResults[i];
-				const FVector FromLocation = Hit.TraceStart;
-				const FVector ToLocation = Hit.Location;
-
-				DrawDebugLine(World, FromLocation, ToLocation, TraceColor, false, debugLifeTime);
-
-				const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.Actor);
-				if (bPassesFilter)
-				{
-					DrawDebugPoint(World, Hit.ImpactPoint, 10, PassesFilterColor, false, debugLifeTime);
-				}
-				else
-				{
-					DrawDebugPoint(World, Hit.ImpactPoint, 10, TraceColor, false, debugLifeTime);
-				}
-			}
-			if (OutHitResults.Last().bBlockingHit == false)
-			{
-				DrawDebugLine(World, OutHitResults.Last().Location, OutHitResults.Last().TraceEnd, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
-			}
-			else if (Ricochets - r > 0)
-			{
-				const FVector TracedDir = UKismetMathLibrary::GetDirectionUnitVector(OutHitResults.Last().TraceStart, OutHitResults.Last().TraceEnd);
-				const FVector MirroredDir = TracedDir.MirrorByVector(OutHitResults.Last().ImpactNormal);
-
-				const FVector RicoStart = OutHitResults.Last().Location;
-				const FVector RicoEnd = RicoStart + ((MaxRange - OutHitResults.Last().Distance) * MirroredDir);
-
-				DrawDebugLine(World, RicoStart, RicoEnd, TraceColor, false, debugLifeTime);
-			}
+			// If our last hit was an overlap, draw out one last Trace End to show that it went through
+			DrawDebugLine(World, DebugHitResults.Last().Location, DebugHitResults.Last().TraceEnd, TraceColor, false, debugLifeTime);		// after the we've drawn a line to all hit results, draw from last hit result to the trace end
 		}
-		else // if we've traced in thin air
+	}
+	else // if we've traced in thin air
+	{
+		// Draw the line that didn't hit anything
+		DrawDebugLine(World, Start, End, TraceColor, false, debugLifeTime);
+	}
+
+#endif // ENABLE_DRAW_DEBUG
+}
+
+void AGATA_Trace::DebugTrace(const TArray<FHitResult>& HitResults, const UWorld* World, const FVector& Start, const FVector& End, const FVector& ExtraTraceEnd) const
+{
+#if ENABLE_DRAW_DEBUG
+	DebugTrace(HitResults, World, Start, End);
+
+
+	TArray<FHitResult> DebugHitResults = HitResults;
+	FilterHitResults(DebugHitResults, FGATDF_MultiFilterHandle(), bAllowMultipleHitsPerActor); // removes multiple hits if needed (but doesn't filter actors because we have different colors for whether it filters or not)
+
+
+	const float debugLifeTime = 5.f;
+	const FColor TraceColor = FColor::Blue;
+	const FColor PassesFilterColor = FColor::Red;
+
+	if (DebugHitResults.Num() > 0)
+	{
+		if (DebugHitResults.Last().bBlockingHit)
 		{
-			DrawDebugLine(World, Start, End, TraceColor, false, debugLifeTime);
+			if ((ExtraTraceEnd - DebugHitResults.Last().Location).IsNearlyZero() == false) // only draw this extra trace if it is different then the last trace
+			{
+				DrawDebugLine(World, DebugHitResults.Last().Location, ExtraTraceEnd, TraceColor, false, debugLifeTime);
+			}
 		}
 	}
 #endif // ENABLE_DRAW_DEBUG
-
-
-	// filter out hit results that do not pass filter
-	for (int32 i = 0; i < OutHitResults.Num(); ++i)
-	{
-		const FHitResult Hit = OutHitResults[i];
-
-		const bool bPassesFilter = MultiFilterHandle.FilterPassesForActor(Hit.Actor);
-		if (!bPassesFilter)
-		{
-			OutHitResults.RemoveAt(i);
-			--i;		// put i back in sync after removal		(this can be weird because on first iteration, this will make i == -1 but it gets fixed next iteration)
-		}
-	}
 }
+//#endif // ENABLE_DRAW_DEBUG
 
-void AGATA_Trace::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-
-
-	// very temp - do a mostly hardcoded trace from the source actor
-	if (SourceActor)
-	{
-		TArray<FHitResult> HitResults;
-		PerformTrace(HitResults, SourceActor);
-		const FHitResult HitResult = HitResults.Num() ? HitResults.Last() : FHitResult();		// get last hit
-		const FVector EndPoint = HitResult.Component.IsValid() ? HitResult.ImpactPoint : HitResult.TraceEnd;
-
-		SetActorLocationAndRotation(EndPoint, SourceActor->GetActorRotation());
-	}
-}
 
 void AGATA_Trace::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {

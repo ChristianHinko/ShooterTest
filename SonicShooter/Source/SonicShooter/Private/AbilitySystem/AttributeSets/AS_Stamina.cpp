@@ -4,10 +4,9 @@
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
 
 #include "Net/UnrealNetwork.h"
+#include "Net/Core/PushModel/PushModel.h"
 
 #include "Kismet/KismetSystemLibrary.h"
-//#include "Engine/NetDriver.h"
-//#include "Net/RepLayout.h"
 
 
 
@@ -16,21 +15,21 @@ void UAS_Stamina::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Stamina, MaxStamina, COND_None, REPNOTIFY_Always);
+	FDoRepLifetimeParams Params;
+	Params.Condition = COND_None;
+	Params.RepNotifyCondition = REPNOTIFY_Always;
 
-	//DOREPLIFETIME_CONDITION_NOTIFY(UAS_Stamina, Stamina, COND_Custom, REPNOTIFY_Always);
+	Params.bIsPushBased = true;
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Stamina, MaxStamina, Params);
 
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Stamina, StaminaDrain, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Stamina, StaminaGain, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UAS_Stamina, StaminaRegenPause, COND_None, REPNOTIFY_Always);
+	Params.RepNotifyCondition = REPNOTIFY_OnChanged;
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Stamina, Stamina, Params);
+	Params.RepNotifyCondition = REPNOTIFY_Always;
+
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Stamina, StaminaDrain, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Stamina, StaminaGain, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Stamina, StaminaRegenPause, Params);
 }
-//void UAS_Stamina::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) // this is only for AActors and UActorComponents, we will have to do something tricky instead of this
-//{
-//	Super::PreReplication(ChangedPropertyTracker);
-//
-//
-//	DOREPLIFETIME_ACTIVE_OVERRIDE(UAS_Stamina, Stamina, true);
-//}
 
 //	These are default values BEFORE the default attribute values effect gets applied
 UAS_Stamina::UAS_Stamina()
@@ -39,6 +38,7 @@ UAS_Stamina::UAS_Stamina()
 	StaminaGain(1),
 	StaminaRegenPause(2)
 {
+	Stamina = FFloatPropertyWrapper(this, FName(TEXT("Stamina")));
 	SetSoftAttributeDefaults();
 
 
@@ -58,17 +58,23 @@ void UAS_Stamina::Tick(float DeltaTime)
 	{
 		timeSinceStaminaDrain = 0; // we are in draining mode, reset our time since drainage
 
-		if (GetStamina() > 0)
+		if (Stamina > 0)
 		{
 			// We are draining
-			SetStamina(GetStamina() - (GetStaminaDrain() * DeltaTime));
+			Stamina = Stamina - (GetStaminaDrain() * DeltaTime);
 
-			if (GetStamina() < 0)
+			if (Stamina < 0)
 			{
 				// We are fully drained
-				SetStamina(0);
+				Stamina = 0;
 				OnStaminaFullyDrained.Broadcast();
 				bStaminaDraining = false; // break out of draining mode so we can start to regen
+
+
+				if (GetStaminaRegenPause() >= 0.5f) // if the pause is at least .5 seconds, we are safe to replicate (because the packet should probably take no longer than 500ms when replcating) TODO: check the player ping instead of hardcoded number
+				{
+					Stamina.MarkNetDirty();
+				}
 			}
 		}
 		else
@@ -83,15 +89,15 @@ void UAS_Stamina::Tick(float DeltaTime)
 
 		if (timeSinceStaminaDrain >= GetStaminaRegenPause())
 		{
-			if (GetStamina() < GetMaxStamina())
+			if (Stamina < GetMaxStamina())
 			{
 				// We are regening
-				SetStamina(GetStamina() + (GetStaminaGain() * DeltaTime));
+				Stamina = Stamina + (GetStaminaGain() * DeltaTime);
 
-				if (GetStamina() > GetMaxStamina())
+				if (Stamina > GetMaxStamina())
 				{
 					// We are fully regened
-					SetStamina(GetMaxStamina());
+					Stamina = GetMaxStamina();
 					OnStaminaFullyGained.Broadcast();
 
 					SetShouldTick(false); // at this point no stamina logic needs to be performed (we are at full stamina) so we are safe to stop ticking
@@ -110,40 +116,12 @@ void UAS_Stamina::SetShouldTick(bool newShouldTick)
 	if (bShouldTick != newShouldTick)
 	{
 		bShouldTick = newShouldTick;
-
-
-		//UNetDriver* NetDriver = GetWorld()->GetNetDriver();
-		//IRepChangedPropertyTracker& ChangedPropertyTracker = *(NetDriver->FindOrCreateRepChangedPropertyTracker(this).Get());
-
-		//if (bShouldTick == true)
-		//{
-		//	DOREPLIFETIME_ACTIVE_OVERRIDE(UAS_Stamina, Stamina, false);
-		//}
-		//else
-		//{
-		//	DOREPLIFETIME_ACTIVE_OVERRIDE(UAS_Stamina, Stamina, true);
-		//}
 	}
-
-	// Actually semi-replicating stamina (or replicating it at all) is a really bad idea because of how transient it is
-
-	//if (GetOwningActor()->GetLocalRole() == ROLE_Authority)
-	//{
-	//	ClientReplicateStaminaState(GetStamina(), bStaminaDraining);
-	//}
 }
 
 bool UAS_Stamina::ShouldTick() const
 {
 	return bShouldTick;
-}
-
-void UAS_Stamina::ClientReplicateStaminaState_Implementation(float serverStamina, bool serverStaminaDraining)
-{
-	SetStamina(serverStamina);
-	SetStaminaDraining(serverStaminaDraining);
-
-	UE_LOG(LogTemp, Log, TEXT("client recieved server stamina state"));
 }
 
 void UAS_Stamina::SetStaminaDraining(bool newStaminaDraining)
@@ -166,12 +144,6 @@ void UAS_Stamina::OnRep_MaxStamina(const FGameplayAttributeData& ServerBaseValue
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Stamina, MaxStamina, ServerBaseValue);
 }
-
-//void UAS_Stamina::OnRep_Stamina(const FGameplayAttributeData& ServerBaseValue)
-//{
-//	UKismetSystemLibrary::PrintString(this, "OnRep_Stamina", true, false);
-//	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Stamina, Stamina, ServerBaseValue);
-//}
 
 void UAS_Stamina::OnRep_StaminaDrain(const FGameplayAttributeData& ServerBaseValue)
 {

@@ -5,8 +5,11 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSAttributeSet.h"
 #include "AbilitySystemComponent.h"
+#include "Utilities/PropertyWrappers.h"
 
 #include "AS_Ammo.generated.h"
+
+
 
 /**
  * 
@@ -32,9 +35,8 @@ public:
 		FGameplayAttributeData MaxClipAmmo;
 	ATTRIBUTE_ACCESSORS(UAS_Ammo, MaxClipAmmo)
 
-	UPROPERTY(BlueprintReadOnly/*, ReplicatedUsing = OnRep_ClipAmmo*/, Category = "Attributes", meta = (HideFromModifiers))
-		FGameplayAttributeData ClipAmmo;
-	ATTRIBUTE_ACCESSORS(UAS_Ammo, ClipAmmo)
+	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Attributes", meta = (HideFromModifiers))
+		FFloatPropertyWrapper ClipAmmo;
 
 	//UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromLevelInfos))
 	//	FGameplayAttributeData BackupAmmoReceive;
@@ -42,6 +44,8 @@ public:
 
 protected:
 	virtual void SetSoftAttributeDefaults() override;
+
+	virtual void PostInitProperties() override;
 
 
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
@@ -57,6 +61,4 @@ protected:
 	UFUNCTION()
 		virtual void OnRep_MaxClipAmmo(const FGameplayAttributeData& ServerBaseValue);
 
-	//UFUNCTION()
-	//	virtual void OnRep_ClipAmmo(const FGameplayAttributeData& ServerBaseValue);
 };

@@ -6,6 +6,7 @@
 #include "AbilitySystem/SSAttributeSet.h"
 #include "GameplayAbilities/Public/TickableAttributeSetInterface.h"
 #include "AbilitySystemComponent.h"
+#include "Utilities/PropertyWrappers.h"
 
 #include "AS_Stamina.generated.h"
 
@@ -30,13 +31,8 @@ public:
 		FGameplayAttributeData MaxStamina;
 	ATTRIBUTE_ACCESSORS(UAS_Stamina, MaxStamina)
 
-	UPROPERTY(BlueprintReadOnly/*, ReplicatedUsing = OnRep_Stamina*/, Category = "Attributes")
-		FGameplayAttributeData Stamina;
-	ATTRIBUTE_ACCESSORS(UAS_Stamina, Stamina)
-
-	UFUNCTION(Unreliable, Client)
-		void ClientReplicateStaminaState(float serverStamina, bool serverStaminaDraining);
-	void ClientReplicateStaminaState_Implementation(float serverStamina, bool serverStaminaDraining);
+	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Attributes")
+		FFloatPropertyWrapper Stamina;
 
 	/** How fast your stamina drains while running */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_StaminaDrain, Category = "Attributes")
@@ -70,10 +66,6 @@ protected:
 
 	UFUNCTION()
 		virtual void OnRep_MaxStamina(const FGameplayAttributeData& ServerBaseValue);
-
-	//UFUNCTION()
-	//	virtual void OnRep_Stamina(const FGameplayAttributeData& ServerBaseValue);
-
 	UFUNCTION()
 		virtual void OnRep_StaminaDrain(const FGameplayAttributeData& ServerBaseValue);
 	UFUNCTION()

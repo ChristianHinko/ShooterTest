@@ -53,17 +53,7 @@ void AShooterCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-		if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy)	// No point of doing a client RPC if no client is controlling it (ie. this is an AI)
-		{
-			if (SSInventoryComponentActive)
-			{
-				SSInventoryComponentActive->ClientRecieveStartingActiveItemHistoryArray(SSInventoryComponentActive->ActiveItemHistory);
-			}
-			else
-			{
-				UE_LOG(LogArcInventorySetup, Error, TEXT("%s() Failed to call ClientRecieveStartingActiveItemHistoryArray RPC. Item history array is not in sync!"), *FString(__FUNCTION__));
-			}
-		}
+
 }
 
 void AShooterCharacter::BeginPlay()
@@ -100,6 +90,7 @@ bool AShooterCharacter::GrantStartingAbilities()
 #include "Kismet/KismetSystemLibrary.h"
 #include "AbilitySystem/AttributeSets/AS_Health.h"
 #include "Item/AS_Ammo.h"
+#include "AbilitySystem/AttributeSets/AS_Stamina.h"
 #include "ArcItemBPFunctionLibrary.h"
 #include "Item\ArcItemDefinition_New.h"
 //#include "Kismet/KismetMathLibrary.h"
@@ -108,10 +99,10 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	//if (GetHealthAttributeSet())
-	//{
-	//	UKismetSystemLibrary::PrintString(this, FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
-	//}
+	if (GetHealthAttributeSet())
+	{
+		//UKismetSystemLibrary::PrintString(this, FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
+	}
 
 	//for (int32 i = 0; i < SSInventoryComponentActive->ActiveItemHistory.Num(); ++i)
 	//{
@@ -130,14 +121,21 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 	{
 		for (UAttributeSet* AttributeSet : GetAbilitySystemComponent()->GetSpawnedAttributes())
 		{
-			if (UAS_Ammo* AmmoAttributeSet = Cast<UAS_Ammo>(AttributeSet))
-			{
-				UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetBackupAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetBackupAmmo()), true, false);
-				UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetClipAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetClipAmmo()), true, false);
-			}
+			//if (UAS_Ammo* AmmoAttributeSet = Cast<UAS_Ammo>(AttributeSet))
+			//{
+			//	UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetBackupAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetBackupAmmo()), true, false);
+			//	UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->ClipAmmo.GetPropertyName().ToString() + ": " + FString::SanitizeFloat(AmmoAttributeSet->ClipAmmo), true, false);
+			//}
+
+			//if (UAS_Stamina* FoundStaminaAttributeSet = Cast<UAS_Stamina>(AttributeSet))
+			//{
+			//	UKismetSystemLibrary::PrintString(this, FoundStaminaAttributeSet->Stamina.GetPropertyName().ToString() + ": " + FString::SanitizeFloat(FoundStaminaAttributeSet->Stamina), true, false);
+			//}
 		}
 
 	}
+
+	//}
 
 	//	Item history debug
 	//UKismetSystemLibrary::PrintString(this, "------------", true, false);

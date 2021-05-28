@@ -19,6 +19,7 @@ class AAbilitySystemCharacter;
 
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterMovementWantsToChanged, bool);
+DECLARE_MULTICAST_DELEGATE(FCharacterMovementStateNotify);
 
 
 /**
@@ -204,6 +205,12 @@ public:
 
 	FRotator CurrentRotationRate;
 
+	FCharacterMovementStateNotify OnAccelerationStart;
+	FCharacterMovementStateNotify OnAccelerationStop;
+
+	FCharacterMovementStateNotify OnStartedFalling;
+	FCharacterMovementStateNotify OnStoppedFalling;
+
 
 protected:
 	//	Don't know for sure if this is the best event to use but works for now
@@ -236,6 +243,9 @@ protected:
 	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override; // DO NOT UTILIZE THIS EVENT FOR MOVEMENT
 	//END CMC Interface
+
+	// A new thing added to the engine TODO: look into this and see if we need to fix anything because of this
+	virtual void ServerMove_PerformMovement(const FCharacterNetworkMoveData& MoveData) override;
 
 
 #pragma region Compressed Flags

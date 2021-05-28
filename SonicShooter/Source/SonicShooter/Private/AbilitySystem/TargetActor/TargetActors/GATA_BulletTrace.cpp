@@ -123,7 +123,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 				// This Hit Result's distance plus the previous ricochet(s)'s traveled distance
 				const float ricochetAwareDistance = totalDistanceUpUntilThisTrace + Hit.Distance;
 
-				ThisBulletTargetData->ActorHitInfos.Emplace(Hit.GetActor(), ricochetAwareDistance);
+				ThisBulletTargetData->ActorHitInfos.Emplace(Hit.GetActor(), ricochetAwareDistance, -1);
 
 
 

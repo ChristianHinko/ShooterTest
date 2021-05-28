@@ -362,7 +362,7 @@ void UGA_FireGun::OnRelease(float TimeHeld)
 
 void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 {
-	GetAbilitySystemComponentFromActorInfo()->AddGameplayCue(FGameplayTag::RequestGameplayTag("GameplayCue.Test"));	// Very temp. This is just to see a gc work
+	// Apply effects
 	if (TSubclassOf<UGameplayEffect> BulletHitEffectTSub = GunToFire->BulletHitEffectTSub)
 	{
 		if (Data.Num() > 0)	// No need to call if we have no targets
@@ -375,9 +375,11 @@ void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 		UE_LOG(LogGameplayAbility, Warning, TEXT("%s(): GunToFire gave us an empty BulletHitEffectTSub. Make sure to fill out DefaultBulletHitEffectTSub in the Gun generator"), *FString(__FUNCTION__));
 	}
 
+	// Execute cues
+	//GetAbilitySystemComponentFromActorInfo()->AddGameplayCue(FGameplayTag::RequestGameplayTag("GameplayCue.Test"));	// Very temp. This is just to see a gc work
 
 
-
+	// End ability if needed
 	int32 flooredShotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
 	if (GunAttributeSet->GetbFullAuto() == 0 && (flooredShotsPerBurst <= 1/* || timesBursted >= flooredShotsPerBurst*/))
 	{

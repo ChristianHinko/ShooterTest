@@ -29,8 +29,12 @@ public:
 	/** Sweeps as normal, but does ricochet traces aswell (unless ricochets is 0) */
 	void SweepMultiWithRicochets(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FQuat& Rotation, const FCollisionShape& CollisionShape, const FCollisionQueryParams& Params, const bool inDebug);
 
+
+	/** Number of traces to fire at once (a shotgun-like feature) */
 	virtual int32 GetNumberOfTraces() const;
+	/** Max times to ricochet */
 	virtual int32 GetRicochets() const;
+	/** Max times to penetrate through blocking hits */
 	virtual int32 GetPenetrations() const;
 
 	/** Any Physical Surfaces added to this array will ricochet any Trace that hits them */
@@ -51,9 +55,17 @@ protected:
 	 */
 	virtual void CalculateRicochetDirection(FVector& RicoDir, const FHitResult& FromHit) const;
 
-	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) PURE_VIRTUAL(AGATA_Trace);
-	void PerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AActor* InSourceActor);
 
+	// LineTraceMulti() events, return false to discontinue traces
+	virtual bool OnInitialTrace(const FHitResult& InitialBlockingHit, const UWorld* World, const FCollisionQueryParams& TraceParams);
+	virtual bool OnPenetrate(const FHitResult& PenetratedThrough, TArray<FHitResult>& OutPenetrateHitResults, const UWorld* World, const FVector& PenetrateStart, const FVector& PenetrateEnd, const FCollisionQueryParams& TraceParams);
+	virtual bool OnRicochet(const FHitResult& RicochetOffOf, TArray<FHitResult>& OutRicoHitResults, const UWorld* World, const FVector& RicoStart, const FVector& RicoEnd, const FCollisionQueryParams& TraceParams);
+	virtual void OnPostTraces(const FHitResult& LastBlockingHit, const UWorld* World, const FCollisionQueryParams& TraceParams);
+
+
+	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) PURE_VIRTUAL(AGATA_Trace);
+
+	void PerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AActor* InSourceActor);
 	int32 CurrentTraceIndex;
 
 

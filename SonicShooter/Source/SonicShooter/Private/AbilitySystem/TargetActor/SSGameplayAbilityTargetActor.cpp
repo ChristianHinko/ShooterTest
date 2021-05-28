@@ -106,7 +106,7 @@ bool ASSGameplayAbilityTargetActor::HitResultFailsFilter(const TArray<FHitResult
 
 	if (FilterHandle.MultiFilter.IsValid()) // if valid filter
 	{
-		const bool bPassesFilter = FilterHandle.FilterPassesForActor(HitToTryFilter.Actor);
+		const bool bPassesFilter = FilterHandle.FilterPassesForActor(HitToTryFilter.GetActor());
 		if (!bPassesFilter)
 		{
 			return true;
@@ -124,7 +124,7 @@ bool ASSGameplayAbilityTargetActor::HitResultFailsFilter(const TArray<FHitResult
 		{
 			const FHitResult& Hit = InHitResults[i];
 
-			if (HitToTryFilter.Actor == Hit.Actor) // if we already hit this actor
+			if (HitToTryFilter.GetActor() == Hit.GetActor()) // if we already hit this actor
 			{
 				if (AreHitsFromSameTrace(HitToTryFilter, Hit)) // only remove if they were in the same trace (if they were from separate traces, they aren't considered a duplicate hit)
 				{

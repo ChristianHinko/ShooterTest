@@ -77,7 +77,7 @@ public:
     int32 GetNumRicochetsBeforeHit() const
     {
         // This adds up all of the ricochet points (if any) disregarding the start and end location
-        return (BulletTracePoints.Num() - 2);
+        return FMath::Max((BulletTracePoints.Num() - 2), 0);
     }
 
     void SetHitInfo(const FActorHitInfo& inHitInfo) { HitInfo = inHitInfo; }

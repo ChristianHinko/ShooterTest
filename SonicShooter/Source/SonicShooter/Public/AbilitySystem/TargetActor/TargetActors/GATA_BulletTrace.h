@@ -9,6 +9,7 @@
 
 
 class UAS_Gun;
+struct FPenetrationInfo;
 
 
 
@@ -37,15 +38,20 @@ public:
 	int16 FireSpecificNetSafeRandomSeed;
 
 protected:
-	virtual bool OnInitialTrace(const FHitResult& InitialBlockingHit, const UWorld* World, const FCollisionQueryParams& TraceParams) override;
-	virtual bool OnPenetrate(const FHitResult& PenetratedThrough, TArray<FHitResult>& OutPenetrateHitResults, const UWorld* World, const FVector& PenetrateStart, const FVector& PenetrateEnd, const FCollisionQueryParams& TraceParams) override;
-	virtual bool OnRicochet(const FHitResult& RicochetOffOf, TArray<FHitResult>& OutRicoHitResults, const UWorld* World, const FVector& RicoStart, const FVector& RicoEnd, const FCollisionQueryParams& TraceParams) override;
-	virtual void OnPostTraces(const FHitResult& LastBlockingHit, const UWorld* World, const FCollisionQueryParams& TraceParams) override;
-
 	// This override signifies performing a trace for a ricochetable bullet (but it also might not richochet based on how this GATA is configed). The OutHitResults are the hit results from 1 bullet ricocheting off walls and hitting player(s)
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) override;
 
 	virtual void CalculateAimDirection(FVector& ViewStart, FVector& ViewDir) const override;
+
+
+	virtual bool OnInitialTrace(TArray<FHitResult>& OutInitialHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& TraceParams) override;
+	virtual bool OnPenetrate(const FHitResult& PenetratedThrough, TArray<FHitResult>& OutPenetrateHitResults, const UWorld* World, const FVector& PenetrateStart, const FVector& PenetrateEnd, const FCollisionQueryParams& TraceParams) override;
+	virtual bool OnRicochet(const FHitResult& RicochetOffOf, TArray<FHitResult>& OutRicoHitResults, const UWorld* World, const FVector& RicoStart, const FVector& RicoEnd, const FCollisionQueryParams& TraceParams) override;
+	virtual void OnPostTraces(const FHitResult& LastBlockingHit, const UWorld* World, const FCollisionQueryParams& TraceParams) override;
+
+	float CurrentTraceSpeed;
+
+	void ApplyPenetrationInfosToTraceSpeed(const TArray<FPenetrationInfo>& PenetrationInfos);
 
 private:
 	TArray<FHitResult> ThisRicochetBlockingHits;

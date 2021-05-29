@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
+
 #include "ShooterPhysicalMaterial.generated.h"
+
+
 
 /**
  * 
@@ -17,11 +20,12 @@ class SONICSHOOTER_API UShooterPhysicalMaterial : public UPhysicalMaterial
 public:
 	UShooterPhysicalMaterial();
 
-	/** This affects the bullet's speed when penetrating this physical material  */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Shooter)
-		float BulletPenetrationSpeedMultiplier;
 
-	/** This affects the bullet's speed when ricocheting this physical material  */
+	/** Slows down bullet speed by this much PER METER in penetration */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Shooter)
-		float BulletRicochetSpeedMultiplier;
+		float BulletPenetrationSpeedReduction;
+
+	/** Slows down bullet speed by subtracting this much on ricochet */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Shooter)
+		float BulletRicochetSpeedReduction;
 };

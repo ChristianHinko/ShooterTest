@@ -165,7 +165,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 	// Perform initial trace
 	TArray<FHitResult> InitialHitResults;
-	World->LineTraceMultiByChannel(InitialHitResults, Start, End, TraceChannel, TraceParams);
+	const bool bShouldExtraTraces = OnInitialTrace(InitialHitResults, World, Start, End, TraceParams);
 	if (InitialHitResults.Num() > 0)
 	{
 		currentMaxRange -= InitialHitResults.Last().Distance;
@@ -182,8 +182,8 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 		OutHitResults.Emplace(TraceInfo);
 	}
 
-	const bool bShouldStop = !OnInitialTrace(OutHitResults.Last(), World, TraceParams);
-	if (!bShouldStop)
+	// Perform extra traces
+	if (bShouldExtraTraces)
 	{
 		// Extra traces loop
 		int32 maxRicochets = GetRicochets();
@@ -357,12 +357,22 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 #endif
 }
 
-bool AGATA_Trace::OnInitialTrace(const FHitResult& InitialBlockingHit, const UWorld* World, const FCollisionQueryParams& TraceParams)
+bool AGATA_Trace::OnInitialTrace(TArray<FHitResult>& OutInitialHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& TraceParams)
 {
-	if (InitialBlockingHit.bBlockingHit == false)
+	OutInitialHitResults.Empty();
+
+
+	World->LineTraceMultiByChannel(OutInitialHitResults, Start, End, TraceChannel, TraceParams);
+
+	if (OutInitialHitResults.Num() <= 0)
 	{
 		return false;
 	}
+	if (OutInitialHitResults.Last().bBlockingHit == false)
+	{
+		return false;
+	}
+
 
 	return true;
 }

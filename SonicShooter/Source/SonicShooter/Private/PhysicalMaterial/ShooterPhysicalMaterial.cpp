@@ -3,8 +3,10 @@
 
 #include "PhysicalMaterial/ShooterPhysicalMaterial.h"
 
+
+
 UShooterPhysicalMaterial::UShooterPhysicalMaterial()
 {
-	BulletPenetrationSpeedMultiplier = 1/6;	// cut the speed down into a sixth
-	BulletRicochetSpeedMultiplier = 1/3;	// cut the speed down into a third
+	BulletPenetrationSpeedReduction = 20.f;
+	BulletRicochetSpeedReduction = 50.f;
 }

@@ -10,6 +10,7 @@
 #include "GameplayAbilities\Public\AbilitySystemComponent.h"
 #include "Item/Weapons/AS_Gun.h"
 #include "Utilities\BlueprintFunctionLibraries\BFL_CollisionQueryHelpers.h"
+#include "PhysicalMaterial/ShooterPhysicalMaterial.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -166,65 +167,6 @@ void AGATA_BulletTrace::CalculateAimDirection(FVector& ViewStart, FVector& ViewD
 	}
 }
 
-bool AGATA_BulletTrace::OnInitialTrace(const FHitResult& InitialBlockingHit, const UWorld* World, const FCollisionQueryParams& TraceParams)
-{
-	bool bShouldContinue = Super::OnInitialTrace(InitialBlockingHit, World, TraceParams);
-
-	ThisRicochetBlockingHits.Empty();
-	ThisRicochetBlockingHits.Emplace(InitialBlockingHit);
-
-
-	return bShouldContinue;
-}
-bool AGATA_BulletTrace::OnPenetrate(const FHitResult& PenetratedThrough, TArray<FHitResult>& OutPenetrateHitResults, const UWorld* World, const FVector& PenetrateStart, const FVector& PenetrateEnd, const FCollisionQueryParams& TraceParams)
-{
-	bool bShouldContinue = Super::OnPenetrate(PenetratedThrough, OutPenetrateHitResults, World, PenetrateStart, PenetrateEnd, TraceParams);
-
-
-	ThisRicochetBlockingHits.Emplace(PenetratedThrough);
-
-
-	return bShouldContinue;
-}
-bool AGATA_BulletTrace::OnRicochet(const FHitResult& RicochetOffOf, TArray<FHitResult>& OutRicoHitResults, const UWorld* World, const FVector& RicoStart, const FVector& RicoEnd, const FCollisionQueryParams& TraceParams)
-{
-	bool bShouldContinue = Super::OnRicochet(RicochetOffOf, OutRicoHitResults, World, RicoStart, RicoEnd, TraceParams);
-
-
-	if (ThisRicochetBlockingHits.Num() > 0)
-	{
-		// We are about to ricochet so calculate Penetrations for these blocking Hits before we move on to the next ricochet
-		TArray<FPenetrationInfo> ThisRicochetPenetrations;
-		UBFL_CollisionQueryHelpers::BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, RicochetOffOf.Location, World, TraceParams, TraceChannel);
-		ThisRicochetBlockingHits.Empty(); // we are about to begin our next ricochet so reset the blocking Hit Results for next ricochet
-
-		for (const FPenetrationInfo& Pen : ThisRicochetPenetrations)
-		{
-			UKismetSystemLibrary::PrintString(this, Pen.GetDebugString());
-		}
-	}
-
-
-	return bShouldContinue;
-}
-void AGATA_BulletTrace::OnPostTraces(const FHitResult& LastBlockingHit, const UWorld* World, const FCollisionQueryParams& TraceParams)
-{
-	Super::OnPostTraces(LastBlockingHit, World, TraceParams);
-
-
-	if (ThisRicochetBlockingHits.Num() > 0)
-	{
-		TArray<FPenetrationInfo> ThisRicochetPenetrations;
-		UBFL_CollisionQueryHelpers::BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, World, TraceParams, TraceChannel);
-		ThisRicochetBlockingHits.Empty();
-
-		for (const FPenetrationInfo& Pen : ThisRicochetPenetrations)
-		{
-			UKismetSystemLibrary::PrintString(this, Pen.GetDebugString());
-		}
-	}
-}
-
 void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor)
 {
 	check(GunAttributeSet);
@@ -252,4 +194,92 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 	// Perform line trace
 	LineTraceMulti(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, Params, bDebug);
 
+}
+
+
+bool AGATA_BulletTrace::OnInitialTrace(TArray<FHitResult>& OutInitialHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& TraceParams)
+{
+	bool RetVal = Super::OnInitialTrace(OutInitialHitResults, World, Start, End, TraceParams);
+
+	// Initialize ThisRicochetBlockingHits
+	ThisRicochetBlockingHits.Empty();
+
+	// Intialize CurrentTraceSpeed
+	CurrentTraceSpeed = GetInitialTraceSpeed();
+
+	return RetVal;
+}
+bool AGATA_BulletTrace::OnPenetrate(const FHitResult& PenetratedThrough, TArray<FHitResult>& OutPenetrateHitResults, const UWorld* World, const FVector& PenetrateStart, const FVector& PenetrateEnd, const FCollisionQueryParams& TraceParams)
+{
+	bool RetVal = Super::OnPenetrate(PenetratedThrough, OutPenetrateHitResults, World, PenetrateStart, PenetrateEnd, TraceParams);
+
+	// Add what we penetrated through as a blocking hit for ThisRicochetBlockingHits
+	ThisRicochetBlockingHits.Emplace(PenetratedThrough);
+
+	return RetVal;
+}
+bool AGATA_BulletTrace::OnRicochet(const FHitResult& RicochetOffOf, TArray<FHitResult>& OutRicoHitResults, const UWorld* World, const FVector& RicoStart, const FVector& RicoEnd, const FCollisionQueryParams& TraceParams)
+{
+	bool RetVal = Super::OnRicochet(RicochetOffOf, OutRicoHitResults, World, RicoStart, RicoEnd, TraceParams);
+
+
+	//ThisRicochetBlockingHits.Emplace(RicochetOffOf);
+
+	// We are ricocheting so Build Penetration Info about the previous ricochet's blocking hits
+	if (ThisRicochetBlockingHits.Num() > 0)
+	{
+		// We are about to ricochet so calculate Penetrations for these blocking Hits before we move on to the next ricochet
+		TArray<FPenetrationInfo> ThisRicochetPenetrations;
+		UBFL_CollisionQueryHelpers::BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, RicochetOffOf.Location, World, TraceParams, TraceChannel);
+
+		ApplyPenetrationInfosToTraceSpeed(ThisRicochetPenetrations);
+	}
+
+	// Take away ricochet speed reduction using RicochetOffOf's physical materials
+	if (const UShooterPhysicalMaterial* ShooterPhysMat = Cast<UShooterPhysicalMaterial>(RicochetOffOf.PhysMaterial.Get()))
+	{
+		CurrentTraceSpeed -= (ShooterPhysMat->BulletRicochetSpeedReduction);
+	}
+
+	// Reset the blocking Hit Results for the next group of blocking hits
+	ThisRicochetBlockingHits.Empty();
+
+
+	return RetVal;
+}
+void AGATA_BulletTrace::OnPostTraces(const FHitResult& LastBlockingHit, const UWorld* World, const FCollisionQueryParams& TraceParams)
+{
+	Super::OnPostTraces(LastBlockingHit, World, TraceParams);
+
+
+	// Apply any penetrations left to our CurrentTraceSpeed
+	if (ThisRicochetBlockingHits.Num() > 0)
+	{
+		TArray<FPenetrationInfo> ThisRicochetPenetrations;
+		UBFL_CollisionQueryHelpers::BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, World, TraceParams, TraceChannel);
+
+		ApplyPenetrationInfosToTraceSpeed(ThisRicochetPenetrations);
+	}
+
+	ThisRicochetBlockingHits.Empty();
+
+}
+
+void AGATA_BulletTrace::ApplyPenetrationInfosToTraceSpeed(const TArray<FPenetrationInfo>& PenetrationInfos)
+{
+	for (const FPenetrationInfo& Penetration : PenetrationInfos)
+	{
+		const float& PenetrationDistance = Penetration.PenetrationDistance;
+
+		const TArray<UPhysicalMaterial*>& PhysMats = Penetration.PenetratedPhysMaterials;
+		for (const UPhysicalMaterial* PhysMat : PhysMats)
+		{
+			if (const UShooterPhysicalMaterial* ShooterPhysMat = Cast<UShooterPhysicalMaterial>(PhysMat))
+			{
+				CurrentTraceSpeed -= (PenetrationDistance * (ShooterPhysMat->BulletPenetrationSpeedReduction / 100));
+			}
+		}
+
+		UKismetSystemLibrary::PrintString(this, Penetration.GetDebugString() + "                        CurrentTraceSpeed: " + FString::SanitizeFloat(CurrentTraceSpeed), true, false);
+	}
 }

@@ -223,7 +223,7 @@ bool AGATA_BulletTrace::OnRicochet(const FHitResult& RicochetOffOf, TArray<FHitR
 	bool RetVal = Super::OnRicochet(RicochetOffOf, OutRicoHitResults, World, RicoStart, RicoEnd, TraceParams);
 
 
-	//ThisRicochetBlockingHits.Emplace(RicochetOffOf);
+	ThisRicochetBlockingHits.Emplace(RicochetOffOf);
 
 	// We are ricocheting so Build Penetration Info about the previous ricochet's blocking hits
 	if (ThisRicochetBlockingHits.Num() > 0)

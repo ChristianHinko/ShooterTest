@@ -164,7 +164,7 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 			// Loop to fill PenetrationHitResults
 			for (int32 i = NextFwdBlockingHitToInsert; i >= 0; --i)
 			{
-				const FHitResult FwdBlockingHit = FwdBlockingHits[i];
+				const FHitResult& FwdBlockingHit = FwdBlockingHits[i];
 
 				// We want to add the after-most hits first (both the Fwd and Bkwd hits)
 				const FVector BkwdToFwd = (FwdBlockingHit.ImpactPoint - BkwdHitResult.ImpactPoint);
@@ -185,12 +185,18 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 
 			}
 
+			// If the we added all of the FwdBlockingHits, the NextFwdBlockingHitToInsert loop won't get to add this BkwdHitResult so do it here
+			if (NextFwdBlockingHitToInsert <= 0)
+			{
+				PenetrationHitResults.Insert(FPenetrationHitResult(BkwdHitResult, false), 0);
+			}
+
 		}
 
 		// Loop to finish filling PenetrationHitResults
 		for (int32 i = NextFwdBlockingHitToInsert; i >= 0; --i)
 		{
-			const FHitResult FwdBlockingHit = FwdBlockingHits[i];
+			const FHitResult& FwdBlockingHit = FwdBlockingHits[i];
 
 			// Add this Fwd result
 			PenetrationHitResults.Insert(FPenetrationHitResult(FwdBlockingHit, true), 0);
@@ -215,7 +221,7 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 			PenetrationInfo.PenetratedPhysMaterials = CurrentEntrancePhysMaterials;
 		}
 
-		OutPenetrationInfos.Add(PenetrationInfo);
+		OutPenetrationInfos.Emplace(PenetrationInfo);
 
 		if (CurrentPenetrationHitResult.bIsEntrance == false)
 		{
@@ -264,8 +270,10 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 	// If we ended up never exiting a Phys Mat
 	if (CurrentEntrancePhysMaterials.Num() > 0)
 	{
-		UE_CLOG((OutPenetrationInfos.Num() <= 0), LogBlueprintFunctionLibrary, Fatal, TEXT("%s(): When trying to make Penetration Info for un-exited entrance Phys Mats, we somehow don't have any OutPenetrationInfos to work with"), *FString(__FUNCTION__));
-
+		if (OutPenetrationInfos.Num() <= 0)
+		{
+			UE_LOG(LogBlueprintFunctionLibrary, Fatal, TEXT("%s(): When trying to make Penetration Info for un-exited entrance Phys Mats, we somehow don't have any OutPenetrationInfos to work with"), *FString(__FUNCTION__));
+		}
 
 		// Since we never got to exit these Phys Mats, make a last Penetration Info for these that extend to the FwdEndLocation
 
@@ -274,14 +282,17 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 		PenetrationInfo.ExitPoint = FwdEndLocation;
 		PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
 
-		for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num(); ++i)
+		if (FMath::IsNearlyZero(PenetrationInfo.PenetrationDistance) == false) // only add this one if the distance isn't zero
 		{
-			PenetrationInfo.PenetratedPhysMaterials.Add(CurrentEntrancePhysMaterials[i]);
+			for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num(); ++i)
+			{
+				PenetrationInfo.PenetratedPhysMaterials.Emplace(CurrentEntrancePhysMaterials[i]);
+			}
+			CurrentEntrancePhysMaterials.Empty();
+
+
+			OutPenetrationInfos.Emplace(PenetrationInfo);
 		}
-		CurrentEntrancePhysMaterials.Empty();
-
-
-		OutPenetrationInfos.Add(PenetrationInfo);
 	}
 
 

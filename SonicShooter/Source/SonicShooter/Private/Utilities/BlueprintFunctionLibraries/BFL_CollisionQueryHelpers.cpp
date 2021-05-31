@@ -109,11 +109,10 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 		BkwdParams.bTraceComplex = true; // Use complex collision if the collider has it. We need this because we are starting from inside the geometry and shooting out (this won't work for CTF_UseSimpleAsComplex and Physics Assest colliders so TODO: we will need a case that covers this)
 		BkwdParams.bIgnoreTouches = true;
 
-	
-		int32 IndexToInsertTo = 0;
-		for (int32 i = 0; i < FwdBlockingHits.Num(); ++i)
+		
+		for (int32 i = -1; i < FwdBlockingHits.Num(); ++i)
 		{
-			const FHitResult& ThisFwdBlockingHit = FwdBlockingHits[i];
+			//const FHitResult& ThisFwdBlockingHit = FwdBlockingHits[i];
 
 			FVector BkwdStart;
 			if (FwdBlockingHits.IsValidIndex(i + 1))
@@ -124,12 +123,23 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 			{
 				BkwdStart = FwdEndLocation + ((KINDA_SMALL_NUMBER * 100) * BkwdDir);
 			}
-			FVector BkwdEnd = ThisFwdBlockingHit.ImpactPoint + ((KINDA_SMALL_NUMBER * 100) * FwdDir); // NOTE: this would be weird for collision sweeps
+			FVector BkwdEnd;
+			if (i == -1)
+			{
+				BkwdEnd = FwdStartLocation + ((KINDA_SMALL_NUMBER * 100) * FwdDir);
+			}
+			else
+			{
+				BkwdEnd = FwdBlockingHits[i].ImpactPoint + ((KINDA_SMALL_NUMBER * 100) * FwdDir); // NOTE: this would be weird for collision sweeps
+			}
 
 
 
-			// This stack tells us how deep we are and provides us with the phys materials of the entrance hits
-			CurrentEntrancePhysMaterials.Push(ThisFwdBlockingHit.PhysMaterial.Get());
+			if (i != -1)
+			{
+				// This stack tells us how deep we are and provides us with the phys materials of the entrance hits
+				CurrentEntrancePhysMaterials.Push(FwdBlockingHits[i].PhysMaterial.Get());
+			}
 
 
 			// Bkwd traces loop
@@ -188,19 +198,19 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 
 			{
 				FPenetrationInfo PenetrationInfo; // the Penetration Info we will make for this distance we just traced
-				PenetrationInfo.EntrancePoint = ThisFwdBlockingHit.ImpactPoint;
+				PenetrationInfo.EntrancePoint = (i == -1) ? BkwdEnd : FwdBlockingHits[i].ImpactPoint;
 				PenetrationInfo.ExitPoint = (BkwdHitResults.Num() > 0) ? BkwdHitResults[0].ImpactPoint : BkwdStart;
 				PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
 				PenetrationInfo.PenetratedPhysMaterials = CurrentEntrancePhysMaterials;
 
-				OutPenetrationInfos.Insert(PenetrationInfo, IndexToInsertTo);
+				OutPenetrationInfos.Emplace(PenetrationInfo);
 			}
 
 			for (const FHitResult& BkwdHit : BkwdHitResults)
 			{
 
 				// Remove this Phys Mat from the Phys Mat stack because we are exiting it
-				UPhysicalMaterial* PhysMatThatWeAreExiting = ThisFwdBlockingHit.PhysMaterial.Get();
+				UPhysicalMaterial* PhysMatThatWeAreExiting = BkwdHit.PhysMaterial.Get();
 				int32 IndexOfPhysMatThatWeAreExiting = CurrentEntrancePhysMaterials.FindLast(PhysMatThatWeAreExiting); // the inner-most (last) occurrence of this Phys Mat is the one that we are exiting
 				if (IndexOfPhysMatThatWeAreExiting != INDEX_NONE)
 				{
@@ -223,21 +233,14 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 				PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
 				PenetrationInfo.PenetratedPhysMaterials = CurrentEntrancePhysMaterials;
 
-				//OutPenetrationInfos.Insert(PenetrationInfo, IndexToInsertTo);
-				OutPenetrationInfos.Add(PenetrationInfo);
+
+				OutPenetrationInfos.Emplace(PenetrationInfo);
 
 
 
 			}
 
 
-
-
-
-
-
-
-			IndexToInsertTo = (OutPenetrationInfos.Num());
 		}
 
 	}

@@ -131,10 +131,9 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 			// This stack tells us how deep we are and provides us with the phys materials of the entrance hits
 			CurrentEntrancePhysMaterials.Push(ThisFwdBlockingHit.PhysMaterial.Get());
 
-			FVector CurrentFwdExitPoint = BkwdStart;
-
 
 			// Bkwd traces loop
+			TArray<FHitResult> BkwdHitResults;
 			for (FHitResult BkwdHitResult; World->LineTraceSingleByChannel(BkwdHitResult, BkwdStart, BkwdEnd, TraceChannel, BkwdParams); BkwdStart = BkwdHitResult.Location + ((KINDA_SMALL_NUMBER * 100) * BkwdDir))
 			{
 				if (BkwdHitResult.Distance == 0)	// If the trace messed up
@@ -181,18 +180,24 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 				}
 
 
+				BkwdHitResults.Insert(BkwdHitResult, 0);
 
 
 
+			}
+
+			{
 				FPenetrationInfo PenetrationInfo; // the Penetration Info we will make for this distance we just traced
-				PenetrationInfo.EntrancePoint = BkwdHitResult.ImpactPoint;
-				PenetrationInfo.ExitPoint = BkwdHitResult.TraceStart;
+				PenetrationInfo.EntrancePoint = ThisFwdBlockingHit.ImpactPoint;
+				PenetrationInfo.ExitPoint = (BkwdHitResults.Num() > 0) ? BkwdHitResults[0].ImpactPoint : BkwdStart;
 				PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
 				PenetrationInfo.PenetratedPhysMaterials = CurrentEntrancePhysMaterials;
 
 				OutPenetrationInfos.Insert(PenetrationInfo, IndexToInsertTo);
+			}
 
-
+			for (const FHitResult& BkwdHit : BkwdHitResults)
+			{
 
 				// Remove this Phys Mat from the Phys Mat stack because we are exiting it
 				UPhysicalMaterial* PhysMatThatWeAreExiting = ThisFwdBlockingHit.PhysMaterial.Get();
@@ -212,25 +217,27 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 				}
 
 
+				FPenetrationInfo PenetrationInfo; // the Penetration Info we will make for this distance we just traced
+				PenetrationInfo.EntrancePoint = BkwdHit.ImpactPoint;
+				PenetrationInfo.ExitPoint = BkwdHit.TraceStart;
+				PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
+				PenetrationInfo.PenetratedPhysMaterials = CurrentEntrancePhysMaterials;
 
-				// 
-				CurrentFwdExitPoint = BkwdHitResult.ImpactPoint;
+				//OutPenetrationInfos.Insert(PenetrationInfo, IndexToInsertTo);
+				OutPenetrationInfos.Add(PenetrationInfo);
+
+
 
 			}
 
-			FPenetrationInfo PenetrationInfo; // the Penetration Info we will make for this distance we just traced
-			PenetrationInfo.EntrancePoint = ThisFwdBlockingHit.ImpactPoint;
-			PenetrationInfo.ExitPoint = CurrentFwdExitPoint;
-			PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
-			PenetrationInfo.PenetratedPhysMaterials = CurrentEntrancePhysMaterials;
-
-			OutPenetrationInfos.Insert(PenetrationInfo, IndexToInsertTo);
 
 
 
 
 
-			IndexToInsertTo = (OutPenetrationInfos.Num() - 1);
+
+
+			IndexToInsertTo = (OutPenetrationInfos.Num());
 		}
 
 	}
@@ -283,46 +290,46 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 		//PreviousPenetrationHitResult = &CurrentPenetrationHitResult;
 	}
 
-	if (OutPenetrationInfos.IsValidIndex(0))
-	{
-		// Fix up the beginning Penetration Info
+	//if (OutPenetrationInfos.IsValidIndex(0))
+	//{
+	//	// Fix up the beginning Penetration Info
 
-		OutPenetrationInfos[0].EntrancePoint = FwdStartLocation;
-		if (OutPenetrationInfos.IsValidIndex(1))
-		{
-			OutPenetrationInfos[0].ExitPoint = OutPenetrationInfos[1].EntrancePoint;
-			OutPenetrationInfos[0].PenetrationDistance = FVector::Distance(OutPenetrationInfos[0].EntrancePoint, OutPenetrationInfos[0].ExitPoint);
-		}
-	}
-
-
-	// If we ended up never exiting a Phys Mat
-	if (CurrentEntrancePhysMaterials.Num() > 0)
-	{
-		if (OutPenetrationInfos.Num() <= 0)
-		{
-			UE_LOG(LogBlueprintFunctionLibrary, Fatal, TEXT("%s(): When trying to make Penetration Info for un-exited entrance Phys Mats, we somehow don't have any OutPenetrationInfos to work with"), *FString(__FUNCTION__));
-		}
-
-		// Since we never got to exit these Phys Mats, make a last Penetration Info for these that extend to the FwdEndLocation
-
-		FPenetrationInfo PenetrationInfo;
-		PenetrationInfo.EntrancePoint = OutPenetrationInfos.Last().ExitPoint;
-		PenetrationInfo.ExitPoint = FwdEndLocation;
-		PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
-
-		if (FMath::IsNearlyZero(PenetrationInfo.PenetrationDistance) == false) // only add this one if the distance isn't zero
-		{
-			for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num(); ++i)
-			{
-				PenetrationInfo.PenetratedPhysMaterials.Emplace(CurrentEntrancePhysMaterials[i]);
-			}
-			CurrentEntrancePhysMaterials.Empty();
+	//	OutPenetrationInfos[0].EntrancePoint = FwdStartLocation;
+	//	if (OutPenetrationInfos.IsValidIndex(1))
+	//	{
+	//		OutPenetrationInfos[0].ExitPoint = OutPenetrationInfos[1].EntrancePoint;
+	//		OutPenetrationInfos[0].PenetrationDistance = FVector::Distance(OutPenetrationInfos[0].EntrancePoint, OutPenetrationInfos[0].ExitPoint);
+	//	}
+	//}
 
 
-			OutPenetrationInfos.Emplace(PenetrationInfo);
-		}
-	}
+	//// If we ended up never exiting a Phys Mat
+	//if (CurrentEntrancePhysMaterials.Num() > 0)
+	//{
+	//	if (OutPenetrationInfos.Num() <= 0)
+	//	{
+	//		UE_LOG(LogBlueprintFunctionLibrary, Fatal, TEXT("%s(): When trying to make Penetration Info for un-exited entrance Phys Mats, we somehow don't have any OutPenetrationInfos to work with"), *FString(__FUNCTION__));
+	//	}
+
+	//	// Since we never got to exit these Phys Mats, make a last Penetration Info for these that extend to the FwdEndLocation
+
+	//	FPenetrationInfo PenetrationInfo;
+	//	PenetrationInfo.EntrancePoint = OutPenetrationInfos.Last().ExitPoint;
+	//	PenetrationInfo.ExitPoint = FwdEndLocation;
+	//	PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
+
+	//	if (FMath::IsNearlyZero(PenetrationInfo.PenetrationDistance) == false) // only add this one if the distance isn't zero
+	//	{
+	//		for (int32 i = 0; i < CurrentEntrancePhysMaterials.Num(); ++i)
+	//		{
+	//			PenetrationInfo.PenetratedPhysMaterials.Emplace(CurrentEntrancePhysMaterials[i]);
+	//		}
+	//		CurrentEntrancePhysMaterials.Empty();
+
+
+	//		OutPenetrationInfos.Emplace(PenetrationInfo);
+	//	}
+	//}
 
 
 }

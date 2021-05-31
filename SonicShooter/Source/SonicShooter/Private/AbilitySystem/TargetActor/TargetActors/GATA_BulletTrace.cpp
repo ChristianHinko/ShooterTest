@@ -223,7 +223,7 @@ bool AGATA_BulletTrace::OnRicochet(const FHitResult& RicochetOffOf, TArray<FHitR
 	bool RetVal = Super::OnRicochet(RicochetOffOf, OutRicoHitResults, World, RicoStart, RicoEnd, TraceParams);
 
 
-	ThisRicochetBlockingHits.Emplace(RicochetOffOf);
+	//ThisRicochetBlockingHits.Emplace(RicochetOffOf);
 
 	// We are ricocheting so Build Penetration Info about the previous ricochet's blocking hits
 	if (ThisRicochetBlockingHits.Num() > 0)
@@ -235,14 +235,15 @@ bool AGATA_BulletTrace::OnRicochet(const FHitResult& RicochetOffOf, TArray<FHitR
 		ApplyPenetrationInfosToTraceSpeed(ThisRicochetPenetrations);
 	}
 
+	// Reset the blocking Hit Results for the next group of blocking hits
+	ThisRicochetBlockingHits.Empty();
+
 	// Take away ricochet speed reduction using RicochetOffOf's physical materials
 	if (const UShooterPhysicalMaterial* ShooterPhysMat = Cast<UShooterPhysicalMaterial>(RicochetOffOf.PhysMaterial.Get()))
 	{
 		CurrentTraceSpeed -= (ShooterPhysMat->BulletRicochetSpeedReduction);
 	}
 
-	// Reset the blocking Hit Results for the next group of blocking hits
-	ThisRicochetBlockingHits.Empty();
 
 
 	return RetVal;

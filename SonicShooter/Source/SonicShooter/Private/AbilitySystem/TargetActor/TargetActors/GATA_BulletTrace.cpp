@@ -350,38 +350,30 @@ bool AGATA_BulletTrace::ApplyPenetrationInfosToTraceSpeed(const TArray<FPenetrat
 	for (const FPenetrationInfo& Penetration : PenetrationInfos)
 	{
 		const float& PenetrationDistance = Penetration.GetPenetrationDistance();
+		const float& SpeedToTakeAway = Penetration.GetTraceSpeedToTakeAway();
 
-		// For each Phys Mat in this Penetration
-		const TArray<UPhysicalMaterial*>& PhysMats = Penetration.PenetratedPhysMaterials;
-		for (const UPhysicalMaterial* PhysMat : PhysMats)
+
+
+		// Take away Trace Speed from this Penetration
+		CurrentTraceSpeed -= SpeedToTakeAway;
+
+		// If we ran out of Trace Speed
+		if (CurrentTraceSpeed <= 0)
 		{
-			// If this is a ShooterPhysicalMaterial, it has Trace Speed loss data
-			if (const UShooterPhysicalMaterial* ShooterPhysMat = Cast<UShooterPhysicalMaterial>(PhysMat))
-			{
-				// Take away Trace Speed from this Phys Mat
-				const float SpeedLossPerCentimeter = (ShooterPhysMat->BulletPenetrationSpeedReduction / 100);
-				const float SpeedToTakeAway = (PenetrationDistance * SpeedLossPerCentimeter);
-				CurrentTraceSpeed -= SpeedToTakeAway;
-				
-				// If we ran out of Trace Speed
-				if (CurrentTraceSpeed <= 0)
-				{
-					// The speed we had before we took away
-					const float PreLossTraceSpeed = (CurrentTraceSpeed + SpeedToTakeAway); // if this is somehow negative, that means we already were below zero. But this calculation still works on it - it calculates the point that we should've stopped at when we first went below zero. This would never happen but still its kinda cool how it still works if that happens
-					
-					// How far we traveled through this Penetration
-					const float GotThroughnessRatio = (PreLossTraceSpeed / SpeedToTakeAway);
-					const float TraveledThroughDistance = GotThroughnessRatio * PenetrationDistance;
+			// The speed we had before we took away
+			const float PreLossTraceSpeed = (CurrentTraceSpeed + SpeedToTakeAway); // if this is somehow negative, that means we already were below zero. But this calculation still works on it - it calculates the point that we should've stopped at when we first went below zero. This would never happen but still its kinda cool how it still works if that happens
 
-					// The point which we ran out of speed
-					OutStoppedAtPoint = Penetration.GetEntrancePoint() + (TraveledThroughDistance * Penetration.GetPenetrationDir());
+			// How far we traveled through this Penetration
+			const float GotThroughnessRatio = (PreLossTraceSpeed / SpeedToTakeAway);
+			const float TraveledThroughDistance = GotThroughnessRatio * PenetrationDistance;
+
+			// The point which we ran out of speed
+			OutStoppedAtPoint = Penetration.GetEntrancePoint() + (TraveledThroughDistance * Penetration.GetPenetrationDir());
 
 
-					// We ran out of speed and have a valid OutStoppedAtPoint
-					CurrentTraceSpeed = 0;
-					return true;
-				}
-			}
+			// We ran out of speed and have a valid OutStoppedAtPoint
+			CurrentTraceSpeed = 0;
+			return true;
 		}
 
 	}

@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "PhysicalMaterials\PhysicalMaterial.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "PhysicalMaterial/ShooterPhysicalMaterial.h"
 
 #include "BFL_CollisionQueryHelpers.generated.h"
 
@@ -39,16 +40,38 @@ struct FPenetrationInfo
 		return "PenetratedActor = " + PenetratedActorName + "    PenetratedComponent = " + PenetratedComponentName + "    PenetratedBone = " + PenetratedBoneName + "    PenetratedPhysMaterials = " + PenetratedPhysMats + "    penetration distance: " + FString::SanitizeFloat(PenetrationDistance);
 	}
 
-	/**
-	 * This is the stack of phys materials that this penetration is penetrating. Top of the stack is the most inner (most recent) phys material
-	 */
-	TArray<UPhysicalMaterial*> PenetratedPhysMaterials;
 
 	FString PenetratedActorName;
 	FString PenetratedComponentName;
 	FString PenetratedBoneName;
 
 
+
+	const TArray<UPhysicalMaterial*>& GetPenetratedPhysMaterials() const { return PenetratedPhysMaterials; }
+	void SetPenetratedPhysMaterials(const TArray<UPhysicalMaterial*>& InPenetratedPhysMaterials)
+	{
+		PenetratedPhysMaterials = InPenetratedPhysMaterials;
+
+
+		// Reevaluate TraceSpeedToTakeAway:
+
+		TraceSpeedToTakeAway = 0.f;
+
+		// For each Phys Mat in this Penetration
+		for (const UPhysicalMaterial* PhysMat : PenetratedPhysMaterials)
+		{
+			// If this is a ShooterPhysicalMaterial, it has Trace Speed loss data
+			if (const UShooterPhysicalMaterial* ShooterPhysMat = Cast<UShooterPhysicalMaterial>(PhysMat))
+			{
+				const float SpeedLossPerCentimeter = (ShooterPhysMat->BulletPenetrationSpeedReduction / 100);
+				const float SpeedToTakeAway = (PenetrationDistance * SpeedLossPerCentimeter);
+
+				TraceSpeedToTakeAway += SpeedToTakeAway;
+			}
+		}
+	}
+
+	float GetTraceSpeedToTakeAway() const { return TraceSpeedToTakeAway; }
 
 	FVector GetEntrancePoint() const { return EntrancePoint; }
 	FVector GetExitPoint() const { return ExitPoint; }
@@ -68,10 +91,18 @@ struct FPenetrationInfo
 	}
 
 private:
+	/**
+	 * This is the stack of phys materials that this penetration is penetrating. Top of the stack is the most inner (most recent) phys material
+	 */
+	TArray<UPhysicalMaterial*> PenetratedPhysMaterials;
+	float TraceSpeedToTakeAway;
+
 	FVector EntrancePoint;
 	FVector ExitPoint;
+
 	float PenetrationDistance;
 	FVector PenetrationDir;
+
 };
 
 

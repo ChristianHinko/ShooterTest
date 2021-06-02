@@ -145,7 +145,7 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 				const FVector EntrancePoint = (i == -1) ? BkwdEnd : FwdBlockingHits[i].ImpactPoint;
 				const FVector ExitPoint = (BkwdHitResults.Num() > 0) ? BkwdHitResults[0].ImpactPoint : BkwdStart;
 				PenetrationInfo.SetEntranceAndExitPoints(EntrancePoint, ExitPoint);
-				PenetrationInfo.PenetratedPhysMaterials = CurrentEntrancePhysMaterials;
+				PenetrationInfo.SetPenetratedPhysMaterials(CurrentEntrancePhysMaterials);
 
 				OutPenetrationInfos.Emplace(PenetrationInfo);
 			}
@@ -166,14 +166,17 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 					// Add this something to all of the Penetrations we have made so far
 					for (FPenetrationInfo& PenetrationInfoToAddTo : OutPenetrationInfos)
 					{
-						PenetrationInfoToAddTo.PenetratedPhysMaterials.Insert(PhysMatThatWeAreExiting, 0); // insert at the bottom
+						TArray<UPhysicalMaterial*> CorrectedPhysMats = PenetrationInfoToAddTo.GetPenetratedPhysMaterials();
+						CorrectedPhysMats.Insert(PhysMatThatWeAreExiting, 0); // insert at the bottom of the stack
+
+						PenetrationInfoToAddTo.SetPenetratedPhysMaterials(CorrectedPhysMats);
 					}
 				}
 
 
 				FPenetrationInfo PenetrationInfo; // the Penetration Info we will make for this distance we just traced
 				PenetrationInfo.SetEntranceAndExitPoints(BkwdHit.ImpactPoint, BkwdHit.TraceStart);
-				PenetrationInfo.PenetratedPhysMaterials = CurrentEntrancePhysMaterials;
+				PenetrationInfo.SetPenetratedPhysMaterials(CurrentEntrancePhysMaterials);
 
 
 				OutPenetrationInfos.Emplace(PenetrationInfo);

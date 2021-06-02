@@ -51,7 +51,14 @@ protected:
 
 	float CurrentTraceSpeed;
 
-	void ApplyPenetrationInfosToTraceSpeed(const TArray<FPenetrationInfo>& PenetrationInfos);
+	/**
+	 * Applies each of the Penetration Infos' Phys Mats' BulletPenetrationSpeedReduction to CurrentTraceSpeed.
+	 * Outputs the point which we ran out of Trace Speed in OutStoppedAtPoint - IF we ran out (if returned true).
+	 * 
+	 * Returns true if we ran out of Trace Speed.
+	 * If returned true, we have a valid OutStoppedAtPoint.
+	 */
+	bool ApplyPenetrationInfosToTraceSpeed(const TArray<FPenetrationInfo>& PenetrationInfos, FVector& OutStoppedAtPoint);
 
 private:
 	TArray<FHitResult> ThisRicochetBlockingHits;

@@ -32,9 +32,9 @@ public:
 
 	/** Number of traces to fire at once (a shotgun-like feature) */
 	virtual int32 GetNumberOfTraces() const;
-	/** Max times to ricochet */
+	/** Max times to ricochet (-1 for infinite) */
 	virtual int32 GetRicochets() const;
-	/** Max times to penetrate through blocking hits */
+	/** Max times to penetrate through blocking hits (-1 for infinite) */
 	virtual int32 GetPenetrations() const;
 
 	/** Any Physical Surfaces added to this array will ricochet any Trace that hits them */

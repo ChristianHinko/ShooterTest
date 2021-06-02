@@ -209,7 +209,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 			bool bRicocheted = false;
 			if (ShouldRicochetOffOf(LastHit))
 			{
-				if (timesRicocheted < maxRicochets)
+				if (timesRicocheted < maxRicochets || maxRicochets == -1)
 				{
 					// Calculate ricochet direction
 					FVector RicoDir;
@@ -276,7 +276,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 			// Penetrate
 			bool bPenetrated = false;
-			if (timesPenetrated < maxPenetrations)
+			if (timesPenetrated < maxPenetrations || maxPenetrations == -1)
 			{
 				// The direction we traced from
 				const FVector FromDir = UKismetMathLibrary::GetDirectionUnitVector(LastHit.TraceStart, LastHit.Location);

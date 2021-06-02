@@ -44,17 +44,13 @@ int32 AGATA_BulletTrace::GetNumberOfTraces() const
 }
 int32 AGATA_BulletTrace::GetRicochets() const
 {
-	if (GunAttributeSet)
-	{
-		return GunAttributeSet->GetRicochets();
-	}
-
-	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its Ricochets attribute! Will return default value from Super instead!"), *FString(__FUNCTION__));
-	return Super::GetRicochets();
+	// Go infinitely because we have our Trace Speed system
+	return -1;
 }
 int32 AGATA_BulletTrace::GetPenetrations() const
 {
-	return 10;
+	// Go infinitely because we have our Trace Speed system
+	return -1;
 }
 float AGATA_BulletTrace::GetInitialTraceSpeed() const
 {

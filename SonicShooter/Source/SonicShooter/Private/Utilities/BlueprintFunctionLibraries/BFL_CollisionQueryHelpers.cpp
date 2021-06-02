@@ -145,6 +145,7 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 				PenetrationInfo.EntrancePoint = (i == -1) ? BkwdEnd : FwdBlockingHits[i].ImpactPoint;
 				PenetrationInfo.ExitPoint = (BkwdHitResults.Num() > 0) ? BkwdHitResults[0].ImpactPoint : BkwdStart;
 				PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
+				PenetrationInfo.PenetrationDir = UKismetMathLibrary::GetDirectionUnitVector(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
 				PenetrationInfo.PenetratedPhysMaterials = CurrentEntrancePhysMaterials;
 
 				OutPenetrationInfos.Emplace(PenetrationInfo);
@@ -175,6 +176,7 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 				PenetrationInfo.EntrancePoint = BkwdHit.ImpactPoint;
 				PenetrationInfo.ExitPoint = BkwdHit.TraceStart;
 				PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
+				PenetrationInfo.PenetrationDir = UKismetMathLibrary::GetDirectionUnitVector(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
 				PenetrationInfo.PenetratedPhysMaterials = CurrentEntrancePhysMaterials;
 
 

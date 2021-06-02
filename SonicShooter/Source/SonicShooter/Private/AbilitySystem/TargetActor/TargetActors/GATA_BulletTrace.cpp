@@ -220,19 +220,19 @@ bool AGATA_BulletTrace::OnPenetrate(const FHitResult& PenetratedThrough, TArray<
 }
 bool AGATA_BulletTrace::OnRicochet(const FHitResult& RicochetOffOf, TArray<FHitResult>& OutRicoHitResults, const UWorld* World, const FVector& RicoStart, const FVector& RicoEnd, const FCollisionQueryParams& TraceParams)
 {
-	bool RetVal = Super::OnRicochet(RicochetOffOf, OutRicoHitResults, World, RicoStart, RicoEnd, TraceParams);
 
-
-	//ThisRicochetBlockingHits.Emplace(RicochetOffOf);
-
-	// We are ricocheting so Build Penetration Info about the previous ricochet's blocking hits
+	// We are ricocheting so Build Penetration Info about this previous ricochet's blocking hits
 	if (ThisRicochetBlockingHits.Num() > 0)
 	{
 		// We are about to ricochet so calculate Penetrations for these blocking Hits before we move on to the next ricochet
 		TArray<FPenetrationInfo> ThisRicochetPenetrations;
 		UBFL_CollisionQueryHelpers::BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, RicochetOffOf.Location, World, TraceParams, TraceChannel);
 
-		ApplyPenetrationInfosToTraceSpeed(ThisRicochetPenetrations);
+		FVector StoppedAtPoint;
+		if (ApplyPenetrationInfosToTraceSpeed(ThisRicochetPenetrations, StoppedAtPoint))
+		{
+			return false;
+		}
 	}
 
 	// Reset the blocking Hit Results for the next group of blocking hits
@@ -242,11 +242,19 @@ bool AGATA_BulletTrace::OnRicochet(const FHitResult& RicochetOffOf, TArray<FHitR
 	if (const UShooterPhysicalMaterial* ShooterPhysMat = Cast<UShooterPhysicalMaterial>(RicochetOffOf.PhysMaterial.Get()))
 	{
 		CurrentTraceSpeed -= (ShooterPhysMat->BulletRicochetSpeedReduction);
+
+		// If we ran out of Trace Speed from this ricochet
+		if (CurrentTraceSpeed <= 0)
+		{
+			CurrentTraceSpeed = 0;
+			RicochetOffOf.Location; // point which we stopped
+			return false;
+		}
 	}
 
 
 
-	return RetVal;
+	return Super::OnRicochet(RicochetOffOf, OutRicoHitResults, World, RicoStart, RicoEnd, TraceParams);
 }
 void AGATA_BulletTrace::OnPostTraces(const FHitResult& LastBlockingHit, const UWorld* World, const FCollisionQueryParams& TraceParams)
 {
@@ -259,28 +267,74 @@ void AGATA_BulletTrace::OnPostTraces(const FHitResult& LastBlockingHit, const UW
 		TArray<FPenetrationInfo> ThisRicochetPenetrations;
 		UBFL_CollisionQueryHelpers::BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, World, TraceParams, TraceChannel);
 
-		ApplyPenetrationInfosToTraceSpeed(ThisRicochetPenetrations);
+		FVector StoppedAtPoint;
+		if (ApplyPenetrationInfosToTraceSpeed(ThisRicochetPenetrations, StoppedAtPoint))
+		{
+
+		}
 	}
 
 	ThisRicochetBlockingHits.Empty();
 
 }
 
-void AGATA_BulletTrace::ApplyPenetrationInfosToTraceSpeed(const TArray<FPenetrationInfo>& PenetrationInfos)
+bool AGATA_BulletTrace::ApplyPenetrationInfosToTraceSpeed(const TArray<FPenetrationInfo>& PenetrationInfos, FVector& OutStoppedAtPoint)
 {
+	// If we were already out of Trace Speed
+	if (CurrentTraceSpeed <= 0)
+	{
+		// Try to set a valid OutStoppedAtPoint
+		if (PenetrationInfos.IsValidIndex(0))
+		{
+			OutStoppedAtPoint = PenetrationInfos[0].EntrancePoint;
+		}
+
+		CurrentTraceSpeed = 0;
+		return true;
+	}
+
+
+	// For each penetration
 	for (const FPenetrationInfo& Penetration : PenetrationInfos)
 	{
 		const float& PenetrationDistance = Penetration.PenetrationDistance;
 
+		UKismetSystemLibrary::PrintString(this, Penetration.GetDebugString() + "                        CurrentTraceSpeed: " + FString::SanitizeFloat(CurrentTraceSpeed), true, false);
+
+		// For each Phys Mat in this Penetration
 		const TArray<UPhysicalMaterial*>& PhysMats = Penetration.PenetratedPhysMaterials;
 		for (const UPhysicalMaterial* PhysMat : PhysMats)
 		{
+			// If this is a ShooterPhysicalMaterial, it has Trace Speed loss data
 			if (const UShooterPhysicalMaterial* ShooterPhysMat = Cast<UShooterPhysicalMaterial>(PhysMat))
 			{
-				CurrentTraceSpeed -= (PenetrationDistance * (ShooterPhysMat->BulletPenetrationSpeedReduction / 100));
+				// Take away Trace Speed from this Phys Mat
+				const float SpeedLossPerCentimeter = (ShooterPhysMat->BulletPenetrationSpeedReduction / 100);
+				const float SpeedToTakeAway = (PenetrationDistance * SpeedLossPerCentimeter);
+				CurrentTraceSpeed -= SpeedToTakeAway;
+				
+				// If we ran out of Trace Speed
+				if (CurrentTraceSpeed <= 0)
+				{
+					// The speed we had before we took away
+					const float PreLossTraceSpeed = (CurrentTraceSpeed + SpeedToTakeAway); // if this is somehow negative, that means we already were below zero. But this calculation still works on it - it calculates the point that we should've stopped at when we first went below zero. This would never happen but still its kinda cool how it still works if that happens
+					
+					// How far we traveled through this Penetration
+					const float GotThroughnessRatio = (PreLossTraceSpeed / SpeedToTakeAway);
+					const float TraveledThroughDistance = GotThroughnessRatio * PenetrationDistance;
+
+					// The point which we ran out of speed
+					OutStoppedAtPoint = Penetration.EntrancePoint + (TraveledThroughDistance * Penetration.PenetrationDir);
+
+
+					// We ran out of speed and have a valid OutStoppedAtPoint
+					CurrentTraceSpeed = 0;
+					return true;
+				}
 			}
 		}
 
-		UKismetSystemLibrary::PrintString(this, Penetration.GetDebugString() + "                        CurrentTraceSpeed: " + FString::SanitizeFloat(CurrentTraceSpeed), true, false);
 	}
+
+	return false;
 }

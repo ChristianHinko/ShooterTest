@@ -52,6 +52,7 @@ struct FPenetrationInfo
 	FVector EntrancePoint;
 	FVector ExitPoint;
 	float PenetrationDistance;
+	FVector PenetrationDir;
 
 	FString PenetratedActorName;
 	FString PenetratedComponentName;

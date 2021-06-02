@@ -286,7 +286,7 @@ bool AGATA_BulletTrace::ApplyPenetrationInfosToTraceSpeed(const TArray<FPenetrat
 		// Try to set a valid OutStoppedAtPoint
 		if (PenetrationInfos.IsValidIndex(0))
 		{
-			OutStoppedAtPoint = PenetrationInfos[0].EntrancePoint;
+			OutStoppedAtPoint = PenetrationInfos[0].GetEntrancePoint();
 		}
 
 		CurrentTraceSpeed = 0;
@@ -297,7 +297,7 @@ bool AGATA_BulletTrace::ApplyPenetrationInfosToTraceSpeed(const TArray<FPenetrat
 	// For each penetration
 	for (const FPenetrationInfo& Penetration : PenetrationInfos)
 	{
-		const float& PenetrationDistance = Penetration.PenetrationDistance;
+		const float& PenetrationDistance = Penetration.GetPenetrationDistance();
 
 		UKismetSystemLibrary::PrintString(this, Penetration.GetDebugString() + "                        CurrentTraceSpeed: " + FString::SanitizeFloat(CurrentTraceSpeed), true, false);
 
@@ -324,7 +324,7 @@ bool AGATA_BulletTrace::ApplyPenetrationInfosToTraceSpeed(const TArray<FPenetrat
 					const float TraveledThroughDistance = GotThroughnessRatio * PenetrationDistance;
 
 					// The point which we ran out of speed
-					OutStoppedAtPoint = Penetration.EntrancePoint + (TraveledThroughDistance * Penetration.PenetrationDir);
+					OutStoppedAtPoint = Penetration.GetEntrancePoint() + (TraveledThroughDistance * Penetration.GetPenetrationDir());
 
 
 					// We ran out of speed and have a valid OutStoppedAtPoint

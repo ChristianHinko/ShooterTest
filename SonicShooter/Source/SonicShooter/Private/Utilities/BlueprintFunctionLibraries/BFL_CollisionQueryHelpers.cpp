@@ -142,10 +142,9 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 
 			{
 				FPenetrationInfo PenetrationInfo; // the Penetration Info we will make for this distance we just traced
-				PenetrationInfo.EntrancePoint = (i == -1) ? BkwdEnd : FwdBlockingHits[i].ImpactPoint;
-				PenetrationInfo.ExitPoint = (BkwdHitResults.Num() > 0) ? BkwdHitResults[0].ImpactPoint : BkwdStart;
-				PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
-				PenetrationInfo.PenetrationDir = UKismetMathLibrary::GetDirectionUnitVector(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
+				const FVector EntrancePoint = (i == -1) ? BkwdEnd : FwdBlockingHits[i].ImpactPoint;
+				const FVector ExitPoint = (BkwdHitResults.Num() > 0) ? BkwdHitResults[0].ImpactPoint : BkwdStart;
+				PenetrationInfo.SetEntranceAndExitPoints(EntrancePoint, ExitPoint);
 				PenetrationInfo.PenetratedPhysMaterials = CurrentEntrancePhysMaterials;
 
 				OutPenetrationInfos.Emplace(PenetrationInfo);
@@ -173,10 +172,7 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 
 
 				FPenetrationInfo PenetrationInfo; // the Penetration Info we will make for this distance we just traced
-				PenetrationInfo.EntrancePoint = BkwdHit.ImpactPoint;
-				PenetrationInfo.ExitPoint = BkwdHit.TraceStart;
-				PenetrationInfo.PenetrationDistance = FVector::Distance(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
-				PenetrationInfo.PenetrationDir = UKismetMathLibrary::GetDirectionUnitVector(PenetrationInfo.EntrancePoint, PenetrationInfo.ExitPoint);
+				PenetrationInfo.SetEntranceAndExitPoints(BkwdHit.ImpactPoint, BkwdHit.TraceStart);
 				PenetrationInfo.PenetratedPhysMaterials = CurrentEntrancePhysMaterials;
 
 

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "PhysicalMaterials\PhysicalMaterial.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #include "BFL_CollisionQueryHelpers.generated.h"
 
@@ -46,37 +47,39 @@ struct FPenetrationInfo
 
 	/**
 	 * This is the stack of phys materials that this penetration is penetrating. Top of the stack is the most inner (most recent) phys material
-	*/
+	 */
 	TArray<UPhysicalMaterial*> PenetratedPhysMaterials;
-
-	FVector EntrancePoint;
-	FVector ExitPoint;
-	float PenetrationDistance;
-	FVector PenetrationDir;
 
 	FString PenetratedActorName;
 	FString PenetratedComponentName;
 	FString PenetratedBoneName;
+
+
+
+	FVector GetEntrancePoint() const { return EntrancePoint; }
+	FVector GetExitPoint() const { return ExitPoint; }
+
+	float GetPenetrationDistance() const { return PenetrationDistance; }
+	FVector GetPenetrationDir() const { return PenetrationDir; }
+
+	void SetEntranceAndExitPoints(const FVector& InEntrancePoint, const FVector& InExitPoint)
+	{
+		// Set points
+		EntrancePoint = InEntrancePoint;
+		ExitPoint = InExitPoint;
+
+		// Reevaluate calculations
+		PenetrationDistance = FVector::Distance(EntrancePoint, ExitPoint);
+		PenetrationDir = UKismetMathLibrary::GetDirectionUnitVector(EntrancePoint, ExitPoint);
+	}
+
+private:
+	FVector EntrancePoint;
+	FVector ExitPoint;
+	float PenetrationDistance;
+	FVector PenetrationDir;
 };
 
-/**
- * 
- */
-struct FPenetrationHitResult
-{
-	FPenetrationHitResult()
-	{
-		bIsEntrance = true;
-	}
-	FPenetrationHitResult(const FHitResult& inHitResult, bool inIsEntrance)
-	{
-		HitResult = inHitResult;
-		bIsEntrance = inIsEntrance;
-	}
-
-	FHitResult HitResult;
-	uint8 bIsEntrance : 1;
-};
 
 /**
  * A collection of our custom collision queries

@@ -22,17 +22,11 @@ struct FPenetrationInfo
 		ExitPoint = FVector::ZeroVector;
 		PenetrationDistance = -1;
 	}
-	FPenetrationInfo(float InPenetrationDistance, const FVector& inEntrancePoint, const FVector& inExitPoint, TArray<UPhysicalMaterial*> inPenetratedPhysMaterials, const FString& inPenetratedActorName, const FString& inPenetratedComponentName, const FString& inPenetratedBoneName)
+	FPenetrationInfo(const FVector& InEntrancePoint, const FVector& InExitPoint, const TArray<UPhysicalMaterial*>& InPenetratedPhysMaterials)
+		: FPenetrationInfo()
 	{
-		PenetratedPhysMaterials = inPenetratedPhysMaterials;
-
-		EntrancePoint = inEntrancePoint;
-		ExitPoint = inExitPoint;
-		PenetrationDistance = InPenetrationDistance;
-
-		PenetratedActorName = inPenetratedActorName;
-		PenetratedComponentName = inPenetratedComponentName;
-		PenetratedBoneName = inPenetratedBoneName;
+		SetEntranceAndExitPoints(InEntrancePoint, InExitPoint);
+		PenetratedPhysMaterials = InPenetratedPhysMaterials;
 	}
 
 	const FString GetDebugString() const

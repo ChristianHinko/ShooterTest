@@ -223,7 +223,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 
 					TArray<FHitResult> RicoHitResults;
-					const bool bBreakOutEarly = !OnRicochet(LastHit, RicoHitResults, World, RicoStart, RicoEnd, TraceParams);
+					const bool bBreakOutEarly = !OnRicochet(OutHitResults, RicoHitResults, World, RicoStart, RicoEnd, TraceParams);
 
 
 
@@ -236,7 +236,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 						++timesRicocheted;
 						bRicocheted = true;
 					}
-					else // this ricochet didn't hit anything
+					else if (!bBreakOutEarly) // this ricochet didn't hit anything
 					{
 						// Our caller may depend on us returning at least one Hit Result so it can get TraceStart and TraceEnd.
 						// Make an empty Hit Result containing this info (this will just end up getting filtered)
@@ -289,7 +289,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 
 				TArray<FHitResult> PenetrateHitResults;
-				const bool bBreakOutEarly = !OnPenetrate(LastHit, PenetrateHitResults, World, PenetrateStart, PenetrateEnd, TraceParams);
+				const bool bBreakOutEarly = !OnPenetrate(OutHitResults, PenetrateHitResults, World, PenetrateStart, PenetrateEnd, TraceParams);
 
 
 
@@ -302,7 +302,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 					++timesPenetrated;
 					bPenetrated = true;
 				}
-				else // this penetration didn't hit anything
+				else if (!bBreakOutEarly) // this penetration didn't hit anything
 				{
 					// Our caller may depend on us returning at least one Hit Result so it can get TraceStart and TraceEnd.
 					// Make an empty Hit Result containing this info (this will just end up getting filtered)
@@ -343,7 +343,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 		}
 	}
 
-	OnPostTraces(OutHitResults.Last(), World, TraceParams);
+	OnPostTraces(OutHitResults, World, TraceParams);
 
 
 
@@ -376,7 +376,7 @@ bool AGATA_Trace::OnInitialTrace(TArray<FHitResult>& OutInitialHitResults, const
 
 	return true;
 }
-bool AGATA_Trace::OnPenetrate(const FHitResult& PenetratedThrough, TArray<FHitResult>& OutPenetrateHitResults, const UWorld* World, const FVector& PenetrateStart, const FVector& PenetrateEnd, const FCollisionQueryParams& TraceParams)
+bool AGATA_Trace::OnPenetrate(TArray<FHitResult>& HitResults, TArray<FHitResult>& OutPenetrateHitResults, const UWorld* World, const FVector& PenetrateStart, const FVector& PenetrateEnd, const FCollisionQueryParams& TraceParams)
 {
 	OutPenetrateHitResults.Empty();
 
@@ -401,7 +401,7 @@ bool AGATA_Trace::OnPenetrate(const FHitResult& PenetratedThrough, TArray<FHitRe
 
 	return true;
 }
-bool AGATA_Trace::OnRicochet(const FHitResult& RicochetOffOf, TArray<FHitResult>& OutRicoHitResults, const UWorld* World, const FVector& RicoStart, const FVector& RicoEnd, const FCollisionQueryParams& TraceParams)
+bool AGATA_Trace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitResult>& OutRicoHitResults, const UWorld* World, const FVector& RicoStart, const FVector& RicoEnd, const FCollisionQueryParams& TraceParams)
 {
 	OutRicoHitResults.Empty();
 
@@ -416,7 +416,7 @@ bool AGATA_Trace::OnRicochet(const FHitResult& RicochetOffOf, TArray<FHitResult>
 
 	return true;
 }
-void AGATA_Trace::OnPostTraces(const FHitResult& LastBlockingHit, const UWorld* World, const FCollisionQueryParams& TraceParams)
+void AGATA_Trace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorld* World, const FCollisionQueryParams& TraceParams)
 {
 	
 }

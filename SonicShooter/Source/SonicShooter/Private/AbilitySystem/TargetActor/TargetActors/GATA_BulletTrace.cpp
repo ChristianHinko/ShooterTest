@@ -203,23 +203,30 @@ bool AGATA_BulletTrace::OnInitialTrace(TArray<FHitResult>& OutInitialHitResults,
 
 	// Initialize ThisRicochetBlockingHits
 	ThisRicochetBlockingHits.Empty();
+	ThisRicochetStartingIndex = 0;
+	ThisRicochetTraceDir = UKismetMathLibrary::GetDirectionUnitVector(Start, End);
 
 	// Intialize CurrentTraceSpeed
 	CurrentTraceSpeed = GetInitialTraceSpeed();
 
 	return RetVal;
 }
-bool AGATA_BulletTrace::OnPenetrate(const FHitResult& PenetratedThrough, TArray<FHitResult>& OutPenetrateHitResults, const UWorld* World, const FVector& PenetrateStart, const FVector& PenetrateEnd, const FCollisionQueryParams& TraceParams)
+bool AGATA_BulletTrace::OnPenetrate(TArray<FHitResult>& HitResults, TArray<FHitResult>& OutPenetrateHitResults, const UWorld* World, const FVector& PenetrateStart, const FVector& PenetrateEnd, const FCollisionQueryParams& TraceParams)
 {
-	bool RetVal = Super::OnPenetrate(PenetratedThrough, OutPenetrateHitResults, World, PenetrateStart, PenetrateEnd, TraceParams);
+	bool RetVal = Super::OnPenetrate(HitResults, OutPenetrateHitResults, World, PenetrateStart, PenetrateEnd, TraceParams);
+
+	const FHitResult& PenetratedThrough = HitResults.Last();
 
 	// Add what we penetrated through as a blocking hit for ThisRicochetBlockingHits
 	ThisRicochetBlockingHits.Emplace(PenetratedThrough);
 
 	return RetVal;
 }
-bool AGATA_BulletTrace::OnRicochet(const FHitResult& RicochetOffOf, TArray<FHitResult>& OutRicoHitResults, const UWorld* World, const FVector& RicoStart, const FVector& RicoEnd, const FCollisionQueryParams& TraceParams)
+bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitResult>& OutRicoHitResults, const UWorld* World, const FVector& RicoStart, const FVector& RicoEnd, const FCollisionQueryParams& TraceParams)
 {
+	bool RetVal = true;
+
+	const FHitResult& RicochetOffOf = HitResults.Last();
 
 	// We are ricocheting so Build Penetration Info about this previous ricochet's blocking hits
 	if (ThisRicochetBlockingHits.Num() > 0)
@@ -231,12 +238,32 @@ bool AGATA_BulletTrace::OnRicochet(const FHitResult& RicochetOffOf, TArray<FHitR
 		FVector StoppedAtPoint;
 		if (ApplyPenetrationInfosToTraceSpeed(ThisRicochetPenetrations, StoppedAtPoint))
 		{
-			return false;
+			// Loop through this ricochet's Hit Results until we find the first hit that happened after StoppedAtPoint, then remove it and all of the ones proceeding it
+			for (int32 i = ThisRicochetStartingIndex; i < HitResults.Num(); ++i)
+			{
+				const FHitResult& Hit = HitResults[i];
+
+				const FVector LocationPointToStoppedPoint = (StoppedAtPoint - Hit.Location);
+				const bool bIsAfterStoppedPoint = (FVector::DotProduct(LocationPointToStoppedPoint, ThisRicochetTraceDir) <= 0); // if this Hit's Location is after StoppedAtLocation
+				if (bIsAfterStoppedPoint)
+				{
+					// Remove the hits that happened after StoppedAtPoint
+					HitResults.RemoveAt(i, HitResults.Num() - i);
+
+					// Add TraceInfo so we have where the penetration ended
+					FHitResult TraceInfo;
+					TraceInfo.TraceStart = Hit.TraceStart;
+					TraceInfo.TraceEnd = StoppedAtPoint;
+					HitResults.Emplace(TraceInfo);
+
+					break;
+				}
+			}
+
+			RetVal = false;
 		}
 	}
 
-	// Reset the blocking Hit Results for the next group of blocking hits
-	ThisRicochetBlockingHits.Empty();
 
 	// Take away ricochet speed reduction using RicochetOffOf's physical materials
 	if (const UShooterPhysicalMaterial* ShooterPhysMat = Cast<UShooterPhysicalMaterial>(RicochetOffOf.PhysMaterial.Get()))
@@ -247,18 +274,25 @@ bool AGATA_BulletTrace::OnRicochet(const FHitResult& RicochetOffOf, TArray<FHitR
 		if (CurrentTraceSpeed <= 0)
 		{
 			CurrentTraceSpeed = 0;
-			RicochetOffOf.Location; // point which we stopped
-			return false;
+			RetVal = false;
 		}
 	}
 
 
+	// Reset the blocking Hit Results for the next group of blocking hits
+	ThisRicochetBlockingHits.Empty();
+	ThisRicochetStartingIndex = (HitResults.Num() - 1);
+	ThisRicochetTraceDir = UKismetMathLibrary::GetDirectionUnitVector(RicoStart, RicoEnd);
 
-	return Super::OnRicochet(RicochetOffOf, OutRicoHitResults, World, RicoStart, RicoEnd, TraceParams);
+	if (RetVal)
+	{
+		RetVal = Super::OnRicochet(HitResults, OutRicoHitResults, World, RicoStart, RicoEnd, TraceParams);
+	}
+	return RetVal;
 }
-void AGATA_BulletTrace::OnPostTraces(const FHitResult& LastBlockingHit, const UWorld* World, const FCollisionQueryParams& TraceParams)
+void AGATA_BulletTrace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorld* World, const FCollisionQueryParams& TraceParams)
 {
-	Super::OnPostTraces(LastBlockingHit, World, TraceParams);
+	Super::OnPostTraces(HitResults, World, TraceParams);
 
 
 	// Apply any penetrations left to our CurrentTraceSpeed
@@ -270,11 +304,33 @@ void AGATA_BulletTrace::OnPostTraces(const FHitResult& LastBlockingHit, const UW
 		FVector StoppedAtPoint;
 		if (ApplyPenetrationInfosToTraceSpeed(ThisRicochetPenetrations, StoppedAtPoint))
 		{
+			// Loop through this ricochet's Hit Results until we find the first hit that happened after StoppedAtPoint, then remove it and all of the ones proceeding it
+			for (int32 i = ThisRicochetStartingIndex; i < HitResults.Num(); ++i)
+			{
+				const FHitResult& Hit = HitResults[i];
 
+				const FVector LocationPointToStoppedPoint = (StoppedAtPoint - Hit.Location);
+				const bool bIsAfterStoppedPoint = (FVector::DotProduct(LocationPointToStoppedPoint, ThisRicochetTraceDir) <= 0); // if this Hit's Location is after StoppedAtLocation
+				if (bIsAfterStoppedPoint)
+				{
+					// Remove the hits that happened after StoppedAtPoint
+					HitResults.RemoveAt(i, HitResults.Num() - i);
+
+					// Add TraceInfo so we have where the penetration ended
+					FHitResult TraceInfo;
+					TraceInfo.TraceStart = Hit.TraceStart;
+					TraceInfo.TraceEnd = StoppedAtPoint;
+					HitResults.Emplace(TraceInfo);
+
+					break;
+				}
+			}
 		}
 	}
 
 	ThisRicochetBlockingHits.Empty();
+	ThisRicochetStartingIndex = 0;
+	ThisRicochetTraceDir = FVector::ZeroVector;
 
 }
 
@@ -298,8 +354,6 @@ bool AGATA_BulletTrace::ApplyPenetrationInfosToTraceSpeed(const TArray<FPenetrat
 	for (const FPenetrationInfo& Penetration : PenetrationInfos)
 	{
 		const float& PenetrationDistance = Penetration.GetPenetrationDistance();
-
-		UKismetSystemLibrary::PrintString(this, Penetration.GetDebugString() + "                        CurrentTraceSpeed: " + FString::SanitizeFloat(CurrentTraceSpeed), true, false);
 
 		// For each Phys Mat in this Penetration
 		const TArray<UPhysicalMaterial*>& PhysMats = Penetration.PenetratedPhysMaterials;

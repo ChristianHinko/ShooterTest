@@ -400,5 +400,34 @@ bool AGATA_BulletTrace::ApplyTraceSegmentsToBulletSpeed(const TArray<FTraceSegme
 
 float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 {
+	int i = 0;
+	for (const FBulletStep& BulletStep : BulletSteps)	// Some reason rn first step is ricochet when you shoot at a ricochetable surface. So there ends up being 2 ricochets when you only shoot 1 ricocheable surface :/
+	{
+		if (const FTraceSegment* TraceSegment = BulletStep.TraceSegment.Get())	// if we're a TraceSegment
+		{
+			const FVector BulletDir = TraceSegment->GetExitPoint() - TraceSegment->GetEntrancePoint();
+			const FVector PointDir = Point - TraceSegment->GetEntrancePoint();
+			if (PointDir.ProjectOnTo(BulletDir) == PointDir)	// If projecting the point's dir onto the bullet's dir makes the point dir no different, then Point is on the bullet trace
+			{
+				UKismetSystemLibrary::PrintString(this, "Found line!!! TraceSegment: " + FString::SanitizeFloat(i));
+			}
+
+		}
+		else if (const FVector* RicochetPoint = BulletStep.RicochetPoint.Get())	// if we're a RicochetPoint
+		{
+			if (*RicochetPoint == Point)
+			{
+
+			}
+		}
+		else
+		{
+			UE_LOG(LogGameplayAbilityTargetActor, Warning, TEXT("%s() A BulletStep had no RicochetPoint or TraceSegment.... Something's wrong"), *FString(__FUNCTION__));
+		}
+
+
+		i++;	// just here for debugging
+	}
+	
 	return 0.0f;
 }

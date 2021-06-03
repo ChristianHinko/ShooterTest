@@ -68,10 +68,10 @@ protected:
 	virtual bool OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitResult>& OutRicoHitResults, const UWorld* World, const FVector& RicoStart, const FVector& RicoEnd, const FCollisionQueryParams& TraceParams) override;
 	virtual void OnPostTraces(TArray<FHitResult>& HitResults, const UWorld* World, const FCollisionQueryParams& TraceParams) override;
 
-	float CurrentTraceSpeed;
+	float CurrentBulletSpeed;
 
 	/**
-	 * Applies each of the Penetration Infos' Phys Mats' BulletPenetrationSpeedReduction to CurrentTraceSpeed.
+	 * Applies each of the Penetration Infos' Phys Mats' BulletPenetrationSpeedReduction to CurrentBulletSpeed.
 	 * Outputs the point which we ran out of Trace Speed in OutStoppedAtPoint - IF we ran out (if returned true).
 	 * 
 	 * Returns true if we ran out of Trace Speed.

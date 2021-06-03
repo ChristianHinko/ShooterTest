@@ -202,8 +202,8 @@ bool AGATA_BulletTrace::OnInitialTrace(TArray<FHitResult>& OutInitialHitResults,
 	ThisRicochetStartingIndex = 0;
 	ThisRicochetTraceDir = UKismetMathLibrary::GetDirectionUnitVector(Start, End);
 
-	// Intialize CurrentTraceSpeed
-	CurrentTraceSpeed = GetInitialTraceSpeed();
+	// Intialize CurrentBulletSpeed
+	CurrentBulletSpeed = GetInitialTraceSpeed();
 
 	return RetVal;
 }
@@ -264,12 +264,12 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 	// Take away ricochet speed reduction using RicochetOffOf's physical materials
 	if (const UShooterPhysicalMaterial* ShooterPhysMat = Cast<UShooterPhysicalMaterial>(RicochetOffOf.PhysMaterial.Get()))
 	{
-		CurrentTraceSpeed -= (ShooterPhysMat->BulletRicochetSpeedReduction);
+		CurrentBulletSpeed -= (ShooterPhysMat->BulletRicochetSpeedReduction);
 
 		// If we ran out of Trace Speed from this ricochet
-		if (CurrentTraceSpeed <= 0)
+		if (CurrentBulletSpeed <= 0)
 		{
-			CurrentTraceSpeed = 0;
+			CurrentBulletSpeed = 0;
 			RetVal = false;
 		}
 	}
@@ -291,7 +291,7 @@ void AGATA_BulletTrace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorl
 	Super::OnPostTraces(HitResults, World, TraceParams);
 
 
-	// Apply any penetrations left to our CurrentTraceSpeed
+	// Apply any penetrations left to our CurrentBulletSpeed
 	if (ThisRicochetBlockingHits.Num() > 0)
 	{
 		TArray<FPenetrationInfo> ThisRicochetPenetrations;
@@ -333,7 +333,7 @@ void AGATA_BulletTrace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorl
 bool AGATA_BulletTrace::ApplyPenetrationInfosToTraceSpeed(const TArray<FPenetrationInfo>& PenetrationInfos, FVector& OutStoppedAtPoint)
 {
 	// If we were already out of Trace Speed
-	if (CurrentTraceSpeed <= 0)
+	if (CurrentBulletSpeed <= 0)
 	{
 		// Try to set a valid OutStoppedAtPoint
 		if (PenetrationInfos.IsValidIndex(0))
@@ -341,7 +341,7 @@ bool AGATA_BulletTrace::ApplyPenetrationInfosToTraceSpeed(const TArray<FPenetrat
 			OutStoppedAtPoint = PenetrationInfos[0].GetEntrancePoint();
 		}
 
-		CurrentTraceSpeed = 0;
+		CurrentBulletSpeed = 0;
 		return true;
 	}
 
@@ -355,13 +355,13 @@ bool AGATA_BulletTrace::ApplyPenetrationInfosToTraceSpeed(const TArray<FPenetrat
 
 
 		// Take away Trace Speed from this Penetration
-		CurrentTraceSpeed -= SpeedToTakeAway;
+		CurrentBulletSpeed -= SpeedToTakeAway;
 
 		// If we ran out of Trace Speed
-		if (CurrentTraceSpeed <= 0)
+		if (CurrentBulletSpeed <= 0)
 		{
 			// The speed we had before we took away
-			const float PreLossTraceSpeed = (CurrentTraceSpeed + SpeedToTakeAway); // if this is somehow negative, that means we already were below zero. But this calculation still works on it - it calculates the point that we should've stopped at when we first went below zero. This would never happen but still its kinda cool how it still works if that happens
+			const float PreLossTraceSpeed = (CurrentBulletSpeed + SpeedToTakeAway); // if this is somehow negative, that means we already were below zero. But this calculation still works on it - it calculates the point that we should've stopped at when we first went below zero. This would never happen but still its kinda cool how it still works if that happens
 
 			// How far we traveled through this Penetration
 			const float GotThroughnessRatio = (PreLossTraceSpeed / SpeedToTakeAway);
@@ -372,7 +372,7 @@ bool AGATA_BulletTrace::ApplyPenetrationInfosToTraceSpeed(const TArray<FPenetrat
 
 
 			// We ran out of speed and have a valid OutStoppedAtPoint
-			CurrentTraceSpeed = 0;
+			CurrentBulletSpeed = 0;
 			return true;
 		}
 

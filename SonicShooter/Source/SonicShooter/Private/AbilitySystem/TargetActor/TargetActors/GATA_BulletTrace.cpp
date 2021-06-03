@@ -401,6 +401,7 @@ bool AGATA_BulletTrace::ApplyTraceSegmentsToBulletSpeed(const TArray<FTraceSegme
 
 float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 {
+	float retVal = 0.f;
 	int i = 0;
 	for (const FBulletStep& BulletStep : BulletSteps)	// Some reason rn first step is ricochet when you shoot at a ricochetable surface. So there ends up being 2 ricochets when you only shoot 1 ricocheable surface :/
 	{
@@ -430,5 +431,5 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 		i++;	// just here for debugging
 	}
 	
-	return 0.0f;
+	return retVal;
 }

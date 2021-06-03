@@ -397,3 +397,8 @@ bool AGATA_BulletTrace::ApplyTraceSegmentsToBulletSpeed(const TArray<FTraceSegme
 
 	return false;
 }
+
+float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
+{
+	return 0.0f;
+}

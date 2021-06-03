@@ -284,7 +284,8 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 		}
 	}
 
-	BulletSteps.Emplace(RicoStart);
+	FTracePoint RicochetPoint = FTracePoint(RicoStart, RicochetOffOf.PhysMaterial.Get());
+	BulletSteps.Emplace(RicochetPoint);
 
 
 	// Reset the blocking Hit Results for the next group of blocking hits

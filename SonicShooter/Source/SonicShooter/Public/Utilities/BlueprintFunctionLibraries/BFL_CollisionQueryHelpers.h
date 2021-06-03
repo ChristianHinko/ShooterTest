@@ -27,7 +27,7 @@ struct FTraceSegment
 		: FTraceSegment()
 	{
 		SetEntranceAndExitPoints(InEntrancePoint, InExitPoint);
-		PhysMaterials = InPhysMaterials;
+		SetPhysMaterials(InPhysMaterials);
 	}
 
 

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/TargetActor/TargetActors/GATA_Trace.h"
+#include "Utilities/BlueprintFunctionLibraries/BFL_CollisionQueryHelpers.h"
 
 #include "GATA_BulletTrace.generated.h"
 
@@ -12,32 +13,93 @@ class UAS_Gun;
 struct FTraceSegment;
 
 
+
+struct FTracePoint
+{
+	FTracePoint()
+	{
+		Point = FVector::ZeroVector;
+		PhysMaterial = nullptr;
+	}
+	FTracePoint(const FVector& InPoint, UPhysicalMaterial* InPhysMaterial)
+	{
+		Point = InPoint;
+		PhysMaterial = InPhysMaterial;
+	}
+
+
+	FVector Point;
+	UPhysicalMaterial* PhysMaterial;
+};
+
 /**
  *	This struct stores infomration about bullet movement at a certain point.
  *	Will make up a TArray of FBulletSteps which represent how the bullet moves through the world.
  */
 struct FBulletStep
 {
-public:
-	FBulletStep()
-	{
-		RicochetPoint = nullptr;
-		TraceSegment = nullptr;
-	}
-
 	FBulletStep(const FTraceSegment& InTraceSegment)
-		: FBulletStep()
 	{
 		TraceSegment = MakeUnique<FTraceSegment>(InTraceSegment);
+		RicochetPoint = nullptr;
+
+		BulletSpeedToTakeAway = 0;
+
+
+		// Evaluate BulletSpeedToTakeAway:
+
+		// For each Phys Mat in this Segment
+		for (const UPhysicalMaterial* PhysMat : InTraceSegment.GetPhysMaterials())
+		{
+			// If this is a ShooterPhysicalMaterial, it has Bullet Speed loss data
+			if (const UShooterPhysicalMaterial* ShooterPhysMat = Cast<UShooterPhysicalMaterial>(PhysMat))
+			{
+				const float SpeedLossPerCentimeter = (ShooterPhysMat->BulletPenetrationSpeedReduction / 100);
+				const float SpeedToTakeAway = (InTraceSegment.GetSegmentDistance() * SpeedLossPerCentimeter);
+
+				BulletSpeedToTakeAway += SpeedToTakeAway;
+			}
+		}
 	}
-	FBulletStep(const FVector& InRicochetPoint)
-		: FBulletStep()
+	FBulletStep(const FTracePoint& InRicochetPoint)
 	{
-		RicochetPoint = MakeUnique<FVector>(InRicochetPoint);
+		TraceSegment = nullptr;
+		RicochetPoint = MakeUnique<FTracePoint>(InRicochetPoint);
+
+		BulletSpeedToTakeAway = 0;
+
+
+		// Evaluate BulletSpeedToTakeAway:
+
+		// If this is a ShooterPhysicalMaterial, it has Bullet Speed loss data
+		if (const UShooterPhysicalMaterial* ShooterPhysMat = Cast<UShooterPhysicalMaterial>(InRicochetPoint.PhysMaterial))
+		{
+			BulletSpeedToTakeAway = ShooterPhysMat->BulletRicochetSpeedReduction;
+		}
 	}
 
-	TUniquePtr<FVector> RicochetPoint;
+
+	FTraceSegment* GetTraceSegment() const
+	{
+		return TraceSegment.Get();
+	}
+	FTracePoint* GetRicochetPoint() const
+	{
+		return RicochetPoint.Get();
+	}
+
+	float GetBulletSpeedToTakeAway() const
+	{
+		return BulletSpeedToTakeAway;
+	}
+
+
+private:
 	TUniquePtr<FTraceSegment> TraceSegment;
+	TUniquePtr<FTracePoint> RicochetPoint;
+
+	float BulletSpeedToTakeAway;
+
 };
 
 /**

@@ -23,13 +23,25 @@ struct FBulletStep
 		RicochetPoint = nullptr;
 		TraceSegment = nullptr;
 	}
-	FBulletStep(const FVector* InRicochetPoint, const FTraceSegment* InTraceSegment)
+
+	FBulletStep(const FTraceSegment* InTraceSegment)
+		: FBulletStep()
 	{
-		RicochetPoint = InRicochetPoint;
 		TraceSegment = InTraceSegment;
 	}
+	FBulletStep(const FVector* InRicochetPoint)
+		: FBulletStep()
+	{
+		RicochetPoint = InRicochetPoint;
+	}
+
+	const FVector* GetRicochetPoint() const { return RicochetPoint; }
+	const FTraceSegment* GetTraceSegment() const { return TraceSegment; }
+
+private:
 	const FVector* RicochetPoint;
 	const FTraceSegment* TraceSegment;
+
 };
 
 /**

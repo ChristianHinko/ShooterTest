@@ -9,7 +9,7 @@
 
 
 class UAS_Gun;
-struct FPenetrationInfo;
+struct FTraceSegment;
 
 
 
@@ -58,7 +58,7 @@ protected:
 	 * Returns true if we ran out of Trace Speed.
 	 * If returned true, we have a valid OutStoppedAtPoint.
 	 */
-	bool ApplyPenetrationInfosToTraceSpeed(const TArray<FPenetrationInfo>& PenetrationInfos, FVector& OutStoppedAtPoint);
+	bool ApplyTraceSegmentsToTraceSpeed(const TArray<FTraceSegment>& TraceSegments, FVector& OutStoppedAtPoint);
 
 private:
 	TArray<FHitResult> ThisRicochetBlockingHits;

@@ -9,13 +9,13 @@
 
 
 
-void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const UWorld* World, const FCollisionQueryParams& TraceParams, const TEnumAsByte<ECollisionChannel> TraceChannel)
+void UBFL_CollisionQueryHelpers::BuildTraceSegments(TArray<FTraceSegment>& OutTraceSegments, const TArray<FHitResult>& FwdBlockingHits, const UWorld* World, const FCollisionQueryParams& TraceParams, const TEnumAsByte<ECollisionChannel> TraceChannel)
 {
-	OutPenetrationInfos.Empty();
+	OutTraceSegments.Empty();
 
 	if (FwdBlockingHits.Num() <= 0)
 	{
-		UE_LOG(LogBlueprintFunctionLibrary, Warning, TEXT("%s(): Wasn't given any FwdBlockingHits to build any penetration info of. Returned and did nothing"), *FString(__FUNCTION__));
+		UE_LOG(LogBlueprintFunctionLibrary, Warning, TEXT("%s(): Wasn't given any FwdBlockingHits to build any Trace Segments of. Returned and did nothing"), *FString(__FUNCTION__));
 		return;
 	}
 
@@ -49,24 +49,24 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 
 		}
 
-		// Bump out a little because the BuildPenetrationInfos() will bump us in a little
+		// Bump out a little because the BuildTraceSegments() will bump us in a little
 		FurthestPossibleEnd += (TracedDir * ((KINDA_SMALL_NUMBER * 100) * 2));
 	}
 
 
 	// Use this FurthestPossibleEnd as a Bkwd trace start location
-	BuildPenetrationInfos(OutPenetrationInfos, FwdBlockingHits, FurthestPossibleEnd, World, TraceParams, TraceChannel);
+	BuildTraceSegments(OutTraceSegments, FwdBlockingHits, FurthestPossibleEnd, World, TraceParams, TraceChannel);
 }
 
-void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const FVector& FwdEndLocation, const UWorld* World, const FCollisionQueryParams& TraceParams, const TEnumAsByte<ECollisionChannel> TraceChannel)
+void UBFL_CollisionQueryHelpers::BuildTraceSegments(TArray<FTraceSegment>& OutTraceSegments, const TArray<FHitResult>& FwdBlockingHits, const FVector& FwdEndLocation, const UWorld* World, const FCollisionQueryParams& TraceParams, const TEnumAsByte<ECollisionChannel> TraceChannel)
 {
-	OutPenetrationInfos.Empty();
+	OutTraceSegments.Empty();
 
 	/**
 	 *						GENERAL GOAL
 	 *
 	 *
-	 *			OutPenetrationInfos[0]	OutPenetrationInfos[1]
+	 *			OutTraceSegments[0]	OutTraceSegments[1]
 	 *				|-------|				|-------|
 	 *
 	 *
@@ -86,10 +86,10 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 
 	if (FwdBlockingHits.Num() <= 0)
 	{
-		UE_LOG(LogBlueprintFunctionLibrary, Warning, TEXT("%s(): Wasn't given any FwdBlockingHits to build any penetration info of. Returned and did nothing"), *FString(__FUNCTION__));
+		UE_LOG(LogBlueprintFunctionLibrary, Warning, TEXT("%s(): Wasn't given any FwdBlockingHits to build any Trace Segments of. Returned and did nothing"), *FString(__FUNCTION__));
 		return;
 	}
-	OutPenetrationInfos.Reserve(FwdBlockingHits.Num() * 2);		// We know most of the time we will have at least double the elements from FwdBlockingHits (most of the time)
+	OutTraceSegments.Reserve(FwdBlockingHits.Num() * 2);		// We know most of the time we will have at least double the elements from FwdBlockingHits (most of the time)
 
 
 	const FVector FwdStartLocation = FwdBlockingHits[0].TraceStart; // maybe make this a parameter since FwdEndLocation is one
@@ -141,13 +141,13 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 
 
 			{
-				FPenetrationInfo PenetrationInfo; // the Penetration Info we will make for this distance we just traced
+				FTraceSegment Segment; // the Segment we will make for this distance we just traced
 				const FVector EntrancePoint = (i == -1) ? BkwdEnd : FwdBlockingHits[i].ImpactPoint;
 				const FVector ExitPoint = (BkwdHitResults.Num() > 0) ? BkwdHitResults[0].ImpactPoint : BkwdStart;
-				PenetrationInfo.SetEntranceAndExitPoints(EntrancePoint, ExitPoint);
-				PenetrationInfo.SetPenetratedPhysMaterials(CurrentEntrancePhysMaterials);
+				Segment.SetEntranceAndExitPoints(EntrancePoint, ExitPoint);
+				Segment.SetPhysMaterials(CurrentEntrancePhysMaterials);
 
-				OutPenetrationInfos.Emplace(PenetrationInfo);
+				OutTraceSegments.Emplace(Segment);
 			}
 
 			for (const FHitResult& BkwdHit : BkwdHitResults)
@@ -163,23 +163,23 @@ void UBFL_CollisionQueryHelpers::BuildPenetrationInfos(TArray<FPenetrationInfo>&
 				else
 				{
 					// We've just realized that we have been inside of something from the start (because we just exited something that we've never entered).
-					// Add this something to all of the Penetrations we have made so far
-					for (FPenetrationInfo& PenetrationInfoToAddTo : OutPenetrationInfos)
+					// Add this something to all of the Segments we have made so far
+					for (FTraceSegment& TraceSegmentToAddTo : OutTraceSegments)
 					{
-						TArray<UPhysicalMaterial*> CorrectedPhysMats = PenetrationInfoToAddTo.GetPenetratedPhysMaterials();
+						TArray<UPhysicalMaterial*> CorrectedPhysMats = TraceSegmentToAddTo.GetPhysMaterials();
 						CorrectedPhysMats.Insert(PhysMatThatWeAreExiting, 0); // insert at the bottom of the stack
 
-						PenetrationInfoToAddTo.SetPenetratedPhysMaterials(CorrectedPhysMats);
+						TraceSegmentToAddTo.SetPhysMaterials(CorrectedPhysMats);
 					}
 				}
 
 
-				FPenetrationInfo PenetrationInfo; // the Penetration Info we will make for this distance we just traced
-				PenetrationInfo.SetEntranceAndExitPoints(BkwdHit.ImpactPoint, BkwdHit.TraceStart);
-				PenetrationInfo.SetPenetratedPhysMaterials(CurrentEntrancePhysMaterials);
+				FTraceSegment Segment; // the Segment we will make for this distance we just traced
+				Segment.SetEntranceAndExitPoints(BkwdHit.ImpactPoint, BkwdHit.TraceStart);
+				Segment.SetPhysMaterials(CurrentEntrancePhysMaterials);
 
 
-				OutPenetrationInfos.Emplace(PenetrationInfo);
+				OutTraceSegments.Emplace(Segment);
 
 
 

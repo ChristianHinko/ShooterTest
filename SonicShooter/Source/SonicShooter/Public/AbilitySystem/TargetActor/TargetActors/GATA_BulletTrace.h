@@ -18,30 +18,26 @@ struct FTraceSegment;
  */
 struct FBulletStep
 {
+public:
 	FBulletStep()
 	{
 		RicochetPoint = nullptr;
 		TraceSegment = nullptr;
 	}
 
-	FBulletStep(const FTraceSegment* InTraceSegment)
+	FBulletStep(const FTraceSegment& InTraceSegment)
 		: FBulletStep()
 	{
-		TraceSegment = InTraceSegment;
+		TraceSegment = MakeUnique<FTraceSegment>(InTraceSegment);
 	}
-	FBulletStep(const FVector* InRicochetPoint)
+	FBulletStep(const FVector& InRicochetPoint)
 		: FBulletStep()
 	{
-		RicochetPoint = InRicochetPoint;
+		RicochetPoint = MakeUnique<FVector>(InRicochetPoint);
 	}
 
-	const FVector* GetRicochetPoint() const { return RicochetPoint; }
-	const FTraceSegment* GetTraceSegment() const { return TraceSegment; }
-
-private:
-	const FVector* RicochetPoint;
-	const FTraceSegment* TraceSegment;
-
+	TUniquePtr<FVector> RicochetPoint;
+	TUniquePtr<FTraceSegment> TraceSegment;
 };
 
 /**

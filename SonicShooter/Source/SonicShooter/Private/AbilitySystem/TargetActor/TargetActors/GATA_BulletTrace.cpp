@@ -266,7 +266,7 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 
 		for (const FTraceSegment& TraceSegment : ThisRicochetTraceSegments)
 		{
-			BulletSteps.Emplace(&TraceSegment);
+			BulletSteps.Emplace(TraceSegment);
 		}
 	}
 
@@ -284,7 +284,7 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 		}
 	}
 
-	BulletSteps.Emplace(&RicoStart);
+	BulletSteps.Emplace(RicoStart);
 
 
 	// Reset the blocking Hit Results for the next group of blocking hits
@@ -337,7 +337,7 @@ void AGATA_BulletTrace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorl
 
 		for (const FTraceSegment& TraceSegment : ThisRicochetTraceSegments)
 		{
-			BulletSteps.Emplace(&TraceSegment);
+			BulletSteps.Emplace(TraceSegment);
 		}
 	}
 

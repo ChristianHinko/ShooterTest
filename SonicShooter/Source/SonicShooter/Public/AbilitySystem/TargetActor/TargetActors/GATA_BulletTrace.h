@@ -12,6 +12,25 @@ class UAS_Gun;
 struct FTraceSegment;
 
 
+/**
+ *	This struct stores infomration about bullet movement at a certain point.
+ *	Will make up a TArray of FBulletSteps which represent how the bullet moves through the world.
+ */
+struct FBulletStep
+{
+	FBulletStep()
+	{
+		RicochetPoint = nullptr;
+		PenetrationInfo = nullptr;
+	}
+	FBulletStep(FVector* InRicochetPoint, FPenetrationInfo* InPenetrationInfo)
+	{
+		RicochetPoint = InRicochetPoint;
+		PenetrationInfo = InPenetrationInfo;
+	}
+	FVector* RicochetPoint;
+	FPenetrationInfo* PenetrationInfo;
+};
 
 /**
  * 
@@ -62,6 +81,7 @@ protected:
 
 private:
 	TArray<FHitResult> ThisRicochetBlockingHits;
+	TArray<FBulletStep> BulletSteps;
 	int32 ThisRicochetStartingIndex;
 	FVector ThisRicochetTraceDir;
 

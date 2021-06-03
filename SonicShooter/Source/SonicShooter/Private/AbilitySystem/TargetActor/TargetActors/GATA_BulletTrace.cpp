@@ -197,6 +197,7 @@ bool AGATA_BulletTrace::OnInitialTrace(TArray<FHitResult>& OutInitialHitResults,
 {
 	bool RetVal = Super::OnInitialTrace(OutInitialHitResults, World, Start, End, TraceParams);
 
+
 	// Initialize ThisRicochetBlockingHits
 	ThisRicochetBlockingHits.Empty();
 	ThisRicochetStartingIndex = 0;
@@ -204,6 +205,10 @@ bool AGATA_BulletTrace::OnInitialTrace(TArray<FHitResult>& OutInitialHitResults,
 
 	// Intialize CurrentTraceSpeed
 	CurrentTraceSpeed = GetInitialTraceSpeed();
+
+	// Initialize BulletSteps
+	BulletSteps.Empty();
+
 
 	return RetVal;
 }
@@ -258,6 +263,11 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 
 			RetVal = false;
 		}
+
+		for (const FTraceSegment& TraceSegment : ThisRicochetTraceSegments)
+		{
+			BulletSteps.Emplace(nullptr, &TraceSegment);
+		}
 	}
 
 
@@ -273,6 +283,8 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 			RetVal = false;
 		}
 	}
+
+	BulletSteps.Emplace(&RicoStart, nullptr);
 
 
 	// Reset the blocking Hit Results for the next group of blocking hits
@@ -321,6 +333,11 @@ void AGATA_BulletTrace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorl
 					break;
 				}
 			}
+		}
+
+		for (const FTraceSegment& TraceSegment : ThisRicochetTraceSegments)
+		{
+			BulletSteps.Emplace(nullptr, &TraceSegment);
 		}
 	}
 

@@ -21,15 +21,15 @@ struct FBulletStep
 	FBulletStep()
 	{
 		RicochetPoint = nullptr;
-		PenetrationInfo = nullptr;
+		TraceSegment = nullptr;
 	}
-	FBulletStep(FVector* InRicochetPoint, FPenetrationInfo* InPenetrationInfo)
+	FBulletStep(FVector* InRicochetPoint, FTraceSegment* InTraceSegment)
 	{
 		RicochetPoint = InRicochetPoint;
-		PenetrationInfo = InPenetrationInfo;
+		TraceSegment = InTraceSegment;
 	}
 	FVector* RicochetPoint;
-	FPenetrationInfo* PenetrationInfo;
+	FTraceSegment* TraceSegment;
 };
 
 /**

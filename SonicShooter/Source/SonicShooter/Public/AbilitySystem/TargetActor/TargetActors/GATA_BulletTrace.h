@@ -49,7 +49,7 @@ public:
 	virtual int32 GetNumberOfTraces() const override;
 	virtual int32 GetRicochets() const override;
 	virtual int32 GetPenetrations() const override;
-	virtual float GetInitialTraceSpeed() const;
+	virtual float GetInitialBulletSpeed() const;
 
 	UPROPERTY()
 		UAS_Gun* GunAttributeSet;
@@ -72,12 +72,12 @@ protected:
 
 	/**
 	 * Applies each of the Penetration Infos' Phys Mats' BulletPenetrationSpeedReduction to CurrentBulletSpeed.
-	 * Outputs the point which we ran out of Trace Speed in OutStoppedAtPoint - IF we ran out (if returned true).
+	 * Outputs the point which we ran out of Bullet Speed in OutStoppedAtPoint - IF we ran out (if returned true).
 	 * 
-	 * Returns true if we ran out of Trace Speed.
+	 * Returns true if we ran out of Bullet Speed.
 	 * If returned true, we have a valid OutStoppedAtPoint.
 	 */
-	bool ApplyPenetrationInfosToTraceSpeed(const TArray<FPenetrationInfo>& PenetrationInfos, FVector& OutStoppedAtPoint);
+	bool ApplyPenetrationInfosToBulletSpeed(const TArray<FPenetrationInfo>& PenetrationInfos, FVector& OutStoppedAtPoint);
 
 private:
 	TArray<FHitResult> ThisRicochetBlockingHits;

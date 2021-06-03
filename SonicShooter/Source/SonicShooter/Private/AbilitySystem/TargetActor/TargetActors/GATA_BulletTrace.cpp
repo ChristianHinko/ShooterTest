@@ -44,15 +44,15 @@ int32 AGATA_BulletTrace::GetNumberOfTraces() const
 }
 int32 AGATA_BulletTrace::GetRicochets() const
 {
-	// Go infinitely because we have our Trace Speed system
+	// Go infinitely because we have our Bullet Speed system
 	return -1;
 }
 int32 AGATA_BulletTrace::GetPenetrations() const
 {
-	// Go infinitely because we have our Trace Speed system
+	// Go infinitely because we have our Bullet Speed system
 	return -1;
 }
-float AGATA_BulletTrace::GetInitialTraceSpeed() const
+float AGATA_BulletTrace::GetInitialBulletSpeed() const
 {
 	return 100.f; // TODO: make attribute for this
 }
@@ -203,7 +203,7 @@ bool AGATA_BulletTrace::OnInitialTrace(TArray<FHitResult>& OutInitialHitResults,
 	ThisRicochetTraceDir = UKismetMathLibrary::GetDirectionUnitVector(Start, End);
 
 	// Intialize CurrentBulletSpeed
-	CurrentBulletSpeed = GetInitialTraceSpeed();
+	CurrentBulletSpeed = GetInitialBulletSpeed();
 
 	return RetVal;
 }
@@ -232,7 +232,7 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 		UBFL_CollisionQueryHelpers::BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, RicochetOffOf.Location, World, TraceParams, TraceChannel);
 
 		FVector StoppedAtPoint;
-		if (ApplyPenetrationInfosToTraceSpeed(ThisRicochetPenetrations, StoppedAtPoint))
+		if (ApplyPenetrationInfosToBulletSpeed(ThisRicochetPenetrations, StoppedAtPoint))
 		{
 			// Loop through this ricochet's Hit Results until we find the first hit that happened after StoppedAtPoint, then remove it and all of the ones proceeding it
 			for (int32 i = ThisRicochetStartingIndex; i < HitResults.Num(); ++i)
@@ -266,7 +266,7 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 	{
 		CurrentBulletSpeed -= (ShooterPhysMat->BulletRicochetSpeedReduction);
 
-		// If we ran out of Trace Speed from this ricochet
+		// If we ran out of Bullet Speed from this ricochet
 		if (CurrentBulletSpeed <= 0)
 		{
 			CurrentBulletSpeed = 0;
@@ -298,7 +298,7 @@ void AGATA_BulletTrace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorl
 		UBFL_CollisionQueryHelpers::BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, World, TraceParams, TraceChannel);
 
 		FVector StoppedAtPoint;
-		if (ApplyPenetrationInfosToTraceSpeed(ThisRicochetPenetrations, StoppedAtPoint))
+		if (ApplyPenetrationInfosToBulletSpeed(ThisRicochetPenetrations, StoppedAtPoint))
 		{
 			// Loop through this ricochet's Hit Results until we find the first hit that happened after StoppedAtPoint, then remove it and all of the ones proceeding it
 			for (int32 i = ThisRicochetStartingIndex; i < HitResults.Num(); ++i)
@@ -330,9 +330,9 @@ void AGATA_BulletTrace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorl
 
 }
 
-bool AGATA_BulletTrace::ApplyPenetrationInfosToTraceSpeed(const TArray<FPenetrationInfo>& PenetrationInfos, FVector& OutStoppedAtPoint)
+bool AGATA_BulletTrace::ApplyPenetrationInfosToBulletSpeed(const TArray<FPenetrationInfo>& PenetrationInfos, FVector& OutStoppedAtPoint)
 {
-	// If we were already out of Trace Speed
+	// If we were already out of Bullet Speed
 	if (CurrentBulletSpeed <= 0)
 	{
 		// Try to set a valid OutStoppedAtPoint
@@ -350,21 +350,21 @@ bool AGATA_BulletTrace::ApplyPenetrationInfosToTraceSpeed(const TArray<FPenetrat
 	for (const FPenetrationInfo& Penetration : PenetrationInfos)
 	{
 		const float& PenetrationDistance = Penetration.GetPenetrationDistance();
-		const float& SpeedToTakeAway = Penetration.GetTraceSpeedToTakeAway();
+		const float& SpeedToTakeAway = Penetration.GetBulletSpeedToTakeAway();
 
 
 
-		// Take away Trace Speed from this Penetration
+		// Take away Bullet Speed from this Penetration
 		CurrentBulletSpeed -= SpeedToTakeAway;
 
-		// If we ran out of Trace Speed
+		// If we ran out of Bullet Speed
 		if (CurrentBulletSpeed <= 0)
 		{
 			// The speed we had before we took away
-			const float PreLossTraceSpeed = (CurrentBulletSpeed + SpeedToTakeAway); // if this is somehow negative, that means we already were below zero. But this calculation still works on it - it calculates the point that we should've stopped at when we first went below zero. This would never happen but still its kinda cool how it still works if that happens
+			const float PreLossBulletSpeed = (CurrentBulletSpeed + SpeedToTakeAway); // if this is somehow negative, that means we already were below zero. But this calculation still works on it - it calculates the point that we should've stopped at when we first went below zero. This would never happen but still its kinda cool how it still works if that happens
 
 			// How far we traveled through this Penetration
-			const float GotThroughnessRatio = (PreLossTraceSpeed / SpeedToTakeAway);
+			const float GotThroughnessRatio = (PreLossBulletSpeed / SpeedToTakeAway);
 			const float TraveledThroughDistance = GotThroughnessRatio * PenetrationDistance;
 
 			// The point which we ran out of speed

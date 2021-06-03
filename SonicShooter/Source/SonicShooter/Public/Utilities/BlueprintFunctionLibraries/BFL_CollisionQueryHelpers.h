@@ -53,25 +53,25 @@ struct FPenetrationInfo
 		PenetratedPhysMaterials = InPenetratedPhysMaterials;
 
 
-		// Reevaluate TraceSpeedToTakeAway:
+		// Reevaluate BulletSpeedToTakeAway:
 
-		TraceSpeedToTakeAway = 0.f;
+		BulletSpeedToTakeAway = 0.f;
 
 		// For each Phys Mat in this Penetration
 		for (const UPhysicalMaterial* PhysMat : PenetratedPhysMaterials)
 		{
-			// If this is a ShooterPhysicalMaterial, it has Trace Speed loss data
+			// If this is a ShooterPhysicalMaterial, it has Bullet Speed loss data
 			if (const UShooterPhysicalMaterial* ShooterPhysMat = Cast<UShooterPhysicalMaterial>(PhysMat))
 			{
 				const float SpeedLossPerCentimeter = (ShooterPhysMat->BulletPenetrationSpeedReduction / 100);
 				const float SpeedToTakeAway = (PenetrationDistance * SpeedLossPerCentimeter);
 
-				TraceSpeedToTakeAway += SpeedToTakeAway;
+				BulletSpeedToTakeAway += SpeedToTakeAway;
 			}
 		}
 	}
 
-	float GetTraceSpeedToTakeAway() const { return TraceSpeedToTakeAway; }
+	float GetBulletSpeedToTakeAway() const { return BulletSpeedToTakeAway; }
 
 	FVector GetEntrancePoint() const { return EntrancePoint; }
 	FVector GetExitPoint() const { return ExitPoint; }
@@ -95,7 +95,7 @@ private:
 	 * This is the stack of phys materials that this penetration is penetrating. Top of the stack is the most inner (most recent) phys material
 	 */
 	TArray<UPhysicalMaterial*> PenetratedPhysMaterials;
-	float TraceSpeedToTakeAway;
+	float BulletSpeedToTakeAway;
 
 	FVector EntrancePoint;
 	FVector ExitPoint;

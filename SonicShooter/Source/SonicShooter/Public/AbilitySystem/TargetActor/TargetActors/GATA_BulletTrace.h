@@ -9,7 +9,7 @@
 
 
 class UAS_Gun;
-struct FPenetrationInfo;
+struct FTraceSegment;
 
 
 /**
@@ -21,15 +21,15 @@ struct FBulletStep
 	FBulletStep()
 	{
 		RicochetPoint = nullptr;
-		PenetrationInfo = nullptr;
+		TraceSegment = nullptr;
 	}
-	FBulletStep(FVector* InRicochetPoint, FPenetrationInfo* InPenetrationInfo)
+	FBulletStep(const FVector* InRicochetPoint, const FTraceSegment* InTraceSegment)
 	{
 		RicochetPoint = InRicochetPoint;
-		PenetrationInfo = InPenetrationInfo;
+		TraceSegment = InTraceSegment;
 	}
-	FVector* RicochetPoint;
-	FPenetrationInfo* PenetrationInfo;
+	const FVector* RicochetPoint;
+	const FTraceSegment* TraceSegment;
 };
 
 /**
@@ -77,7 +77,7 @@ protected:
 	 * Returns true if we ran out of Bullet Speed.
 	 * If returned true, we have a valid OutStoppedAtPoint.
 	 */
-	bool ApplyPenetrationInfosToBulletSpeed(const TArray<FPenetrationInfo>& PenetrationInfos, FVector& OutStoppedAtPoint);
+	bool ApplyTraceSegmentsToBulletSpeed(const TArray<FTraceSegment>& TraceSegments, FVector& OutStoppedAtPoint);
 
 private:
 	TArray<FHitResult> ThisRicochetBlockingHits;

@@ -197,6 +197,7 @@ bool AGATA_BulletTrace::OnInitialTrace(TArray<FHitResult>& OutInitialHitResults,
 {
 	bool RetVal = Super::OnInitialTrace(OutInitialHitResults, World, Start, End, TraceParams);
 
+
 	// Initialize ThisRicochetBlockingHits
 	ThisRicochetBlockingHits.Empty();
 	ThisRicochetStartingIndex = 0;
@@ -204,6 +205,10 @@ bool AGATA_BulletTrace::OnInitialTrace(TArray<FHitResult>& OutInitialHitResults,
 
 	// Intialize CurrentBulletSpeed
 	CurrentBulletSpeed = GetInitialBulletSpeed();
+
+	// Initialize BulletSteps
+	BulletSteps.Empty();
+
 
 	return RetVal;
 }
@@ -224,15 +229,15 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 
 	const FHitResult& RicochetOffOf = HitResults.Last();
 
-	// We are ricocheting so Build Penetration Info about this previous ricochet's blocking hits
+	// We are ricocheting so BuildTraceSegments about this previous ricochet's blocking hits
 	if (ThisRicochetBlockingHits.Num() > 0)
 	{
-		// We are about to ricochet so calculate Penetrations for these blocking Hits before we move on to the next ricochet
-		TArray<FPenetrationInfo> ThisRicochetPenetrations;
-		UBFL_CollisionQueryHelpers::BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, RicochetOffOf.Location, World, TraceParams, TraceChannel);
+		// We are about to ricochet so calculate Trace Segments for these blocking Hits before we move on to the next ricochet
+		TArray<FTraceSegment> ThisRicochetTraceSegments;
+		UBFL_CollisionQueryHelpers::BuildTraceSegments(ThisRicochetTraceSegments, ThisRicochetBlockingHits, RicochetOffOf.Location, World, TraceParams, TraceChannel);
 
 		FVector StoppedAtPoint;
-		if (ApplyPenetrationInfosToBulletSpeed(ThisRicochetPenetrations, StoppedAtPoint))
+		if (ApplyTraceSegmentsToBulletSpeed(ThisRicochetTraceSegments, StoppedAtPoint))
 		{
 			// Loop through this ricochet's Hit Results until we find the first hit that happened after StoppedAtPoint, then remove it and all of the ones proceeding it
 			for (int32 i = ThisRicochetStartingIndex; i < HitResults.Num(); ++i)
@@ -246,7 +251,7 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 					// Remove the hits that happened after StoppedAtPoint
 					HitResults.RemoveAt(i, HitResults.Num() - i);
 
-					// Add TraceInfo so we have where the penetration ended
+					// Add TraceInfo so we have where the Segment ended
 					FHitResult TraceInfo;
 					TraceInfo.TraceStart = Hit.TraceStart;
 					TraceInfo.TraceEnd = StoppedAtPoint;
@@ -257,6 +262,11 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 			}
 
 			RetVal = false;
+		}
+
+		for (const FTraceSegment& TraceSegment : ThisRicochetTraceSegments)
+		{
+			BulletSteps.Emplace(nullptr, &TraceSegment);
 		}
 	}
 
@@ -273,6 +283,8 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 			RetVal = false;
 		}
 	}
+
+	BulletSteps.Emplace(&RicoStart, nullptr);
 
 
 	// Reset the blocking Hit Results for the next group of blocking hits
@@ -291,14 +303,14 @@ void AGATA_BulletTrace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorl
 	Super::OnPostTraces(HitResults, World, TraceParams);
 
 
-	// Apply any penetrations left to our CurrentBulletSpeed
+	// Apply any Trace Segments left to our CurrentBulletSpeed
 	if (ThisRicochetBlockingHits.Num() > 0)
 	{
-		TArray<FPenetrationInfo> ThisRicochetPenetrations;
-		UBFL_CollisionQueryHelpers::BuildPenetrationInfos(ThisRicochetPenetrations, ThisRicochetBlockingHits, World, TraceParams, TraceChannel);
+		TArray<FTraceSegment> ThisRicochetTraceSegments;
+		UBFL_CollisionQueryHelpers::BuildTraceSegments(ThisRicochetTraceSegments, ThisRicochetBlockingHits, World, TraceParams, TraceChannel);
 
 		FVector StoppedAtPoint;
-		if (ApplyPenetrationInfosToBulletSpeed(ThisRicochetPenetrations, StoppedAtPoint))
+		if (ApplyTraceSegmentsToBulletSpeed(ThisRicochetTraceSegments, StoppedAtPoint))
 		{
 			// Loop through this ricochet's Hit Results until we find the first hit that happened after StoppedAtPoint, then remove it and all of the ones proceeding it
 			for (int32 i = ThisRicochetStartingIndex; i < HitResults.Num(); ++i)
@@ -312,7 +324,7 @@ void AGATA_BulletTrace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorl
 					// Remove the hits that happened after StoppedAtPoint
 					HitResults.RemoveAt(i, HitResults.Num() - i);
 
-					// Add TraceInfo so we have where the penetration ended
+					// Add TraceInfo so we have where the Segment ended
 					FHitResult TraceInfo;
 					TraceInfo.TraceStart = Hit.TraceStart;
 					TraceInfo.TraceEnd = StoppedAtPoint;
@@ -322,6 +334,11 @@ void AGATA_BulletTrace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorl
 				}
 			}
 		}
+
+		for (const FTraceSegment& TraceSegment : ThisRicochetTraceSegments)
+		{
+			BulletSteps.Emplace(nullptr, &TraceSegment);
+		}
 	}
 
 	ThisRicochetBlockingHits.Empty();
@@ -330,15 +347,15 @@ void AGATA_BulletTrace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorl
 
 }
 
-bool AGATA_BulletTrace::ApplyPenetrationInfosToBulletSpeed(const TArray<FPenetrationInfo>& PenetrationInfos, FVector& OutStoppedAtPoint)
+bool AGATA_BulletTrace::ApplyTraceSegmentsToBulletSpeed(const TArray<FTraceSegment>& TraceSegments, FVector& OutStoppedAtPoint)
 {
 	// If we were already out of Bullet Speed
 	if (CurrentBulletSpeed <= 0)
 	{
 		// Try to set a valid OutStoppedAtPoint
-		if (PenetrationInfos.IsValidIndex(0))
+		if (TraceSegments.IsValidIndex(0))
 		{
-			OutStoppedAtPoint = PenetrationInfos[0].GetEntrancePoint();
+			OutStoppedAtPoint = TraceSegments[0].GetEntrancePoint();
 		}
 
 		CurrentBulletSpeed = 0;
@@ -346,15 +363,15 @@ bool AGATA_BulletTrace::ApplyPenetrationInfosToBulletSpeed(const TArray<FPenetra
 	}
 
 
-	// For each penetration
-	for (const FPenetrationInfo& Penetration : PenetrationInfos)
+	// For each Segment
+	for (const FTraceSegment& Segment : TraceSegments)
 	{
-		const float& PenetrationDistance = Penetration.GetPenetrationDistance();
-		const float& SpeedToTakeAway = Penetration.GetBulletSpeedToTakeAway();
+		const float& SegmentDistance = Segment.GetSegmentDistance();
+		const float& SpeedToTakeAway = Segment.GetBulletSpeedToTakeAway();
 
 
 
-		// Take away Bullet Speed from this Penetration
+		// Take away Bullet Speed from this Segment
 		CurrentBulletSpeed -= SpeedToTakeAway;
 
 		// If we ran out of Bullet Speed
@@ -363,12 +380,12 @@ bool AGATA_BulletTrace::ApplyPenetrationInfosToBulletSpeed(const TArray<FPenetra
 			// The speed we had before we took away
 			const float PreLossBulletSpeed = (CurrentBulletSpeed + SpeedToTakeAway); // if this is somehow negative, that means we already were below zero. But this calculation still works on it - it calculates the point that we should've stopped at when we first went below zero. This would never happen but still its kinda cool how it still works if that happens
 
-			// How far we traveled through this Penetration
+			// How far we traveled through this Segment
 			const float GotThroughnessRatio = (PreLossBulletSpeed / SpeedToTakeAway);
-			const float TraveledThroughDistance = GotThroughnessRatio * PenetrationDistance;
+			const float TraveledThroughDistance = GotThroughnessRatio * SegmentDistance;
 
 			// The point which we ran out of speed
-			OutStoppedAtPoint = Penetration.GetEntrancePoint() + (TraveledThroughDistance * Penetration.GetPenetrationDir());
+			OutStoppedAtPoint = Segment.GetEntrancePoint() + (TraveledThroughDistance * Segment.GetTraceDir());
 
 
 			// We ran out of speed and have a valid OutStoppedAtPoint

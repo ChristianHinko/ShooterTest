@@ -404,12 +404,20 @@ bool AGATA_BulletTrace::ApplyTraceSegmentsToBulletSpeed(const TArray<FTraceSegme
 
 float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 {
-	float retVal = 0.f;
+	float retVal = GetInitialBulletSpeed();
 	int i = 0;
 	for (const FBulletStep& BulletStep : BulletSteps)	// Some reason rn first step is ricochet when you shoot at a ricochetable surface. So there ends up being 2 ricochets when you only shoot 1 ricocheable surface :/
 	{
+		retVal -= BulletStep.GetBulletSpeedToTakeAway();
+
 		if (const FTraceSegment* TraceSegment = BulletStep.GetTraceSegment())	// if we're a TraceSegment
 		{
+			if ((TraceSegment->GetExitPoint() - Point).IsNearlyZero()) // if the given Point is this segment's Exit Point
+			{
+				break;
+			}
+
+
 			const FVector BulletDir = TraceSegment->GetExitPoint() - TraceSegment->GetEntrancePoint();
 			const FVector PointDir = Point - TraceSegment->GetEntrancePoint();
 			if (PointDir.ProjectOnTo(BulletDir) == PointDir)	// If projecting the point's dir onto the bullet's dir makes the point dir no different, then Point is already on the bullet trace before projection, meaning the point is on the path of this bullet segment
@@ -417,6 +425,9 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 				UKismetSystemLibrary::PrintString(this, "Found line!!! TraceSegment: " + FString::SanitizeFloat(i));
 				// Calc the speed before breaking.....
 
+				// We took away the whole Segment's speed even though this point is within the Segment. So add back the part of the Segment that we didn't travel through
+				float UntraveledDistanceRatio = (TraceSegment->GetSegmentDistance() / PointDir.Size());
+				retVal += BulletStep.GetBulletSpeedToTakeAway() * UntraveledDistanceRatio;
 
 				break;
 			}
@@ -424,11 +435,8 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 		}
 		else if (const FTracePoint* RicochetPoint = BulletStep.GetRicochetPoint())	// if we're a RicochetPoint
 		{
-			if (RicochetPoint->Point == Point)
+			if ((RicochetPoint->Point - Point).IsNearlyZero())
 			{
-				// Calc the speed before breaking.....
-
-
 				break;
 			}
 		}

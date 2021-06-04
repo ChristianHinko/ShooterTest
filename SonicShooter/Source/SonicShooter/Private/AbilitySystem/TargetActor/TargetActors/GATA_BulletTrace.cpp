@@ -232,15 +232,37 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 
 	ThisRicochetBlockingHits.Emplace(RicochetOffOf);
 
-	// We are ricocheting so BuildTraceSegments about this previous ricochet's blocking hits
-	if (ThisRicochetBlockingHits.Num() > 0)
-	{
-		// We are about to ricochet so calculate Trace Segments for these blocking Hits before we move on to the next ricochet
-		TArray<FTraceSegment> ThisRicochetTraceSegments;
-		UBFL_CollisionQueryHelpers::BuildTraceSegments(ThisRicochetTraceSegments, ThisRicochetBlockingHits, RicochetOffOf.Location, World, TraceParams, TraceChannel);
 
-		FVector StoppedAtPoint;
-		if (ApplyTraceSegmentsToBulletSpeed(ThisRicochetTraceSegments, StoppedAtPoint))
+	TArray<FBulletStep> ThisRicochetBulletSteps;
+
+	// Fill out ThisRicochetBulletSteps
+	{
+		// We are ricocheting so BuildTraceSegments about this previous ricochet's blocking hits
+		if (ThisRicochetBlockingHits.Num() > 0)
+		{
+			// We are about to ricochet so calculate Trace Segments for these blocking Hits before we move on to the next ricochet
+			TArray<FTraceSegment> ThisRicochetTraceSegments;
+			UBFL_CollisionQueryHelpers::BuildTraceSegments(ThisRicochetTraceSegments, ThisRicochetBlockingHits, RicochetOffOf.Location, World, TraceParams, TraceChannel);
+			for (const FTraceSegment& TraceSegment : ThisRicochetTraceSegments)
+			{
+				ThisRicochetBulletSteps.Emplace(TraceSegment);
+			}
+
+
+		}
+
+		FTracePoint RicochetPoint = FTracePoint(RicoStart, RicochetOffOf.PhysMaterial.Get());
+		ThisRicochetBulletSteps.Emplace(RicochetPoint);
+	}
+
+	BulletSteps.Append(ThisRicochetBulletSteps);
+
+
+	FVector StoppedAtPoint;
+	bool bStoppedInSegment = false;
+	if (ApplyBulletStepsToBulletSpeed(ThisRicochetBulletSteps, StoppedAtPoint, bStoppedInSegment))
+	{
+		if (bStoppedInSegment) // only if we stopped inside of a segment
 		{
 			// Loop through this ricochet's Hit Results until we find the first hit that happened after StoppedAtPoint, then remove it and all of the ones proceeding it
 			for (int32 i = ThisRicochetStartingIndex; i < HitResults.Num(); ++i)
@@ -263,32 +285,12 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 					break;
 				}
 			}
-
-			RetVal = false;
 		}
 
-		for (const FTraceSegment& TraceSegment : ThisRicochetTraceSegments)
-		{
-			BulletSteps.Emplace(TraceSegment);
-		}
+		RetVal = false;
 	}
 
 
-	// Take away ricochet speed reduction using RicochetOffOf's physical materials
-	if (const UShooterPhysicalMaterial* ShooterPhysMat = Cast<UShooterPhysicalMaterial>(RicochetOffOf.PhysMaterial.Get()))
-	{
-		CurrentBulletSpeed -= (ShooterPhysMat->BulletRicochetSpeedReduction);
-
-		// If we ran out of Bullet Speed from this ricochet
-		if (CurrentBulletSpeed <= 0)
-		{
-			CurrentBulletSpeed = 0;
-			RetVal = false;
-		}
-	}
-
-	FTracePoint RicochetPoint = FTracePoint(RicoStart, RicochetOffOf.PhysMaterial.Get());
-	BulletSteps.Emplace(RicochetPoint);
 
 
 	// Reset the blocking Hit Results for the next group of blocking hits
@@ -307,14 +309,33 @@ void AGATA_BulletTrace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorl
 	Super::OnPostTraces(HitResults, World, TraceParams);
 
 
-	// Apply any Trace Segments left to our CurrentBulletSpeed
-	if (ThisRicochetBlockingHits.Num() > 0)
-	{
-		TArray<FTraceSegment> ThisRicochetTraceSegments;
-		UBFL_CollisionQueryHelpers::BuildTraceSegments(ThisRicochetTraceSegments, ThisRicochetBlockingHits, World, TraceParams, TraceChannel);
 
-		FVector StoppedAtPoint;
-		if (ApplyTraceSegmentsToBulletSpeed(ThisRicochetTraceSegments, StoppedAtPoint))
+	TArray<FBulletStep> ThisRicochetBulletSteps;
+
+	// Fill out ThisRicochetBulletSteps
+	{
+		// Apply any Trace Segments left to our CurrentBulletSpeed
+		if (ThisRicochetBlockingHits.Num() > 0)
+		{
+			TArray<FTraceSegment> ThisRicochetTraceSegments;
+			UBFL_CollisionQueryHelpers::BuildTraceSegments(ThisRicochetTraceSegments, ThisRicochetBlockingHits, World, TraceParams, TraceChannel);
+			for (const FTraceSegment& TraceSegment : ThisRicochetTraceSegments)
+			{
+				BulletSteps.Emplace(TraceSegment);
+			}
+
+		}
+
+	}
+
+	BulletSteps.Append(ThisRicochetBulletSteps);
+
+
+	FVector StoppedAtPoint;
+	bool bStoppedInSegment = false;
+	if (ApplyBulletStepsToBulletSpeed(ThisRicochetBulletSteps, StoppedAtPoint, bStoppedInSegment))
+	{
+		if (bStoppedInSegment) // only if we stopped inside of a segment
 		{
 			// Loop through this ricochet's Hit Results until we find the first hit that happened after StoppedAtPoint, then remove it and all of the ones proceeding it
 			for (int32 i = ThisRicochetStartingIndex; i < HitResults.Num(); ++i)
@@ -338,12 +359,10 @@ void AGATA_BulletTrace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorl
 				}
 			}
 		}
-
-		for (const FTraceSegment& TraceSegment : ThisRicochetTraceSegments)
-		{
-			BulletSteps.Emplace(TraceSegment);
-		}
 	}
+
+
+
 
 	ThisRicochetBlockingHits.Empty();
 	ThisRicochetStartingIndex = 0;
@@ -351,15 +370,25 @@ void AGATA_BulletTrace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorl
 
 }
 
-bool AGATA_BulletTrace::ApplyTraceSegmentsToBulletSpeed(const TArray<FTraceSegment>& TraceSegments, FVector& OutStoppedAtPoint)
+bool AGATA_BulletTrace::ApplyBulletStepsToBulletSpeed(const TArray<FBulletStep>& BulletStepsToApply, FVector& OutStoppedAtPoint, bool& OutStoppedInSegment)
 {
 	// If we were already out of Bullet Speed
 	if (CurrentBulletSpeed <= 0)
 	{
 		// Try to set a valid OutStoppedAtPoint
-		if (TraceSegments.IsValidIndex(0))
+		if (BulletStepsToApply.IsValidIndex(0))
 		{
-			OutStoppedAtPoint = TraceSegments[0].GetEntrancePoint();
+			const FBulletStep& FirstStep = BulletStepsToApply[0];
+
+			if (const FTraceSegment* TraceSegment = FirstStep.GetTraceSegment())
+			{
+				OutStoppedAtPoint = TraceSegment->GetEntrancePoint();
+				OutStoppedInSegment = true;
+			}
+			else if (const FTracePoint* TracePoint = FirstStep.GetRicochetPoint())
+			{
+				OutStoppedAtPoint = TracePoint->Point;
+			}
 		}
 
 		CurrentBulletSpeed = 0;
@@ -367,37 +396,46 @@ bool AGATA_BulletTrace::ApplyTraceSegmentsToBulletSpeed(const TArray<FTraceSegme
 	}
 
 
-	// For each Segment
-	for (const FTraceSegment& Segment : TraceSegments)
+
+
+	for (const FBulletStep& BulletStep : BulletStepsToApply)
 	{
-		const float& SegmentDistance = Segment.GetSegmentDistance();
-		const float& SpeedToTakeAway = Segment.GetBulletSpeedToTakeAway();
+		const float SpeedToTakeAway = BulletStep.GetBulletSpeedToTakeAway();
 
 
 
-		// Take away Bullet Speed from this Segment
-		CurrentBulletSpeed -= SpeedToTakeAway;
+		// Take away Bullet Speed from this BulletStep
+		CurrentBulletSpeed -= BulletStep.GetBulletSpeedToTakeAway();
 
 		// If we ran out of Bullet Speed
 		if (CurrentBulletSpeed <= 0)
 		{
-			// The speed we had before we took away
-			const float PreLossBulletSpeed = (CurrentBulletSpeed + SpeedToTakeAway); // if this is somehow negative, that means we already were below zero. But this calculation still works on it - it calculates the point that we should've stopped at when we first went below zero. This would never happen but still its kinda cool how it still works if that happens
+			if (const FTraceSegment* TraceSegment = BulletStep.GetTraceSegment())
+			{
+				// The speed we had before we took away
+				const float PreLossBulletSpeed = (CurrentBulletSpeed + SpeedToTakeAway); // if this is somehow negative, that means we already were below zero. But this calculation still works on it - it calculates the point that we should've stopped at when we first went below zero. This would never happen but still its kinda cool how it still works if that happens
 
-			// How far we traveled through this Segment
-			const float GotThroughnessRatio = (PreLossBulletSpeed / SpeedToTakeAway);
-			const float TraveledThroughDistance = GotThroughnessRatio * SegmentDistance;
+				// How far we traveled through this Segment
+				const float GotThroughnessRatio = (PreLossBulletSpeed / SpeedToTakeAway);
+				const float TraveledThroughDistance = GotThroughnessRatio * TraceSegment->GetSegmentDistance();
 
-			// The point which we ran out of speed
-			OutStoppedAtPoint = Segment.GetEntrancePoint() + (TraveledThroughDistance * Segment.GetTraceDir());
-
+				// The point which we ran out of speed
+				OutStoppedAtPoint = TraceSegment->GetEntrancePoint() + (TraveledThroughDistance * TraceSegment->GetTraceDir());
+				OutStoppedInSegment = true;
+			}
+			else if (const FTracePoint* TracePoint = BulletStep.GetRicochetPoint())
+			{
+				OutStoppedAtPoint = TracePoint->Point;
+			}
 
 			// We ran out of speed and have a valid OutStoppedAtPoint
 			CurrentBulletSpeed = 0;
 			return true;
 		}
-
 	}
+
+
+
 
 	return false;
 }
@@ -406,7 +444,7 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 {
 	float retVal = GetInitialBulletSpeed();
 	int i = 0;
-	for (const FBulletStep& BulletStep : BulletSteps)	// Some reason rn first step is ricochet when you shoot at a ricochetable surface. So there ends up being 2 ricochets when you only shoot 1 ricocheable surface :/
+	for (const FBulletStep& BulletStep : BulletSteps)
 	{
 		retVal -= BulletStep.GetBulletSpeedToTakeAway();
 

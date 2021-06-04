@@ -38,6 +38,16 @@ struct FTracePoint
  */
 struct FBulletStep
 {
+	// Copy ctor for BulletSteps.Append()
+	FBulletStep(const FBulletStep& Other)
+	{
+		// Deep copy our pointers
+		TraceSegment = Other.TraceSegment.IsValid() ? MakeUnique<FTraceSegment>(*(Other.TraceSegment.Get())) : nullptr;
+		RicochetPoint = Other.RicochetPoint.IsValid() ? MakeUnique<FTracePoint>(*(Other.RicochetPoint.Get())) : nullptr;
+
+		BulletSpeedToTakeAway = Other.BulletSpeedToTakeAway;
+	}
+
 	FBulletStep(const FTraceSegment& InTraceSegment)
 	{
 		TraceSegment = MakeUnique<FTraceSegment>(InTraceSegment);
@@ -144,8 +154,10 @@ protected:
 	 * 
 	 * Returns true if we ran out of Bullet Speed.
 	 * If returned true, we have a valid OutStoppedAtPoint.
+	 * 
+	 * TODO: get rid of OutStoppedInSegment
 	 */
-	bool ApplyTraceSegmentsToBulletSpeed(const TArray<FTraceSegment>& TraceSegments, FVector& OutStoppedAtPoint);
+	bool ApplyBulletStepsToBulletSpeed(const TArray<FBulletStep>& BulletStepsToApply, FVector& OutStoppedAtPoint, bool& OutStoppedInSegment);
 
 
 	float CurrentBulletSpeed;

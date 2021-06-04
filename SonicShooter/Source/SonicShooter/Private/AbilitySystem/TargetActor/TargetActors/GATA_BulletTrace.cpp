@@ -415,6 +415,10 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 			if (PointDir.ProjectOnTo(BulletDir) == PointDir)	// If projecting the point's dir onto the bullet's dir makes the point dir no different, then Point is already on the bullet trace before projection, meaning the point is on the path of this bullet segment
 			{
 				UKismetSystemLibrary::PrintString(this, "Found line!!! TraceSegment: " + FString::SanitizeFloat(i));
+				// Calc the speed before breaking.....
+
+
+				break;
 			}
 
 		}
@@ -422,7 +426,10 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 		{
 			if (RicochetPoint->Point == Point)
 			{
+				// Calc the speed before breaking.....
 
+
+				break;
 			}
 		}
 		else

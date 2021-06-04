@@ -488,8 +488,8 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, int32 bulle
 				UKismetSystemLibrary::PrintString(this, "Found line!!!", true, false, FLinearColor::Green, 1);
 
 				// We took away the whole Segment's speed even though this point is within the Segment. So add back the part of the Segment that we didn't travel through
-				float UntraveledDistanceRatio = (TraceSegment->GetSegmentDistance() / EntranceToPoint.Size());
-				retVal += BulletStep.GetBulletSpeedToTakeAway() * UntraveledDistanceRatio;
+				float TraveledThroughnessRatio = (EntranceToPoint.Size() / TraceSegment->GetSegmentDistance());
+				retVal += BulletStep.GetBulletSpeedToTakeAway() * (1 - TraveledThroughnessRatio);
 
 				break;
 			}

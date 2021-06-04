@@ -56,6 +56,16 @@ float AGATA_BulletTrace::GetInitialBulletSpeed() const
 {
 	return 100.f; // TODO: make attribute for this
 }
+float AGATA_BulletTrace::GetDamageFalloff() const
+{
+	if (GunAttributeSet)
+	{
+		return GunAttributeSet->GetDamageFalloff();
+	}
+
+	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its DamageFalloff attribute! Will return .5f instead!"), *FString(__FUNCTION__));
+	return .5f;
+}
 
 void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 {

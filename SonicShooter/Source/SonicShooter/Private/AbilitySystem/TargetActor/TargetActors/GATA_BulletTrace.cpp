@@ -83,15 +83,19 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 		FGameplayAbilityTargetDataHandle TargetDataHandle;
 
 
+		const int32 numberOfBullets = GetNumberOfTraces();
+		BulletSteps.Empty();
+		BulletSteps.AddDefaulted(numberOfBullets);
+
 		TArray<TArray<FHitResult>> TraceResults;
 		PerformTraces(TraceResults, SourceActor);
 
-
-		for (TArray<FHitResult>& ThisBulletHitResults : TraceResults)
+		for (int32 bulletNumber = 0; bulletNumber < TraceResults.Num(); bulletNumber++)
 		{
+			TArray<FHitResult>& ThisBulletHitResults = TraceResults[bulletNumber];
+
 			/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
 			FGATD_BulletTraceTargetHit* ThisBulletTargetData = new FGATD_BulletTraceTargetHit();
-
 
 			float totalDistanceUpUntilThisTrace = 0.f; // accumulated distance of the previous traces
 
@@ -135,7 +139,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 				// This Hit Result's distance plus the previous ricochet(s)'s traveled distance
 				const float ricochetAwareDistance = totalDistanceUpUntilThisTrace + Hit.Distance;
-				float bulletSpeedOnHit = GetBulletSpeedAtPoint(Hit.ImpactPoint);
+				float bulletSpeedOnHit = GetBulletSpeedAtPoint(Hit.ImpactPoint, bulletNumber);
 				ThisBulletTargetData->ActorHitInfos.Emplace(Hit.GetActor(), ricochetAwareDistance, bulletSpeedOnHit);
 
 
@@ -222,8 +226,8 @@ bool AGATA_BulletTrace::OnInitialTrace(TArray<FHitResult>& OutInitialHitResults,
 	// Intialize CurrentBulletSpeed
 	CurrentBulletSpeed = GetInitialBulletSpeed();
 
-	// Initialize BulletSteps
-	BulletSteps.Empty();
+	// Initialize this bullet's BulletSteps
+	BulletSteps[CurrentTraceIndex].Empty();
 
 
 	return RetVal;
@@ -285,7 +289,7 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 
 		for (const FTraceSegment& TraceSegment : ThisRicochetTraceSegments)
 		{
-			BulletSteps.Emplace(TraceSegment);
+			BulletSteps[CurrentTraceIndex].Emplace(TraceSegment);
 		}
 	}
 
@@ -304,7 +308,7 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 	}
 
 	FTracePoint RicochetPoint = FTracePoint(RicoStart, RicochetOffOf.PhysMaterial.Get());
-	BulletSteps.Emplace(RicochetPoint);
+	BulletSteps[CurrentTraceIndex].Emplace(RicochetPoint);
 
 
 	// Reset the blocking Hit Results for the next group of blocking hits
@@ -357,7 +361,7 @@ void AGATA_BulletTrace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorl
 
 		for (const FTraceSegment& TraceSegment : ThisRicochetTraceSegments)
 		{
-			BulletSteps.Emplace(TraceSegment);
+			BulletSteps[CurrentTraceIndex].Emplace(TraceSegment);
 		}
 	}
 
@@ -418,14 +422,14 @@ bool AGATA_BulletTrace::ApplyTraceSegmentsToBulletSpeed(const TArray<FTraceSegme
 	return false;
 }
 
-float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
+float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, int32 bulletNumber)
 {
 	float retVal = GetInitialBulletSpeed();
 
 
 
-
-	for (const FBulletStep& BulletStep : BulletSteps)	// Some reason rn first step is ricochet when you shoot at a ricochetable surface. So there ends up being 2 ricochets when you only shoot 1 ricocheable surface :/
+	const TArray<FBulletStep>& Steps = BulletSteps[bulletNumber];	// Get the steps from this specific bullet
+	for (const FBulletStep& BulletStep : Steps)	// Some reason rn first step is ricochet when you shoot at a ricochetable surface. So there ends up being 2 ricochets when you only shoot 1 ricocheable surface :/
 	{
 		retVal -= BulletStep.GetBulletSpeedToTakeAway();
 
@@ -442,7 +446,7 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 			const FVector EntranceToPoint = Point - TraceSegment->GetEntrancePoint();
 
 			const FVector Projected = EntranceToPoint.ProjectOnTo(EntranceToExit);
-			if ((Projected - EntranceToPoint).IsNearlyZero())	// If projecting the EntranceToPoint onto the bullet's EntranceToExit is still equal to the original EntranceToPoint, then Point is already on the bullet trace before projection, meaning the point is on the path of this bullet segment
+			if ((Projected - EntranceToPoint) == FVector::ZeroVector)	// If projecting the EntranceToPoint onto the bullet's EntranceToExit is still equal to the original EntranceToPoint, then Point is already on the bullet trace before projection, meaning the point is on the path of this bullet segment
 			{
 				UKismetSystemLibrary::PrintString(this, "Found line!!!", true, false, FLinearColor::Green, 1);
 

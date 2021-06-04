@@ -150,7 +150,7 @@ protected:
 
 
 	float CurrentBulletSpeed;
-	float GetBulletSpeedAtPoint(const FVector& Point);
+	float GetBulletSpeedAtPoint(const FVector& Point, int32 bulletNumber);
 	/**
 	 * @brief: This is a nerf that is multiplied against our bullet's damage value to simulate a bullet slowing down as it travels through the air.
 	 * @param bulletSpeedFalloffValue: Determines the amount of damage lost to the bullet base damage every 10000cm (328ft) the bullet travels.
@@ -161,7 +161,7 @@ protected:
 
 private:
 	TArray<FHitResult> ThisRicochetBlockingHits;
-	TArray<FBulletStep> BulletSteps;
+	TArray<TArray<FBulletStep>> BulletSteps;
 	int32 ThisRicochetStartingIndex;
 	FVector ThisRicochetTraceDir;
 

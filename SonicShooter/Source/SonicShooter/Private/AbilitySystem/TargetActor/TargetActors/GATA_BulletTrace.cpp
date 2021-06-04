@@ -414,21 +414,21 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 		{
 			if ((TraceSegment->GetExitPoint() - Point).IsNearlyZero()) // if the given Point is this segment's Exit Point
 			{
+				UKismetSystemLibrary::PrintString(this, "Found line!!! BulletStep: " + FString::SanitizeFloat(i), true, false, FLinearColor::Green, 1);
 				break;
 			}
 
 
-			const FVector BulletDir = TraceSegment->GetExitPoint() - TraceSegment->GetEntrancePoint();
-			const FVector PointDir = Point - TraceSegment->GetEntrancePoint();
+			const FVector EntranceToExit = TraceSegment->GetExitPoint() - TraceSegment->GetEntrancePoint();
+			const FVector EntranceToPoint = Point - TraceSegment->GetEntrancePoint();
 
-			const FVector ProjectedDir = PointDir.ProjectOnTo(BulletDir);
-			if ((ProjectedDir - PointDir).IsNearlyZero())	// If projecting the point's dir onto the bullet's dir makes the point dir no different, then Point is already on the bullet trace before projection, meaning the point is on the path of this bullet segment
+			const FVector Projected = EntranceToPoint.ProjectOnTo(EntranceToExit);
+			if ((Projected - EntranceToPoint).IsNearlyZero())	// If projecting the EntranceToPoint onto the bullet's EntranceToExit is still equal to the original EntranceToPoint, then Point is already on the bullet trace before projection, meaning the point is on the path of this bullet segment
 			{
-				UKismetSystemLibrary::PrintString(this, "Found line!!! TraceSegment: " + FString::SanitizeFloat(i), true, false, FLinearColor::Green, 1);
-				// Calc the speed before breaking.....
+				UKismetSystemLibrary::PrintString(this, "Found line!!! BulletStep: " + FString::SanitizeFloat(i), true, false, FLinearColor::Green, 1);
 
 				// We took away the whole Segment's speed even though this point is within the Segment. So add back the part of the Segment that we didn't travel through
-				float UntraveledDistanceRatio = (TraceSegment->GetSegmentDistance() / PointDir.Size());
+				float UntraveledDistanceRatio = (TraceSegment->GetSegmentDistance() / EntranceToPoint.Size());
 				retVal += BulletStep.GetBulletSpeedToTakeAway() * UntraveledDistanceRatio;
 
 				break;
@@ -439,6 +439,7 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 		{
 			if ((RicochetPoint->Point - Point).IsNearlyZero())
 			{
+				UKismetSystemLibrary::PrintString(this, "Found point!!! BulletStep: " + FString::SanitizeFloat(i), true, false, FLinearColor::Green, 1);
 				break;
 			}
 		}

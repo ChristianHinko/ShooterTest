@@ -3,6 +3,8 @@
 
 #include "Utilities/BlueprintFunctionLibraries/BFL_MathHelpers.h"
 
+
+
 bool UBFL_MathHelpers::PointLinesOnSegment(const FVector& Start, const FVector& End, const FVector& Point)
 {
     //FVector::CrossProduct()
@@ -10,9 +12,14 @@ bool UBFL_MathHelpers::PointLinesOnSegment(const FVector& Start, const FVector& 
 
 
 
+    float SegmentDistance = FVector::Distance(Start, End);
+    float StartToPointDistance = FVector::Distance(Start, Point);
+    float PointToEndDistance = FVector::Distance(Point, End);
 
-
-
+    if (FMath::IsNearlyEqual(StartToPointDistance + PointToEndDistance, SegmentDistance)) // if we are not a triangle
+    {
+        return true;
+    }
 
 
 
@@ -33,5 +40,5 @@ bool UBFL_MathHelpers::PointLinesOnSegment(const FVector& Start, const FVector& 
     //return False
 
     //    return True
-    return true;
+    return false;
 }

@@ -483,7 +483,7 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, int32 bulle
 
 			const FVector EntranceToExit = TraceSegment->GetExitPoint() - TraceSegment->GetEntrancePoint();
 			const FVector EntranceToPoint = Point - TraceSegment->GetEntrancePoint();
-			if (UBFL_MathHelpers::PointLinesOnSegment(TraceSegment->GetEntrancePoint(), TraceSegment->GetExitPoint(), Point))	// If projecting the EntranceToPoint onto the bullet's EntranceToExit is still equal to the original EntranceToPoint, then Point is already on the bullet trace before projection, meaning the point is on the path of this bullet segment
+			if (UBFL_MathHelpers::PointLiesOnSegment(TraceSegment->GetEntrancePoint(), TraceSegment->GetExitPoint(), Point))	// If projecting the EntranceToPoint onto the bullet's EntranceToExit is still equal to the original EntranceToPoint, then Point is already on the bullet trace before projection, meaning the point is on the path of this bullet segment
 			{
 				UKismetSystemLibrary::PrintString(this, "Found line!!!", true, false, FLinearColor::Green, 1);
 

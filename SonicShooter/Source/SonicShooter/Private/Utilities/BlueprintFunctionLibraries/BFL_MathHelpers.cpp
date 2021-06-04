@@ -5,10 +5,8 @@
 
 
 
-bool UBFL_MathHelpers::PointLinesOnSegment(const FVector& Start, const FVector& End, const FVector& Point)
+bool UBFL_MathHelpers::PointLiesOnSegment(const FVector& Start, const FVector& End, const FVector& Point)
 {
-    //FVector::CrossProduct()
-
 
 
 
@@ -40,5 +38,6 @@ bool UBFL_MathHelpers::PointLinesOnSegment(const FVector& Start, const FVector& 
     //return False
 
     //    return True
+
     return false;
 }

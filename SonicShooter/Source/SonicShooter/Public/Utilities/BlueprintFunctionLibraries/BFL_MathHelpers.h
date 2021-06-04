@@ -19,6 +19,6 @@ class SONICSHOOTER_API UBFL_MathHelpers : public UBlueprintFunctionLibrary
 	
 public:
 	UFUNCTION(BlueprintPure, Category = "MathHelpers|VectorMath")
-		static bool PointLinesOnSegment(const FVector& Start, const FVector& End, const FVector& Point);
+		static bool PointLiesOnSegment(const FVector& Start, const FVector& End, const FVector& Point);
 
 };

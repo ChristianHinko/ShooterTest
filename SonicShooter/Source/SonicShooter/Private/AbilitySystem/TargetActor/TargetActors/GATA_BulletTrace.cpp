@@ -415,6 +415,10 @@ bool AGATA_BulletTrace::ApplyTraceSegmentsToBulletSpeed(const TArray<FTraceSegme
 float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 {
 	float retVal = GetInitialBulletSpeed();
+
+
+
+
 	for (const FBulletStep& BulletStep : BulletSteps)	// Some reason rn first step is ricochet when you shoot at a ricochetable surface. So there ends up being 2 ricochets when you only shoot 1 ricocheable surface :/
 	{
 		retVal -= BulletStep.GetBulletSpeedToTakeAway();
@@ -459,4 +463,10 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 	}
 	
 	return retVal;
+}
+
+float AGATA_BulletTrace::GetDamageFalloffNerf(const float& bulletDamageFalloffValue, const float& totalDistanceBulletTraveled)
+{
+	// bulletDamageFalloffValue determines the amount of damage lost to the bullet's damage every 10000cm (328ft) the bullet travels.
+	return FMath::Pow(bulletDamageFalloffValue, (totalDistanceBulletTraveled / 10000));
 }

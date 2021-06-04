@@ -33,4 +33,5 @@ bool UBFL_MathHelpers::PointLinesOnSegment(const FVector& Start, const FVector& 
     //return False
 
     //    return True
+    return true;
 }

@@ -56,14 +56,14 @@ float AGATA_BulletTrace::GetInitialBulletSpeed() const
 {
 	return 100.f; // TODO: make attribute for this
 }
-float AGATA_BulletTrace::GetDamageFalloff() const
+float AGATA_BulletTrace::GetBulletSpeedFalloff() const
 {
 	if (GunAttributeSet)
 	{
-		return GunAttributeSet->GetDamageFalloff();
+		return GunAttributeSet->GetBulletSpeedFalloff();
 	}
 
-	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its DamageFalloff attribute! Will return .5f instead!"), *FString(__FUNCTION__));
+	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its BulletSpeedFalloff attribute! Will return .5f instead!"), *FString(__FUNCTION__));
 	return .5f;
 }
 
@@ -465,8 +465,8 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 	return retVal;
 }
 
-float AGATA_BulletTrace::GetDamageFalloffNerf(const float& bulletDamageFalloffValue, const float& totalDistanceBulletTraveled)
+float AGATA_BulletTrace::GetBulletSpeedFalloffNerf(const float& bulletSpeedFalloffValue, const float& totalDistanceBulletTraveled)
 {
-	// bulletDamageFalloffValue determines the amount of damage lost to the bullet's damage every 10000cm (328ft) the bullet travels.
-	return FMath::Pow(bulletDamageFalloffValue, (totalDistanceBulletTraveled / 10000));
+	// bulletSpeedFalloffValue determines the amount of damage lost to the bullet's damage every 10000cm (328ft) the bullet travels.
+	return FMath::Pow(bulletSpeedFalloffValue, (totalDistanceBulletTraveled / 10000));
 }

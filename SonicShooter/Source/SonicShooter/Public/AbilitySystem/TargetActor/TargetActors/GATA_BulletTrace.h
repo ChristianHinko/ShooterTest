@@ -120,7 +120,7 @@ public:
 	virtual int32 GetRicochets() const override;
 	virtual int32 GetPenetrations() const override;
 	virtual float GetInitialBulletSpeed() const;
-	virtual float GetDamageFalloff() const;
+	virtual float GetBulletSpeedFalloff() const;
 
 	UPROPERTY()
 		UAS_Gun* GunAttributeSet;
@@ -153,11 +153,11 @@ protected:
 	float GetBulletSpeedAtPoint(const FVector& Point);
 	/**
 	 * @brief: This is a nerf that is multiplied against our bullet's damage value to simulate a bullet slowing down as it travels through the air.
-	 * @param bulletDamageFalloffValue: Determines the amount of damage lost to the bullet base damage every 10000cm (328ft) the bullet travels.
+	 * @param bulletSpeedFalloffValue: Determines the amount of damage lost to the bullet base damage every 10000cm (328ft) the bullet travels.
 	 * @param totalDistanceBulletTraveled: Required for our calculation.
 	 * @return: The multiplier to multiply against our bullet's damage value.
 	*/
-	float GetDamageFalloffNerf(const float& bulletDamageFalloffValue, const float& totalDistanceBulletTraveled);
+	float GetBulletSpeedFalloffNerf(const float& bulletSpeedFalloffValue, const float& totalDistanceBulletTraveled);
 
 private:
 	TArray<FHitResult> ThisRicochetBlockingHits;

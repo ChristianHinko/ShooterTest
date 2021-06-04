@@ -16,7 +16,7 @@ struct SSDamageStatics
 {
 	// Source
 	DECLARE_ATTRIBUTE_CAPTUREDEF(OutgoingDamage);
-	DECLARE_ATTRIBUTE_CAPTUREDEF(DamageFalloff);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(BulletSpeedFalloff);
 	
 	// Target
 	DECLARE_ATTRIBUTE_CAPTUREDEF(IncomingDamage);
@@ -30,7 +30,7 @@ struct SSDamageStatics
 
 		//Source captures
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UAS_Damage, OutgoingDamage, Source, true);	// This will be the value to damage the target by
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UAS_Gun, DamageFalloff, Source, true);	// This will be the value to damage the target by
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAS_Gun, BulletSpeedFalloff, Source, true);	// This will be the value to damage the target by
 
 		//Target captures
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UAS_Health, IncomingDamage, Target, false);	// This is the attribute we will change on the target
@@ -47,7 +47,7 @@ UGEEC_GunDealDamage::UGEEC_GunDealDamage()
 {
 	//Source
 	RelevantAttributesToCapture.Add(DamageStatics().OutgoingDamageDef);
-	RelevantAttributesToCapture.Add(DamageStatics().DamageFalloffDef);
+	RelevantAttributesToCapture.Add(DamageStatics().BulletSpeedFalloffDef);
 
 	//Target
 	RelevantAttributesToCapture.Add(DamageStatics().IncomingDamageDef);
@@ -93,8 +93,8 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 	// Lets get the values we need for our damage calculation (ie. source/target attributes, passed in values)
 	float RawDamage = 0.0f;
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().OutgoingDamageDef, EvaluationParameters, RawDamage);
-	float DamageFalloff = 0.0f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageFalloffDef, EvaluationParameters, DamageFalloff);
+	float BulletSpeedFalloff = 0.0f;
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().BulletSpeedFalloffDef, EvaluationParameters, BulletSpeedFalloff);
 
 	// Example for if you want to get a SetByCaller
 	//const float totalDistanceBulletTraveled = Spec.GetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("SetByCaller.RicochetsBeforeHit"), true, 0);		// This is not an actual SetByCaller, just an example
@@ -109,10 +109,10 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 
 
 
-	// DamageFalloff determines the amount of damage lost to the bullet base damage every 10000cm (328ft) the bullet travels.
+	// BulletSpeedFalloff determines the amount of damage lost to the bullet base damage every 10000cm (328ft) the bullet travels.
 	// We want to apply this nerf first so we get an accurate falloff amount (if we did it after ie. richochet/penetration dmg nerfs, it wouldn't be accurate
-	const float dmgFalloffMultiplier = FMath::Pow(DamageFalloff, (totalDistanceBulletTraveled / 10000));
-	finalDamage = finalDamage * dmgFalloffMultiplier;
+	const float bulletSpeedFalloffMultiplier = FMath::Pow(BulletSpeedFalloff, (totalDistanceBulletTraveled / 10000));
+	finalDamage = finalDamage * bulletSpeedFalloffMultiplier;
 
 	// For every ricochet, we cut the damage down into a third
 	finalDamage = finalDamage / (ricochetsBeforeHit * 3);	// 3 is our hard coded value for now (if we ever decide to make the value dependent on certain things)

@@ -54,7 +54,13 @@ int32 AGATA_BulletTrace::GetPenetrations() const
 }
 float AGATA_BulletTrace::GetInitialBulletSpeed() const
 {
-	return GunAttributeSet->GetInitialBulletSpeed();
+	if (GunAttributeSet)
+	{
+		return GunAttributeSet->GetInitialBulletSpeed();
+	}
+
+	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its InitialBulletSpeed attribute! Will return 100.f instead!"), *FString(__FUNCTION__));
+	return 100.f;
 }
 float AGATA_BulletTrace::GetBulletSpeedFalloff() const
 {

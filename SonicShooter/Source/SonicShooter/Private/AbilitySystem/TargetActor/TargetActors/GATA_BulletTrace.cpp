@@ -11,6 +11,7 @@
 #include "Item/Weapons/AS_Gun.h"
 #include "Utilities\BlueprintFunctionLibraries\BFL_CollisionQueryHelpers.h"
 #include "PhysicalMaterial/ShooterPhysicalMaterial.h"
+#include "Utilities/BlueprintFunctionLibraries/BFL_MathHelpers.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 

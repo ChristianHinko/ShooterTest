@@ -415,7 +415,6 @@ bool AGATA_BulletTrace::ApplyTraceSegmentsToBulletSpeed(const TArray<FTraceSegme
 float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 {
 	float retVal = GetInitialBulletSpeed();
-	int i = 0;
 	for (const FBulletStep& BulletStep : BulletSteps)	// Some reason rn first step is ricochet when you shoot at a ricochetable surface. So there ends up being 2 ricochets when you only shoot 1 ricocheable surface :/
 	{
 		retVal -= BulletStep.GetBulletSpeedToTakeAway();
@@ -424,7 +423,7 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 		{
 			if ((TraceSegment->GetExitPoint() - Point).IsNearlyZero()) // if the given Point is this segment's Exit Point
 			{
-				UKismetSystemLibrary::PrintString(this, "Found line!!! BulletStep: " + FString::SanitizeFloat(i), true, false, FLinearColor::Green, 1);
+				UKismetSystemLibrary::PrintString(this, "Found line!!!", true, false, FLinearColor::Green, 1);
 				break;
 			}
 
@@ -435,7 +434,7 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 			const FVector Projected = EntranceToPoint.ProjectOnTo(EntranceToExit);
 			if ((Projected - EntranceToPoint).IsNearlyZero())	// If projecting the EntranceToPoint onto the bullet's EntranceToExit is still equal to the original EntranceToPoint, then Point is already on the bullet trace before projection, meaning the point is on the path of this bullet segment
 			{
-				UKismetSystemLibrary::PrintString(this, "Found line!!! BulletStep: " + FString::SanitizeFloat(i), true, false, FLinearColor::Green, 1);
+				UKismetSystemLibrary::PrintString(this, "Found line!!!", true, false, FLinearColor::Green, 1);
 
 				// We took away the whole Segment's speed even though this point is within the Segment. So add back the part of the Segment that we didn't travel through
 				float UntraveledDistanceRatio = (TraceSegment->GetSegmentDistance() / EntranceToPoint.Size());
@@ -449,7 +448,7 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 		{
 			if ((RicochetPoint->Point - Point).IsNearlyZero())
 			{
-				UKismetSystemLibrary::PrintString(this, "Found point!!! BulletStep: " + FString::SanitizeFloat(i), true, false, FLinearColor::Green, 1);
+				UKismetSystemLibrary::PrintString(this, "Found point!!!", true, false, FLinearColor::Green, 1);
 				break;
 			}
 		}
@@ -457,9 +456,6 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 		{
 			UE_LOG(LogGameplayAbilityTargetActor, Warning, TEXT("%s() A BulletStep had no RicochetPoint or TraceSegment.... Something's wrong"), *FString(__FUNCTION__));
 		}
-
-
-		i++;	// just here for debugging
 	}
 	
 	return retVal;

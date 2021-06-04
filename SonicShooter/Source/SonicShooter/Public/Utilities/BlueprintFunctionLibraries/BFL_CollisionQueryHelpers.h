@@ -35,27 +35,7 @@ struct FTraceSegment
 	void SetPhysMaterials(const TArray<UPhysicalMaterial*>& InPhysMaterials)
 	{
 		PhysMaterials = InPhysMaterials;
-
-
-		// Reevaluate BulletSpeedToTakeAway:
-
-		BulletSpeedToTakeAway = 0.f;
-
-		// For each Phys Mat in this Segment
-		for (const UPhysicalMaterial* PhysMat : PhysMaterials)
-		{
-			// If this is a ShooterPhysicalMaterial, it has Bullet Speed loss data
-			if (const UShooterPhysicalMaterial* ShooterPhysMat = Cast<UShooterPhysicalMaterial>(PhysMat))
-			{
-				const float SpeedLossPerCentimeter = (ShooterPhysMat->BulletPenetrationSpeedReduction / 100);
-				const float SpeedToTakeAway = (SegmentDistance * SpeedLossPerCentimeter);
-
-				BulletSpeedToTakeAway += SpeedToTakeAway;
-			}
-		}
 	}
-
-	float GetBulletSpeedToTakeAway() const { return BulletSpeedToTakeAway; }
 
 	FVector GetEntrancePoint() const { return EntrancePoint; }
 	FVector GetExitPoint() const { return ExitPoint; }
@@ -79,7 +59,6 @@ private:
 	 * This is the stack of Phys Mats that are enclosed in this Segment. Top of the stack is the most inner (most recent) Phys Mat
 	 */
 	TArray<UPhysicalMaterial*> PhysMaterials;
-	float BulletSpeedToTakeAway;
 
 	FVector EntrancePoint;
 	FVector ExitPoint;

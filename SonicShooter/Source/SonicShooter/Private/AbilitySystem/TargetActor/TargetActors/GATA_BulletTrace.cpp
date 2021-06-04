@@ -229,6 +229,9 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 
 	const FHitResult& RicochetOffOf = HitResults.Last();
 
+
+	ThisRicochetBlockingHits.Emplace(RicochetOffOf);
+
 	// We are ricocheting so BuildTraceSegments about this previous ricochet's blocking hits
 	if (ThisRicochetBlockingHits.Num() > 0)
 	{

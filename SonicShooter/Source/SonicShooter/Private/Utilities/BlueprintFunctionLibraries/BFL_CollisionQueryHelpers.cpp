@@ -147,7 +147,10 @@ void UBFL_CollisionQueryHelpers::BuildTraceSegments(TArray<FTraceSegment>& OutTr
 				Segment.SetEntranceAndExitPoints(EntrancePoint, ExitPoint);
 				Segment.SetPhysMaterials(CurrentEntrancePhysMaterials);
 
-				OutTraceSegments.Emplace(Segment);
+				if (FwdBlockingHits.IsValidIndex(i + 1) && FMath::IsNearlyZero(Segment.GetSegmentDistance()) == false) // if we are the last Segment and our distance is zero don't emplace this
+				{
+					OutTraceSegments.Emplace(Segment);
+				}
 			}
 
 			for (const FHitResult& BkwdHit : BkwdHitResults)

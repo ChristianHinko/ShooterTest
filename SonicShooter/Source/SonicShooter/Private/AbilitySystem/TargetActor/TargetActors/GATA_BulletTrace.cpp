@@ -54,7 +54,7 @@ int32 AGATA_BulletTrace::GetPenetrations() const
 }
 float AGATA_BulletTrace::GetInitialBulletSpeed() const
 {
-	return 100.f; // TODO: make attribute for this
+	return GunAttributeSet->GetInitialBulletSpeed();
 }
 float AGATA_BulletTrace::GetBulletSpeedFalloff() const
 {

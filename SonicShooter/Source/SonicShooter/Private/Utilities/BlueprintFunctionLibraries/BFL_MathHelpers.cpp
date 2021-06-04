@@ -3,7 +3,7 @@
 
 #include "Utilities/BlueprintFunctionLibraries/BFL_MathHelpers.h"
 
-bool UBFL_MathHelpers::PointLinesOnSegment(const FVector& A, const FVector& B, const FVector& C)
+bool UBFL_MathHelpers::PointLinesOnSegment(const FVector& Start, const FVector& End, const FVector& Point)
 {
     //FVector::CrossProduct()
 

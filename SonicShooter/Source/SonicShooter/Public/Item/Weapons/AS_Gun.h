@@ -112,11 +112,18 @@ public:
 	ATTRIBUTE_ACCESSORS(UAS_Gun, Ricochets)
 
 	/**
-	 * The amount of damage lost to the bullet base damage every 10000cm (328ft) the bullet travels
+	 * The initial speed of the bullet (bullet speed strongly effects bullet damage and how far it travels)
 	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_DamageFalloff, Category = "Attributes")
-		FGameplayAttributeData DamageFalloff;
-	ATTRIBUTE_ACCESSORS(UAS_Gun, DamageFalloff)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_InitialBulletSpeed, Category = "Attributes")
+		FGameplayAttributeData InitialBulletSpeed;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, InitialBulletSpeed)
+
+	/**
+	 * The amount of speed lost to a bullet while traveling through the air every 10000cm (328ft). (bullet speed strongly effects bullet damage and how far it travels)
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpeedFalloff, Category = "Attributes")
+		FGameplayAttributeData BulletSpeedFalloff;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, BulletSpeedFalloff)
 
 
 
@@ -251,7 +258,10 @@ protected:
 		virtual void OnRep_Ricochets(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
-		virtual void OnRep_DamageFalloff(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_InitialBulletSpeed(const FGameplayAttributeData& ServerBaseValue);
+
+	UFUNCTION()
+		virtual void OnRep_BulletSpeedFalloff(const FGameplayAttributeData& ServerBaseValue);
 
 
 

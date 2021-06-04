@@ -54,7 +54,23 @@ int32 AGATA_BulletTrace::GetPenetrations() const
 }
 float AGATA_BulletTrace::GetInitialBulletSpeed() const
 {
-	return 100.f; // TODO: make attribute for this
+	if (GunAttributeSet)
+	{
+		return GunAttributeSet->GetInitialBulletSpeed();
+	}
+
+	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its InitialBulletSpeed attribute! Will return 100.f instead!"), *FString(__FUNCTION__));
+	return 100.f;
+}
+float AGATA_BulletTrace::GetBulletSpeedFalloff() const
+{
+	if (GunAttributeSet)
+	{
+		return GunAttributeSet->GetBulletSpeedFalloff();
+	}
+
+	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its BulletSpeedFalloff attribute! Will return .5f instead!"), *FString(__FUNCTION__));
+	return .5f;
 }
 
 void AGATA_BulletTrace::ConfirmTargetingAndContinue()
@@ -443,6 +459,10 @@ bool AGATA_BulletTrace::ApplyBulletStepsToBulletSpeed(const TArray<FBulletStep>&
 float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 {
 	float retVal = GetInitialBulletSpeed();
+
+
+
+
 	int i = 0;
 	for (const FBulletStep& BulletStep : BulletSteps)
 	{
@@ -452,7 +472,7 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 		{
 			if ((TraceSegment->GetExitPoint() - Point).IsNearlyZero()) // if the given Point is this segment's Exit Point
 			{
-				UKismetSystemLibrary::PrintString(this, "Found line!!! BulletStep: " + FString::SanitizeFloat(i), true, false, FLinearColor::Green, 1);
+				UKismetSystemLibrary::PrintString(this, "Found line!!!", true, false, FLinearColor::Green, 1);
 				break;
 			}
 
@@ -463,7 +483,7 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 			const FVector Projected = EntranceToPoint.ProjectOnTo(EntranceToExit);
 			if ((Projected - EntranceToPoint).IsNearlyZero())	// If projecting the EntranceToPoint onto the bullet's EntranceToExit is still equal to the original EntranceToPoint, then Point is already on the bullet trace before projection, meaning the point is on the path of this bullet segment
 			{
-				UKismetSystemLibrary::PrintString(this, "Found line!!! BulletStep: " + FString::SanitizeFloat(i), true, false, FLinearColor::Green, 1);
+				UKismetSystemLibrary::PrintString(this, "Found line!!!", true, false, FLinearColor::Green, 1);
 
 				// We took away the whole Segment's speed even though this point is within the Segment. So add back the part of the Segment that we didn't travel through
 				float UntraveledDistanceRatio = (TraceSegment->GetSegmentDistance() / EntranceToPoint.Size());
@@ -477,7 +497,7 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 		{
 			if ((RicochetPoint->Point - Point).IsNearlyZero())
 			{
-				UKismetSystemLibrary::PrintString(this, "Found point!!! BulletStep: " + FString::SanitizeFloat(i), true, false, FLinearColor::Green, 1);
+				UKismetSystemLibrary::PrintString(this, "Found point!!!", true, false, FLinearColor::Green, 1);
 				break;
 			}
 		}
@@ -485,10 +505,13 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point)
 		{
 			UE_LOG(LogGameplayAbilityTargetActor, Warning, TEXT("%s() A BulletStep had no RicochetPoint or TraceSegment.... Something's wrong"), *FString(__FUNCTION__));
 		}
-
-
-		i++;	// just here for debugging
 	}
 	
 	return retVal;
+}
+
+float AGATA_BulletTrace::GetBulletSpeedFalloffNerf(const float& bulletSpeedFalloffValue, const float& totalDistanceBulletTraveled)
+{
+	// bulletSpeedFalloffValue determines the amount of damage lost to the bullet's damage every 10000cm (328ft) the bullet travels.
+	return FMath::Pow(bulletSpeedFalloffValue, (totalDistanceBulletTraveled / 10000));
 }

@@ -275,7 +275,7 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 		ThisRicochetBulletSteps.Emplace(RicochetPoint);
 	}
 
-	BulletSteps.Append(ThisRicochetBulletSteps);
+	BulletSteps[CurrentTraceIndex].Append(ThisRicochetBulletSteps);
 
 
 	FVector StoppedAtPoint;
@@ -341,14 +341,14 @@ void AGATA_BulletTrace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorl
 			UBFL_CollisionQueryHelpers::BuildTraceSegments(ThisRicochetTraceSegments, ThisRicochetBlockingHits, World, TraceParams, TraceChannel);
 			for (const FTraceSegment& TraceSegment : ThisRicochetTraceSegments)
 			{
-				BulletSteps.Emplace(TraceSegment);
+				BulletSteps[CurrentTraceIndex].Emplace(TraceSegment);
 			}
 
 		}
 
 	}
 
-	BulletSteps.Append(ThisRicochetBulletSteps);
+	BulletSteps[CurrentTraceIndex].Append(ThisRicochetBulletSteps);
 
 
 	FVector StoppedAtPoint;

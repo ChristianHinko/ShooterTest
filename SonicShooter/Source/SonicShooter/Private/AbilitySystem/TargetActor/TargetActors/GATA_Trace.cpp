@@ -11,10 +11,9 @@
 #include "Actor/AbilitySystemActor.h"
 #include "Utilities/SurfaceTypes.h"
 #include "Utilities/LogCategories.h"
-
-#include "Utilities\BlueprintFunctionLibraries\BFL_CollisionQueryHelpers.h"
-#include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
+
+#include "DrawDebugHelpers.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 

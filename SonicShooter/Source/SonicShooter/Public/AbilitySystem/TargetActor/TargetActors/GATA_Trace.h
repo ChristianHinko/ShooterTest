@@ -10,6 +10,20 @@
 
 
 /**
+ * Our base Trace class.
+ * 
+ * By default is just a standard trace with nothing special.
+ * 
+ *		- Has the ability to fire multiple traces at once using GetNumberOfTraces() and PerformTraces().
+ *		- Has the ability to penetrate through blocking hits by using GetPenetrations().
+ *		- Has the ability to ricochet off of certain hits using GetRicochets().
+ *			Fill out RicochetableSurfaces array to determine which surface types to ricochet off of - OR override ShouldRicochetOffOf() to
+ *			implement custom ricochet determination.
+ *		- For super advanced tracing features override the trace events. We implemented a very advanced Bullet Speed system in GATA_BulletTrace using these.
+ *			These events determine how the LineTraceMulti() function behaves. You can return false in these to stop LineTraceMulti() from doing any more traces.
+ *			The reference parameters for HitResults are not const so you can directly modify them in these. (For example when we run out of Bullet Speed in GATA_BulletTrace, we
+ *			remove the rest of the Hit Results after that point from the HitResults reference parameter).
+ *		- TODO: sweeps aren't well-supported yet (for ricochets and penetrations)
  * 
  */
 UCLASS(Abstract, notplaceable)
@@ -62,12 +76,16 @@ protected:
 	virtual bool OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitResult>& OutRicoHitResults, const UWorld* World, const FVector& RicoStart, const FVector& RicoEnd, const FCollisionQueryParams& TraceParams);
 	virtual void OnPostTraces(TArray<FHitResult>& HitResults, const UWorld* World, const FCollisionQueryParams& TraceParams);
 
-
+	/**
+	 * HERE FOR OVERRIDING PURPOSES ONLY!! DO NOT DIRECTLY CALL!!
+	 * Prefer PerformTraces() instead in case GetNumberOfTraces() is greater than 1!
+	 */
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) PURE_VIRTUAL(AGATA_Trace);
 
 	/**
+	 * Use this instead of PerformTrace() directly!
 	 * Calls PerformTrace() for GetNumberOfTraces() amount of times safely.
-	 * Outputs a 2D array of Hits for clarity of which Hit Results were for which trace.
+	 * Outputs a 2D array of Hits for the sake of clarity for which Hit Results are for which trace.
 	 */
 	void PerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AActor* InSourceActor);
 	/** Indicates which PerformTrace() call we are. */

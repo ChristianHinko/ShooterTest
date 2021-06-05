@@ -86,6 +86,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 		const int32 numberOfBullets = GetNumberOfTraces();
 		BulletSteps.Empty();
+		BulletSteps.Reserve(numberOfBullets);
 		BulletSteps.AddDefaulted(numberOfBullets);
 
 		TArray<TArray<FHitResult>> TraceResults;

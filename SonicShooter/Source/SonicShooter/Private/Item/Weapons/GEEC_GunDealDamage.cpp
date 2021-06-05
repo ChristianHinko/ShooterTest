@@ -15,8 +15,7 @@
 struct SSDamageStatics
 {
 	// Source
-	DECLARE_ATTRIBUTE_CAPTUREDEF(OutgoingDamage);
-	DECLARE_ATTRIBUTE_CAPTUREDEF(DamageFalloff);
+	//DECLARE_ATTRIBUTE_CAPTUREDEF(OutgoingDamage);	// Here as an example. We are currently trusting the client's bullet speed value to determine damage to deal
 	
 	// Target
 	DECLARE_ATTRIBUTE_CAPTUREDEF(IncomingDamage);
@@ -29,8 +28,7 @@ struct SSDamageStatics
 		// Snapshot happens at time of GESpec creation
 
 		//Source captures
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UAS_Damage, OutgoingDamage, Source, true);	// This will be the value to damage the target by
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UAS_Gun, DamageFalloff, Source, true);	// This will be the value to damage the target by
+		//DEFINE_ATTRIBUTE_CAPTUREDEF(UAS_Damage, OutgoingDamage, Source, true);
 
 		//Target captures
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UAS_Health, IncomingDamage, Target, false);	// This is the attribute we will change on the target
@@ -46,14 +44,12 @@ static const SSDamageStatics& DamageStatics()
 UGEEC_GunDealDamage::UGEEC_GunDealDamage()
 {
 	//Source
-	RelevantAttributesToCapture.Add(DamageStatics().OutgoingDamageDef);
-	RelevantAttributesToCapture.Add(DamageStatics().DamageFalloffDef);
+	//RelevantAttributesToCapture.Add(DamageStatics().OutgoingDamageDef);
 
 	//Target
 	RelevantAttributesToCapture.Add(DamageStatics().IncomingDamageDef);
 }
 
-// Need to make this get the OutgoingDamage attribute from a damage attribute set on the source
 void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
 	UAbilitySystemComponent* TargetAbilitySystemComponent = ExecutionParams.GetTargetAbilitySystemComponent();
@@ -90,30 +86,23 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 	EvaluationParameters.SourceTags = SourceTags;
 	EvaluationParameters.TargetTags = TargetTags;
 
-	// Lets get the values we need for our damage calculation (ie. source/target attributes, passed in values)
-	float RawDamage = 0.0f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().OutgoingDamageDef, EvaluationParameters, RawDamage);
-	float DamageFalloff = 0.0f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageFalloffDef, EvaluationParameters, DamageFalloff);
+	//// Lets get the values we need for our damage calculation (ie. source/target attributes, passed in values)
+	//float RawDamage = 0.0f;
+	//ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().OutgoingDamageDef, EvaluationParameters, RawDamage);
 
-	// Example for if you want to get a SetByCaller
+	//// Example for if you want to get a SetByCaller
 	//const float totalDistanceBulletTraveled = Spec.GetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("SetByCaller.RicochetsBeforeHit"), true, 0);		// This is not an actual SetByCaller, just an example
 
 	// Lets get our effect context's data
-	const float totalDistanceBulletTraveled = Context->GetHitInfo().totalTraveledDistanceBeforeHit;
-	const uint8 ricochetsBeforeHit = Context->GetNumRicochetsBeforeHit();
+	const float bulletSpeedAtImpact = Context->GetHitInfo().bulletSpeedAtImpact;
 
 	// Lets start calculating
-	float finalDamage = RawDamage;
+	float damageToApply = bulletSpeedAtImpact;
+
+	
 
 
-	// DamageFalloff determines the amount of damage lost to the bullet base damage every 10000cm (328ft) the bullet travels.
-	// We want to apply this nerf first so we get an accurate falloff amount (if we did it after ie. richochet/penetration dmg nerfs, it wouldn't be accurate
-	const float dmgFalloffMultiplier = FMath::Pow(DamageFalloff, (totalDistanceBulletTraveled / 10000));
-	finalDamage = finalDamage * dmgFalloffMultiplier;
 
-	// For every ricochet, we cut the damage down into a third
-	finalDamage = finalDamage / (ricochetsBeforeHit * 3);	// 3 is our hard coded value for now (if we ever decide to make the value dependent on certain things)
 
 
 
@@ -127,5 +116,5 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 
 
 	// Set the Target's IncomingDamage meta attribute
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().IncomingDamageProperty, EGameplayModOp::Additive, finalDamage));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().IncomingDamageProperty, EGameplayModOp::Additive, damageToApply));
 }

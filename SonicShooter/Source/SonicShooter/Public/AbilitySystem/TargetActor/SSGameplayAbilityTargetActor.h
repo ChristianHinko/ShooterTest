@@ -9,7 +9,10 @@
 
 #include "SSGameplayAbilityTargetActor.generated.h"
 
+
 class ASSGameplayAbilityWorldReticle;
+
+
 
 /**
  * Base target actor class
@@ -99,7 +102,7 @@ protected:
 	 * 
 	 * You can also determine AimStart if needed
 	 */
-	virtual void CalculateAimDirection(FVector& AimStart, FVector& AimDir) const;
+	virtual void CalculateAimDirection(FVector& OutAimStart, FVector& OutAimDir) const;
 
 
 	/** Returns true if the two given hits were from the same trace */

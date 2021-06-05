@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{4C08CCE7-4A73-B8A8-A836-EA9FCB3B097B}",
+	"EngineAssociation": "{ABE78BC1-4AB4-8642-1719-E0B33ECC4768}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -12,7 +12,8 @@
 				"Engine",
 				"GameplayAbilities",
 				"ArcInventory",
-				"UMG"
+				"UMG",
+				"PhysicsCore"
 			]
 		}
 	],
@@ -39,6 +40,16 @@
 		{
 			"Name": "ControlRig",
 			"Enabled": true
+		},
+		{
+			"Name": "ArcTeams",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/22b470a547a644dcaf543d7faaa3240a"
+		},
+		{
+			"Name": "MoveIt",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/1b8d6e55c50b4b189f283cbbe3d266d9"
 		}
 	]
 }

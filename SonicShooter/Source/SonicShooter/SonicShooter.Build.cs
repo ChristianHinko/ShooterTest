@@ -17,7 +17,9 @@ public class SonicShooter : ModuleRules
 				"GameplayTasks",
 				"NetCore", // for push model
 				"AutoSettings",
-				"ArcInventory"
+				"ArcInventory",
+				"ArcTeams",
+				"MoveIt"
 			}
 		);
 	}

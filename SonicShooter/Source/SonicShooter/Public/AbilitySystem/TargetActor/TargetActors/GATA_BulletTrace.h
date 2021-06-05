@@ -133,8 +133,8 @@ public:
 	virtual int32 GetRicochets() const override;
 	virtual int32 GetPenetrations() const override;
 
-	virtual float GetInitialBulletSpeed() const;
-	virtual float GetBulletSpeedFalloff() const;
+	float GetInitialBulletSpeed() const;
+	float GetBulletSpeedFalloff() const;
 
 
 	UPROPERTY()

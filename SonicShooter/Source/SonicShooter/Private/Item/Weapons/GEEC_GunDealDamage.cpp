@@ -109,13 +109,7 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 
 
 
-	// BulletSpeedFalloff determines the amount of damage lost to the bullet base damage every 10000cm (328ft) the bullet travels.
-	// We want to apply this nerf first so we get an accurate falloff amount (if we did it after ie. richochet/penetration dmg nerfs, it wouldn't be accurate
-	const float bulletSpeedFalloffMultiplier = FMath::Pow(BulletSpeedFalloff, (totalDistanceBulletTraveled / 10000));
-	finalDamage = finalDamage * bulletSpeedFalloffMultiplier;
 
-	// For every ricochet, we cut the damage down into a third
-	finalDamage = finalDamage / (ricochetsBeforeHit * 3);	// 3 is our hard coded value for now (if we ever decide to make the value dependent on certain things)
 
 
 

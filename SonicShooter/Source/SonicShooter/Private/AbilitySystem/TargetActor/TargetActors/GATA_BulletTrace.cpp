@@ -86,6 +86,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 		const int32 numberOfBullets = GetNumberOfTraces();
 		BulletSteps.Empty();
+		BulletSteps.Reserve(numberOfBullets);
 		BulletSteps.AddDefaulted(numberOfBullets);
 
 		TArray<TArray<FHitResult>> TraceResults;
@@ -564,6 +565,6 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, int32 bulle
 
 float AGATA_BulletTrace::GetBulletSpeedFalloffNerf(const float& bulletSpeedFalloffValue, const float& totalDistanceBulletTraveled)
 {
-	// bulletSpeedFalloffValue determines the amount of damage lost to the bullet's damage every 10000cm (328ft) the bullet travels.
+	// bulletSpeedFalloffValue is the multiplier applied against the bullet's speed every 10000cm (328ft)
 	return FMath::Pow(bulletSpeedFalloffValue, (totalDistanceBulletTraveled / 10000));
 }

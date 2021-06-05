@@ -119,7 +119,7 @@ public:
 	ATTRIBUTE_ACCESSORS(UAS_Gun, InitialBulletSpeed)
 
 	/**
-	 * The amount of speed lost to a bullet while traveling through the air every 10000cm (328ft). (bullet speed strongly effects bullet damage and how far it travels)
+	 * Multiplier applied against the bullet's speed every 10000cm (328ft). Decreases bullet's speed as it travels through the air. (bullet speed strongly effects bullet damage and how far it travels)
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpeedFalloff, Category = "Attributes")
 		FGameplayAttributeData BulletSpeedFalloff;

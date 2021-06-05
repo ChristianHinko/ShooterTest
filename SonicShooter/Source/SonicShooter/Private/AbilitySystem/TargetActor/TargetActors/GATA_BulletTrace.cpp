@@ -231,6 +231,18 @@ bool AGATA_BulletTrace::OnInitialTrace(TArray<FHitResult>& OutInitialHitResults,
 	BulletSteps[CurrentTraceIndex].Empty();
 
 
+	// Nerf CurrentBulletSpeed by distance traveled
+	{
+		float distanceTraveled = 0.f;
+		for (const FHitResult& Hit : OutInitialHitResults)
+		{
+			distanceTraveled += Hit.Distance;
+		}
+
+		const float nerfMultiplier = GetBulletSpeedFalloffNerf(GetBulletSpeedFalloff(), distanceTraveled);
+		CurrentBulletSpeed *= nerfMultiplier;
+	}
+
 	return RetVal;
 }
 bool AGATA_BulletTrace::OnPenetrate(TArray<FHitResult>& HitResults, TArray<FHitResult>& OutPenetrateHitResults, const UWorld* World, const FVector& PenetrateStart, const FVector& PenetrateEnd, const FCollisionQueryParams& TraceParams)
@@ -241,6 +253,19 @@ bool AGATA_BulletTrace::OnPenetrate(TArray<FHitResult>& HitResults, TArray<FHitR
 
 	// Add what we penetrated through as a blocking hit for ThisRicochetBlockingHits
 	ThisRicochetBlockingHits.Emplace(PenetratedThrough);
+
+
+	// Nerf CurrentBulletSpeed by distance traveled
+	{
+		float distanceTraveled = 0.f;
+		for (const FHitResult& Hit : OutPenetrateHitResults)
+		{
+			distanceTraveled += Hit.Distance;
+		}
+
+		const float nerfMultiplier = GetBulletSpeedFalloffNerf(GetBulletSpeedFalloff(), distanceTraveled);
+		CurrentBulletSpeed *= nerfMultiplier;
+	}
 
 	return RetVal;
 }
@@ -312,6 +337,17 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 	}
 
 
+	// Nerf CurrentBulletSpeed by distance traveled
+	{
+		float distanceTraveled = 0.f;
+		for (const FHitResult& Hit : OutRicoHitResults)
+		{
+			distanceTraveled += Hit.Distance;
+		}
+
+		const float nerfMultiplier = GetBulletSpeedFalloffNerf(GetBulletSpeedFalloff(), distanceTraveled);
+		CurrentBulletSpeed *= nerfMultiplier;
+	}
 
 
 	// Reset the blocking Hit Results for the next group of blocking hits
@@ -466,6 +502,7 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, int32 bulle
 	float retVal = GetInitialBulletSpeed();
 
 
+	float totalDistanceTraveled = 0.f;
 
 	const TArray<FBulletStep>& Steps = BulletSteps[bulletNumber];	// Get the steps from this specific bullet
 	for (const FBulletStep& BulletStep : Steps)
@@ -474,6 +511,10 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, int32 bulle
 
 		if (const FTraceSegment* TraceSegment = BulletStep.GetTraceSegment())	// if we're a TraceSegment
 		{
+			const float& SegmentDistance = TraceSegment->GetSegmentDistance();
+
+			totalDistanceTraveled += SegmentDistance;
+
 			if ((TraceSegment->GetEndPoint() - Point).IsNearlyZero(KINDA_SMALL_NUMBER + (KINDA_SMALL_NUMBER * 100))) // if the given Point is this segment's EndPoint
 			{
 				UKismetSystemLibrary::PrintString(this, "Found line!!!", true, false, FLinearColor::Green, 1);
@@ -483,13 +524,16 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, int32 bulle
 			const float TraveledDistance = FVector::Distance(TraceSegment->GetStartPoint(), Point);
 			const float UntraveledDistance = FVector::Distance(Point, TraceSegment->GetEndPoint());
 
-			if (FMath::IsNearlyEqual(TraveledDistance + UntraveledDistance, TraceSegment->GetSegmentDistance()))	// if the Start, End, and Point don't form a triangle, Point is on the segment
+			if (FMath::IsNearlyEqual(TraveledDistance + UntraveledDistance, SegmentDistance))	// if the Start, End, and Point don't form a triangle, Point is on the segment
 			{
 				UKismetSystemLibrary::PrintString(this, "Found line!!!", true, false, FLinearColor::Green, 1);
 
 				// We took away the whole Segment's speed even though this point is within the Segment. So add back the part of the Segment that we didn't travel through
-				const float TraveledThroughnessRatio = (TraveledDistance / TraceSegment->GetSegmentDistance());
+				const float TraveledThroughnessRatio = (TraveledDistance / SegmentDistance);
 				retVal += BulletStep.GetBulletSpeedToTakeAway() * (1 - TraveledThroughnessRatio);
+
+
+				totalDistanceTraveled -= UntraveledDistance;
 
 				break;
 			}
@@ -509,6 +553,12 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, int32 bulle
 		}
 	}
 	
+
+	// Nerf retVal by distance traveled
+	const float nerfMultiplier = GetBulletSpeedFalloffNerf(GetBulletSpeedFalloff(), totalDistanceTraveled);
+	retVal *= nerfMultiplier;
+
+
 	return retVal;
 }
 

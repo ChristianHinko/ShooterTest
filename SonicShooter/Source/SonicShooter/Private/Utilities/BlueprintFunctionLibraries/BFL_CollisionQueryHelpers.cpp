@@ -140,6 +140,7 @@ void UBFL_CollisionQueryHelpers::BuildTraceSegments(TArray<FTraceSegment>& OutTr
 			Algo::Reverse<TArray<FHitResult>>(BkwdHitResults);
 
 
+			// Build the Segment from this FwdBlockingHit to the BkwdHitResult (connecting a Fwd hit to a Bkwd hit)
 			{
 				FTraceSegment Segment; // the Segment we will make for this distance we just traced
 				const FVector StartPoint = (i == -1) ? BkwdEnd : FwdBlockingHits[i].ImpactPoint;
@@ -153,6 +154,7 @@ void UBFL_CollisionQueryHelpers::BuildTraceSegments(TArray<FTraceSegment>& OutTr
 				}
 			}
 
+			// Build the rest of the BkwdHitResults Segments (connecting Bkwd hits to Bkwd hits)
 			for (const FHitResult& BkwdHit : BkwdHitResults)
 			{
 

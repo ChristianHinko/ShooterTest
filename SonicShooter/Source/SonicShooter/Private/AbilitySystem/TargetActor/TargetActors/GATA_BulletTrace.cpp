@@ -395,7 +395,7 @@ void AGATA_BulletTrace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorl
 			UBFL_CollisionQueryHelpers::BuildTraceSegments(ThisRicochetTraceSegments, ThisRicochetBlockingHits, World, TraceParams, TraceChannel);
 			for (const FTraceSegment& TraceSegment : ThisRicochetTraceSegments)
 			{
-				BulletSteps[CurrentTraceIndex].Emplace(TraceSegment);
+				ThisRicochetBulletSteps.Emplace(TraceSegment);
 			}
 
 		}

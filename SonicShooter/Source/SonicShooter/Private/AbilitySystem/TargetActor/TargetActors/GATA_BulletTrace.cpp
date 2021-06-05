@@ -7,7 +7,7 @@
 #include "Abilities/GameplayAbility.h"
 #include "Utilities/CollisionChannels.h"
 #include "AbilitySystem/SSGameplayAbilityTargetTypes.h"
-#include "GameplayAbilities\Public\AbilitySystemComponent.h"
+#include "AbilitySystemComponent.h"
 #include "Item/Weapons/AS_Gun.h"
 #include "Utilities\BlueprintFunctionLibraries\BFL_CollisionQueryHelpers.h"
 #include "PhysicalMaterial/ShooterPhysicalMaterial.h"
@@ -197,6 +197,20 @@ void AGATA_BulletTrace::CalculateAimDirection(FVector& OutAimStart, FVector& Out
 		OutAimDir = RandomStream.VRandCone(OutAimDir, coneHalfAngleRadius);
 	}
 }
+bool AGATA_BulletTrace::ShouldRicochetOffOf(const FHitResult& Hit) const
+{
+	if (const UShooterPhysicalMaterial* ShooterPhysMat = Cast<const UShooterPhysicalMaterial>(Hit.PhysMaterial.Get()))
+	{
+		if (ShooterPhysMat->bRichochetsBullets)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
 
 void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor)
 {

@@ -14,7 +14,7 @@
 #include "ArcInventoryItemTypes.h"
 #include "Item\Definitions\ArcItemDefinition_Active.h"
 #include "AbilitySystem/AbilityTasks/AT_Ticker.h"
-#include "AbilitySystem\AbilityTasks\AT_WaitInputReleaseCust.h"
+#include "AbilitySystem\AbilityTasks\AT_WaitInputRelease.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -173,10 +173,10 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	}
 	
 	// We only want a release task if we are a full auto fire
-	UAT_WaitInputReleaseCust* WaitInputReleaseTask = nullptr;
+	UAT_WaitInputRelease* WaitInputReleaseTask = nullptr;
 	if (GunAttributeSet->GetbFullAuto() != 0)
 	{
-		WaitInputReleaseTask = UAT_WaitInputReleaseCust::WaitInputReleaseCust(this);
+		WaitInputReleaseTask = UAT_WaitInputRelease::WaitInputRelease(this);
 		if (!WaitInputReleaseTask)
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputReleaseTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), *FString(__FUNCTION__));

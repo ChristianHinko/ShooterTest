@@ -4,22 +4,28 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem\SSAbilityTask.h"
-#include "UObject/ObjectMacros.h"
-#include "AT_WaitInputReleaseCust.generated.h"
+
+#include "AT_WaitInputRelease.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInputReleaseCustDelegate, float, TimeHeld);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInputReleaseDelegate, float, TimeHeld);
+
 
 /**
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UAT_WaitInputReleaseCust : public USSAbilityTask
+class SONICSHOOTER_API UAT_WaitInputRelease : public USSAbilityTask
 {
-	GENERATED_UCLASS_BODY()
+	GENERATED_BODY()
 
-		UPROPERTY(BlueprintAssignable)
-		FInputReleaseCustDelegate	OnRelease;
+public:
+	UAT_WaitInputRelease(const FObjectInitializer& ObjectInitializer);
+
+
+	UPROPERTY(BlueprintAssignable)
+		FInputReleaseDelegate OnRelease;
 
 	UFUNCTION()
 		void OnReleaseCallback();
@@ -28,7 +34,7 @@ class SONICSHOOTER_API UAT_WaitInputReleaseCust : public USSAbilityTask
 
 	/** Wait until the user releases the input button for this ability's activation. Returns time from hitting this node, till release. Will return 0 if input was already released. */
 	UFUNCTION(BlueprintCallable, Category = "Ability|Tasks", meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
-		static UAT_WaitInputReleaseCust* WaitInputReleaseCust(UGameplayAbility* OwningAbility, bool bTestAlreadyReleased = false, bool bCanBroadcastMultibleTimes = false);
+		static UAT_WaitInputRelease* WaitInputRelease(UGameplayAbility* OwningAbility, bool bTestAlreadyReleased = false, bool bCanBroadcastMultibleTimes = false);
 
 	virtual void OnDestroy(bool bInOwnerFinished) override;
 

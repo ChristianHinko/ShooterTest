@@ -534,7 +534,7 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, int32 bulle
 
 			totalDistanceTraveled += SegmentDistance;
 
-			if ((TraceSegment->GetEndPoint() - Point).IsNearlyZero(KINDA_SMALL_NUMBER + (KINDA_SMALL_NUMBER * 100))) // if the given Point is this segment's EndPoint
+			if (Point.Equals(TraceSegment->GetEndPoint(), KINDA_SMALL_NUMBER + (KINDA_SMALL_NUMBER * 100))) // if the given Point is this segment's EndPoint
 			{
 				UKismetSystemLibrary::PrintString(this, "Found line!!!", true, false, FLinearColor::Green, 1);
 				break;
@@ -560,7 +560,7 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, int32 bulle
 		}
 		else if (const FTracePoint* RicochetPoint = BulletStep.GetRicochetPoint())	// if we're a RicochetPoint
 		{
-			if ((RicochetPoint->Point - Point).IsNearlyZero(KINDA_SMALL_NUMBER + (KINDA_SMALL_NUMBER * 100)))
+			if (Point.Equals(RicochetPoint->Point, KINDA_SMALL_NUMBER + (KINDA_SMALL_NUMBER * 100)))
 			{
 				UKismetSystemLibrary::PrintString(this, "Found point!!!", true, false, FLinearColor::Green, 1);
 				break;

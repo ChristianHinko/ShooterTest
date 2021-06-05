@@ -8,11 +8,11 @@
 
 
 FFloatPropertyWrapper::FFloatPropertyWrapper()
-	: ValueChangeDelegate(nullptr),
+	: Value(0.f),
 	PropertyOwner(nullptr),
 	PropertyName(NAME_None),
 	Property(nullptr),
-	Value(0.f)
+	ValueChangeDelegate(nullptr)
 {
 	bMarkNetDirtyOnChange = false;
 

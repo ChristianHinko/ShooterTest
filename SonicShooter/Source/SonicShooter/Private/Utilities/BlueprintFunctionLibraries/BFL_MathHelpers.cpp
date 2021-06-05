@@ -7,9 +7,6 @@
 
 bool UBFL_MathHelpers::PointLiesOnSegment(const FVector& Start, const FVector& End, const FVector& Point)
 {
-
-
-
     float SegmentDistance = FVector::Distance(Start, End);
     float StartToPointDistance = FVector::Distance(Start, Point);
     float PointToEndDistance = FVector::Distance(Point, End);
@@ -18,26 +15,5 @@ bool UBFL_MathHelpers::PointLiesOnSegment(const FVector& Start, const FVector& E
     {
         return true;
     }
-
-
-
-
-
-    //crossproduct = (c.y - a.y) * (b.x - a.x) - (c.x - a.x) * (b.y - a.y)
-
-    //    # compare versus epsilon for floating point values, or != 0 if using integers
-    //    if abs(crossproduct) > epsilon:
-    //return False
-
-    //    dotproduct = (c.x - a.x) * (b.x - a.x) + (c.y - a.y) * (b.y - a.y)
-    //    if dotproduct < 0 :
-    //        return False
-
-    //        squaredlengthba = (b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y)
-    //        if dotproduct > squaredlengthba:
-    //return False
-
-    //    return True
-
     return false;
 }

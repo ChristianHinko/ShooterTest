@@ -9,10 +9,6 @@
 #include "GATA_BulletTrace.generated.h"
 
 
-class UAS_Gun;
-struct FTraceSegment;
-
-
 
 struct FTracePoint
 {
@@ -31,6 +27,9 @@ struct FTracePoint
 	FVector Point;
 	UPhysicalMaterial* PhysMaterial;
 };
+
+
+struct FTraceSegment;
 
 /**
  *	This struct stores infomration about bullet movement at a certain point.
@@ -113,7 +112,21 @@ private:
 };
 
 
+
+class UAS_Gun;
+
+
 /**
+ * Trace class for Bullets.
+ * 
+ * 
+ *		- Implements the idea of Bullet Speed which can stop the tracing at any point.
+ * 
+ *		- Is tightly coupled with the UAS_Gun attribute set and UShooterPhysicalMaterial to determine behavior.
+ * 
+ *		- Gives CalculateAimDirection() some random bullet spread.
+ * 
+ *		- Ditches the RicochetableSurfaces array and ricochets based on what ShouldRicochetOffOf()'s UShooterPhysicalMaterial says.
  * 
  */
 UCLASS()
@@ -139,12 +152,14 @@ public:
 
 	UPROPERTY()
 		UAS_Gun* GunAttributeSet;
+
 	/** This is injected in every fire */
 	int16 FireSpecificNetSafeRandomSeed;
 
 protected:
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) override;
 	virtual void CalculateAimDirection(FVector& OutAimStart, FVector& OutAimDir) const override;
+	virtual bool ShouldRicochetOffOf(const FHitResult& Hit) const override;
 
 
 	virtual bool OnInitialTrace(TArray<FHitResult>& OutInitialHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& TraceParams) override;

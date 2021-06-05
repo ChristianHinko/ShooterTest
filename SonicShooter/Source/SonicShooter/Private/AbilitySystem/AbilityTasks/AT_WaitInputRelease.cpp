@@ -1,10 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/AbilityTasks/AT_WaitInputReleaseCust.h"
+#include "AbilitySystem/AbilityTasks/AT_WaitInputRelease.h"
+
 #include "AbilitySystemComponent.h"
 
-UAT_WaitInputReleaseCust::UAT_WaitInputReleaseCust(const FObjectInitializer& ObjectInitializer)
+
+
+UAT_WaitInputRelease::UAT_WaitInputRelease(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	callBackNumber = 0;
@@ -13,7 +16,7 @@ UAT_WaitInputReleaseCust::UAT_WaitInputReleaseCust(const FObjectInitializer& Obj
 	bCanBroadcastMultibleTimes = false;
 }
 
-void UAT_WaitInputReleaseCust::OnReleaseCallback()
+void UAT_WaitInputRelease::OnReleaseCallback()
 {
 	++callBackNumber;
 	float ElapsedTime = GetWorld()->GetTimeSeconds() - StartTime;
@@ -47,15 +50,15 @@ void UAT_WaitInputReleaseCust::OnReleaseCallback()
 	}
 }
 
-UAT_WaitInputReleaseCust* UAT_WaitInputReleaseCust::WaitInputReleaseCust(class UGameplayAbility* OwningAbility, bool bTestAlreadyReleased, bool bCanBroadcastMultibleTimes)
+UAT_WaitInputRelease* UAT_WaitInputRelease::WaitInputRelease(class UGameplayAbility* OwningAbility, bool bTestAlreadyReleased, bool bCanBroadcastMultibleTimes)
 {
-	UAT_WaitInputReleaseCust* Task = NewAbilityTask<UAT_WaitInputReleaseCust>(OwningAbility);
+	UAT_WaitInputRelease* Task = NewAbilityTask<UAT_WaitInputRelease>(OwningAbility);
 	Task->bTestInitialState = bTestAlreadyReleased;
 	Task->bCanBroadcastMultibleTimes = bCanBroadcastMultibleTimes;
 	return Task;
 }
 
-void UAT_WaitInputReleaseCust::Activate()
+void UAT_WaitInputRelease::Activate()
 {
 	StartTime = GetWorld()->GetTimeSeconds();
 	if (Ability)
@@ -70,7 +73,7 @@ void UAT_WaitInputReleaseCust::Activate()
 			}
 		}
 
-		DelegateHandle = AbilitySystemComponent->AbilityReplicatedEventDelegate(EAbilityGenericReplicatedEvent::InputReleased, GetAbilitySpecHandle(), GetActivationPredictionKey()).AddUObject(this, &UAT_WaitInputReleaseCust::OnReleaseCallback);
+		DelegateHandle = AbilitySystemComponent->AbilityReplicatedEventDelegate(EAbilityGenericReplicatedEvent::InputReleased, GetAbilitySpecHandle(), GetActivationPredictionKey()).AddUObject(this, &UAT_WaitInputRelease::OnReleaseCallback);
 		if (IsForRemoteClient())
 		{
 			if (!AbilitySystemComponent->CallReplicatedEventDelegateIfSet(EAbilityGenericReplicatedEvent::InputReleased, GetAbilitySpecHandle(), GetActivationPredictionKey()))
@@ -87,7 +90,7 @@ void UAT_WaitInputReleaseCust::Activate()
 
 
 
-void UAT_WaitInputReleaseCust::OnDestroy(bool bInOwnerFinished)
+void UAT_WaitInputRelease::OnDestroy(bool bInOwnerFinished)
 {
 	if (bCanBroadcastMultibleTimes)
 	{

@@ -1,19 +1,22 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/AbilityTasks/AT_PlayMontageWaitCust.h"
+#include "AbilitySystem/AbilityTasks/AT_PlayMontageWait.h"
+
 #include "GameFramework/Character.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 
-UAT_PlayMontageWaitCust::UAT_PlayMontageWaitCust(const FObjectInitializer& ObjectInitializer)
+
+
+UAT_PlayMontageWait::UAT_PlayMontageWait(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	Rate = 1.f;
 	bStopWhenAbilityEnds = true;
 }
 
-void UAT_PlayMontageWaitCust::OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)
+void UAT_PlayMontageWait::OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)
 {
 	if (Ability && Ability->GetCurrentMontage() == MontageToPlay)
 	{
@@ -48,7 +51,7 @@ void UAT_PlayMontageWaitCust::OnMontageBlendingOut(UAnimMontage* Montage, bool b
 	}
 }
 
-void UAT_PlayMontageWaitCust::OnMontageInterrupted()
+void UAT_PlayMontageWait::OnMontageInterrupted()
 {
 	if (StopPlayingMontage())
 	{
@@ -60,7 +63,7 @@ void UAT_PlayMontageWaitCust::OnMontageInterrupted()
 	}
 }
 
-void UAT_PlayMontageWaitCust::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+void UAT_PlayMontageWait::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	if (!bInterrupted)
 	{
@@ -73,14 +76,14 @@ void UAT_PlayMontageWaitCust::OnMontageEnded(UAnimMontage* Montage, bool bInterr
 	EndTask();
 }
 
-UAT_PlayMontageWaitCust* UAT_PlayMontageWaitCust::CreatePlayMontageAndWaitProxy(UGameplayAbility* OwningAbility,
+UAT_PlayMontageWait* UAT_PlayMontageWait::CreatePlayMontageAndWaitProxy(UGameplayAbility* OwningAbility,
 	FName TaskInstanceName, UAnimMontage* MontageToPlay, USkeletalMeshComponent* UseAlternateSKMC, float Rate, FName StartSection,
 	bool bStopWhenAbilityEnds, float AnimRootMotionTranslationScale, FName AnimNotifyName)
 {
 
 	UAbilitySystemGlobals::NonShipping_ApplyGlobalAbilityScaler_Rate(Rate);
 
-	UAT_PlayMontageWaitCust* MyObj = NewAbilityTask<UAT_PlayMontageWaitCust>(OwningAbility, TaskInstanceName);
+	UAT_PlayMontageWait* MyObj = NewAbilityTask<UAT_PlayMontageWait>(OwningAbility, TaskInstanceName);
 	MyObj->MontageToPlay = MontageToPlay;
 	MyObj->UseAlternateSKMC = UseAlternateSKMC;
 	MyObj->Rate = Rate;
@@ -91,7 +94,7 @@ UAT_PlayMontageWaitCust* UAT_PlayMontageWaitCust::CreatePlayMontageAndWaitProxy(
 	return MyObj;
 }
 
-void UAT_PlayMontageWaitCust::Activate()
+void UAT_PlayMontageWait::Activate()
 {
 	if (Ability == nullptr)
 	{
@@ -129,17 +132,17 @@ void UAT_PlayMontageWaitCust::Activate()
 						return;
 					}
 
-					InterruptedHandle = Ability->OnGameplayAbilityCancelled.AddUObject(this, &UAT_PlayMontageWaitCust::OnMontageInterrupted);
+					InterruptedHandle = Ability->OnGameplayAbilityCancelled.AddUObject(this, &UAT_PlayMontageWait::OnMontageInterrupted);
 
-					BlendingOutDelegate.BindUObject(this, &UAT_PlayMontageWaitCust::OnMontageBlendingOut);
+					BlendingOutDelegate.BindUObject(this, &UAT_PlayMontageWait::OnMontageBlendingOut);
 					AnimInstance->Montage_SetBlendingOutDelegate(BlendingOutDelegate, MontageToPlay);
 
-					MontageEndedDelegate.BindUObject(this, &UAT_PlayMontageWaitCust::OnMontageEnded);
+					MontageEndedDelegate.BindUObject(this, &UAT_PlayMontageWait::OnMontageEnded);
 					AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, MontageToPlay);
 
 					if (WaitForAnimNotifyName != NAME_None)
 					{
-						AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &UAT_PlayMontageWaitCust::OnNotifyBeginReceived);
+						AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &UAT_PlayMontageWait::OnNotifyBeginReceived);
 					}
 
 					ACharacter* Character = Cast<ACharacter>(GetAvatarActor());
@@ -175,7 +178,7 @@ void UAT_PlayMontageWaitCust::Activate()
 	SetWaitingOnAvatar();
 }
 
-void UAT_PlayMontageWaitCust::ExternalCancel()
+void UAT_PlayMontageWait::ExternalCancel()
 {
 	check(AbilitySystemComponent);
 
@@ -186,7 +189,7 @@ void UAT_PlayMontageWaitCust::ExternalCancel()
 	Super::ExternalCancel();
 }
 
-void UAT_PlayMontageWaitCust::OnDestroy(bool AbilityEnded)
+void UAT_PlayMontageWait::OnDestroy(bool AbilityEnded)
 {
 	// Note: Clearing montage end delegate isn't necessary since its not a multicast and will be cleared when the next montage plays.
 	// (If we are destroyed, it will detect this and not do anything)
@@ -220,14 +223,14 @@ void UAT_PlayMontageWaitCust::OnDestroy(bool AbilityEnded)
 
 	if (AnimInstance != nullptr)
 	{
-		AnimInstance->OnPlayMontageNotifyBegin.RemoveDynamic(this, &UAT_PlayMontageWaitCust::OnNotifyBeginReceived);
+		AnimInstance->OnPlayMontageNotifyBegin.RemoveDynamic(this, &UAT_PlayMontageWait::OnNotifyBeginReceived);
 	}
 
 	Super::OnDestroy(AbilityEnded);
 }
 
 
-void UAT_PlayMontageWaitCust::OnNotifyBeginReceived(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
+void UAT_PlayMontageWait::OnNotifyBeginReceived(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
 {
 	if (NotifyName == WaitForAnimNotifyName)
 	{
@@ -235,7 +238,7 @@ void UAT_PlayMontageWaitCust::OnNotifyBeginReceived(FName NotifyName, const FBra
 	}
 }
 
-bool UAT_PlayMontageWaitCust::StopPlayingMontage()
+bool UAT_PlayMontageWait::StopPlayingMontage()
 {
 	const FGameplayAbilityActorInfo* ActorInfo = Ability->GetCurrentActorInfo();
 	if (!ActorInfo)
@@ -281,7 +284,7 @@ bool UAT_PlayMontageWaitCust::StopPlayingMontage()
 	return false;
 }
 
-FString UAT_PlayMontageWaitCust::GetDebugString() const
+FString UAT_PlayMontageWait::GetDebugString() const
 {
 	UAnimMontage* PlayingMontage = nullptr;
 	if (Ability)

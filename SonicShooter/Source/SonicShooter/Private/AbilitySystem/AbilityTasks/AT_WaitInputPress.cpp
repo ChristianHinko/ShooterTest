@@ -1,11 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/AbilityTasks/AT_WaitInputPressCust.h"
+#include "AbilitySystem/AbilityTasks/AT_WaitInputPress.h"
 
 #include "AbilitySystemComponent.h"
 
-UAT_WaitInputPressCust::UAT_WaitInputPressCust(const FObjectInitializer& ObjectInitializer)
+
+
+UAT_WaitInputPress::UAT_WaitInputPress(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	callBackNumber = 0;
@@ -14,7 +16,7 @@ UAT_WaitInputPressCust::UAT_WaitInputPressCust(const FObjectInitializer& ObjectI
 	bCanBroadcastMultibleTimes = false;
 }
 
-void UAT_WaitInputPressCust::OnPressCallback()
+void UAT_WaitInputPress::OnPressCallback()
 {
 	++callBackNumber;
 	float ElapsedTime = GetWorld()->GetTimeSeconds() - StartTime;
@@ -48,15 +50,15 @@ void UAT_WaitInputPressCust::OnPressCallback()
 	}
 }
 
-UAT_WaitInputPressCust* UAT_WaitInputPressCust::WaitInputPressCust(class UGameplayAbility* OwningAbility, bool bTestAlreadyPressed, bool bCanBroadcastMultibleTimes)
+UAT_WaitInputPress* UAT_WaitInputPress::WaitInputPress(class UGameplayAbility* OwningAbility, bool bTestAlreadyPressed, bool bCanBroadcastMultibleTimes)
 {
-	UAT_WaitInputPressCust* Task = NewAbilityTask<UAT_WaitInputPressCust>(OwningAbility);
+	UAT_WaitInputPress* Task = NewAbilityTask<UAT_WaitInputPress>(OwningAbility);
 	Task->bTestInitialState = bTestAlreadyPressed;
 	Task->bCanBroadcastMultibleTimes = bCanBroadcastMultibleTimes;
 	return Task;
 }
 
-void UAT_WaitInputPressCust::Activate()
+void UAT_WaitInputPress::Activate()
 {
 	StartTime = GetWorld()->GetTimeSeconds();
 	if (Ability)
@@ -71,7 +73,7 @@ void UAT_WaitInputPressCust::Activate()
 			}
 		}
 
-		DelegateHandle = AbilitySystemComponent->AbilityReplicatedEventDelegate(EAbilityGenericReplicatedEvent::InputPressed, GetAbilitySpecHandle(), GetActivationPredictionKey()).AddUObject(this, &UAT_WaitInputPressCust::OnPressCallback);
+		DelegateHandle = AbilitySystemComponent->AbilityReplicatedEventDelegate(EAbilityGenericReplicatedEvent::InputPressed, GetAbilitySpecHandle(), GetActivationPredictionKey()).AddUObject(this, &UAT_WaitInputPress::OnPressCallback);
 		if (IsForRemoteClient())
 		{
 			if (!AbilitySystemComponent->CallReplicatedEventDelegateIfSet(EAbilityGenericReplicatedEvent::InputPressed, GetAbilitySpecHandle(), GetActivationPredictionKey()))
@@ -87,7 +89,7 @@ void UAT_WaitInputPressCust::Activate()
 
 
 
-void UAT_WaitInputPressCust::OnDestroy(bool bInOwnerFinished)
+void UAT_WaitInputPress::OnDestroy(bool bInOwnerFinished)
 {
 	if (bCanBroadcastMultibleTimes)
 	{

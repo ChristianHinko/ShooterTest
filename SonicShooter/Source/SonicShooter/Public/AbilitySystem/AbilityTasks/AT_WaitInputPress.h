@@ -2,22 +2,30 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/ObjectMacros.h"
 #include "AbilitySystem/SSAbilityTask.h"
-#include "AT_WaitInputPressCust.generated.h"
+#include "Abilities/Tasks/AbilityTask_WaitInputPress.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInputPressCustDelegate, float, TimeWaited);
+#include "AT_WaitInputPress.generated.h"
+
+
+
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInputPressDelegate, float, TimeWaited);
+
 
 /**
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UAT_WaitInputPressCust : public USSAbilityTask
+class SONICSHOOTER_API UAT_WaitInputPress : public USSAbilityTask
 {
-	GENERATED_UCLASS_BODY()
+	GENERATED_BODY()
 
-		UPROPERTY(BlueprintAssignable)
-		FInputPressCustDelegate		OnPress;
+public:
+	UAT_WaitInputPress(const FObjectInitializer& ObjectInitializer);
+
+
+	UPROPERTY(BlueprintAssignable)
+		FInputPressDelegate	OnPress;
 
 	UFUNCTION()
 		void OnPressCallback();
@@ -26,7 +34,7 @@ class SONICSHOOTER_API UAT_WaitInputPressCust : public USSAbilityTask
 
 	/** Wait until the user presses the input button for this ability's activation. Returns time this node spent waiting for the press. Will return 0 if input was already down. */
 	UFUNCTION(BlueprintCallable, Category = "Ability|Tasks", meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
-		static UAT_WaitInputPressCust* WaitInputPressCust(UGameplayAbility* OwningAbility, bool bTestAlreadyPressed = false, bool bCanBroadcastMultibleTimes = false);
+		static UAT_WaitInputPress* WaitInputPress(UGameplayAbility* OwningAbility, bool bTestAlreadyPressed = false, bool bCanBroadcastMultibleTimes = false);
 
 	virtual void OnDestroy(bool bInOwnerFinished) override;
 

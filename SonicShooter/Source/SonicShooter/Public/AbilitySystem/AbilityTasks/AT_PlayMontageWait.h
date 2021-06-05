@@ -4,15 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSAbilityTask.h"
-#include "AT_PlayMontageWaitCust.generated.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMontageWaitSimpleDelegate);
+#include "AT_PlayMontageWait.generated.h"
+
+
+
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMontageWaitSimpleDelegate);
+
 
 /**
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UAT_PlayMontageWaitCust : public USSAbilityTask
+class SONICSHOOTER_API UAT_PlayMontageWait : public USSAbilityTask
 {
 	GENERATED_BODY()
 	
@@ -43,11 +48,11 @@ class SONICSHOOTER_API UAT_PlayMontageWaitCust : public USSAbilityTask
 	UFUNCTION()
 		void OnNotifyBeginReceived(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);
 
-	UAT_PlayMontageWaitCust(const FObjectInitializer& ObjectInitializer);
+	UAT_PlayMontageWait(const FObjectInitializer& ObjectInitializer);
 
-	UFUNCTION(BlueprintCallable, Category = "Ability|Tasks", meta = (DisplayName = "PlayMontageAndWaitCust",
+	UFUNCTION(BlueprintCallable, Category = "Ability|Tasks", meta = (DisplayName = "PlayMontageAndWait",
 		HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
-		static UAT_PlayMontageWaitCust* CreatePlayMontageAndWaitProxy(UGameplayAbility* OwningAbility,
+		static UAT_PlayMontageWait* CreatePlayMontageAndWaitProxy(UGameplayAbility* OwningAbility,
 			FName TaskInstanceName, UAnimMontage* MontageToPlay, USkeletalMeshComponent* UseAlternateSKMC = nullptr, float Rate = 1.f, FName StartSection = NAME_None, bool bStopWhenAbilityEnds = true, float AnimRootMotionTranslationScale = 1.f,
 			FName AnimNotifyName = NAME_None);
 

@@ -32,6 +32,7 @@ void UAS_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, NumberOfBulletsPerFire, Params);
 	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, MaxRange, Params);
 	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, Ricochets, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, Penetrations, Params);
 	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, InitialBulletSpeed, Params);
 	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, BulletSpeedFalloff, Params);
 
@@ -54,6 +55,7 @@ UAS_Gun::UAS_Gun()
 	NumberOfBulletsPerFire(1.f),
 	MaxRange(100000.f),
 	Ricochets(1),
+	Penetrations(-1),
 	InitialBulletSpeed(20.f),
 	BulletSpeedFalloff(.9f),
 
@@ -340,6 +342,11 @@ void UAS_Gun::OnRep_MaxRange(const FGameplayAttributeData& ServerBaseValue)
 void UAS_Gun::OnRep_Ricochets(const FGameplayAttributeData& ServerBaseValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, Ricochets, ServerBaseValue);
+}
+
+void UAS_Gun::OnRep_Penetrations(const FGameplayAttributeData& ServerBaseValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAS_Gun, Penetrations, ServerBaseValue);
 }
 
 void UAS_Gun::OnRep_InitialBulletSpeed(const FGameplayAttributeData& ServerBaseValue)

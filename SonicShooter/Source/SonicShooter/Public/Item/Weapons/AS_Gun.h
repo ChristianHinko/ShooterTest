@@ -105,11 +105,18 @@ public:
 	ATTRIBUTE_ACCESSORS(UAS_Gun, MaxRange)
 
 	/**
-	 * Number of times the trace can ricochet off of blocking hits - Zero for no ricochet
+	 * Number of times a bullet can ricochet off of blocking hits - Zero for no ricochet, -1 for letting speed decide
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Ricochets, Category = "Attributes")
 		FGameplayAttributeData Ricochets;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, Ricochets)
+
+	/**
+	 * Number of times a bullet can penetrate blocking hits - Zero for no penetrations, -1 for letting speed decide
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Penetrations, Category = "Attributes")
+		FGameplayAttributeData Penetrations;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, Penetrations)
 
 	/**
 	 * The initial speed of the bullet (bullet speed strongly effects bullet damage and how far it travels)
@@ -256,6 +263,9 @@ protected:
 
 	UFUNCTION()
 		virtual void OnRep_Ricochets(const FGameplayAttributeData& ServerBaseValue);
+
+	UFUNCTION()
+		virtual void OnRep_Penetrations(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
 		virtual void OnRep_InitialBulletSpeed(const FGameplayAttributeData& ServerBaseValue);

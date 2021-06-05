@@ -165,7 +165,7 @@ protected:
 	float GetBulletSpeedAtPoint(const FVector& Point, int32 bulletNumber);
 	/**
 	 * @brief: This is a nerf that is multiplied against our bullet's damage value to simulate a bullet slowing down as it travels through the air.
-	 * @param bulletSpeedFalloffValue: Determines the amount of damage lost to the bullet base damage every 10000cm (328ft) the bullet travels.
+	 * @param bulletSpeedFalloffValue: Multiplier applied against the bullet's speed every 10000cm (328ft).
 	 * @param totalDistanceBulletTraveled: Required for our calculation.
 	 * @return: The multiplier to multiply against our bullet's damage value.
 	*/

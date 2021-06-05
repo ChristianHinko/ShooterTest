@@ -139,12 +139,12 @@ bool AGATA_Trace::ShouldRicochetOffOf(const FHitResult& Hit) const
 
 	return false;
 }
-void AGATA_Trace::CalculateRicochetDirection(FVector& RicoDir, const FHitResult& FromHit) const
+void AGATA_Trace::CalculateRicochetDirection(FVector& OutRicoDir, const FHitResult& FromHit) const
 {
 	const FVector FromDir = UKismetMathLibrary::GetDirectionUnitVector(FromHit.TraceStart, FromHit.Location);
 	const FVector MirroredDir = FromDir.MirrorByVector(FromHit.ImpactNormal);
 
-	RicoDir = MirroredDir;
+	OutRicoDir = MirroredDir;
 }
 
 

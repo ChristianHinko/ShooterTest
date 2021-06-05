@@ -53,7 +53,7 @@ protected:
 	 * Calculates the direction to ricochet from the given hit.
 	 * This can be overriden for custom ricochet directions
 	 */
-	virtual void CalculateRicochetDirection(FVector& RicoDir, const FHitResult& FromHit) const;
+	virtual void CalculateRicochetDirection(FVector& OutRicoDir, const FHitResult& FromHit) const;
 
 
 	// LineTraceMulti() events - return false to discontinue traces

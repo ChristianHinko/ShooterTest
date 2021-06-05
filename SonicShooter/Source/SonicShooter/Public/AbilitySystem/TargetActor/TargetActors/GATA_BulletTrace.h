@@ -144,7 +144,7 @@ public:
 
 protected:
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) override;
-	virtual void CalculateAimDirection(FVector& ViewStart, FVector& ViewDir) const override;
+	virtual void CalculateAimDirection(FVector& OutAimStart, FVector& OutAimDir) const override;
 
 
 	virtual bool OnInitialTrace(TArray<FHitResult>& OutInitialHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& TraceParams) override;

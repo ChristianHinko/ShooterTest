@@ -11,7 +11,6 @@
 #include "Item/Weapons/AS_Gun.h"
 #include "Utilities\BlueprintFunctionLibraries\BFL_CollisionQueryHelpers.h"
 #include "PhysicalMaterial/ShooterPhysicalMaterial.h"
-#include "Utilities/BlueprintFunctionLibraries/BFL_MathHelpers.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -179,12 +178,12 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 	}
 }
 
-void AGATA_BulletTrace::CalculateAimDirection(FVector& ViewStart, FVector& ViewDir) const
+void AGATA_BulletTrace::CalculateAimDirection(FVector& OutAimStart, FVector& OutAimDir) const
 {
-	Super::CalculateAimDirection(ViewStart, ViewDir); // call Super so we get the PC's ViewDir, and then we can add bullet spread ontop of that
+	Super::CalculateAimDirection(OutAimStart, OutAimDir); // call Super so we get the PC's view dir, and then we can add bullet spread ontop of that
 
 
-	// Calculate new ViewDir with random bullet spread offset if needed
+	// Calculate new OutAimDir with random bullet spread offset if needed
 	float currentBulletSpread = GunAttributeSet->CurrentBulletSpread;
 	if (currentBulletSpread > SMALL_NUMBER)
 	{
@@ -193,9 +192,9 @@ void AGATA_BulletTrace::CalculateAimDirection(FVector& ViewStart, FVector& ViewD
 		FMath::RandInit(fireAndBulletSpecificNetSafeRandomSeed);
 		const FRandomStream RandomStream = FRandomStream(FMath::Rand());
 
-		// Get and apply random offset to ViewDir using randomStream
+		// Get and apply random offset to OutAimDir using randomStream
 		const float coneHalfAngleRadius = FMath::DegreesToRadians(currentBulletSpread * 0.5f);
-		ViewDir = RandomStream.VRandCone(ViewDir, coneHalfAngleRadius);
+		OutAimDir = RandomStream.VRandCone(OutAimDir, coneHalfAngleRadius);
 	}
 }
 

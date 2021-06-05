@@ -197,7 +197,7 @@ void ASSGameplayAbilityTargetActor::DirWithPlayerController(const AActor* InSour
 	OutTraceDir = AdjustedAimDir;
 }
 
-void ASSGameplayAbilityTargetActor::CalculateAimDirection(FVector& AimStart, FVector& AimDir) const
+void ASSGameplayAbilityTargetActor::CalculateAimDirection(FVector& OutAimStart, FVector& OutAimDir) const
 {
 	if (!OwningAbility) // Server and launching client only
 	{
@@ -209,9 +209,9 @@ void ASSGameplayAbilityTargetActor::CalculateAimDirection(FVector& AimStart, FVe
 	check(PC);
 
 	FRotator ViewRot;
-	PC->GetPlayerViewPoint(AimStart, ViewRot);
+	PC->GetPlayerViewPoint(OutAimStart, ViewRot);
 
-	AimDir = ViewRot.Vector();
+	OutAimDir = ViewRot.Vector();
 }
 
 bool ASSGameplayAbilityTargetActor::ClipCameraRayToAbilityRange(FVector CameraLocation, FVector CameraDirection, FVector AbilityCenter, float AbilityRange, FVector& ClippedPosition)

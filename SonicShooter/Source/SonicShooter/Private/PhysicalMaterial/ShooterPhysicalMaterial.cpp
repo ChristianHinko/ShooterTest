@@ -8,5 +8,5 @@
 UShooterPhysicalMaterial::UShooterPhysicalMaterial()
 {
 	BulletPenetrationSpeedReduction = 20.f;
-	BulletRicochetSpeedReduction = 50.f;
+	BulletRicochetSpeedReduction = 30.f;
 }

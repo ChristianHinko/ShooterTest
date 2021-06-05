@@ -7,6 +7,7 @@
 
 UShooterPhysicalMaterial::UShooterPhysicalMaterial()
 {
+	bRichochetsBullets = false;
 	BulletPenetrationSpeedReduction = 20.f;
 	BulletRicochetSpeedReduction = 30.f;
 }

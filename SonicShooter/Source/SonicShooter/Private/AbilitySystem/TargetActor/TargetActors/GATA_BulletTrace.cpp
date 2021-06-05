@@ -21,7 +21,11 @@ AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer
 	: Super(ObjectInitializer)
 {
 	TraceChannel = COLLISION_BULLET;
+
+
 }
+
+
 
 float AGATA_BulletTrace::GetMaxRange() const
 {
@@ -30,7 +34,7 @@ float AGATA_BulletTrace::GetMaxRange() const
 		return GunAttributeSet->GetMaxRange();
 	}
 
-	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its MaxRange attribute! Will return default value from Super instead!"), *FString(__FUNCTION__));
+	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its MaxRange attribute! Will return default value from Super instead!"), *FString(__FUNCTION__));
 	return Super::GetMaxRange();
 }
 int32 AGATA_BulletTrace::GetNumberOfTraces() const
@@ -40,7 +44,7 @@ int32 AGATA_BulletTrace::GetNumberOfTraces() const
 		return GunAttributeSet->GetNumberOfBulletsPerFire();
 	}
 
-	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its NumberOfBulletsPerFire attribute! Will return default value from Super instead!"), *FString(__FUNCTION__));
+	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its NumberOfBulletsPerFire attribute! Will return default value from Super instead!"), *FString(__FUNCTION__));
 	return Super::GetNumberOfTraces();
 }
 int32 AGATA_BulletTrace::GetRicochets() const
@@ -60,7 +64,7 @@ float AGATA_BulletTrace::GetInitialBulletSpeed() const
 		return GunAttributeSet->GetInitialBulletSpeed();
 	}
 
-	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its InitialBulletSpeed attribute! Will return UAS_Gun default object value instead!"), *FString(__FUNCTION__));
+	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its InitialBulletSpeed attribute! Will return UAS_Gun default object value instead!"), *FString(__FUNCTION__));
 	return GetDefault<UAS_Gun>()->GetInitialBulletSpeed();
 }
 float AGATA_BulletTrace::GetBulletSpeedFalloff() const
@@ -70,7 +74,7 @@ float AGATA_BulletTrace::GetBulletSpeedFalloff() const
 		return GunAttributeSet->GetBulletSpeedFalloff();
 	}
 
-	UE_LOG(LogGameplayAbilityTargetActor, Error, TEXT("%s() GunAttributeSet null when trying to read its BulletSpeedFalloff attribute! Will return UAS_Gun default object value instead!"), *FString(__FUNCTION__));
+	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its BulletSpeedFalloff attribute! Will return UAS_Gun default object value instead!"), *FString(__FUNCTION__));
 	return GetDefault<UAS_Gun>()->GetBulletSpeedFalloff();
 }
 
@@ -187,19 +191,13 @@ void AGATA_BulletTrace::CalculateAimDirection(FVector& ViewStart, FVector& ViewD
 
 void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor)
 {
-	check(GunAttributeSet);
 	OutHitResults.Empty();
 
 
-	const bool bTraceComplex = false;
-	TArray<AActor*> ActorsToIgnore;
-
-	ActorsToIgnore.Add(InSourceActor);
-
-	FCollisionQueryParams Params(SCENE_QUERY_STAT(AGATA_BulletTrace), bTraceComplex);
-	Params.bReturnPhysicalMaterial = true;
+	FCollisionQueryParams Params = FCollisionQueryParams(SCENE_QUERY_STAT(AGATA_BulletTrace));
+	Params.AddIgnoredActor(InSourceActor);
 	Params.bTraceComplex = true;
-	Params.AddIgnoredActors(ActorsToIgnore);
+	Params.bReturnPhysicalMaterial = true;
 
 	FVector TraceStart = StartLocation.GetTargetingTransform().GetLocation();
 	FVector TraceEnd;
@@ -212,6 +210,16 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 	LineTraceMulti(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, Params, bDebug);
 
 }
+
+
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////// BEGIN trace events /////////////////////
+
 
 
 bool AGATA_BulletTrace::OnInitialTrace(TArray<FHitResult>& OutInitialHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& TraceParams)
@@ -426,6 +434,17 @@ void AGATA_BulletTrace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorl
 	ThisRicochetTraceDir = FVector::ZeroVector;
 
 }
+
+
+
+
+/////////////////////////////////////////////////////////////// END trace events /////////////////////
+
+
+
+
+
+
 
 bool AGATA_BulletTrace::ApplyBulletStepsToBulletSpeed(const TArray<FBulletStep>& BulletStepsToApply, FVector& OutStoppedAtPoint, bool& OutStoppedInSegment)
 {

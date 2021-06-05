@@ -130,7 +130,7 @@ void UBFL_CollisionQueryHelpers::BuildTraceSegments(TArray<FTraceSegment>& OutTr
 
 			if (i != -1)
 			{
-				// This stack tells us how deep we are and provides us with the phys materials of the entrance hits
+				// This stack tells us how deep we are and provides us with the Phys Materials of the entrance hits
 				CurrentEntrancePhysMaterials.Push(FwdBlockingHits[i].PhysMaterial.Get());
 			}
 

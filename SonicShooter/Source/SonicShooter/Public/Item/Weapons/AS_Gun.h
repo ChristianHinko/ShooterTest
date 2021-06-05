@@ -98,14 +98,14 @@ public:
 	ATTRIBUTE_ACCESSORS(UAS_Gun, NumberOfBulletsPerFire)
 
 	/**
-	 *
+	 * Passed in to GATA - this is rare to change
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxRange, Category = "Attributes")
 		FGameplayAttributeData MaxRange;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, MaxRange)
 
 	/**
-	 * Number of times the trace can ricochet off of blocking hits - Zero for no ricochet
+	 * Number of times the trace can ricochet - (Zero for no ricochets and -1 for infinite ricochets)
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Ricochets, Category = "Attributes")
 		FGameplayAttributeData Ricochets;

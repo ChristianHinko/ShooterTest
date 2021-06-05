@@ -117,11 +117,11 @@ int32 AGATA_Trace::GetNumberOfTraces() const
 {
 	return 1;
 }
-int32 AGATA_Trace::GetRicochets() const
+int32 AGATA_Trace::GetPenetrations() const
 {
 	return 0;
 }
-int32 AGATA_Trace::GetPenetrations() const
+int32 AGATA_Trace::GetRicochets() const
 {
 	return 0;
 }

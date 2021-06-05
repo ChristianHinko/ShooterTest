@@ -34,8 +34,8 @@ float AGATA_BulletTrace::GetMaxRange() const
 		return GunAttributeSet->GetMaxRange();
 	}
 
-	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its MaxRange attribute! Will return default value from Super instead!"), *FString(__FUNCTION__));
-	return Super::GetMaxRange();
+	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its MaxRange attribute! Will return value from Default Object of UAS_Gun instead!"), *FString(__FUNCTION__));
+	return GetDefault<UAS_Gun>()->GetMaxRange();
 }
 int32 AGATA_BulletTrace::GetNumberOfTraces() const
 {
@@ -44,18 +44,23 @@ int32 AGATA_BulletTrace::GetNumberOfTraces() const
 		return GunAttributeSet->GetNumberOfBulletsPerFire();
 	}
 
-	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its NumberOfBulletsPerFire attribute! Will return default value from Super instead!"), *FString(__FUNCTION__));
-	return Super::GetNumberOfTraces();
-}
-int32 AGATA_BulletTrace::GetRicochets() const
-{
-	// Go infinitely because we have our Bullet Speed system
-	return -1;
+	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its NumberOfBulletsPerFire attribute! Will return value from Default Object of UAS_Gun instead!"), *FString(__FUNCTION__));
+	return GetDefault<UAS_Gun>()->GetNumberOfBulletsPerFire();
 }
 int32 AGATA_BulletTrace::GetPenetrations() const
 {
 	// Go infinitely because we have our Bullet Speed system
 	return -1;
+}
+int32 AGATA_BulletTrace::GetRicochets() const
+{	
+	if (GunAttributeSet)
+	{
+		return GunAttributeSet->GetRicochets();
+	}
+
+	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its Ricochets attribute! Will return value from Default Object of UAS_Gun instead!"), *FString(__FUNCTION__));
+	return GetDefault<UAS_Gun>()->GetRicochets();
 }
 float AGATA_BulletTrace::GetInitialBulletSpeed() const
 {
@@ -64,7 +69,7 @@ float AGATA_BulletTrace::GetInitialBulletSpeed() const
 		return GunAttributeSet->GetInitialBulletSpeed();
 	}
 
-	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its InitialBulletSpeed attribute! Will return UAS_Gun default object value instead!"), *FString(__FUNCTION__));
+	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its InitialBulletSpeed attribute! Will return value from Default Object of UAS_Gun instead!"), *FString(__FUNCTION__));
 	return GetDefault<UAS_Gun>()->GetInitialBulletSpeed();
 }
 float AGATA_BulletTrace::GetBulletSpeedFalloff() const
@@ -74,7 +79,7 @@ float AGATA_BulletTrace::GetBulletSpeedFalloff() const
 		return GunAttributeSet->GetBulletSpeedFalloff();
 	}
 
-	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its BulletSpeedFalloff attribute! Will return UAS_Gun default object value instead!"), *FString(__FUNCTION__));
+	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its BulletSpeedFalloff attribute! Will return value from Default Object of UAS_Gun instead!"), *FString(__FUNCTION__));
 	return GetDefault<UAS_Gun>()->GetBulletSpeedFalloff();
 }
 

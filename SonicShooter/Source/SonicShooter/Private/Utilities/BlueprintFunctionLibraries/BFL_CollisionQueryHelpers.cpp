@@ -142,9 +142,9 @@ void UBFL_CollisionQueryHelpers::BuildTraceSegments(TArray<FTraceSegment>& OutTr
 
 			{
 				FTraceSegment Segment; // the Segment we will make for this distance we just traced
-				const FVector EntrancePoint = (i == -1) ? BkwdEnd : FwdBlockingHits[i].ImpactPoint;
-				const FVector ExitPoint = (BkwdHitResults.Num() > 0) ? BkwdHitResults[0].ImpactPoint : BkwdStart;
-				Segment.SetEntranceAndExitPoints(EntrancePoint, ExitPoint);
+				const FVector StartPoint = (i == -1) ? BkwdEnd : FwdBlockingHits[i].ImpactPoint;
+				const FVector EndPoint = (BkwdHitResults.Num() > 0) ? BkwdHitResults[0].ImpactPoint : BkwdStart;
+				Segment.SetStartAndEndPoints(StartPoint, EndPoint);
 				Segment.SetPhysMaterials(CurrentEntrancePhysMaterials);
 
 				if (FwdBlockingHits.IsValidIndex(i + 1) && FMath::IsNearlyZero(Segment.GetSegmentDistance()) == false) // if we are the last Segment and our distance is zero don't emplace this
@@ -178,7 +178,7 @@ void UBFL_CollisionQueryHelpers::BuildTraceSegments(TArray<FTraceSegment>& OutTr
 
 
 				FTraceSegment Segment; // the Segment we will make for this distance we just traced
-				Segment.SetEntranceAndExitPoints(BkwdHit.ImpactPoint, BkwdHit.TraceStart);
+				Segment.SetStartAndEndPoints(BkwdHit.ImpactPoint, BkwdHit.TraceStart);
 				Segment.SetPhysMaterials(CurrentEntrancePhysMaterials);
 
 

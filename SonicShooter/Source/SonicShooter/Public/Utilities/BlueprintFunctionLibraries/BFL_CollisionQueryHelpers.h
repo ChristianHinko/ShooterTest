@@ -19,14 +19,14 @@ struct FTraceSegment
 {
 	FTraceSegment()
 	{
-		EntrancePoint = FVector::ZeroVector;
-		ExitPoint = FVector::ZeroVector;
+		StartPoint = FVector::ZeroVector;
+		EndPoint = FVector::ZeroVector;
 		SegmentDistance = -1;
 	}
-	FTraceSegment(const FVector& InEntrancePoint, const FVector& InExitPoint, const TArray<UPhysicalMaterial*>& InPhysMaterials)
+	FTraceSegment(const FVector& InStartPoint, const FVector& InEndPoint, const TArray<UPhysicalMaterial*>& InPhysMaterials)
 		: FTraceSegment()
 	{
-		SetEntranceAndExitPoints(InEntrancePoint, InExitPoint);
+		SetStartAndEndPoints(InStartPoint, InEndPoint);
 		SetPhysMaterials(InPhysMaterials);
 	}
 
@@ -37,21 +37,21 @@ struct FTraceSegment
 		PhysMaterials = InPhysMaterials;
 	}
 
-	FVector GetEntrancePoint() const { return EntrancePoint; }
-	FVector GetExitPoint() const { return ExitPoint; }
+	FVector GetStartPoint() const { return StartPoint; }
+	FVector GetEndPoint() const { return EndPoint; }
 
 	float GetSegmentDistance() const { return SegmentDistance; }
 	FVector GetTraceDir() const { return TraceDir; }
 
-	void SetEntranceAndExitPoints(const FVector& InEntrancePoint, const FVector& InExitPoint)
+	void SetStartAndEndPoints(const FVector& InStartPoint, const FVector& InEndPoint)
 	{
 		// Set points
-		EntrancePoint = InEntrancePoint;
-		ExitPoint = InExitPoint;
+		StartPoint = InStartPoint;
+		EndPoint = InEndPoint;
 
 		// Reevaluate calculations
-		SegmentDistance = FVector::Distance(EntrancePoint, ExitPoint);
-		TraceDir = UKismetMathLibrary::GetDirectionUnitVector(EntrancePoint, ExitPoint);
+		SegmentDistance = FVector::Distance(StartPoint, EndPoint);
+		TraceDir = UKismetMathLibrary::GetDirectionUnitVector(StartPoint, EndPoint);
 	}
 
 private:
@@ -60,8 +60,8 @@ private:
 	 */
 	TArray<UPhysicalMaterial*> PhysMaterials;
 
-	FVector EntrancePoint;
-	FVector ExitPoint;
+	FVector StartPoint;
+	FVector EndPoint;
 
 	float SegmentDistance;
 	FVector TraceDir;

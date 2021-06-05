@@ -403,7 +403,7 @@ bool AGATA_BulletTrace::ApplyBulletStepsToBulletSpeed(const TArray<FBulletStep>&
 
 			if (const FTraceSegment* TraceSegment = FirstStep.GetTraceSegment())
 			{
-				OutStoppedAtPoint = TraceSegment->GetEntrancePoint();
+				OutStoppedAtPoint = TraceSegment->GetStartPoint();
 				OutStoppedInSegment = true;
 			}
 			else if (const FTracePoint* TracePoint = FirstStep.GetRicochetPoint())
@@ -441,7 +441,7 @@ bool AGATA_BulletTrace::ApplyBulletStepsToBulletSpeed(const TArray<FBulletStep>&
 				const float TraveledThroughDistance = GotThroughnessRatio * TraceSegment->GetSegmentDistance();
 
 				// The point which we ran out of speed
-				OutStoppedAtPoint = TraceSegment->GetEntrancePoint() + (TraveledThroughDistance * TraceSegment->GetTraceDir());
+				OutStoppedAtPoint = TraceSegment->GetStartPoint() + (TraveledThroughDistance * TraceSegment->GetTraceDir());
 				OutStoppedInSegment = true;
 			}
 			else if (const FTracePoint* TracePoint = BulletStep.GetRicochetPoint())
@@ -474,22 +474,16 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, int32 bulle
 
 		if (const FTraceSegment* TraceSegment = BulletStep.GetTraceSegment())	// if we're a TraceSegment
 		{
-			if ((TraceSegment->GetExitPoint() - Point).IsNearlyZero(KINDA_SMALL_NUMBER + (KINDA_SMALL_NUMBER * 100))) // if the given Point is this segment's Exit Point
+			if ((TraceSegment->GetEndPoint() - Point).IsNearlyZero(KINDA_SMALL_NUMBER + (KINDA_SMALL_NUMBER * 100))) // if the given Point is this segment's EndPoint
 			{
 				UKismetSystemLibrary::PrintString(this, "Found line!!!", true, false, FLinearColor::Green, 1);
 				break;
 			}
 
+			const float TraveledDistance = FVector::Distance(TraceSegment->GetStartPoint(), Point);
+			const float UntraveledDistance = FVector::Distance(Point, TraceSegment->GetEndPoint());
 
-			//const FVector EntranceToPoint = Point - TraceSegment->GetEntrancePoint();
-			//const FVector PointToExit = TraceSegment->GetExitPoint() - Point;
-			//const float EntranceToPointDistance = EntranceToPoint.Size();
-			//const float PointToExitDistance = PointToExit.Size();
-
-			const float TraveledDistance = FVector::Distance(TraceSegment->GetEntrancePoint(), Point);
-			const float UntraveledDistance = FVector::Distance(Point, TraceSegment->GetExitPoint());
-
-			if (FMath::IsNearlyEqual(TraveledDistance + UntraveledDistance, TraceSegment->GetSegmentDistance()))	// if the Entrance, Exit, and Point don't form a triangle, Point is on the segment
+			if (FMath::IsNearlyEqual(TraveledDistance + UntraveledDistance, TraceSegment->GetSegmentDistance()))	// if the Start, End, and Point don't form a triangle, Point is on the segment
 			{
 				UKismetSystemLibrary::PrintString(this, "Found line!!!", true, false, FLinearColor::Green, 1);
 

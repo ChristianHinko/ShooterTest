@@ -216,6 +216,12 @@ void UBFL_CollisionQueryHelpers::LineTracePenetrateBetweenPoints(TArray<FHitResu
 	FVector PenStart = Start + ((KINDA_SMALL_NUMBER * 100) * FwdDir);
 	FVector PenEnd = End + ((KINDA_SMALL_NUMBER * 100) * BkwdDir);
 
+	if (PenStart.Equals(End) || PenEnd.Equals(Start))
+	{
+		UE_LOG(LogBlueprintFunctionLibrary, Warning, TEXT("%s(): The given Start and End locations were nearly the same which would mess things up (infinite trace loop). Returned early and did nothing"), *FString(__FUNCTION__));
+		return;
+	}
+
 
 	// Penetrate traces loop
 	for (FHitResult PenHitResult; World->LineTraceSingleByChannel(PenHitResult, PenStart, PenEnd, TraceChannel, PenParams); PenStart = PenHitResult.Location + ((KINDA_SMALL_NUMBER * 100) * FwdDir))

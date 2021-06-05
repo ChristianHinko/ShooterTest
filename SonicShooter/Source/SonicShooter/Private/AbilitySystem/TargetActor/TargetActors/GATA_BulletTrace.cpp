@@ -49,8 +49,13 @@ int32 AGATA_BulletTrace::GetNumberOfTraces() const
 }
 int32 AGATA_BulletTrace::GetPenetrations() const
 {
-	// Go infinitely because we have our Bullet Speed system
-	return -1;
+	if (GunAttributeSet)
+	{
+		return GunAttributeSet->GetPenetrations();
+	}
+
+	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its Penetrations attribute! Will return value from Default Object of UAS_Gun instead!"), *FString(__FUNCTION__));
+	return GetDefault<UAS_Gun>()->GetPenetrations();
 }
 int32 AGATA_BulletTrace::GetRicochets() const
 {	

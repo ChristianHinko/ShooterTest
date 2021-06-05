@@ -156,7 +156,7 @@ void ASSGameplayAbilityTargetActor::DirWithPlayerController(const AActor* InSour
 	ClipCameraRayToAbilityRange(AimStart, AimDir, TraceStart, GetMaxRange(), AimEnd);
 
 	// If the TraceStart is nearly equal to the AimStart, skip the useless camera trace and just return the aim direction
-	if ((TraceStart - AimStart).IsNearlyZero(KINDA_SMALL_NUMBER))
+	if (TraceStart.Equals(AimStart))
 	{
 		// As an optimization, skip the extra trace and return here
 		OutTraceDir = (AimEnd - TraceStart).GetSafeNormal();

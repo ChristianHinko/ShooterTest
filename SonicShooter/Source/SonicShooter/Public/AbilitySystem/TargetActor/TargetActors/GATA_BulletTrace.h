@@ -112,6 +112,7 @@ private:
 
 };
 
+
 /**
  * 
  */
@@ -123,14 +124,18 @@ class SONICSHOOTER_API AGATA_BulletTrace : public AGATA_Trace
 public:
 	AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer);
 
+
 	virtual void ConfirmTargetingAndContinue() override;
+
 
 	virtual float GetMaxRange() const override;
 	virtual int32 GetNumberOfTraces() const override;
 	virtual int32 GetRicochets() const override;
 	virtual int32 GetPenetrations() const override;
+
 	float GetInitialBulletSpeed() const;
 	float GetBulletSpeedFalloff() const;
+
 
 	UPROPERTY()
 		UAS_Gun* GunAttributeSet;
@@ -138,9 +143,7 @@ public:
 	int16 FireSpecificNetSafeRandomSeed;
 
 protected:
-	// This override signifies performing a trace for a ricochetable bullet (but it also might not richochet based on how this GATA is configed). The OutHitResults are the hit results from 1 bullet ricocheting off walls and hitting player(s)
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) override;
-
 	virtual void CalculateAimDirection(FVector& ViewStart, FVector& ViewDir) const override;
 
 

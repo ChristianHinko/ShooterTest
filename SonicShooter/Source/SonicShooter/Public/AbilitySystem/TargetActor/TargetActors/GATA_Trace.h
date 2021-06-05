@@ -56,7 +56,7 @@ protected:
 	virtual void CalculateRicochetDirection(FVector& RicoDir, const FHitResult& FromHit) const;
 
 
-	// LineTraceMulti() events, return false to discontinue traces
+	// LineTraceMulti() events - return false to discontinue traces
 	virtual bool OnInitialTrace(TArray<FHitResult>& OutInitialHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& TraceParams);
 	virtual bool OnPenetrate(TArray<FHitResult>& HitResults, TArray<FHitResult>& OutPenetrateHitResults, const UWorld* World, const FVector& PenetrateStart, const FVector& PenetrateEnd, const FCollisionQueryParams& TraceParams);
 	virtual bool OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitResult>& OutRicoHitResults, const UWorld* World, const FVector& RicoStart, const FVector& RicoEnd, const FCollisionQueryParams& TraceParams);
@@ -65,7 +65,12 @@ protected:
 
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) PURE_VIRTUAL(AGATA_Trace);
 
+	/**
+	 * Calls PerformTrace() for GetNumberOfTraces() amount of times safely.
+	 * Outputs a 2D array of Hits for clarity of which Hit Results were for which trace.
+	 */
 	void PerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AActor* InSourceActor);
+	/** Indicates which PerformTrace() call we are. */
 	int32 CurrentTraceIndex;
 
 

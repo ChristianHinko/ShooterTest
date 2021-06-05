@@ -10,9 +10,9 @@ bool UBFL_MathHelpers::PointLiesOnSegment(const FVector& Start, const FVector& E
 
 
 
-    float SegmentDistance = FVector::Distance(Start, End);
-    float StartToPointDistance = FVector::Distance(Start, Point);
-    float PointToEndDistance = FVector::Distance(Point, End);
+    const float SegmentDistance = FVector::Distance(Start, End);
+    const float StartToPointDistance = FVector::Distance(Start, Point);
+    const float PointToEndDistance = FVector::Distance(Point, End);
 
     if (FMath::IsNearlyEqual(StartToPointDistance + PointToEndDistance, SegmentDistance)) // if we are not a triangle
     {

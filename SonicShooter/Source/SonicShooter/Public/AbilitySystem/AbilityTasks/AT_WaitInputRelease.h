@@ -4,12 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem\SSAbilityTask.h"
+#include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 
 #include "AT_WaitInputRelease.generated.h"
 
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInputReleaseDelegate, float, TimeHeld);
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInputReleaseDelegate, float, TimeHeld);
 
 
 /**

@@ -3,12 +3,13 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSAbilityTask.h"
+#include "Abilities/Tasks/AbilityTask_WaitInputPress.h"
 
 #include "AT_WaitInputPress.generated.h"
 
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInputPressDelegate, float, TimeWaited);
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInputPressDelegate, float, TimeWaited);
 
 
 /**

@@ -4,12 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSAbilityTask.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 
 #include "AT_PlayMontageWait.generated.h"
 
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMontageWaitSimpleDelegate);
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMontageWaitSimpleDelegate);
 
 
 /**

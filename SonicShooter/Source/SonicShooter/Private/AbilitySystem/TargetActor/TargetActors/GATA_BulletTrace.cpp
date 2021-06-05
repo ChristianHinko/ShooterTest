@@ -565,6 +565,6 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, int32 bulle
 
 float AGATA_BulletTrace::GetBulletSpeedFalloffNerf(const float& bulletSpeedFalloffValue, const float& totalDistanceBulletTraveled)
 {
-	// bulletSpeedFalloffValue is the multiplier applied against the bullet's speed every 10000cm (328ft)
-	return FMath::Pow(bulletSpeedFalloffValue, (totalDistanceBulletTraveled / 10000));
+	// bulletSpeedFalloffValue is the multiplier applied against the bullet's speed every 1000cm (32ft) or 10 blocks of our Proto material
+	return FMath::Pow(bulletSpeedFalloffValue, (totalDistanceBulletTraveled / 1000));
 }

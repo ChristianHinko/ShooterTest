@@ -54,7 +54,7 @@ UAS_Gun::UAS_Gun()
 	NumberOfBulletsPerFire(1.f),
 	MaxRange(100000.f),
 	Ricochets(1),
-	InitialBulletSpeed(100.f),
+	InitialBulletSpeed(20.f),
 	BulletSpeedFalloff(.9f),
 
 	bFullAuto(0),

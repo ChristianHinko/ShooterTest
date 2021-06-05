@@ -23,9 +23,6 @@
 AGATA_Trace::AGATA_Trace(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	CurrentTraceIndex = -1;
-
-
 	MultiFilter.bReverseFilter = true;
 	MultiFilter.RequiredActorClasses.Add(AAbilitySystemCharacter::StaticClass());
 	MultiFilter.RequiredActorClasses.Add(AAbilitySystemPawn::StaticClass());
@@ -111,7 +108,7 @@ void AGATA_Trace::PerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AAc
 
 		OutTraceResults.Add(ThisTraceHitResults);
 	}
-	CurrentTraceIndex = -1;
+	CurrentTraceIndex = 0;
 
 
 }

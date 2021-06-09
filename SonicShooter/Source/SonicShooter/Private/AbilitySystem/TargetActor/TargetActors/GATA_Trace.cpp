@@ -66,29 +66,42 @@ void AGATA_Trace::ConfirmTargetingAndContinue()
 	check(ShouldProduceTargetData());
 	if (SourceActor)
 	{
+		// The Target Data that we will broadcast - kind of like our return data
 		FGameplayAbilityTargetDataHandle TargetDataHandle;
 		
 
+		// Perform this GATA's traces
 		TArray<TArray<FHitResult>> TraceResults;
 		PerformTraces(TraceResults, SourceActor);
 
 		// Loop through each of our traces
 		for (TArray<FHitResult>& HitResults : TraceResults)
 		{
+			// Filter this trace's Hit Results before we make Target Data from them
 			FilterHitResults(HitResults, MultiFilterHandle, bAllowMultipleHitsPerActor);
+
+
+			// The actors that this trace hit
+			TArray<TWeakObjectPtr<AActor>> ThisTraceHitActors;
+			ThisTraceHitActors.Reserve(HitResults.Num());
 
 			// Loop through this trace's hits (that have been filtered)
 			for (const FHitResult& HitResult : HitResults)
 			{
-				/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
-				FGameplayAbilityTargetData_SingleTargetHit* ReturnData = new FGameplayAbilityTargetData_SingleTargetHit();
-				ReturnData->HitResult = HitResult;
+				if (AActor* HitActor = HitResult.GetActor())
+				{
+					ThisTraceHitActors.Emplace(TWeakObjectPtr<AActor>(HitActor));
+				}
 
-				TargetDataHandle.Add(ReturnData);
 			}
+
+			// Add these actors the our Target Data Handle
+			FGameplayAbilityTargetDataHandle ThisTraceTargetData = StartLocation.MakeTargetDataHandleFromActors(ThisTraceHitActors);
+			TargetDataHandle.Append(ThisTraceTargetData);
 		}
 
 
+		// Broadcast this Target Data
 		TargetDataReadyDelegate.Broadcast(TargetDataHandle);
 	}
 }
@@ -97,8 +110,17 @@ void AGATA_Trace::PerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AAc
 {
 	OutTraceResults.Empty();
 
+	// Cached NumberOfTraces
 	const float NumberOfTraces = GetNumberOfTraces();
 
+	// Reserve this predetermined space
+	OutTraceResults.Reserve(NumberOfTraces);
+
+
+	// Call event
+	OnPrePerformTraces(OutTraceResults, InSourceActor);
+
+	// Perform traces
 	CurrentTraceIndex = 0;
 	for (CurrentTraceIndex; CurrentTraceIndex < NumberOfTraces; ++CurrentTraceIndex)
 	{
@@ -109,6 +131,10 @@ void AGATA_Trace::PerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AAc
 	}
 	CurrentTraceIndex = 0;
 
+
+}
+void AGATA_Trace::OnPrePerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AActor* InSourceActor)
+{
 
 }
 
@@ -202,7 +228,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 
 			// Ricochet
-			bool bRicocheted = false;
+			bool bRicochetHit = false;
 			if (ShouldRicochetOffOf(LastHit))
 			{
 				if (timesRicocheted < maxRicochets || maxRicochets == -1)
@@ -230,7 +256,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 						OutHitResults.Append(RicoHitResults); // add these results to the end of OutHitResults
 						LastHit = OutHitResults.Last(); // update LastHit
 						++timesRicocheted;
-						bRicocheted = true;
+						bRicochetHit = true;
 					}
 					else if (!bBreakOutEarly) // this ricochet didn't hit anything
 					{
@@ -251,7 +277,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 
 
-				if (bRicocheted == false)
+				if (bRicochetHit == false)
 				{
 					// We should've ricocheted but didn't so stop here. (we don't want to proceed to penetration logic on ricochetable surfaces).
 					// Possible ways of getting to this point:
@@ -261,7 +287,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 				}
 			}
 
-			if (bRicocheted)
+			if (bRicochetHit)
 			{
 				// Continue here because we always want to check whether we should ricochet first before we try to penetrate.
 				// For example. If we ricocheted, and then hit another surface that can be ricocheted off of, we want to run ricochet logic on that. If we don't continue here, the penetration logic below would run on that ricochetable surface instead of ricochet logic
@@ -271,7 +297,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 
 			// Penetrate
-			bool bPenetrated = false;
+			bool bPenetrateHit = false;
 			if (timesPenetrated < maxPenetrations || maxPenetrations == -1)
 			{
 				// The direction we traced from
@@ -296,7 +322,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 					OutHitResults.Append(PenetrateHitResults); // add these results to the end of OutHitResults
 					LastHit = OutHitResults.Last(); // update LastHit
 					++timesPenetrated;
-					bPenetrated = true;
+					bPenetrateHit = true;
 				}
 				else if (!bBreakOutEarly) // this penetration didn't hit anything
 				{
@@ -318,7 +344,7 @@ void AGATA_Trace::LineTraceMulti(TArray<FHitResult>& OutHitResults, const UWorld
 
 
 
-			if (bRicocheted == false && bPenetrated == false)
+			if (bRicochetHit == false && bPenetrateHit == false)
 			{
 				// We weren't able to ricochet nor penetrate, stop here
 				break;

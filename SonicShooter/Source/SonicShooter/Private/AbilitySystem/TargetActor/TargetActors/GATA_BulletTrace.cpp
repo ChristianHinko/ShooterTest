@@ -98,11 +98,6 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 		FGameplayAbilityTargetDataHandle TargetDataHandle;
 
 
-		const int32 numberOfBullets = GetNumberOfTraces();
-		BulletSteps.Empty();
-		BulletSteps.Reserve(numberOfBullets);
-		BulletSteps.AddDefaulted(numberOfBullets);
-
 		TArray<TArray<FHitResult>> TraceResults;
 		PerformTraces(TraceResults, SourceActor);
 
@@ -235,7 +230,17 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 
 }
 
+void AGATA_BulletTrace::OnPrePerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AActor* InSourceActor)
+{
+	Super::OnPrePerformTraces(OutTraceResults, InSourceActor);
 
+
+	// Initialize BulletSteps for these traces
+	const int32 NumberOfBullets = GetNumberOfTraces();
+	BulletSteps.Empty();
+	BulletSteps.Reserve(NumberOfBullets);
+	BulletSteps.AddDefaulted(NumberOfBullets);
+}
 
 
 
@@ -560,7 +565,6 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, int32 bulle
 
 			if (Point.Equals(TraceSegment->GetEndPoint(), KINDA_SMALL_NUMBER + (KINDA_SMALL_NUMBER * 100))) // if the given Point is this segment's EndPoint
 			{
-				UKismetSystemLibrary::PrintString(this, "Found line!!!", true, false, FLinearColor::Green, 1);
 				break;
 			}
 
@@ -569,8 +573,6 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, int32 bulle
 
 			if (FMath::IsNearlyEqual(TraveledDistance + UntraveledDistance, SegmentDistance))	// if the Start, End, and Point don't form a triangle, Point is on the segment
 			{
-				UKismetSystemLibrary::PrintString(this, "Found line!!!", true, false, FLinearColor::Green, 1);
-
 				// We took away the whole Segment's speed even though this point is within the Segment. So add back the part of the Segment that we didn't travel through
 				const float TraveledThroughnessRatio = (TraveledDistance / SegmentDistance);
 				retVal += BulletStep.GetBulletSpeedToTakeAway() * (1 - TraveledThroughnessRatio);
@@ -586,7 +588,6 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, int32 bulle
 		{
 			if (Point.Equals(RicochetPoint->Point, KINDA_SMALL_NUMBER + (KINDA_SMALL_NUMBER * 100)))
 			{
-				UKismetSystemLibrary::PrintString(this, "Found point!!!", true, false, FLinearColor::Green, 1);
 				break;
 			}
 		}

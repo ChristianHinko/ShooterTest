@@ -17,6 +17,7 @@ class SONICSHOOTER_API ASSGameplayCueNotify_Actor : public AGameplayCueNotify_Ac
 {
 	GENERATED_BODY()
 
-
+public:
 	ASSGameplayCueNotify_Actor();
+
 };

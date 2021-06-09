@@ -13,7 +13,8 @@
 
 
 /**
- * 
+ * Represents a segment in the World and holds a stack of Phys Mats that are within the two end points.
+ * (The top of the stack is the most significant of the Phys Mats to this Segment)
  */
 struct FTraceSegment
 {

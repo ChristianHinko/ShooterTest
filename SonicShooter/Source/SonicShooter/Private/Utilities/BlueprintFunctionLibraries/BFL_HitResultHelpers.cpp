@@ -50,3 +50,13 @@ void UBFL_HitResultHelpers::GetSectionLevelHitInfo(const FHitResult& InHitResult
 
 	OutHitPrimitiveComponent->GetMaterialFromCollisionFaceIndex(InHitResult.FaceIndex, outHitSectionIndex);
 }
+
+bool UBFL_HitResultHelpers::AreHitsFromSameTrace(const FHitResult& HitA, const FHitResult& HitB)
+{
+	const bool bSameStart = (HitA.TraceStart == HitB.TraceStart);
+	const bool bSameEnd = (HitA.TraceEnd == HitB.TraceEnd);
+	//const bool bSamePenetration = (HitA.bStartPenetrating == HitB.bStartPenetrating);
+
+	const bool bSameTrace = (bSameStart && bSameEnd/* && bSamePenetration*/);
+	return bSameTrace;
+}

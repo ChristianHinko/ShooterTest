@@ -6,10 +6,15 @@
 #include "AbilitySystem/SSAbilityTask.h"
 #include "AT_Ticker.generated.h"
 
+
 class AAbilitySystemCharacter;
+
+
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FTickDelegate, float, DeltaTime, float, CurrentTime, float, TimeRemaining);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDurationEnded);
+
+
 /**
  * 
  */

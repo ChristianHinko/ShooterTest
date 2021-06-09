@@ -17,6 +17,7 @@ class SONICSHOOTER_API USSGameplayCueNotify_Static : public UGameplayCueNotify_S
 {
 	GENERATED_BODY()
 
-
+public:
 	USSGameplayCueNotify_Static();
+
 };

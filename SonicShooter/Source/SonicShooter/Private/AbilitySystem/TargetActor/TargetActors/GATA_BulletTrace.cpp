@@ -11,6 +11,7 @@
 #include "Item/Weapons/AS_Gun.h"
 #include "Utilities\BlueprintFunctionLibraries\BFL_CollisionQueryHelpers.h"
 #include "PhysicalMaterial/ShooterPhysicalMaterial.h"
+#include "Utilities/BlueprintFunctionLibraries/BFL_HitResultHelpers.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -127,7 +128,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 				if (iteration != 0)
 				{
-					const bool bIsNewTrace = !AreHitsFromSameTrace(Hit, PreviousHit);
+					const bool bIsNewTrace = !UBFL_HitResultHelpers::AreHitsFromSameTrace(Hit, PreviousHit);
 					if (bIsNewTrace)
 					{
 						// Accumulate last trace's distance

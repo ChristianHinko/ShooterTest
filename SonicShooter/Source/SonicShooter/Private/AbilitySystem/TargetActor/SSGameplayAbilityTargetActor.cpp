@@ -5,6 +5,7 @@
 
 #include "Abilities/GameplayAbility.h"
 #include "AbilitySystem/SSAbilitySystemBlueprintLibrary.h"
+#include "Utilities/BlueprintFunctionLibraries/BFL_HitResultHelpers.h"
 
 
 
@@ -126,7 +127,7 @@ bool ASSGameplayAbilityTargetActor::HitResultFailsFilter(const TArray<FHitResult
 
 			if (HitToTryFilter.GetActor() == Hit.GetActor()) // if we already hit this actor
 			{
-				if (AreHitsFromSameTrace(HitToTryFilter, Hit)) // only remove if they were in the same trace (if they were from separate traces, they aren't considered a duplicate hit)
+				if (UBFL_HitResultHelpers::AreHitsFromSameTrace(HitToTryFilter, Hit)) // only remove if they were in the same trace (if they were from separate traces, they aren't considered a duplicate hit)
 				{
 					return true;
 					break;

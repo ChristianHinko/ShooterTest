@@ -106,6 +106,25 @@ void AGATA_Trace::ConfirmTargetingAndContinue()
 	}
 }
 
+void AGATA_Trace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor)
+{
+	OutHitResults.Empty();
+
+
+	FCollisionQueryParams Params = FCollisionQueryParams(SCENE_QUERY_STAT(AGATA_Trace));
+	Params.AddIgnoredActor(InSourceActor);
+
+	FVector TraceStart = StartLocation.GetTargetingTransform().GetLocation();
+	FVector TraceEnd;
+	AimWithPlayerController(InSourceActor, Params, TraceStart, TraceEnd);		//Effective on server and launching client only
+
+	// ------------------------------------------------------
+
+
+	// Perform line trace
+	LineTraceMulti(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, Params, bDebug);
+}
+
 void AGATA_Trace::PerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AActor* InSourceActor)
 {
 	OutTraceResults.Empty();

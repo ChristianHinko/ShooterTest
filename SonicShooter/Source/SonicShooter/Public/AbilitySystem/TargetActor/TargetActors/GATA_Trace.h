@@ -80,7 +80,7 @@ protected:
 	 * HERE FOR OVERRIDING PURPOSES ONLY!! DO NOT DIRECTLY CALL!!
 	 * Prefer PerformTraces() instead in case GetNumberOfTraces() is greater than 1!
 	 */
-	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) PURE_VIRTUAL(AGATA_Trace);
+	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor);
 
 	/**
 	 * Use this instead of PerformTrace() directly!

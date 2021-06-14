@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSGameplayAbility.h"
+
 #include "GA_FireGun.generated.h"
+
 
 class AGATA_BulletTrace;
 class UAS_Gun;
@@ -12,6 +14,8 @@ class UAS_Ammo;
 class UGunStack;
 class USSAbilityTask_WaitTargetData;
 class UAT_Ticker;
+
+
 
 /**
  * 

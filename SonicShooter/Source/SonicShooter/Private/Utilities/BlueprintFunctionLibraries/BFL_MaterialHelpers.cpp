@@ -7,7 +7,7 @@
 
 int32 UBFL_MaterialHelpers::GetMaterialIndexFromSectionIndex(const UStaticMeshComponent* StaticMeshComponent, const int32 SectionIndex)
 {
-    //adapted from GetMaterialFromCollisionFaceIndex
+    // Adapted from GetMaterialFromCollisionFaceIndex()
     const UStaticMesh* Mesh = StaticMeshComponent->GetStaticMesh();
     const FStaticMeshRenderData* RenderData = Mesh->GetRenderData();
     if (Mesh && RenderData && SectionIndex >= 0)

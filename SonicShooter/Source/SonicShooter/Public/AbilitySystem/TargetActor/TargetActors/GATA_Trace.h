@@ -80,16 +80,19 @@ protected:
 	 * HERE FOR OVERRIDING PURPOSES ONLY!! DO NOT DIRECTLY CALL!!
 	 * Prefer PerformTraces() instead in case GetNumberOfTraces() is greater than 1!
 	 */
-	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) PURE_VIRTUAL(AGATA_Trace);
+	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor);
 
 	/**
 	 * Use this instead of PerformTrace() directly!
 	 * Calls PerformTrace() for GetNumberOfTraces() amount of times safely.
-	 * Outputs a 2D array of Hits for the sake of clarity for which Hit Results are for which trace.
+	 * Outputs a 2D array of Hits for the sake of clarity for which Hit Results were from which trace.
 	 */
 	void PerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AActor* InSourceActor);
 	/** Indicates which PerformTrace() call we are. */
 	int32 CurrentTraceIndex;
+
+	/** Event for when we are about to PerformTraces(). Useful for initializing data about multiple traces */
+	virtual void OnPrePerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AActor* InSourceActor);
 
 
 //#if ENABLE_DRAW_DEBUG

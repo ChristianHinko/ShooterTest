@@ -10,7 +10,8 @@
 
 
 /**
- * 
+ * A collection of helpful functions related to Hit Results.
+ * Helpful for getting certain data from Hit Results and more.
  */
 UCLASS()
 class SONICSHOOTER_API UBFL_HitResultHelpers : public UBlueprintFunctionLibrary
@@ -25,5 +26,9 @@ public:
 	/** Returns the section index of the Primitive Component that was hit from the trace */
 	UFUNCTION(BlueprintPure, Category = "HitResultHelpers|HitInfo")
 		static void GetSectionLevelHitInfo(const FHitResult& InHitResult, UPrimitiveComponent*& OutHitPrimitiveComponent, int32& outHitSectionIndex);
+
+	/** Returns true if the two given hits were from the same trace */
+	UFUNCTION(BlueprintPure, Category = "HitResultHelpers")
+		static bool AreHitsFromSameTrace(const FHitResult& HitA, const FHitResult& HitB);
 
 };

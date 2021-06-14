@@ -7,6 +7,8 @@
 
 #include "Kismet/KismetSystemLibrary.h"
 
+
+
 UAT_Ticker::UAT_Ticker(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {

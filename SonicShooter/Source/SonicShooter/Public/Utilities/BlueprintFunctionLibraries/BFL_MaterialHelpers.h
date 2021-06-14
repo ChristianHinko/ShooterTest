@@ -10,7 +10,7 @@
 
 
 /**
- * 
+ * A collection of helper functions related to Materials
  */
 UCLASS()
 class SONICSHOOTER_API UBFL_MaterialHelpers : public UBlueprintFunctionLibrary

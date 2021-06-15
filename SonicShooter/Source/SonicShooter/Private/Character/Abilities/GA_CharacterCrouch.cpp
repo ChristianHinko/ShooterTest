@@ -6,7 +6,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "GameFramework/Character.h"
-#include "AbilitySystem/SSAbilitySystemComponent.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 

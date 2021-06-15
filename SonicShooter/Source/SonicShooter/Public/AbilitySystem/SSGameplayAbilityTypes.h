@@ -8,7 +8,6 @@
 #include "SSGameplayAbilityTypes.generated.h"
 
 
-class USSAbilitySystemComponent;
 class ASSCharacter;
 class ASSPlayerController;
 class ASSPlayerState;
@@ -34,10 +33,6 @@ struct SONICSHOOTER_API FSSGameplayAbilityActorInfo : public FASSGameplayAbility
     {
 
     }
-
-    // Our ASC. Should NEVER be null.
-    UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")
-        TWeakObjectPtr<USSAbilitySystemComponent> SSAbilitySystemComponent;
 
     // Our Character. Often nullptr.
     UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")

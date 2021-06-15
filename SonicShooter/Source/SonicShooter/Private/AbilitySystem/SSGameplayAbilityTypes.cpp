@@ -3,7 +3,6 @@
 
 #include "AbilitySystem/SSGameplayAbilityTypes.h"
 
-#include "AbilitySystem/SSAbilitySystemComponent.h"
 #include "Character/SSCharacter.h"
 #include "Player/SSPlayerController.h"
 #include "Player/SSPlayerState.h"
@@ -20,9 +19,6 @@ FSSGameplayAbilityActorInfo::FSSGameplayAbilityActorInfo()
 void FSSGameplayAbilityActorInfo::InitFromActor(AActor* InOwnerActor, AActor* InAvatarActor, UAbilitySystemComponent* InAbilitySystemComponent)
 {
     Super::InitFromActor(InOwnerActor, InAvatarActor, InAbilitySystemComponent);
-
-    // Get our ASC
-    SSAbilitySystemComponent = Cast<USSAbilitySystemComponent>(InAbilitySystemComponent);
 
     // Get our SSCharacter
     SSCharacter = Cast<ASSCharacter>(InAvatarActor);
@@ -56,7 +52,6 @@ void FSSGameplayAbilityActorInfo::ClearActorInfo()
     Super::ClearActorInfo();
 
 
-    SSAbilitySystemComponent = nullptr;
     SSCharacter = nullptr;
     SSPlayerController = nullptr;
     SSPlayerState = nullptr;
@@ -86,9 +81,8 @@ void FGAAI_Shooter::InitFromActor(AActor* InOwnerActor, AActor* InAvatarActor, U
 {
     Super::InitFromActor(InOwnerActor, InAvatarActor, InAbilitySystemComponent);
 
-
     // Get our Shooter ASC
-    ShooterAbilitySystemComponent = Cast<UASC_Shooter>(SSAbilitySystemComponent);
+    ShooterAbilitySystemComponent = Cast<UASC_Shooter>(ASSAbilitySystemComponent);
 
     // Get our Shooter Character
     ShooterCharacter = Cast<AShooterCharacter>(InAvatarActor);

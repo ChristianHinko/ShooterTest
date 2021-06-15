@@ -3,9 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/ASSAbilitySystemComponent.h"
-
-#include "SSAbilitySystemComponent.generated.h"
 
 
 
@@ -59,18 +56,4 @@ enum EAbilityInputID
 
 	// MAX
 	MAX					UMETA(Hidden) // show a Max value since this isn't an enum class
-};
-
-/**
- * Our custom Ability System Component
- */
-UCLASS()
-class SONICSHOOTER_API USSAbilitySystemComponent : public UASSAbilitySystemComponent
-{
-	GENERATED_BODY()
-
-public:
-	USSAbilitySystemComponent();
-
-
 };

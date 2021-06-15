@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Player/AbilitySystemPlayerState.h"
-#include "AbilitySystem/SSAbilitySystemComponent.h"
 
 #include "SSPlayerState.generated.h"
 
@@ -29,8 +28,6 @@ public:
 	UAS_PlayerState* GetAttributeSet() const { return AttributeSet; }
 
 protected:
-	USSAbilitySystemComponent* SSAbilitySystemComponent;
-
 	UPROPERTY()
 		UAS_PlayerState* AttributeSet;
 

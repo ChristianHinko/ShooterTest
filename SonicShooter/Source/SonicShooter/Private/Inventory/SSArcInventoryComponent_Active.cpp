@@ -6,7 +6,7 @@
 #include "Net/UnrealNetwork.h"
 #include "ArcItemStack.h"
 #include "Item/Definitions/ArcItemDefinition_Active.h"
-#include "AbilitySystem/SSAbilitySystemComponent.h"
+#include "AbilitySystem/ASSAbilitySystemComponent.h"
 #include "ArcItemBPFunctionLibrary.h"
 #include "Input/ArcInvInputBinder.h"
 #include "AbilitySystemGlobals.h"
@@ -290,7 +290,7 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 					}
 				}
 				//=@OVERRIDED CODE MARKER@= what we modified in this override we use our grant ability instead of give ability
-				FGameplayAbilitySpecHandle Handle = Cast<USSAbilitySystemComponent>(ASC)->GrantAbility(ExtraAbility, AbilitySource);
+				FGameplayAbilitySpecHandle Handle = Cast<UASSAbilitySystemComponent>(ASC)->GrantAbility(ExtraAbility, AbilitySource);
 				//FGameplayAbilitySpec Spec(ExtraAbility.GetDefaultObject(), 1, INDEX_NONE, AbilitySource);
 
 				//FGameplayAbilitySpecHandle Handle = ASC->GiveAbility(Spec);

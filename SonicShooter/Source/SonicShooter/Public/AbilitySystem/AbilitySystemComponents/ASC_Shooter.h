@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSAbilitySystemComponent.h"
+#include "AbilitySystem/ASSAbilitySystemComponent.h"
 #include "Wrappers/PropertyWrappers.h"
 
 #include "ASC_Shooter.generated.h"
@@ -14,7 +14,7 @@
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UASC_Shooter : public USSAbilitySystemComponent
+class SONICSHOOTER_API UASC_Shooter : public UASSAbilitySystemComponent
 {
 	GENERATED_BODY()
 	

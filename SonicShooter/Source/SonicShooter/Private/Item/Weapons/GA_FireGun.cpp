@@ -16,7 +16,6 @@
 #include "AbilitySystem/AbilityTasks/AT_Ticker.h"
 #include "AbilitySystem\AbilityTasks\AT_WaitInputRelease.h"
 #include "Kismet/GameplayStatics.h"
-#include "AbilitySystem/SSAbilitySystemComponent.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 

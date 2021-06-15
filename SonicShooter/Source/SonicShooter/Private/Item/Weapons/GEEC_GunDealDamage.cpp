@@ -3,7 +3,6 @@
 
 #include "Item/Weapons/GEEC_GunDealDamage.h"
 
-#include "AbilitySystem/SSAbilitySystemComponent.h"
 #include "AbilitySystem\AttributeSets\AS_Health.h"
 #include "AbilitySystem/AttributeSets/AS_Damage.h"
 

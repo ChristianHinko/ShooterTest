@@ -5,7 +5,6 @@
 
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "GameFramework/Character.h"
-#include "AbilitySystem/SSAbilitySystemComponent.h"
 
 // THIS ABILITY IS WAYYYYYY OUTDATED!!!!!!!!!!!!!!!!
 // WE HAVE NOT IMPLEMENTED THE NEW WAY OF DOING MOVEMENT ABILITIES FOR THIS STATIC VERISON OF JUMP!!!!

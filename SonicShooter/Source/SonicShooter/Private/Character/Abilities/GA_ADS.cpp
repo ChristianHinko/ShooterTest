@@ -5,7 +5,6 @@
 
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
-#include "AbilitySystem/SSAbilitySystemComponent.h"
 #include "GameFramework/Character.h"
 
 UGA_ADS::UGA_ADS()

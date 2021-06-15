@@ -4,7 +4,6 @@
 #include "Character/Abilities/GA_CharacterJump.h"
 
 #include "Character/SSCharacter.h"
-#include "AbilitySystem/SSAbilitySystemComponent.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Character/SSCharacterMovementComponent.h"
 

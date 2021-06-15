@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSAbilitySystemComponent.h"
+#include "AbilitySystemComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Console/CVarChangeListenerManager.h"
 
@@ -11,7 +11,6 @@
 
 
 class ASSCharacter;
-class USSAbilitySystemComponent;
 class UAS_CharacterMovement;
 class UAS_Stamina;
 class IAbilitySystemInterface;

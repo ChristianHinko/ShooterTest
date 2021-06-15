@@ -3,15 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GameplayAbilityTypes.h"
+#include "AbilitySystem/ASSGameplayAbilityTypes.h"
 
 #include "SSGameplayAbilityTypes.generated.h"
 
 
 class USSAbilitySystemComponent;
+class ASSCharacter;
 class ASSPlayerController;
 class ASSPlayerState;
-class AAbilitySystemCharacter;
 class USSCharacterMovementComponent;
 
 
@@ -20,13 +20,13 @@ DECLARE_MULTICAST_DELEGATE(FAbilityActorInfoState)
 
 
 /**
- * Our base GameplayAbilityActorInfo.
+ * Our custom GameplayAbilityActorInfo.
  * Put non-game-specific data in here - like base classes and stuff
  */
 USTRUCT()
-struct SONICSHOOTER_API FSSGameplayAbilityActorInfo : public FGameplayAbilityActorInfo
+struct SONICSHOOTER_API FSSGameplayAbilityActorInfo : public FASSGameplayAbilityActorInfo
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 
     FSSGameplayAbilityActorInfo();
@@ -39,6 +39,10 @@ struct SONICSHOOTER_API FSSGameplayAbilityActorInfo : public FGameplayAbilityAct
     UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")
         TWeakObjectPtr<USSAbilitySystemComponent> SSAbilitySystemComponent;
 
+    // Our Character. Often nullptr.
+    UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")
+        TWeakObjectPtr<ASSCharacter> SSCharacter;
+
     // Our PC. Often nullptr.
     UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")
         TWeakObjectPtr<ASSPlayerController> SSPlayerController;
@@ -46,10 +50,6 @@ struct SONICSHOOTER_API FSSGameplayAbilityActorInfo : public FGameplayAbilityAct
     // Our PS. Often nullptr.
     UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")
         TWeakObjectPtr<ASSPlayerState> SSPlayerState;
-
-    // Our AbilitySystemCharacter. Often nullptr.
-    UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")
-        TWeakObjectPtr<AAbilitySystemCharacter> AbilitySystemCharacter;
 
     // Our CMC. Often nullptr.
     UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")
@@ -66,14 +66,14 @@ struct SONICSHOOTER_API FSSGameplayAbilityActorInfo : public FGameplayAbilityAct
     virtual void SetAvatarActor(AActor* AvatarActor) override;
     virtual void ClearActorInfo() override;
 
+    // Gets the Character. This is often nullptr.
+    ASSCharacter* GetSSCharacter() const { return SSCharacter.IsValid() ? SSCharacter.Get() : nullptr; }
+
     // Gets the PC. This is often nullptr.
     ASSPlayerController* GetSSPlayerController() const { return SSPlayerController.IsValid() ? SSPlayerController.Get() : nullptr; }
 
     // Gets the PS. This is often nullptr.
     ASSPlayerState* GetSSPlayerState() const { return SSPlayerState.IsValid() ? SSPlayerState.Get() : nullptr; }
-
-    // Gets the AbilitySystemCharacter. This is often nullptr.
-    AAbilitySystemCharacter* GetAbilitySystemCharacter() const { return AbilitySystemCharacter.IsValid() ? AbilitySystemCharacter.Get() : nullptr; }
 
     // Gets the CMC. This is often nullptr.
     USSCharacterMovementComponent* GetSSCharacterMovementComponent() const { return SSCharacterMovementComponent.IsValid() ? SSCharacterMovementComponent.Get() : nullptr; }

@@ -4,7 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/TargetActor/TargetActors/GATA_Trace.h"
-#include "Utilities/BlueprintFunctionLibraries/BFL_CollisionQueryHelpers.h"
+#include "BlueprintFunctionLibraries/BFL_CollisionQueryHelpers.h"
+#include "PhysicalMaterial/ShooterPhysicalMaterial.h"
 
 #include "GATA_BulletTrace.generated.h"
 

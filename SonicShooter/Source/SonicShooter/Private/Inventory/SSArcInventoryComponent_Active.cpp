@@ -19,7 +19,7 @@
 #include "Utilities/LogCategories.h"
 #include "Item/SSArcItemStack.h"
 
-#include "AbilitySystem/SSAttributeSet.h"
+#include "AbilitySystem/ASSAttributeSet.h"
 
 
 void USSArcInventoryComponent_Active::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -221,7 +221,7 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 				}
 				
 				//BEGIN =@OVERRIDED CODE MARKER@= Make it run soft attribute defaults after setting hard default values
-				if (USSAttributeSet* SSNewAttributeSet = Cast<USSAttributeSet>(NewAttributeSet))
+				if (UASSAttributeSet* SSNewAttributeSet = Cast<UASSAttributeSet>(NewAttributeSet))
 				{
 					SSNewAttributeSet->SetSoftAttributeDefaults();
 				}

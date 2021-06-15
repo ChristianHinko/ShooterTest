@@ -10,13 +10,13 @@
 
 
 /**
- * 
+ * Base Game Mode
  */
 UCLASS()
 class SONICSHOOTER_API ASSGameMode : public AGameMode
 {
 	GENERATED_BODY()
-	
+
 public:
 	ASSGameMode();
 

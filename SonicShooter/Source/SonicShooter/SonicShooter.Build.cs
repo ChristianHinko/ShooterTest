@@ -21,6 +21,7 @@ public class SonicShooter : ModuleRules
 				"ArcInventory",
 				"ArcTeams",
 				"PropertyWrapper",
+				"HelperLibraries",
 				"MoveIt"
 			}
 		);

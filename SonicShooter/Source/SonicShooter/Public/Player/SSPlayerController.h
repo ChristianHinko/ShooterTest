@@ -39,7 +39,7 @@ public:
 };
 
 /**
- * Base player controller (Ability System aware). Holds pending pawn data
+ * Base Player Controller
  */
 UCLASS()
 class SONICSHOOTER_API ASSPlayerController : public APlayerController

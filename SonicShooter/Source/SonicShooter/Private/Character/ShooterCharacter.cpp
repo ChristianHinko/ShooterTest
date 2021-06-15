@@ -11,13 +11,18 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
 #include "ArcItemStack.h"
-#include "AbilitySystem/SSGameplayAbility.h"
+#include "AbilitySystem/ASSGameplayAbility.h"
+#include "AbilitySystem/AttributeSets/AS_Health.h"
 
 
 
 void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+
+	DOREPLIFETIME(AShooterCharacter, HealthAttributeSet);
+
 
 	DOREPLIFETIME_CONDITION(AShooterCharacter, InteractInstantAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, InteractDurationAbilitySpecHandle, COND_OwnerOnly);
@@ -62,13 +67,39 @@ void AShooterCharacter::BeginPlay()
 
 }
 
-bool AShooterCharacter::GrantStartingAbilities()
+void AShooterCharacter::CreateAttributeSets()
 {
-	if (Super::GrantStartingAbilities() == false)
+	Super::CreateAttributeSets();
+
+
+	if (!HealthAttributeSet)
 	{
-		return false;	// Did not pass predefined checks
+		HealthAttributeSet = NewObject<UAS_Health>(this, UAS_Health::StaticClass(), TEXT("HealthAttributeSet"));
 	}
-	//	We are on authority and have a valid ASC to work with
+	else
+	{
+		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), *FString(__FUNCTION__), *HealthAttributeSet->GetName());
+	}
+}
+
+void AShooterCharacter::RegisterAttributeSets()
+{
+	Super::RegisterAttributeSets();
+
+
+	if (HealthAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(HealthAttributeSet))	// If HealthAttributeSet is valid and it's not yet registered with the Character's ASC
+	{
+		GetAbilitySystemComponent()->AddAttributeSetSubobject(HealthAttributeSet);
+	}
+	else
+	{
+		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() HealthAttributeSet was either NULL or already added to the character's ASC. Character: %s"), *FString(__FUNCTION__), *GetName());
+	}
+}
+void AShooterCharacter::GrantStartingAbilities()
+{
+	Super::GrantStartingAbilities();
+
 
 	InteractInstantAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractInstantAbilityTSub, this/*, GetLevel()*/);
 	InteractDurationAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractDurationAbilityTSub, this/*, GetLevel()*/);
@@ -84,7 +115,6 @@ bool AShooterCharacter::GrantStartingAbilities()
 
 	DropItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(DropItemAbilityTSub, this/*, GetLevel()*/);
 
-	return true;
 }
 
 #include "Kismet/KismetSystemLibrary.h"

@@ -6,7 +6,7 @@
 #include "AbilitySystem/ASSAttributeSet.h"
 #include "GameplayAbilities/Public/TickableAttributeSetInterface.h"
 #include "AbilitySystemComponent.h"
-#include "Utilities/PropertyWrappers.h"
+#include "Wrappers/PropertyWrappers.h"
 
 #include "AS_Gun.generated.h"
 

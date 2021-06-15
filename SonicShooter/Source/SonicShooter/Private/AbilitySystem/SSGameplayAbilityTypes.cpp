@@ -4,7 +4,7 @@
 #include "AbilitySystem/SSGameplayAbilityTypes.h"
 
 #include "AbilitySystem/SSAbilitySystemComponent.h"
-#include "Character/AbilitySystemCharacter.h"
+#include "Character/SSCharacter.h"
 #include "Player/SSPlayerController.h"
 #include "Player/SSPlayerState.h"
 #include "Character/SSCharacterMovementComponent.h"
@@ -19,13 +19,13 @@ FSSGameplayAbilityActorInfo::FSSGameplayAbilityActorInfo()
 
 void FSSGameplayAbilityActorInfo::InitFromActor(AActor* InOwnerActor, AActor* InAvatarActor, UAbilitySystemComponent* InAbilitySystemComponent)
 {
-	Super::InitFromActor(InOwnerActor, InAvatarActor, InAbilitySystemComponent);
+    Super::InitFromActor(InOwnerActor, InAvatarActor, InAbilitySystemComponent);
 
     // Get our ASC
     SSAbilitySystemComponent = Cast<USSAbilitySystemComponent>(InAbilitySystemComponent);
 
-    // Get our AbilitySystemCharacter
-    AbilitySystemCharacter = Cast<AAbilitySystemCharacter>(InAvatarActor);
+    // Get our SSCharacter
+    SSCharacter = Cast<ASSCharacter>(InAvatarActor);
 
     // Get our PC and PS
     if (PlayerController.IsValid())
@@ -35,13 +35,13 @@ void FSSGameplayAbilityActorInfo::InitFromActor(AActor* InOwnerActor, AActor* In
     }
 
     // Get our CMC
-    if (ASSCharacter* SSCharacter = Cast<ASSCharacter>(InAvatarActor))
+    if (SSCharacter.IsValid())
     {
         SSCharacterMovementComponent = SSCharacter->GetSSCharacterMovementComponent();
     }
 
 
-    //OnInited.Broadcast();
+    OnInited.Broadcast();
 }
 
 void FSSGameplayAbilityActorInfo::SetAvatarActor(AActor* InAvatarActor)
@@ -57,9 +57,9 @@ void FSSGameplayAbilityActorInfo::ClearActorInfo()
 
 
     SSAbilitySystemComponent = nullptr;
+    SSCharacter = nullptr;
     SSPlayerController = nullptr;
     SSPlayerState = nullptr;
-    AbilitySystemCharacter = nullptr;
     SSCharacterMovementComponent = nullptr;
 }
 

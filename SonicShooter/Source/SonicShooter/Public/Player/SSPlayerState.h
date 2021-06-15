@@ -3,8 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/PlayerState.h"
-#include "AbilitySystemInterface.h"
+#include "Player/AbilitySystemPlayerState.h"
 #include "AbilitySystem/SSAbilitySystemComponent.h"
 
 #include "SSPlayerState.generated.h"
@@ -13,11 +12,12 @@
 class UAS_PlayerState;
 
 
+
 /**
- * Base player state class (GAS implemented)
+ * Base Player State
  */
 UCLASS()
-class SONICSHOOTER_API ASSPlayerState : public APlayerState, public IAbilitySystemInterface
+class SONICSHOOTER_API ASSPlayerState : public AAbilitySystemPlayerState
 {
 	GENERATED_BODY()
 
@@ -26,16 +26,12 @@ public:
 	ASSPlayerState(const FObjectInitializer& ObjectInitializer);
 
 
-	USSAbilitySystemComponent* GetAbilitySystemComponent() const override { return SSAbilitySystemComponent; }
 	UAS_PlayerState* GetAttributeSet() const { return AttributeSet; }
 
 protected:
-	UPROPERTY()
-		USSAbilitySystemComponent* SSAbilitySystemComponent;
-	static FName AbilitySystemComponentName;
+	USSAbilitySystemComponent* SSAbilitySystemComponent;
 
 	UPROPERTY()
 		UAS_PlayerState* AttributeSet;
-
 
 };

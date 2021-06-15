@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/SSAbilitySystemComponent.h"
-#include "Utilities/PropertyWrappers.h"
+#include "Wrappers/PropertyWrappers.h"
 
 #include "ASC_Shooter.generated.h"
 

@@ -51,7 +51,7 @@ public:
 
 	class UArcInventoryComponent* GetInventoryComponent() const override { return InventoryComponent; }
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 		UInteractorComponent* Interactor;
 
 #pragma region Tags

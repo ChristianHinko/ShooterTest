@@ -3,21 +3,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSGameplayAbility.h"
+#include "AbilitySystem/ASSGameplayAbility.h"
 
 #include "GA_CharacterCrouch.generated.h"
 
-class AAbilitySystemCharacter;
-class USSCharacterMovementComponent;
+
+class UCharacterMovementComponent;
+
+
 
 /**
- * 
+ *
  */
 UCLASS()
-class SONICSHOOTER_API UGA_CharacterCrouch : public USSGameplayAbility
+class SONICSHOOTER_API UGA_CharacterCrouch : public UASSGameplayAbility
 {
 	GENERATED_BODY()
-	
+
 public:
 	UGA_CharacterCrouch();
 
@@ -28,9 +30,9 @@ protected:
 	FActiveGameplayEffectHandle CrouchingEffectActiveHandle;
 
 	UPROPERTY()
-		AAbilitySystemCharacter* GASCharacter;
+		ACharacter* Character;
 	UPROPERTY()
-		USSCharacterMovementComponent* CMC;
+		UCharacterMovementComponent* CMC;
 
 
 

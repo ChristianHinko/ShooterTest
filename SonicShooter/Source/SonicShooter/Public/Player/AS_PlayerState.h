@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSAttributeSet.h"
+#include "AbilitySystem/ASSAttributeSet.h"
 #include "AbilitySystemComponent.h"
 
 #include "AS_PlayerState.generated.h"
@@ -11,13 +11,13 @@
 
 
 /**
- * 
+ *
  */
 UCLASS()
-class SONICSHOOTER_API UAS_PlayerState : public USSAttributeSet
+class SONICSHOOTER_API UAS_PlayerState : public UASSAttributeSet
 {
 	GENERATED_BODY()
-	
+
 public:
 	// Constructor and default values
 	UAS_PlayerState();

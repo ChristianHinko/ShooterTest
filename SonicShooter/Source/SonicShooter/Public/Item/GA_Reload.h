@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSGameplayAbility.h"
+#include "AbilitySystem/ASSGameplayAbility.h"
 
 #include "GA_Reload.generated.h"
 
@@ -13,7 +13,7 @@ class UAS_Ammo;
  *
  */
 UCLASS()
-class SONICSHOOTER_API UGA_Reload : public USSGameplayAbility
+class SONICSHOOTER_API UGA_Reload : public UASSGameplayAbility
 {
 	GENERATED_BODY()
 

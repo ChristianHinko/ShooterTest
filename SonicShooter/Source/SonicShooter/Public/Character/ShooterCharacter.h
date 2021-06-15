@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/AbilitySystemCharacter.h"
+#include "Character/SSCharacter.h"
 #include "Interfaces/ArcInventoryInterface.h"
 
 #include "ShooterCharacter.generated.h"
@@ -19,7 +19,7 @@ class UArcItemGenerator_Unique;
  *
  */
 UCLASS()
-class SONICSHOOTER_API AShooterCharacter : public AAbilitySystemCharacter, public IArcInventoryInterface
+class SONICSHOOTER_API AShooterCharacter : public ASSCharacter, public IArcInventoryInterface
 {
 	GENERATED_BODY()
 

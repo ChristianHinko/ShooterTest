@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSAttributeSet.h"
+#include "AbilitySystem/ASSAttributeSet.h"
 #include "AbilitySystemComponent.h"
 #include "Utilities/PropertyWrappers.h"
 
@@ -15,7 +15,7 @@
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UAS_Ammo : public USSAttributeSet
+class SONICSHOOTER_API UAS_Ammo : public UASSAttributeSet
 {
 	GENERATED_BODY()
 

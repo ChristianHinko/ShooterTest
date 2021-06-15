@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSGameplayAbility.h"
+#include "AbilitySystem/ASSGameplayAbility.h"
 #include "GA_ADS.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UGA_ADS : public USSGameplayAbility
+class SONICSHOOTER_API UGA_ADS : public UASSGameplayAbility
 {
 	GENERATED_BODY()
 	

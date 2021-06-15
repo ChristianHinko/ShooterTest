@@ -3,48 +3,47 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSAttributeSet.h"
+#include "AbilitySystem/ASSAttributeSet.h"
 #include "AbilitySystemComponent.h"
 
-#include "AS_Character.generated.h"
+#include "AS_CharacterMovement.generated.h"
 
 
 
 /**
- * This attribute set will be on every character that uses the ability system (using AbilitySystemCharacter)
- * add universal character attributes here.
+ * This attribute set will be on every character. Add universal character attributes here - but avoid doing so if you can, try to make Attributes into modular Attribute Sets
  */
 UCLASS()
-class SONICSHOOTER_API UAS_Character : public USSAttributeSet
+class SONICSHOOTER_API UAS_CharacterMovement : public UASSAttributeSet
 {
 	GENERATED_BODY()
-	
+
 public:
 	// Constructor and default values
-	UAS_Character();
+	UAS_CharacterMovement();
 
 #pragma region Gameplay Tags
-	
+
 #pragma endregion
 
-	
+
 	// Attributes
 #pragma region Movement Attributes
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_WalkSpeed, Category = "Attributes|Movement")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_WalkSpeed, Category = "MovementAttributes")
 		FGameplayAttributeData WalkSpeed;
-	ATTRIBUTE_ACCESSORS(UAS_Character, WalkSpeed)
+	ATTRIBUTE_ACCESSORS(UAS_CharacterMovement, WalkSpeed)
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_WalkAcceleration, Category = "Attributes|Movement")
+		UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_WalkAcceleration, Category = "MovementAttributes")
 		FGameplayAttributeData WalkAcceleration;
-	ATTRIBUTE_ACCESSORS(UAS_Character, WalkAcceleration)
+	ATTRIBUTE_ACCESSORS(UAS_CharacterMovement, WalkAcceleration)
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_RunSpeed, Category = "Attributes|Movement")
+		UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_RunSpeed, Category = "MovementAttributes")
 		FGameplayAttributeData RunSpeed;
-	ATTRIBUTE_ACCESSORS(UAS_Character, RunSpeed)
+	ATTRIBUTE_ACCESSORS(UAS_CharacterMovement, RunSpeed)
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_RunAccelaration, Category = "Attributes|Movement")
+		UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_RunAccelaration, Category = "MovementAttributes")
 		FGameplayAttributeData RunAccelaration;
-	ATTRIBUTE_ACCESSORS(UAS_Character, RunAccelaration)
+	ATTRIBUTE_ACCESSORS(UAS_CharacterMovement, RunAccelaration)
 #pragma endregion
 
 

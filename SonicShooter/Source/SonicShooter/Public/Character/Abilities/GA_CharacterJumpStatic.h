@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSGameplayAbility.h"
+#include "AbilitySystem/ASSGameplayAbility.h"
 
 #include "GA_CharacterJumpStatic.generated.h"
 
@@ -25,10 +25,10 @@
  *		- Another thing thats weird it that for Non-Instanced abilities, EGameplayAbilityActivationMode inside ActivationInfo is set to Confirmed on both the client and server, even thought Confirmed means your on the client.
  */
 UCLASS()
-class SONICSHOOTER_API UGA_CharacterJumpStatic : public USSGameplayAbility
+class SONICSHOOTER_API UGA_CharacterJumpStatic : public UASSGameplayAbility
 {
 	GENERATED_BODY()
-	
+
 public:
 	UGA_CharacterJumpStatic();
 
@@ -40,3 +40,4 @@ protected:
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	//END UGameplayAbility Interface
 };
+

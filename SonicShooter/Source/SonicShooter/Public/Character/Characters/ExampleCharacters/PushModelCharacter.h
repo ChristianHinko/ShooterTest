@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/AbilitySystemCharacter.h"
+#include "Character/SSCharacter.h"
 
 #include "PushModelCharacter.generated.h"
 
@@ -11,15 +11,15 @@
 
 /**
  * Push model demo character.
- * 
+ *
  * Primary fire to increment MyPushModelFloat.
  * Secondary fire to increment it without marking it dirty.
  */
 UCLASS()
-class SONICSHOOTER_API APushModelCharacter : public AAbilitySystemCharacter
+class SONICSHOOTER_API APushModelCharacter : public ASSCharacter
 {
 	GENERATED_BODY()
-	
+
 public:
 	APushModelCharacter(const FObjectInitializer& ObjectInitializer);
 

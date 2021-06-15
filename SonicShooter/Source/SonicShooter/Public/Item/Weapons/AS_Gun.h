@@ -211,7 +211,7 @@ protected:
 	virtual void SetSoftAttributeDefaults() override;
 
 
-	void OnActorInfoInited();
+	void OnActorInfoInitted();
 
 	void UpdateFromActorInfo();
 

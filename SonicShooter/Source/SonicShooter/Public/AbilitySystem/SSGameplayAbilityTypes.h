@@ -15,9 +15,6 @@ class USSCharacterMovementComponent;
 
 
 
-DECLARE_MULTICAST_DELEGATE(FAbilityActorInfoState)
-
-
 /**
  * Our custom GameplayAbilityActorInfo.
  * Put non-game-specific data in here - like base classes and stuff
@@ -51,13 +48,7 @@ struct SONICSHOOTER_API FSSGameplayAbilityActorInfo : public FASSGameplayAbility
         TWeakObjectPtr<USSCharacterMovementComponent> SSCharacterMovementComponent;
 
 
-    /**
-     * Broadcast this at the end of your InitFromActor().
-     * The reason this base class can't is because it would be done in the Super call and wouldn't be done after the subclass initialization.
-     */
-    FAbilityActorInfoState OnInited;
-
-    virtual void InitFromActor(AActor* OwnerActor, AActor* AvatarActor, UAbilitySystemComponent* InAbilitySystemComponent) override;
+    virtual void ASSInitFromActor(AActor* OwnerActor, AActor* AvatarActor, UAbilitySystemComponent* InAbilitySystemComponent) override;
     virtual void SetAvatarActor(AActor* AvatarActor) override;
     virtual void ClearActorInfo() override;
 
@@ -114,7 +105,7 @@ struct SONICSHOOTER_API FGAAI_Shooter : public FSSGameplayAbilityActorInfo
         TWeakObjectPtr<USSArcInventoryComponent_Active> InventoryComponent;
 
 
-    virtual void InitFromActor(AActor* OwnerActor, AActor* AvatarActor, UAbilitySystemComponent* InAbilitySystemComponent) override;
+    virtual void ASSInitFromActor(AActor* OwnerActor, AActor* AvatarActor, UAbilitySystemComponent* InAbilitySystemComponent) override;
     virtual void SetAvatarActor(AActor* AvatarActor) override;
     virtual void ClearActorInfo() override;
 

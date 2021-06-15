@@ -12,7 +12,7 @@
 
 
 
-DECLARE_MULTICAST_DELEGATE(FStaminaDelegate)
+DECLARE_MULTICAST_DELEGATE(FStaminaStatus)
 
 
 /**
@@ -41,8 +41,8 @@ public:
 
 		void SetStaminaDraining(bool newStaminaDraining);
 
-	FStaminaDelegate OnStaminaFullyDrained;
-	FStaminaDelegate OnStaminaFullyGained;
+	FStaminaStatus OnStaminaFullyDrained;
+	FStaminaStatus OnStaminaFullyGained;
 
 	/** How fast your stamina regenerates durring stamina regeneration */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_StaminaGain, Category = "Attributes")

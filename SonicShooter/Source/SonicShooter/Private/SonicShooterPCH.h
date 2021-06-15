@@ -4,4 +4,4 @@
 
 #include "EngineSharedPCH.h"
 #include "Utilities/LogCategories.h"
-#include "AbilitySystem/AbilitySystemInputEnum.h"
+#include "AbilitySystem/AbilityInputID.h"

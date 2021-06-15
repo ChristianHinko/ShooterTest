@@ -13,7 +13,7 @@ class UCharacterMovementComponent;
 
 
 /**
- *
+ * 
  */
 UCLASS()
 class SONICSHOOTER_API UGA_CharacterCrouch : public UASSGameplayAbility

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSGameplayAbility.h"
+#include "AbilitySystem/ASSGameplayAbility.h"
 
 #include "GA_FireGun.generated.h"
 
@@ -21,7 +21,7 @@ class UAT_Ticker;
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UGA_FireGun : public USSGameplayAbility
+class SONICSHOOTER_API UGA_FireGun : public UASSGameplayAbility
 {
 	GENERATED_BODY()
 	

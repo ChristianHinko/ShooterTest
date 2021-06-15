@@ -3,8 +3,8 @@
 
 #include "Character/Abilities/GA_CharacterJumpStatic.h"
 
-#include "Character/AbilitySystemCharacter.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "GameFramework/Character.h"
 
 // THIS ABILITY IS WAYYYYYY OUTDATED!!!!!!!!!!!!!!!!
 // WE HAVE NOT IMPLEMENTED THE NEW WAY OF DOING MOVEMENT ABILITIES FOR THIS STATIC VERISON OF JUMP!!!!
@@ -27,14 +27,14 @@ bool UGA_CharacterJumpStatic::CanActivateAbility(const FGameplayAbilitySpecHandl
 		return false;
 	}
 
-	const AAbilitySystemCharacter* Character = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
+	const ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	return Character && Character->CanJump();
 }
 
 void UGA_CharacterJumpStatic::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	
+
 
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	if (!Character)

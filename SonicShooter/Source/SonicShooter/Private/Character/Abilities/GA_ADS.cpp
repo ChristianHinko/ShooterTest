@@ -3,9 +3,9 @@
 
 #include "Character/Abilities/GA_ADS.h"
 
-#include "Character/AbilitySystemCharacter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "GameFramework/Character.h"
 
 UGA_ADS::UGA_ADS()
 {

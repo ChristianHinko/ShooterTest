@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/TargetActor/TargetActors/GATA_BulletTrace.h"
+#include "AbilitySystem/TargetActors/GATA_BulletTrace.h"
 
 #include "Utilities\LogCategories.h"
 #include "Abilities/GameplayAbility.h"
@@ -9,9 +9,9 @@
 #include "AbilitySystem/SSGameplayAbilityTargetTypes.h"
 #include "AbilitySystemComponent.h"
 #include "Item/Weapons/AS_Gun.h"
-#include "Utilities\BlueprintFunctionLibraries\BFL_CollisionQueryHelpers.h"
+#include "BlueprintFunctionLibraries\BFL_CollisionQueryHelpers.h"
 #include "PhysicalMaterial/ShooterPhysicalMaterial.h"
-#include "Utilities/BlueprintFunctionLibraries/BFL_HitResultHelpers.h"
+#include "BlueprintFunctionLibraries/BFL_HitResultHelpers.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -91,6 +91,10 @@ float AGATA_BulletTrace::GetBulletSpeedFalloff() const
 void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 {
 	check(ShouldProduceTargetData());
+	if (!IsConfirmTargetingAllowed())
+	{
+		return;
+	}
 
 
 	if (SourceActor)
@@ -138,7 +142,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 				}
 
 
-				if (HitResultFailsFilter(ThisBulletHitResults, index, MultiFilterHandle, bAllowMultipleHitsPerActor)) // don't actually filter it, just check if it passes the filter
+				if (HitResultFailsFilter(ThisBulletHitResults, index, Filter, bAllowMultipleHitsPerActor)) // don't actually filter it, just check if it passes the filter
 				{
 					// This index did not pass the filter, stop here so that we don't add target data for it
 					PreviousHit = Hit;

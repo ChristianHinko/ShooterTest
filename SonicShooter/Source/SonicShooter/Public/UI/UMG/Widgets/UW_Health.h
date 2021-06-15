@@ -20,7 +20,7 @@ UCLASS()
 class SONICSHOOTER_API UUW_Health : public USSUserWidget
 {
 	GENERATED_BODY()
-	
+
 public:
 	UUW_Health(const FObjectInitializer& ObjectInitializer);
 

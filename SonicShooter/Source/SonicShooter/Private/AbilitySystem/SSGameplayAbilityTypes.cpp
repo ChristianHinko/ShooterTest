@@ -3,8 +3,7 @@
 
 #include "AbilitySystem/SSGameplayAbilityTypes.h"
 
-#include "AbilitySystem/SSAbilitySystemComponent.h"
-#include "Character/AbilitySystemCharacter.h"
+#include "Character/SSCharacter.h"
 #include "Player/SSPlayerController.h"
 #include "Player/SSPlayerState.h"
 #include "Character/SSCharacterMovementComponent.h"
@@ -17,15 +16,12 @@ FSSGameplayAbilityActorInfo::FSSGameplayAbilityActorInfo()
 }
 
 
-void FSSGameplayAbilityActorInfo::InitFromActor(AActor* InOwnerActor, AActor* InAvatarActor, UAbilitySystemComponent* InAbilitySystemComponent)
+void FSSGameplayAbilityActorInfo::ASSInitFromActor(AActor* InOwnerActor, AActor* InAvatarActor, UAbilitySystemComponent* InAbilitySystemComponent)
 {
-	Super::InitFromActor(InOwnerActor, InAvatarActor, InAbilitySystemComponent);
+    Super::ASSInitFromActor(InOwnerActor, InAvatarActor, InAbilitySystemComponent);
 
-    // Get our ASC
-    SSAbilitySystemComponent = Cast<USSAbilitySystemComponent>(InAbilitySystemComponent);
-
-    // Get our AbilitySystemCharacter
-    AbilitySystemCharacter = Cast<AAbilitySystemCharacter>(InAvatarActor);
+    // Get our SSCharacter
+    SSCharacter = Cast<ASSCharacter>(InAvatarActor);
 
     // Get our PC and PS
     if (PlayerController.IsValid())
@@ -35,13 +31,10 @@ void FSSGameplayAbilityActorInfo::InitFromActor(AActor* InOwnerActor, AActor* In
     }
 
     // Get our CMC
-    if (ASSCharacter* SSCharacter = Cast<ASSCharacter>(InAvatarActor))
+    if (SSCharacter.IsValid())
     {
         SSCharacterMovementComponent = SSCharacter->GetSSCharacterMovementComponent();
     }
-
-
-    //OnInited.Broadcast();
 }
 
 void FSSGameplayAbilityActorInfo::SetAvatarActor(AActor* InAvatarActor)
@@ -56,10 +49,9 @@ void FSSGameplayAbilityActorInfo::ClearActorInfo()
     Super::ClearActorInfo();
 
 
-    SSAbilitySystemComponent = nullptr;
+    SSCharacter = nullptr;
     SSPlayerController = nullptr;
     SSPlayerState = nullptr;
-    AbilitySystemCharacter = nullptr;
     SSCharacterMovementComponent = nullptr;
 }
 
@@ -82,13 +74,12 @@ FGAAI_Shooter::FGAAI_Shooter()
 }
 
 
-void FGAAI_Shooter::InitFromActor(AActor* InOwnerActor, AActor* InAvatarActor, UAbilitySystemComponent* InAbilitySystemComponent)
+void FGAAI_Shooter::ASSInitFromActor(AActor* InOwnerActor, AActor* InAvatarActor, UAbilitySystemComponent* InAbilitySystemComponent)
 {
-    Super::InitFromActor(InOwnerActor, InAvatarActor, InAbilitySystemComponent);
-
+    Super::ASSInitFromActor(InOwnerActor, InAvatarActor, InAbilitySystemComponent);
 
     // Get our Shooter ASC
-    ShooterAbilitySystemComponent = Cast<UASC_Shooter>(SSAbilitySystemComponent);
+    ShooterAbilitySystemComponent = Cast<UASC_Shooter>(ASSAbilitySystemComponent);
 
     // Get our Shooter Character
     ShooterCharacter = Cast<AShooterCharacter>(InAvatarActor);
@@ -100,9 +91,6 @@ void FGAAI_Shooter::InitFromActor(AActor* InOwnerActor, AActor* InAvatarActor, U
     //    InventoryComponent = ShooterCharacter->GetInventoryComponent();
     //}
     InventoryComponent = Cast<USSArcInventoryComponent_Active>(InAvatarActor->GetComponentByClass(USSArcInventoryComponent_Active::StaticClass()));
-
-
-    OnInited.Broadcast();
 }
 
 void FGAAI_Shooter::SetAvatarActor(AActor* InAvatarActor)

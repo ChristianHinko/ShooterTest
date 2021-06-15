@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
+#include "Pawn/AbilitySystemSetupPawn.h"
 
 #include "SSPawn.generated.h"
 
@@ -19,12 +19,12 @@ class USSCharacterMovementComponent;
  * Base pawn class for all pawns to inherit from (besides pawns which inherit from the base pawn)
  */
 UCLASS()
-class SONICSHOOTER_API ASSPawn : public APawn
+class SONICSHOOTER_API ASSPawn : public AAbilitySystemSetupPawn
 {
 	GENERATED_BODY()
 
 public:
-	ASSPawn();
+	ASSPawn(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
@@ -32,14 +32,17 @@ protected:
 
 #pragma region Input Events
 	//Actions
+	virtual void OnRunPressed();
+	virtual void OnRunReleased();
+
 	virtual void OnJumpPressed();
 	virtual void OnJumpReleased();
 
+	virtual void OnCrouchPressed();
+	virtual void OnCrouchReleased();
+
 	virtual void OnInteractPressed();
 	virtual void OnInteractReleased();
-
-	virtual void OnRunPressed();
-	virtual void OnRunReleased();
 
 	virtual void OnPrimaryFirePressed();
 	virtual void OnPrimaryFireReleased();
@@ -50,12 +53,38 @@ protected:
 	virtual void OnReloadPressed();
 	virtual void OnReloadReleased();
 
-	virtual void OnCrouchPressed();
-	virtual void OnCrouchReleased();
+	virtual void OnItem0Pressed();
+	virtual void OnItem0Released();
+
+	virtual void OnItem1Pressed();
+	virtual void OnItem1Released();
+
+	virtual void OnItem2Pressed();
+	virtual void OnItem2Released();
+
+	virtual void OnItem3Pressed();
+	virtual void OnItem3Released();
+
+	virtual void OnItem4Pressed();
+	virtual void OnItem4Released();
 
 	virtual void OnSwitchWeaponPressed();
 	virtual void OnSwitchWeaponReleased();
 
+	virtual void OnNextItemPressed();
+	virtual void OnNextItemReleased();
+
+	virtual void OnPreviousItemPressed();
+	virtual void OnPreviousItemReleased();
+
+	virtual void OnDropItemPressed();
+	virtual void OnDropItemReleased();
+
+	virtual void OnPausePressed();
+	virtual void OnPauseReleased();
+
+	virtual void OnScoreSheetPressed();
+	virtual void OnScoreSheetReleased();
 
 
 	//Axis

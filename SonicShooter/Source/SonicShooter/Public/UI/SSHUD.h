@@ -10,13 +10,15 @@
 
 
 /**
- * This class is being treated as a place to manage UUserWidgets (creating or adding and removing them from viewport)
+ * Base HUD class.
+ * This class is being treated as a place to manage UUserWidgets (creating or adding and removing them from viewport).
+ * But do this in organized sub-classes from this to stay organized and because this is just a base.
  */
 UCLASS()
 class SONICSHOOTER_API ASSHUD : public AHUD
 {
 	GENERATED_BODY()
-	
+
 public:
 	ASSHUD();
 

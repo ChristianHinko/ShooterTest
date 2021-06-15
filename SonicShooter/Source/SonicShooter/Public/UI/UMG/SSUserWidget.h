@@ -20,15 +20,15 @@ class ASSPlayerController;
 
 
 /**
- * Base UserWidget class.
- * 
+ * Base User Widget class.
+ *
  * Has ability to listen to ASC events
  */
 UCLASS()
 class SONICSHOOTER_API USSUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
 public:
 	USSUserWidget(const FObjectInitializer& ObjectInitializer);
 

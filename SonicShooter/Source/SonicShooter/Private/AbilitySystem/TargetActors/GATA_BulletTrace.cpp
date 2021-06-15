@@ -91,6 +91,10 @@ float AGATA_BulletTrace::GetBulletSpeedFalloff() const
 void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 {
 	check(ShouldProduceTargetData());
+	if (!IsConfirmTargetingAllowed())
+	{
+		return;
+	}
 
 
 	if (SourceActor)

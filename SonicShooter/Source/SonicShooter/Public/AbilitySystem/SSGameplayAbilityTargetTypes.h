@@ -45,20 +45,23 @@ struct FActorHitInfo
 	{
 
 	}
-	FActorHitInfo(const TWeakObjectPtr<AActor>& inHitActor, float inTotalTraveledDistanceBeforeHit)
+	FActorHitInfo(const TWeakObjectPtr<AActor>& inHitActor, float inTotalTraveledDistanceBeforeHit, float inBulletSpeedAtImpact)
 	{
 		HitActor = inHitActor;
 		totalTraveledDistanceBeforeHit = inTotalTraveledDistanceBeforeHit;
+		bulletSpeedAtImpact = inBulletSpeedAtImpact;
 	}
 	void operator=(const FActorHitInfo& Other)
 	{
 		HitActor = Other.HitActor;
 		totalTraveledDistanceBeforeHit = Other.totalTraveledDistanceBeforeHit;
+		bulletSpeedAtImpact = Other.bulletSpeedAtImpact;
 	}
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
 	{
 		Ar << HitActor;
 		Ar << totalTraveledDistanceBeforeHit;
+		Ar << bulletSpeedAtImpact;
 
 		bOutSuccess = true;
 		return true;
@@ -68,6 +71,8 @@ struct FActorHitInfo
 		TWeakObjectPtr<AActor> HitActor;
 	UPROPERTY()
 		float totalTraveledDistanceBeforeHit;
+	UPROPERTY()
+		float bulletSpeedAtImpact;
 };
 
 template<>

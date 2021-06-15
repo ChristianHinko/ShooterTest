@@ -5,6 +5,7 @@
 
 #include "Abilities/GameplayAbility.h"
 #include "AbilitySystem/SSAbilitySystemBlueprintLibrary.h"
+#include "Utilities/BlueprintFunctionLibraries/BFL_HitResultHelpers.h"
 
 
 
@@ -126,7 +127,7 @@ bool ASSGameplayAbilityTargetActor::HitResultFailsFilter(const TArray<FHitResult
 
 			if (HitToTryFilter.GetActor() == Hit.GetActor()) // if we already hit this actor
 			{
-				if (AreHitsFromSameTrace(HitToTryFilter, Hit)) // only remove if they were in the same trace (if they were from separate traces, they aren't considered a duplicate hit)
+				if (UBFL_HitResultHelpers::AreHitsFromSameTrace(HitToTryFilter, Hit)) // only remove if they were in the same trace (if they were from separate traces, they aren't considered a duplicate hit)
 				{
 					return true;
 					break;
@@ -156,7 +157,7 @@ void ASSGameplayAbilityTargetActor::DirWithPlayerController(const AActor* InSour
 	ClipCameraRayToAbilityRange(AimStart, AimDir, TraceStart, GetMaxRange(), AimEnd);
 
 	// If the TraceStart is nearly equal to the AimStart, skip the useless camera trace and just return the aim direction
-	if ((TraceStart - AimStart).IsNearlyZero(KINDA_SMALL_NUMBER))
+	if (TraceStart.Equals(AimStart))
 	{
 		// As an optimization, skip the extra trace and return here
 		OutTraceDir = (AimEnd - TraceStart).GetSafeNormal();
@@ -197,7 +198,7 @@ void ASSGameplayAbilityTargetActor::DirWithPlayerController(const AActor* InSour
 	OutTraceDir = AdjustedAimDir;
 }
 
-void ASSGameplayAbilityTargetActor::CalculateAimDirection(FVector& AimStart, FVector& AimDir) const
+void ASSGameplayAbilityTargetActor::CalculateAimDirection(FVector& OutAimStart, FVector& OutAimDir) const
 {
 	if (!OwningAbility) // Server and launching client only
 	{
@@ -209,9 +210,9 @@ void ASSGameplayAbilityTargetActor::CalculateAimDirection(FVector& AimStart, FVe
 	check(PC);
 
 	FRotator ViewRot;
-	PC->GetPlayerViewPoint(AimStart, ViewRot);
+	PC->GetPlayerViewPoint(OutAimStart, ViewRot);
 
-	AimDir = ViewRot.Vector();
+	OutAimDir = ViewRot.Vector();
 }
 
 bool ASSGameplayAbilityTargetActor::ClipCameraRayToAbilityRange(FVector CameraLocation, FVector CameraDirection, FVector AbilityCenter, float AbilityRange, FVector& ClippedPosition)

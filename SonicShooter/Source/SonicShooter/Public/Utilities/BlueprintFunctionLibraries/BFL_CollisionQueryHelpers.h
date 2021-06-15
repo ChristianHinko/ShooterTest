@@ -5,77 +5,70 @@
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "PhysicalMaterials\PhysicalMaterial.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "PhysicalMaterial/ShooterPhysicalMaterial.h"
 
 #include "BFL_CollisionQueryHelpers.generated.h"
 
 
 
 /**
- * 
+ * Represents a segment in the World and holds a stack of Phys Mats that are within the two end points.
+ * (The top of the stack is the most significant of the Phys Mats to this Segment)
  */
-struct FPenetrationInfo
+struct FTraceSegment
 {
-	FPenetrationInfo()
+	FTraceSegment()
 	{
-		EntrancePoint = FVector::ZeroVector;
-		ExitPoint = FVector::ZeroVector;
-		PenetrationDistance = -1;
+		StartPoint = FVector::ZeroVector;
+		EndPoint = FVector::ZeroVector;
+		SegmentDistance = -1;
 	}
-	FPenetrationInfo(float InPenetrationDistance, const FVector& inEntrancePoint, const FVector& inExitPoint, TArray<UPhysicalMaterial*> inPenetratedPhysMaterials, const FString& inPenetratedActorName, const FString& inPenetratedComponentName, const FString& inPenetratedBoneName)
+	FTraceSegment(const FVector& InStartPoint, const FVector& InEndPoint, const TArray<UPhysicalMaterial*>& InPhysMaterials)
+		: FTraceSegment()
 	{
-		PenetratedPhysMaterials = inPenetratedPhysMaterials;
-
-		EntrancePoint = inEntrancePoint;
-		ExitPoint = inExitPoint;
-		PenetrationDistance = InPenetrationDistance;
-
-		PenetratedActorName = inPenetratedActorName;
-		PenetratedComponentName = inPenetratedComponentName;
-		PenetratedBoneName = inPenetratedBoneName;
+		SetStartAndEndPoints(InStartPoint, InEndPoint);
+		SetPhysMaterials(InPhysMaterials);
 	}
 
-	const FString GetDebugString() const
+
+	const TArray<UPhysicalMaterial*>& GetPhysMaterials() const { return PhysMaterials; }
+	void SetPhysMaterials(const TArray<UPhysicalMaterial*>& InPhysMaterials)
 	{
-		FString PenetratedPhysMats;
-		for (UPhysicalMaterial* physMat : PenetratedPhysMaterials)
-		{
-			PenetratedPhysMats += (IsValid(physMat) ? physMat->GetName() : "NULL") + ", ";
-		}
-		return "PenetratedActor = " + PenetratedActorName + "    PenetratedComponent = " + PenetratedComponentName + "    PenetratedBone = " + PenetratedBoneName + "    PenetratedPhysMaterials = " + PenetratedPhysMats + "    penetration distance: " + FString::SanitizeFloat(PenetrationDistance);
+		PhysMaterials = InPhysMaterials;
 	}
 
+	FVector GetStartPoint() const { return StartPoint; }
+	FVector GetEndPoint() const { return EndPoint; }
+
+	float GetSegmentDistance() const { return SegmentDistance; }
+	FVector GetTraceDir() const { return TraceDir; }
+
+	void SetStartAndEndPoints(const FVector& InStartPoint, const FVector& InEndPoint)
+	{
+		// Set points
+		StartPoint = InStartPoint;
+		EndPoint = InEndPoint;
+
+		// Reevaluate calculations
+		SegmentDistance = FVector::Distance(StartPoint, EndPoint);
+		TraceDir = UKismetMathLibrary::GetDirectionUnitVector(StartPoint, EndPoint);
+	}
+
+private:
 	/**
-	 * This is the stack of phys materials that this penetration is penetrating. Top of the stack is the most inner (most recent) phys material
-	*/
-	TArray<UPhysicalMaterial*> PenetratedPhysMaterials;
+	 * This is the stack of Phys Mats that are enclosed in this Segment. Top of the stack is the most inner (most recent) Phys Mat
+	 */
+	TArray<UPhysicalMaterial*> PhysMaterials;
 
-	FVector EntrancePoint;
-	FVector ExitPoint;
-	float PenetrationDistance;
+	FVector StartPoint;
+	FVector EndPoint;
 
-	FString PenetratedActorName;
-	FString PenetratedComponentName;
-	FString PenetratedBoneName;
+	float SegmentDistance;
+	FVector TraceDir;
+
 };
 
-/**
- * 
- */
-struct FPenetrationHitResult
-{
-	FPenetrationHitResult()
-	{
-		bIsEntrance = true;
-	}
-	FPenetrationHitResult(const FHitResult& inHitResult, bool inIsEntrance)
-	{
-		HitResult = inHitResult;
-		bIsEntrance = inIsEntrance;
-	}
-
-	FHitResult HitResult;
-	uint8 bIsEntrance : 1;
-};
 
 /**
  * A collection of our custom collision queries
@@ -87,7 +80,7 @@ class SONICSHOOTER_API UBFL_CollisionQueryHelpers : public UBlueprintFunctionLib
 	
 public:
 	/**
-	 * BuildPenetrationInfos Important notes:
+	 * BuildTraceSegments Important notes:
 	 * This gathers data on the geometry level. If there are faces with normals pointing at an incomming trace, it will hit. This can get really (pointlessly) expensive if a model has lots of faces not visible and inside the mesh
 	 * since it will penetrate those as well. I think in most cases it's pointless to do penetrations on those inner geometry parts, but we are just doing that for now. We could make an implementation that runs on the section level
 	 * instead of the geometry level (using HitResult.GetComponent()->GetMaterialFromCollisionFaceIndex(HitResult.FaceIndex); ). We were just kinda too lazy to do this. We did this in a pervious commit but changed the system.
@@ -96,8 +89,15 @@ public:
 	 * inside it (distance being 0 every time).	Another note is that skeletal mesh bones are all a part of 1 component (skeletal mesh component), and each of the bones use simple collision.
 	 * This means that if you hit a skeletal mesh bone, it won't just only ignore that specific bone. It will ignore all of the bones in that skeletal mesh component (since it just ignores the skeletal mesh component).
 	 * So when using this against skeletal meshes, only one bone will be hit.
+	 * Another thing is if the first fwd hit result it already inside some geometry, then the function won't be aware of that and the stack of physical materials won't be fully accurate.
 	*/
-	static void BuildPenetrationInfos(TArray<FPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const UWorld* World, const FCollisionQueryParams& TraceParams, const TEnumAsByte<ECollisionChannel> TraceChannel);
-	static void BuildPenetrationInfos(TArray<FPenetrationInfo>& OutPenetrationInfos, const TArray<FHitResult>& FwdBlockingHits, const FVector& FwdEndLocation, const UWorld* World, const FCollisionQueryParams& TraceParams, const TEnumAsByte<ECollisionChannel> TraceChannel);
+	static void BuildTraceSegments(TArray<FTraceSegment>& OutTraceSegments, const TArray<FHitResult>& FwdBlockingHits, const UWorld* World, const FCollisionQueryParams& TraceParams, const TEnumAsByte<ECollisionChannel> TraceChannel);
+	static void BuildTraceSegments(TArray<FTraceSegment>& OutTraceSegments, const TArray<FHitResult>& FwdBlockingHits, const FVector& FwdEndLocation, const UWorld* World, const FCollisionQueryParams& TraceParams, const TEnumAsByte<ECollisionChannel> TraceChannel);
+	
+	
+	/**
+	 * 
+	 */
+	static void LineTracePenetrateBetweenPoints(TArray<FHitResult>& OutHitResults, const UWorld* World, const FVector& Start, const FVector& End, const ECollisionChannel TraceChannel, const FCollisionQueryParams& Params);
 
 };

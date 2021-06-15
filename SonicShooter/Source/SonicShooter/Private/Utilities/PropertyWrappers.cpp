@@ -8,14 +8,15 @@
 
 
 FFloatPropertyWrapper::FFloatPropertyWrapper()
+	: Value(0.f),
+	PropertyOwner(nullptr),
+	PropertyName(NAME_None),
+	Property(nullptr),
+	ValueChangeDelegate(nullptr)
 {
-	ValueChangeDelegate = nullptr;
-	PropertyOwner = nullptr;
-	PropertyName = NAME_None;
-	Property = nullptr;
-	Value = 0.f;
-
 	bMarkNetDirtyOnChange = false;
+
+
 }
 FFloatPropertyWrapper::FFloatPropertyWrapper(UObject* InPropertyOwner, FName InPropertyName)
 	: FFloatPropertyWrapper()

@@ -3,7 +3,11 @@
 
 #include "PhysicalMaterial/ShooterPhysicalMaterial.h"
 
+
+
 UShooterPhysicalMaterial::UShooterPhysicalMaterial()
 {
-	BulletPenetrationSpeedMultiplier = .5f;
+	bRichochetsBullets = false;
+	BulletPenetrationSpeedReduction = 20.f;
+	BulletRicochetSpeedReduction = 30.f;
 }

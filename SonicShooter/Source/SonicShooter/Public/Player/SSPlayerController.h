@@ -13,7 +13,7 @@ DECLARE_MULTICAST_DELEGATE(FPlayerControllerStatus);
 
 
 /**
- * Not enough functionality yet to be considered useful. If we are going to make this a plugin we should think of more features to put in it like maybe integrate it with ArcTeams plugin
+ * Since this respawning system has no dependancies we should end up making this a plugin if we find it useful
  * Has the concept of a PendingPawnClass. This may be helpful for respawning a Pawn by using SpawnPawnFromPendingPawnClass() because
  * the classes calling the SpawnPawnFromPendingPawnClass() don't have to know what the pending pawn is, and SetPendingPawnClass lets
  * classes choose what is spawned next when the time comes.

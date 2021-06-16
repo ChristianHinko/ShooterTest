@@ -14,8 +14,6 @@ void ASSPlayerController::InitPlayerState()
 	// Right after player state gets created.....
 
 	OnPlayerStateValid.Broadcast();
-
-	// This is where you would get any information you need from your PlayerState on the server
 }
 
 void ASSPlayerController::OnRep_PlayerState()
@@ -24,14 +22,13 @@ void ASSPlayerController::OnRep_PlayerState()
 	// Right after player state gets repped
 
 	OnPlayerStateValid.Broadcast();
-
-	// This is where you would get any information you need from your PlayerState on the client
 }
 
 void ASSPlayerController::SetPendingPawnClass(const TSubclassOf<APawn>& NewPawnClass)
 {
 	if (GetLocalRole() < ROLE_Authority)
 	{
+		UE_LOG(LogPlayerControllerSetup, Warning, TEXT("%s() Not allowed to set the pending pawn class on client"), *FString(__FUNCTION__));
 		return;
 	}
 

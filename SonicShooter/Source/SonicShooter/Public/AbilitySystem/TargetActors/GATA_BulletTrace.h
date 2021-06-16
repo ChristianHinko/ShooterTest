@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/TargetActor/TargetActors/GATA_Trace.h"
+#include "TargetActors/GATA_Trace.h"
 #include "BlueprintFunctionLibraries/BFL_CollisionQueryHelpers.h"
 #include "PhysicalMaterial/ShooterPhysicalMaterial.h"
 

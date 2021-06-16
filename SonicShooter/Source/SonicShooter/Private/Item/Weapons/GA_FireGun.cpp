@@ -13,8 +13,8 @@
 #include "Item\Weapons\GunStack.h"
 #include "ArcInventoryItemTypes.h"
 #include "Item\Definitions\ArcItemDefinition_Active.h"
-#include "AbilitySystem/AbilityTasks/AT_Ticker.h"
-#include "AbilitySystem\AbilityTasks\AT_WaitInputRelease.h"
+#include "AbilityTasks/AT_Ticker.h"
+#include "AbilityTasks\AT_WaitInputRelease.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "Kismet/KismetSystemLibrary.h"

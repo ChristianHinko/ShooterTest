@@ -10,3 +10,6 @@
 [submodule "SonicShooter/Plugins/PrototypeAssets"]
 	path = SonicShooter/Plugins/PrototypeAssets
 	url = https://github.com/include-iostream/PrototypeAssets.git
+[submodule "SonicShooter/Plugins/AbilitySystemSetupExtras"]
+	path = SonicShooter/Plugins/AbilitySystemSetupExtras
+	url = https://github.com/brian2524/AbilitySystemSetupExtras.git

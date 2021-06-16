@@ -12,7 +12,7 @@
 #include "Inventory/SSArcInventoryComponent_Active.h"
 #include "ArcItemStack.h"
 #include "AbilitySystem/ASSGameplayAbility.h"
-#include "AbilitySystem/AttributeSets/AS_Health.h"
+#include "AttributeSets/AS_Health.h"
 
 
 
@@ -118,7 +118,7 @@ void AShooterCharacter::GrantStartingAbilities()
 }
 
 #include "Kismet/KismetSystemLibrary.h"
-#include "AbilitySystem/AttributeSets/AS_Health.h"
+#include "AttributeSets/AS_Health.h"
 #include "Item/AS_Ammo.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
 #include "ArcItemBPFunctionLibrary.h"

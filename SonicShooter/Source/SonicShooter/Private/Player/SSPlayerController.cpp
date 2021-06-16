@@ -3,7 +3,6 @@
 
 #include "Player/SSPlayerController.h"
 
-#include "GameFramework/Pawn.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 
 
@@ -11,7 +10,7 @@
 void ASSPlayerController::InitPlayerState()
 {
 	Super::InitPlayerState();
-	// Right after player state gets created.....
+	// Right after Player State gets created
 
 	OnPlayerStateValid.Broadcast();
 }
@@ -19,7 +18,7 @@ void ASSPlayerController::InitPlayerState()
 void ASSPlayerController::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
-	// Right after player state gets repped
+	// Right after Player State gets repped
 
 	OnPlayerStateValid.Broadcast();
 }
@@ -28,7 +27,7 @@ void ASSPlayerController::SetPendingPawnClass(const TSubclassOf<APawn>& NewPawnC
 {
 	if (GetLocalRole() < ROLE_Authority)
 	{
-		UE_LOG(LogPlayerControllerSetup, Warning, TEXT("%s() Not allowed to set the pending pawn class on client"), *FString(__FUNCTION__));
+		UE_LOG(LogPlayerControllerSetup, Warning, TEXT("%s() Not allowed to set the PendingPawnClass on client"), *FString(__FUNCTION__));
 		return;
 	}
 
@@ -45,7 +44,7 @@ APawn* ASSPlayerController::SpawnPawnFromPendingPawnClass()
 
 	if (IsValid(PendingPawnClass))
 	{
-		UE_LOG(LogPlayerControllerSetup, Log, TEXT("%s() Tried spawning Pawn with invalid PawnClass. Spawned no Pawn"), *FString(__FUNCTION__));
+		UE_LOG(LogPlayerControllerSetup, Log, TEXT("%s() Tried spawning Pawn with invalid PendingPawnClass. Spawned no Pawn"), *FString(__FUNCTION__));
 		return nullptr;
 	}
 

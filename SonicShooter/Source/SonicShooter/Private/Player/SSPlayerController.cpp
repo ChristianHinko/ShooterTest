@@ -45,20 +45,11 @@ APawn* ASSPlayerController::SpawnPawnFromPendingInfo()
 		return nullptr;
 	}
 
-#pragma region safety checks
 	if (GetPendingPawnInfo().PawnClass == nullptr)
 	{
-		if (GetPawnInfos().IsValidIndex(0))
-		{
-			UE_LOG(LogPlayerControllerSetup, Error, TEXT("%s() Tried spawning Pawn but PawnInfo is invalid. Will try to spawn first index of PawnInfos array as a fallback."), *FString(__FUNCTION__));
-			SetPendingPawnInfo(GetPawnInfos()[0]);
-			SpawnPawnFromPendingInfo();
-			return nullptr;
-		}
 		UE_LOG(LogPlayerControllerSetup, Error, TEXT("%s() Tried spawning Pawn with invalid PawnInfo. Spawned no Pawn"), *FString(__FUNCTION__));
 		return nullptr;
 	}
-#pragma endregion
 
 
 	FActorSpawnParameters ASP;

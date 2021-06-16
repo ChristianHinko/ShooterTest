@@ -47,9 +47,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void SetPendingPawnInfo(const FPawnInfo& NewPawnInfo);
 
-
-	const TArray<FPawnInfo> GetPawnInfos() const { return PawnInfos; }
-
 	/** Will be null if no Pawn has been selected yet */
 	const FPawnInfo GetPendingPawnInfo() const { return PendingPawnInfo; }
 
@@ -60,9 +57,6 @@ public:
 	FPlayerControllerState OnPlayerStateValid;
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PawnInfo")
-		TArray<FPawnInfo> PawnInfos;
-
 	//BEGIN AController Interface
 	virtual void InitPlayerState() override;	// Server only (rare case for client I think)
 	virtual void OnRep_PlayerState() override;

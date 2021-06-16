@@ -30,15 +30,15 @@ class SONICSHOOTER_API ASSPlayerController : public APlayerController
 
 
 public:
-	/** Set a new Pawn to be active. Can be called on client */
-	UFUNCTION(BlueprintCallable)
-		void SetPendingPawnClass(const TSubclassOf<APawn>& NewPawnClass);
 
 	/** Will be null if no Pawn has been selected yet */
 	TSubclassOf<APawn> GetPendingPawnClass() const { return PendingPawnClass; }
 
-	UFUNCTION(BlueprintCallable)							// blueprint callable for testing =@REVIEW MARKER@=
-		APawn* SpawnPawnFromPendingPawnClass();
+
+	/** Set a new Pawn to be active. Can be called on client */
+	void SetPendingPawnClass(const TSubclassOf<APawn>& NewPawnClass);
+
+	APawn* SpawnPawnFromPendingPawnClass();
 
 
 	FPlayerControllerState OnPlayerStateValid;

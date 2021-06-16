@@ -1,20 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+
 #include "Player/SSPlayerController.h"
 
 #include "GameFramework/Pawn.h"
-#include "Kismet/GameplayStatics.h"
-#include "Game/SSGamemode.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 
 
-
-void ASSPlayerController::BeginPlay()
-{
-	Super::BeginPlay();
-
-	SSGamemode = Cast<ASSGameMode>(UGameplayStatics::GetGameMode(this));
-}
 
 void ASSPlayerController::InitPlayerState()
 {

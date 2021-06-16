@@ -8,9 +8,6 @@
 #include "SSPlayerController.generated.h"
 
 
-class ASSGameMode;
-
-
 
 /**
  * The controller can use this to know when the current Pawn is changed,
@@ -69,12 +66,6 @@ public:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PawnInfo")
 		TArray<FPawnInfo> PawnInfos;
-
-	UPROPERTY()
-		ASSGameMode* SSGamemode;
-
-
-	virtual void BeginPlay() override;
 
 	//BEGIN AController Interface
 	virtual void InitPlayerState() override;	// Server only (rare case for client I think)

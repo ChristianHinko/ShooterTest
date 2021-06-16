@@ -37,8 +37,9 @@ void ASSPlayerController::SetPendingPawnClass(const TSubclassOf<APawn>& NewPawnC
 
 APawn* ASSPlayerController::SpawnPawnFromPendingPawnClass()
 {
-	if (GetLocalRole() < ROLE_Authority) // server only
+	if (GetLocalRole() < ROLE_Authority)
 	{
+		UE_LOG(LogPlayerControllerSetup, Warning, TEXT("%s() Client tried to SpawnPawnFromPendingPawnClass. Refused to do anything"), *FString(__FUNCTION__));
 		return nullptr;
 	}
 

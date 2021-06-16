@@ -48,7 +48,6 @@ void ASSPlayerController::SetPendingPawnInfo(const FPawnInfo& NewPawnInfo)
 	}
 
 	PendingPawnInfo = NewPawnInfo;
-	OnPendingPawnInfoChange.Broadcast();
 }
 
 APawn* ASSPlayerController::SpawnPawnFromPendingInfo()

@@ -17,7 +17,6 @@ class ASSGameMode;
  * The controller can use this to know when the current Pawn is changed,
  * and recreate or modify its pawn as needed (by calling UpdatePawn())
  */
-DECLARE_MULTICAST_DELEGATE(FPawnInfoChange);
 DECLARE_MULTICAST_DELEGATE(FPlayerControllerState);
 
 
@@ -51,9 +50,6 @@ public:
 	/** Set a new Pawn to be active. Can be called on client */
 	UFUNCTION(BlueprintCallable)
 		void SetPendingPawnInfo(const FPawnInfo& NewPawnInfo);
-
-	/** On pending pawn info change delegate */
-	FPawnInfoChange OnPendingPawnInfoChange;
 
 
 	const TArray<FPawnInfo> GetPawnInfos() const { return PawnInfos; }

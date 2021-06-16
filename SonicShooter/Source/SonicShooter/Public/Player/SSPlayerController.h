@@ -4,12 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "SSPlayerState.h"
 
 #include "SSPlayerController.generated.h"
-
-
-class ASSGameMode;
 
 
 
@@ -66,9 +62,6 @@ public:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PawnInfo")
 		TArray<FPawnInfo> PawnInfos;
-
-	UPROPERTY(Replicated)
-		ASSPlayerState* SSPlayerState;
 
 	//BEGIN AController Interface
 	virtual void InitPlayerState() override;	// Server only (rare case for client I think)

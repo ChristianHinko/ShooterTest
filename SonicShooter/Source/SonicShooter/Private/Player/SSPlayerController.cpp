@@ -1,32 +1,21 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+
 #include "Player/SSPlayerController.h"
 
-#include "Net/UnrealNetwork.h"
-#include "Player/SSPlayerState.h"
 #include "GameFramework/Pawn.h"
-#include "Kismet/GameplayStatics.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 
 
-
-void ASSPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-
-	DOREPLIFETIME_CONDITION(ASSPlayerController, SSPlayerState, COND_OwnerOnly);
-}
 
 void ASSPlayerController::InitPlayerState()
 {
 	Super::InitPlayerState();
 	// Right after player state gets created.....
 
-	SSPlayerState = Cast<ASSPlayerState>(PlayerState);
-	// This is where you would get any information you need from your PlayerState on the server
-
 	OnPlayerStateValid.Broadcast();
+
+	// This is where you would get any information you need from your PlayerState on the server
 }
 
 void ASSPlayerController::OnRep_PlayerState()
@@ -34,10 +23,9 @@ void ASSPlayerController::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 	// Right after player state gets repped
 
-	SSPlayerState = Cast<ASSPlayerState>(PlayerState);
-	// This is where you would get any information you need from your PlayerState on the client
-
 	OnPlayerStateValid.Broadcast();
+
+	// This is where you would get any information you need from your PlayerState on the client
 }
 
 void ASSPlayerController::SetPendingPawnInfo(const FPawnInfo& NewPawnInfo)

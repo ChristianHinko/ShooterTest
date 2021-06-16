@@ -83,7 +83,6 @@ protected:
 	//BEGIN AController Interface
 	virtual void InitPlayerState() override;	// Server only (rare case for client I think)
 	virtual void OnRep_PlayerState() override;
-	virtual void OnPossess(APawn* P) override;
 	//END AController Interface
 
 private:

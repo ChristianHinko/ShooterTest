@@ -49,19 +49,6 @@ void ASSPlayerController::OnRep_PlayerState()
 	OnPlayerStateValid.Broadcast();
 }
 
-void ASSPlayerController::OnPossess(APawn* P)
-{
-	Super::OnPossess(P);
-
-
-	ASSPlayerState* PS = GetPlayerState<ASSPlayerState>();
-	if (PS)
-	{
-		// This will be called from the Pawn in APawn::PossessedBy() and OnRep_PlayerState(). Just doing it here too just to make sure it gets init
-		PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, P);
-	}
-}
-
 void ASSPlayerController::SetPendingPawnInfo(const FPawnInfo& NewPawnInfo)
 {
 	if (GetLocalRole() < ROLE_Authority)

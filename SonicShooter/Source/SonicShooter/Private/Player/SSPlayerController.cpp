@@ -6,7 +6,6 @@
 #include "Player/SSPlayerState.h"
 #include "GameFramework/Pawn.h"
 #include "Kismet/GameplayStatics.h"
-#include "Game/SSGamemode.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 
 
@@ -17,14 +16,6 @@ void ASSPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 
 
 	DOREPLIFETIME_CONDITION(ASSPlayerController, SSPlayerState, COND_OwnerOnly);
-}
-
-
-void ASSPlayerController::BeginPlay()
-{
-	Super::BeginPlay();
-
-	SSGamemode = Cast<ASSGameMode>(UGameplayStatics::GetGameMode(this));
 }
 
 void ASSPlayerController::InitPlayerState()

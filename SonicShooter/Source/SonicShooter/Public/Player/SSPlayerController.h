@@ -71,14 +71,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PawnInfo")
 		TArray<FPawnInfo> PawnInfos;
 
-	UPROPERTY()
-		ASSGameMode* SSGamemode;
-
 	UPROPERTY(Replicated)
 		ASSPlayerState* SSPlayerState;
-
-
-	virtual void BeginPlay() override;
 
 	//BEGIN AController Interface
 	virtual void InitPlayerState() override;	// Server only (rare case for client I think)

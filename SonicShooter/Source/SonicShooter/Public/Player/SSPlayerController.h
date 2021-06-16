@@ -9,10 +9,6 @@
 
 
 
-/**
- * The controller can use this to know when the current Pawn is changed,
- * and recreate or modify its pawn as needed (by calling UpdatePawn())
- */
 DECLARE_MULTICAST_DELEGATE(FPlayerControllerState);
 
 

@@ -13,11 +13,10 @@ DECLARE_MULTICAST_DELEGATE(FPlayerControllerStatus);
 
 
 /**
- * Base Player Controller.
+ * Not enough functionality yet to be considered useful. If we are going to make this a plugin we should think of more features to put in it like maybe integrate it with ArcTeams plugin
  * Has the concept of a PendingPawnClass. This may be helpful for respawning a Pawn by using SpawnPawnFromPendingPawnClass() because
- * the Player Controller doesn't have to know what he is respawning. If a Player decides to change their next character to play as next
- * time they spawn, you can call SetPendingPawnClass() to do so.
- * (This is just really an idea and is not tested) (may actually be a bad system idk)
+ * the classes calling the SpawnPawnFromPendingPawnClass() don't have to know what the pending pawn is, and SetPendingPawnClass lets
+ * classes choose what is spawned next when the time comes.
  */
 UCLASS()
 class SONICSHOOTER_API ASSPlayerController : public APlayerController

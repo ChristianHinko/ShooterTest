@@ -21,7 +21,7 @@ class ASSPlayerController;
 
 /**
  * Base User Widget class.
- *
+ * 
  * Has ability to listen to ASC events
  */
 UCLASS()

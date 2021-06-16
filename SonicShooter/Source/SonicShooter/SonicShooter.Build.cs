@@ -18,11 +18,12 @@ public class SonicShooter : ModuleRules
 				"GameplayTasks",
 				"NetCore", // for push model
 				"AbilitySystemSetup",
+				"AbilitySystemSetupExtras",
+				"HelperLibraries",
+				"PropertyWrapper",
 				"AutoSettings",
 				"ArcInventory",
 				"ArcTeams",
-				"PropertyWrapper",
-				"HelperLibraries",
 				"MoveIt"
 			}
 		);

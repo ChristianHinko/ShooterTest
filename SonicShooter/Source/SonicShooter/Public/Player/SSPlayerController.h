@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "SSPlayerState.h"
 
 #include "SSPlayerController.generated.h"
 
@@ -73,9 +72,6 @@ protected:
 
 	UPROPERTY()
 		ASSGameMode* SSGamemode;
-
-	UPROPERTY(Replicated)
-		ASSPlayerState* SSPlayerState;
 
 
 	virtual void BeginPlay() override;

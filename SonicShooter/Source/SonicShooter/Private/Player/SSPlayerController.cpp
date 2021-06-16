@@ -43,9 +43,9 @@ APawn* ASSPlayerController::SpawnPawnFromPendingPawnClass()
 		return nullptr;
 	}
 
-	if (PendingPawnClass == nullptr)
+	if (IsValid(PendingPawnClass))
 	{
-		UE_LOG(LogPlayerControllerSetup, Error, TEXT("%s() Tried spawning Pawn with invalid PawnClass. Spawned no Pawn"), *FString(__FUNCTION__));
+		UE_LOG(LogPlayerControllerSetup, Log, TEXT("%s() Tried spawning Pawn with invalid PawnClass. Spawned no Pawn"), *FString(__FUNCTION__));
 		return nullptr;
 	}
 

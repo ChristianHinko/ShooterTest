@@ -16,25 +16,12 @@
 DECLARE_MULTICAST_DELEGATE(FPlayerControllerState);
 
 
-/**
- *  This should store the info for a Pawn. A player may switch Pawns by
- *  calling SetPendingPawnInfo(FPawnInfo NewPawnInfo), and then calling UpdatePawn().
- */
-USTRUCT(BlueprintType)
-struct FPawnInfo // do we actually need this?
-{
-	GENERATED_USTRUCT_BODY()
 
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PawnInfo")
-		TSubclassOf<APawn> PawnClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PawnInfo")
-		FString Name;
-};
 
 /**
  * Base Player Controller
+ * This stores the info for a pending pawn. A player may switch Pawns by
+ * calling SetPendingPawnClass(FPawnClass NewPawnClass), and then calling UpdatePawn().
  */
 UCLASS()
 class SONICSHOOTER_API ASSPlayerController : public APlayerController
@@ -45,13 +32,13 @@ class SONICSHOOTER_API ASSPlayerController : public APlayerController
 public:
 	/** Set a new Pawn to be active. Can be called on client */
 	UFUNCTION(BlueprintCallable)
-		void SetPendingPawnInfo(const FPawnInfo& NewPawnInfo);
+		void SetPendingPawnClass(const TSubclassOf<APawn>& NewPawnClass);
 
 	/** Will be null if no Pawn has been selected yet */
-	const FPawnInfo GetPendingPawnInfo() const { return PendingPawnInfo; }
+	TSubclassOf<APawn> GetPendingPawnClass() const { return PendingPawnClass; }
 
 	UFUNCTION(BlueprintCallable)							// blueprint callable for testing =@REVIEW MARKER@=
-		APawn* SpawnPawnFromPendingInfo();
+		APawn* SpawnPawnFromPendingPawnClass();
 
 
 	FPlayerControllerState OnPlayerStateValid;
@@ -63,5 +50,5 @@ protected:
 	//END AController Interface
 
 private:
-	FPawnInfo PendingPawnInfo;
+	TSubclassOf<APawn> PendingPawnClass;
 };

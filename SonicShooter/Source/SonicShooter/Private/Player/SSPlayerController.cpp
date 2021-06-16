@@ -28,26 +28,26 @@ void ASSPlayerController::OnRep_PlayerState()
 	// This is where you would get any information you need from your PlayerState on the client
 }
 
-void ASSPlayerController::SetPendingPawnInfo(const FPawnInfo& NewPawnInfo)
+void ASSPlayerController::SetPendingPawnClass(const TSubclassOf<APawn>& NewPawnClass)
 {
 	if (GetLocalRole() < ROLE_Authority)
 	{
 		return;
 	}
 
-	PendingPawnInfo = NewPawnInfo;
+	PendingPawnClass = NewPawnClass;
 }
 
-APawn* ASSPlayerController::SpawnPawnFromPendingInfo()
+APawn* ASSPlayerController::SpawnPawnFromPendingPawnClass()
 {
 	if (GetLocalRole() < ROLE_Authority) // server only
 	{
 		return nullptr;
 	}
 
-	if (GetPendingPawnInfo().PawnClass == nullptr)
+	if (PendingPawnClass == nullptr)
 	{
-		UE_LOG(LogPlayerControllerSetup, Error, TEXT("%s() Tried spawning Pawn with invalid PawnInfo. Spawned no Pawn"), *FString(__FUNCTION__));
+		UE_LOG(LogPlayerControllerSetup, Error, TEXT("%s() Tried spawning Pawn with invalid PawnClass. Spawned no Pawn"), *FString(__FUNCTION__));
 		return nullptr;
 	}
 
@@ -56,5 +56,5 @@ APawn* ASSPlayerController::SpawnPawnFromPendingInfo()
 	ASP.Owner = this;
 	ASP.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-	return GetWorld()->SpawnActor<APawn>(GetPendingPawnInfo().PawnClass, ASP);	//Spawn new character as NewCharacter
+	return GetWorld()->SpawnActor<APawn>(PendingPawnClass, ASP);
 }

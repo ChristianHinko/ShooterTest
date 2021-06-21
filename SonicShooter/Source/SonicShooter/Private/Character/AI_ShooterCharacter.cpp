@@ -3,8 +3,10 @@
 
 #include "Character\AI_ShooterCharacter.h"
 
-#include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Character/ShooterCharacter.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 
@@ -28,13 +30,29 @@ void UAI_ShooterCharacter::NativeInitializeAnimation()
 	Super::NativeInitializeAnimation();
 
 
-	OwningShooterCharacter = Cast<AShooterCharacter>(TryGetPawnOwner());
+	OwningCharacter = Cast<ACharacter>(TryGetPawnOwner());
+	OwningShooterCharacter = Cast<AShooterCharacter>(OwningCharacter);
 }
 void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 {
 	Super::NativeUpdateAnimation(DeltaTimeX);
 
 	
+	if (OwningCharacter)
+	{
+		// Update movement variables
+		if (UCharacterMovementComponent* CMC = OwningCharacter->GetCharacterMovement())
+		{
+			bGrounded = CMC->IsMovingOnGround();
+			bInAir = CMC->IsFalling();
+			bIsFlying = CMC->IsFlying();
+			bIsSwimming = CMC->IsSwimming();
+
+			bIsCrouching = CMC->IsCrouching();
+		}
+	}
+
+
 	if (OwningShooterCharacter)
 	{
 		headLookAtRot = GetHeadLookAtTargetRot(OwningShooterCharacter->GetNearestPawn(), DeltaTimeX);

@@ -4,9 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Character/SSAnimInstance.h"
+
 #include "AI_ShooterCharacter.generated.h"
 
 
+class ACharacter;
 class AShooterCharacter;
 
 
@@ -28,7 +30,19 @@ protected:
 	virtual void NativeUpdateAnimation(float DeltaTimeX) override;
 
 
+	ACharacter* OwningCharacter;
 	AShooterCharacter* OwningShooterCharacter;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character")
+		uint8 bGrounded : 1;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character")
+		uint8 bInAir : 1;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character")
+		uint8 bIsFlying : 1;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character")
+		uint8 bIsSwimming : 1;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character")
+		uint8 bIsCrouching : 1;
 
 #pragma region HeadTurning
 	UPROPERTY(BlueprintReadOnly)

@@ -36,10 +36,23 @@ protected:
 	AShooterCharacter* OwningShooterCharacter;
 
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character")
+	/** Current velocity of the owning Actor */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Actor")
 		FVector Velocity;
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character")
+	/** Current speed of the owning Actor */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Actor")
 		float Speed;
+
+	/** Current relative forward speed of the owning Actor */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Actor")
+		float ForwardSpeed;
+	/** Current relative right speed of the owning Actor */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Actor")
+		float RightSpeed;
+	/** Current relative up speed of the owning Actor */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Actor")
+		float UpSpeed;
+
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character")
 		uint8 bGrounded : 1;

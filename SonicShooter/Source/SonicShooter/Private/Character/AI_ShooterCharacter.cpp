@@ -8,6 +8,8 @@
 #include "Character/ShooterCharacter.h"
 #include "Kismet/KismetMathLibrary.h"
 
+#include "Kismet/KismetSystemLibrary.h"
+
 
 
 UAI_ShooterCharacter::UAI_ShooterCharacter(const FObjectInitializer& ObjectInitializer)
@@ -43,8 +45,15 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 	if (OwningActor)
 	{
 		Velocity = OwningActor->GetVelocity();
+		Speed = Velocity.Size();
+
+		ForwardSpeed = Velocity.ProjectOnTo(OwningActor->GetActorForwardVector()).Size();
+		RightSpeed = Velocity.ProjectOnTo(OwningActor->GetActorRightVector()).Size();
+		UpSpeed = Velocity.ProjectOnTo(OwningActor->GetActorUpVector()).Size();
+
+		//HorizontalSpeed = Velocity.ProjectOnToNormal(UpVector).Size(); // doesnt work some reason
+		//HorizontalSpeed = FMath::Sqrt(FMath::Square(ForwardSpeed) + FMath::Square(RightSpeed)); // is expensive
 	}
-	Speed = Velocity.Size();
 
 	if (OwningCharacter)
 	{

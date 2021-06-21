@@ -33,6 +33,9 @@ protected:
 		TSubclassOf<UGameplayEffect> IsFireingGunEffectTSub;
 	FActiveGameplayEffectHandle IsFireingGunEffectActiveHandle;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+		UAnimMontage* ShootMontage;
+
 	// Used to give each fire a unique random seed since machine guns only have 1 prediction key across fires
 	int32 shotNumber;
 
@@ -71,6 +74,8 @@ protected:
 		void OnValidData(const FGameplayAbilityTargetDataHandle& Data);
 	UFUNCTION()
 		void OnCancelled(const FGameplayAbilityTargetDataHandle& Data);
+
+
 
 private:
 	int32 timesBursted; // we could get the current burst by % modding shotNumber by NumShotsPerBurst but i think this would be less reliable: what if they cancel a burst and don't shoot all of the burst. Or what if NumShotsPerBurst changes while shooting

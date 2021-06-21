@@ -5,4 +5,8 @@
 
 
 
+USSAnimInstance::USSAnimInstance(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
 
+}

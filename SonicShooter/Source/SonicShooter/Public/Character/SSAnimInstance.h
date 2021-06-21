@@ -17,4 +17,17 @@ class SONICSHOOTER_API USSAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 
+public:
+	USSAnimInstance(const FObjectInitializer& ObjectInitializer);
+
+protected:
+	virtual bool PCV_ShouldWarnAboutNodesNotUsingFastPath() const override
+	{
+		return true;
+	}
+	virtual bool PCV_ShouldNotifyAboutNodesNotUsingFastPath() const override
+	{
+		return true;
+	}
+
 };

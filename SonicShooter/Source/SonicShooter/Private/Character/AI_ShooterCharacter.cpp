@@ -6,7 +6,10 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Character/ShooterCharacter.h"
 
-UAI_ShooterCharacter::UAI_ShooterCharacter()
+
+
+UAI_ShooterCharacter::UAI_ShooterCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	headLookAtRot = FRotator::ZeroRotator;
 	headLookSpeed = 3;
@@ -20,11 +23,17 @@ UAI_ShooterCharacter::UAI_ShooterCharacter()
 
 }
 
+void UAI_ShooterCharacter::NativeInitializeAnimation()
+{
+	Super::NativeInitializeAnimation();
+
+
+	OwningShooterCharacter = Cast<AShooterCharacter>(TryGetPawnOwner());
+}
 void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 {
 	Super::NativeUpdateAnimation(DeltaTimeX);
 
-	OwningShooterCharacter = Cast<AShooterCharacter>(TryGetPawnOwner());
 	
 	if (OwningShooterCharacter)
 	{

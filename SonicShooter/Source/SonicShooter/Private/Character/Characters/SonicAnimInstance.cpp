@@ -2,10 +2,14 @@
 
 
 #include "Character/Characters/SonicAnimInstance.h"
+
 #include "Character/ShooterCharacter.h"
 #include "Kismet/KismetMathLibrary.h"
 
-USonicAnimInstance::USonicAnimInstance()
+
+
+USonicAnimInstance::USonicAnimInstance(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	LookTarget = nullptr;
 	LeftEyelookRot = FRotator::ZeroRotator;
@@ -29,7 +33,6 @@ void USonicAnimInstance::NativeInitializeAnimation()
 		LEyeDynamicMat = SkelMesh->CreateDynamicMaterialInstance(6);
 	}
 }
-
 void USonicAnimInstance::NativeUpdateAnimation(float DeltaTimeX)
 {
 	Super::NativeUpdateAnimation(DeltaTimeX);
@@ -115,4 +118,3 @@ FRotator USonicAnimInstance::Look(FName boneName, AActor* lookTarget, float delt
 
 	return smoothedLookRot;
 }
-

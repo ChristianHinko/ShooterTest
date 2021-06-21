@@ -30,7 +30,9 @@ void UAI_ShooterCharacter::NativeInitializeAnimation()
 	Super::NativeInitializeAnimation();
 
 
-	OwningCharacter = Cast<ACharacter>(TryGetPawnOwner());
+	OwningActor = GetOwningActor();
+	OwningPawn = Cast<APawn>(OwningActor);
+	OwningCharacter = Cast<ACharacter>(OwningPawn);
 	OwningShooterCharacter = Cast<AShooterCharacter>(OwningCharacter);
 }
 void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
@@ -38,6 +40,12 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 	Super::NativeUpdateAnimation(DeltaTimeX);
 
 	
+	if (OwningActor)
+	{
+		Velocity = OwningActor->GetVelocity();
+	}
+	Speed = Velocity.Size();
+
 	if (OwningCharacter)
 	{
 		// Update movement variables
@@ -51,6 +59,7 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 			bIsCrouching = CMC->IsCrouching();
 		}
 	}
+
 
 
 	if (OwningShooterCharacter)

@@ -30,8 +30,16 @@ protected:
 	virtual void NativeUpdateAnimation(float DeltaTimeX) override;
 
 
+	AActor* OwningActor;
+	APawn* OwningPawn;
 	ACharacter* OwningCharacter;
 	AShooterCharacter* OwningShooterCharacter;
+
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character")
+		FVector Velocity;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character")
+		float Speed;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character")
 		uint8 bGrounded : 1;

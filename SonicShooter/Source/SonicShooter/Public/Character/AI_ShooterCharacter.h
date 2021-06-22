@@ -53,6 +53,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Actor")
 		float UpSpeed;
 
+	/** Current yaw rotation of our velocity (from -180 degs to 180 degs) */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Actor")
+		float Direction;
+
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character")
 		uint8 bGrounded : 1;

@@ -53,6 +53,8 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 
 		//HorizontalSpeed = Velocity.ProjectOnToNormal(UpVector).Size(); // doesnt work some reason
 		//HorizontalSpeed = FMath::Sqrt(FMath::Square(ForwardSpeed) + FMath::Square(RightSpeed)); // is expensive
+
+		Direction = CalculateDirection(Velocity, OwningActor->GetActorRotation()); // TODO: make sure this is relative to the actor's rotation
 	}
 
 	if (OwningCharacter)

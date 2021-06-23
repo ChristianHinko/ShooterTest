@@ -15,6 +15,7 @@
 #include "Item\Definitions\ArcItemDefinition_Active.h"
 #include "AbilityTasks/AT_Ticker.h"
 #include "AbilityTasks\AT_WaitInputRelease.h"
+#include "AbilityTasks\AT_WaitInputPress.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -186,6 +187,14 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		}
 	}
 
+	UAT_WaitInputPress* WaitInputPressTask = UAT_WaitInputPress::WaitInputPress(this);
+	if (!WaitInputPressTask)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputPressTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), *FString(__FUNCTION__));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		return;
+	}
+
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
@@ -202,7 +211,10 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		UE_LOG(LogGameplayAbility, Warning, TEXT("IsFireingGunEffectTSub TSubclassOf empty in %s"), *FString(__FUNCTION__));
 	}
 
-
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	WaitInputPressTask->OnPress.AddDynamic(this, &UGA_FireGun::OnPress);
+	WaitInputPressTask->ReadyForActivation();
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	if (GunAttributeSet->GetbFullAuto() == 0) // semi-auto
 	{
@@ -365,10 +377,17 @@ void UGA_FireGun::Shoot()
 
 
 
+void UGA_FireGun::OnPress(float TimeWaited)
+{
+	int testBreakpoint = 3;
+}
 void UGA_FireGun::OnRelease(float TimeHeld)
 {
-	// When a machine gun stops shooting
-	TickerTask->EndTask();
+	
+	if (GunAttributeSet->GetNumShotsPerBurst() <= 1)	// If we aren't a burst shot gun (like a FAMAS)
+	{
+		TickerTask->EndTask();
+	}
 }
 
 void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)

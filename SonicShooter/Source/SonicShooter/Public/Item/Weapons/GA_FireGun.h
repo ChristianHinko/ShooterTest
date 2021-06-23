@@ -71,6 +71,8 @@ protected:
 		void OnShootTick(float DeltaTime, float CurrentTime, float TimeRemaining);
 
 	UFUNCTION()
+		void OnPress(float TimeWaited);
+	UFUNCTION()
 		void OnRelease(float TimeHeld);
 	UFUNCTION()
 		void OnValidData(const FGameplayAbilityTargetDataHandle& Data);

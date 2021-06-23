@@ -58,6 +58,14 @@ protected:
 		float Direction;
 
 
+	/** Amount of Pitch that our Control Rotation differs from our Actor Rotation */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn")
+		float AimPitch;
+	/** Amount of Yaw that our Control Rotation differs from our Actor Rotation */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn")
+		float AimYaw;
+
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character")
 		uint8 bGrounded : 1;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character")

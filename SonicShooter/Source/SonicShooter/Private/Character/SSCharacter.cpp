@@ -92,7 +92,7 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	// Set default arm length for third person mode
-	thirdPersonCameraArmLength = 300.f;
+	ThirdPersonCameraArmLength = 300.f;
 
 	// Default to first person
 	bFirstPerson = true;
@@ -103,39 +103,47 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 		GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 	}
 
-	crouchSpeed = 100.f;
+	CrouchSpeed = 100.f;
 
 	bToggleRunAlwaysRun = false;
 }
-//void ASSCharacter::PostInitProperties()
-//{
-//	Super::PostInitProperties();
-//
-//
-//	// Theses aren't working right yet some reason:
-//
-//	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * -1));
-//
-//	POVMesh->SetRelativeLocation(GetMesh()->GetRelativeLocation() + FVector(-25.f, 0.f, 0.f));
-//	POVMesh->SetRelativeRotation(GetMesh()->GetRelativeRotation());
-//	POVMesh->SetRelativeScale3D(GetMesh()->GetRelativeScale3D());
-//}
+void ASSCharacter::PostInitProperties()
+{
+	Super::PostInitProperties();
+
+	// Set our configuration for this first/third person mode
+	SetFirstPerson(bFirstPerson);
+}
+#if WITH_EDITOR
+void ASSCharacter::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+
+	GetMesh()->SetRelativeLocation(FVector(0, 0, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * -1));
+	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+	GetMesh()->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
+
+	POVMesh->SetRelativeLocation(GetMesh()->GetRelativeLocation() + FVector(-25.f, 0.f, 0.f));
+	POVMesh->SetRelativeRotation(GetMesh()->GetRelativeRotation());
+	POVMesh->SetRelativeScale3D(GetMesh()->GetRelativeScale3D());
+
+
+	//// Set our configuration for this first/third person mode
+	//SetFirstPerson(bFirstPerson);
+
+}
+#endif
 
 void ASSCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	// Set our configuration for this first/third person mode
-	SetFirstPerson(bFirstPerson);
-}
-
-void ASSCharacter::BeginPlay()
-{
-	Super::BeginPlay();
 
 	CrouchTickFunction.Target = this;
 	CrouchTickFunction.RegisterTickFunction(GetLevel());
 }
+
 
 void ASSCharacter::CreateAttributeSets()
 {
@@ -203,7 +211,7 @@ void ASSCharacter::SetFirstPerson(bool newFirstPerson)
 
 		// First person, so hide mesh but still see the shadow
 		GetMesh()->SetOwnerNoSee(true);
-		GetMesh()->bCastHiddenShadow = true; // We still want the shadow from the normal mesh (this casts shadow even when hidden)
+		GetMesh()->bCastHiddenShadow = true; // we still want the shadow from the normal mesh (this casts shadow even when hidden)
 
 		// First person, so show POV mesh
 		POVMesh->SetVisibility(true/*, true*/);
@@ -224,7 +232,7 @@ void ASSCharacter::SetFirstPerson(bool newFirstPerson)
 		POVMesh->SetVisibility(false/*, true*/);
 
 		// Configure CameraBoom arm length for third person
-		GetCameraBoom()->TargetArmLength = thirdPersonCameraArmLength;
+		GetCameraBoom()->TargetArmLength = ThirdPersonCameraArmLength;
 	}
 
 	bFirstPerson = newFirstPerson;
@@ -510,7 +518,7 @@ void ASSCharacter::CrouchTick(float DeltaTime)
 	float interpedHeight;
 	if (SSCharacterMovementComponent->GetToggleCrouchEnabled()) // toggle crouch feels better with a linear interp
 	{
-		interpedHeight = FMath::FInterpConstantTo(crouchFromHeight, crouchToHeight, DeltaTime, crouchSpeed);
+		interpedHeight = FMath::FInterpConstantTo(crouchFromHeight, crouchToHeight, DeltaTime, CrouchSpeed);
 
 		if (interpedHeight == crouchToHeight)
 		{
@@ -520,7 +528,7 @@ void ASSCharacter::CrouchTick(float DeltaTime)
 	}
 	else // hold to crouch feels better with a smooth interp
 	{
-		interpedHeight = FMath::FInterpTo(crouchFromHeight, crouchToHeight, DeltaTime, crouchSpeed / 10);
+		interpedHeight = FMath::FInterpTo(crouchFromHeight, crouchToHeight, DeltaTime, CrouchSpeed / 10);
 
 		if (FMath::IsNearlyEqual(interpedHeight, crouchToHeight, KINDA_SMALL_NUMBER * 100))
 		{

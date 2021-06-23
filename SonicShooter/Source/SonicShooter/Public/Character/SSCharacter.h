@@ -134,10 +134,11 @@ public:
 	bool GetFirstPerson() const { return bFirstPerson; }
 
 	/** Sets bFirstPerson and changes all of the necessary properties to switch to TP/FP. */
-	void SetFirstPerson(bool newFirstPerson);
+	UFUNCTION(Exec)
+		void SetFirstPerson(bool newFirstPerson);
 
 	UPROPERTY(EditAnywhere, Category = "First Person")
-		float thirdPersonCameraArmLength;
+		float ThirdPersonCameraArmLength;
 
 	float GetForwardInputAxis() const { return forwardInputAxis; }
 	float GetRightInputAxis() const { return rightInputAxis; }
@@ -161,9 +162,11 @@ public:
 	APawn* GetNearestPawn();
 
 protected:
-	//virtual void PostInitProperties() override;
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
+	virtual void PostInitProperties() override;
 	virtual void PostInitializeComponents() override;
-	virtual void BeginPlay() override;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
@@ -185,7 +188,7 @@ protected:
 	UFUNCTION()
 		virtual void OnRep_IsRunning();
 
-	float crouchSpeed;
+	float CrouchSpeed;
 
 	FCrouchTickFunction CrouchTickFunction;
 	//FCrouchTickFunction& GetCrouchTickFunction() const { return CrouchTickFunction; }

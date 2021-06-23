@@ -161,6 +161,9 @@ public:
 	APawn* GetNearestPawn();
 
 protected:
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
 	virtual void PostInitProperties() override;
 	virtual void PostInitializeComponents() override;
 

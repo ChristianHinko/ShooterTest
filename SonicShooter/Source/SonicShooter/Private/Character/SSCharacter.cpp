@@ -111,19 +111,30 @@ void ASSCharacter::PostInitProperties()
 {
 	Super::PostInitProperties();
 
-
 	// Set our configuration for this first/third person mode
 	SetFirstPerson(bFirstPerson);
-
-
-	// Theses aren't working right yet some reason:
-
-	//GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * -1));
-
-	//POVMesh->SetRelativeLocation(GetMesh()->GetRelativeLocation() + FVector(-25.f, 0.f, 0.f));
-	//POVMesh->SetRelativeRotation(GetMesh()->GetRelativeRotation());
-	//POVMesh->SetRelativeScale3D(GetMesh()->GetRelativeScale3D());
 }
+#if WITH_EDITOR
+void ASSCharacter::PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+
+	GetMesh()->SetRelativeLocation(FVector(0, 0, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * -1));
+	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+	GetMesh()->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
+
+	POVMesh->SetRelativeLocation(GetMesh()->GetRelativeLocation() + FVector(-25.f, 0.f, 0.f));
+	POVMesh->SetRelativeRotation(GetMesh()->GetRelativeRotation());
+	POVMesh->SetRelativeScale3D(GetMesh()->GetRelativeScale3D());
+
+
+	//// Set our configuration for this first/third person mode
+	//SetFirstPerson(bFirstPerson);
+
+}
+#endif
+
 void ASSCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();

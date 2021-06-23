@@ -18,7 +18,9 @@ class UAT_Ticker;
 
 
 /**
- * 
+ * Notes:
+ *	This seems to be overall a really good implementation, however, we are creating a PlayMontageAndWait task every shot and playing the shoot montage, which may
+ *	become a problem over the network with fast rate of fire guns such at the Vector from MW2. We could maybe optimize what we send over the network if we want to later.
  */
 UCLASS()
 class SONICSHOOTER_API UGA_FireGun : public UASSGameplayAbility
@@ -74,6 +76,12 @@ protected:
 		void OnValidData(const FGameplayAbilityTargetDataHandle& Data);
 	UFUNCTION()
 		void OnCancelled(const FGameplayAbilityTargetDataHandle& Data);
+
+#pragma region Animation
+	UFUNCTION()
+		void OnShootMontageCompleted();
+#pragma endregion
+
 
 
 

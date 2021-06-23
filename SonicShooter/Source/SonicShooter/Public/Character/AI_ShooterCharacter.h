@@ -9,6 +9,7 @@
 
 
 class ACharacter;
+class ASSCharacter;
 class AShooterCharacter;
 
 
@@ -33,6 +34,7 @@ protected:
 	AActor* OwningActor;
 	APawn* OwningPawn;
 	ACharacter* OwningCharacter;
+	ASSCharacter* OwningSSCharacter;
 	AShooterCharacter* OwningShooterCharacter;
 
 

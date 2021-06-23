@@ -39,6 +39,9 @@ protected:
 	virtual void OnRep_PlayerState() override;
 	//END AController Interface
 
+	virtual void EndPlayingState() override;
+
+
 private:
 	TSubclassOf<APawn> PendingPawnClass;
 

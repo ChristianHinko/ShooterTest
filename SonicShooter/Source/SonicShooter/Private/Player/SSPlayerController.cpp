@@ -23,6 +23,16 @@ void ASSPlayerController::OnRep_PlayerState()
 	OnPlayerStateValid.Broadcast();
 }
 
+void ASSPlayerController::EndPlayingState()
+{
+	Super::EndPlayingState();
+
+	//if (ASSCharacter* SSCharacter = Cast<ASSCharacter>(GetPawn()))
+	//{
+	//	SSCharacter->SetRemoteViewYaw(0.f);
+	//}
+}
+
 void ASSPlayerController::SetPendingPawnClass(const TSubclassOf<APawn>& NewPawnClass)
 {
 	if (GetLocalRole() < ROLE_Authority)
@@ -33,7 +43,6 @@ void ASSPlayerController::SetPendingPawnClass(const TSubclassOf<APawn>& NewPawnC
 
 	PendingPawnClass = NewPawnClass;
 }
-
 APawn* ASSPlayerController::SpawnPawnFromPendingPawnClass()
 {
 	if (GetLocalRole() < ROLE_Authority)

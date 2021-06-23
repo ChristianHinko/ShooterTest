@@ -34,6 +34,7 @@ void ASSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 
 
 	DOREPLIFETIME_CONDITION(ASSCharacter, bIsRunning, COND_SimulatedOnly);
+	DOREPLIFETIME_CONDITION(ASSCharacter, RemoteViewYaw, COND_SkipOwner);
 
 	DOREPLIFETIME(ASSCharacter, CharacterMovementAttributeSet);
 	DOREPLIFETIME(ASSCharacter, StaminaAttributeSet);
@@ -144,6 +145,16 @@ void ASSCharacter::PostInitializeComponents()
 	CrouchTickFunction.RegisterTickFunction(GetLevel());
 }
 
+void ASSCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker)
+{
+	Super::PreReplication(ChangedPropertyTracker);
+
+	if (GetLocalRole() == ROLE_Authority && GetController())
+	{
+		SetRemoteViewYaw(GetController()->GetControlRotation().Yaw);
+	}
+}
+
 
 void ASSCharacter::CreateAttributeSets()
 {
@@ -236,6 +247,32 @@ void ASSCharacter::SetFirstPerson(bool newFirstPerson)
 	}
 
 	bFirstPerson = newFirstPerson;
+}
+
+void ASSCharacter::SetRemoteViewYaw(float NewRemoteViewYaw)
+{
+	// Compress yaw to 1 byte
+	NewRemoteViewYaw = FRotator::ClampAxis(NewRemoteViewYaw);
+	RemoteViewYaw = (uint8)(NewRemoteViewYaw * 255.f / 360.f);
+}
+FRotator ASSCharacter::GetBaseAimRotation() const
+{
+	FRotator POVRot = Super::GetBaseAimRotation();
+	
+
+	if (Controller != nullptr && !InFreeCam())
+	{
+		return POVRot;
+	}
+
+	//// If our Yaw is 0, then use a replicated view yaw
+	//if (FMath::IsNearlyZero(POVRot.Yaw))
+	{
+		POVRot.Yaw = RemoteViewYaw;
+		POVRot.Yaw = POVRot.Yaw * 360.0f / 255.0f;
+	}
+
+	return POVRot;
 }
 
 #pragma region Jump

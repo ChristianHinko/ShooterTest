@@ -288,6 +288,5 @@ private:
 	UPROPERTY(Replicated)
 		UAS_Stamina* StaminaAttributeSet;
 
-
 	float crouchToHeight;
 };

@@ -65,10 +65,9 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 		const FRotator ControlRotation = OwningPawn->GetBaseAimRotation();
 		const FRotator AimDelta = UKismetMathLibrary::NormalizedDeltaRotator(ControlRotation, ActorRotation); // the normalized direction from ActorRotation to ControlRotation
 
-		// Update AimPitch and AimYaw - Smoothly interp because these are replicated and are integer values
-		const float RotSmoothSpeed = 10;
-		AimPitch = FMath::FInterpTo(AimPitch, AimDelta.Pitch, DeltaTimeX, RotSmoothSpeed);
-		AimYaw = FMath::FInterpTo(AimYaw, AimDelta.Yaw, DeltaTimeX, RotSmoothSpeed);
+		// These will be choppy when replicated but we won't automatically smooth it here
+		AimPitch = AimDelta.Pitch;
+		AimYaw = AimDelta.Yaw;
 	}
 
 	if (OwningCharacter)

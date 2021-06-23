@@ -9,6 +9,7 @@
 
 
 class ACharacter;
+class ASSCharacter;
 class AShooterCharacter;
 
 
@@ -33,6 +34,7 @@ protected:
 	AActor* OwningActor;
 	APawn* OwningPawn;
 	ACharacter* OwningCharacter;
+	ASSCharacter* OwningSSCharacter;
 	AShooterCharacter* OwningShooterCharacter;
 
 
@@ -58,10 +60,18 @@ protected:
 		float Direction;
 
 
-	/** Amount of Pitch that our Control Rotation differs from our Actor Rotation */
+	/**
+	 * Amount of Pitch that our Control Rotation differs from our Actor Rotation.
+	 * NOTE: this will be choppy when replicated and we don't automatically smooth it,
+	 * ensure you make use of interpolation when using this value for animation.
+	 */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn")
 		float AimPitch;
-	/** Amount of Yaw that our Control Rotation differs from our Actor Rotation */
+	/**
+	 * Amount of Yaw that our Control Rotation differs from our Actor Rotation.
+	 * NOTE: this will be choppy when replicated and we don't automatically smooth it,
+	 * ensure you make use of interpolation when using this value for animation.
+	 */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn")
 		float AimYaw;
 

@@ -143,19 +143,19 @@ protected:
 
 	virtual void OnReloadPressed() override;
 
-	virtual void OnSwitchWeaponPressed();
-	virtual void OnItem0Pressed();
-	virtual void OnItem1Pressed();
-	virtual void OnItem2Pressed();
-	virtual void OnItem3Pressed();
-	virtual void OnItem4Pressed();
-	virtual void OnNextItemPressed();
-	virtual void OnPreviousItemPressed();
+	virtual void OnSwitchWeaponPressed() override;
+	virtual void OnItem0Pressed() override;
+	virtual void OnItem1Pressed() override;
+	virtual void OnItem2Pressed() override;
+	virtual void OnItem3Pressed() override;
+	virtual void OnItem4Pressed() override;
+	virtual void OnNextItemPressed() override;
+	virtual void OnPreviousItemPressed() override;
 
-	virtual void OnPausePressed();
-	virtual void OnScoreSheetPressed();
+	virtual void OnPausePressed() override;
+	virtual void OnScoreSheetPressed() override;
 
-	virtual void OnDropItemPressed();
+	virtual void OnDropItemPressed() override;
 
 #pragma endregion
 

@@ -5,6 +5,7 @@
 
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Character/SSCharacter.h"
 #include "Character/ShooterCharacter.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -35,13 +36,14 @@ void UAI_ShooterCharacter::NativeInitializeAnimation()
 	OwningActor = GetOwningActor();
 	OwningPawn = Cast<APawn>(OwningActor);
 	OwningCharacter = Cast<ACharacter>(OwningPawn);
+	OwningSSCharacter = Cast<ASSCharacter>(OwningCharacter);
 	OwningShooterCharacter = Cast<AShooterCharacter>(OwningCharacter);
 }
 void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 {
 	Super::NativeUpdateAnimation(DeltaTimeX);
 
-	
+
 	if (OwningActor)
 	{
 		Velocity = OwningActor->GetVelocity();
@@ -60,10 +62,10 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 	if (OwningPawn)
 	{
 		const FRotator ActorRotation = OwningActor->GetActorRotation();
-		const FRotator ControlRotation = OwningPawn->GetControlRotation();
-		// The normalized direction from ActorRotation to ControlRotation
-		const FRotator AimDelta = UKismetMathLibrary::NormalizedDeltaRotator(ControlRotation, ActorRotation);
+		const FRotator ControlRotation = OwningPawn->GetBaseAimRotation();
+		const FRotator AimDelta = UKismetMathLibrary::NormalizedDeltaRotator(ControlRotation, ActorRotation); // the normalized direction from ActorRotation to ControlRotation
 
+		// These will be choppy when replicated but we won't automatically smooth it here
 		AimPitch = AimDelta.Pitch;
 		AimYaw = AimDelta.Yaw;
 	}
@@ -82,6 +84,10 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 		}
 	}
 
+	if (OwningSSCharacter)
+	{
+
+	}
 
 
 	if (OwningShooterCharacter)

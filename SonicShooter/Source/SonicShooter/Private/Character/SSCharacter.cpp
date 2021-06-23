@@ -34,6 +34,7 @@ void ASSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 
 
 	DOREPLIFETIME_CONDITION(ASSCharacter, bIsRunning, COND_SimulatedOnly);
+	DOREPLIFETIME_CONDITION(ASSCharacter, RemoteViewYaw, COND_SkipOwner);
 
 	DOREPLIFETIME(ASSCharacter, CharacterMovementAttributeSet);
 	DOREPLIFETIME(ASSCharacter, StaminaAttributeSet);
@@ -144,6 +145,16 @@ void ASSCharacter::PostInitializeComponents()
 	CrouchTickFunction.RegisterTickFunction(GetLevel());
 }
 
+void ASSCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker)
+{
+	Super::PreReplication(ChangedPropertyTracker);
+
+	if (GetLocalRole() == ROLE_Authority && GetController())
+	{
+		SetRemoteViewYaw(GetController()->GetControlRotation().Yaw);
+	}
+}
+
 
 void ASSCharacter::CreateAttributeSets()
 {
@@ -236,6 +247,32 @@ void ASSCharacter::SetFirstPerson(bool newFirstPerson)
 	}
 
 	bFirstPerson = newFirstPerson;
+}
+
+void ASSCharacter::SetRemoteViewYaw(float NewRemoteViewYaw)
+{
+	// Compress yaw to 1 byte
+	NewRemoteViewYaw = FRotator::ClampAxis(NewRemoteViewYaw);
+	RemoteViewYaw = (uint8)(NewRemoteViewYaw * 255.f / 360.f);
+}
+FRotator ASSCharacter::GetBaseAimRotation() const
+{
+	FRotator POVRot = Super::GetBaseAimRotation();
+	
+
+	if (Controller != nullptr && !InFreeCam())
+	{
+		return POVRot;
+	}
+
+	//// If our Yaw is 0, then use a replicated view yaw
+	//if (FMath::IsNearlyZero(POVRot.Yaw))
+	{
+		POVRot.Yaw = RemoteViewYaw;
+		POVRot.Yaw = POVRot.Yaw * 360.0f / 255.0f;
+	}
+
+	return POVRot;
 }
 
 #pragma region Jump
@@ -545,6 +582,37 @@ void ASSCharacter::CrouchTick(float DeltaTime)
 }
 #pragma endregion
 
+//void ASSCharacter::Tick(float DeltaTime)
+//{
+//	Super::Tick(DeltaTime);
+//
+//	// Add slight smoothing in courtesy of players with low polling rates on high refresh rate displays
+//	{
+//		// This is the most common polling rate, 1/125 is 8ms so this adds 8ms of input lag.
+//		// If we are getting 250fps but our mouse is only 125hz, this will simulate a 250hz mouse but with 8ms of input lag.
+//		// If we do have a 250hz mouse anyways, we can't detect it so it ends up adding 8ms of lag anyways.
+//		float targetPollingRate = 125;
+//
+//		if (CurrentYawInput != 0)
+//		{
+//			float previousYawInput = CurrentYawInput;
+//			CurrentYawInput = FMath::FInterpTo(CurrentYawInput, 0.f, DeltaTime, targetPollingRate);
+//			float SmoothedYaw = previousYawInput - CurrentYawInput;
+//
+//			AddControllerYawInput(SmoothedYaw * HorizontalSensitivity * 0.5);
+//		}
+//
+//		if (CurrentPitchInput != 0)
+//		{
+//			float previousPitchInput = CurrentPitchInput;
+//			CurrentPitchInput = FMath::FInterpTo(CurrentPitchInput, 0.f, DeltaTime, targetPollingRate);
+//			float SmoothedPitch = previousPitchInput - CurrentPitchInput;
+//
+//			AddControllerPitchInput(SmoothedPitch * VerticalSensitivity * 0.5);
+//		}
+//	}
+//}
+
 #pragma region Input
 void ASSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -834,18 +902,18 @@ void ASSCharacter::MoveRight(float Value)
 	}
 }
 
-void ASSCharacter::HorizontalLook(float Rate) // TODO: add slight smoothing in courtesy of players with low polling rates on high refresh rate displays
+void ASSCharacter::HorizontalLook(float Rate)
 {
 	if (Rate != 0)
 	{
-		AddControllerYawInput(Rate * HorizontalSensitivity * 0.5/* * GetWorld()->GetDeltaSeconds()*/); // delta seconds is not needed here for some reason. Idk why but it does the opposite of the expected effect
+		AddControllerYawInput(Rate * HorizontalSensitivity * 0.5);
 	}
 }
-void ASSCharacter::VerticalLook(float Rate) // TODO: add slight smoothing in courtesy of players with low polling rates on high refresh rate displays
+void ASSCharacter::VerticalLook(float Rate)
 {
 	if (Rate != 0)
 	{
-		AddControllerPitchInput(Rate * VerticalSensitivity * 0.5/* * GetWorld()->GetDeltaSeconds()*/); // delta seconds is not needed here for some reason. Idk why but it does the opposite of the expected effect
+		AddControllerPitchInput(Rate * VerticalSensitivity * 0.5);
 	}
 }
 #pragma endregion

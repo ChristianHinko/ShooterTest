@@ -140,6 +140,17 @@ public:
 	UPROPERTY(EditAnywhere, Category = "First Person")
 		float ThirdPersonCameraArmLength;
 
+	/** Replicated so we can see where remote clients are looking. */
+	UPROPERTY(replicated)
+		uint8 RemoteViewYaw;
+	/**
+	 * Set Pawn ViewYaw, so we can see where remote clients are looking.
+	 * Maps 360.0 degrees into a byte
+	 * @param	NewRemoteViewYaw	Yaw component to replicate to remote (non owned) clients.
+	 */
+	void SetRemoteViewYaw(float NewRemoteViewYaw);
+	virtual FRotator GetBaseAimRotation() const override;
+
 	float GetForwardInputAxis() const { return forwardInputAxis; }
 	float GetRightInputAxis() const { return rightInputAxis; }
 
@@ -167,6 +178,7 @@ protected:
 #endif
 	virtual void PostInitProperties() override;
 	virtual void PostInitializeComponents() override;
+	virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
@@ -275,7 +287,6 @@ private:
 		UAS_CharacterMovement* CharacterMovementAttributeSet;
 	UPROPERTY(Replicated)
 		UAS_Stamina* StaminaAttributeSet;
-
 
 	float crouchToHeight;
 };

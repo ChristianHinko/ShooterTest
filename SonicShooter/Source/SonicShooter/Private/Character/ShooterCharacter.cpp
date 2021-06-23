@@ -296,11 +296,12 @@ void AShooterCharacter::OnPreviousItemPressed()
 
 void AShooterCharacter::OnPausePressed()
 {
-
+	Super::OnPausePressed();
 }
 
 void AShooterCharacter::OnScoreSheetPressed()
 {
+	Super::OnScoreSheetPressed();
 }
 
 void AShooterCharacter::OnDropItemPressed()

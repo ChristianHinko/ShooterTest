@@ -31,7 +31,7 @@ UGA_FireGun::UGA_FireGun()
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("AbilityInput.PrimaryFire")));
 
 	shotNumber = 0;
-
+	bFireInputPressed = false;
 }
 
 
@@ -159,6 +159,7 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	bFireInputPressed = true;
 
 
 	int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
@@ -178,7 +179,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	UAT_WaitInputRelease* WaitInputReleaseTask = nullptr;
 	if (GunAttributeSet->GetbFullAuto() != 0)
 	{
-		WaitInputReleaseTask = UAT_WaitInputRelease::WaitInputRelease(this);
+		WaitInputReleaseTask = UAT_WaitInputRelease::WaitInputRelease(this, false, true);
 		if (!WaitInputReleaseTask)
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputReleaseTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), *FString(__FUNCTION__));
@@ -187,7 +188,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		}
 	}
 
-	UAT_WaitInputPress* WaitInputPressTask = UAT_WaitInputPress::WaitInputPress(this);
+	UAT_WaitInputPress* WaitInputPressTask = UAT_WaitInputPress::WaitInputPress(this, false, true);
 	if (!WaitInputPressTask)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputPressTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), *FString(__FUNCTION__));
@@ -273,15 +274,9 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 		return;
 	}
 
+
+
 	// Burst logic:
-
-
-
-	// Ensure a tick interval for burst shots
-	const float burstShotInterval = (GunAttributeSet->GetTimeBetweenBurstsOverride() == -1) ? GunAttributeSet->GetTimeBetweenShots() : GunAttributeSet->GetTimeBetweenBurstsOverride();
-	TickerTask->tickInterval = GunAttributeSet->GetTimeBetweenShots();
-
-
 	// Semi-auto burst
 	if (GunAttributeSet->GetbFullAuto() == 0)
 	{
@@ -307,21 +302,17 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 		++timesBursted;
 		if (timesBursted >= shotsPerBurst)
 		{
-			TickerTask->EndTask();
+			const float timeBetweenBursts = (GunAttributeSet->GetTimeBetweenBurstsOverride() == -1) ? GunAttributeSet->GetTimeBetweenShots() : GunAttributeSet->GetTimeBetweenBurstsOverride();
+			TickerTask->Freeze(timeBetweenBursts);	// For full auto, just freeze the ticker for a little so we can continue to fire again (of course unless the player lets go of the fire button)
+			timesBursted = 0;
 		}
 		return;
 	}
-
-	// Switch to full auto tick interval
-	const float timeBetweenBursts = (GunAttributeSet->GetTimeBetweenBurstsOverride() == -1) ? GunAttributeSet->GetTimeBetweenShots() : GunAttributeSet->GetTimeBetweenBurstsOverride();
-	TickerTask->tickInterval = timeBetweenBursts;
-
-	return;
-
 }
 
 void UGA_FireGun::Shoot()
 {
+	UKismetSystemLibrary::PrintString(this, "ShootTick");
 	++shotNumber;
 	// Check if we have enough ammo first
 	int32 ammoLeftAfterThisShot = AmmoAttributeSet->ClipAmmo - GunAttributeSet->GetAmmoCost();
@@ -379,14 +370,17 @@ void UGA_FireGun::Shoot()
 
 void UGA_FireGun::OnPress(float TimeWaited)
 {
-	int testBreakpoint = 3;
+	UKismetSystemLibrary::PrintString(this, "OnPress", true, false, FLinearColor::Green);
+	bFireInputPressed = true;
+	TickerTask->Unfreeze();
 }
 void UGA_FireGun::OnRelease(float TimeHeld)
 {
-	
-	if (GunAttributeSet->GetNumShotsPerBurst() <= 1)	// If we aren't a burst shot gun (like a FAMAS)
+	UKismetSystemLibrary::PrintString(this, "OnRelease", true, false, FLinearColor::Yellow);
+	bFireInputPressed = false;
+	if (GunAttributeSet->GetbFullAuto() && GunAttributeSet->GetNumShotsPerBurst() <= 1)	// If we are full auto but no burst stuff
 	{
-		TickerTask->EndTask();
+		TickerTask->Freeze();
 	}
 }
 
@@ -427,6 +421,7 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 		return;
 	}
 
+	UKismetSystemLibrary::PrintString(this, "End", true, false, FLinearColor::Red);
 	// Store when this fire ended so next fire can determine fire rate
 	timestampPreviousFireEnd = GetWorld()->GetTimeSeconds();
 
@@ -455,22 +450,33 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 void UGA_FireGun::OnShootMontageCompleted()
 {	
 	int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
-	bool bIsSingleShot = GunAttributeSet->GetbFullAuto() == 0 && (shotsPerBurst <= 1);
-	if (bIsSingleShot)
+	bool bIsSemiAutoSingleShot = GunAttributeSet->GetbFullAuto() == 0 && (shotsPerBurst <= 1);
+	if (bIsSemiAutoSingleShot)
 	{
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 		return;
 	}
 
-	if (timesBursted >= shotsPerBurst)	// If we are out of bursts
+	bool bIsSemiAutoBurstFire = GunAttributeSet->GetbFullAuto() == 0 && shotsPerBurst > 1;
+	bool bIsFullAutoBurstFire = GunAttributeSet->GetbFullAuto() == 1 && shotsPerBurst > 1;	// Not currently used
+	if (bIsSemiAutoBurstFire && timesBursted >= shotsPerBurst)	// If we are out of bursts for this semi auto burst fire
 	{
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 		return;
 	}
 	// If we are not single shot semi auto (anything but that).....
+	if (bFireInputPressed == false)
+	{
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	}
 
-	bool bEnoughAmmoForAnotherShot = AmmoAttributeSet->ClipAmmo < GunAttributeSet->GetAmmoCost();
-	if (bEnoughAmmoForAnotherShot == false)
+
+	float clipAmmo = AmmoAttributeSet->ClipAmmo;
+	float ammoCost = GunAttributeSet->GetAmmoCost();
+	float clipAmmoAfterNextShot = clipAmmo - ammoCost;
+
+	bool bEnoughAmmoForAnotherShot = clipAmmoAfterNextShot >= 0;
+	if (!bEnoughAmmoForAnotherShot)
 	{
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 		return;

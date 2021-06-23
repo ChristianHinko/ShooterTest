@@ -91,4 +91,6 @@ private:
 	int32 timesBursted; // we could get the current burst by % modding shotNumber by NumShotsPerBurst but i think this would be less reliable: what if they cancel a burst and don't shoot all of the burst. Or what if NumShotsPerBurst changes while shooting
 
 	float timestampPreviousFireEnd;
+
+	uint8 bFireInputPressed : 1;
 };

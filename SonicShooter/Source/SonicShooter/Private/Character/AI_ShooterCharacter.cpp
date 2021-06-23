@@ -57,6 +57,17 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 		Direction = CalculateDirection(Velocity, OwningActor->GetActorRotation()); // TODO: make sure this is relative to the actor's rotation
 	}
 
+	if (OwningPawn)
+	{
+		const FRotator ActorRotation = OwningActor->GetActorRotation();
+		const FRotator ControlRotation = OwningPawn->GetControlRotation();
+		// The normalized direction from ActorRotation to ControlRotation
+		const FRotator AimDelta = UKismetMathLibrary::NormalizedDeltaRotator(ControlRotation, ActorRotation);
+
+		AimPitch = AimDelta.Pitch;
+		AimYaw = AimDelta.Yaw;
+	}
+
 	if (OwningCharacter)
 	{
 		// Update movement variables

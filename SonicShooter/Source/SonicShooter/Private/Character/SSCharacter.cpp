@@ -115,7 +115,7 @@ void ASSCharacter::PostInitProperties()
 	SetFirstPerson(bFirstPerson);
 }
 #if WITH_EDITOR
-void ASSCharacter::PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent)
+void ASSCharacter::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 

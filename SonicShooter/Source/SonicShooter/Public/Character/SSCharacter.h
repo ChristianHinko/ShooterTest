@@ -134,7 +134,8 @@ public:
 	bool GetFirstPerson() const { return bFirstPerson; }
 
 	/** Sets bFirstPerson and changes all of the necessary properties to switch to TP/FP. */
-	void SetFirstPerson(bool newFirstPerson);
+	UFUNCTION(Exec)
+		void SetFirstPerson(bool newFirstPerson);
 
 	UPROPERTY(EditAnywhere, Category = "First Person")
 		float ThirdPersonCameraArmLength;
@@ -162,7 +163,7 @@ public:
 
 protected:
 #if WITH_EDITOR
-	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 	virtual void PostInitProperties() override;
 	virtual void PostInitializeComponents() override;

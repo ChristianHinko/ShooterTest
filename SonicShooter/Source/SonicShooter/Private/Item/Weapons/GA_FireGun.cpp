@@ -304,10 +304,12 @@ void UGA_FireGun::Shoot()
 
 	if (!EnoughAmmoToShoot())
 	{
-		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Not enough ammo to fire"), *FString(__FUNCTION__));
+		// Currently this never gets hit. But left it here for now in case we want to make this ability trigger the shoot function even if you have no ammo.
+		// The reason you may want to do this is so that you could do some kind of thing in response to a shot not having ammo (ie. play clicking sound or animation idk)
+		// Not saying this is where it should be done, but thought it might be useful to keep for now if we ever end up liking the idea.
+		// Another suggestion of where to do these kind of things would maybe to do it in the OnShootTick(), so we don't have to call this function and we could do these effects in there.
+		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Not enough ammo to shoot"), *FString(__FUNCTION__));
 
-		// Handle out of ammo (maybe do a clicking sound or animation idk)
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);	// We don't want to keep shooting
 		return;
 	}
 

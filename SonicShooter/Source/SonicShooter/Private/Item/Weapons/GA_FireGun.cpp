@@ -153,7 +153,7 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 	const float timePassed = GetWorld()->GetTimeSeconds() - timestampPreviousFireEnd;
 	if (timePassed < timeBetweenFires)
 	{
-		//UE_LOG(LogGameplayAbility, Log, TEXT("%s() Tried firing gun faster than the gun's FireRate allowed. returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Tried firing gun faster than the gun's FireRate allowed. returned false"), *FString(__FUNCTION__));
 		return false;
 	}
 

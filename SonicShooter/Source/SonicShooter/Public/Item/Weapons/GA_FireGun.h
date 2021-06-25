@@ -84,6 +84,8 @@ protected:
 
 
 	UFUNCTION()
+		void OnPress(float TimeWaited);
+	UFUNCTION()
 		void OnRelease(float TimeHeld);
 
 private:

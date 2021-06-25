@@ -16,6 +16,7 @@
 
 #include "AbilityTasks/AT_Ticker.h"
 #include "Kismet/GameplayStatics.h"
+#include "AbilityTasks\AT_WaitInputPress.h"
 #include "AbilityTasks\AT_WaitInputRelease.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -183,13 +184,26 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	UAT_WaitInputRelease* WaitInputReleaseTask = nullptr;
 	if (GunAttributeSet->GetbFullAuto() != 0)
 	{
-		WaitInputReleaseTask = UAT_WaitInputRelease::WaitInputRelease(this);
+		WaitInputReleaseTask = UAT_WaitInputRelease::WaitInputRelease(this, false, true);
 		if (!WaitInputReleaseTask)
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputReleaseTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), *FString(__FUNCTION__));
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 			return;
 		}
+	}
+	UAT_WaitInputPress* WaitInputPressTask = nullptr;
+	if (GunAttributeSet->GetbFullAuto() != 0 && GunAttributeSet->GetNumShotsPerBurst() > 1)	// If we are full auto burst
+	{
+		WaitInputPressTask = UAT_WaitInputPress::WaitInputPress(this, false, true);
+		if (!WaitInputPressTask)
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputPressTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), *FString(__FUNCTION__));
+			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+			return;
+		}
+		WaitInputPressTask->OnPress.AddDynamic(this, &UGA_FireGun::OnPress);
+		WaitInputPressTask->ReadyForActivation();
 	}
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
@@ -354,7 +368,11 @@ void UGA_FireGun::Shoot()
 }
 
 
-
+void UGA_FireGun::OnPress(float TimeWaited)
+{
+	UKismetSystemLibrary::PrintString(this, "OnPress", true, false, FLinearColor::Green);
+	bInputPressed = true;
+}
 
 void UGA_FireGun::OnRelease(float TimeHeld)
 {

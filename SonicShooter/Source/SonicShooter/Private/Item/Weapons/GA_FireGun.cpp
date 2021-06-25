@@ -14,8 +14,6 @@
 #include "ArcInventoryItemTypes.h"
 #include "Item\Definitions\ArcItemDefinition_Active.h"
 #include "AbilityTasks/AT_Ticker.h"
-#include "AbilityTasks\AT_WaitInputRelease.h"
-#include "AbilityTasks\AT_WaitInputPress.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -31,7 +29,7 @@ UGA_FireGun::UGA_FireGun()
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("AbilityInput.PrimaryFire")));
 
 	shotNumber = 0;
-	bFireInputPressed = false;
+	bClientInputPressed = false;
 }
 
 
@@ -142,6 +140,11 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() AmmoAttributeSet was NULL. returned false"), *FString(__FUNCTION__));
 		return false;
 	}
+	if (!EnoughAmmoToShoot())
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Not enough ammo to perform a fire. returned false"), *FString(__FUNCTION__));
+		return false;
+	}
 
 	// If we're firing too fast
 	const float timeBetweenFires = (GunAttributeSet->GetTimeBetweenFiresOverride() == -1) ? GunAttributeSet->GetTimeBetweenShots() : GunAttributeSet->GetTimeBetweenFiresOverride();
@@ -159,8 +162,7 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	bFireInputPressed = true;
-
+	bClientInputPressed = true;
 
 	int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
 
@@ -173,27 +175,6 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 			return;
 		}
-	}
-	
-	// We only want a release task if we are a full auto fire
-	UAT_WaitInputRelease* WaitInputReleaseTask = nullptr;
-	if (GunAttributeSet->GetbFullAuto() != 0)
-	{
-		WaitInputReleaseTask = UAT_WaitInputRelease::WaitInputRelease(this, false, true);
-		if (!WaitInputReleaseTask)
-		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputReleaseTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), *FString(__FUNCTION__));
-			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-			return;
-		}
-	}
-
-	UAT_WaitInputPress* WaitInputPressTask = UAT_WaitInputPress::WaitInputPress(this, false, true);
-	if (!WaitInputPressTask)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputPressTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), *FString(__FUNCTION__));
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
 	}
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
@@ -212,11 +193,6 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		UE_LOG(LogGameplayAbility, Warning, TEXT("IsFireingGunEffectTSub TSubclassOf empty in %s"), *FString(__FUNCTION__));
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	WaitInputPressTask->OnPress.AddDynamic(this, &UGA_FireGun::OnPress);
-	WaitInputPressTask->ReadyForActivation();
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 	if (GunAttributeSet->GetbFullAuto() == 0) // semi-auto
 	{
 		if (shotsPerBurst <= 1) // single shot
@@ -231,23 +207,19 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	}
 	else // full-auto:
 	{
-		// Full auto so bind to release task
-		WaitInputReleaseTask->OnRelease.AddDynamic(this, &UGA_FireGun::OnRelease);
-		WaitInputReleaseTask->ReadyForActivation();
-
 		// Full auto so always bind to tick task (even if no burst)
 		TickerTask->OnTick.AddDynamic(this, &UGA_FireGun::OnShootTick);
 		TickerTask->ReadyForActivation();
 	}
 
-	// If we ended ability within the above functions, return here
+	// If we ended ability within the above functions, return here (this is important for if we want to do further logic after)
 	if (bIsActive == false)
 	{
 		return;
 	}
 
 
-	// Latent events will end the ability
+
 }
 
 
@@ -260,7 +232,7 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 	if (GunAttributeSet->GetbFullAuto() == 0 && (shotsPerBurst <= 1 || timesBursted >= shotsPerBurst)) // we're semi auto that is either single shot or burst
 	{
 		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() The shoot tick somehow got called when it didn't need to be called. Might not cause any problems, but this is unexpected behavior. Maybe it got here by bFullAuto changing or NumShotsPerBurst changing"), *FString(__FUNCTION__));
-		TickerTask->EndTask();
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 		return;
 	}
 
@@ -284,10 +256,6 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 		{
 			Shoot();
 			++timesBursted;
-			if (timesBursted >= shotsPerBurst)
-			{
-				TickerTask->EndTask();
-			}
 			return;
 		}
 
@@ -312,7 +280,7 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 
 void UGA_FireGun::Shoot()
 {
-	UKismetSystemLibrary::PrintString(this, "ShootTick");
+	UKismetSystemLibrary::PrintString(this, "Shoot", true, false, FLinearColor::Blue, 5.f);
 	++shotNumber;
 	// Check if we have enough ammo first
 	int32 ammoLeftAfterThisShot = AmmoAttributeSet->ClipAmmo - GunAttributeSet->GetAmmoCost();
@@ -321,19 +289,18 @@ void UGA_FireGun::Shoot()
 		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Not enough ammo to fire"), *FString(__FUNCTION__));
 
 		// Handle out of ammo
-		TickerTask->EndTask();	// We don't want to keep shooting
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);	// We don't want to keep shooting
 		return;
 	}
 
 	// Play shoot montage
-	UAbilityTask_PlayMontageAndWait* PlayMontageAndWaitTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("ShootMontage"), ShootMontage);
+	UAbilityTask_PlayMontageAndWait* PlayMontageAndWaitTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("ShootMontage"), ShootMontage, 1.f, NAME_None, false);
 	if (!PlayMontageAndWaitTask)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() PlayMontageAndWaitTask was NULL when trying to shoot. Called EndAbility()"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() PlayMontageAndWaitTask was NULL when trying to shoot. Called EndAbility() so shot doesn't happen to keep things consistant"), *FString(__FUNCTION__));
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 		return;
 	}
-	PlayMontageAndWaitTask->OnCompleted.AddDynamic(this, &UGA_FireGun::OnShootMontageCompleted);
 	PlayMontageAndWaitTask->ReadyForActivation();
 
 	// Try to make wait target data task for this shot
@@ -367,21 +334,10 @@ void UGA_FireGun::Shoot()
 
 
 
-
-void UGA_FireGun::OnPress(float TimeWaited)
+void UGA_FireGun::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	UKismetSystemLibrary::PrintString(this, "OnPress", true, false, FLinearColor::Green);
-	bFireInputPressed = true;
-	TickerTask->Unfreeze();
-}
-void UGA_FireGun::OnRelease(float TimeHeld)
-{
-	UKismetSystemLibrary::PrintString(this, "OnRelease", true, false, FLinearColor::Yellow);
-	bFireInputPressed = false;
-	if (GunAttributeSet->GetbFullAuto() && GunAttributeSet->GetNumShotsPerBurst() <= 1)	// If we are full auto but no burst stuff
-	{
-		TickerTask->Freeze();
-	}
+	UKismetSystemLibrary::PrintString(this, "OnRelease", true, false, FLinearColor::Yellow, 5.f);
+	bClientInputPressed = false;
 }
 
 void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
@@ -401,10 +357,59 @@ void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 
 	// Execute cues
 	//GetAbilitySystemComponentFromActorInfo()->AddGameplayCue(FGameplayTag::RequestGameplayTag("GameplayCue.Test"));	// Very temp. This is just to see a gc work
+
+
+
+
+	// Only thing to do left is to decide if we should end the ability or not........
+
+	int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
+	bool bIsSemiAutoSingleShot = GunAttributeSet->GetbFullAuto() == 0 && (shotsPerBurst <= 1);
+	if (bIsSemiAutoSingleShot)
+	{
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+		return;
+	}
+
+	// Any other types of fires need to end the ability if no more ammo
+	if (!EnoughAmmoToShoot())
+	{
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+		return;
+	}
+	// We must have enough ammo for another shot
+
+
+	bool bIsSemiAutoBurstFire = GunAttributeSet->GetbFullAuto() == 0 && shotsPerBurst > 1;
+	if (bIsSemiAutoBurstFire && timesBursted >= shotsPerBurst)	// Only end ability if we are out of shots for this burst
+	{
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+		return;
+	}
+
+	// Here we must be any kind of full auto. So we will only consider ending the ability if input is no longer pressed.....
+	// We'll check if we're locally controlled since client will tell server when to end ability
+	if (IsLocallyControlled())
+	{
+		if (!bClientInputPressed)
+		{
+			bool bIsFullAutoBurstFire = GunAttributeSet->GetbFullAuto() == 1 && shotsPerBurst > 1;
+			if (bIsFullAutoBurstFire && timesBursted >= shotsPerBurst)	// Only end ability if we are finished with our current burst
+			{
+				EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
+				return;
+			}
+
+			// If we are just a plain full auto.....
+			EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
+			return;
+		}
+	}
 }
 void UGA_FireGun::OnCancelled(const FGameplayAbilityTargetDataHandle& Data)
 {
 	UE_LOG(LogGameplayAbility, Warning, TEXT("%s(): Not sure how this got hit :/ Something unexpected happened"), *FString(__FUNCTION__));
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
 
 void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
@@ -421,7 +426,7 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 		return;
 	}
 
-	UKismetSystemLibrary::PrintString(this, "End", true, false, FLinearColor::Red);
+	UKismetSystemLibrary::PrintString(this, "End", true, false, FLinearColor::Red, 5.f);
 	// Store when this fire ended so next fire can determine fire rate
 	timestampPreviousFireEnd = GetWorld()->GetTimeSeconds();
 
@@ -447,39 +452,10 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 
 
 
-void UGA_FireGun::OnShootMontageCompleted()
-{	
-	int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
-	bool bIsSemiAutoSingleShot = GunAttributeSet->GetbFullAuto() == 0 && (shotsPerBurst <= 1);
-	if (bIsSemiAutoSingleShot)
-	{
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
-		return;
-	}
-
-	bool bIsSemiAutoBurstFire = GunAttributeSet->GetbFullAuto() == 0 && shotsPerBurst > 1;
-	bool bIsFullAutoBurstFire = GunAttributeSet->GetbFullAuto() == 1 && shotsPerBurst > 1;	// Not currently used
-	if (bIsSemiAutoBurstFire && timesBursted >= shotsPerBurst)	// If we are out of bursts for this semi auto burst fire
-	{
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
-		return;
-	}
-	// If we are not single shot semi auto (anything but that).....
-	if (bFireInputPressed == false)
-	{
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
-	}
-
-
+bool UGA_FireGun::EnoughAmmoToShoot() const
+{
 	float clipAmmo = AmmoAttributeSet->ClipAmmo;
 	float ammoCost = GunAttributeSet->GetAmmoCost();
 	float clipAmmoAfterNextShot = clipAmmo - ammoCost;
-
-	bool bEnoughAmmoForAnotherShot = clipAmmoAfterNextShot >= 0;
-	if (!bEnoughAmmoForAnotherShot)
-	{
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
-		return;
-	}
+	return clipAmmoAfterNextShot >= 0;
 }
-

@@ -52,6 +52,8 @@ protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
+
+	virtual void InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
 	//END UGameplayAbility Interface
 
 
@@ -71,17 +73,14 @@ protected:
 		void OnShootTick(float DeltaTime, float CurrentTime, float TimeRemaining);
 
 	UFUNCTION()
-		void OnPress(float TimeWaited);
-	UFUNCTION()
-		void OnRelease(float TimeHeld);
-	UFUNCTION()
 		void OnValidData(const FGameplayAbilityTargetDataHandle& Data);
 	UFUNCTION()
 		void OnCancelled(const FGameplayAbilityTargetDataHandle& Data);
 
-#pragma region Animation
-	UFUNCTION()
-		void OnShootMontageCompleted();
+
+
+#pragma region Helpers
+	bool EnoughAmmoToShoot() const;
 #pragma endregion
 
 
@@ -91,6 +90,6 @@ private:
 	int32 timesBursted; // we could get the current burst by % modding shotNumber by NumShotsPerBurst but i think this would be less reliable: what if they cancel a burst and don't shoot all of the burst. Or what if NumShotsPerBurst changes while shooting
 
 	float timestampPreviousFireEnd;
-
-	uint8 bFireInputPressed : 1;
+	// Client only bool
+	uint8 bClientInputPressed : 1;
 };

@@ -145,7 +145,7 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 	}
 	if (!EnoughAmmoToShoot())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Not enough ammo to perform a fire. returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Not enough ammo to perform a fire. returned false"), *FString(__FUNCTION__));
 		return false;
 	}
 
@@ -191,6 +191,8 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 			return;
 		}
+		WaitInputReleaseTask->OnRelease.AddDynamic(this, &UGA_FireGun::OnRelease);
+		WaitInputReleaseTask->ReadyForActivation();
 	}
 	UAT_WaitInputPress* WaitInputPressTask = nullptr;
 	if (GunAttributeSet->GetbFullAuto() != 0 && GunAttributeSet->GetNumShotsPerBurst() > 1)	// If we are full auto burst
@@ -222,29 +224,14 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		UE_LOG(LogGameplayAbility, Warning, TEXT("IsFiringGunEffectTSub TSubclassOf empty in %s"), *FString(__FUNCTION__));
 	}
 
-	if (GunAttributeSet->GetbFullAuto() == 0) // semi-auto
+	if (GunAttributeSet->GetbFullAuto() == 0 && shotsPerBurst <= 1) // semi-auto and single shot
 	{
-		if (shotsPerBurst <= 1) // single shot
-		{
-			Shoot();
-			return;
-		}
-
-		// Burst of shots
-		TickerTask->OnTick.AddDynamic(this, &UGA_FireGun::OnShootTick);
-		TickerTask->ReadyForActivation();
+		Shoot();
+		return;
 	}
-	else // full-auto:
-	{
-		// Full auto so bind to release task
-		WaitInputReleaseTask->OnRelease.AddDynamic(this, &UGA_FireGun::OnRelease);
-		WaitInputReleaseTask->ReadyForActivation();
 
-
-		// Full auto so always bind to tick task (even if no burst)
-		TickerTask->OnTick.AddDynamic(this, &UGA_FireGun::OnShootTick);
-		TickerTask->ReadyForActivation();
-	}
+	TickerTask->OnTick.AddDynamic(this, &UGA_FireGun::OnShootTick);
+	TickerTask->ReadyForActivation();
 
 	// If we ended ability within the above functions, return here (this is important for if we want to do further logic after)
 	if (bIsActive == false)

@@ -293,7 +293,7 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 			timesBursted = 0;
 			if (bInputPressed == false)
 			{
-				EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
+				EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 				return;
 			}
 		}
@@ -311,7 +311,7 @@ void UGA_FireGun::Shoot()
 		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Not enough ammo to fire"), *FString(__FUNCTION__));
 
 		// Handle out of ammo
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);	// We don't want to keep shooting
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);	// We don't want to keep shooting
 		return;
 	}
 
@@ -368,9 +368,13 @@ void UGA_FireGun::OnRelease(float TimeHeld)
 		int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
 		bool isBurstFire = shotsPerBurst > 1;
 		bool bIsFullAutoBurstFire = isFullAuto && isBurstFire;
-		if (bIsFullAutoBurstFire && (timesBursted == 0 || timesBursted >= shotsPerBurst))	// Only end ability if we are finished with our current burst
+		if (bIsFullAutoBurstFire)
 		{
-			EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+			if (timesBursted == 0 || timesBursted >= shotsPerBurst)	// Only end ability if we are not in the middle of a burst
+			{
+				EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+				return;
+			}
 			return;
 		}
 

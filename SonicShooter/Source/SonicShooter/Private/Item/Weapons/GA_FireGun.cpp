@@ -150,9 +150,8 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 	}
 
 	// If we're firing too fast
-	const float timeBetweenFires = (GunAttributeSet->GetTimeBetweenFiresOverride() == -1) ? GunAttributeSet->GetTimeBetweenShots() : GunAttributeSet->GetTimeBetweenFiresOverride();
 	const float timePassed = GetWorld()->GetTimeSeconds() - timestampPreviousFireEnd;
-	if (timePassed < timeBetweenFires)
+	if (timePassed < GetTimeBetweenFires())
 	{
 		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Tried firing gun faster than the gun's FireRate allowed. returned false"), *FString(__FUNCTION__));
 		return false;
@@ -170,7 +169,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 
 	if (IsFullAuto() || IsBurst()) // if full auto or burst mode
 	{
-		TickerTask = UAT_Ticker::Ticker(this, false, -1.f, GunAttributeSet->GetTimeBetweenShots());
+		TickerTask = UAT_Ticker::Ticker(this, false, -1.f, GetTimeBetweenShots());
 		if (!TickerTask)
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() TickerTask was NULL when trying to activate fire ability. Called EndAbility()"), *FString(__FUNCTION__));
@@ -284,8 +283,7 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 		{
 			timesBursted = 0; // reset times bursted
 
-			const float timeBetweenBursts = (GunAttributeSet->GetTimeBetweenBurstsOverride() == -1) ? GunAttributeSet->GetTimeBetweenShots() : GunAttributeSet->GetTimeBetweenBurstsOverride();
-			TickerTask->Freeze(timeBetweenBursts);	// For full auto, just freeze the ticker for a little so we can continue to fire again (of course unless the player lets go of the fire button)
+			TickerTask->Freeze(GetTimeBetweenBursts());	// For full auto, just freeze the ticker for a little so we can continue to fire again (of course unless the player lets go of the fire button)
 
 			// This is our last shot in the burst, check if we want to stop
 			if (bInputPressed == false)
@@ -302,7 +300,6 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 void UGA_FireGun::Shoot()
 {
 	++shotNumber;
-
 
 	if (!EnoughAmmoToShoot())
 	{
@@ -476,6 +473,7 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 
 
 
+#pragma region AttributeSet Helpers
 bool UGA_FireGun::EnoughAmmoToShoot() const
 {
 	const float clipAmmoAfterNextShot = AmmoAttributeSet->ClipAmmo - GunAttributeSet->GetAmmoCost();
@@ -494,6 +492,19 @@ bool UGA_FireGun::IsBurst() const
 	return isBurst;
 }
 
+float UGA_FireGun::GetTimeBetweenFires() const
+{
+	return (GunAttributeSet->GetTimeBetweenFiresOverride() < 0) ? GunAttributeSet->GetTimeBetweenShots() : GunAttributeSet->GetTimeBetweenFiresOverride();
+}
+float UGA_FireGun::GetTimeBetweenBursts() const
+{
+	return (GunAttributeSet->GetTimeBetweenBurstsOverride() < 0) ? GunAttributeSet->GetTimeBetweenShots() : GunAttributeSet->GetTimeBetweenBurstsOverride();
+}
+float UGA_FireGun::GetTimeBetweenShots() const
+{
+	return GunAttributeSet->GetTimeBetweenShots();
+}
+
 bool UGA_FireGun::CurrentlyBursting() const
 {
 	if (IsBurst() == false)
@@ -506,3 +517,4 @@ bool UGA_FireGun::CurrentlyBursting() const
 	const bool hasBurstsLeft = (timesBursted > 0 && timesBursted < shotsPerBurst);
 	return hasBurstsLeft;
 }
+#pragma endregion

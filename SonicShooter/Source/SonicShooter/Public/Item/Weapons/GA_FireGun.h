@@ -77,11 +77,15 @@ protected:
 
 
 
-#pragma region Helpers
+#pragma region AttributeSet Helpers
 	bool EnoughAmmoToShoot() const;
 
 	bool IsFullAuto() const;
 	bool IsBurst() const;
+
+	float GetTimeBetweenFires() const;
+	float GetTimeBetweenBursts() const;
+	float GetTimeBetweenShots() const;
 
 	bool CurrentlyBursting() const;
 #pragma endregion

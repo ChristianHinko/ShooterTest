@@ -79,6 +79,11 @@ protected:
 
 #pragma region Helpers
 	bool EnoughAmmoToShoot() const;
+
+	bool IsFullAuto() const;
+	bool IsBurst() const;
+
+	bool CurrentlyBursting() const;
 #pragma endregion
 
 

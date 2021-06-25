@@ -167,9 +167,8 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	bInputPressed = true;
 
-	int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
 
-	if (GunAttributeSet->GetbFullAuto() != 0 || shotsPerBurst > 1) // if full auto or burst mode
+	if (IsFullAuto() || IsBurst()) // if full auto or burst mode
 	{
 		TickerTask = UAT_Ticker::Ticker(this, false, -1.f, GunAttributeSet->GetTimeBetweenShots());
 		if (!TickerTask)
@@ -182,7 +181,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 
 	// We only want a release task if we are a full auto fire
 	UAT_WaitInputRelease* WaitInputReleaseTask = nullptr;
-	if (GunAttributeSet->GetbFullAuto() != 0)
+	if (IsFullAuto())
 	{
 		WaitInputReleaseTask = UAT_WaitInputRelease::WaitInputRelease(this, false, true);
 		if (!WaitInputReleaseTask)
@@ -195,7 +194,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		WaitInputReleaseTask->ReadyForActivation();
 	}
 	UAT_WaitInputPress* WaitInputPressTask = nullptr;
-	if (GunAttributeSet->GetbFullAuto() != 0 && GunAttributeSet->GetNumShotsPerBurst() > 1)	// If we are full auto burst
+	if (IsFullAuto() && IsBurst()) // if we are full auto burst
 	{
 		WaitInputPressTask = UAT_WaitInputPress::WaitInputPress(this, false, true);
 		if (!WaitInputPressTask)
@@ -224,11 +223,13 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		UE_LOG(LogGameplayAbility, Warning, TEXT("IsFiringGunEffectTSub TSubclassOf empty in %s"), *FString(__FUNCTION__));
 	}
 
-	if (GunAttributeSet->GetbFullAuto() == 0 && shotsPerBurst <= 1) // semi-auto and single shot
+
+	if (IsFullAuto() == false && IsBurst() == false) // semi-auto and single shot
 	{
 		Shoot();
 		return;
 	}
+
 
 	TickerTask->OnTick.AddDynamic(this, &UGA_FireGun::OnShootTick);
 	TickerTask->ReadyForActivation();
@@ -241,14 +242,13 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 
 
 
+
 }
 
 
 void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRemaining)
 {
-	int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
-
-	if (GunAttributeSet->GetbFullAuto() == 0 && (shotsPerBurst <= 1 || timesBursted >= shotsPerBurst)) // we're semi auto that is either single shot or burst
+	if (IsFullAuto() == false && (IsBurst() && CurrentlyBursting()) == false) // we're semi auto that is either single shot or burst
 	{
 		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() The shoot tick somehow got called when it didn't need to be called. Might not cause any problems, but this is unexpected behavior. Maybe it got here by bFullAuto changing or NumShotsPerBurst changing"), *FString(__FUNCTION__));
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
@@ -259,17 +259,18 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 
 
 	// no burst
-	if (shotsPerBurst <= 1)
+	if (IsBurst() == false)
 	{
 		Shoot();
 		return;
 	}
 
 
-
 	// Burst logic:
+	int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
+
 	// Semi-auto burst
-	if (GunAttributeSet->GetbFullAuto() == 0)
+	if (IsFullAuto() == false)
 	{
 		if (timesBursted < shotsPerBurst)
 		{
@@ -287,9 +288,11 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 	{
 		Shoot();
 		++timesBursted;
+
+		// If this was our last shot in this burst
 		if (timesBursted >= shotsPerBurst)
 		{
-			timesBursted = 0;
+			timesBursted = 0; // reset times bursted
 
 			const float timeBetweenBursts = (GunAttributeSet->GetTimeBetweenBurstsOverride() == -1) ? GunAttributeSet->GetTimeBetweenShots() : GunAttributeSet->GetTimeBetweenBurstsOverride();
 			TickerTask->Freeze(timeBetweenBursts);	// For full auto, just freeze the ticker for a little so we can continue to fire again (of course unless the player lets go of the fire button)
@@ -301,6 +304,7 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 				return;
 			}
 		}
+
 		return;
 	}
 }
@@ -308,6 +312,7 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 void UGA_FireGun::Shoot()
 {
 	++shotNumber;
+
 	// Check if we have enough ammo first
 	int32 ammoLeftAfterThisShot = AmmoAttributeSet->ClipAmmo - GunAttributeSet->GetAmmoCost();
 	if (ammoLeftAfterThisShot < 0) // if we don't have enough ammo for this shot (if shooting this shot will bring us below 0 ammo).
@@ -369,19 +374,12 @@ void UGA_FireGun::OnRelease(float TimeHeld)
 	UKismetSystemLibrary::PrintString(this, "OnRelease", true, false, FLinearColor::Yellow, 5.f);
 	bInputPressed = false;
 
-	const bool isFullAuto = GunAttributeSet->GetbFullAuto() != 0;
-	if (isFullAuto)
+	if (IsFullAuto())
 	{
-		const int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
-		const bool isBurstFire = shotsPerBurst > 1;
-		if (isBurstFire)
+		if (IsBurst() && CurrentlyBursting()) // don't end ability yet if we are in the middle of a burst - we will wait until we finish the burst
 		{
-			const bool bFinishedBursting = (timesBursted == 0 || timesBursted >= shotsPerBurst);
-			if (bFinishedBursting == false) // don't end ability yet if we are in the middle of a burst - we will wait until we finish the burst
-			{
-				// We don't end ability here because we need to wait until we finish bursting!
-				return;
-			}
+			// We don't end ability here because we need to wait until we finish bursting!
+			return;
 		}
 
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
@@ -411,29 +409,33 @@ void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 
 	// Only thing to do left is to decide if we should end the ability or not........
 
-	int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
-	bool bIsSemiAutoSingleShot = GunAttributeSet->GetbFullAuto() == 0 && (shotsPerBurst <= 1);
-	if (bIsSemiAutoSingleShot)
-	{
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
-		return;
-	}
 
-	// Any other types of fires need to end the ability if no more ammo
+	// If we don't have enough ammo for another shot, always end here
 	if (!EnoughAmmoToShoot())
 	{
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 		return;
 	}
-	// We must have enough ammo for another shot
 
 
-	bool bIsSemiAutoBurstFire = GunAttributeSet->GetbFullAuto() == 0 && shotsPerBurst > 1;
-	if (bIsSemiAutoBurstFire && timesBursted >= shotsPerBurst)	// Only end ability if we are out of shots for this burst
+	if (IsFullAuto() == false)
 	{
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
-		return;
+		if (IsBurst() == false)
+		{
+			// We are a single shot semi-auto - end here
+			EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+			return;
+		}
+
+
+		if (IsBurst() && CurrentlyBursting() == false)
+		{
+			// We are out of shots for this burst - end here
+			EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+			return;
+		}
 	}
+
 }
 void UGA_FireGun::OnCancelled(const FGameplayAbilityTargetDataHandle& Data)
 {
@@ -483,8 +485,34 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 
 bool UGA_FireGun::EnoughAmmoToShoot() const
 {
-	float clipAmmo = AmmoAttributeSet->ClipAmmo;
-	float ammoCost = GunAttributeSet->GetAmmoCost();
-	float clipAmmoAfterNextShot = clipAmmo - ammoCost;
-	return clipAmmoAfterNextShot >= 0;
+	const float clipAmmo = AmmoAttributeSet->ClipAmmo;
+	const float ammoCost = GunAttributeSet->GetAmmoCost();
+
+	const float clipAmmoAfterNextShot = clipAmmo - ammoCost;
+	return (clipAmmoAfterNextShot >= 0);
+}
+
+bool UGA_FireGun::IsFullAuto() const
+{
+	return !!GunAttributeSet->GetbFullAuto();
+}
+bool UGA_FireGun::IsBurst() const
+{
+	const int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
+
+	const bool isBurst = (shotsPerBurst > 1);
+	return isBurst;
+}
+
+bool UGA_FireGun::CurrentlyBursting() const
+{
+	if (IsBurst() == false)
+	{
+		return false;
+	}
+
+	const int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
+
+	const bool hasBurstsLeft = (timesBursted > 0 && timesBursted < shotsPerBurst);
+	return hasBurstsLeft;
 }

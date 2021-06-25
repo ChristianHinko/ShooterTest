@@ -302,9 +302,12 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 		++timesBursted;
 		if (timesBursted >= shotsPerBurst)
 		{
+			timesBursted = 0;
+
 			const float timeBetweenBursts = (GunAttributeSet->GetTimeBetweenBurstsOverride() == -1) ? GunAttributeSet->GetTimeBetweenShots() : GunAttributeSet->GetTimeBetweenBurstsOverride();
 			TickerTask->Freeze(timeBetweenBursts);	// For full auto, just freeze the ticker for a little so we can continue to fire again (of course unless the player lets go of the fire button)
-			timesBursted = 0;
+
+			// This is our last shot in the burst, check if we want to stop
 			if (bInputPressed == false)
 			{
 				EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
@@ -378,25 +381,22 @@ void UGA_FireGun::OnRelease(float TimeHeld)
 {
 	UKismetSystemLibrary::PrintString(this, "OnRelease", true, false, FLinearColor::Yellow, 5.f);
 	bInputPressed = false;
-	// Here we must be any kind of full auto. So we will only consider ending the ability if input is no longer pressed.....
-	// We'll check if we're locally controlled since client will tell server when to end ability
-	bool isFullAuto = GunAttributeSet->GetbFullAuto() == 1;
+
+	const bool isFullAuto = GunAttributeSet->GetbFullAuto() != 0;
 	if (isFullAuto)
 	{
-		int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
-		bool isBurstFire = shotsPerBurst > 1;
-		bool bIsFullAutoBurstFire = isFullAuto && isBurstFire;
-		if (bIsFullAutoBurstFire)
+		const int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
+		const bool isBurstFire = shotsPerBurst > 1;
+		if (isBurstFire)
 		{
-			if (timesBursted == 0 || timesBursted >= shotsPerBurst)	// Only end ability if we are not in the middle of a burst
+			const bool bFinishedBursting = (timesBursted == 0 || timesBursted >= shotsPerBurst);
+			if (bFinishedBursting == false) // don't end ability yet if we are in the middle of a burst - we will wait until we finish the burst
 			{
-				EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+				// We don't end ability here because we need to wait until we finish bursting!
 				return;
 			}
-			return;
 		}
 
-		// If we are just a plain full auto.....
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 	}
 }

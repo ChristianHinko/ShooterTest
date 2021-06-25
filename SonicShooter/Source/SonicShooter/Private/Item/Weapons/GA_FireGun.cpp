@@ -179,7 +179,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		}
 	}
 
-	// We only want a release task if we are a full auto fire
+	// We only want a release task if we are full auto
 	UAT_WaitInputRelease* WaitInputReleaseTask = nullptr;
 	if (IsFullAuto())
 	{
@@ -248,17 +248,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 
 void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRemaining)
 {
-	if (IsFullAuto() == false && (IsBurst() && CurrentlyBursting()) == false) // we're semi auto that is either single shot or burst
-	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() The shoot tick somehow got called when it didn't need to be called. Might not cause any problems, but this is unexpected behavior. Maybe it got here by bFullAuto changing or NumShotsPerBurst changing"), *FString(__FUNCTION__));
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
-		return;
-	}
-
-
-
-
-	// no burst
+	// No burst
 	if (IsBurst() == false)
 	{
 		Shoot();
@@ -313,14 +303,15 @@ void UGA_FireGun::Shoot()
 {
 	++shotNumber;
 
-	// Check if we have enough ammo first
-	int32 ammoLeftAfterThisShot = AmmoAttributeSet->ClipAmmo - GunAttributeSet->GetAmmoCost();
-	if (ammoLeftAfterThisShot < 0) // if we don't have enough ammo for this shot (if shooting this shot will bring us below 0 ammo).
-	{
-		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Not enough ammo to fire"), *FString(__FUNCTION__));
 
-		// Handle out of ammo
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);	// We don't want to keep shooting
+	if (!EnoughAmmoToShoot())
+	{
+		// Currently this never gets hit. But left it here for now in case we want to make this ability trigger the shoot function even if you have no ammo.
+		// The reason you may want to do this is so that you could do some kind of thing in response to a shot not having ammo (ie. play clicking sound or animation idk)
+		// Not saying this is where it should be done, but thought it might be useful to keep for now if we ever end up liking the idea.
+		// Another suggestion of where to do these kind of things would maybe to do it in the OnShootTick(), so we don't have to call this function and we could do these effects in there.
+		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Not enough ammo to shoot"), *FString(__FUNCTION__));
+
 		return;
 	}
 
@@ -351,9 +342,10 @@ void UGA_FireGun::Shoot()
 	BulletTraceTargetActor->bUseAimPointAsStartLocation = true; // we just want to use the player camera position directly for our StartLocation
 	
 
+	// btw it's cool that we have a net safe random seed and we have a system for it, but reality is we don't need it now since client will just send its target data to server.
 	const int16 predKey = GetCurrentActivationInfo().GetActivationPredictionKey().Current;	// Use the prediction key as a net safe random seed.
 	const int32 fireRandomSeed = predKey + shotNumber;										// Make the random seed unique to this particular fire
-	BulletTraceTargetActor->FireSpecificNetSafeRandomSeed = fireRandomSeed;							// Inject this random seed into our target actor (target actor will make random seed unique to each bullet in the fire if there are multible bullets in the fire)
+	BulletTraceTargetActor->FireSpecificNetSafeRandomSeed = fireRandomSeed;					// Inject this random seed into our target actor (target actor will make random seed unique to each bullet in the fire if there are multible bullets in the fire)
 
 	// Lets finally fire
 	UKismetSystemLibrary::PrintString(this, "Shoot", true, false, FLinearColor::Blue, 5.f);
@@ -374,6 +366,7 @@ void UGA_FireGun::OnRelease(float TimeHeld)
 	UKismetSystemLibrary::PrintString(this, "OnRelease", true, false, FLinearColor::Yellow, 5.f);
 	bInputPressed = false;
 
+	// Only thing to do left is see if we should end the ability
 	if (IsFullAuto())
 	{
 		if (IsBurst() && CurrentlyBursting()) // don't end ability yet if we are in the middle of a burst - we will wait until we finish the burst
@@ -440,7 +433,7 @@ void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 void UGA_FireGun::OnCancelled(const FGameplayAbilityTargetDataHandle& Data)
 {
 	UE_LOG(LogGameplayAbility, Warning, TEXT("%s(): Not sure how this got hit :/ Something unexpected happened"), *FString(__FUNCTION__));
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }
 
 void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
@@ -485,10 +478,7 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 
 bool UGA_FireGun::EnoughAmmoToShoot() const
 {
-	const float clipAmmo = AmmoAttributeSet->ClipAmmo;
-	const float ammoCost = GunAttributeSet->GetAmmoCost();
-
-	const float clipAmmoAfterNextShot = clipAmmo - ammoCost;
+	const float clipAmmoAfterNextShot = AmmoAttributeSet->ClipAmmo - GunAttributeSet->GetAmmoCost();
 	return (clipAmmoAfterNextShot >= 0);
 }
 

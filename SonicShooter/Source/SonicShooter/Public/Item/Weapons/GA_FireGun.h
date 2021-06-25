@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/ASSGameplayAbility.h"
 
+
 #include "GA_FireGun.generated.h"
 
 
@@ -14,8 +15,7 @@ class UAS_Ammo;
 class UGunStack;
 class USSAbilityTask_WaitTargetData;
 class UAT_Ticker;
-
-
+struct FOnAttributeChangeData;
 
 /**
  * Notes:
@@ -75,7 +75,9 @@ protected:
 	UFUNCTION()
 		void OnCancelled(const FGameplayAbilityTargetDataHandle& Data);
 
-
+	FOnGameplayAttributeValueChange* TimeBetweenShotsAttributeChangedDelegate;
+	FGameplayAttribute TimeBetweenShotsAttribute;
+	void OnTimeBetweenShotsAttributeValueChanged(const FOnAttributeChangeData& Data);
 
 #pragma region AttributeSet Helpers
 	bool EnoughAmmoToShoot() const;

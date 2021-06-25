@@ -33,6 +33,7 @@ UGA_FireGun::UGA_FireGun()
 
 	shotNumber = 0;
 	bInputPressed = false;
+	TimeBetweenShotsAttribute = UAS_Gun::GetTimeBetweenShotsAttribute();
 }
 
 
@@ -48,6 +49,12 @@ void UGA_FireGun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const 
 void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
+
+	TimeBetweenShotsAttributeChangedDelegate = &(GetAbilitySystemComponentFromActorInfo()->GetGameplayAttributeValueChangeDelegate(TimeBetweenShotsAttribute));
+	if (!TimeBetweenShotsAttributeChangedDelegate)
+	{
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() No valid TimeBetweenShotsAttributeChangedDelegate when giving the fire ability. Runtime changes of TimeBetweenShots will result in unexpected behavior."), *FString(__FUNCTION__));
+	}
 
 	// Need to make the item generators use the GunStack now
 	// instead of it using item stack so this cast works.
@@ -102,6 +109,8 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 void UGA_FireGun::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnRemoveAbility(ActorInfo, Spec);
+
+	TimeBetweenShotsAttributeChangedDelegate = nullptr;
 
 	GunToFire = nullptr;
 	if (BulletTraceTargetActor && BulletTraceTargetActor->Destroy())
@@ -229,6 +238,14 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		return;
 	}
 
+	if (TimeBetweenShotsAttributeChangedDelegate)
+	{
+		TimeBetweenShotsAttributeChangedDelegate->AddUObject(this, &UGA_FireGun::OnTimeBetweenShotsAttributeValueChanged);
+	}
+	else
+	{
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s TimeBetweenShotsAttributeChangedDelegate was null when activating FireGun ability. Runtime changes of TimeBetweenShots during this ability activation will result in unexpected behavior."), *FString(__FUNCTION__));
+	}
 
 	TickerTask->OnTick.AddDynamic(this, &UGA_FireGun::OnShootTick);
 	TickerTask->ReadyForActivation();
@@ -448,6 +465,15 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 	}
 
 	UKismetSystemLibrary::PrintString(this, "End", true, false, FLinearColor::Red, 5.f);
+
+	if (TimeBetweenShotsAttributeChangedDelegate)
+	{
+		TimeBetweenShotsAttributeChangedDelegate->RemoveAll(this);
+	}
+	else
+	{
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() TimeBetweenShotsAttributeChangedDelegate was NULL when trying to unbind from it. This is weird"), *FString(__FUNCTION__));
+	}
 	// Store when this fire ended so next fire can determine fire rate
 	timestampPreviousFireEnd = GetWorld()->GetTimeSeconds();
 
@@ -518,3 +544,13 @@ bool UGA_FireGun::CurrentlyBursting() const
 	return hasBurstsLeft;
 }
 #pragma endregion
+
+
+
+void UGA_FireGun::OnTimeBetweenShotsAttributeValueChanged(const FOnAttributeChangeData& Data)
+{
+	if (TickerTask)
+	{
+		TickerTask->SetTickInterval(Data.NewValue);
+	}
+}

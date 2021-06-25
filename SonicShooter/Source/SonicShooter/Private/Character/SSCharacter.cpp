@@ -265,8 +265,7 @@ FRotator ASSCharacter::GetBaseAimRotation() const
 		return POVRot;
 	}
 
-	//// If our Yaw is 0, then use a replicated view yaw
-	//if (FMath::IsNearlyZero(POVRot.Yaw))
+	// Use a replicated view yaw. NOTE: we may need to modify the Super to not do "FMath::IsNearlyZero(POVRot.Pitch)". Idk really what that is for but it may mess things up when we are rotated
 	{
 		POVRot.Yaw = RemoteViewYaw;
 		POVRot.Yaw = POVRot.Yaw * 360.0f / 255.0f;

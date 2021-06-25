@@ -362,6 +362,7 @@ void UGA_FireGun::OnRelease(float TimeHeld)
 	UKismetSystemLibrary::PrintString(this, "OnRelease", true, false, FLinearColor::Yellow, 5.f);
 	bInputPressed = false;
 
+	// Only thing to do left is see if we should end the ability
 	const bool isFullAuto = GunAttributeSet->GetbFullAuto() != 0;
 	if (isFullAuto)
 	{

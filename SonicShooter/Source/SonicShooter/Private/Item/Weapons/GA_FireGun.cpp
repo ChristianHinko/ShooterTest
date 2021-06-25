@@ -180,7 +180,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		}
 	}
 
-	// We only want a release task if we are a full auto fire
+	// We only want a release task if we are full auto
 	UAT_WaitInputRelease* WaitInputReleaseTask = nullptr;
 	if (GunAttributeSet->GetbFullAuto() != 0)
 	{

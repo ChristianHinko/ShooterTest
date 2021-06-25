@@ -248,13 +248,6 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 {
 	int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
 
-	if (GunAttributeSet->GetbFullAuto() == 0 && (shotsPerBurst <= 1 || timesBursted >= shotsPerBurst)) // we're semi auto that is either single shot or burst
-	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() The shoot tick somehow got called when it didn't need to be called. Might not cause any problems, but this is unexpected behavior. Maybe it got here by bFullAuto changing or NumShotsPerBurst changing"), *FString(__FUNCTION__));
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
-		return;
-	}
-
 
 
 
@@ -308,14 +301,13 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 void UGA_FireGun::Shoot()
 {
 	++shotNumber;
-	// Check if we have enough ammo first
-	int32 ammoLeftAfterThisShot = AmmoAttributeSet->ClipAmmo - GunAttributeSet->GetAmmoCost();
-	if (ammoLeftAfterThisShot < 0) // if we don't have enough ammo for this shot (if shooting this shot will bring us below 0 ammo).
-	{
-		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Not enough ammo to fire"), *FString(__FUNCTION__));
 
-		// Handle out of ammo
-		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);	// We don't want to keep shooting
+	if (!EnoughAmmoToShoot())
+	{
+		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Not enough ammo to fire"), *FString(__FUNCTION__));
+
+		// Handle out of ammo (maybe do a clicking sound or animation idk)
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);	// We don't want to keep shooting
 		return;
 	}
 

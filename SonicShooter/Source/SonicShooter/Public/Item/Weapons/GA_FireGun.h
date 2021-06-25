@@ -91,5 +91,5 @@ private:
 
 	float timestampPreviousFireEnd;
 	// Client only bool
-	uint8 bClientInputPressed : 1;
+	uint8 bInputPressed : 1;
 };

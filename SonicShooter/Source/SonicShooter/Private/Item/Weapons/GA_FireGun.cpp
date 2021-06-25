@@ -31,7 +31,7 @@ UGA_FireGun::UGA_FireGun()
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("AbilityInput.PrimaryFire")));
 
 	shotNumber = 0;
-	bClientInputPressed = false;
+	bInputPressed = false;
 }
 
 
@@ -164,7 +164,7 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	bClientInputPressed = true;
+	bInputPressed = true;
 
 	int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
 
@@ -291,7 +291,7 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 			const float timeBetweenBursts = (GunAttributeSet->GetTimeBetweenBurstsOverride() == -1) ? GunAttributeSet->GetTimeBetweenShots() : GunAttributeSet->GetTimeBetweenBurstsOverride();
 			TickerTask->Freeze(timeBetweenBursts);	// For full auto, just freeze the ticker for a little so we can continue to fire again (of course unless the player lets go of the fire button)
 			timesBursted = 0;
-			if (bClientInputPressed == false)
+			if (bInputPressed == false)
 			{
 				EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 				return;
@@ -359,7 +359,7 @@ void UGA_FireGun::Shoot()
 void UGA_FireGun::OnRelease(float TimeHeld)
 {
 	UKismetSystemLibrary::PrintString(this, "OnRelease", true, false, FLinearColor::Yellow, 5.f);
-	bClientInputPressed = false;
+	bInputPressed = false;
 	// Here we must be any kind of full auto. So we will only consider ending the ability if input is no longer pressed.....
 	// We'll check if we're locally controlled since client will tell server when to end ability
 	bool isFullAuto = GunAttributeSet->GetbFullAuto() == 1;

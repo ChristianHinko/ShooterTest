@@ -477,8 +477,6 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 
 bool UGA_FireGun::EnoughAmmoToShoot() const
 {
-	float clipAmmo = AmmoAttributeSet->ClipAmmo;
-	float ammoCost = GunAttributeSet->GetAmmoCost();
-	float clipAmmoAfterNextShot = clipAmmo - ammoCost;
+	float clipAmmoAfterNextShot = AmmoAttributeSet->ClipAmmo - GunAttributeSet->GetAmmoCost();
 	return clipAmmoAfterNextShot >= 0;
 }

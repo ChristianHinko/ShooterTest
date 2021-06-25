@@ -199,13 +199,13 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	}
 	///////////////////////////////////// we are safe to proceed /////////
 
-	if (IsFireingGunEffectTSub)
+	if (IsFiringGunEffectTSub)
 	{
-		IsFiringGunEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, IsFireingGunEffectTSub.GetDefaultObject(), GetAbilityLevel());
+		IsFiringGunEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, IsFiringGunEffectTSub.GetDefaultObject(), GetAbilityLevel());
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("IsFireingGunEffectTSub TSubclassOf empty in %s"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("IsFiringGunEffectTSub TSubclassOf empty in %s"), *FString(__FUNCTION__));
 	}
 
 	if (GunAttributeSet->GetbFullAuto() == 0) // semi-auto

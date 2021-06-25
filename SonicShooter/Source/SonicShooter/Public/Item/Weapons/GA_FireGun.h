@@ -32,7 +32,7 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Effects To Apply")
-		TSubclassOf<UGameplayEffect> IsFireingGunEffectTSub;
+		TSubclassOf<UGameplayEffect> IsFiringGunEffectTSub;
 	FActiveGameplayEffectHandle IsFiringGunEffectActiveHandle;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")

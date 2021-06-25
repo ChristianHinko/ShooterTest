@@ -13,8 +13,10 @@
 #include "Item\Weapons\GunStack.h"
 #include "ArcInventoryItemTypes.h"
 #include "Item\Definitions\ArcItemDefinition_Active.h"
+
 #include "AbilityTasks/AT_Ticker.h"
 #include "Kismet/GameplayStatics.h"
+#include "AbilityTasks\AT_WaitInputRelease.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
@@ -177,6 +179,19 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		}
 	}
 
+	// We only want a release task if we are a full auto fire
+	UAT_WaitInputRelease* WaitInputReleaseTask = nullptr;
+	if (GunAttributeSet->GetbFullAuto() != 0)
+	{
+		WaitInputReleaseTask = UAT_WaitInputRelease::WaitInputRelease(this);
+		if (!WaitInputReleaseTask)
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputReleaseTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), *FString(__FUNCTION__));
+			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+			return;
+		}
+	}
+
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
@@ -207,6 +222,11 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	}
 	else // full-auto:
 	{
+		// Full auto so bind to release task
+		WaitInputReleaseTask->OnRelease.AddDynamic(this, &UGA_FireGun::OnRelease);
+		WaitInputReleaseTask->ReadyForActivation();
+
+
 		// Full auto so always bind to tick task (even if no burst)
 		TickerTask->OnTick.AddDynamic(this, &UGA_FireGun::OnShootTick);
 		TickerTask->ReadyForActivation();
@@ -223,8 +243,6 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 }
 
 
-
-
 void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRemaining)
 {
 	int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
@@ -239,7 +257,7 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 
 
 
-	// Single shot - no burst
+	// no burst
 	if (shotsPerBurst <= 1)
 	{
 		Shoot();
@@ -273,6 +291,11 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 			const float timeBetweenBursts = (GunAttributeSet->GetTimeBetweenBurstsOverride() == -1) ? GunAttributeSet->GetTimeBetweenShots() : GunAttributeSet->GetTimeBetweenBurstsOverride();
 			TickerTask->Freeze(timeBetweenBursts);	// For full auto, just freeze the ticker for a little so we can continue to fire again (of course unless the player lets go of the fire button)
 			timesBursted = 0;
+			if (bClientInputPressed == false)
+			{
+				EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
+				return;
+			}
 		}
 		return;
 	}
@@ -280,7 +303,6 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 
 void UGA_FireGun::Shoot()
 {
-	UKismetSystemLibrary::PrintString(this, "Shoot", true, false, FLinearColor::Blue, 5.f);
 	++shotNumber;
 	// Check if we have enough ammo first
 	int32 ammoLeftAfterThisShot = AmmoAttributeSet->ClipAmmo - GunAttributeSet->GetAmmoCost();
@@ -325,6 +347,7 @@ void UGA_FireGun::Shoot()
 	BulletTraceTargetActor->FireSpecificNetSafeRandomSeed = fireRandomSeed;							// Inject this random seed into our target actor (target actor will make random seed unique to each bullet in the fire if there are multible bullets in the fire)
 
 	// Lets finally fire
+	UKismetSystemLibrary::PrintString(this, "Shoot", true, false, FLinearColor::Blue, 5.f);
 	AmmoAttributeSet->ClipAmmo = AmmoAttributeSet->ClipAmmo - GunAttributeSet->GetAmmoCost();
 	WaitTargetDataActorTask->ReadyForActivation();
 	GunAttributeSet->ApplyFireBulletSpread();
@@ -333,11 +356,27 @@ void UGA_FireGun::Shoot()
 
 
 
-
-void UGA_FireGun::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+void UGA_FireGun::OnRelease(float TimeHeld)
 {
 	UKismetSystemLibrary::PrintString(this, "OnRelease", true, false, FLinearColor::Yellow, 5.f);
 	bClientInputPressed = false;
+	// Here we must be any kind of full auto. So we will only consider ending the ability if input is no longer pressed.....
+	// We'll check if we're locally controlled since client will tell server when to end ability
+	bool isFullAuto = GunAttributeSet->GetbFullAuto() == 1;
+	if (isFullAuto)
+	{
+		int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
+		bool isBurstFire = shotsPerBurst > 1;
+		bool bIsFullAutoBurstFire = isFullAuto && isBurstFire;
+		if (bIsFullAutoBurstFire && (timesBursted == 0 || timesBursted >= shotsPerBurst))	// Only end ability if we are finished with our current burst
+		{
+			EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+			return;
+		}
+
+		// If we are just a plain full auto.....
+		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	}
 }
 
 void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
@@ -385,25 +424,6 @@ void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 	{
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 		return;
-	}
-
-	// Here we must be any kind of full auto. So we will only consider ending the ability if input is no longer pressed.....
-	// We'll check if we're locally controlled since client will tell server when to end ability
-	if (IsLocallyControlled())
-	{
-		if (!bClientInputPressed)
-		{
-			bool bIsFullAutoBurstFire = GunAttributeSet->GetbFullAuto() == 1 && shotsPerBurst > 1;
-			if (bIsFullAutoBurstFire && timesBursted >= shotsPerBurst)	// Only end ability if we are finished with our current burst
-			{
-				EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
-				return;
-			}
-
-			// If we are just a plain full auto.....
-			EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
-			return;
-		}
 	}
 }
 void UGA_FireGun::OnCancelled(const FGameplayAbilityTargetDataHandle& Data)

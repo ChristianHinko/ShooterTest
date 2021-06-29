@@ -96,6 +96,20 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 	}
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 FRotator UAI_ShooterCharacter::GetHeadLookAtTargetRot(AActor* Target, float deltaTime)
 {
 	FRotator retVal = FRotator::ZeroRotator;

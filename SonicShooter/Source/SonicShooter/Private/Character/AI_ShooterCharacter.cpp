@@ -18,7 +18,7 @@ UAI_ShooterCharacter::UAI_ShooterCharacter(const FObjectInitializer& ObjectIniti
 {
 	headLookAtRot = FRotator::ZeroRotator;
 	headLookSpeed = 3;
-	headLookAtAlpha = 0;
+	headLookAtAlpha = 1;
 	headMaxRollRot = 85;
 	headMaxPitchRot = 85;
 	headMaxYawRot = 85;

@@ -38,6 +38,14 @@ protected:
 	AShooterCharacter* OwningShooterCharacter;
 
 
+	/**
+	 * The rotation of our owning Actor.
+	 */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Actor")
+		FRotator ActorRotation;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Actor")
+		FRotator MeshRotation;
+
 	/** Current velocity of the owning Actor */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Actor")
 		FVector Velocity;
@@ -60,20 +68,38 @@ protected:
 		float Direction;
 
 
+
+	/**
+	 * The rotation that we are looking (the Control Rotation).
+	 * NOTE: this will be choppy when replicated and we don't automatically smooth it,
+	 * ensure you make use of interpolation when using this value for animation.
+	 */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn")
+		FRotator AimRotation;
+
 	/**
 	 * Amount of Pitch that our Control Rotation differs from our Actor Rotation.
 	 * NOTE: this will be choppy when replicated and we don't automatically smooth it,
 	 * ensure you make use of interpolation when using this value for animation.
 	 */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn")
-		float AimPitch;
+		float AimOffsetPitch;
 	/**
 	 * Amount of Yaw that our Control Rotation differs from our Actor Rotation.
 	 * NOTE: this will be choppy when replicated and we don't automatically smooth it,
 	 * ensure you make use of interpolation when using this value for animation.
 	 */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn")
-		float AimYaw;
+		float AimOffsetYaw;
+
+	/**
+	 * Turn in place offset
+	 */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn")
+		float NegatedRootYawOffset;
+	/** When we are currently turning in place to our Aim Rotation */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn")
+		uint8 bIsTurningInPlace;
 
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character")
@@ -104,5 +130,8 @@ protected:
 
 
 	FRotator GetHeadLookAtTargetRot(AActor* Target, float deltaTime);
+
+private:
+	FRotator PreviousAimRotation;
 
 };

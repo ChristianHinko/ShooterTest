@@ -46,6 +46,8 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 
 	if (OwningActor)
 	{
+		ActorRotation = OwningActor->GetActorRotation();
+
 		Velocity = OwningActor->GetVelocity();
 		Speed = Velocity.Size();
 
@@ -61,13 +63,39 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 
 	if (OwningPawn)
 	{
-		const FRotator ActorRotation = OwningActor->GetActorRotation();
-		const FRotator ControlRotation = OwningPawn->GetBaseAimRotation();
-		const FRotator AimDelta = UKismetMathLibrary::NormalizedDeltaRotator(ControlRotation, ActorRotation); // the normalized direction from ActorRotation to ControlRotation
+		// This will be choppy when replicated but we won't automatically smooth it here
+		AimRotation = OwningPawn->GetBaseAimRotation();
 
-		// These will be choppy when replicated but we won't automatically smooth it here
-		AimPitch = AimDelta.Pitch;
-		AimYaw = AimDelta.Yaw;
+
+		// Turn in place
+		{
+			const float AimYawIncrease = AimRotation.Yaw - PreviousAimRotation.Yaw;
+			NegatedRootYawOffset += AimYawIncrease * -1; // negate it so we cancel out with our Actor Rotation
+			NegatedRootYawOffset = FRotator::NormalizeAxis(NegatedRootYawOffset);
+			if (FMath::Abs(NegatedRootYawOffset) >= 90.f || FMath::IsNearlyZero(Speed) == false)
+			{
+				bIsTurningInPlace = true;
+			}
+
+			if (bIsTurningInPlace)
+			{
+				NegatedRootYawOffset = FMath::FInterpConstantTo(NegatedRootYawOffset, 0.f, DeltaTimeX, 100.f);
+				if (FMath::IsNearlyZero(NegatedRootYawOffset))
+				{
+					NegatedRootYawOffset = 0.f;
+					bIsTurningInPlace = false;
+				}
+			}
+
+			UKismetSystemLibrary::PrintString(this, "NegatedRootYawOffset: " + FString::SanitizeFloat(NegatedRootYawOffset), true, false);
+		}
+
+		MeshRotation = ActorRotation + FRotator(0.f, NegatedRootYawOffset, 0.f);
+
+
+		const FRotator AimOffset = UKismetMathLibrary::NormalizedDeltaRotator(AimRotation, MeshRotation); // the normalized direction from ActorRotation to ControlRotation
+		AimOffsetPitch = AimOffset.Pitch;
+		AimOffsetYaw = AimOffset.Yaw;
 	}
 
 	if (OwningCharacter)
@@ -94,6 +122,8 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 	{
 		headLookAtRot = GetHeadLookAtTargetRot(OwningShooterCharacter->GetNearestPawn(), DeltaTimeX);
 	}
+
+	PreviousAimRotation = AimRotation;
 }
 
 

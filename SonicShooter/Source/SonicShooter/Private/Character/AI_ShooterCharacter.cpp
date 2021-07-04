@@ -63,63 +63,10 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 
 
 #pragma region Owning Pawn work
-		AimRotation = OwningShooterCharacter->GetBaseAimRotation();		// This will be choppy when replicated but we won't automatically smooth it here
+		AimRotation = OwningShooterCharacter->GetBaseAimRotation();	// this will be choppy when replicated but we won't automatically smooth it here
 
-
-		const bool previousTurnInPlaceAvailable = bTurnInPlaceAvailable;
-		bTurnInPlaceAvailable = FMath::IsNearlyZero(Speed);
-		if (bTurnInPlaceAvailable == true && previousTurnInPlaceAvailable == false)
-		{
-			TurnInPlaceStartingYaw = ActorRotation.Yaw;
-		}
-
-		if (OwningShooterCharacter->bUseControllerRotationYaw == false)
-		{
-			bTurnInPlaceEnabled = false;
-		}
-		// Turn in place
-		if (bTurnInPlaceEnabled)
-		{
-			if (bTurnInPlaceAvailable)
-			{
-				if (bIsTurningInPlace == false)
-				{
-					TurnInPlaceYawOffset = (ActorRotation.Yaw - TurnInPlaceStartingYaw) * -1; // negate with our Actor Rotation
-					TurnInPlaceYawOffset = FRotator::NormalizeAxis(TurnInPlaceYawOffset);
-					if (FMath::Abs(TurnInPlaceYawOffset) >= 90.f)
-					{
-						bIsTurningInPlace = true;
-					}
-				}
-
-			}
-			else
-			{
-				bIsTurningInPlace = true;
-			}
-
-			if (bIsTurningInPlace)
-			{
-				TurnInPlaceYawOffset = FMath::FInterpConstantTo(TurnInPlaceYawOffset, 0.f, DeltaTimeX, 100.f);
-				if (FMath::IsNearlyZero(TurnInPlaceYawOffset))
-				{
-					TurnInPlaceYawOffset = 0.f;
-					bIsTurningInPlace = false;
-					TurnInPlaceStartingYaw = ActorRotation.Yaw;
-				}
-			}
-
-			//UKismetSystemLibrary::PrintString(this, "TurnInPlaceYawOffset: " + FString::SanitizeFloat(TurnInPlaceYawOffset), true, false);
-		}
-		else
-		{
-			TurnInPlaceYawOffset = 0.f;
-			bIsTurningInPlace = false;
-			TurnInPlaceStartingYaw = ActorRotation.Yaw;
-		}
-
+		TurnInPlace(DeltaTimeX);
 		MeshRotation = ActorRotation + FRotator(0.f, TurnInPlaceYawOffset, 0.f);
-
 
 		const FRotator AimOffset = UKismetMathLibrary::NormalizedDeltaRotator(AimRotation, MeshRotation); // the normalized direction from ActorRotation to ControlRotation
 		AimOffsetPitch = AimOffset.Pitch;
@@ -160,7 +107,60 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 
 }
 
+void UAI_ShooterCharacter::TurnInPlace(float DeltaTimeX)
+{
+	const bool previousTurnInPlaceAvailable = bTurnInPlaceAvailable;
+	bTurnInPlaceAvailable = FMath::IsNearlyZero(Speed);
+	if (bTurnInPlaceAvailable == true && previousTurnInPlaceAvailable == false)
+	{
+		// TIP just became available
+		TurnInPlaceStartingYaw = ActorRotation.Yaw;
+	}
 
+
+	if (OwningShooterCharacter->bUseControllerRotationYaw == false)
+	{
+		bTurnInPlaceEnabled = false;
+	}
+
+	if (bTurnInPlaceEnabled)
+	{
+		if (bTurnInPlaceAvailable == false)
+		{
+			// Start turning back to normal
+			bIsTurningInPlace = true;
+		}
+
+		if (bIsTurningInPlace == false)
+		{
+			TurnInPlaceYawOffset = (ActorRotation.Yaw - TurnInPlaceStartingYaw) * -1; // negate with our Actor Rotation
+			TurnInPlaceYawOffset = FRotator::NormalizeAxis(TurnInPlaceYawOffset);
+			if (FMath::Abs(TurnInPlaceYawOffset) >= 90.f)
+			{
+				bIsTurningInPlace = true;
+			}
+		}
+
+		if (bIsTurningInPlace)
+		{
+			TurnInPlaceYawOffset = FMath::FInterpConstantTo(TurnInPlaceYawOffset, 0.f, DeltaTimeX, 100.f);
+			if (FMath::IsNearlyZero(TurnInPlaceYawOffset))
+			{
+				TurnInPlaceYawOffset = 0.f;
+				bIsTurningInPlace = false;
+				TurnInPlaceStartingYaw = ActorRotation.Yaw;
+			}
+		}
+
+		//UKismetSystemLibrary::PrintString(this, "TurnInPlaceYawOffset: " + FString::SanitizeFloat(TurnInPlaceYawOffset), true, false);
+	}
+	else
+	{
+		TurnInPlaceYawOffset = 0.f;
+		bIsTurningInPlace = false;
+		TurnInPlaceStartingYaw = ActorRotation.Yaw;
+	}
+}
 
 
 

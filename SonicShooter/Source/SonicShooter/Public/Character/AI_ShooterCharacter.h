@@ -128,7 +128,7 @@ protected:
 
 
 
-
+	void TurnInPlace(float DeltaTimeX);
 
 
 

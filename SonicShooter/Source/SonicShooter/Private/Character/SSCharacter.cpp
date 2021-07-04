@@ -34,7 +34,7 @@ void ASSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 
 
 	DOREPLIFETIME_CONDITION(ASSCharacter, bIsRunning, COND_SimulatedOnly);
-	DOREPLIFETIME_CONDITION(ASSCharacter, RemoteViewYaw, COND_SkipOwner);
+	DOREPLIFETIME_CONDITION(ASSCharacter, RemoteViewYaw, COND_SkipOwner); // we also do a custom condition for this in PreReplication() (but we aren't using COND_Custom because we still want to COND_SkipOwner)
 
 	DOREPLIFETIME(ASSCharacter, CharacterMovementAttributeSet);
 	DOREPLIFETIME(ASSCharacter, StaminaAttributeSet);
@@ -149,10 +149,15 @@ void ASSCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTra
 {
 	Super::PreReplication(ChangedPropertyTracker);
 
+
 	if (GetLocalRole() == ROLE_Authority && GetController())
 	{
 		SetRemoteViewYaw(GetController()->GetControlRotation().Yaw);
 	}
+
+	// Custom RemoteViewYaw replication condition - only replicate if we aren't using bUseControllerRotationYaw
+	DOREPLIFETIME_ACTIVE_OVERRIDE(ASSCharacter, RemoteViewYaw, (bUseControllerRotationYaw == false));
+
 }
 
 
@@ -265,11 +270,19 @@ FRotator ASSCharacter::GetBaseAimRotation() const
 		return POVRot;
 	}
 
-	// Use a replicated view yaw. NOTE: we may need to modify the Super to not do "FMath::IsNearlyZero(POVRot.Pitch)". Idk really what that is for but it may mess things up when we are rotated
+	
+	if (bUseControllerRotationYaw)
 	{
+		// Our capsule rotation's Yaw perfectly represents our aim rotation's Yaw so just use that because it is more smoothly replicated (and RemoteViewYaw doesn't replicate if this is the case)
+		POVRot.Yaw = GetActorRotation().Yaw;
+	}
+	else
+	{
+		// Use a replicated view yaw. NOTE: we may need to modify the Super to not do "FMath::IsNearlyZero(POVRot.Pitch)". Idk really what that is for but it may mess things up when we are rotated
 		POVRot.Yaw = RemoteViewYaw;
 		POVRot.Yaw = POVRot.Yaw * 360.0f / 255.0f;
 	}
+
 
 	return POVRot;
 }

@@ -31,10 +31,6 @@ protected:
 	virtual void NativeUpdateAnimation(float DeltaTimeX) override;
 
 
-	AActor* OwningActor;
-	APawn* OwningPawn;
-	ACharacter* OwningCharacter;
-	ASSCharacter* OwningSSCharacter;
 	AShooterCharacter* OwningShooterCharacter;
 
 

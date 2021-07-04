@@ -33,38 +33,37 @@ void UAI_ShooterCharacter::NativeInitializeAnimation()
 	Super::NativeInitializeAnimation();
 
 
-	OwningActor = GetOwningActor();
-	OwningPawn = Cast<APawn>(OwningActor);
-	OwningCharacter = Cast<ACharacter>(OwningPawn);
-	OwningSSCharacter = Cast<ASSCharacter>(OwningCharacter);
-	OwningShooterCharacter = Cast<AShooterCharacter>(OwningCharacter);
+	OwningShooterCharacter = Cast<AShooterCharacter>(GetOwningActor());
 }
 void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 {
 	Super::NativeUpdateAnimation(DeltaTimeX);
 
 
-	if (OwningActor)
+	if (OwningShooterCharacter)
 	{
-		ActorRotation = OwningActor->GetActorRotation();
+#pragma region Owning Actor work
+		ActorRotation = OwningShooterCharacter->GetActorRotation();
 
-		Velocity = OwningActor->GetVelocity();
+		Velocity = OwningShooterCharacter->GetVelocity();
 		Speed = Velocity.Size();
 
-		ForwardSpeed = Velocity.ProjectOnTo(OwningActor->GetActorForwardVector()).Size();
-		RightSpeed = Velocity.ProjectOnTo(OwningActor->GetActorRightVector()).Size();
-		UpSpeed = Velocity.ProjectOnTo(OwningActor->GetActorUpVector()).Size();
+		ForwardSpeed = Velocity.ProjectOnTo(OwningShooterCharacter->GetActorForwardVector()).Size();
+		RightSpeed = Velocity.ProjectOnTo(OwningShooterCharacter->GetActorRightVector()).Size();
+		UpSpeed = Velocity.ProjectOnTo(OwningShooterCharacter->GetActorUpVector()).Size();
 
 		//HorizontalSpeed = Velocity.ProjectOnToNormal(UpVector).Size(); // doesnt work some reason
 		//HorizontalSpeed = FMath::Sqrt(FMath::Square(ForwardSpeed) + FMath::Square(RightSpeed)); // is expensive
 
-		Direction = CalculateDirection(Velocity, OwningActor->GetActorRotation()); // TODO: make sure this is relative to the actor's rotation
-	}
+		Direction = CalculateDirection(Velocity, OwningShooterCharacter->GetActorRotation()); // TODO: make sure this is relative to the actor's rotation
+#pragma endregion
 
-	if (OwningPawn)
-	{
-		// This will be choppy when replicated but we won't automatically smooth it here
-		AimRotation = OwningPawn->GetBaseAimRotation();
+
+
+
+
+#pragma region Owning Pawn work
+		AimRotation = OwningShooterCharacter->GetBaseAimRotation();		// This will be choppy when replicated but we won't automatically smooth it here
 
 
 		// Turn in place
@@ -96,12 +95,16 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 		const FRotator AimOffset = UKismetMathLibrary::NormalizedDeltaRotator(AimRotation, MeshRotation); // the normalized direction from ActorRotation to ControlRotation
 		AimOffsetPitch = AimOffset.Pitch;
 		AimOffsetYaw = AimOffset.Yaw;
-	}
+#pragma endregion
 
-	if (OwningCharacter)
-	{
+
+
+
+
+
+#pragma region Owning Charcter work
 		// Update movement variables
-		if (UCharacterMovementComponent* CMC = OwningCharacter->GetCharacterMovement())
+		if (UCharacterMovementComponent* CMC = OwningShooterCharacter->GetCharacterMovement())
 		{
 			bGrounded = CMC->IsMovingOnGround();
 			bInAir = CMC->IsFalling();
@@ -110,18 +113,21 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 
 			bIsCrouching = CMC->IsCrouching();
 		}
-	}
-
-	if (OwningSSCharacter)
-	{
-
-	}
 
 
-	if (OwningShooterCharacter)
-	{
+#pragma endregion
+
+
+
+
+
+#pragma region Owning ShooterChractor work
 		headLookAtRot = GetHeadLookAtTargetRot(OwningShooterCharacter->GetNearestPawn(), DeltaTimeX);
+#pragma endregion
 	}
+
+
+
 
 	PreviousAimRotation = AimRotation;
 }
@@ -159,16 +165,16 @@ FRotator UAI_ShooterCharacter::GetHeadLookAtTargetRot(AActor* Target, float delt
 			}
 		}
 
-		FRotator OwningCharacterRotation = OwningShooterCharacter->GetActorRotation();
+		FRotator OwningShooterCharacterRotation = OwningShooterCharacter->GetActorRotation();
 		FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(SelfHeadLocation, locationToLookAt);
 
-		FRotator DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(OwningCharacterRotation, LookAtRotation);
+		FRotator DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(OwningShooterCharacterRotation, LookAtRotation);
 		if (UKismetMathLibrary::Abs(DeltaRotator.Roll) < headMaxRollRot && UKismetMathLibrary::Abs(DeltaRotator.Pitch) < headMaxPitchRot && UKismetMathLibrary::Abs(DeltaRotator.Yaw) < headMaxYawRot)	// If the head can rotate this far
 		{
 			FRotator hardLookAtRot;
-			hardLookAtRot.Roll = LookAtRotation.Roll - OwningCharacterRotation.Roll;
-			hardLookAtRot.Pitch = (LookAtRotation.Pitch - OwningCharacterRotation.Pitch) * -1;
-			hardLookAtRot.Yaw = LookAtRotation.Yaw - OwningCharacterRotation.Yaw;
+			hardLookAtRot.Roll = LookAtRotation.Roll - OwningShooterCharacterRotation.Roll;
+			hardLookAtRot.Pitch = (LookAtRotation.Pitch - OwningShooterCharacterRotation.Pitch) * -1;
+			hardLookAtRot.Yaw = LookAtRotation.Yaw - OwningShooterCharacterRotation.Yaw;
 
 			FRotator softLookAtRot = FMath::RInterpTo(headLookAtRot, hardLookAtRot, deltaTime, headLookSpeed);
 

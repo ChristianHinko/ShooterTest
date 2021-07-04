@@ -67,6 +67,7 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 
 
 		// Turn in place
+		if (OwningShooterCharacter->bUseControllerRotationYaw == true)
 		{
 			const float AimYawIncrease = AimRotation.Yaw - PreviousAimRotation.Yaw;
 			NegatedRootYawOffset += AimYawIncrease * -1; // negate it so we cancel out with our Actor Rotation
@@ -86,7 +87,12 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 				}
 			}
 
-			UKismetSystemLibrary::PrintString(this, "NegatedRootYawOffset: " + FString::SanitizeFloat(NegatedRootYawOffset), true, false);
+			//UKismetSystemLibrary::PrintString(this, "NegatedRootYawOffset: " + FString::SanitizeFloat(NegatedRootYawOffset), true, false);
+		}
+		else
+		{
+			NegatedRootYawOffset = 0.f;
+			bIsTurningInPlace = false;
 		}
 
 		MeshRotation = ActorRotation + FRotator(0.f, NegatedRootYawOffset, 0.f);

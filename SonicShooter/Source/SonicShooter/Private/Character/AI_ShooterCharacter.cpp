@@ -25,7 +25,7 @@ UAI_ShooterCharacter::UAI_ShooterCharacter(const FObjectInitializer& ObjectIniti
 
 
 
-
+	bTurnInPlaceEnabled = true;
 }
 
 void UAI_ShooterCharacter::NativeInitializeAnimation()
@@ -66,36 +66,59 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 		AimRotation = OwningShooterCharacter->GetBaseAimRotation();		// This will be choppy when replicated but we won't automatically smooth it here
 
 
-		// Turn in place
-		if (OwningShooterCharacter->bUseControllerRotationYaw == true)
+		const bool previousTurnInPlaceAvailable = bTurnInPlaceAvailable;
+		bTurnInPlaceAvailable = FMath::IsNearlyZero(Speed);
+		if (bTurnInPlaceAvailable == true && previousTurnInPlaceAvailable == false)
 		{
-			const float AimYawIncrease = AimRotation.Yaw - PreviousAimRotation.Yaw;
-			NegatedRootYawOffset += AimYawIncrease * -1; // negate it so we cancel out with our Actor Rotation
-			NegatedRootYawOffset = FRotator::NormalizeAxis(NegatedRootYawOffset);
-			if (FMath::Abs(NegatedRootYawOffset) >= 90.f || FMath::IsNearlyZero(Speed) == false)
+			TurnInPlaceStartingYaw = ActorRotation.Yaw;
+		}
+
+		if (OwningShooterCharacter->bUseControllerRotationYaw == false)
+		{
+			bTurnInPlaceEnabled = false;
+		}
+		// Turn in place
+		if (bTurnInPlaceEnabled)
+		{
+			if (bTurnInPlaceAvailable)
+			{
+				if (bIsTurningInPlace == false)
+				{
+					TurnInPlaceYawOffset = (ActorRotation.Yaw - TurnInPlaceStartingYaw) * -1; // negate with our Actor Rotation
+					TurnInPlaceYawOffset = FRotator::NormalizeAxis(TurnInPlaceYawOffset);
+					if (FMath::Abs(TurnInPlaceYawOffset) >= 90.f)
+					{
+						bIsTurningInPlace = true;
+					}
+				}
+
+			}
+			else
 			{
 				bIsTurningInPlace = true;
 			}
 
 			if (bIsTurningInPlace)
 			{
-				NegatedRootYawOffset = FMath::FInterpConstantTo(NegatedRootYawOffset, 0.f, DeltaTimeX, 100.f);
-				if (FMath::IsNearlyZero(NegatedRootYawOffset))
+				TurnInPlaceYawOffset = FMath::FInterpConstantTo(TurnInPlaceYawOffset, 0.f, DeltaTimeX, 100.f);
+				if (FMath::IsNearlyZero(TurnInPlaceYawOffset))
 				{
-					NegatedRootYawOffset = 0.f;
+					TurnInPlaceYawOffset = 0.f;
 					bIsTurningInPlace = false;
+					TurnInPlaceStartingYaw = ActorRotation.Yaw;
 				}
 			}
 
-			//UKismetSystemLibrary::PrintString(this, "NegatedRootYawOffset: " + FString::SanitizeFloat(NegatedRootYawOffset), true, false);
+			//UKismetSystemLibrary::PrintString(this, "TurnInPlaceYawOffset: " + FString::SanitizeFloat(TurnInPlaceYawOffset), true, false);
 		}
 		else
 		{
-			NegatedRootYawOffset = 0.f;
+			TurnInPlaceYawOffset = 0.f;
 			bIsTurningInPlace = false;
+			TurnInPlaceStartingYaw = ActorRotation.Yaw;
 		}
 
-		MeshRotation = ActorRotation + FRotator(0.f, NegatedRootYawOffset, 0.f);
+		MeshRotation = ActorRotation + FRotator(0.f, TurnInPlaceYawOffset, 0.f);
 
 
 		const FRotator AimOffset = UKismetMathLibrary::NormalizedDeltaRotator(AimRotation, MeshRotation); // the normalized direction from ActorRotation to ControlRotation
@@ -135,7 +158,6 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 
 
 
-	PreviousAimRotation = AimRotation;
 }
 
 

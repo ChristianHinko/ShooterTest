@@ -91,14 +91,28 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn")
 		float AimOffsetYaw;
 
+
+	/** Whether we should even do TIP */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn")
+		uint8 bTurnInPlaceEnabled : 1;
+	/** Whether TIP logic should be considered in our current state */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn")
+		uint8 bTurnInPlaceAvailable : 1;
 	/**
-	 * Turn in place offset
+	 * Our Yaw rotation when TIP logic became available (when bTurnInPlaceAvailable became true)
 	 */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn")
-		float NegatedRootYawOffset;
-	/** When we are currently turning in place to our Aim Rotation */
+		float TurnInPlaceStartingYaw;
+	/**
+	 * TIP's offset of the root's Yaw rotation.
+	 * Meant to negate with the Actor's rotation by doing a RotateRootBone in the Anim Graph
+	 * and plugging this in for the Yaw.
+	 */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn")
-		uint8 bIsTurningInPlace;
+		float TurnInPlaceYawOffset;
+	/** When we are currently performing the turn for TIP */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn")
+		uint8 bIsTurningInPlace : 1;
 
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character")
@@ -111,6 +125,13 @@ protected:
 		uint8 bIsSwimming : 1;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character")
 		uint8 bIsCrouching : 1;
+
+
+
+
+
+
+
 
 #pragma region HeadTurning
 	UPROPERTY(BlueprintReadOnly)
@@ -131,6 +152,6 @@ protected:
 	FRotator GetHeadLookAtTargetRot(AActor* Target, float deltaTime);
 
 private:
-	FRotator PreviousAimRotation;
+
 
 };

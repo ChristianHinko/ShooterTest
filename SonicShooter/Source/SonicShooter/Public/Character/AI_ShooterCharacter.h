@@ -58,6 +58,9 @@ protected:
 	/** Current relative up speed of the owning Actor */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Actor")
 		float UpSpeed;
+	/** The combined ForwardSpeed and RightSpeed */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Actor")
+		float HorizontalSpeed;
 
 	/** Current yaw rotation of our velocity (from -180 degs to 180 degs) */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Actor")

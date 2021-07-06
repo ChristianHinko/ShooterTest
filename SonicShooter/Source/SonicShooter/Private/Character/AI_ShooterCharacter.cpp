@@ -104,7 +104,7 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 
 
 
-
+	PreviousActorRotation = ActorRotation;
 }
 
 void UAI_ShooterCharacter::TurnInPlace(float DeltaTimeX)
@@ -131,10 +131,13 @@ void UAI_ShooterCharacter::TurnInPlace(float DeltaTimeX)
 			bIsTurningInPlace = true;
 		}
 
+
+		const FRotator RotationDelta = UKismetMathLibrary::NormalizedDeltaRotator(ActorRotation, PreviousActorRotation);
+		TurnInPlaceYawOffset -= RotationDelta.Yaw; // negate with our Actor's increase/decrease in yaw
+		TurnInPlaceYawOffset = FRotator::NormalizeAxis(TurnInPlaceYawOffset);
+
 		if (bIsTurningInPlace == false)
 		{
-			TurnInPlaceYawOffset = (ActorRotation.Yaw - TurnInPlaceStartingYaw) * -1; // negate with our Actor Rotation
-			TurnInPlaceYawOffset = FRotator::NormalizeAxis(TurnInPlaceYawOffset);
 			if (FMath::Abs(TurnInPlaceYawOffset) >= 90.f)
 			{
 				bIsTurningInPlace = true;

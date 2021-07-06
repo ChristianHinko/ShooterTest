@@ -152,6 +152,6 @@ protected:
 	FRotator GetHeadLookAtTargetRot(AActor* Target, float deltaTime);
 
 private:
-
+	FRotator PreviousActorRotation;
 
 };

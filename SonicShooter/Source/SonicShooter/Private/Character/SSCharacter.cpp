@@ -43,6 +43,9 @@ void ASSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME_CONDITION(ASSCharacter, CharacterRunAbilitySpecHandle, COND_OwnerOnly);
 }
 
+
+FName ASSCharacter::POVMeshComponentName(TEXT("POVMesh"));
+
 ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<USSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
@@ -61,26 +64,37 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	GetCharacterMovement()->AirControl = 0.2f;
 
 	// Mesh defaults
-	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * -1));
-	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
-	GetMesh()->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
+	if (GetMesh())
+	{
+		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * -1));
+		GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+		GetMesh()->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
+	}
 
 	// Create POVMesh
-	POVMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("POVMesh"));
-	POVMesh->SetupAttachment(GetCapsuleComponent());
-	POVMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPose;
-	POVMesh->PrimaryComponentTick.TickGroup = TG_PrePhysics;
-	POVMesh->SetCollisionProfileName(TEXT("CharacterMesh"));
-	POVMesh->SetGenerateOverlapEvents(false);
-	POVMesh->SetCanEverAffectNavigation(false);
-	POVMesh->SetRelativeLocation(GetMesh()->GetRelativeLocation() + FVector(-25.f, 0.f, 0.f));
-	POVMesh->SetRelativeRotation(GetMesh()->GetRelativeRotation());
-	POVMesh->SetRelativeScale3D(GetMesh()->GetRelativeScale3D());
-	POVMesh->AlwaysLoadOnServer = false; // the server shouldn't care about this mesh
-	// Configure the POVMesh for first person (these apply regardless of third/first person because switching between the two will only set visibility and not change these settings)
-	POVMesh->SetOwnerNoSee(false);
-	POVMesh->SetOnlyOwnerSee(true);
-	POVMesh->SetCastShadow(false);	// hide the POV mesh shadow because it will probably look weird (we're using the normal mesh's shadow instead)
+	POVMesh = CreateOptionalDefaultSubobject<USkeletalMeshComponent>(POVMeshComponentName);
+	if (POVMesh)
+	{
+		POVMesh->SetupAttachment(GetCapsuleComponent());
+		POVMesh->AlwaysLoadOnClient = true;
+		POVMesh->AlwaysLoadOnServer = false; // the server shouldn't care about this mesh
+		POVMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPose;
+		POVMesh->PrimaryComponentTick.TickGroup = TG_PrePhysics;
+		static FName MeshCollisionProfileName(TEXT("CharacterMesh"));
+		POVMesh->SetCollisionProfileName(MeshCollisionProfileName);
+		POVMesh->SetGenerateOverlapEvents(false);
+		POVMesh->SetCanEverAffectNavigation(false);
+
+		if (GetMesh())
+		{
+			POVMesh->SetRelativeLocation(GetMesh()->GetRelativeLocation());
+			POVMesh->SetRelativeRotation(GetMesh()->GetRelativeRotation());
+			POVMesh->SetRelativeScale3D(GetMesh()->GetRelativeScale3D());
+		}
+		// Configure the POVMesh for first person (these apply regardless of third/first person because switching between the two will only set SetOwnerNoSee() and not change these settings)
+		POVMesh->SetOnlyOwnerSee(true);
+		POVMesh->SetCastShadow(false);	// hide the POV mesh shadow because it will probably look weird (we're using the normal mesh's shadow instead)
+	}
 
 	// Create CameraBoom
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -124,13 +138,23 @@ void ASSCharacter::PostEditChangeProperty(FPropertyChangedEvent& PropertyChanged
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
 
-	GetMesh()->SetRelativeLocation(FVector(0, 0, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * -1));
-	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
-	GetMesh()->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
+	if (GetMesh())
+	{
+		GetMesh()->SetRelativeLocation(FVector(0, 0, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * -1));
+		GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+		GetMesh()->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
+	}
 
-	POVMesh->SetRelativeLocation(GetMesh()->GetRelativeLocation() + FVector(-25.f, 0.f, 0.f));
-	POVMesh->SetRelativeRotation(GetMesh()->GetRelativeRotation());
-	POVMesh->SetRelativeScale3D(GetMesh()->GetRelativeScale3D());
+	if (POVMesh)
+	{
+		if (GetMesh())
+		{
+			POVMesh->SetRelativeLocation(GetMesh()->GetRelativeLocation());
+			POVMesh->SetRelativeRotation(GetMesh()->GetRelativeRotation());
+			POVMesh->SetRelativeScale3D(GetMesh()->GetRelativeScale3D());
+		}
+
+	}
 
 
 	// Set our configuration for this first/third person mode
@@ -223,32 +247,53 @@ void ASSCharacter::GrantStartingAbilities()
 
 void ASSCharacter::SetFirstPerson(bool newFirstPerson)
 {
-	if (newFirstPerson == true)
+	bFirstPerson = newFirstPerson;
+
+
+	// Camera boom
+	if (bFirstPerson == true)
 	{
-		// First person, so hide mesh but still see the shadow
-		GetMesh()->SetOwnerNoSee(true);
-		GetMesh()->bCastHiddenShadow = true; // we still want the shadow from the normal mesh (this casts shadow even when hidden)
-
-		// First person, so show POV mesh
-		POVMesh->SetOwnerNoSee(false);
-
 		// Configure CameraBoom arm length for first person
 		CameraBoom->TargetArmLength = 0.f;
 	}
 	else
 	{
-		// Third person, so let player see mesh
-		GetMesh()->SetOwnerNoSee(false);
-		GetMesh()->bCastHiddenShadow = false; // now if this mesh is hidden, don't show its shadow
-
-		// Third person, so hide POV mesh
-		POVMesh->SetOwnerNoSee(true);
-
 		// Configure CameraBoom arm length for third person
-		GetCameraBoom()->TargetArmLength = ThirdPersonCameraArmLength;
+		CameraBoom->TargetArmLength = ThirdPersonCameraArmLength;
 	}
 
-	bFirstPerson = newFirstPerson;
+	// Meshes
+	if (GetMesh())
+	{
+		if (POVMesh)
+		{
+			if (bFirstPerson == true)
+			{
+				// First person, so hide mesh but still see the shadow
+				GetMesh()->SetOwnerNoSee(true);
+				GetMesh()->bCastHiddenShadow = true; // we still want the shadow from the normal mesh (this casts shadow even when hidden)
+
+				// First person, so show POV mesh
+				POVMesh->SetOwnerNoSee(false);
+			}
+			else
+			{
+				// Third person, so let player see mesh
+				GetMesh()->SetOwnerNoSee(false);
+				GetMesh()->bCastHiddenShadow = false; // now if this mesh is hidden, don't show its shadow
+
+				// Third person, so hide POV mesh
+				POVMesh->SetOwnerNoSee(true);
+			}
+		}
+		else
+		{
+			// We don't have POVMesh
+			GetMesh()->SetOwnerNoSee(false);
+			GetMesh()->bCastHiddenShadow = false;
+		}
+	}
+
 }
 
 void ASSCharacter::SetRemoteViewYaw(float NewRemoteViewYaw)

@@ -77,9 +77,12 @@ class ASSCharacter : public AAbilitySystemSetupCharacter
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Character")
-		USkeletalMeshComponent* POVMesh; // should this exist on every character (including AI)?
+		USkeletalMeshComponent* POVMesh;
+	static FName POVMeshComponentName;
+
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 		UCameraComponent* FollowCamera;
+
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 		USpringArmComponent* CameraBoom;
 

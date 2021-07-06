@@ -44,6 +44,13 @@ FName AShooterCharacter::InventoryComponentName(TEXT("InventoryComponent"));
 AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<USSArcInventoryComponent_Active>(InventoryComponentName))
 {
+	// Default to first person
+	bFirstPerson = true;
+	bUseControllerRotationYaw = true; // let the camera rotation determine our yaw
+	GetCharacterMovement()->bOrientRotationToMovement = false; // don't rotate theCharacter in the movement direction
+
+
+
 	InventoryComponent = CreateDefaultSubobject<UArcInventoryComponent>(InventoryComponentName);
 	SSInventoryComponentActive = Cast<USSArcInventoryComponent_Active>(InventoryComponent);
 

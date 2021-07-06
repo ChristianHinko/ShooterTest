@@ -92,11 +92,14 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+
 	// Set default arm length for third person mode
 	ThirdPersonCameraArmLength = 300.f;
 
-	// Default to first person
-	bFirstPerson = true;
+	// Default to third person
+	bFirstPerson = false;
+	bUseControllerRotationYaw = false; // don't rotate when the Controller rotates - let that just affect the camera
+	GetCharacterMovement()->bOrientRotationToMovement = true; // make the Character face the direction that he is moving
 
 
 	if (GetCharacterMovement())
@@ -222,9 +225,6 @@ void ASSCharacter::SetFirstPerson(bool newFirstPerson)
 {
 	if (newFirstPerson == true)
 	{
-		bUseControllerRotationYaw = true; // let the camera rotation determine our yaw
-		GetCharacterMovement()->bOrientRotationToMovement = false; // don't rotate the character in the movement direction
-
 		// First person, so hide mesh but still see the shadow
 		GetMesh()->SetOwnerNoSee(true);
 		GetMesh()->bCastHiddenShadow = true; // we still want the shadow from the normal mesh (this casts shadow even when hidden)
@@ -237,9 +237,6 @@ void ASSCharacter::SetFirstPerson(bool newFirstPerson)
 	}
 	else
 	{
-		bUseControllerRotationYaw = false; // don't rotate when the controller rotates. Let that just affect the camera.
-		GetCharacterMovement()->bOrientRotationToMovement = true; // make the character face the direction that he is moving
-
 		// Third person, so let player see mesh
 		GetMesh()->SetOwnerNoSee(false);
 		GetMesh()->bCastHiddenShadow = false; // now if this mesh is hidden, don't show its shadow

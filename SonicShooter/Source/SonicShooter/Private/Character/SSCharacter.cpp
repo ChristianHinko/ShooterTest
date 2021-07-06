@@ -133,8 +133,8 @@ void ASSCharacter::PostEditChangeProperty(FPropertyChangedEvent& PropertyChanged
 	POVMesh->SetRelativeScale3D(GetMesh()->GetRelativeScale3D());
 
 
-	//// Set our configuration for this first/third person mode
-	//SetFirstPerson(bFirstPerson);
+	// Set our configuration for this first/third person mode
+	SetFirstPerson(bFirstPerson);
 
 }
 #endif
@@ -230,7 +230,7 @@ void ASSCharacter::SetFirstPerson(bool newFirstPerson)
 		GetMesh()->bCastHiddenShadow = true; // we still want the shadow from the normal mesh (this casts shadow even when hidden)
 
 		// First person, so show POV mesh
-		POVMesh->SetVisibility(true/*, true*/);
+		POVMesh->SetOwnerNoSee(false);
 
 		// Configure CameraBoom arm length for first person
 		CameraBoom->TargetArmLength = 0.f;
@@ -242,7 +242,7 @@ void ASSCharacter::SetFirstPerson(bool newFirstPerson)
 		GetMesh()->bCastHiddenShadow = false; // now if this mesh is hidden, don't show its shadow
 
 		// Third person, so hide POV mesh
-		POVMesh->SetVisibility(false/*, true*/);
+		POVMesh->SetOwnerNoSee(true);
 
 		// Configure CameraBoom arm length for third person
 		GetCameraBoom()->TargetArmLength = ThirdPersonCameraArmLength;

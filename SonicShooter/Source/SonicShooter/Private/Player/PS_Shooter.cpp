@@ -10,7 +10,7 @@
 APS_Shooter::APS_Shooter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UASC_Shooter>(AbilitySystemComponentName))
 {
-	ShooterAbilitySystemComponent = Cast<UASC_Shooter>(SSAbilitySystemComponent);
+	ShooterAbilitySystemComponent = Cast<UASC_Shooter>(ASSAbilitySystemComponent);
 
 
 }

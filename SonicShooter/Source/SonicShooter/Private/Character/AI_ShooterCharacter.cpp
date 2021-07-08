@@ -3,10 +3,18 @@
 
 #include "Character\AI_ShooterCharacter.h"
 
-#include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Character/SSCharacter.h"
 #include "Character/ShooterCharacter.h"
+#include "Kismet/KismetMathLibrary.h"
 
-UAI_ShooterCharacter::UAI_ShooterCharacter()
+#include "Kismet/KismetSystemLibrary.h"
+
+
+
+UAI_ShooterCharacter::UAI_ShooterCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	headLookAtRot = FRotator::ZeroRotator;
 	headLookSpeed = 3;
@@ -20,12 +28,68 @@ UAI_ShooterCharacter::UAI_ShooterCharacter()
 
 }
 
+void UAI_ShooterCharacter::NativeInitializeAnimation()
+{
+	Super::NativeInitializeAnimation();
+
+
+	OwningActor = GetOwningActor();
+	OwningPawn = Cast<APawn>(OwningActor);
+	OwningCharacter = Cast<ACharacter>(OwningPawn);
+	OwningSSCharacter = Cast<ASSCharacter>(OwningCharacter);
+	OwningShooterCharacter = Cast<AShooterCharacter>(OwningCharacter);
+}
 void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 {
 	Super::NativeUpdateAnimation(DeltaTimeX);
 
-	OwningShooterCharacter = Cast<AShooterCharacter>(TryGetPawnOwner());
-	
+
+	if (OwningActor)
+	{
+		Velocity = OwningActor->GetVelocity();
+		Speed = Velocity.Size();
+
+		ForwardSpeed = Velocity.ProjectOnTo(OwningActor->GetActorForwardVector()).Size();
+		RightSpeed = Velocity.ProjectOnTo(OwningActor->GetActorRightVector()).Size();
+		UpSpeed = Velocity.ProjectOnTo(OwningActor->GetActorUpVector()).Size();
+
+		//HorizontalSpeed = Velocity.ProjectOnToNormal(UpVector).Size(); // doesnt work some reason
+		//HorizontalSpeed = FMath::Sqrt(FMath::Square(ForwardSpeed) + FMath::Square(RightSpeed)); // is expensive
+
+		Direction = CalculateDirection(Velocity, OwningActor->GetActorRotation()); // TODO: make sure this is relative to the actor's rotation
+	}
+
+	if (OwningPawn)
+	{
+		const FRotator ActorRotation = OwningActor->GetActorRotation();
+		const FRotator ControlRotation = OwningPawn->GetBaseAimRotation();
+		const FRotator AimDelta = UKismetMathLibrary::NormalizedDeltaRotator(ControlRotation, ActorRotation); // the normalized direction from ActorRotation to ControlRotation
+
+		// These will be choppy when replicated but we won't automatically smooth it here
+		AimPitch = AimDelta.Pitch;
+		AimYaw = AimDelta.Yaw;
+	}
+
+	if (OwningCharacter)
+	{
+		// Update movement variables
+		if (UCharacterMovementComponent* CMC = OwningCharacter->GetCharacterMovement())
+		{
+			bGrounded = CMC->IsMovingOnGround();
+			bInAir = CMC->IsFalling();
+			bIsFlying = CMC->IsFlying();
+			bIsSwimming = CMC->IsSwimming();
+
+			bIsCrouching = CMC->IsCrouching();
+		}
+	}
+
+	if (OwningSSCharacter)
+	{
+
+	}
+
+
 	if (OwningShooterCharacter)
 	{
 		headLookAtRot = GetHeadLookAtTargetRot(OwningShooterCharacter->GetNearestPawn(), DeltaTimeX);

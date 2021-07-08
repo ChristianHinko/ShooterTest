@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSAttributeSet.h"
+#include "AbilitySystem/ASSAttributeSet.h"
 #include "GameplayAbilities/Public/TickableAttributeSetInterface.h"
 #include "AbilitySystemComponent.h"
-#include "Utilities/PropertyWrappers.h"
+#include "Wrappers/PropertyWrappers.h"
 
 #include "AS_Gun.generated.h"
 
@@ -20,7 +20,7 @@ class USSCharacterMovementComponent;
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UAS_Gun : public USSAttributeSet, public ITickableAttributeSetInterface
+class SONICSHOOTER_API UAS_Gun : public UASSAttributeSet, public ITickableAttributeSetInterface
 {
 	GENERATED_BODY()
 
@@ -211,7 +211,7 @@ protected:
 	virtual void SetSoftAttributeDefaults() override;
 
 
-	void OnActorInfoInited();
+	void OnActorInfoInitted();
 
 	void UpdateFromActorInfo();
 

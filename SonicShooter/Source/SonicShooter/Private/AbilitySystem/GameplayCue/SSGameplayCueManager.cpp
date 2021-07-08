@@ -5,14 +5,6 @@
 
 
 
-bool USSGameplayCueManager::ShouldAsyncLoadRuntimeObjectLibraries() const
-{
-	// Idea: maybe check this machines memory specs to determine this ret val
-
-
-	return false;
-}
-
 void USSGameplayCueManager::FlushPendingCues()
 {
 	Super::FlushPendingCues();

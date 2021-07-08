@@ -3,18 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSAttributeSet.h"
+#include "AbilitySystem/ASSAttributeSet.h"
 #include "AbilitySystemComponent.h"
 
 #include "AS_Actor.generated.h"
 
 
 
+// OUTDATED - figure out what to do with this later or keep it idk
 /**
  * This attribute set will be on every actor that uses the ability system (using AbilitySystemActor) add universal actor attributes here
  */
 UCLASS()
-class SONICSHOOTER_API UAS_Actor : public USSAttributeSet
+class SONICSHOOTER_API UAS_Actor : public UASSAttributeSet
 {
 	GENERATED_BODY()
 

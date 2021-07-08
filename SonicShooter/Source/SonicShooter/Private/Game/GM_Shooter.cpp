@@ -8,6 +8,8 @@
 #include "Generators/ArcItemGenerator_Unique.h"
 #include "Utilities/LogCategories.h"
 #include "Inventory\SSArcInventoryComponent_Active.h"
+#include "AbilitySystemSetupComponent/AbilitySystemSetupInterface.h"
+#include "AbilitySystemSetupComponent/AbilitySystemSetupComponent.h"
 
 
 
@@ -26,10 +28,10 @@ APawn* AGM_Shooter::SpawnDefaultPawnAtTransform_Implementation(AController* NewP
 	{
 		if (UArcInventoryComponent* Inventory = Cast<UArcInventoryComponent>(InventoryComponentFound))
 		{
-			if (AAbilitySystemCharacter* AbilitySystemCharacter = Cast<AAbilitySystemCharacter>(Pawn))
+			if (IAbilitySystemSetupInterface* AbilitySystemSetupOwner = Cast<IAbilitySystemSetupInterface>(Pawn))
 			{
 				// Wait until they have they ability system set up
-				AbilitySystemCharacter->SetupWithAbilitySystemCompleted.AddUObject(this, &AGM_Shooter::GiveInventoryStartupItems, Inventory);
+				AbilitySystemSetupOwner->GetAbilitySystemSetup()->SetupWithAbilitySystemCompleted.AddUObject(this, &AGM_Shooter::GiveInventoryStartupItems, Inventory);
 			}
 			else
 			{

@@ -103,7 +103,7 @@ void UAS_Gun::PostInitProperties()
 
 	if (FGAAI_Shooter* ShooterActorInfo = static_cast<FGAAI_Shooter*>(GetActorInfo()))
 	{
-		ShooterActorInfo->OnInited.AddUObject(this, &UAS_Gun::OnActorInfoInited);
+		ShooterActorInfo->GetOnInittedDelegate().AddUObject(this, &UAS_Gun::OnActorInfoInitted);
 
 		if (UASC_Shooter* ShooterASC = ShooterActorInfo->GetShooterAbilitySystemComponent())
 		{
@@ -112,7 +112,7 @@ void UAS_Gun::PostInitProperties()
 	}
 }
 
-void UAS_Gun::OnActorInfoInited()
+void UAS_Gun::OnActorInfoInitted()
 {
 	UpdateFromActorInfo();
 }

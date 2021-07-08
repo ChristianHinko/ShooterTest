@@ -3,21 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GameplayAbilityTargetTypes.h"
+#include "AbilitySystem/ASSGameplayAbilityTargetTypes.h"
 
 #include "SSGameplayAbilityTargetTypes.generated.h"
 
 
 
 /**
- * Our base Target Data struct
+ * Our custom Target Data struct
  */
 USTRUCT()
-struct SONICSHOOTER_API FSSGameplayAbilityTargetData : public FGameplayAbilityTargetData
+struct SONICSHOOTER_API FSSGameplayAbilityTargetData : public FASSGameplayAbilityTargetData
 {
 	GENERATED_BODY()
 
-		
+
 	FSSGameplayAbilityTargetData();
 
 	virtual UScriptStruct* GetScriptStruct() const override

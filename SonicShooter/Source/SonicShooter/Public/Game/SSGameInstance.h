@@ -8,8 +8,10 @@
 
 #include "SSGameInstance.generated.h"
 
+
+
 /**
- * 
+ * Base Game Instance
  */
 UCLASS()
 class SONICSHOOTER_API USSGameInstance : public UGameInstance

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Subsystems/EngineSubsystem.h"
+#include "Engine/ASSEngineSubsystem.h"
 
 #include "SSEngineSubsystem.generated.h"
 
@@ -13,10 +13,10 @@
  * 
  */
 UCLASS()
-class SONICSHOOTER_API USSEngineSubsystem : public UEngineSubsystem
+class SONICSHOOTER_API USSEngineSubsystem : public UASSEngineSubsystem
 {
 	GENERATED_BODY()
-	
+
 public:
 	//BEGIN USubsystem Interface
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;

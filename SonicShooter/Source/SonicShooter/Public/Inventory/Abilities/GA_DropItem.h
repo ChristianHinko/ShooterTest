@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSGameplayAbility.h"
+#include "AbilitySystem/ASSGameplayAbility.h"
 #include "ArcInventoryItemTypes.h"
 
 #include "GA_DropItem.generated.h"
@@ -15,7 +15,7 @@ class UArcInventoryComponent;
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UGA_DropItem : public USSGameplayAbility
+class SONICSHOOTER_API UGA_DropItem : public UASSGameplayAbility
 {
 	GENERATED_BODY()
 

@@ -95,9 +95,12 @@ protected:
 	/** Whether we should even do TIP */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn")
 		uint8 bTurnInPlaceEnabled : 1;
+	bool IsTurnInPlaceEnabled() const;
 	/** Whether TIP logic should be considered in our current state */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn")
 		uint8 bTurnInPlaceAvailable : 1;
+	bool IsTurnInPlaceAvailable() const;
+
 	/**
 	 * Our Yaw rotation when TIP logic became available (when bTurnInPlaceAvailable became true)
 	 */
@@ -113,6 +116,7 @@ protected:
 	/** When we are currently performing the turn for TIP */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn")
 		uint8 bIsTurningInPlace : 1;
+
 
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Character")

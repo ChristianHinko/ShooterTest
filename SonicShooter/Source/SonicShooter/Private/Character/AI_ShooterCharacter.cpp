@@ -25,7 +25,7 @@ UAI_ShooterCharacter::UAI_ShooterCharacter(const FObjectInitializer& ObjectIniti
 
 
 
-	bTurnInPlaceEnabled = true;
+
 }
 
 void UAI_ShooterCharacter::NativeInitializeAnimation()
@@ -107,37 +107,57 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 	PreviousActorRotation = ActorRotation;
 }
 
-void UAI_ShooterCharacter::TurnInPlace(float DeltaTimeX)
+bool UAI_ShooterCharacter::IsTurnInPlaceEnabled() const
 {
-	const bool previousTurnInPlaceAvailable = bTurnInPlaceAvailable;
-	bTurnInPlaceAvailable = FMath::IsNearlyZero(Speed);
-	if (bTurnInPlaceAvailable == true && previousTurnInPlaceAvailable == false)
-	{
-		// TIP just became available
-		TurnInPlaceStartingYaw = ActorRotation.Yaw;
-	}
-
-
+	// Right now our TIP system is only meant for bUseControllerRotationYaw
 	if (OwningShooterCharacter->bUseControllerRotationYaw == false)
 	{
-		bTurnInPlaceEnabled = false;
+		return false;
 	}
 
+	return true;
+}
+bool UAI_ShooterCharacter::IsTurnInPlaceAvailable() const
+{
+	// Only do TIP offsetting if we are staying still
+	if (FMath::IsNearlyZero(Speed) == false)
+	{
+		return false;
+	}
+
+	return true;
+}
+void UAI_ShooterCharacter::TurnInPlace(float DeltaTimeX)
+{
+	bTurnInPlaceEnabled = IsTurnInPlaceEnabled();
 	if (bTurnInPlaceEnabled)
 	{
+		// Store previous states
+		const bool previousTurnInPlaceAvailable = bTurnInPlaceAvailable;
 		const bool previousIsTurningInPlace = bIsTurningInPlace;
 
-		if (bTurnInPlaceAvailable == false)
+		// Check TIP availability
+		bTurnInPlaceAvailable = IsTurnInPlaceAvailable();
+		if (bTurnInPlaceAvailable == true && previousTurnInPlaceAvailable == false)
 		{
-			// Start turning back to normal
-			bIsTurningInPlace = true;
+			// TIP just became available this tick
+			TurnInPlaceStartingYaw = ActorRotation.Yaw;
 		}
 
 
+
+		// Start turning back to normal if TIP isn't available anymore
+		if (bTurnInPlaceAvailable == false)
+		{
+			bIsTurningInPlace = true;
+		}
+
+		// Update TurnInPlaceYawOffset
 		const FRotator RotationDelta = UKismetMathLibrary::NormalizedDeltaRotator(ActorRotation, PreviousActorRotation);
 		TurnInPlaceYawOffset -= RotationDelta.Yaw; // negate with our Actor's increase/decrease in yaw
 		TurnInPlaceYawOffset = FRotator::NormalizeAxis(TurnInPlaceYawOffset);
 
+		// Check if we passed our TIP degree thresholds
 		if (bIsTurningInPlace == false)
 		{
 			if (FMath::Abs(TurnInPlaceYawOffset) >= 90.f)
@@ -146,6 +166,8 @@ void UAI_ShooterCharacter::TurnInPlace(float DeltaTimeX)
 			}
 		}
 
+
+		// If we are turning back to normal
 		if (bIsTurningInPlace)
 		{
 			if (previousIsTurningInPlace == false)
@@ -166,11 +188,11 @@ void UAI_ShooterCharacter::TurnInPlace(float DeltaTimeX)
 			}
 
 		}
-
-		//UKismetSystemLibrary::PrintString(this, "TurnInPlaceYawOffset: " + FString::SanitizeFloat(TurnInPlaceYawOffset), true, false);
 	}
 	else
 	{
+		bTurnInPlaceAvailable = false;
+
 		TurnInPlaceYawOffset = 0.f;
 		bIsTurningInPlace = false;
 		TurnInPlaceStartingYaw = ActorRotation.Yaw;

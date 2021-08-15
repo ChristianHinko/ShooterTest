@@ -15,7 +15,6 @@ struct FGameplayTag;
 
 class UAbilitySystemComponent;
 struct FOnAttributeChangeData;
-class ASSPlayerController;
 
 
 
@@ -46,6 +45,7 @@ public:
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override; // for checking on tick until the Player State is valid (NOTE: this won't work for DisableNativeTick meta flag so maybe make a separate tick function)
 
 	UAbilitySystemComponent* PlayerASC;
 
@@ -66,11 +66,13 @@ protected:
 	virtual void OnTagChanged(const FGameplayTag Tag, int32 NewCount);
 
 private:
-	ASSPlayerController* SSOwningPlayerController; // we only have this for the PS valid delegate
-
 	/** Bind to the AttributeValueChangeDelegate for all of the AttributesToListenFor (and manually call OnAttributeChanged() for initial updates) */
 	void SetUpAttributeListeningFor(UAbilitySystemComponent* ASC);
 	/** Bind to the GameplayTag events for all of the TagsToListenFor (and manually call OnTagChanged() for initial updates) */
 	void SetUpTagListeningFor(UAbilitySystemComponent* ASC);
+
+
+	/** For checking on tick until the Player State is valid */
+	uint8 bPlayerStateBecameValid : 1;
 
 };

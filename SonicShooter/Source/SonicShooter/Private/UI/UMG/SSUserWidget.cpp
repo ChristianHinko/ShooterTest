@@ -3,7 +3,6 @@
 
 #include "UI/UMG/SSUserWidget.h"
 
-#include "Player/SSPlayerController.h"
 #include "GameFramework/PlayerState.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
@@ -36,21 +35,8 @@ void USSUserWidget::NativeConstruct()
 	{
 		if (OwningPlayer->PlayerState)
 		{
+			bPlayerStateBecameValid = true;
 			OnPlayerStateValid();
-		}
-		else // PS not valid
-		{
-			SSOwningPlayerController = Cast<ASSPlayerController>(OwningPlayer);
-
-			if (SSOwningPlayerController)
-			{
-				// Player state was null, so try waiting for it to be valid
-				SSOwningPlayerController->OnPlayerStateValid.AddUObject(this, &USSUserWidget::OnPlayerStateValid);
-			}
-			else
-			{
-				UE_LOG(LogUI, Error, TEXT("%s(): OwningPlayer's Player State was NULL. And failed to wait for it to become valid because the OwningPlayer was not a %s"), *FString(__FUNCTION__), *(ASSPlayerController::StaticClass()->GetName()));
-			}
 		}
 	}
 	else
@@ -59,15 +45,29 @@ void USSUserWidget::NativeConstruct()
 	}
 }
 
-void USSUserWidget::OnPlayerStateValid()
+void USSUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
-	if (SSOwningPlayerController)
+	// NOTE: this won't work for DisableNativeTick meta flag so maybe make a separate tick function
+	if (bPlayerStateBecameValid == false)
 	{
-		SSOwningPlayerController->OnPlayerStateValid.RemoveAll(this);
+		if (APlayerController* OwningPlayer = GetOwningPlayer())
+		{
+			if (OwningPlayer->PlayerState)
+			{
+				bPlayerStateBecameValid = true;
+				OnPlayerStateValid();
+			}
+		}
 	}
 
+	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	// Handle calling OnPlayerASCValid():
+}
+
+void USSUserWidget::OnPlayerStateValid()
+{
+
+	// Handle calling OnPlayerASCValid()
 
 	if (APlayerController* OwningPlayer = GetOwningPlayer())
 	{
@@ -195,12 +195,6 @@ void USSUserWidget::OnTagChanged(const FGameplayTag Tag, int32 NewCount)
 
 void USSUserWidget::NativeDestruct()
 {
-	if (SSOwningPlayerController)
-	{
-		// In case we were destructed before PS was valid (or in case something weird happened)
-		SSOwningPlayerController->OnPlayerStateValid.RemoveAll(this);
-	}
-
 	if (PlayerASC)
 	{
 		// Stop listening for attribute changes

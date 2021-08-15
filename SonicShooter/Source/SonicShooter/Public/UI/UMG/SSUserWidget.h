@@ -10,12 +10,64 @@
 #include "SSUserWidget.generated.h"
 
 
+class USSUserWidget;
+
+/**
+ * For checking on tick until the Player State is valid
+ */
+USTRUCT()
+struct FTF_PlayerStateValid : public FTickFunction
+{
+	GENERATED_BODY()
+
+
+	FTF_PlayerStateValid()
+	{
+		// This bool doesn't actually do anything for some reason so we have to call SetTickFunctionEnable() after
+		bStartWithTickEnabled = true;
+		SetTickFunctionEnable(bStartWithTickEnabled);
+
+		TickGroup = ETickingGroup::TG_PrePhysics; // as soon as possible
+
+
+		// Optimizations:
+
+		bAllowTickOnDedicatedServer = false;
+		//bRunOnAnyThread = true; // i want to do this but we can't because we call the OnPlayerStateValid() event in this
+	}
+
+	USSUserWidget* Target;
+
+	virtual void ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent) override;
+
+
+	virtual FString DiagnosticMessage() override
+	{
+		return FString(TEXT("FTF_PlayerStateValid"));
+	}
+
+	virtual FName DiagnosticContext(bool bDetailed) override
+	{
+		return FName(TEXT("USSUserWidget"));
+	}
+};
+
+template<>
+struct TStructOpsTypeTraits<FTF_PlayerStateValid> : public TStructOpsTypeTraitsBase2<FTF_PlayerStateValid>
+{
+	enum
+	{
+		WithCopy = false
+	};
+};
+
+
+
 struct FGameplayAttribute;
 struct FGameplayTag;
 
 class UAbilitySystemComponent;
 struct FOnAttributeChangeData;
-
 
 
 /**
@@ -28,6 +80,7 @@ class SONICSHOOTER_API USSUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
+	friend struct FTF_PlayerStateValid;
 public:
 	USSUserWidget(const FObjectInitializer& ObjectInitializer);
 
@@ -45,7 +98,6 @@ public:
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
-	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override; // for checking on tick until the Player State is valid (NOTE: this won't work for DisableNativeTick meta flag so maybe make a separate tick function)
 
 	UAbilitySystemComponent* PlayerASC;
 
@@ -73,6 +125,6 @@ private:
 
 
 	/** For checking on tick until the Player State is valid */
-	uint8 bPlayerStateBecameValid : 1;
+	FTF_PlayerStateValid PlayerStateValidTickFunction;
 
 };

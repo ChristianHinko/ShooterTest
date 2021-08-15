@@ -35,8 +35,13 @@ void USSUserWidget::NativeConstruct()
 	{
 		if (OwningPlayer->PlayerState)
 		{
-			bPlayerStateBecameValid = true;
 			OnPlayerStateValid();
+		}
+		else
+		{
+			// Player state was null, so wait for it to be valid (this happens on NM_Client because the PS has to replicate)
+			PlayerStateValidTickFunction.Target = this;
+			PlayerStateValidTickFunction.RegisterTickFunction(OwningPlayer->GetLevel());
 		}
 	}
 	else
@@ -45,23 +50,28 @@ void USSUserWidget::NativeConstruct()
 	}
 }
 
-void USSUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+void FTF_PlayerStateValid::ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent)
 {
-	// NOTE: this won't work for DisableNativeTick meta flag so maybe make a separate tick function
-	if (bPlayerStateBecameValid == false)
+	if (Target == nullptr || Target->IsPendingKillOrUnreachable())
 	{
-		if (APlayerController* OwningPlayer = GetOwningPlayer())
-		{
-			if (OwningPlayer->PlayerState)
-			{
-				bPlayerStateBecameValid = true;
-				OnPlayerStateValid();
-			}
-		}
+		return;
 	}
 
-	Super::NativeTick(MyGeometry, InDeltaTime);
+	if (APlayerController* OwningPlayer = Target->GetOwningPlayer())
+	{
+		// Check if it became valid
+		if (OwningPlayer->PlayerState)
+		{
+			// It became valid so stop checking here
+			UnRegisterTickFunction();
 
+			// Call event
+			Target->OnPlayerStateValid();
+
+			// Forget about us now
+			Target = nullptr;
+		}
+	}
 }
 
 void USSUserWidget::OnPlayerStateValid()
@@ -210,6 +220,9 @@ void USSUserWidget::NativeDestruct()
 		}
 	}
 
+	// Ensure our PlayerStateValidTickFunction is unregistered
+	PlayerStateValidTickFunction.UnRegisterTickFunction();
+	PlayerStateValidTickFunction.Target = nullptr;
 
 
 	Super::NativeDestruct();

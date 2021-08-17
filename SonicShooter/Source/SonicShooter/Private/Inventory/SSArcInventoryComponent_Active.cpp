@@ -359,7 +359,7 @@ void USSArcInventoryComponent_Active::OnItemSlotChangeEvent(UArcInventoryCompone
 			{
 				if (USSUArcUIData_ActiveItemDefinition* ItemUIData = Cast<USSUArcUIData_ActiveItemDefinition>(ItemStack->GetUIData()))
 				{
-					if (APawn* OwningPawn = Cast<APawn>(GetOwner()))
+					if (APawn* OwningPawn = GetTypedOuter<APawn>())
 					{
 						if (OwningPawn->IsLocallyControlled())
 						{
@@ -398,7 +398,7 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 	bool bSuccessfullyAdded = true;
 	if (ItemStack)
 	{
-		if (APawn* OwningPawn = Cast<APawn>(GetOwner()))
+		if (APawn* OwningPawn = GetTypedOuter<APawn>())
 		{
 			if (OwningPawn->IsLocallyControlled())
 			{
@@ -468,7 +468,7 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 void USSArcInventoryComponent_Active::OnItemInactiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
 {
 	// Remove UIData widgets
-	if (APawn* OwningPawn = Cast<APawn>(GetOwner()))
+	if (APawn* OwningPawn = GetTypedOuter<APawn>())
 	{
 		if (OwningPawn->IsLocallyControlled())
 		{
@@ -491,4 +491,3 @@ void USSArcInventoryComponent_Active::OnItemInactiveEvent(UArcInventoryComponent
 		}
 	}
 }
-

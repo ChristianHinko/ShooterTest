@@ -8,23 +8,20 @@
 #include "SSGameMode.generated.h"
 
 
-class UArcInventoryComponent;
+
 /**
- * 
+ * Base Game Mode
  */
 UCLASS()
 class SONICSHOOTER_API ASSGameMode : public AGameMode
 {
 	GENERATED_BODY()
-	
+
 public:
 	ASSGameMode();
 
 
 protected:
-	virtual APawn* SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform) override;
 
-	// Override this event if you want to customize how this gamemode gives you your startup items
-	virtual void GiveInventoryStartupItems(UArcInventoryComponent* Inventory);
 
 };

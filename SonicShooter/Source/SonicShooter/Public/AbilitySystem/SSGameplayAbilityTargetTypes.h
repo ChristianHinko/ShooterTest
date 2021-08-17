@@ -1,104 +1,183 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/Class.h"
-#include "Engine/NetSerialization.h"
-#include "Abilities/GameplayAbilityTargetTypes.h"
+#include "AbilitySystem/ASSGameplayAbilityTargetTypes.h"
+
 #include "SSGameplayAbilityTargetTypes.generated.h"
 
-/** Target data with a single hit result, data is packed into the hit result */
-USTRUCT(BlueprintType)
-struct SONICSHOOTER_API FGameplayAbilityTargetData_BulletTraceTargetHit : public FGameplayAbilityTargetData
+
+
+/**
+ * Our custom Target Data struct
+ */
+USTRUCT()
+struct SONICSHOOTER_API FSSGameplayAbilityTargetData : public FASSGameplayAbilityTargetData
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
-	FGameplayAbilityTargetData_BulletTraceTargetHit()
-	{ }
 
-	FGameplayAbilityTargetData_BulletTraceTargetHit(FHitResult InHitResult)
-		: HitResult(MoveTemp(InHitResult))
-	{ }
+	FSSGameplayAbilityTargetData();
 
-	// -------------------------------------
-
-	virtual TArray<TWeakObjectPtr<AActor> >	GetActors() const override
+	virtual UScriptStruct* GetScriptStruct() const override
 	{
-		TArray<TWeakObjectPtr<AActor> >	Actors;
-		if (HitResult.Actor.IsValid())
-		{
-			Actors.Push(HitResult.Actor);
-		}
-		return Actors;
+		return FSSGameplayAbilityTargetData::StaticStruct();
 	}
+};
 
-	// SetActors() will not work here because the actor "array" is drawn from the hit result data, and changing that doesn't make sense.
 
-	// -------------------------------------
 
-	virtual bool HasHitResult() const override
+////////////////////////////////////////////////////////////////
+/// FGATD_BulletTraceTargetHit
+////////////////////////////////////////////////////////////////
+
+
+/**
+ * 
+ */
+USTRUCT()
+struct FActorHitInfo
+{
+	GENERATED_BODY()
+
+	FActorHitInfo()
 	{
+
+	}
+	FActorHitInfo(const TWeakObjectPtr<AActor>& inHitActor, float inTotalTraveledDistanceBeforeHit, float inBulletSpeedAtImpact)
+	{
+		HitActor = inHitActor;
+		totalTraveledDistanceBeforeHit = inTotalTraveledDistanceBeforeHit;
+		bulletSpeedAtImpact = inBulletSpeedAtImpact;
+	}
+	void operator=(const FActorHitInfo& Other)
+	{
+		HitActor = Other.HitActor;
+		totalTraveledDistanceBeforeHit = Other.totalTraveledDistanceBeforeHit;
+		bulletSpeedAtImpact = Other.bulletSpeedAtImpact;
+	}
+	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
+	{
+		Ar << HitActor;
+		Ar << totalTraveledDistanceBeforeHit;
+		Ar << bulletSpeedAtImpact;
+
+		bOutSuccess = true;
 		return true;
 	}
 
-	virtual const FHitResult* GetHitResult() const override
+	UPROPERTY()
+		TWeakObjectPtr<AActor> HitActor;
+	UPROPERTY()
+		float totalTraveledDistanceBeforeHit;
+	UPROPERTY()
+		float bulletSpeedAtImpact;
+};
+
+template<>
+struct TStructOpsTypeTraits<FActorHitInfo> : public TStructOpsTypeTraitsBase2<FActorHitInfo>
+{
+	enum
 	{
-		return &HitResult;
+		WithNetSerializer = true
+	};
+};
+
+/**
+ * This is the target data struct that represents the targets that were hit by a certain bullet. This is a pretty good GATD code wise :O
+ */
+USTRUCT(BlueprintType)
+struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTargetData
+{
+	GENERATED_BODY()
+
+	FGATD_BulletTraceTargetHit();
+
+	/** Applies a previously created gameplay effect spec to each target represented */
+	virtual TArray<FActiveGameplayEffectHandle> ApplyGameplayEffectSpec(FGameplayEffectSpec& Spec, FPredictionKey PredictionKey = FPredictionKey());
+
+	virtual void AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray) const override;
+	virtual void AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray, int32 hitInfosIndex) const;		// Custom overload that asks for the hit target actor (by passing in the ActorHitInfos index)
+
+
+	virtual TArray<TWeakObjectPtr<AActor>> GetActors() const override
+	{
+		TArray<TWeakObjectPtr<AActor>> RetVal;
+		for (const FActorHitInfo& ActorHitInfo : ActorHitInfos)
+		{
+			RetVal.Emplace(ActorHitInfo.HitActor);
+		}
+		return RetVal;
 	}
 
 	virtual bool HasOrigin() const override
 	{
 		return true;
 	}
-
 	virtual FTransform GetOrigin() const override
 	{
-		return FTransform((HitResult.TraceEnd - HitResult.TraceStart).Rotation(), HitResult.TraceStart);
+		if (BulletTracePoints.Num() > 0)
+		{
+			FRotator Rotation;
+			if (BulletTracePoints.Num() >= 2)
+			{
+				Rotation = (BulletTracePoints[1] - BulletTracePoints[0]).Rotation();
+			}
+
+			return FTransform(Rotation, BulletTracePoints[0]);
+		}
+
+		return FTransform();
 	}
 
 	virtual bool HasEndPoint() const override
 	{
-		return true;
+		if (BulletTracePoints.Num() > 0)
+		{
+			return true;
+		}
+		return false;
 	}
-
 	virtual FVector GetEndPoint() const override
 	{
-		return HitResult.Location;
-	}
-
-	virtual void ReplaceHitWith(AActor* NewHitActor, const FHitResult* NewHitResult)
-	{
-		bHitReplaced = true;
-
-		HitResult = FHitResult();
-		if (NewHitResult != nullptr)
+		if (HasEndPoint())
 		{
-			HitResult = *NewHitResult;
+			return BulletTracePoints.Last();
 		}
+
+		return FVector();
 	}
+
 
 	// -------------------------------------
+	/**
+	 * The points which describe this bullet's path. If you "connect the dots" you will get the bullet's path. The first point is the start point and the last point is the end point.
+	 * To get the number of times ricocheted, do (BulletTracePoints.Num() - 2). This adds up all of the ricochet points (if any) disregarding the start and end location.
+	 */
+	UPROPERTY()
+		TArray<FVector_NetQuantize> BulletTracePoints;
+	UPROPERTY()
+		TArray<FActorHitInfo> ActorHitInfos;
 
-	/** If this hit resulted from a ricochet, this hit result will be the last one (the hit result from the last hit wall to the target) */
-	UPROPERTY()
-	FHitResult	HitResult;
-	UPROPERTY()
-	float totalDistanceTraveled;	// This data is important because it is the total distance traveled (all wall bounses accounted for). The HitResult itself doesn't always have an acurate distance variable because the bullet could ricochet. The accurate ditance would be to add all the distance vars from each ricochet's HitResult, but we don't send each hit result, so we store the added up distance using this variable.
+	int32 GetNumRicochetsBeforeHit() const
+	{
+		// This adds up all of the ricochet points (if any) disregarding the start and end location
+		return FMath::Max((BulletTracePoints.Num() - 2), 0);
+	}
 
-	UPROPERTY()
-	bool bHitReplaced = false;
+
 
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
 
 	virtual UScriptStruct* GetScriptStruct() const override
 	{
-		return FGameplayAbilityTargetData_BulletTraceTargetHit::StaticStruct();
+		return FGATD_BulletTraceTargetHit::StaticStruct();
 	}
 };
 
 template<>
-struct TStructOpsTypeTraits<FGameplayAbilityTargetData_BulletTraceTargetHit> : public TStructOpsTypeTraitsBase2<FGameplayAbilityTargetData_BulletTraceTargetHit>
+struct TStructOpsTypeTraits<FGATD_BulletTraceTargetHit> : public TStructOpsTypeTraitsBase2<FGATD_BulletTraceTargetHit>
 {
 	enum
 	{

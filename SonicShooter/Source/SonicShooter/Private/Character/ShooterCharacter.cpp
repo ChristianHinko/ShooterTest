@@ -11,13 +11,18 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
 #include "ArcItemStack.h"
-#include "AbilitySystem/SSGameplayAbility.h"
+#include "AbilitySystem/ASSGameplayAbility.h"
+#include "AttributeSets/AS_Health.h"
 
 
 
 void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+
+	DOREPLIFETIME(AShooterCharacter, HealthAttributeSet);
+
 
 	DOREPLIFETIME_CONDITION(AShooterCharacter, InteractInstantAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, InteractDurationAbilitySpecHandle, COND_OwnerOnly);
@@ -53,17 +58,7 @@ void AShooterCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-		if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy)	// No point of doing a client RPC if no client is controlling it (ie. this is an AI)
-		{
-			if (SSInventoryComponentActive)
-			{
-				SSInventoryComponentActive->ClientRecieveStartingActiveItemHistoryArray(SSInventoryComponentActive->ActiveItemHistory);
-			}
-			else
-			{
-				UE_LOG(LogArcInventorySetup, Error, TEXT("%s() Failed to call ClientRecieveStartingActiveItemHistoryArray RPC. Item history array is not in sync!"), *FString(__FUNCTION__));
-			}
-		}
+
 }
 
 void AShooterCharacter::BeginPlay()
@@ -72,13 +67,39 @@ void AShooterCharacter::BeginPlay()
 
 }
 
-bool AShooterCharacter::GrantStartingAbilities()
+void AShooterCharacter::CreateAttributeSets()
 {
-	if (Super::GrantStartingAbilities() == false)
+	Super::CreateAttributeSets();
+
+
+	if (!HealthAttributeSet)
 	{
-		return false;	// Did not pass predefined checks
+		HealthAttributeSet = NewObject<UAS_Health>(this, UAS_Health::StaticClass(), TEXT("HealthAttributeSet"));
 	}
-	//	We are on authority and have a valid ASC to work with
+	else
+	{
+		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), *FString(__FUNCTION__), *HealthAttributeSet->GetName());
+	}
+}
+
+void AShooterCharacter::RegisterAttributeSets()
+{
+	Super::RegisterAttributeSets();
+
+
+	if (HealthAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(HealthAttributeSet))	// If HealthAttributeSet is valid and it's not yet registered with the Character's ASC
+	{
+		GetAbilitySystemComponent()->AddAttributeSetSubobject(HealthAttributeSet);
+	}
+	else
+	{
+		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() HealthAttributeSet was either NULL or already added to the character's ASC. Character: %s"), *FString(__FUNCTION__), *GetName());
+	}
+}
+void AShooterCharacter::GrantStartingAbilities()
+{
+	Super::GrantStartingAbilities();
+
 
 	InteractInstantAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractInstantAbilityTSub, this/*, GetLevel()*/);
 	InteractDurationAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractDurationAbilityTSub, this/*, GetLevel()*/);
@@ -94,12 +115,12 @@ bool AShooterCharacter::GrantStartingAbilities()
 
 	DropItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(DropItemAbilityTSub, this/*, GetLevel()*/);
 
-	return true;
 }
 
 #include "Kismet/KismetSystemLibrary.h"
-#include "AbilitySystem/AttributeSets/AS_Health.h"
+#include "AttributeSets/AS_Health.h"
 #include "Item/AS_Ammo.h"
+#include "AbilitySystem/AttributeSets/AS_Stamina.h"
 #include "ArcItemBPFunctionLibrary.h"
 #include "Item\ArcItemDefinition_New.h"
 //#include "Kismet/KismetMathLibrary.h"
@@ -108,10 +129,10 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	//if (GetHealthAttributeSet())
-	//{
-	//	UKismetSystemLibrary::PrintString(this, FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
-	//}
+	if (GetHealthAttributeSet())
+	{
+		//UKismetSystemLibrary::PrintString(this, FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
+	}
 
 	//for (int32 i = 0; i < SSInventoryComponentActive->ActiveItemHistory.Num(); ++i)
 	//{
@@ -130,14 +151,21 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 	{
 		for (UAttributeSet* AttributeSet : GetAbilitySystemComponent()->GetSpawnedAttributes())
 		{
-			if (UAS_Ammo* AmmoAttributeSet = Cast<UAS_Ammo>(AttributeSet))
-			{
-				UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetBackupAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetBackupAmmo()), true, false);
-				UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetClipAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetClipAmmo()), true, false);
-			}
+			//if (UAS_Ammo* AmmoAttributeSet = Cast<UAS_Ammo>(AttributeSet))
+			//{
+			//	UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetBackupAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetBackupAmmo()), true, false);
+			//	UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->ClipAmmo.GetPropertyName().ToString() + ": " + FString::SanitizeFloat(AmmoAttributeSet->ClipAmmo), true, false);
+			//}
+
+			//if (UAS_Stamina* FoundStaminaAttributeSet = Cast<UAS_Stamina>(AttributeSet))
+			//{
+			//	UKismetSystemLibrary::PrintString(this, FoundStaminaAttributeSet->Stamina.GetPropertyName().ToString() + ": " + FString::SanitizeFloat(FoundStaminaAttributeSet->Stamina), true, false);
+			//}
 		}
 
 	}
+
+	//}
 
 	//	Item history debug
 	//UKismetSystemLibrary::PrintString(this, "------------", true, false);
@@ -268,11 +296,12 @@ void AShooterCharacter::OnPreviousItemPressed()
 
 void AShooterCharacter::OnPausePressed()
 {
-
+	Super::OnPausePressed();
 }
 
 void AShooterCharacter::OnScoreSheetPressed()
 {
+	Super::OnScoreSheetPressed();
 }
 
 void AShooterCharacter::OnDropItemPressed()

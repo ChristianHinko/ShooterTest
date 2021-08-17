@@ -82,7 +82,7 @@ bool UGA_Reload::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 		return false;
 	}
 
-	if (AmmoAttributeSet->GetClipAmmo() >= AmmoAttributeSet->GetMaxClipAmmo())
+	if (AmmoAttributeSet->ClipAmmo >= AmmoAttributeSet->GetMaxClipAmmo())
 	{
 		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Already have full ammo. Returned false"), *FString(__FUNCTION__));
 		return false;
@@ -120,7 +120,7 @@ void UGA_Reload::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 
 
 	// Amount to move out of BackupAmmo, and into ClipAmmo
-	float AmmoToMove = AmmoAttributeSet->GetMaxClipAmmo() - AmmoAttributeSet->GetClipAmmo();
+	float AmmoToMove = AmmoAttributeSet->GetMaxClipAmmo() - AmmoAttributeSet->ClipAmmo;
 
 	// Check if BackupAmmo went negative
 	{
@@ -140,7 +140,7 @@ void UGA_Reload::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 
 
 	// Move ammo into clip
-	AmmoAttributeSet->SetClipAmmo(AmmoAttributeSet->GetClipAmmo() + AmmoToMove);
+	AmmoAttributeSet->ClipAmmo = AmmoAttributeSet->ClipAmmo + AmmoToMove;
 
 
 

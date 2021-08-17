@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystemGlobals.h"
+#include "AbilitySystem/ASSAbilitySystemGlobals.h"
 
 #include "SSAbilitySystemGlobals.generated.h"
 
@@ -13,15 +13,15 @@
  * Our custom AbilitySystemGlobals
  */
 UCLASS()
-class SONICSHOOTER_API USSAbilitySystemGlobals : public UAbilitySystemGlobals
+class SONICSHOOTER_API USSAbilitySystemGlobals : public UASSAbilitySystemGlobals
 {
 	GENERATED_BODY()
 
-
+public:
 	USSAbilitySystemGlobals();
 
-public:
+
 	virtual FGameplayAbilityActorInfo* AllocAbilityActorInfo() const override;
-	//virtual FGameplayEffectContext* AllocGameplayEffectContext() const override;
+	virtual FGameplayEffectContext* AllocGameplayEffectContext() const override;
 
 };

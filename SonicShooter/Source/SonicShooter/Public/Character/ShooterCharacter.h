@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/AbilitySystemCharacter.h"
+#include "Character/SSCharacter.h"
 #include "Interfaces/ArcInventoryInterface.h"
 
 #include "ShooterCharacter.generated.h"
@@ -14,18 +14,21 @@ class UInteractorComponent;
 class UArcInventoryComponent;
 class USSArcInventoryComponent_Active;
 class UArcItemGenerator_Unique;
+class UAS_Health;
+
+
 
 /**
  *
  */
 UCLASS()
-class SONICSHOOTER_API AShooterCharacter : public AAbilitySystemCharacter, public IArcInventoryInterface
+class SONICSHOOTER_API AShooterCharacter : public ASSCharacter, public IArcInventoryInterface
 {
 	GENERATED_BODY()
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
-		class UArcInventoryComponent* InventoryComponent;
+		UArcInventoryComponent* InventoryComponent;
 
 
 	
@@ -48,51 +51,53 @@ public:
 
 	class UArcInventoryComponent* GetInventoryComponent() const override { return InventoryComponent; }
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 		UInteractorComponent* Interactor;
 
 #pragma region Tags
 	//FGameplayTag 
 #pragma endregion
 
+	UAS_Health* GetHealthAttributeSet() const { return HealthAttributeSet; }
+
 
 #pragma region Abilities
 	// Inventory Abilities
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<USSGameplayAbility> SwapToLastActiveItemAbilityTSub;
+		TSubclassOf<UASSGameplayAbility> SwapToLastActiveItemAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToLastActiveItemAbilitySpecHandle;
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<USSGameplayAbility> SwapToNextItemAbilityTSub;
+		TSubclassOf<UASSGameplayAbility> SwapToNextItemAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToNextItemAbilitySpecHandle;
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<USSGameplayAbility> SwapToPreviousItemAbilityTSub;
+		TSubclassOf<UASSGameplayAbility> SwapToPreviousItemAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToPreviousItemAbilitySpecHandle;
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<USSGameplayAbility> SwapToItem0AbilityTSub;
+		TSubclassOf<UASSGameplayAbility> SwapToItem0AbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToItem0AbilitySpecHandle;
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<USSGameplayAbility> SwapToItem1AbilityTSub;
+		TSubclassOf<UASSGameplayAbility> SwapToItem1AbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToItem1AbilitySpecHandle;
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<USSGameplayAbility> SwapToItem2AbilityTSub;
+		TSubclassOf<UASSGameplayAbility> SwapToItem2AbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToItem2AbilitySpecHandle;
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<USSGameplayAbility> SwapToItem3AbilityTSub;
+		TSubclassOf<UASSGameplayAbility> SwapToItem3AbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToItem3AbilitySpecHandle;
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<USSGameplayAbility> SwapToItem4AbilityTSub;
+		TSubclassOf<UASSGameplayAbility> SwapToItem4AbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToItem4AbilitySpecHandle;
 
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<USSGameplayAbility> DropItemAbilityTSub;
+		TSubclassOf<UASSGameplayAbility> DropItemAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle DropItemAbilitySpecHandle;
 	// -----------------------
@@ -102,12 +107,12 @@ public:
 
 
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Interact")
-		TSubclassOf<USSGameplayAbility> InteractInstantAbilityTSub;
+		TSubclassOf<UASSGameplayAbility> InteractInstantAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle InteractInstantAbilitySpecHandle;
 
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Interact")
-		TSubclassOf<USSGameplayAbility> InteractDurationAbilityTSub;
+		TSubclassOf<UASSGameplayAbility> InteractDurationAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle InteractDurationAbilitySpecHandle;
 #pragma endregion
@@ -127,7 +132,9 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 	//END AActor Interface
 
-	virtual bool GrantStartingAbilities() override;
+	virtual void CreateAttributeSets() override;
+	virtual void RegisterAttributeSets() override;
+	virtual void GrantStartingAbilities() override;
 
 #pragma region Input Events
 	virtual void OnInteractPressed() override;
@@ -136,20 +143,24 @@ protected:
 
 	virtual void OnReloadPressed() override;
 
-	virtual void OnSwitchWeaponPressed();
-	virtual void OnItem0Pressed();
-	virtual void OnItem1Pressed();
-	virtual void OnItem2Pressed();
-	virtual void OnItem3Pressed();
-	virtual void OnItem4Pressed();
-	virtual void OnNextItemPressed();
-	virtual void OnPreviousItemPressed();
+	virtual void OnSwitchWeaponPressed() override;
+	virtual void OnItem0Pressed() override;
+	virtual void OnItem1Pressed() override;
+	virtual void OnItem2Pressed() override;
+	virtual void OnItem3Pressed() override;
+	virtual void OnItem4Pressed() override;
+	virtual void OnNextItemPressed() override;
+	virtual void OnPreviousItemPressed() override;
 
-	virtual void OnPausePressed();
-	virtual void OnScoreSheetPressed();
+	virtual void OnPausePressed() override;
+	virtual void OnScoreSheetPressed() override;
 
-	virtual void OnDropItemPressed();
+	virtual void OnDropItemPressed() override;
 
 #pragma endregion
+
+private:
+	UPROPERTY(Replicated)
+		UAS_Health* HealthAttributeSet;
 
 };

@@ -8,6 +8,7 @@
 #include "SSArcInventoryComponent_Active.generated.h"
 
 class UArkItemStack;
+class UArcInventoryComponent;
 
 /**
  * 
@@ -21,6 +22,11 @@ private:
 
 public:
 	USSArcInventoryComponent_Active(const FObjectInitializer& ObjectInitializer);
+	virtual void BeginPlay() override;
+	virtual void InitializeComponent() override;
+
+	int32 startingActiveItemSlot;
+	uint8 bUseOnEquipItemSwappingThingRoyMade : 1;
 
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 		bool IsActiveItemSlotIndexValid(int32 InActiveItemSlot);
@@ -30,24 +36,26 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 		int32 maxItemHistoryBufferSize;
-	TArray<FArcInventoryItemSlotReference> ActiveItemHistory;
+	UPROPERTY(Replicated)
+		TArray<FArcInventoryItemSlotReference> ActiveItemHistory;
 
-	// This is the only time we sync the client and server ActiveItemHistory array. The very start of the game.
-	UFUNCTION(Client, Reliable)
-		void ClientRecieveStartingActiveItemHistoryArray(const TArray<FArcInventoryItemSlotReference>& ServerActiveItemHistoryArr);
 
 
 
 	
-	virtual void OnItemEquipped(class UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack) override;
-
+	virtual void OnItemEquipped(UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack) override;
+	
 	UFUNCTION()
-		void AddToActiveItemHistory(FArcInventoryItemSlotReference NewActiveItemSlotReference);
+		void AddToActiveItemHistory(const FArcInventoryItemSlotReference& NewActiveItemSlotReference);
 
 protected:
-
+	UFUNCTION()
+		void OnItemSlotChangeEvent(UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack);
+	UFUNCTION()
+		void OnItemActiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
+	UFUNCTION()
+		void OnItemInactiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
 	virtual bool MakeItemActive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack) override;
-	virtual bool MakeItemInactive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack) override;
 	
 	virtual bool ApplyAbilityInfo_Internal(const FArcItemDefinition_AbilityInfo& AbilityInfo, FArcEquippedItemInfo& StoreInto, UArcItemStack* AbilitySource) override;
 

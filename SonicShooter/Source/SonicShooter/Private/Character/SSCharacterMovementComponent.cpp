@@ -4,13 +4,14 @@
 #include "Character/SSCharacterMovementComponent.h"
 
 #include "GameFramework/Character.h"
-#include "AbilitySystem/SSAbilitySystemComponent.h"
 #include "Character/SSCharacterMovementComponent.h"
-#include "Character/AbilitySystemCharacter.h"
-#include "Character/AS_Character.h"
+#include "Character/SSCharacter.h"
+#include "Character/AS_CharacterMovement.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "AbilitySystemSetupComponent/AbilitySystemSetupInterface.h"
+#include "AbilitySystemSetupComponent/AbilitySystemSetupComponent.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -54,12 +55,14 @@ void USSCharacterMovementComponent::InitializeComponent()
 	// Get reference to our SSCharacter
 	SSCharacterOwner = Cast<ASSCharacter>(PawnOwner);
 
-	// Get reference to our AbilitySystemCharacter
-	AbilitySystemCharacterOwner = Cast<AAbilitySystemCharacter>(SSCharacterOwner);
+	AbilitySystemOwner = Cast<IAbilitySystemInterface>(GetOwner());
 
-	if (AbilitySystemCharacterOwner)
+	// Get reference to our AbilitySystemCharacter
+	IAbilitySystemSetupInterface* AbilitySystemSetupOwner = Cast<IAbilitySystemSetupInterface>(SSCharacterOwner);
+
+	if (AbilitySystemSetupOwner)
 	{
-		AbilitySystemCharacterOwner->PreApplyStartupEffects.AddUObject(this, &USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady);
+		AbilitySystemSetupOwner->GetAbilitySystemSetup()->PreApplyStartupEffects.AddUObject(this, &USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady);
 	}
 }
 
@@ -67,11 +70,9 @@ void USSCharacterMovementComponent::InitializeComponent()
 void USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady()
 {
 	UAbilitySystemComponent* OwnerASC = nullptr;
-	if (AbilitySystemCharacterOwner)
+	if (AbilitySystemOwner)
 	{
-		OwnerASC = AbilitySystemCharacterOwner->GetAbilitySystemComponent();
-		CharacterAttributeSet = AbilitySystemCharacterOwner->GetCharacterAttributeSet();
-		StaminaAttributeSet = AbilitySystemCharacterOwner->GetStaminaAttributeSet();
+		OwnerASC = AbilitySystemOwner->GetAbilitySystemComponent();
 	}
 
 	if (OwnerASC)
@@ -79,6 +80,13 @@ void USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady()
 		OwnerASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnRunDisabledTagChanged);
 		OwnerASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.JumpDisabled"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnJumpDisabledTagChanged);
 		OwnerASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.CrouchDisabled"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCrouchDisabledTagChanged);
+	}
+
+
+	if (SSCharacterOwner)
+	{
+		CharacterMovementAttributeSet = SSCharacterOwner->GetCharacterAttributeSet();
+		StaminaAttributeSet = SSCharacterOwner->GetStaminaAttributeSet(); // TODO: use injecting instead of searching. i want StaminaAttributeSet on a subclass of SSCharacter which would inject it into here
 	}
 
 	if (StaminaAttributeSet)
@@ -145,7 +153,7 @@ void USSCharacterMovementComponent::SetWantsToRun(bool newWantsToRun)
 void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 {
 	////////////////////////////////////////////////////////////////////////////// WantsTo Calculations //////////
-	
+
 	// When calculation whether we want to run or not, modify this. We will
 	// set bWantsToRun to this using SetWantsToRun() at the end of our calculations.
 	// The reason we do this is to avoid messing up timestamps or
@@ -153,7 +161,7 @@ void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 	bool newWantsToRun = bWantsToRun;
 
 
-	if (StaminaAttributeSet && StaminaAttributeSet->GetStamina() <= 0.f)
+	if (StaminaAttributeSet && StaminaAttributeSet->Stamina <= 0.f)
 	{
 		if (IsMovingOnGround()) // only if we are on the ground. if we are in the air, the player will be expecting to run anyways
 		{
@@ -453,7 +461,7 @@ void USSCharacterMovementComponent::CheckJumpInput(float DeltaTime) // basically
 			{
 				if (CharacterOwner->bClientUpdating == false)
 				{
-					bDidJump = AbilitySystemCharacterOwner->GetAbilitySystemComponent()->TryActivateAbility(AbilitySystemCharacterOwner->CharacterJumpAbilitySpecHandle);
+					bDidJump = SSCharacterOwner->GetAbilitySystemComponent()->TryActivateAbility(SSCharacterOwner->CharacterJumpAbilitySpecHandle);
 				}
 				else
 				{
@@ -489,7 +497,7 @@ void USSCharacterMovementComponent::ClearJumpInput(float DeltaTime)
 		{
 			if (SSCharacterOwner->bIsJumping)
 			{
-				AbilitySystemCharacterOwner->GetAbilitySystemComponent()->CancelAbilityHandle(AbilitySystemCharacterOwner->CharacterJumpAbilitySpecHandle);
+				SSCharacterOwner->GetAbilitySystemComponent()->CancelAbilityHandle(SSCharacterOwner->CharacterJumpAbilitySpecHandle);
 			}
 		}
 	}
@@ -499,7 +507,7 @@ void USSCharacterMovementComponent::ClearJumpInput(float DeltaTime)
 		CharacterOwner->bWasJumping = false;
 		if (SSCharacterOwner->bIsJumping)
 		{
-			AbilitySystemCharacterOwner->GetAbilitySystemComponent()->CancelAbilityHandle(AbilitySystemCharacterOwner->CharacterJumpAbilitySpecHandle);
+			SSCharacterOwner->GetAbilitySystemComponent()->CancelAbilityHandle(SSCharacterOwner->CharacterJumpAbilitySpecHandle);
 		}
 	}
 }
@@ -512,20 +520,20 @@ void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 	// Proxies get replicated crouch state.
 	if (CharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)
 	{
-		UAbilitySystemComponent* OwnerASC = AbilitySystemCharacterOwner->GetAbilitySystemComponent();
+		UAbilitySystemComponent* OwnerASC = SSCharacterOwner->GetAbilitySystemComponent();
 
 
 		// Check for a change in crouch state. Players toggle crouch by changing bWantsToCrouch.
 		const bool willCrouch = bWantsToCrouch && CanCrouchInCurrentState();
 		if (IsCrouching() && !willCrouch)
 		{
-			OwnerASC->CancelAbilityHandle(AbilitySystemCharacterOwner->CharacterCrouchAbilitySpecHandle);
+			OwnerASC->CancelAbilityHandle(SSCharacterOwner->CharacterCrouchAbilitySpecHandle);
 		}
 		else if (!IsCrouching() && willCrouch)
 		{
 			if (timestampWantsToCrouch > timestampWantsToRun)
 			{
-				OwnerASC->TryActivateAbility(AbilitySystemCharacterOwner->CharacterCrouchAbilitySpecHandle);
+				OwnerASC->TryActivateAbility(SSCharacterOwner->CharacterCrouchAbilitySpecHandle);
 			}
 		}
 
@@ -533,13 +541,13 @@ void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 		const bool willRun = bWantsToRun && CanRunInCurrentState() && Acceleration.SizeSquared() > 0;
 		if (IsRunning() && !willRun)
 		{
-			OwnerASC->CancelAbilityHandle(AbilitySystemCharacterOwner->CharacterRunAbilitySpecHandle);
+			OwnerASC->CancelAbilityHandle(SSCharacterOwner->CharacterRunAbilitySpecHandle);
 		}
 		else if (!IsRunning() && willRun)
 		{
 			if (timestampWantsToRun > timestampWantsToCrouch)
 			{
-				OwnerASC->TryActivateAbility(AbilitySystemCharacterOwner->CharacterRunAbilitySpecHandle);
+				OwnerASC->TryActivateAbility(SSCharacterOwner->CharacterRunAbilitySpecHandle);
 			}
 		}
 	}
@@ -553,19 +561,19 @@ void USSCharacterMovementComponent::UpdateCharacterStateAfterMovement(float Delt
 	// Proxies get replicated crouch state.
 	if (CharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)
 	{
-		UAbilitySystemComponent* OwnerASC = AbilitySystemCharacterOwner->GetAbilitySystemComponent();
+		UAbilitySystemComponent* OwnerASC = SSCharacterOwner->GetAbilitySystemComponent();
 
 
 		// Uncrouch if no longer allowed to be crouched
 		if (IsCrouching() && !CanCrouchInCurrentState())
 		{
-			OwnerASC->CancelAbilityHandle(AbilitySystemCharacterOwner->CharacterCrouchAbilitySpecHandle);
+			OwnerASC->CancelAbilityHandle(SSCharacterOwner->CharacterCrouchAbilitySpecHandle);
 		}
 
 
 		if (IsRunning() && !CanRunInCurrentState())
 		{
-			OwnerASC->CancelAbilityHandle(AbilitySystemCharacterOwner->CharacterRunAbilitySpecHandle);
+			OwnerASC->CancelAbilityHandle(SSCharacterOwner->CharacterRunAbilitySpecHandle);
 		}
 	}
 }
@@ -594,7 +602,7 @@ bool USSCharacterMovementComponent::CanAttemptJump() const
 		return false;
 	}
 
-	
+
 	return true;
 }
 
@@ -633,7 +641,7 @@ bool USSCharacterMovementComponent::CanRunInCurrentState() const
 	//{
 	//	return false;
 	//}
-	if (StaminaAttributeSet && StaminaAttributeSet->GetStamina() <= 0)
+	if (StaminaAttributeSet && StaminaAttributeSet->Stamina <= 0)
 	{
 		return false;
 	}
@@ -736,17 +744,17 @@ float USSCharacterMovementComponent::GetMaxSpeed() const
 		}
 		else
 		{
-			if (!CharacterAttributeSet)
+			if (!CharacterMovementAttributeSet)
 			{
-				UE_LOG(LogCharacterMovement, Error, TEXT("CharacterAttributeSet was NULL when trying to return a speed value"));
+				UE_LOG(LogCharacterMovement, Error, TEXT("CharacterMovementAttributeSet was NULL when trying to return a speed value"));
 				return 0;
 			}
 
 			if (IsRunning())
 			{
-				return CharacterAttributeSet->GetRunSpeed();
+				return CharacterMovementAttributeSet->GetRunSpeed();
 			}
-			return CharacterAttributeSet->GetWalkSpeed();
+			return CharacterMovementAttributeSet->GetWalkSpeed();
 		}
 	}
 	case MOVE_Falling:
@@ -785,17 +793,17 @@ float USSCharacterMovementComponent::GetMaxAcceleration() const
 	case MOVE_Walking:
 	case MOVE_NavWalking:
 	{
-		if (!CharacterAttributeSet)
+		if (!CharacterMovementAttributeSet)
 		{
-			UE_LOG(LogCharacterMovement, Error, TEXT("CharacterAttributeSet was NULL when trying to return a acceleration value"));
+			UE_LOG(LogCharacterMovement, Error, TEXT("CharacterMovementAttributeSet was NULL when trying to return a acceleration value"));
 			return 0;
 		}
 
 		if (IsRunning())
 		{
-			return CharacterAttributeSet->GetRunAccelaration();
+			return CharacterMovementAttributeSet->GetRunAccelaration();
 		}
-		return CharacterAttributeSet->GetWalkAcceleration();;
+		return CharacterMovementAttributeSet->GetWalkAcceleration();;
 	}
 	case MOVE_Falling:
 		break;
@@ -971,7 +979,7 @@ bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/) c
 	 * At dot product 0.7 you are looking at a 45 degrees angle
 	 * For 25 degrees tolerance use > 0.9
 	 * 0.99 gives you 8 degrees of tolerance
-	 * 
+	 *
 	 * ACOS(dot product) is the formula. Incidentally, it's the formula to find the angle between two vectors
 	 */
 

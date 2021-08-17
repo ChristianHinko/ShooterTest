@@ -4,84 +4,45 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "SSPlayerState.h"
 
 #include "SSPlayerController.generated.h"
 
 
-class ASSGameMode;
 
-
-
-/**
- * The controller can use this to know when the current Pawn is changed,
- * and recreate or modify its pawn as needed (by calling UpdatePawn())
- */
-DECLARE_MULTICAST_DELEGATE(FPawnInfoChange);
+DECLARE_MULTICAST_DELEGATE(FPlayerControllerStatus);
 
 
 /**
- *  This should store the info for a Pawn. A player may switch Pawns by
- *  calling SetPendingPawnInfo(FPawnInfo NewPawnInfo), and then calling UpdatePawn().
- */
-USTRUCT(BlueprintType)
-struct FPawnInfo // do we actually need this?
-{
-	GENERATED_USTRUCT_BODY()
-
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PawnInfo")
-		TSubclassOf<APawn> PawnClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PawnInfo")
-		FString Name;
-};
-
-/**
- * Base player controller (Ability System aware). Holds pending pawn data
+* 
+ * Since this respawning system here. Has no dependancies so we should end up making this a plugin if we find it useful
+ * Has the concept of a PendingPawnClass. This may be helpful for respawning a Pawn by using SpawnPawnFromPendingPawnClass() because
+ * the classes calling the SpawnPawnFromPendingPawnClass() don't have to know what the pending pawn is, and SetPendingPawnClass lets
+ * classes choose what is spawned next when the time comes.
  */
 UCLASS()
 class SONICSHOOTER_API ASSPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
-
 public:
-	/** Set a new Pawn to be active. Can be called on client */
-	UFUNCTION(BlueprintCallable)
-		void SetPendingPawnInfo(const FPawnInfo& NewPawnInfo);
-
-	/** On pending pawn info change delegate */
-	FPawnInfoChange OnPendingPawnInfoChange;
+	FPlayerControllerStatus OnPlayerStateValid;
 
 
-	const TArray<FPawnInfo> GetPawnInfos() const { return PawnInfos; }
+	void SetPendingPawnClass(const TSubclassOf<APawn>& NewPawnClass);
+	TSubclassOf<APawn> GetPendingPawnClass() const { return PendingPawnClass; }
 
-	/** Will be null if no Pawn has been selected yet */
-	const FPawnInfo GetPendingPawnInfo() const { return PendingPawnInfo; }
-
-	UFUNCTION(BlueprintCallable)							// blueprint callable for testing =@REVIEW MARKER@=
-		APawn* SpawnPawnFromPendingInfo();
+	APawn* SpawnPawnFromPendingPawnClass();
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PawnInfo")
-		TArray<FPawnInfo> PawnInfos;
-
-	UPROPERTY()
-		ASSGameMode* SSGamemode;
-
-	UPROPERTY(Replicated)
-		ASSPlayerState* SSPlayerState;
-
-
-	virtual void BeginPlay() override;
-
 	//BEGIN AController Interface
-	virtual void InitPlayerState() override;	// Server only (rare case for client I think)
+	virtual void InitPlayerState() override;	// server only (rare case for client I think)
 	virtual void OnRep_PlayerState() override;
-	virtual void OnPossess(APawn* P) override;
 	//END AController Interface
 
+	virtual void EndPlayingState() override;
+
+
 private:
-	FPawnInfo PendingPawnInfo;
+	TSubclassOf<APawn> PendingPawnClass;
+
 };

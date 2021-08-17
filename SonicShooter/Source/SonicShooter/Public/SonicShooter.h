@@ -3,23 +3,40 @@
 #pragma once
 
 #include "CoreMinimal.h"
-//#include "ModuleInterface.h"
+#include "Modules/ModuleInterface.h"
+
+//#include "SonicShooter.generated.h" // if we ever need reflection in here
 
 
 
-//class FSonicShooter : public IModuleInterface
-//{
-//public:
-//	static inline FSonicShooter& Get()
-//	{
-//		return FModuleManager::LoadModuleChecked<FSonicShooter>("SonicShooter");
-//	}
-//	static inline bool IsAvailable()
-//	{
-//		return FModuleManager::Get().IsModuleLoaded("SonicShooter");
-//	}
-//
-//protected:
-//	virtual void StartupModule() override;
-//	virtual void ShutdownModule() override;
-//};
+#define SONICSHOOTER_MODULE_NAME TEXT("SonicShooter")
+
+/**
+ * 
+ */
+class FSonicShooter : public IModuleInterface
+{
+	typedef IModuleInterface Super;
+
+public:
+	virtual bool IsGameModule() const override
+	{
+		return true;
+	}
+
+	static inline FSonicShooter& Get()
+	{
+		return FModuleManager::LoadModuleChecked<FSonicShooter>(SONICSHOOTER_MODULE_NAME);
+	}
+	static inline bool IsAvailable()
+	{
+		return FModuleManager::Get().IsModuleLoaded(SONICSHOOTER_MODULE_NAME);
+	}
+
+protected:
+	//BEGIN IModuleInterface Interface
+	virtual void StartupModule() override;
+	virtual void ShutdownModule() override;
+	//END IModuleInterface Interface
+
+};

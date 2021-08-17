@@ -3,21 +3,24 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSGameplayAbility.h"
+#include "AbilitySystem/ASSGameplayAbility.h"
 
 #include "GA_CharacterRun.generated.h"
 
-class AAbilitySystemCharacter;
+
+class ASSCharacter;
 class USSCharacterMovementComponent;
 
+
+
 /**
- * 
+ *
  */
 UCLASS()
-class SONICSHOOTER_API UGA_CharacterRun : public USSGameplayAbility
+class SONICSHOOTER_API UGA_CharacterRun : public UASSGameplayAbility
 {
 	GENERATED_BODY()
-	
+
 public:
 	UGA_CharacterRun();
 
@@ -28,7 +31,7 @@ protected:
 	FActiveGameplayEffectHandle RunningEffectActiveHandle;
 
 	UPROPERTY()
-		AAbilitySystemCharacter* GASCharacter;
+		ASSCharacter* SSCharacter;
 	UPROPERTY()
 		USSCharacterMovementComponent* CMC;
 

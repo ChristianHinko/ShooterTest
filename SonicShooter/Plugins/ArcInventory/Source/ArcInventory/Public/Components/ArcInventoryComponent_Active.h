@@ -112,9 +112,4 @@ protected:
 
 	TArray<FArcInventoryItemSlotReference> CachedActiveItemSlots;
 
-	//=@MODIFIED MARKER@=
-	virtual bool ApplyAbilityInfo_Internal(const FArcItemDefinition_AbilityInfo& AbilityInfo, FArcEquippedItemInfo& StoreInto, UArcItemStack* AbilitySource) override;
-	virtual bool ClearAbilityInfo_Internal(const FArcItemDefinition_AbilityInfo& AbilityInfo, FArcEquippedItemInfo& StoreInto) override;
-private://=@MODIFIED MARKER@=
-	int32 pendingSwapIndex;
 };

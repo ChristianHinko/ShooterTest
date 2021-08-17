@@ -219,7 +219,7 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 						}
 					}
 				}
-				
+
 				//BEGIN =@OVERRIDED CODE MARKER@= Make it run soft attribute defaults after setting hard default values
 				if (UASSAttributeSet* SSNewAttributeSet = Cast<UASSAttributeSet>(NewAttributeSet))
 				{
@@ -275,25 +275,18 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 			//and add any extras we have
 			for (auto ExtraAbility : AbilityInfo.ExtraAbilities)
 			{
-				//If an ability exists already, then don't bother adding it
+				//=@OVERRIDED CODE MARKER@= comment this part out because this messes up swapping to an item that has the same ability as our previous one
+				////If an ability exists already, then don't bother adding it
 				//if (ASC->FindAbilitySpecFromClass(ExtraAbility))
 				//{
 				//	continue;
 				//}
 
-				//=@MODIFIED MARKER@= also this class doesnt even override these functions
-				if (FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromClass(ExtraAbility))
-				{
-					if (Spec->SourceObject == AbilitySource)
-					{
-						continue;
-					}
-				}
 				//=@OVERRIDED CODE MARKER@= what we modified in this override we use our grant ability instead of give ability
 				FGameplayAbilitySpecHandle Handle = Cast<UASSAbilitySystemComponent>(ASC)->GrantAbility(ExtraAbility, AbilitySource);
 				//FGameplayAbilitySpec Spec(ExtraAbility.GetDefaultObject(), 1, INDEX_NONE, AbilitySource);
-
 				//FGameplayAbilitySpecHandle Handle = ASC->GiveAbility(Spec);
+
 				StoreInto.AddedAbilities.Add(Handle);
 			}
 

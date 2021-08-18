@@ -12,8 +12,8 @@ public class SonicShooter : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine" });
 		PrivateDependencyModuleNames.AddRange(
 			new string[] {
-				"PhysicsCore",
 				"InputCore",
+				"PhysicsCore",
 				"GameplayTags",
 				"GameplayAbilities",
 				"GameplayTasks",

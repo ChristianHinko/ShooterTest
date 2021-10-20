@@ -28,6 +28,9 @@ public:
 	int32 startingActiveItemSlot;
 	uint8 bUseOnEquipItemSwappingThingRoyMade : 1;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
+		TArray<FArcStartingItemEntry> StartingItems;
+
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 		bool IsActiveItemSlotIndexValid(int32 InActiveItemSlot);
 

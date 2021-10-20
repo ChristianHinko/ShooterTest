@@ -51,46 +51,69 @@ APawn* AGM_Shooter::SpawnDefaultPawnAtTransform_Implementation(AController* NewP
 void AGM_Shooter::GiveInventoryStartupItems(UArcInventoryComponent* Inventory)
 {
 	USSArcInventoryComponent_Active* SSArcInventoryCompActive = Cast<USSArcInventoryComponent_Active>(Inventory);	// See if we are a USSArcInventoryComponent_Active so we can do extra logic on that specific type
-
-	// Loop through the SlotDefinitions we filled out in the inventory component's BP for this pawn so we can access the information of what item we should put in each slot
-	// We loop through them backwards since we call USSArcInventoryComponent_Active::AddToActiveItemHistory every iteration
-	for (int32 i = Inventory->CustomInventorySlots.Num() - 1; i >= 0; --i)
+	if (IsValid(SSArcInventoryCompActive))
 	{
-		//	Get the item generator the SlotDefinition specifies
-		if (UArcItemGenerator_Unique* CurrentItemGenerator = Inventory->CustomInventorySlots[i].SlotStartupItem.GetDefaultObject())
+		for (const FArcStartingItemEntry& StartingItem : SSArcInventoryCompActive->StartingItems)
 		{
-			//	Generate the item
-			UArcItemStack* GeneratedItem = CurrentItemGenerator->GenerateItemStack(FArcItemGeneratorContext());
-
-			// Equip the generated item
-			if (GeneratedItem)
+			FArcInventoryItemSlotReference SlotToPutItemIn = SSArcInventoryCompActive->Query_GetFirstSlot(FArcInventoryQuery::QueryForSlot(StartingItem.SlotQuery));
+			if (SSArcInventoryCompActive->IsValidItemSlot(SlotToPutItemIn))
 			{
-				FArcInventoryItemSlotReference SlotToAddItemTo;
-				if (Inventory->GetSlotReferenceByIndex(i, SlotToAddItemTo))
+				if (IsValid(StartingItem.ItemGenerator))
 				{
-					Inventory->PlaceItemIntoSlot(GeneratedItem, SlotToAddItemTo);
-
-					// Now we want to fill our active item history array if we have it
-					if (SSArcInventoryCompActive)
+					UArcItemStack* GeneratedItem = StartingItem.ItemGenerator->GenerateItemStack(FArcItemGeneratorContext());
+					bool bSuccessfullyPlacedItemIntoSlot = SSArcInventoryCompActive->PlaceItemIntoSlot(GeneratedItem, SlotToPutItemIn);
+					if (!bSuccessfullyPlacedItemIntoSlot)
 					{
-						SSArcInventoryCompActive->AddToActiveItemHistory(SlotToAddItemTo);
-
-						if (i == 0)
-						{
-							// This is a good time to sync the client's history array with the server's for the first time
-							MARK_PROPERTY_DIRTY_FROM_NAME(USSArcInventoryComponent_Active, ActiveItemHistory, SSArcInventoryCompActive);
-						}
+						UE_LOG(LogArcInventorySetup, Warning, TEXT("Failed to place a starting item into specified slot. We will just try to call LootItem() to give the item instead (may be put in wrong slot)"));
+						SSArcInventoryCompActive->LootItem(GeneratedItem);
 					}
 				}
-				else
-				{
-					UE_LOG(LogArcInventorySetup, Error, TEXT("%s() Could not place starting item into slot because CustomInventorySlots[i] did not match to an actual slot reference. (This should like never happen since the inventory slots are generated from this CustomInventorySlots array)"), *FString(__FUNCTION__), *GetName());
-				}
-			}
-			else
-			{
-				UE_LOG(LogArcInventorySetup, Error, TEXT("%s() GeneratedItem was NULL. We tried to give the new newly spawned pawn a starting item for a certain slot, but did not generate corectly."), *FString(__FUNCTION__), *GetName());
 			}
 		}
 	}
+
+
+
+
+	// Loop through the SlotDefinitions we filled out in the inventory component's BP for this pawn so we can access the information of what item we should put in each slot
+	// We loop through them backwards since we call USSArcInventoryComponent_Active::AddToActiveItemHistory every iteration
+	//for (int32 i = Inventory->CustomInventorySlots.Num() - 1; i >= 0; --i)
+	//{
+	//	//	Get the item generator the SlotDefinition specifies
+	//	if (UArcItemGenerator_Unique* CurrentItemGenerator = Inventory->CustomInventorySlots[i].SlotStartupItem.GetDefaultObject())
+	//	{
+	//		//	Generate the item
+	//		UArcItemStack* GeneratedItem = CurrentItemGenerator->GenerateItemStack(FArcItemGeneratorContext());
+
+	//		// Equip the generated item
+	//		if (GeneratedItem)
+	//		{
+	//			FArcInventoryItemSlotReference SlotToAddItemTo;
+	//			if (Inventory->GetSlotReferenceByIndex(i, SlotToAddItemTo))
+	//			{
+	//				Inventory->PlaceItemIntoSlot(GeneratedItem, SlotToAddItemTo);
+
+	//				// Now we want to fill our active item history array if we have it
+	//				if (SSArcInventoryCompActive)
+	//				{
+	//					SSArcInventoryCompActive->AddToActiveItemHistory(SlotToAddItemTo);
+
+	//					if (i == 0)
+	//					{
+	//						// This is a good time to sync the client's history array with the server's for the first time
+	//						MARK_PROPERTY_DIRTY_FROM_NAME(USSArcInventoryComponent_Active, ActiveItemHistory, SSArcInventoryCompActive);
+	//					}
+	//				}
+	//			}
+	//			else
+	//			{
+	//				UE_LOG(LogArcInventorySetup, Error, TEXT("%s() Could not place starting item into slot because CustomInventorySlots[i] did not match to an actual slot reference. (This should like never happen since the inventory slots are generated from this CustomInventorySlots array)"), *FString(__FUNCTION__), *GetName());
+	//			}
+	//		}
+	//		else
+	//		{
+	//			UE_LOG(LogArcInventorySetup, Error, TEXT("%s() GeneratedItem was NULL. We tried to give the new newly spawned pawn a starting item for a certain slot, but did not generate corectly."), *FString(__FUNCTION__), *GetName());
+	//		}
+	//	}
+	//}
 }

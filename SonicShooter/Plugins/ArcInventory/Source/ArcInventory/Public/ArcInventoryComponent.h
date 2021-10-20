@@ -12,10 +12,6 @@
 class UArcInventoryAttributeSet;
 class UArcItemStack;
 
-//------------------ =@MODIFIED MARKER@= fwd declare so we can use it in FArcInventoryItemSlotDefinition
-class UArcItemGenerator_Unique;
-//------------------
-
 USTRUCT(BlueprintType)
 struct ARCINVENTORY_API FArcInventoryItemSlotDefinition
 {
@@ -25,13 +21,6 @@ public:
 		FGameplayTagContainer Tags;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Inventory")
 		FArcInventoryItemSlotFilter Filter;
-
-
-	//------------------ =@MODIFIED MARKER@=
-	/** This item generator will be used by the GameMode to populate this slot when the character is spawned */
-	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
-		TSubclassOf<UArcItemGenerator_Unique> SlotStartupItem;
-	//------------------
 };
 
 

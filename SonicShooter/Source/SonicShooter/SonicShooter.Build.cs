@@ -13,10 +13,12 @@ public class SonicShooter : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[] {
 				"InputCore",
-				"GameplayAbilities",
+				"PhysicsCore",
 				"GameplayTags",
+				"GameplayAbilities",
 				"GameplayTasks",
 				"NetCore", // for push model
+				"UMG",
 				"AbilitySystemSetup",
 				"AbilitySystemSetupExtras",
 				"HelperLibraries",
@@ -24,7 +26,8 @@ public class SonicShooter : ModuleRules
 				"AutoSettings",
 				"ArcInventory",
 				"ArcTeams",
-				"MoveIt"
+				"MoveIt",
+				"UltimateFPSTemplate"
 			}
 		);
 	}

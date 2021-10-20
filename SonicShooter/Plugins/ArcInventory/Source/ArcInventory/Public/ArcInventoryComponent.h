@@ -129,12 +129,6 @@ private:
 
 	//Inventory Searching
 public:
-	//------------------ =@MODIFIED MARKER@= Added function
-	// VERY UNRELIABLE WARNING!!! SlotReferences can be dynamcically switched around during gameplay so anytime after inventory initialisation is a bad time to call this!!!!
-	UFUNCTION(BlueprintCallable, Category = "Inventory | Item Queries", meta = (ScriptName = "GetSlotReferenceByIndex"))
-	bool GetSlotReferenceByIndex(int32 index, FArcInventoryItemSlotReference& OutSlotReference);
-	//------------------
-
 	UFUNCTION(BlueprintCallable, Category="Inventory | Item Queries", meta = (ScriptName = "ItemQuery_GetAll"))
 	bool Query_GetAllSlots(const FArcInventoryQuery& Query, TArray<FArcInventoryItemSlotReference>& OutSlotRefs);
 

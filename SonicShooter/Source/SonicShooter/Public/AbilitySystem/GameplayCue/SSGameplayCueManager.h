@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayCueManager.h"
+#include "AbilitySystem/GameplayCue/ASSGameplayCueManager.h"
 
 #include "SSGameplayCueManager.generated.h"
 
@@ -13,12 +13,11 @@
  * Our custom GameplayCueManager
  */
 UCLASS()
-class SONICSHOOTER_API USSGameplayCueManager : public UGameplayCueManager
+class SONICSHOOTER_API USSGameplayCueManager : public UASSGameplayCueManager
 {
 	GENERATED_BODY()
 
-
-	virtual bool ShouldAsyncLoadRuntimeObjectLibraries() const override;
-
+public:
 	virtual void FlushPendingCues() override;
+
 };

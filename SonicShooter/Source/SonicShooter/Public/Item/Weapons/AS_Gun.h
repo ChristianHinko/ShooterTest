@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSAttributeSet.h"
+#include "AbilitySystem/ASSAttributeSet.h"
 #include "GameplayAbilities/Public/TickableAttributeSetInterface.h"
 #include "AbilitySystemComponent.h"
-#include "Utilities/PropertyWrappers.h"
+#include "Wrappers/PropertyWrappers.h"
 
 #include "AS_Gun.generated.h"
 
@@ -20,7 +20,7 @@ class USSCharacterMovementComponent;
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UAS_Gun : public USSAttributeSet, public ITickableAttributeSetInterface
+class SONICSHOOTER_API UAS_Gun : public UASSAttributeSet, public ITickableAttributeSetInterface
 {
 	GENERATED_BODY()
 
@@ -98,25 +98,39 @@ public:
 	ATTRIBUTE_ACCESSORS(UAS_Gun, NumberOfBulletsPerFire)
 
 	/**
-	 *
+	 * Passed in to GATA
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxRange, Category = "Attributes")
 		FGameplayAttributeData MaxRange;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, MaxRange)
 
 	/**
-	 * Number of times the trace can ricochet off of blocking hits - Zero for no ricochet
+	 * Number of times a bullet can penetrate blocking hits - Zero for no penetrations, -1 for letting speed decide
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Penetrations, Category = "Attributes")
+		FGameplayAttributeData Penetrations;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, Penetrations)
+
+	/**
+	 * Number of times a bullet can ricochet - (Zero for no ricochets and -1 for letting speed decide)
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Ricochets, Category = "Attributes")
 		FGameplayAttributeData Ricochets;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, Ricochets)
 
 	/**
-	 * The amount of damage lost to the bullet base damage every 10000cm (328ft) the bullet travels
+	 * The initial speed of the bullet (bullet speed strongly effects bullet damage and how far it travels)
 	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_DamageFalloff, Category = "Attributes")
-		FGameplayAttributeData DamageFalloff;
-	ATTRIBUTE_ACCESSORS(UAS_Gun, DamageFalloff)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_InitialBulletSpeed, Category = "Attributes")
+		FGameplayAttributeData InitialBulletSpeed;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, InitialBulletSpeed)
+
+	/**
+	 * Multiplier applied against the bullet's speed every 1000cm (32ft) or 10 blocks of our Proto material. Decreases bullet's speed as it travels through the air. (bullet speed strongly effects bullet damage and how far it travels)
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpeedFalloff, Category = "Attributes")
+		FGameplayAttributeData BulletSpeedFalloff;
+	ATTRIBUTE_ACCESSORS(UAS_Gun, BulletSpeedFalloff)
 
 
 
@@ -197,7 +211,7 @@ protected:
 	virtual void SetSoftAttributeDefaults() override;
 
 
-	void OnActorInfoInited();
+	void OnActorInfoInitted();
 
 	void UpdateFromActorInfo();
 
@@ -251,7 +265,13 @@ protected:
 		virtual void OnRep_Ricochets(const FGameplayAttributeData& ServerBaseValue);
 
 	UFUNCTION()
-		virtual void OnRep_DamageFalloff(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_Penetrations(const FGameplayAttributeData& ServerBaseValue);
+
+	UFUNCTION()
+		virtual void OnRep_InitialBulletSpeed(const FGameplayAttributeData& ServerBaseValue);
+
+	UFUNCTION()
+		virtual void OnRep_BulletSpeedFalloff(const FGameplayAttributeData& ServerBaseValue);
 
 
 

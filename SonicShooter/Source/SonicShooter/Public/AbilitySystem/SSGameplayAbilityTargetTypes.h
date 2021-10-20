@@ -3,21 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GameplayAbilityTargetTypes.h"
+#include "AbilitySystem/ASSGameplayAbilityTargetTypes.h"
 
 #include "SSGameplayAbilityTargetTypes.generated.h"
 
 
 
 /**
- * Our base Target Data struct
+ * Our custom Target Data struct
  */
 USTRUCT()
-struct SONICSHOOTER_API FSSGameplayAbilityTargetData : public FGameplayAbilityTargetData
+struct SONICSHOOTER_API FSSGameplayAbilityTargetData : public FASSGameplayAbilityTargetData
 {
 	GENERATED_BODY()
 
-		
+
 	FSSGameplayAbilityTargetData();
 
 	virtual UScriptStruct* GetScriptStruct() const override
@@ -45,20 +45,23 @@ struct FActorHitInfo
 	{
 
 	}
-	FActorHitInfo(const TWeakObjectPtr<AActor>& inHitActor, float inTotalTraveledDistanceBeforeHit)
+	FActorHitInfo(const TWeakObjectPtr<AActor>& inHitActor, float inTotalTraveledDistanceBeforeHit, float inBulletSpeedAtImpact)
 	{
 		HitActor = inHitActor;
 		totalTraveledDistanceBeforeHit = inTotalTraveledDistanceBeforeHit;
+		bulletSpeedAtImpact = inBulletSpeedAtImpact;
 	}
 	void operator=(const FActorHitInfo& Other)
 	{
 		HitActor = Other.HitActor;
 		totalTraveledDistanceBeforeHit = Other.totalTraveledDistanceBeforeHit;
+		bulletSpeedAtImpact = Other.bulletSpeedAtImpact;
 	}
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
 	{
 		Ar << HitActor;
 		Ar << totalTraveledDistanceBeforeHit;
+		Ar << bulletSpeedAtImpact;
 
 		bOutSuccess = true;
 		return true;
@@ -68,6 +71,8 @@ struct FActorHitInfo
 		TWeakObjectPtr<AActor> HitActor;
 	UPROPERTY()
 		float totalTraveledDistanceBeforeHit;
+	UPROPERTY()
+		float bulletSpeedAtImpact;
 };
 
 template<>

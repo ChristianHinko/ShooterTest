@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Character/AI_ShooterCharacter.h"
+
 #include "SonicAnimInstance.generated.h"
+
+
 
 /**
  * 
@@ -14,7 +17,17 @@ class SONICSHOOTER_API USonicAnimInstance : public UAI_ShooterCharacter
 {
 	GENERATED_BODY()
 
+public:
+	USonicAnimInstance(const FObjectInitializer& ObjectInitializer);
+
+	UMaterialInstanceDynamic* REyeDynamicMat;
+	UMaterialInstanceDynamic* LEyeDynamicMat;
+
 protected:
+	virtual void NativeInitializeAnimation() override;
+	virtual void NativeUpdateAnimation(float DeltaTimeX) override;
+
+
 
 	AActor* LookTarget;
 
@@ -39,13 +52,5 @@ protected:
 
 
 	FRotator Look(FName boneName, AActor* lookTarget, float deltaTime);
-
-public:
-	USonicAnimInstance();
-	virtual void NativeInitializeAnimation() override;
-	virtual void NativeUpdateAnimation(float DeltaTimeX) override;
-
-	UMaterialInstanceDynamic* REyeDynamicMat;
-	UMaterialInstanceDynamic* LEyeDynamicMat;
 
 };

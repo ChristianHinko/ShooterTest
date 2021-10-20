@@ -6,7 +6,7 @@
 #include "Net/UnrealNetwork.h"
 #include "ArcItemStack.h"
 #include "Item/Definitions/ArcItemDefinition_Active.h"
-#include "AbilitySystem/SSAbilitySystemComponent.h"
+#include "AbilitySystem/ASSAbilitySystemComponent.h"
 #include "ArcItemBPFunctionLibrary.h"
 #include "Input/ArcInvInputBinder.h"
 #include "AbilitySystemGlobals.h"
@@ -19,7 +19,7 @@
 #include "Utilities/LogCategories.h"
 #include "Item/SSArcItemStack.h"
 
-#include "AbilitySystem/SSAttributeSet.h"
+#include "AbilitySystem/ASSAttributeSet.h"
 
 
 void USSArcInventoryComponent_Active::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -221,7 +221,7 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 				}
 				
 				//BEGIN =@OVERRIDED CODE MARKER@= Make it run soft attribute defaults after setting hard default values
-				if (USSAttributeSet* SSNewAttributeSet = Cast<USSAttributeSet>(NewAttributeSet))
+				if (UASSAttributeSet* SSNewAttributeSet = Cast<UASSAttributeSet>(NewAttributeSet))
 				{
 					SSNewAttributeSet->SetSoftAttributeDefaults();
 				}
@@ -290,7 +290,7 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 					}
 				}
 				//=@OVERRIDED CODE MARKER@= what we modified in this override we use our grant ability instead of give ability
-				FGameplayAbilitySpecHandle Handle = Cast<USSAbilitySystemComponent>(ASC)->GrantAbility(ExtraAbility, AbilitySource);
+				FGameplayAbilitySpecHandle Handle = Cast<UASSAbilitySystemComponent>(ASC)->GrantAbility(ExtraAbility, AbilitySource);
 				//FGameplayAbilitySpec Spec(ExtraAbility.GetDefaultObject(), 1, INDEX_NONE, AbilitySource);
 
 				//FGameplayAbilitySpecHandle Handle = ASC->GiveAbility(Spec);

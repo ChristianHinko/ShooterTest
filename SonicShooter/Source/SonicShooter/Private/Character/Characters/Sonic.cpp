@@ -9,9 +9,9 @@
 
 //#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "Character/AS_Character.h"
+#include "Character/AS_CharacterMovement.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
-#include "AbilitySystem/AttributeSets/AS_Health.h"
+#include "AttributeSets/AS_Health.h"
 #include "Character/SSCharacterMovementComponent.h"
 
 

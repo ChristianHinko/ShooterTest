@@ -3,26 +3,26 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSAttributeSet.h"
+#include "AbilitySystem/ASSAttributeSet.h"
 #include "GameplayAbilities/Public/TickableAttributeSetInterface.h"
 #include "AbilitySystemComponent.h"
-#include "Utilities/PropertyWrappers.h"
+#include "Wrappers/PropertyWrappers.h"
 
 #include "AS_Stamina.generated.h"
 
 
 
-DECLARE_MULTICAST_DELEGATE(FStaminaDelegate)
+DECLARE_MULTICAST_DELEGATE(FStaminaStatus)
 
 
 /**
- * 
+ *
  */
 UCLASS()
-class SONICSHOOTER_API UAS_Stamina : public USSAttributeSet, public ITickableAttributeSetInterface
+class SONICSHOOTER_API UAS_Stamina : public UASSAttributeSet, public ITickableAttributeSetInterface
 {
 	GENERATED_BODY()
-	
+
 public:
 	UAS_Stamina();
 
@@ -31,7 +31,7 @@ public:
 		FGameplayAttributeData MaxStamina;
 	ATTRIBUTE_ACCESSORS(UAS_Stamina, MaxStamina)
 
-	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Attributes")
+		UPROPERTY(BlueprintReadOnly, Replicated, Category = "Attributes")
 		FFloatPropertyWrapper Stamina;
 
 	/** How fast your stamina drains while running */
@@ -39,10 +39,10 @@ public:
 		FGameplayAttributeData StaminaDrain;
 	ATTRIBUTE_ACCESSORS(UAS_Stamina, StaminaDrain)
 
-	void SetStaminaDraining(bool newStaminaDraining);
+		void SetStaminaDraining(bool newStaminaDraining);
 
-	FStaminaDelegate OnStaminaFullyDrained;
-	FStaminaDelegate OnStaminaFullyGained;
+	FStaminaStatus OnStaminaFullyDrained;
+	FStaminaStatus OnStaminaFullyGained;
 
 	/** How fast your stamina regenerates durring stamina regeneration */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_StaminaGain, Category = "Attributes")
@@ -50,7 +50,7 @@ public:
 	ATTRIBUTE_ACCESSORS(UAS_Stamina, StaminaGain)
 
 		/** The time it takes for your stamina to start regening again (the pause) */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_StaminaRegenPause, Category = "Attributes")
+		UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_StaminaRegenPause, Category = "Attributes")
 		FGameplayAttributeData StaminaRegenPause;
 	ATTRIBUTE_ACCESSORS(UAS_Stamina, StaminaRegenPause)
 #pragma endregion

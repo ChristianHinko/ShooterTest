@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/UMG/SSUserWidget.h"
+#include "UI/ASSEUserWidget.h"
 
 #include "UW_Health.generated.h"
 
@@ -17,10 +17,10 @@ struct FOnAttributeChangeData;
  * Provides the value of a Health attribute values and events for when to update UI.
  */
 UCLASS()
-class SONICSHOOTER_API UUW_Health : public USSUserWidget
+class SONICSHOOTER_API UUW_Health : public UASSEUserWidget
 {
 	GENERATED_BODY()
-	
+
 public:
 	UUW_Health(const FObjectInitializer& ObjectInitializer);
 

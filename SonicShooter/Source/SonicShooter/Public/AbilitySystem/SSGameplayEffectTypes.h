@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayEffectTypes.h"
+#include "AbilitySystem/ASSGameplayEffectTypes.h"
 
 #include "AbilitySystem/SSGameplayAbilityTargetTypes.h"
 
@@ -12,10 +12,10 @@
 
 
 /**
- * Our base FGameplayEffectContext
+ * Our custom Gameplay Effect Context
  */
 USTRUCT()
-struct SONICSHOOTER_API FSSGameplayEffectContext : public FGameplayEffectContext
+struct SONICSHOOTER_API FSSGameplayEffectContext : public FASSGameplayEffectContext
 {
     GENERATED_BODY()
 
@@ -48,11 +48,11 @@ public:
 template<>
 struct TStructOpsTypeTraits<FSSGameplayEffectContext> : public TStructOpsTypeTraitsBase2<FSSGameplayEffectContext>
 {
-	enum
-	{
-		WithNetSerializer = true,
-		WithCopy = true		// Necessary so that TSharedPtr<FHitResult> Data is copied around
-	};
+    enum
+    {
+        WithNetSerializer = true,
+        WithCopy = true		// Necessary so that TSharedPtr<FHitResult> Data is copied around
+    };
 };
 
 

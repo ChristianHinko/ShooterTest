@@ -18,7 +18,7 @@ void AHUD_Shooter::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 
-	// NOTE: player state isnt valid right away (but we have event for when it is now in base SSUserWidget)
+	// NOTE: player state isnt valid right away (but we have event for when it is now in base ASSEUserWidget)
 
 	HealthWidget = UWidgetBlueprintLibrary::Create(this, HealthWidgetTSub, GetOwningPlayerController());
 	if (HealthWidget)

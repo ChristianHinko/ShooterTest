@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSGameplayAbility.h"
+#include "AbilitySystem/ASSGameplayAbility.h"
 #include "GA_SwapActiveItem.generated.h"
 
 class AShooterCharacter;
@@ -29,7 +29,7 @@ enum class ESwapMethod : uint8
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UGA_SwapActiveItem : public USSGameplayAbility
+class SONICSHOOTER_API UGA_SwapActiveItem : public UASSGameplayAbility
 {
 	GENERATED_BODY()
 	

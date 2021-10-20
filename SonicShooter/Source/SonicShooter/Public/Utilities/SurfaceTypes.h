@@ -6,4 +6,6 @@
 
 
 
-#define SURFACE_METAL						EPhysicalSurface::SurfaceType1
+#define SURFACETYPE_METAL						EPhysicalSurface::SurfaceType1
+#define SURFACETYPE_WOOD						EPhysicalSurface::SurfaceType2
+#define SURFACETYPE_SKIN						EPhysicalSurface::SurfaceType3

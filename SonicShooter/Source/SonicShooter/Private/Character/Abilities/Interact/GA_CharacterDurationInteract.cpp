@@ -6,7 +6,6 @@
 #include "Character/ShooterCharacter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
-#include "Character/AbilitySystemCharacter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "Character\AbilityTasks\AT_DurationInteractCallbacks.h"
 #include "ActorComponents/InteractorComponent.h"

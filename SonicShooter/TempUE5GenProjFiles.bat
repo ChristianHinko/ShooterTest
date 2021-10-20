@@ -1,0 +1,1 @@
+"../../../UE5/Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.exe"  -projectfiles -project="../../../Unreal Projects/SonicShooter/SonicShooter/SonicShooter.uproject" -game -engine -progress

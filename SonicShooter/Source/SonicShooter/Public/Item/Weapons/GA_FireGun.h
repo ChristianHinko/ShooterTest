@@ -3,8 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSGameplayAbility.h"
+#include "AbilitySystem/ASSGameplayAbility.h"
+
+
 #include "GA_FireGun.generated.h"
+
 
 class AGATA_BulletTrace;
 class UAS_Gun;
@@ -12,12 +15,15 @@ class UAS_Ammo;
 class UGunStack;
 class USSAbilityTask_WaitTargetData;
 class UAT_Ticker;
+struct FOnAttributeChangeData;
 
 /**
- * 
+ * Notes:
+ *	This seems to be overall a really good implementation, however, we are creating a PlayMontageAndWait task every shot and playing the shoot montage, which may
+ *	become a problem over the network with fast rate of fire guns such at the Vector from MW2. We could maybe optimize what we send over the network if we want to later.
  */
 UCLASS()
-class SONICSHOOTER_API UGA_FireGun : public USSGameplayAbility
+class SONICSHOOTER_API UGA_FireGun : public UASSGameplayAbility
 {
 	GENERATED_BODY()
 	
@@ -26,8 +32,11 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Effects To Apply")
-		TSubclassOf<UGameplayEffect> IsFireingGunEffectTSub;
-	FActiveGameplayEffectHandle IsFireingGunEffectActiveHandle;
+		TSubclassOf<UGameplayEffect> IsFiringGunEffectTSub;
+	FActiveGameplayEffectHandle IsFiringGunEffectActiveHandle;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+		UAnimMontage* ShootMontage;
 
 	// Used to give each fire a unique random seed since machine guns only have 1 prediction key across fires
 	int32 shotNumber;
@@ -62,14 +71,38 @@ protected:
 		void OnShootTick(float DeltaTime, float CurrentTime, float TimeRemaining);
 
 	UFUNCTION()
-		void OnRelease(float TimeHeld);
-	UFUNCTION()
 		void OnValidData(const FGameplayAbilityTargetDataHandle& Data);
 	UFUNCTION()
 		void OnCancelled(const FGameplayAbilityTargetDataHandle& Data);
+
+	FOnGameplayAttributeValueChange* TimeBetweenShotsAttributeChangedDelegate;
+	FGameplayAttribute TimeBetweenShotsAttribute;
+	void OnTimeBetweenShotsAttributeValueChanged(const FOnAttributeChangeData& Data);
+
+#pragma region AttributeSet Helpers
+	bool EnoughAmmoToShoot() const;
+
+	bool IsFullAuto() const;
+	bool IsBurst() const;
+
+	float GetTimeBetweenFires() const;
+	float GetTimeBetweenBursts() const;
+	float GetTimeBetweenShots() const;
+
+	bool CurrentlyBursting() const;
+#pragma endregion
+
+
+
+	UFUNCTION()
+		void OnPress(float TimeWaited);
+	UFUNCTION()
+		void OnRelease(float TimeHeld);
 
 private:
 	int32 timesBursted; // we could get the current burst by % modding shotNumber by NumShotsPerBurst but i think this would be less reliable: what if they cancel a burst and don't shoot all of the burst. Or what if NumShotsPerBurst changes while shooting
 
 	float timestampPreviousFireEnd;
+	// Client only bool
+	uint8 bInputPressed : 1;
 };

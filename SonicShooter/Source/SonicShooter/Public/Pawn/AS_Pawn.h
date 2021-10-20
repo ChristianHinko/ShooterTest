@@ -3,21 +3,22 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSAttributeSet.h"
+#include "AbilitySystem/ASSAttributeSet.h"
 #include "AbilitySystemComponent.h"
 
 #include "AS_Pawn.generated.h"
 
 
 
+// OUTDATED - figure out what to do with this later or keep it idk
 /**
  * This attribute set will be on every pawn that uses the ability system (using AbilitySystemPawn) add universal pawn attributes here
  */
 UCLASS()
-class SONICSHOOTER_API UAS_Pawn : public USSAttributeSet
+class SONICSHOOTER_API UAS_Pawn : public UASSAttributeSet
 {
 	GENERATED_BODY()
-	
+
 public:
 	// Constructor and default values
 	UAS_Pawn();

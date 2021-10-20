@@ -3,7 +3,7 @@
 
 #include "Character\Abilities\GA_CharacterRun.h"
 
-#include "Character/AbilitySystemCharacter.h"
+#include "Character/SSCharacter.h"
 #include "Character/SSCharacterMovementComponent.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
 
@@ -27,7 +27,7 @@ UGA_CharacterRun::UGA_CharacterRun()
 void UGA_CharacterRun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	TryCallOnAvatarSetOnPrimaryInstance
-	Super::OnAvatarSet(ActorInfo, Spec);
+		Super::OnAvatarSet(ActorInfo, Spec);
 
 	// Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times
 	if (!ActorInfo)
@@ -41,10 +41,10 @@ void UGA_CharacterRun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, c
 	}
 
 
-	GASCharacter = Cast<AAbilitySystemCharacter>(AvatarActor);
-	if (GASCharacter)
+	SSCharacter = Cast<ASSCharacter>(AvatarActor);
+	if (SSCharacter)
 	{
-		CMC = GASCharacter->GetSSCharacterMovementComponent();
+		CMC = SSCharacter->GetSSCharacterMovementComponent();
 		if (!CMC)
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetSSCharacterMovementComponent was NULL"), *FString(__FUNCTION__));
@@ -52,7 +52,7 @@ void UGA_CharacterRun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, c
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL"), *FString(__FUNCTION__));
 	}
 }
 
@@ -64,9 +64,9 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 		return false;
 	}
 
-	if (!GASCharacter)
+	if (!SSCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
 	if (!CMC)

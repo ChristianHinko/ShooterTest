@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/UMG/SSUserWidget.h"
+#include "UI/ASSEUserWidget.h"
 
 #include "UW_Crosshair.generated.h"
 
@@ -17,7 +17,7 @@ class UASC_Shooter;
  * Provides the value of a spread attribute value and events for when to update UI.
  */
 UCLASS()
-class SONICSHOOTER_API UUW_Crosshair : public USSUserWidget
+class SONICSHOOTER_API UUW_Crosshair : public UASSEUserWidget
 {
 	GENERATED_BODY()
 	

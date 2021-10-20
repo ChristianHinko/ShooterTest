@@ -1,0 +1,32 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.2",
+	"FriendlyName": "UltimateFPSTemplate",
+	"Description": "Ultimate First Person Shooter Template. Make Human used for the character meshes: http://www.makehumancommunity.org/",
+	"Category": "Ultimate First Person Shooter Template",
+	"CreatedBy": "Sneaky Kitty Gaming",
+	"CreatedByURL": "https://www.youtube.com/channel/UCYcDJPGvIUFxBTmXOZWFswQ",
+	"DocsURL": "https://www.youtube.com/playlist?list=PLnHeglBaPYu_xCEu52VCDaqzhbV2ScvpU",
+	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/4986d4f5b73148deb154e1cd31dd9623",
+	"SupportURL": "https://discord.gg/VUJKzE3",
+	"EngineVersion": "4.27.0",
+	"CanContainContent": true,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "UltimateFPSTemplate",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win64"
+			]
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "Niagara",
+			"Enabled": true
+		}
+	]
+}

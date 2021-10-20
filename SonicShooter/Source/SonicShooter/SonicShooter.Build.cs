@@ -26,7 +26,8 @@ public class SonicShooter : ModuleRules
 				"AutoSettings",
 				"ArcInventory",
 				"ArcTeams",
-				"MoveIt"
+				"MoveIt",
+				"UltimateFPSTemplate"
 			}
 		);
 	}

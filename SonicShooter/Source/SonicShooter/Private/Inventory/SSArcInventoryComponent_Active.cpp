@@ -18,6 +18,7 @@
 #include "UI/UMG/Widgets/UW_Ammo.h"
 #include "Utilities/LogCategories.h"
 #include "Item/SSArcItemStack.h"
+#include "ArcInventory.h"	// Temp until Roy says otherwise
 
 #include "AbilitySystem/ASSAttributeSet.h"
 
@@ -40,10 +41,10 @@ USSArcInventoryComponent_Active::USSArcInventoryComponent_Active(const FObjectIn
 {
 	maxItemHistoryBufferSize = 30;
 	bUseOnEquipItemSwappingThingRoyMade = false;
-
+	
 	// The work below can be done in the constructor since we are dealing with CustomInventorySlots which is filled out in the editor 
 	// Figures out what active item to start on (first CustomInventorySlot with the tag "Inventory.Slot.Active"). We know there should be a valid item in this slot even though it may not be replicated yet so this convieniently sets the startingActiveItemSlot to the first active item slot regardless of wheather we have a valid item yet or not, however, this may limit certain gameplay mechanics related to runtime inventory startup editing or something since CustomInventorySlots are desined to be edited in editor. But who knows there may be a way to fix that
-	FGameplayTag ActiveSlotTag = GetDefault<UArcInventoryDeveloperSettings>()->ActiveItemSlotTag;
+	FGameplayTag ActiveSlotTag = FArcInvActiveSlotTag;	// Temp until Roy says otherwise
 	for (int32 i = 0; i < CustomInventorySlots.Num(); i++)
 	{
 		if (CustomInventorySlots[i].Tags.HasTag(ActiveSlotTag))

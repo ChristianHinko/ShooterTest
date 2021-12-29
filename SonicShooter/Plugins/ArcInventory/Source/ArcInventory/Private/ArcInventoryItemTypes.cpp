@@ -11,6 +11,9 @@
 
 const int32 NAMED_ITEM_SLOT = -1;
 
+FArcInventoryItemSlot FArcInventoryItemSlot::Invalid = FArcInventoryItemSlot();
+FArcInventoryItemSlotReference FArcInventoryItemSlotReference::Invalid = FArcInventoryItemSlotReference();
+
 
 bool IsValid(const FArcInventoryItemSlotReference& ItemRef)
 {
@@ -55,6 +58,15 @@ bool FArcInventoryItemSlotFilter::AcceptsItem(UArcItemStack* ItemStack) const
 		}
 	}	
 
+	return true;
+}
+
+bool FArcInventoryItemSlotFilter::NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
+{
+	FGameplayTagQuery::StaticStruct()->GetCppStructOps()->NetSerialize(Ar, Map, bOutSuccess, &FilterQuery);
+	Ar << ForceSingleStack;
+
+	bOutSuccess = true;
 	return true;
 }
 
@@ -137,19 +149,34 @@ bool FArcInventoryItemSlot::NetSerialize(FArchive& Ar, class UPackageMap* Map, b
 void FArcInventoryItemSlot::PreReplicatedRemove(const struct FArcInventoryItemSlotArray& InArraySerializer)
 {
 	Owner = InArraySerializer.Owner;
+	Owner->PostInventoryUpdate();
+
+	if (IsValid(ItemStack))
+	{
+		Owner->OnItemSlotChange.Broadcast(Owner, FArcInventoryItemSlotReference(*this, Owner), nullptr, ItemStack);
+	}
+	OldItemStack = nullptr;
 }
 
 void FArcInventoryItemSlot::PostReplicatedAdd(const struct FArcInventoryItemSlotArray& InArraySerializer)
 {
 	Owner = InArraySerializer.Owner;
-	Owner->OnInventoryUpdate.Broadcast(Owner);
+	Owner->PostInventoryUpdate();
+
+	if (IsValid(ItemStack))
+	{
+		Owner->OnItemSlotChange.Broadcast(Owner, FArcInventoryItemSlotReference(*this, Owner), ItemStack, nullptr);
+	}
+	OldItemStack = ItemStack;
 }
 
 void FArcInventoryItemSlot::PostReplicatedChange(const struct FArcInventoryItemSlotArray& InArraySerializer)
 {
 	Owner = InArraySerializer.Owner;
-	Owner->OnInventoryUpdate.Broadcast(Owner);
-	Owner->OnItemSlotChange.Broadcast(Owner, FArcInventoryItemSlotReference(*this, Owner), ItemStack, nullptr);
+	Owner->PostInventoryUpdate();
+	
+	Owner->OnItemSlotChange.Broadcast(Owner, FArcInventoryItemSlotReference(*this, Owner), ItemStack, OldItemStack.Get());
+	OldItemStack = ItemStack;	
 }
 
 /////////////////////////////////////////////////////////////////

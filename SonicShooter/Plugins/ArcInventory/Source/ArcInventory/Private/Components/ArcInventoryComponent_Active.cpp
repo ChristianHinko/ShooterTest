@@ -3,14 +3,12 @@
  
 #include "Components/ArcInventoryComponent_Active.h"
 #include "ArcItemStack.h"
-#include "Interfaces/ArcHeldItemInterface.h"
 #include "Item/Definitions/ArcItemDefinition_Active.h"
 
 #include "AbilitySystemGlobals.h"
 
 #include "Net/UnrealNetwork.h"
-
-
+#include "EngineMinimal.h"
 
 UArcInventoryComponent_Active::UArcInventoryComponent_Active(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -65,6 +63,8 @@ void UArcInventoryComponent_Active::BeginPlay()
 
 void UArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
 {
+	Super::OnItemEquipped(Inventory, ItemSlotRef, ItemStack, PreviousItemStack);
+
 	//If we are an active item slot, make it active if we don't already have an active item		
 	if (ActiveItemSlot == INDEX_NONE && IsActiveItemSlot(ItemSlotRef) && IsValid(ItemStack))
 	{
@@ -79,17 +79,15 @@ void UArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponent*
 		}
 	}
 
-	//If we are unequipping an item and it's the currently active item, either go to the next available active item or go to neutral
-	if (!IsValid(ItemStack))
+	//If we are unequipping an item and it's the currently active item, either go to the next available active item or go to neutral	
+	const int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);
+	if (ActiveItemSlot != INDEX_NONE && ItemSlotIndex == ActiveItemSlot)
 	{
-		int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);
-		if (ItemSlotIndex == ActiveItemSlot)
-		{
-			PendingItemSlot = GetNextValidActiveItemSlot();
-			MakeItemInactive_Internal(ItemSlotRef, PreviousItemStack);
-			SwitchToPendingItemSlot();
-		}
+		PendingItemSlot = IsValid(ItemStack) ? ItemSlotIndex : GetNextValidActiveItemSlot();
+		MakeItemInactive_Internal(ItemSlotRef, PreviousItemStack);
+		SwitchToPendingItemSlot();
 	}
+	
 }
 
 FArcInventoryItemSlotReference UArcInventoryComponent_Active::GetActiveItemSlot()
@@ -180,7 +178,9 @@ int32 UArcInventoryComponent_Active::GetNextValidActiveItemSlot()
 {
 	int32 TestItemSlot = GetNextActiveItemSlot();
 
-	while (TestItemSlot != ActiveItemSlot)
+	//Check to make sure we aren't INDEX_NONE or negative.  If we are either of these, then this loop goes infinite.
+	int32 StartActiveItemSlot = ActiveItemSlot < 0 ? 0 : ActiveItemSlot;
+	while (TestItemSlot != StartActiveItemSlot)
 	{
 		if (CachedActiveItemSlots.IsValidIndex(TestItemSlot))
 		{
@@ -194,8 +194,17 @@ int32 UArcInventoryComponent_Active::GetNextValidActiveItemSlot()
 
 		TestItemSlot = GetNextItemSlotFrom(TestItemSlot);
 	}
-	
-	return INDEX_NONE;
+
+	//If we started as INDEX_NONE, then the loop would fall through if there was only one active item.  
+	//So, check for that case and return the Start slot if it's valid	
+	if (StartActiveItemSlot != ActiveItemSlot && CachedActiveItemSlots.IsValidIndex(StartActiveItemSlot))
+	{
+		return StartActiveItemSlot;
+	}
+	else
+	{
+		return INDEX_NONE;
+	}
 	
 }
 
@@ -203,7 +212,9 @@ int32 UArcInventoryComponent_Active::GetPreviousValidActiveItemSlot()
 {
 	int32 TestItemSlot = GetPreviousActiveItemSlot();
 
-	while (TestItemSlot != ActiveItemSlot)
+	//Check to make sure we aren't INDEX_NONE or negative.  If we are either of these, then this loop goes infinite.
+	int32 StartActiveItemSlot = ActiveItemSlot < 0 ? 0 : ActiveItemSlot;
+	while (TestItemSlot != StartActiveItemSlot)
 	{
 		if (CachedActiveItemSlots.IsValidIndex(TestItemSlot))
 		{
@@ -218,7 +229,16 @@ int32 UArcInventoryComponent_Active::GetPreviousValidActiveItemSlot()
 		TestItemSlot = GetPreviousItemSlotFrom(TestItemSlot);
 	}
 
-	return INDEX_NONE;
+	//If we started as INDEX_NONE, then the loop would fall through if there was only one active item.  
+	//So, check for that case and return the Start slot if it's valid	
+	if (StartActiveItemSlot != ActiveItemSlot && CachedActiveItemSlots.IsValidIndex(StartActiveItemSlot))
+	{
+		return StartActiveItemSlot;
+	}
+	else
+	{
+		return INDEX_NONE;
+	}
 }
 
 int32 UArcInventoryComponent_Active::GetNextItemSlotFrom(int32 InActiveItemSlot) const
@@ -297,8 +317,7 @@ void UArcInventoryComponent_Active::MakeItemActive(const FArcInventoryItemSlotRe
 
 bool UArcInventoryComponent_Active::IsActiveItemSlot(const FArcInventoryItemSlotReference& ItemSlotRef) const
 {
-	FGameplayTag ActiveSlotTag = GetDefault<UArcInventoryDeveloperSettings>()->ActiveItemSlotTag;
-	return ItemSlotRef.SlotTags.HasTagExact(ActiveSlotTag);
+	return ItemSlotRef.SlotTags.HasTagExact(FArcInvActiveSlotTag);
 }
 
 int32 UArcInventoryComponent_Active::GetActiveItemIndexBySlotRef(const FArcInventoryItemSlotReference& ItemSlotRef)
@@ -322,11 +341,7 @@ void UArcInventoryComponent_Active::SwitchToPendingItemSlot()
 	bool bActivatedAbility = false;
 	if (UAbilitySystemComponent* ASC = UAbilitySystemGlobals::Get().GetAbilitySystemComponentFromActor(GetOwner()))
 	{
-		FGameplayTag SwitchWeaponsAbilityTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.ItemSwitch.Pending"), false);
-		if (SwitchWeaponsAbilityTag.IsValid())
-		{
-			bActivatedAbility = ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(SwitchWeaponsAbilityTag));
-		}		
+		bActivatedAbility = ASC->TryActivateAbilitiesByTag(FArcInvSwapPendingAbilityTag.GetTag().GetSingleTagContainer());
 	}
 
 	if (!bActivatedAbility)//Otherwise just quickly switch the item
@@ -340,18 +355,14 @@ void UArcInventoryComponent_Active::SwitchToPendingItemSlot()
 
 void UArcInventoryComponent_Active::UpdateActiveItemSlots(UArcInventoryComponent* InventoryComp)
 {
-
 	//Cache the Active Item Slots
-	FGameplayTag ActiveSlotTag = GetDefault<UArcInventoryDeveloperSettings>()->ActiveItemSlotTag;
-
 	CachedActiveItemSlots.Empty(CachedActiveItemSlots.Num());
-	Query_GetAllSlots(FArcInventoryQuery::QuerySlotMatchingTag(ActiveSlotTag), CachedActiveItemSlots);
+	Query_GetAllSlots(FArcInventoryQuery::QuerySlotMatchingTag(FArcInvActiveSlotTag), CachedActiveItemSlots);
 }
 
 void UArcInventoryComponent_Active::SwapActiveItems(int32 NewItemSlot)
 {
 	bSwitchingWeapons = true;
-
 	MakeItemInactive();
 	MakeItemActive(NewItemSlot);
 	bSwitchingWeapons = false;
@@ -470,3 +481,4 @@ bool UArcInventoryComponent_Active::MakeItemActive_Internal(const FArcInventoryI
 
 	return bSuccess;
 }
+

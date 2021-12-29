@@ -11,7 +11,6 @@
 class UArcItemStack;
 class UStaticMesh;
 class UArcInventoryBaseItemCardWidget;
-class AArcItemStackWorldObject;
 
 
 UCLASS(Blueprintable, Abstract, BlueprintType)
@@ -45,7 +44,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Gameplay")
 	TSubclassOf<UArcItemStack> DefaultItemStackClass;
-
+	
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Display")
 	UStaticMesh* WorldItemModel;
 

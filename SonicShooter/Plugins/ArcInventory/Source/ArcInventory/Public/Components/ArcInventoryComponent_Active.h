@@ -110,6 +110,7 @@ protected:
 	virtual bool MakeItemActive_Internal(const FArcInventoryItemSlotReference& ItemSlot);
 	virtual bool MakeItemActive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack);
 
+
 	TArray<FArcInventoryItemSlotReference> CachedActiveItemSlots;
 
 };

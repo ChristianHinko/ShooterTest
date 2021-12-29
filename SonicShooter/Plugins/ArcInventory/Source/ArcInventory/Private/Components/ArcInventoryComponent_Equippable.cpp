@@ -37,23 +37,20 @@ void UArcInventoryComponent_Equippable::GetLifetimeReplicatedProps(TArray<FLifet
 
 void UArcInventoryComponent_Equippable::OnItemEquipped(class UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Equipped Item %s into slot %s"), *ItemStack.ToString(), *ItemSlotRef.ToString());
-
-	//We have a valid item and have a null previous item.  The item has been equipped
-	if (IsValid(ItemStack) && !IsValid(PreviousItemStack) && IsEquippedItemSlot(ItemSlotRef))
+	if (IsValid(PreviousItemStack) && IsEquippedItemSlot(ItemSlotRef))
+	{
+		MakeItemUnequipped_Internal(ItemSlotRef, PreviousItemStack);
+	}
+	if (IsValid(ItemStack) && IsEquippedItemSlot(ItemSlotRef))
 	{
 		MakeItemEquipped_Internal(ItemSlotRef, ItemStack);	
 	}
-	if (!IsValid(ItemStack) && IsValid(PreviousItemStack) && IsEquippedItemSlot(ItemSlotRef))
-	{
-		MakeItemUnequipped_Internal(ItemSlotRef, PreviousItemStack);	
-	}		
+	
 }
 
 bool UArcInventoryComponent_Equippable::IsEquippedItemSlot(const FArcInventoryItemSlotReference& ItemSlotRef)
 {
-	FGameplayTag EquipSlotTag = GetDefault<UArcInventoryDeveloperSettings>()->EquippedSlotTag;
-	if (!ItemSlotRef.SlotTags.HasTagExact(EquipSlotTag))
+	if (!ItemSlotRef.SlotTags.HasTagExact(FArcInvEquipSlotTag))
 	{
 		return false;
 	}
@@ -247,7 +244,8 @@ bool UArcInventoryComponent_Equippable::ApplyAbilityInfo_Internal(const FArcItem
 			for (auto ExtraAbility : AbilityInfo.ExtraAbilities)
 			{
 				//If an ability exists already, then don't bother adding it
-				if (ASC->FindAbilitySpecFromClass(ExtraAbility))
+				FGameplayAbilitySpec* AbilitySpec = ASC->FindAbilitySpecFromClass(ExtraAbility);
+				if (AbilitySpec != nullptr && !(!!AbilitySpec->PendingRemove))
 				{
 					continue;
 				}
@@ -352,8 +350,9 @@ void UArcInventoryComponent_Equippable::ApplyPerks(UArcItemStack* ItemStack, con
 	{
 		return;
 	}
-
-	for (UArcItemStack* SubStack : ItemStack->GetSubItemStacks())
+	TArray<UArcItemStack*> SubItemStacks;
+	ItemStack->GetSubItems(SubItemStacks);
+	for (UArcItemStack* SubStack : SubItemStacks)
 	{
 		if (UArcItemStack_Perk* Perk = Cast<UArcItemStack_Perk>(SubStack))
 		{
@@ -399,7 +398,9 @@ void UArcInventoryComponent_Equippable::RemovePerks(UArcItemStack* ItemStack, co
 	{
 		return;
 	}
-	for (UArcItemStack* SubStack : ItemStack->GetSubItemStacks())
+	TArray<UArcItemStack*> SubItemStacks;
+	ItemStack->GetSubItems(SubItemStacks);
+	for (UArcItemStack* SubStack : SubItemStacks)
 	{
 		if (UArcItemStack_Perk* Perk = Cast<UArcItemStack_Perk>(SubStack))
 		{
@@ -482,6 +483,5 @@ void UArcInventoryComponent_Equippable::Debug_Internal(struct FInventoryComponen
 
 bool UArcInventoryComponent_Equippable::Query_GetAllEquippableSlots(TArray<FArcInventoryItemSlotReference>& OutSlotRefs)
 {
-	FGameplayTag EquipTag = GetDefault<UArcInventoryDeveloperSettings>()->EquippedSlotTag;
-	return Query_GetAllSlots(FArcInventoryQuery::QuerySlotMatchingTag(EquipTag), OutSlotRefs);
+	return Query_GetAllSlots(FArcInventoryQuery::QuerySlotMatchingTag(FArcInvEquipSlotTag), OutSlotRefs);
 }

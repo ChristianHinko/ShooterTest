@@ -128,11 +128,11 @@ void UGA_SwapActiveItem::PerformSwap()
 
 			break;
 		case ESwapMethod::NextItem:
-			check(0); // We need to implement a better way to swap to the next item. Order rn is not stored and we only know which item is where by tags (ie. Item.Layout.First)
+			// We are not totaly sure what is the right way to swap to next and previous item slots for active items, but from what we've been reading, it seams active item slots maintain order so we're going with this until we notice something unexpected happens
 			SSInventoryComponentActive->SwapActiveItems(SSInventoryComponentActive->GetNextActiveItemSlot());
 			break;
 		case ESwapMethod::PreviousItem:
-			check(0); // We need to implement a better way to swap to the previous item. Order rn is not stored and we only know which item is where by tags (ie. Item.Layout.First)
+			// We are not totaly sure what is the right way to swap to next and previous item slots for active items, but from what we've been reading, it seams active item slots maintain order so we're going with this until we notice something unexpected happens
 			SSInventoryComponentActive->SwapActiveItems(SSInventoryComponentActive->GetPreviousActiveItemSlot());
 			break;
 		case ESwapMethod::ByItemHistory:

@@ -76,25 +76,25 @@ public:
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle SwapToPreviousItemAbilitySpecHandle;
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UASSGameplayAbility> SwapToItem0AbilityTSub;
+		TSubclassOf<UASSGameplayAbility> SwapToFirstItemAbilityTSub;
 	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle SwapToItem0AbilitySpecHandle;
+		FGameplayAbilitySpecHandle SwapToFirstItemAbilitySpecHandle;
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UASSGameplayAbility> SwapToItem1AbilityTSub;
+		TSubclassOf<UASSGameplayAbility> SwapToSecondItemAbilityTSub;
 	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle SwapToItem1AbilitySpecHandle;
+		FGameplayAbilitySpecHandle SwapToSecondItemAbilitySpecHandle;
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UASSGameplayAbility> SwapToItem2AbilityTSub;
+		TSubclassOf<UASSGameplayAbility> SwapToThirdItemAbilityTSub;
 	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle SwapToItem2AbilitySpecHandle;
+		FGameplayAbilitySpecHandle SwapToThirdItemAbilitySpecHandle;
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UASSGameplayAbility> SwapToItem3AbilityTSub;
+		TSubclassOf<UASSGameplayAbility> SwapToFourthItemAbilityTSub;
 	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle SwapToItem3AbilitySpecHandle;
+		FGameplayAbilitySpecHandle SwapToFourthItemAbilitySpecHandle;
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UASSGameplayAbility> SwapToItem4AbilityTSub;
+		TSubclassOf<UASSGameplayAbility> SwapToFifthItemAbilityTSub;
 	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle SwapToItem4AbilitySpecHandle;
+		FGameplayAbilitySpecHandle SwapToFifthItemAbilitySpecHandle;
 
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
 		TSubclassOf<UASSGameplayAbility> DropItemAbilityTSub;
@@ -144,11 +144,11 @@ protected:
 	virtual void OnReloadPressed() override;
 
 	virtual void OnSwitchWeaponPressed() override;
-	virtual void OnItem0Pressed() override;
-	virtual void OnItem1Pressed() override;
-	virtual void OnItem2Pressed() override;
-	virtual void OnItem3Pressed() override;
-	virtual void OnItem4Pressed() override;
+	virtual void OnFirstItemPressed() override;
+	virtual void OnSecondItemPressed() override;
+	virtual void OnThirdItemPressed() override;
+	virtual void OnFourthItemPressed() override;
+	virtual void OnFifthItemPressed() override;
 	virtual void OnNextItemPressed() override;
 	virtual void OnPreviousItemPressed() override;
 

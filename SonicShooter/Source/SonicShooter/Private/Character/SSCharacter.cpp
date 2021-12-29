@@ -639,20 +639,20 @@ void ASSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction(FName(TEXT("Reload")), IE_Pressed, this, &ASSCharacter::OnReloadPressed);
 	PlayerInputComponent->BindAction(FName(TEXT("Reload")), IE_Released, this, &ASSCharacter::OnReloadReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Item0")), IE_Pressed, this, &ASSCharacter::OnItem0Pressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Item0")), IE_Released, this, &ASSCharacter::OnItem0Released);
+	PlayerInputComponent->BindAction(FName(TEXT("FirstItem")), IE_Pressed, this, &ASSCharacter::OnFirstItemPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("FirstItem")), IE_Released, this, &ASSCharacter::OnFirstItemReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Item1")), IE_Pressed, this, &ASSCharacter::OnItem1Pressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Item1")), IE_Released, this, &ASSCharacter::OnItem1Released);
+	PlayerInputComponent->BindAction(FName(TEXT("SecondItem")), IE_Pressed, this, &ASSCharacter::OnSecondItemPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("SecondItem")), IE_Released, this, &ASSCharacter::OnSecondItemReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Item2")), IE_Pressed, this, &ASSCharacter::OnItem2Pressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Item2")), IE_Released, this, &ASSCharacter::OnItem2Released);
+	PlayerInputComponent->BindAction(FName(TEXT("ThirdItem")), IE_Pressed, this, &ASSCharacter::OnThirdItemPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("ThirdItem")), IE_Released, this, &ASSCharacter::OnThirdItemReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Item3")), IE_Pressed, this, &ASSCharacter::OnItem3Pressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Item3")), IE_Released, this, &ASSCharacter::OnItem3Released);
+	PlayerInputComponent->BindAction(FName(TEXT("FourthItem")), IE_Pressed, this, &ASSCharacter::OnFourthItemPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("FourthItem")), IE_Released, this, &ASSCharacter::OnFourthItemReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Item4")), IE_Pressed, this, &ASSCharacter::OnItem4Pressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Item4")), IE_Released, this, &ASSCharacter::OnItem4Released);
+	PlayerInputComponent->BindAction(FName(TEXT("FifthItem")), IE_Pressed, this, &ASSCharacter::OnFifthItemPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("FifthItem")), IE_Released, this, &ASSCharacter::OnFifthItemReleased);
 
 	PlayerInputComponent->BindAction(FName(TEXT("SwitchWeapon")), IE_Pressed, this, &ASSCharacter::OnSwitchWeaponPressed);
 	PlayerInputComponent->BindAction(FName(TEXT("SwitchWeapon")), IE_Released, this, &ASSCharacter::OnSwitchWeaponReleased);
@@ -780,43 +780,43 @@ void ASSCharacter::OnReloadReleased()
 {
 }
 
-void ASSCharacter::OnItem0Pressed()
+void ASSCharacter::OnFirstItemPressed()
 {
 
 }
-void ASSCharacter::OnItem0Released()
+void ASSCharacter::OnFirstItemReleased()
 {
 }
 
-void ASSCharacter::OnItem1Pressed()
+void ASSCharacter::OnSecondItemPressed()
 {
 
 }
-void ASSCharacter::OnItem1Released()
+void ASSCharacter::OnSecondItemReleased()
 {
 }
 
-void ASSCharacter::OnItem2Pressed()
+void ASSCharacter::OnThirdItemPressed()
 {
 
 }
-void ASSCharacter::OnItem2Released()
+void ASSCharacter::OnThirdItemReleased()
 {
 }
 
-void ASSCharacter::OnItem3Pressed()
+void ASSCharacter::OnFourthItemPressed()
 {
 
 }
-void ASSCharacter::OnItem3Released()
+void ASSCharacter::OnFourthItemReleased()
 {
 }
 
-void ASSCharacter::OnItem4Pressed()
+void ASSCharacter::OnFifthItemPressed()
 {
 
 }
-void ASSCharacter::OnItem4Released()
+void ASSCharacter::OnFifthItemReleased()
 {
 }
 

@@ -231,20 +231,20 @@ protected:
 	virtual void OnReloadPressed();
 	virtual void OnReloadReleased();
 
-	virtual void OnItem0Pressed();
-	virtual void OnItem0Released();
+	virtual void OnFirstItemPressed();
+	virtual void OnFirstItemReleased();
 
-	virtual void OnItem1Pressed();
-	virtual void OnItem1Released();
+	virtual void OnSecondItemPressed();
+	virtual void OnSecondItemReleased();
 
-	virtual void OnItem2Pressed();
-	virtual void OnItem2Released();
+	virtual void OnThirdItemPressed();
+	virtual void OnThirdItemReleased();
 
-	virtual void OnItem3Pressed();
-	virtual void OnItem3Released();
+	virtual void OnFourthItemPressed();
+	virtual void OnFourthItemReleased();
 
-	virtual void OnItem4Pressed();
-	virtual void OnItem4Released();
+	virtual void OnFifthItemPressed();
+	virtual void OnFifthItemReleased();
 
 	virtual void OnSwitchWeaponPressed();
 	virtual void OnSwitchWeaponReleased();

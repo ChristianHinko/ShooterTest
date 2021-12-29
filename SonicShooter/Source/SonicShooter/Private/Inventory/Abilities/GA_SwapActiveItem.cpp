@@ -128,9 +128,11 @@ void UGA_SwapActiveItem::PerformSwap()
 
 			break;
 		case ESwapMethod::NextItem:
+			check(0); // We need to implement a better way to swap to the next item. Order rn is not stored and we only know which item is where by tags (ie. Item.Layout.First)
 			SSInventoryComponentActive->SwapActiveItems(SSInventoryComponentActive->GetNextActiveItemSlot());
 			break;
 		case ESwapMethod::PreviousItem:
+			check(0); // We need to implement a better way to swap to the previous item. Order rn is not stored and we only know which item is where by tags (ie. Item.Layout.First)
 			SSInventoryComponentActive->SwapActiveItems(SSInventoryComponentActive->GetPreviousActiveItemSlot());
 			break;
 		case ESwapMethod::ByItemHistory:

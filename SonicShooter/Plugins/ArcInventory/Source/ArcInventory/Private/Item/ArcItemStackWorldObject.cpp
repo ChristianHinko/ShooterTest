@@ -74,6 +74,7 @@ void AArcItemStackWorldObject::SetInventoryStack_Implementation(UArcItemStack* I
 {
 	InventoryStack = InInventoryStack;
 
+	// Modified plugin code:
 	//------------=@MODIFIED MARKER@= Comment out this block. No longer are using WorldItemModel. This class should now be spawned from a BP child class with a predefined static mesh or skeletal mesh if you want
 	//if (IsValid(InventoryStack)
 	//	&& InventoryStack->HasValidItemData()
@@ -82,6 +83,15 @@ void AArcItemStackWorldObject::SetInventoryStack_Implementation(UArcItemStack* I
 	//	StaticMeshComponent->SetStaticMesh(InventoryStack->GetItemDefinition().GetDefaultObject()->WorldItemModel);
 	//}
 	//-------------
+	
+	// Normal plugin code:
+	if (IsValid(InventoryStack)
+		&& InventoryStack->HasValidItemData()
+		&& IsValid(InventoryStack->GetItemDefinition().GetDefaultObject()->WorldItemModel))
+	{
+		StaticMeshComponent->SetStaticMesh(InventoryStack->GetItemDefinition().GetDefaultObject()->WorldItemModel);
+	}
+
 
 	if (GetLocalRole() == ROLE_Authority)
 	{

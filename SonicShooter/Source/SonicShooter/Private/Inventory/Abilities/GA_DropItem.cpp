@@ -107,7 +107,12 @@ void UGA_DropItem::OnDataRecieved(const FArcInventoryItemSlotReference& FromSlot
 		FTransform SpawnTransform = ShooterCharacter->GetActorTransform();
 		SpawnTransform.SetLocation(SpawnTransform.GetLocation() + ShooterCharacter->GetActorForwardVector() * 200);
 
-		USSArcItemBPFunctionLibrary::SpawnWorldItem(this, RemovedItemStack, SpawnTransform, RemovedItemStack->GetItemDefinition().GetDefaultObject()->WorldItemActor);
+
+		// Using modified plugin code:
+		//USSArcItemBPFunctionLibrary::SpawnWorldItem(this, RemovedItemStack, SpawnTransform, RemovedItemStack->GetItemDefinition().GetDefaultObject()->WorldItemActor);
+		
+		// Using normal plugin code:
+		UArcItemBPFunctionLibrary::SpawnWorldItem(this, RemovedItemStack, SpawnTransform);
 	}
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }

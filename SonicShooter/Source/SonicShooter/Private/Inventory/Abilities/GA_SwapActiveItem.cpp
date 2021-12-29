@@ -14,7 +14,7 @@ UGA_SwapActiveItem::UGA_SwapActiveItem()
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Inventory.ItemSwitch")));	// Should I have the game at runtime assign a more specific tag for the "AbilityTags"? ie. if developer subclassed and chose for this to be a by index ability. Maybe even go as far as including the item index to swap to in the tag? We could maybe build this tag and assign it when a value is assigned in editor.
 
 	itemSlotIndexToSwitchTo = -1;
-	ItemSlotTagToSwitchTo = FGameplayTag::EmptyTag;
+	ItemSlotTagQueryForSwitching = FGameplayTagQuery::EmptyQuery;
 }
 
 
@@ -94,6 +94,11 @@ void UGA_SwapActiveItem::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 
 void UGA_SwapActiveItem::PerformSwap()
 {
+#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
+	TArray<FArcInventoryItemSlotReference> SlotsWithMatchingQuery;	// If size of this is > 1 we will be told (because that might mean we incorrectly filled out a tag query in the editor)
+#endif
+
+
 	switch (SwapMethod)
 	{
 		case ESwapMethod::ByIndex:
@@ -104,13 +109,23 @@ void UGA_SwapActiveItem::PerformSwap()
 			}
 			SSInventoryComponentActive->SwapActiveItems(itemSlotIndexToSwitchTo);
 			break;
-		case ESwapMethod::ByTag:
-			if (ItemSlotTagToSwitchTo.IsValid() || ItemSlotTagToSwitchTo == FGameplayTag::EmptyTag)
+		case ESwapMethod::ByTagQuery:
+			if (ItemSlotTagQueryForSwitching.IsEmpty())
 			{
-				UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Tag not valid when trying to switch to inventory slot with the tag"), *FString(__FUNCTION__));
+				UE_LOG(LogGameplayAbility, Warning, TEXT("%s() ItemSlotTagQueryForSwitching empty when trying to switch to inventory slot with the matching query"), *FString(__FUNCTION__));
 				break;
 			}
-			SSInventoryComponentActive->SwapActiveItems(SSInventoryComponentActive->GetActiveItemIndexByTag(ItemSlotTagToSwitchTo));
+			SSInventoryComponentActive->SwapActiveItems(SSInventoryComponentActive->GetIndexForActiveItemSlotTagQuery(ItemSlotTagQueryForSwitching));
+
+#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
+			SSInventoryComponentActive->Query_GetAllSlots(FArcInventoryQuery::QueryForSlot(ItemSlotTagQueryForSwitching), SlotsWithMatchingQuery);
+
+			if (SlotsWithMatchingQuery.Num() > 1)
+			{
+				UE_LOG(LogGameplayAbility, Warning, TEXT("%s() More than one slot matched the tag query when switching. Ambiguous which one is wanted (check to make sure you made your query how you wanted it). Making active the first match"), *FString(__FUNCTION__));
+			}
+#endif
+
 			break;
 		case ESwapMethod::NextItem:
 			SSInventoryComponentActive->SwapActiveItems(SSInventoryComponentActive->GetNextActiveItemSlot());

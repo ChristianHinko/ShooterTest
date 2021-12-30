@@ -39,7 +39,7 @@ void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME_CONDITION(AShooterCharacter, DropItemAbilitySpecHandle, COND_OwnerOnly);
 }
 
-FName AShooterCharacter::InventoryComponentName(TEXT("InventoryComponent"));
+const FName AShooterCharacter::InventoryComponentName(TEXT("InventoryComponent"));
 
 AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<USSArcInventoryComponent_Active>(InventoryComponentName))

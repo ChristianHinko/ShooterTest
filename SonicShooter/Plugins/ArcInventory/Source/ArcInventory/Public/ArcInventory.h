@@ -21,13 +21,13 @@
 
 //#include "ArcInventory.generated.h"  //Uncomment this if we put something in here that generates code
 
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcInvBagSlotTag);
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcInvEquipSlotTag);
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcInvActiveSlotTag);
+ARCINVENTORY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcInvBagSlotTag); // =@MODIFIED MARKER@=					add ``ARCINVENTORY_API`` so that we can use these tags in our module (Roy might fix this in an update later)
+ARCINVENTORY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcInvEquipSlotTag); // =@MODIFIED MARKER@=				add ``ARCINVENTORY_API`` so that we can use these tags in our module (Roy might fix this in an update later)
+ARCINVENTORY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcInvActiveSlotTag); // =@MODIFIED MARKER@=				add ``ARCINVENTORY_API`` so that we can use these tags in our module (Roy might fix this in an update later)
 
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcInvDropItemAbilityTag);
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcInvSwapItemSlotsAbilityTag);
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcInvSwapPendingAbilityTag);
+ARCINVENTORY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcInvDropItemAbilityTag); // =@MODIFIED MARKER@=			add ``ARCINVENTORY_API`` so that we can use these tags in our module (Roy might fix this in an update later)
+ARCINVENTORY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcInvSwapItemSlotsAbilityTag); // =@MODIFIED MARKER@=		add ``ARCINVENTORY_API`` so that we can use these tags in our module (Roy might fix this in an update later)
+ARCINVENTORY_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcInvSwapPendingAbilityTag); // =@MODIFIED MARKER@=		add ``ARCINVENTORY_API`` so that we can use these tags in our module (Roy might fix this in an update later)
 
 
 DECLARE_LOG_CATEGORY_EXTERN(LogInventory, Display, All);

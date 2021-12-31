@@ -47,7 +47,7 @@ public:
 	 * inventory component and a 'PlayerCharacter' subclass that has an Active inventory component.
 	 * It is up to you if you want to go this route.
 	 */
-	static FName InventoryComponentName;
+	static const FName InventoryComponentName;
 
 	class UArcInventoryComponent* GetInventoryComponent() const override { return InventoryComponent; }
 

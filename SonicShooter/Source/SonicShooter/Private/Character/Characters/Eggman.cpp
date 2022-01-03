@@ -20,9 +20,9 @@ AEggman::AEggman(const FObjectInitializer& ObjectInitializer)
 
 	GetCapsuleComponent()->SetCapsuleHalfHeight(85.0f + 7.f);
 
-	//Bump up all meshes so it gets within the capsule
-	GetMesh()->SetRelativeLocation(FVector(GetMesh()->GetRelativeLocation().X, GetMesh()->GetRelativeLocation().Y, GetMesh()->GetRelativeLocation().Z + 44.f - 13.f - 20.f - 7.f));
-	GetPOVMesh()->SetRelativeLocation(FVector(GetPOVMesh()->GetRelativeLocation().X, GetPOVMesh()->GetRelativeLocation().Y, GetPOVMesh()->GetRelativeLocation().Z + 44.f - 13.f - 20.f - 7.f));
+	////Bump up all meshes so it gets within the capsule
+	//GetMesh()->SetRelativeLocation(FVector(GetMesh()->GetRelativeLocation().X, GetMesh()->GetRelativeLocation().Y, GetMesh()->GetRelativeLocation().Z + 44.f - 13.f - 20.f - 7.f));
+	//GetPOVMesh()->SetRelativeLocation(FVector(GetPOVMesh()->GetRelativeLocation().X, GetPOVMesh()->GetRelativeLocation().Y, GetPOVMesh()->GetRelativeLocation().Z + 44.f - 13.f - 20.f - 7.f));
 
 	GetCameraBoom()->SetRelativeLocation(FVector(GetCameraBoom()->GetRelativeLocation().X, GetCameraBoom()->GetRelativeLocation().Y, 73.0f));
 }

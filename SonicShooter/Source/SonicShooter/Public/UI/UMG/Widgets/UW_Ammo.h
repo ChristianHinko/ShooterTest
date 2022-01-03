@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/UMG/SSUserWidget.h"
+#include "UI/ASSEUserWidget.h"
 
 #include "UW_Ammo.generated.h"
 
@@ -18,7 +18,7 @@ class UASC_Shooter;
  * Provides the value of a ammo attribute values and events for when to update UI.
  */
 UCLASS()
-class SONICSHOOTER_API UUW_Ammo : public USSUserWidget
+class SONICSHOOTER_API UUW_Ammo : public UASSEUserWidget
 {
 	GENERATED_BODY()
 	

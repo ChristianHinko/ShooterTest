@@ -79,3 +79,15 @@ DerivedDataCache/*
 
 # Don't know what this really is but visual studio debugging sometimes makes this
 enc_temp_folder/*
+
+# ------Begin Blender Stuff------
+# Blender backup files
+*.blend[1-9]
+
+# Idk what this is but some other guy had this
+/dist/
+
+# Python garbage
+*.pyc
+__pycache__
+# ------End Blender Stuff------

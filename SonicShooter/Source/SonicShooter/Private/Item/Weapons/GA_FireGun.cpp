@@ -7,6 +7,7 @@
 #include "AbilitySystem/AbilityTasks/ASSAbilityTask_WaitTargetData.h"
 #include "AbilitySystem/TargetActors/GATA_BulletTrace.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
 #include "Utilities/CollisionChannels.h"
 #include "Item/Weapons/AS_Gun.h"
 #include "Item/AS_Ammo.h"
@@ -28,8 +29,8 @@ UGA_FireGun::UGA_FireGun()
 {
 	AbilityInputID = EAbilityInputID::PrimaryFire;
 	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ClientOrServer;
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Fire")));
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("AbilityInput.PrimaryFire")));
+	AbilityTags.AddTag(Tag_FireAbility);
+	AbilityTags.AddTag(Tag_AbilityInputPrimaryFire);
 
 	shotNumber = 0;
 	bInputPressed = false;
@@ -409,7 +410,7 @@ void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 	}
 
 	// Execute cues
-	//GetAbilitySystemComponentFromActorInfo()->AddGameplayCue(FGameplayTag::RequestGameplayTag("GameplayCue.Test"));	// Very temp. This is just to see a gc work
+	//GetAbilitySystemComponentFromActorInfo()->AddGameplayCue(Tag_TestGameplayCue);	// Very temp. This is just to see a gc work
 
 
 

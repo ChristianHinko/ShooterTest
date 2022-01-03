@@ -5,6 +5,7 @@
 
 #include "Character/SSCharacter.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
 #include "Character/SSCharacterMovementComponent.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -14,11 +15,11 @@
 UGA_CharacterJump::UGA_CharacterJump()
 {
 	AbilityInputID = EAbilityInputID::Jump;
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Movement.Jump")));
+	AbilityTags.AddTag(Tag_JumpAbility);
 
 
-	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Movement.Crouch"));
-	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Movement.Run"));
+	CancelAbilitiesWithTag.AddTag(Tag_CrouchAbility);
+	CancelAbilitiesWithTag.AddTag(Tag_RunAbility);
 }
 
 

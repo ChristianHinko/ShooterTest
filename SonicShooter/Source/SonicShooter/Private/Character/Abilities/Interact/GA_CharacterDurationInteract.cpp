@@ -6,6 +6,7 @@
 #include "Character/ShooterCharacter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "Character\AbilityTasks\AT_DurationInteractCallbacks.h"
 #include "ActorComponents/InteractorComponent.h"
@@ -13,7 +14,7 @@
 
 UGA_CharacterDurationInteract::UGA_CharacterDurationInteract()
 {
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Interact.DurationInteract")));
+	AbilityTags.AddTag(Tag_DurationInteractAbility);
 }
 
 void UGA_CharacterDurationInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)

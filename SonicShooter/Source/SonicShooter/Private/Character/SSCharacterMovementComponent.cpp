@@ -9,6 +9,7 @@
 #include "Character/AS_CharacterMovement.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "AbilitySystemSetupComponent/AbilitySystemSetupInterface.h"
 #include "AbilitySystemSetupComponent/AbilitySystemSetupComponent.h"
@@ -77,9 +78,9 @@ void USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady()
 
 	if (OwnerASC)
 	{
-		OwnerASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnRunDisabledTagChanged);
-		OwnerASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.JumpDisabled"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnJumpDisabledTagChanged);
-		OwnerASC->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Character.Movement.CrouchDisabled"), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCrouchDisabledTagChanged);
+		OwnerASC->RegisterGameplayTagEvent(Tag_RunDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnRunDisabledTagChanged);
+		OwnerASC->RegisterGameplayTagEvent(Tag_JumpDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnJumpDisabledTagChanged);
+		OwnerASC->RegisterGameplayTagEvent(Tag_CrouchDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCrouchDisabledTagChanged);
 	}
 
 

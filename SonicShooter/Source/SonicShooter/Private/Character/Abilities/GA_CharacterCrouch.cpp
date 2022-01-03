@@ -5,6 +5,7 @@
 
 #include "GameFramework/CharacterMovementComponent.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
 #include "GameFramework/Character.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -14,10 +15,10 @@
 UGA_CharacterCrouch::UGA_CharacterCrouch()
 {
 	AbilityInputID = EAbilityInputID::Crouch;
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Movement.Crouch")));
+	AbilityTags.AddTag(Tag_CrouchAbility);
 
 
-	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Movement.Run"));
+	CancelAbilitiesWithTag.AddTag(Tag_RunAbility);
 }
 
 

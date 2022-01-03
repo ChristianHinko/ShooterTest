@@ -5,6 +5,7 @@
 
 #include "Net/UnrealNetwork.h"
 #include "Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
 #include "ActorComponents/InteractorComponent.h"
@@ -248,7 +249,7 @@ void AShooterCharacter::OnPrimaryFirePressed()
 	if (GetAbilitySystemComponent())
 	{
 		TArray<FGameplayAbilitySpec*> Specs; // our found specs
-		GetAbilitySystemComponent()->GetActivatableGameplayAbilitySpecsByAllMatchingTags(FGameplayTag::RequestGameplayTag(FName("AbilityInput.PrimaryFire")).GetSingleTagContainer(), Specs);
+		GetAbilitySystemComponent()->GetActivatableGameplayAbilitySpecsByAllMatchingTags(Tag_AbilityInputPrimaryFire.GetTag().GetSingleTagContainer(), Specs);
 
 		for (FGameplayAbilitySpec* Spec : Specs)
 		{
@@ -264,7 +265,7 @@ void AShooterCharacter::OnReloadPressed()
 {
 	if (GetAbilitySystemComponent())
 	{
-		GetAbilitySystemComponent()->TryActivateAbilitiesByTag(FGameplayTag::RequestGameplayTag(FName("Ability.Reload")).GetSingleTagContainer());
+		GetAbilitySystemComponent()->TryActivateAbilitiesByTag(Tag_ReloadAbility.GetTag().GetSingleTagContainer());
 	}
 }
 

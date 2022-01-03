@@ -5,6 +5,7 @@
 
 #include "Character/ShooterCharacter.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "Character\AbilityTasks\AT_DurationInteractCallbacks.h"
 
@@ -34,7 +35,7 @@
 UGA_CharacterAutoInteract::UGA_CharacterAutoInteract()
 {
 	AbilityInputID = EAbilityInputID::NoInput;	// Don't use the interact input ID since there is no input needed to activate this ability
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Interact.AutoInteract")));
+	AbilityTags.AddTag(Tag_AutoInteractAbility);
 	// Probably make this an InstancedPerActor passive ability to handle all automatic interactions. Since it will be passive the ability will never end than thus we don't need to do Durration End callbacks inside EndAbility(). We can just do them where ever
 }
 

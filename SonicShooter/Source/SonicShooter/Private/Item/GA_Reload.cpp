@@ -4,6 +4,7 @@
 #include "Item/GA_Reload.h"
 
 #include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
 #include "Item/AS_Ammo.h"
 #include "AbilitySystemBlueprintLibrary.h"
 
@@ -14,7 +15,7 @@
 UGA_Reload::UGA_Reload()
 {
 	AbilityInputID = EAbilityInputID::Reload;
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Reload")));
+	AbilityTags.AddTag(Tag_ReloadAbility);
 }
 
 void UGA_Reload::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -134,7 +135,7 @@ void UGA_Reload::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 
 	// Move ammo out of backup
 	FGameplayEffectSpecHandle DepleteBackupAmmoSpecHandle = MakeOutgoingGameplayEffectSpec(Handle, ActorInfo, ActivationInfo, DepleteBackupAmmoEffectTSub, GetAbilityLevel());
-	DepleteBackupAmmoSpecHandle.Data.Get()->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("SetByCaller.BackupAmmoDepletion"), -1 * AmmoToMove);
+	DepleteBackupAmmoSpecHandle.Data.Get()->SetSetByCallerMagnitude(Tag_SetByCallerBackupAmmoDepletion, -1 * AmmoToMove);
 
 	ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, DepleteBackupAmmoSpecHandle);
 

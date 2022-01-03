@@ -12,13 +12,14 @@
 #include "Inventory/SSArcInventoryComponent_Active.h"
 #include "ArcItemStack.h"
 #include "Item/ArcItemDefinition_New.h"
+#include "ArcInventory.h"
 
 
 
 UGA_DropItem::UGA_DropItem()
 {
 	AbilityInputID = EAbilityInputID::DropItem;
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Inventory.DropItem")));
+	AbilityTags.AddTag(FArcInvDropItemAbilityTag);
 }
 
 void UGA_DropItem::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)

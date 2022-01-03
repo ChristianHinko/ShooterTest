@@ -4,6 +4,7 @@
 #include "Character/Abilities/GA_CharacterJumpStatic.h"
 
 #include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
 #include "GameFramework/Character.h"
 
 // THIS ABILITY IS WAYYYYYY OUTDATED!!!!!!!!!!!!!!!!
@@ -16,7 +17,7 @@ UGA_CharacterJumpStatic::UGA_CharacterJumpStatic()
 	AbilityInputID = EAbilityInputID::Jump;
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::NonInstanced;
 	bReplicateInputDirectly = true;		// bReplicateEndAbility in EndAbility() when replicating to the server doesn't always work because client's ability most likely isn't confirmed yet. So we do this bool instead to tell the server to run EndAbility(). (the better alternative to this bool is to use the input tasks but we can't because this is a non-instanced ability)
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Movement.JumpStatic")));
+	AbilityTags.AddTag(Tag_JumpStaticAbility);
 }
 
 

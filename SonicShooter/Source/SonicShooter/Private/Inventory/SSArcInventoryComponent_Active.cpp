@@ -114,6 +114,10 @@ bool USSArcInventoryComponent_Active::IsActiveItemSlotIndexValid(int32 InActiveI
 
 void USSArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
 {
+	// NOTE: This Super call was not here for some reason TODO: review this and try to add this Super call in (but maybe this was intended idk)
+	//Super::OnItemEquipped(Inventory, ItemSlotRef, ItemStack, PreviousItemStack);
+
+
 	if (bUseOnEquipItemSwappingThingRoyMade)
 	{
 		//If we are an active item slot, make it active if we don't already have an active item		
@@ -189,7 +193,7 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 			//Find an attribute set with the same key
 			UAttributeSet** ContainedAttributeSet = StoreInto.InstancedAttributeSets.FindByPredicate([=](UAttributeSet* Key) {
 				return Key->GetClass() == AttributeSetClass.Get();
-				});
+			});
 			if (ContainedAttributeSet != nullptr)	 //If it exists, we've got it!
 			{
 				continue;
@@ -207,7 +211,7 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 				float val = KV.Value;
 
 				if (Attribute.GetAttributeSetClass() == NewAttributeSet->GetClass())
-				{
+				{					
 					if (FNumericProperty* NumericProperty = CastField<FNumericProperty>(Attribute.GetUProperty()))
 					{
 						void* ValuePtr = NumericProperty->ContainerPtrToValuePtr<void>(NewAttributeSet);
@@ -239,7 +243,7 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 		}
 	}
 
-
+	
 	if (UAbilitySystemComponent* ASC = GetOwnerAbilitySystem())
 	{
 		//Add any loose tags first, that way any abilities or effects we add later behave properly with the tags  
@@ -249,15 +253,15 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 		{
 			//Add any attribute sets we have
 			for (UAttributeSet* AttributeSet : StoreInto.InstancedAttributeSets)
-			{
+			{				
 				if (!UArcItemBPFunctionLibrary::ASCHasAttributeSet(ASC, AttributeSet->GetClass()))
 				{
 					AttributeSet->Rename(nullptr, GetOwner());
 					UArcItemBPFunctionLibrary::ASCAddInstancedAttributeSet(ASC, AttributeSet);
-
+					
 				}
 			}
-
+					
 
 			//Add all the active abilities for the ability slots we have
 			for (auto AbilityInfoStruct : AbilityInfo.ActiveAbilityEntries)
@@ -267,11 +271,11 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 				if (!IsValid(AbilityClass) || !IsValid(InputBinder))
 				{
 					continue;
-				}
-
+				}				
+				
 				int32 InputIndex = InputBinder->GetInputBinding(ASC, AbilityClass);
 				FGameplayAbilitySpec Spec(AbilityClass.GetDefaultObject(), 1, InputIndex, AbilitySource);
-
+							
 
 				FGameplayAbilitySpecHandle Handle = ASC->GiveAbility(Spec);
 				StoreInto.AddedAbilities.Add(Handle);
@@ -279,22 +283,22 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 			//and add any extras we have
 			for (auto ExtraAbility : AbilityInfo.ExtraAbilities)
 			{
-				//=@OVERRIDED CODE MARKER@= comment this part out because this messes up swapping to an item that has the same ability as our previous one
-				////If an ability exists already, then don't bother adding it
-				//if (ASC->FindAbilitySpecFromClass(ExtraAbility))
-				//{
-				//	continue;
-				//}
+				//If an ability exists already, then don't bother adding it
+				FGameplayAbilitySpec* AbilitySpec = ASC->FindAbilitySpecFromClass(ExtraAbility);
+				if (AbilitySpec != nullptr && !(!!AbilitySpec->PendingRemove))
+				{
+					continue;
+				}
+
+				FGameplayAbilitySpec Spec(ExtraAbility.GetDefaultObject(), 1, INDEX_NONE, AbilitySource);
 
 				//=@OVERRIDED CODE MARKER@= what we modified in this override we use our grant ability instead of give ability
 				FGameplayAbilitySpecHandle Handle = Cast<UASSAbilitySystemComponent>(ASC)->GrantAbility(ExtraAbility, AbilitySource);
-				//FGameplayAbilitySpec Spec(ExtraAbility.GetDefaultObject(), 1, INDEX_NONE, AbilitySource);
-				//FGameplayAbilitySpecHandle Handle = ASC->GiveAbility(Spec);
-
+				//END =@OVERRIDED CODE MARKER@=
 				StoreInto.AddedAbilities.Add(Handle);
 			}
 
-
+			
 
 			//Add any GameplayEffects we have
 			for (auto EffectClass : AbilityInfo.AddedGameplayEffects)
@@ -311,7 +315,7 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 				ECH.AddInstigator(GetOwner(), GetOwner());
 				FGameplayEffectSpec Spec(EffectClass->GetDefaultObject<UGameplayEffect>(), ECH, 1);
 
-
+				
 				FActiveGameplayEffectHandle Handle = ASC->ApplyGameplayEffectSpecToSelf(Spec);
 				//Store any non-instant handles we get.  Instant Gameplay Effects will fall off right away so we don't need to remove them later
 				//Really, items shouldn't use instant GEs.
@@ -324,7 +328,7 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 			ASC->bIsNetDirty = true;
 		}
 
-
+		
 	}
 
 	return true;

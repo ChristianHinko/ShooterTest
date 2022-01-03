@@ -3,7 +3,7 @@
 
 #include "Item/GA_Reload.h"
 
-#include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/LogCategories.h"
 #include "Utilities/SSNativeGameplayTags.h"
 #include "Item/AS_Ammo.h"
 #include "AbilitySystemBlueprintLibrary.h"

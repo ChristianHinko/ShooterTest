@@ -4,7 +4,7 @@
 #include "Character/Abilities/GA_ADS.h"
 
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
-#include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/LogCategories.h"
 #include "Utilities/SSNativeGameplayTags.h"
 #include "GameFramework/Character.h"
 

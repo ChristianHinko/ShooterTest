@@ -3,7 +3,7 @@
 
 #include "Character/Abilities/GA_CharacterJumpStatic.h"
 
-#include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/LogCategories.h"
 #include "Utilities/SSNativeGameplayTags.h"
 #include "GameFramework/Character.h"
 

@@ -3,7 +3,7 @@
 
 #include "Player/SSPlayerController.h"
 
-#include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/LogCategories.h"
 
 
 

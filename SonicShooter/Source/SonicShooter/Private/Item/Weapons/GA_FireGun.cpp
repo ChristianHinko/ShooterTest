@@ -6,7 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/AbilityTasks/ASSAbilityTask_WaitTargetData.h"
 #include "AbilitySystem/TargetActors/GATA_BulletTrace.h"
-#include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/LogCategories.h"
 #include "Utilities/SSNativeGameplayTags.h"
 #include "Utilities/CollisionChannels.h"
 #include "Item/Weapons/AS_Gun.h"

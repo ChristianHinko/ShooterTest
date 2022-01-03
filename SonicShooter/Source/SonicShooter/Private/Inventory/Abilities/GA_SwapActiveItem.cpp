@@ -6,7 +6,7 @@
 
 #include "Character/ShooterCharacter.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
-#include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/LogCategories.h"
 #include "Utilities/SSNativeGameplayTags.h"
 
 UGA_SwapActiveItem::UGA_SwapActiveItem()

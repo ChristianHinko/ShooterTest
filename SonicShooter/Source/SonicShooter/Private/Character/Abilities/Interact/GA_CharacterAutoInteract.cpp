@@ -4,7 +4,7 @@
 #include "Character\Abilities\Interact\GA_CharacterAutoInteract.h"
 
 #include "Character/ShooterCharacter.h"
-#include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/LogCategories.h"
 #include "Utilities/SSNativeGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "Character\AbilityTasks\AT_DurationInteractCallbacks.h"

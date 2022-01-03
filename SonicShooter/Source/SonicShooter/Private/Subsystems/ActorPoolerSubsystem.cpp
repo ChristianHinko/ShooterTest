@@ -4,7 +4,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Actor/SSActor.h"
 #include "Interfaces/Poolable.h"
-#include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/LogCategories.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 

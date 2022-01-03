@@ -5,7 +5,7 @@
 
 #include "Character/SSCharacter.h"
 #include "Character/SSCharacterMovementComponent.h"
-#include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/LogCategories.h"
 #include "Utilities/SSNativeGameplayTags.h"
 
 #include "Kismet/KismetSystemLibrary.h"

@@ -8,7 +8,7 @@
 #include "Character/SSCharacter.h"
 #include "Character/AS_CharacterMovement.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
-#include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/LogCategories.h"
 #include "Utilities/SSNativeGameplayTags.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "AbilitySystemSetupComponent/AbilitySystemSetupInterface.h"

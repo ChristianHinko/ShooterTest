@@ -170,18 +170,18 @@ void UAI_ShooterCharacter::TurnInPlace(float DeltaTimeX)
 		// If we are turning back to normal
 		if (bIsTurningInPlace)
 		{
-			if (previousIsTurningInPlace == false)
-			{
-				// We just began a TIP
-				UKismetSystemLibrary::PrintString(this, "We just began a TIP", true, false, FLinearColor::Yellow);
-			}
+			//if (previousIsTurningInPlace == false)
+			//{
+			//	// We just began a TIP
+			//	UKismetSystemLibrary::PrintString(this, "We just began a TIP", true, false, FLinearColor::Yellow);
+			//}
 
-			UKismetSystemLibrary::PrintString(this, "TurnInPlaceYawOffset: " + FString::SanitizeFloat(TurnInPlaceYawOffset), true, false, FLinearColor::White);
+			//UKismetSystemLibrary::PrintString(this, "TurnInPlaceYawOffset: " + FString::SanitizeFloat(TurnInPlaceYawOffset), true, false, FLinearColor::White);
 
 			TurnInPlaceYawOffset = FMath::FInterpConstantTo(TurnInPlaceYawOffset, 0.f, DeltaTimeX, 100.f);
 			if (FMath::IsNearlyZero(TurnInPlaceYawOffset))
 			{
-				UKismetSystemLibrary::PrintString(this, "TIP goal reached", true, false, FLinearColor::Green);
+				//UKismetSystemLibrary::PrintString(this, "TIP goal reached", true, false, FLinearColor::Green);
 				TurnInPlaceYawOffset = 0.f;
 				bIsTurningInPlace = false;
 				TurnInPlaceStartingYaw = ActorRotation.Yaw;

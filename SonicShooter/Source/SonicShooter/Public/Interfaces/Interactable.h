@@ -34,7 +34,7 @@ enum class EDurationInteractEndReason
 };
 
 // This class does not need to be modified.
-UINTERFACE(MinimalAPI)
+UINTERFACE(MinimalAPI, BlueprintType)
 class UInteractable : public UInterface
 {
 	GENERATED_BODY()
@@ -62,15 +62,45 @@ public:
 	void InjectDetectType(EDetectType newDetectType);
 	/** WARNING: Implementors don't touch! External use only! */
 	void InjectDurationInteractOccurring(bool newDurationInteractOccurring);
-	
-	bool GetCanCurrentlyBeInteractedWith();
 
-	bool GetIsManualInstantInteract();
-	bool GetIsAutomaticInstantInteract();
-	bool GetIsManualDurationInteract();
-	bool GetIsAutomaticDurationInteract();
+	// Injected variable. Implementors should not touch this
 	bool GetDurationInteractOccurring();
+	// Injected variable. What the character detected this Interactable to be. Implementors should not touch this
 	EDetectType GetDetectType();
+
+#pragma region ImplementorSetProperties
+	// How long the player needs to hold interact input to interact with this interactable
+	virtual float GetInteractDuration() = 0;
+
+	// Time to wait between ticks to help performance. Be careful with this... longer wait between ticks means a less accurate duration end (might over/undershoot interactDuration).
+	virtual float GetTickInterval() = 0;
+
+	// Lets you make use of InteractingTick event
+	virtual bool GetShouldDurationInteractableTick() = 0;
+
+	// Skips first call to InteractingTick()
+	virtual bool GetShouldSkipFirstTick() = 0;
+
+	//// Allows events to be fired by the character's interaction scanner
+	virtual bool GetShouldFireDetectionEvents() = 0;
+
+
+	//// If set to false, character will ignore this interactable and find the next best option for the frame. This is different from returning false in CanActivateInteractAbility() in that this even prevents the player from even having the option to interact (ie. you've already interacted with this). Basicly this completely turns off the interactability until turned back on.
+	virtual bool GetCanCurrentlyBeInteractedWith() = 0;
+
+
+
+
+
+
+	// If set to manual and automatic CanActivateAbility() will return false. Automatic and Manual should maybe be separate abilities
+	//-----------------------------------
+	virtual bool GetIsManualInstantInteract() = 0;
+	virtual bool GetIsAutomaticInstantInteract() = 0;
+	virtual bool GetIsManualDurationInteract() = 0;
+	virtual bool GetIsAutomaticDurationInteract() = 0;
+#pragma endregion
+
 
 	// Called from an interact ability's CanActivateAbility(). Gives implementor a chance to do some checks before activated. Only called on manual interacts since auto interacts utilizes a passiva ability to interact
 	virtual bool CanActivateInteractAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const = 0;
@@ -90,14 +120,7 @@ public:
 
 #pragma region DurationInteraction
 
-	// How long the player needs to hold interact input to interact with this interactable
-	float interactDuration;
-	// Time to wait between ticks to help performance. Be careful with this... longer wait between ticks means a less accurate duration end (might over/undershoot interactDuration).
-	float tickInterval;
-	// Lets you make use of InteractingTick event
-	bool bShouldDurationInteractableTick;
-	// Skips first call to InteractingTick()
-	bool bShouldSkipFirstTick;
+
 	// Called the first frame of interaction (on press interact input) (valid prediction key)
 	virtual void OnDurationInteractBegin(AShooterCharacter* InteractingCharacter);
 	// Called every frame during a duration interaction (while interact input is down)
@@ -112,8 +135,7 @@ public:
 
 	// Detection events are called on both client and server from character tick (chance that only client calls but server doesn't or vice versa or that they have different interactables when called)
 #pragma region Detection Events
-	// Allows events to be fired by the character's interaction scanner
-	bool bShouldFireDetectionEvents;
+
 	// This became the player's current interactable
 	virtual void OnInitialDetect(AShooterCharacter* InteractingCharacter);
 	// This remains the player's current interactable
@@ -138,20 +160,7 @@ public:
 
 
 protected:
-	// If set to false, character will ignore this interactable and find the next best option for the frame. This is different from returning false in CanActivateInteractAbility() in that this even prevents the player from even having the option to interact (ie. you've already interacted with this). Basicly this completely turns off the interactability until turned back on.
-	bool bCanCurrentlyBeInteractedWith;
 
-
-	
-	
-
-
-	// If set to manual and automatic CanActivateAbility() will return false. Automatic and Manual should maybe be separate abilities
-	//-----------------------------------
-	bool bIsManualInstantInteract;			
-	bool bIsAutomaticInstantInteract;   //Code to make this work is currently not hooked up
-	bool bIsManualDurationInteract;			
-	bool bIsAutomaticDurationInteract;	//Code to make this work is currently not hooked up
 
 
 	// Not yet sure if I want this implemented yet

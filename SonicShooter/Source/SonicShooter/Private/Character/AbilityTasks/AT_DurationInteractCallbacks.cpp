@@ -27,10 +27,10 @@ UAT_DurationInteractCallbacks* UAT_DurationInteractCallbacks::DurationInteractCa
 	UAT_DurationInteractCallbacks* MyObj = NewAbilityTask<UAT_DurationInteractCallbacks>(OwningAbility);
 	MyObj->ShooterCharacter = ShooterCharacter;
 	MyObj->Interactable = InInteract;
-	MyObj->duration = InInteract->interactDuration;
-	MyObj->tickInterval = InInteract->tickInterval;
-	MyObj->skipFirstTick = InInteract->bShouldSkipFirstTick;
-	MyObj->shouldCallTickEvent = InInteract->bShouldDurationInteractableTick;
+	MyObj->duration = InInteract->GetInteractDuration();
+	MyObj->tickInterval = InInteract->GetTickInterval();
+	MyObj->skipFirstTick = InInteract->GetShouldSkipFirstTick();
+	MyObj->shouldCallTickEvent = InInteract->GetShouldDurationInteractableTick();
 
 	return MyObj;
 }

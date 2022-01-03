@@ -60,8 +60,6 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_IsInThirdPerson)
 
 
 // Inventory tags
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_InventoryEquipmentSlot)
-
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_InventoryLayoutFirst)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_InventoryLayoutSecond)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_InventoryLayoutThird)

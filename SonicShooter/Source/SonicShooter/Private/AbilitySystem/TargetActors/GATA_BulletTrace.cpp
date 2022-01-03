@@ -6,7 +6,7 @@
 #include "Utilities\LogCategories.h"
 #include "Abilities/GameplayAbility.h"
 #include "Utilities/CollisionChannels.h"
-#include "AbilitySystem/SSGameplayAbilityTargetTypes.h"
+#include "AbilitySystem/Types/SSGameplayAbilityTargetTypes.h"
 #include "AbilitySystemComponent.h"
 #include "Item/Weapons/AS_Gun.h"
 #include "BlueprintFunctionLibraries\BFL_CollisionQueryHelpers.h"

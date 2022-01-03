@@ -4,7 +4,7 @@
 #include "Character/Abilities/GA_CharacterJump.h"
 
 #include "Character/SSCharacter.h"
-#include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/LogCategories.h"
 #include "Utilities/SSNativeGameplayTags.h"
 #include "Character/SSCharacterMovementComponent.h"
 

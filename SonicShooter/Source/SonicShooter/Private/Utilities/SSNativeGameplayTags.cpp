@@ -57,8 +57,6 @@ UE_DEFINE_GAMEPLAY_TAG(Tag_IsInThirdPerson,						TEXT("Player.State.IsInThirdPer
 
 
 // Inventory tags
-UE_DEFINE_GAMEPLAY_TAG(Tag_InventoryEquipmentSlot,				TEXT("Inventory.Slot.Equipment"))
-
 UE_DEFINE_GAMEPLAY_TAG(Tag_InventoryLayoutFirst,				TEXT("Inventory.Layout.First"))
 UE_DEFINE_GAMEPLAY_TAG(Tag_InventoryLayoutSecond,				TEXT("Inventory.Layout.Second"))
 UE_DEFINE_GAMEPLAY_TAG(Tag_InventoryLayoutThird,				TEXT("Inventory.Layout.Third"))

@@ -7,8 +7,11 @@
 
 #include "SSArcInventoryComponent_Active.generated.h"
 
+
 class UArkItemStack;
 class UArcInventoryComponent;
+
+
 
 /**
  * 
@@ -18,28 +21,25 @@ class SONICSHOOTER_API USSArcInventoryComponent_Active : public UArcInventoryCom
 {
 	GENERATED_BODY()
 	
-private:
-
 public:
 	USSArcInventoryComponent_Active(const FObjectInitializer& ObjectInitializer);
-	virtual void BeginPlay() override;
-	virtual void InitializeComponent() override;
 
-	int32 startingActiveItemSlot;
+
+	int32 StartingActiveItemSlot;
 	uint8 bUseOnEquipItemSwappingThingRoyMade : 1;
+
+	// The GM should populate the Inventory with these items
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
+		TArray<FArcStartingItemEntry> StartingItems;
 
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 		bool IsActiveItemSlotIndexValid(int32 InActiveItemSlot);
 
-	
-
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
-		int32 maxItemHistoryBufferSize;
+		int32 MaxItemHistoryBufferSize;
 	UPROPERTY(Replicated)
 		TArray<FArcInventoryItemSlotReference> ActiveItemHistory;
-
-
 
 
 	
@@ -49,12 +49,16 @@ public:
 		void AddToActiveItemHistory(const FArcInventoryItemSlotReference& NewActiveItemSlotReference);
 
 protected:
+	virtual void BeginPlay() override;
+	virtual void InitializeComponent() override;
+
 	UFUNCTION()
 		void OnItemSlotChangeEvent(UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack);
 	UFUNCTION()
 		void OnItemActiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
 	UFUNCTION()
 		void OnItemInactiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
+	
 	virtual bool MakeItemActive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack) override;
 	
 	virtual bool ApplyAbilityInfo_Internal(const FArcItemDefinition_AbilityInfo& AbilityInfo, FArcEquippedItemInfo& StoreInto, UArcItemStack* AbilitySource) override;

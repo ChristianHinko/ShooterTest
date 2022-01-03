@@ -31,15 +31,15 @@ enum EAbilityInputID
 	// 8
 	Reload,
 	// 9
-	Item0,
+	FirstItem,
 	// 10
-	Item1,
+	SecondItem,
 	// 11
-	Item2,
+	ThirdItem,
 	// 12
-	Item3,
+	FourthItem,
 	// 13
-	Item4,
+	FifthItem,
 	// 14
 	SwitchWeapon,
 	// 15

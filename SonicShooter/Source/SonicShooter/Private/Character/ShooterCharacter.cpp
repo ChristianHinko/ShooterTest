@@ -5,6 +5,7 @@
 
 #include "Net/UnrealNetwork.h"
 #include "Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
 #include "ActorComponents/InteractorComponent.h"
@@ -30,20 +31,27 @@ void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToLastActiveItemAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToNextItemAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToPreviousItemAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToItem0AbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToItem1AbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToItem2AbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToItem3AbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToItem4AbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToFirstItemAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToSecondItemAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToThirdItemAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToFourthItemAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToFifthItemAbilitySpecHandle, COND_OwnerOnly);
 
 	DOREPLIFETIME_CONDITION(AShooterCharacter, DropItemAbilitySpecHandle, COND_OwnerOnly);
 }
 
-FName AShooterCharacter::InventoryComponentName(TEXT("InventoryComponent"));
+const FName AShooterCharacter::InventoryComponentName(TEXT("InventoryComponent"));
 
 AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<USSArcInventoryComponent_Active>(InventoryComponentName))
 {
+	// Default to first person
+	bFirstPerson = true;
+	bUseControllerRotationYaw = true; // let the camera rotation determine our yaw
+	GetCharacterMovement()->bOrientRotationToMovement = false; // don't rotate theCharacter in the movement direction
+
+
+
 	InventoryComponent = CreateDefaultSubobject<UArcInventoryComponent>(InventoryComponentName);
 	SSInventoryComponentActive = Cast<USSArcInventoryComponent_Active>(InventoryComponent);
 
@@ -107,11 +115,11 @@ void AShooterCharacter::GrantStartingAbilities()
 	SwapToLastActiveItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToLastActiveItemAbilityTSub, this/*, GetLevel()*/);
 	SwapToNextItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToNextItemAbilityTSub, this/*, GetLevel()*/);
 	SwapToPreviousItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToPreviousItemAbilityTSub, this/*, GetLevel()*/);
-	SwapToItem0AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem0AbilityTSub, this/*, GetLevel()*/);
-	SwapToItem1AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem1AbilityTSub, this/*, GetLevel()*/);
-	SwapToItem2AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem2AbilityTSub, this/*, GetLevel()*/);
-	SwapToItem3AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem3AbilityTSub, this/*, GetLevel()*/);
-	SwapToItem4AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem4AbilityTSub, this/*, GetLevel()*/);
+	SwapToFirstItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToFirstItemAbilityTSub, this/*, GetLevel()*/);
+	SwapToSecondItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToSecondItemAbilityTSub, this/*, GetLevel()*/);
+	SwapToThirdItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToThirdItemAbilityTSub, this/*, GetLevel()*/);
+	SwapToFourthItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToFourthItemAbilityTSub, this/*, GetLevel()*/);
+	SwapToFifthItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToFifthItemAbilityTSub, this/*, GetLevel()*/);
 
 	DropItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(DropItemAbilityTSub, this/*, GetLevel()*/);
 
@@ -241,7 +249,7 @@ void AShooterCharacter::OnPrimaryFirePressed()
 	if (GetAbilitySystemComponent())
 	{
 		TArray<FGameplayAbilitySpec*> Specs; // our found specs
-		GetAbilitySystemComponent()->GetActivatableGameplayAbilitySpecsByAllMatchingTags(FGameplayTag::RequestGameplayTag(FName("AbilityInput.PrimaryFire")).GetSingleTagContainer(), Specs);
+		GetAbilitySystemComponent()->GetActivatableGameplayAbilitySpecsByAllMatchingTags(Tag_AbilityInputPrimaryFire.GetTag().GetSingleTagContainer(), Specs);
 
 		for (FGameplayAbilitySpec* Spec : Specs)
 		{
@@ -257,7 +265,7 @@ void AShooterCharacter::OnReloadPressed()
 {
 	if (GetAbilitySystemComponent())
 	{
-		GetAbilitySystemComponent()->TryActivateAbilitiesByTag(FGameplayTag::RequestGameplayTag(FName("Ability.Reload")).GetSingleTagContainer());
+		GetAbilitySystemComponent()->TryActivateAbilitiesByTag(Tag_ReloadAbility.GetTag().GetSingleTagContainer());
 	}
 }
 
@@ -265,25 +273,25 @@ void AShooterCharacter::OnSwitchWeaponPressed()
 {
 	GetAbilitySystemComponent()->TryActivateAbility(SwapToLastActiveItemAbilitySpecHandle);
 }
-void AShooterCharacter::OnItem0Pressed()
+void AShooterCharacter::OnFirstItemPressed()
 {
-	GetAbilitySystemComponent()->TryActivateAbility(SwapToItem0AbilitySpecHandle);
+	GetAbilitySystemComponent()->TryActivateAbility(SwapToFirstItemAbilitySpecHandle);
 }
-void AShooterCharacter::OnItem1Pressed()
+void AShooterCharacter::OnSecondItemPressed()
 {
-	GetAbilitySystemComponent()->TryActivateAbility(SwapToItem1AbilitySpecHandle);
+	GetAbilitySystemComponent()->TryActivateAbility(SwapToSecondItemAbilitySpecHandle);
 }
-void AShooterCharacter::OnItem2Pressed()
+void AShooterCharacter::OnThirdItemPressed()
 {
-	GetAbilitySystemComponent()->TryActivateAbility(SwapToItem2AbilitySpecHandle);
+	GetAbilitySystemComponent()->TryActivateAbility(SwapToThirdItemAbilitySpecHandle);
 }
-void AShooterCharacter::OnItem3Pressed()
+void AShooterCharacter::OnFourthItemPressed()
 {
-	GetAbilitySystemComponent()->TryActivateAbility(SwapToItem3AbilitySpecHandle);
+	GetAbilitySystemComponent()->TryActivateAbility(SwapToFourthItemAbilitySpecHandle);
 }
-void AShooterCharacter::OnItem4Pressed()
+void AShooterCharacter::OnFifthItemPressed()
 {
-	GetAbilitySystemComponent()->TryActivateAbility(SwapToItem4AbilitySpecHandle);
+	GetAbilitySystemComponent()->TryActivateAbility(SwapToFifthItemAbilitySpecHandle);
 }
 void AShooterCharacter::OnNextItemPressed()
 {

@@ -7,7 +7,8 @@ public class ArcInventory : ModuleRules
 	public ArcInventory(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-		
+		PrivatePCHHeaderFile = "Public/ArcInventory.h";
+
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{

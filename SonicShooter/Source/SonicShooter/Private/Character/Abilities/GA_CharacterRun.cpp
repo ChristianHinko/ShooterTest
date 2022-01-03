@@ -6,6 +6,7 @@
 #include "Character/SSCharacter.h"
 #include "Character/SSCharacterMovementComponent.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -14,13 +15,12 @@
 UGA_CharacterRun::UGA_CharacterRun()
 {
 	AbilityInputID = EAbilityInputID::Run;
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Movement.Run")));
+	AbilityTags.AddTag(Tag_RunAbility);
 
 
-	FGameplayTag RunDisabledTag = FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled");
-	ActivationBlockedTags.AddTag(RunDisabledTag);	// This isn't the singular thing stopping you from running. The CMC is what listens for the presence of the RunDisabledTag and blocks running. This check just saves an ability activation.
+	ActivationBlockedTags.AddTag(Tag_RunDisabled);	// This isn't the singular thing stopping you from running. The CMC is what listens for the presence of the RunDisabledTag and blocks running. This check just saves an ability activation.
 
-	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Movement.Crouch"));
+	CancelAbilitiesWithTag.AddTag(Tag_CrouchAbility);
 }
 
 

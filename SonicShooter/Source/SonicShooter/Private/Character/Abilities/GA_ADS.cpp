@@ -5,12 +5,13 @@
 
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
 #include "GameFramework/Character.h"
 
 UGA_ADS::UGA_ADS()
 {
 	AbilityInputID = EAbilityInputID::SecondaryFire;
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.ADS")));
+	AbilityTags.AddTag(Tag_ADSAbility);
 
 
 }

@@ -6,13 +6,14 @@
 #include "Character/ShooterCharacter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "Character\AbilityTasks\AT_DurationInteractCallbacks.h"
 #include "ActorComponents/InteractorComponent.h"
 
 UGA_CharacterInstantInteract::UGA_CharacterInstantInteract()
 {
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Interact.InstantInteract")));
+	AbilityTags.AddTag(Tag_InstantInteractAbility);
 }
 
 void UGA_CharacterInstantInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)

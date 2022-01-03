@@ -16,7 +16,7 @@ enum class ESwapMethod : uint8
 	/** Swap to an item slot given an item slot index */
 	ByIndex,
 	/** Find the item slot with a given tag and swap to it */
-	ByTag,
+	ByTagQuery,
 	/** Go up an index in the inventory */
 	NextItem,
 	/** Go down an index in the inventory */
@@ -50,8 +50,8 @@ protected:
 		int32 itemSlotIndexToSwitchTo;
 	UPROPERTY(EditDefaultsOnly, meta = (EditCondition = "SwapMethod == ESwapMethod::ByItemHistory", EditConditionHides), Category = "Config")
 		int32 itemHistoryIndex;
-	UPROPERTY(EditDefaultsOnly, meta = (EditCondition = "SwapMethod == ESwapMethod::ByTag", EditConditionHides), Category = "Config")
-		FGameplayTag ItemSlotTagToSwitchTo;
+	UPROPERTY(EditDefaultsOnly, meta = (EditCondition = "SwapMethod == ESwapMethod::ByTagQuery", EditConditionHides), Category = "Config")
+		FGameplayTagQuery ItemSlotTagQueryForSwitching;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Config")
 		ESwapMethod SwapMethod;

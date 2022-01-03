@@ -11,7 +11,6 @@
 class UArcItemStack;
 class UStaticMesh;
 class UArcInventoryBaseItemCardWidget;
-class AArcItemStackWorldObject;
 
 
 UCLASS(Blueprintable, Abstract, BlueprintType)
@@ -46,12 +45,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Gameplay")
 	TSubclassOf<UArcItemStack> DefaultItemStackClass;
 	
-	//-------------------=@MODIFIED MARKER@=	Not using WorldItemModel. We will use our WorldItemActor instead so we get more functionality. Only reason I didn't comment out WorldItemMoel is because of error hell.
-	UPROPERTY(/*BlueprintReadWrite, EditDefaultsOnly, Category = "Display"*/)
-		UStaticMesh* WorldItemModel;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Display")
-		TSubclassOf<AArcItemStackWorldObject> WorldItemActor;
-	//-------------------
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Display")
+	UStaticMesh* WorldItemModel;
 
 	UPROPERTY(EditDefaultsOnly, Instanced, BlueprintReadWrite, Category = "UI", Meta = (AssetBundles = "UI"))
 	UArcUIData_ItemDefinition* UIData;

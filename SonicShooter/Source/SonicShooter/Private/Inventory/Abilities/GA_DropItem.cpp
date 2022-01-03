@@ -6,18 +6,20 @@
 #include "Utilities/LogCategories.h"
 #include "Character/ShooterCharacter.h"
 #include "ArcInventoryComponent.h"
-#include "Abilities\Tasks\ArcAbilityTask_DropItem.h"
+#include "Abilities/Tasks/ArcAbilityTask_DropItem.h"
 #include "ArcInventoryItemTypes.h"
 #include "ArcItemBPFunctionLibrary.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
 #include "ArcItemStack.h"
-#include "Inventory\SSArcItemBPFunctionLibrary.h"
 #include "Item/ArcItemDefinition_New.h"
+#include "ArcInventory.h"
+
+
 
 UGA_DropItem::UGA_DropItem()
 {
 	AbilityInputID = EAbilityInputID::DropItem;
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Inventory.DropItem")));
+	AbilityTags.AddTag(FArcInvDropItemAbilityTag);
 }
 
 void UGA_DropItem::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -82,6 +84,8 @@ void UGA_DropItem::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 		return;
 	}
 	/////////////////////////////////////////////    we've passed the checks //////
+
+
 	UArcAbilityTask_DropItem* DropItemTask = UArcAbilityTask_DropItem::DropItemFromInventory(this, Inventory->PendingItemDrop);
 	if (!DropItemTask)
 	{
@@ -89,26 +93,31 @@ void UGA_DropItem::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
+
 	DropItemTask->OnDataRecieved.AddDynamic(this, &UGA_DropItem::OnDataRecieved);
 	DropItemTask->OnDataCancelled.AddDynamic(this, &UGA_DropItem::OnDataCancelled);
 
 	DropItemTask->ReadyForActivation();
 }
 
+
 void UGA_DropItem::OnDataRecieved(const FArcInventoryItemSlotReference& FromSlot)
 {
 	RemovedItemStack = UArcItemBPFunctionLibrary::GetItemFromSlot(FromSlot);
-	if (!RemovedItemStack)
+	if (!IsValid(RemovedItemStack))
 	{
 		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() RemovedItemStack was NULL when trying to spawn the removed item into the world. Spawning into the world without a valid stack D:"), *FString(__FUNCTION__));
 	}
+
 	if (Inventory->RemoveItemFromInventory(FromSlot))
 	{
 		FTransform SpawnTransform = ShooterCharacter->GetActorTransform();
-		SpawnTransform.SetLocation(SpawnTransform.GetLocation() + ShooterCharacter->GetActorForwardVector() * 200);
+		SpawnTransform.SetLocation(SpawnTransform.GetLocation() + (ShooterCharacter->GetActorForwardVector() * 200));
 
-		USSArcItemBPFunctionLibrary::SpawnWorldItem(this, RemovedItemStack, SpawnTransform, RemovedItemStack->GetItemDefinition().GetDefaultObject()->WorldItemActor);
+		UArcItemBPFunctionLibrary::SpawnWorldItem(this, RemovedItemStack, SpawnTransform);
 	}
+
+
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }
 

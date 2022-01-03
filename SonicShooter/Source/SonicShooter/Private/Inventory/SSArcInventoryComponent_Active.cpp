@@ -18,8 +18,10 @@
 #include "UI/UMG/Widgets/UW_Ammo.h"
 #include "Utilities/LogCategories.h"
 #include "Item/SSArcItemStack.h"
+#include "ArcInventory.h" // for Roy's Native Gameplay Tags
 
 #include "AbilitySystem/ASSAttributeSet.h"
+
 
 
 void USSArcInventoryComponent_Active::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -38,24 +40,26 @@ void USSArcInventoryComponent_Active::GetLifetimeReplicatedProps(TArray<FLifetim
 USSArcInventoryComponent_Active::USSArcInventoryComponent_Active(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	maxItemHistoryBufferSize = 30;
+	MaxItemHistoryBufferSize = 30;
 	bUseOnEquipItemSwappingThingRoyMade = false;
-
+	
 	// The work below can be done in the constructor since we are dealing with CustomInventorySlots which is filled out in the editor 
-	// Figures out what active item to start on (first CustomInventorySlot with the tag "Inventory.Slot.Active"). We know there should be a valid item in this slot even though it may not be replicated yet so this convieniently sets the startingActiveItemSlot to the first active item slot regardless of wheather we have a valid item yet or not, however, this may limit certain gameplay mechanics related to runtime inventory startup editing or something since CustomInventorySlots are desined to be edited in editor. But who knows there may be a way to fix that
-	FGameplayTag ActiveSlotTag = GetDefault<UArcInventoryDeveloperSettings>()->ActiveItemSlotTag;
-	for (int32 i = 0; i < CustomInventorySlots.Num(); i++)
+	// Figures out what active item to start on (first CustomInventorySlot with the tag "Inventory.Slot.Active"). We know there should be a valid item in this slot even though it may not be replicated yet so this convieniently sets the StartingActiveItemSlot to the first active item slot regardless of wheather we have a valid item yet or not, however, this may limit certain gameplay mechanics related to runtime inventory startup editing or something since CustomInventorySlots are desined to be edited in editor. But who knows there may be a way to fix that
+	const FGameplayTag& ActiveSlotTag = FArcInvActiveSlotTag;
+	for (int32 i = 0; i < CustomInventorySlots.Num(); ++i)
 	{
 		if (CustomInventorySlots[i].Tags.HasTag(ActiveSlotTag))
 		{
-			startingActiveItemSlot = i;
+			StartingActiveItemSlot = i;
 		}
 	}
+
 }
 
 void USSArcInventoryComponent_Active::InitializeComponent()
 {
 	Super::InitializeComponent();
+
 
 	OnItemSlotChange.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemSlotChangeEvent);
 
@@ -65,14 +69,14 @@ void USSArcInventoryComponent_Active::InitializeComponent()
 
 void USSArcInventoryComponent_Active::BeginPlay()
 {
-	//Make sure we have nothing stored when we begin play.  We want to have a clean start to this active slot if we reset
-	int32 OldActiveItem = ActiveItemSlot;
+	// Make sure we have nothing stored when we begin play. We want to have a clean start to this active slot if we reset
+	const int32 OldActiveItem = ActiveItemSlot;
 	MakeItemInactive();
 	ActiveItemSlot = OldActiveItem;
 
 	GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
 		{
-			SwapActiveItems(startingActiveItemSlot);
+			SwapActiveItems(StartingActiveItemSlot);
 
 
 			//////////////////////// We aren't going to do this stuff from the super since it just makes things dufficult ////////////////////////
@@ -90,6 +94,7 @@ void USSArcInventoryComponent_Active::BeginPlay()
 			//}
 		});
 
+
 	Super::Super::BeginPlay();
 }
 
@@ -103,18 +108,23 @@ bool USSArcInventoryComponent_Active::IsActiveItemSlotIndexValid(int32 InActiveI
 	{
 		return false;
 	}
+
 	return true;
 }
 
 void USSArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
 {
+	// NOTE: This Super call was not here for some reason TODO: review this and try to add this Super call in (but maybe this was intended idk)
+	//Super::OnItemEquipped(Inventory, ItemSlotRef, ItemStack, PreviousItemStack);
+
+
 	if (bUseOnEquipItemSwappingThingRoyMade)
 	{
 		//If we are an active item slot, make it active if we don't already have an active item		
 		if (ActiveItemSlot == INDEX_NONE && IsActiveItemSlot(ItemSlotRef) && IsValid(ItemStack))
 		{
 
-			int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);
+			const int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);
 			PendingItemSlot = ItemSlotIndex;
 
 			//If we've begun play, send the gameplay event now.  Otherwise we'll get it in BeginPlay
@@ -127,7 +137,7 @@ void USSArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponen
 		//If we are unequipping an item and it's the currently active item, either go to the next available active item or go to neutral
 		if (!IsValid(ItemStack))
 		{
-			int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);
+			const int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);
 			if (ItemSlotIndex == ActiveItemSlot)
 			{
 				PendingItemSlot = GetNextValidActiveItemSlot();
@@ -157,20 +167,18 @@ void USSArcInventoryComponent_Active::AddToActiveItemHistory(const FArcInventory
 {
 	int32 sizeChange = 0;
 
-	if (ActiveItemHistory.RemoveSingle(NewActiveItemSlotReference) == 1)		// We don't want duplicates.... remove the item from the history buffer so we can make it a new recent
+
+	if (ActiveItemHistory.RemoveSingle(NewActiveItemSlotReference) == 1)		// we don't want duplicates.... remove the item from the history buffer so we can make it a new recent
 	{
-		sizeChange--;
+		--sizeChange;
 	}
-	ActiveItemHistory.Insert(NewActiveItemSlotReference, 0);						// Make item new recent
+	ActiveItemHistory.Insert(NewActiveItemSlotReference, 0);						// make item new recent
 	++sizeChange;
 
-
-
-	if (ActiveItemHistory.Num() > maxItemHistoryBufferSize)
+	if (ActiveItemHistory.Num() > MaxItemHistoryBufferSize)
 	{
-		ActiveItemHistory.RemoveAt(ActiveItemHistory.Num() - 1);						// Remove oldest stored item if we are passed the max buffer size
+		ActiveItemHistory.RemoveAt(ActiveItemHistory.Num() - 1);						// remove oldest stored item if we are passed the max buffer size
 	}
-
 
 
 }
@@ -185,7 +193,7 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 			//Find an attribute set with the same key
 			UAttributeSet** ContainedAttributeSet = StoreInto.InstancedAttributeSets.FindByPredicate([=](UAttributeSet* Key) {
 				return Key->GetClass() == AttributeSetClass.Get();
-				});
+			});
 			if (ContainedAttributeSet != nullptr)	 //If it exists, we've got it!
 			{
 				continue;
@@ -203,7 +211,7 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 				float val = KV.Value;
 
 				if (Attribute.GetAttributeSetClass() == NewAttributeSet->GetClass())
-				{
+				{					
 					if (FNumericProperty* NumericProperty = CastField<FNumericProperty>(Attribute.GetUProperty()))
 					{
 						void* ValuePtr = NumericProperty->ContainerPtrToValuePtr<void>(NewAttributeSet);
@@ -219,7 +227,7 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 						}
 					}
 				}
-				
+
 				//BEGIN =@OVERRIDED CODE MARKER@= Make it run soft attribute defaults after setting hard default values
 				if (UASSAttributeSet* SSNewAttributeSet = Cast<UASSAttributeSet>(NewAttributeSet))
 				{
@@ -235,7 +243,7 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 		}
 	}
 
-
+	
 	if (UAbilitySystemComponent* ASC = GetOwnerAbilitySystem())
 	{
 		//Add any loose tags first, that way any abilities or effects we add later behave properly with the tags  
@@ -245,15 +253,15 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 		{
 			//Add any attribute sets we have
 			for (UAttributeSet* AttributeSet : StoreInto.InstancedAttributeSets)
-			{
+			{				
 				if (!UArcItemBPFunctionLibrary::ASCHasAttributeSet(ASC, AttributeSet->GetClass()))
 				{
 					AttributeSet->Rename(nullptr, GetOwner());
 					UArcItemBPFunctionLibrary::ASCAddInstancedAttributeSet(ASC, AttributeSet);
-
+					
 				}
 			}
-
+					
 
 			//Add all the active abilities for the ability slots we have
 			for (auto AbilityInfoStruct : AbilityInfo.ActiveAbilityEntries)
@@ -263,11 +271,11 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 				if (!IsValid(AbilityClass) || !IsValid(InputBinder))
 				{
 					continue;
-				}
-
+				}				
+				
 				int32 InputIndex = InputBinder->GetInputBinding(ASC, AbilityClass);
 				FGameplayAbilitySpec Spec(AbilityClass.GetDefaultObject(), 1, InputIndex, AbilitySource);
-
+							
 
 				FGameplayAbilitySpecHandle Handle = ASC->GiveAbility(Spec);
 				StoreInto.AddedAbilities.Add(Handle);
@@ -276,28 +284,19 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 			for (auto ExtraAbility : AbilityInfo.ExtraAbilities)
 			{
 				//If an ability exists already, then don't bother adding it
-				//if (ASC->FindAbilitySpecFromClass(ExtraAbility))
-				//{
-				//	continue;
-				//}
-
-				//=@MODIFIED MARKER@= also this class doesnt even override these functions
-				if (FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromClass(ExtraAbility))
+				FGameplayAbilitySpec* AbilitySpec = ASC->FindAbilitySpecFromClass(ExtraAbility);
+				if (AbilitySpec != nullptr && !(!!AbilitySpec->PendingRemove))
 				{
-					if (Spec->SourceObject == AbilitySource)
-					{
-						continue;
-					}
+					continue;
 				}
-				//=@OVERRIDED CODE MARKER@= what we modified in this override we use our grant ability instead of give ability
-				FGameplayAbilitySpecHandle Handle = Cast<UASSAbilitySystemComponent>(ASC)->GrantAbility(ExtraAbility, AbilitySource);
-				//FGameplayAbilitySpec Spec(ExtraAbility.GetDefaultObject(), 1, INDEX_NONE, AbilitySource);
 
-				//FGameplayAbilitySpecHandle Handle = ASC->GiveAbility(Spec);
+				FGameplayAbilitySpec Spec(ExtraAbility.GetDefaultObject(), 1, INDEX_NONE, AbilitySource);
+
+				FGameplayAbilitySpecHandle Handle = ASC->GiveAbility(Spec);
 				StoreInto.AddedAbilities.Add(Handle);
 			}
 
-
+			
 
 			//Add any GameplayEffects we have
 			for (auto EffectClass : AbilityInfo.AddedGameplayEffects)
@@ -314,7 +313,7 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 				ECH.AddInstigator(GetOwner(), GetOwner());
 				FGameplayEffectSpec Spec(EffectClass->GetDefaultObject<UGameplayEffect>(), ECH, 1);
 
-
+				
 				FActiveGameplayEffectHandle Handle = ASC->ApplyGameplayEffectSpecToSelf(Spec);
 				//Store any non-instant handles we get.  Instant Gameplay Effects will fall off right away so we don't need to remove them later
 				//Really, items shouldn't use instant GEs.
@@ -327,7 +326,7 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 			ASC->bIsNetDirty = true;
 		}
 
-
+		
 	}
 
 	return true;
@@ -350,16 +349,16 @@ void USSArcInventoryComponent_Active::OnItemSlotChangeEvent(UArcInventoryCompone
 
 
 	// Untested since we are waiting on these problems to be resolved for the next ArcInventory update
-	if (IsValid(ItemStack))		// If we are equiping
+	if (IsValid(ItemStack))		// if we are equiping
 	{
 		// We will create the item's widget so we can show it when it later becomes "Active"
 		if (USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(ItemStack))
 		{
-			if (!IsValid(SSArcItemStack->ActiveItemWidget))		// Only create a new widget if it doesn't already exist
+			if (!IsValid(SSArcItemStack->ActiveItemWidget))		// only create a new widget if it doesn't already exist
 			{
 				if (USSUArcUIData_ActiveItemDefinition* ItemUIData = Cast<USSUArcUIData_ActiveItemDefinition>(ItemStack->GetUIData()))
 				{
-					if (APawn* OwningPawn = Cast<APawn>(GetOwner()))
+					if (APawn* OwningPawn = GetTypedOuter<APawn>())
 					{
 						if (OwningPawn->IsLocallyControlled())
 						{
@@ -378,7 +377,7 @@ void USSArcInventoryComponent_Active::OnItemSlotChangeEvent(UArcInventoryCompone
 			}
 		}
 	}
-	else						// If we are UNequiping
+	else						// if we are UnEquiping
 	{
 		// We completely get rid of the widget since the inventory now longer has the item
 		if (USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(PreviousItemStack))
@@ -398,7 +397,7 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 	bool bSuccessfullyAdded = true;
 	if (ItemStack)
 	{
-		if (APawn* OwningPawn = Cast<APawn>(GetOwner()))
+		if (const APawn* OwningPawn = GetTypedOuter<APawn>())
 		{
 			if (OwningPawn->IsLocallyControlled())
 			{
@@ -468,7 +467,7 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 void USSArcInventoryComponent_Active::OnItemInactiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
 {
 	// Remove UIData widgets
-	if (APawn* OwningPawn = Cast<APawn>(GetOwner()))
+	if (const APawn* OwningPawn = GetTypedOuter<APawn>())
 	{
 		if (OwningPawn->IsLocallyControlled())
 		{
@@ -483,7 +482,7 @@ void USSArcInventoryComponent_Active::OnItemInactiveEvent(UArcInventoryComponent
 						if (WidgetToHide)
 						{
 							WidgetToHide->SetVisibility(ESlateVisibility::Collapsed);
-							ShooterHUD->CurrentActiveItemWidget = nullptr;		// We set this pointer to null since at this point it's not visible to the player (indicating the item is no longer active)
+							ShooterHUD->CurrentActiveItemWidget = nullptr; // we set this pointer to null since at this point it's not visible to the Player (indicating the Item is no longer active)
 						}
 					}
 				}
@@ -491,4 +490,3 @@ void USSArcInventoryComponent_Active::OnItemInactiveEvent(UArcInventoryComponent
 		}
 	}
 }
-

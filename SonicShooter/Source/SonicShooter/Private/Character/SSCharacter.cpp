@@ -34,7 +34,7 @@ void ASSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 
 
 	DOREPLIFETIME_CONDITION(ASSCharacter, bIsRunning, COND_SimulatedOnly);
-	DOREPLIFETIME_CONDITION(ASSCharacter, RemoteViewYaw, COND_SkipOwner);
+	DOREPLIFETIME_CONDITION(ASSCharacter, RemoteViewYaw, COND_SkipOwner); // we also do a custom condition for this in PreReplication() (but we aren't using COND_Custom because we still want to COND_SkipOwner)
 
 	DOREPLIFETIME(ASSCharacter, CharacterMovementAttributeSet);
 	DOREPLIFETIME(ASSCharacter, StaminaAttributeSet);
@@ -42,6 +42,9 @@ void ASSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME_CONDITION(ASSCharacter, CharacterCrouchAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(ASSCharacter, CharacterRunAbilitySpecHandle, COND_OwnerOnly);
 }
+
+
+FName ASSCharacter::POVMeshComponentName(TEXT("POVMesh"));
 
 ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<USSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -61,26 +64,37 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	GetCharacterMovement()->AirControl = 0.2f;
 
 	// Mesh defaults
-	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * -1));
-	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
-	GetMesh()->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
+	if (GetMesh())
+	{
+		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * -1));
+		GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+		GetMesh()->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
+	}
 
 	// Create POVMesh
-	POVMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("POVMesh"));
-	POVMesh->SetupAttachment(GetCapsuleComponent());
-	POVMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPose;
-	POVMesh->PrimaryComponentTick.TickGroup = TG_PrePhysics;
-	POVMesh->SetCollisionProfileName(TEXT("CharacterMesh"));
-	POVMesh->SetGenerateOverlapEvents(false);
-	POVMesh->SetCanEverAffectNavigation(false);
-	POVMesh->SetRelativeLocation(GetMesh()->GetRelativeLocation() + FVector(-25.f, 0.f, 0.f));
-	POVMesh->SetRelativeRotation(GetMesh()->GetRelativeRotation());
-	POVMesh->SetRelativeScale3D(GetMesh()->GetRelativeScale3D());
-	POVMesh->AlwaysLoadOnServer = false; // the server shouldn't care about this mesh
-	// Configure the POVMesh for first person (these apply regardless of third/first person because switching between the two will only set visibility and not change these settings)
-	POVMesh->SetOwnerNoSee(false);
-	POVMesh->SetOnlyOwnerSee(true);
-	POVMesh->SetCastShadow(false);	// hide the POV mesh shadow because it will probably look weird (we're using the normal mesh's shadow instead)
+	POVMesh = CreateOptionalDefaultSubobject<USkeletalMeshComponent>(POVMeshComponentName);
+	if (POVMesh)
+	{
+		POVMesh->SetupAttachment(GetCapsuleComponent());
+		POVMesh->AlwaysLoadOnClient = true;
+		POVMesh->AlwaysLoadOnServer = false; // the server shouldn't care about this mesh
+		POVMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPose;
+		POVMesh->PrimaryComponentTick.TickGroup = TG_PrePhysics;
+		static FName MeshCollisionProfileName(TEXT("CharacterMesh"));
+		POVMesh->SetCollisionProfileName(MeshCollisionProfileName);
+		POVMesh->SetGenerateOverlapEvents(false);
+		POVMesh->SetCanEverAffectNavigation(false);
+
+		if (GetMesh())
+		{
+			POVMesh->SetRelativeLocation(GetMesh()->GetRelativeLocation());
+			POVMesh->SetRelativeRotation(GetMesh()->GetRelativeRotation());
+			POVMesh->SetRelativeScale3D(GetMesh()->GetRelativeScale3D());
+		}
+		// Configure the POVMesh for first person (these apply regardless of third/first person because switching between the two will only set SetOwnerNoSee() and not change these settings)
+		POVMesh->SetOnlyOwnerSee(true);
+		POVMesh->SetCastShadow(false);	// hide the POV mesh shadow because it will probably look weird (we're using the normal mesh's shadow instead)
+	}
 
 	// Create CameraBoom
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -92,11 +106,14 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+
 	// Set default arm length for third person mode
 	ThirdPersonCameraArmLength = 300.f;
 
-	// Default to first person
-	bFirstPerson = true;
+	// Default to third person
+	bFirstPerson = false;
+	bUseControllerRotationYaw = false; // don't rotate when the Controller rotates - let that just affect the camera
+	GetCharacterMovement()->bOrientRotationToMovement = true; // make the Character face the direction that he is moving
 
 
 	if (GetCharacterMovement())
@@ -121,17 +138,27 @@ void ASSCharacter::PostEditChangeProperty(FPropertyChangedEvent& PropertyChanged
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
 
-	GetMesh()->SetRelativeLocation(FVector(0, 0, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * -1));
-	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
-	GetMesh()->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
+	if (GetMesh())
+	{
+		GetMesh()->SetRelativeLocation(FVector(0, 0, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * -1));
+		GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+		GetMesh()->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
+	}
 
-	POVMesh->SetRelativeLocation(GetMesh()->GetRelativeLocation() + FVector(-25.f, 0.f, 0.f));
-	POVMesh->SetRelativeRotation(GetMesh()->GetRelativeRotation());
-	POVMesh->SetRelativeScale3D(GetMesh()->GetRelativeScale3D());
+	if (POVMesh)
+	{
+		if (GetMesh())
+		{
+			POVMesh->SetRelativeLocation(GetMesh()->GetRelativeLocation());
+			POVMesh->SetRelativeRotation(GetMesh()->GetRelativeRotation());
+			POVMesh->SetRelativeScale3D(GetMesh()->GetRelativeScale3D());
+		}
+
+	}
 
 
-	//// Set our configuration for this first/third person mode
-	//SetFirstPerson(bFirstPerson);
+	// Set our configuration for this first/third person mode
+	SetFirstPerson(bFirstPerson);
 
 }
 #endif
@@ -149,10 +176,15 @@ void ASSCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTra
 {
 	Super::PreReplication(ChangedPropertyTracker);
 
+
 	if (GetLocalRole() == ROLE_Authority && GetController())
 	{
 		SetRemoteViewYaw(GetController()->GetControlRotation().Yaw);
 	}
+
+	// Custom RemoteViewYaw replication condition - only replicate if we aren't using bUseControllerRotationYaw
+	DOREPLIFETIME_ACTIVE_OVERRIDE(ASSCharacter, RemoteViewYaw, (bUseControllerRotationYaw == false));
+
 }
 
 
@@ -215,38 +247,53 @@ void ASSCharacter::GrantStartingAbilities()
 
 void ASSCharacter::SetFirstPerson(bool newFirstPerson)
 {
-	if (newFirstPerson == true)
+	bFirstPerson = newFirstPerson;
+
+
+	// Camera boom
+	if (bFirstPerson == true)
 	{
-		bUseControllerRotationYaw = true; // let the camera rotation determine our yaw
-		GetCharacterMovement()->bOrientRotationToMovement = false; // don't rotate the character in the movement direction
-
-		// First person, so hide mesh but still see the shadow
-		GetMesh()->SetOwnerNoSee(true);
-		GetMesh()->bCastHiddenShadow = true; // we still want the shadow from the normal mesh (this casts shadow even when hidden)
-
-		// First person, so show POV mesh
-		POVMesh->SetVisibility(true/*, true*/);
-
 		// Configure CameraBoom arm length for first person
 		CameraBoom->TargetArmLength = 0.f;
 	}
 	else
 	{
-		bUseControllerRotationYaw = false; // don't rotate when the controller rotates. Let that just affect the camera.
-		GetCharacterMovement()->bOrientRotationToMovement = true; // make the character face the direction that he is moving
-
-		// Third person, so let player see mesh
-		GetMesh()->SetOwnerNoSee(false);
-		GetMesh()->bCastHiddenShadow = false; // now if this mesh is hidden, don't show its shadow
-
-		// Third person, so hide POV mesh
-		POVMesh->SetVisibility(false/*, true*/);
-
 		// Configure CameraBoom arm length for third person
-		GetCameraBoom()->TargetArmLength = ThirdPersonCameraArmLength;
+		CameraBoom->TargetArmLength = ThirdPersonCameraArmLength;
 	}
 
-	bFirstPerson = newFirstPerson;
+	// Meshes
+	if (GetMesh())
+	{
+		if (POVMesh)
+		{
+			if (bFirstPerson == true)
+			{
+				// First person, so hide mesh but still see the shadow
+				GetMesh()->SetOwnerNoSee(true);
+				GetMesh()->bCastHiddenShadow = true; // we still want the shadow from the normal mesh (this casts shadow even when hidden)
+
+				// First person, so show POV mesh
+				POVMesh->SetOwnerNoSee(false);
+			}
+			else
+			{
+				// Third person, so let player see mesh
+				GetMesh()->SetOwnerNoSee(false);
+				GetMesh()->bCastHiddenShadow = false; // now if this mesh is hidden, don't show its shadow
+
+				// Third person, so hide POV mesh
+				POVMesh->SetOwnerNoSee(true);
+			}
+		}
+		else
+		{
+			// We don't have POVMesh
+			GetMesh()->SetOwnerNoSee(false);
+			GetMesh()->bCastHiddenShadow = false;
+		}
+	}
+
 }
 
 void ASSCharacter::SetRemoteViewYaw(float NewRemoteViewYaw)
@@ -265,11 +312,19 @@ FRotator ASSCharacter::GetBaseAimRotation() const
 		return POVRot;
 	}
 
-	// Use a replicated view yaw. NOTE: we may need to modify the Super to not do "FMath::IsNearlyZero(POVRot.Pitch)". Idk really what that is for but it may mess things up when we are rotated
+	
+	if (bUseControllerRotationYaw)
 	{
+		// Our capsule rotation's Yaw perfectly represents our aim rotation's Yaw so just use that because it is more smoothly replicated (and RemoteViewYaw doesn't replicate if this is the case)
+		POVRot.Yaw = GetActorRotation().Yaw;
+	}
+	else
+	{
+		// Use a replicated view yaw. NOTE: we may need to modify the Super to not do "FMath::IsNearlyZero(POVRot.Pitch)". Idk really what that is for but it may mess things up when we are rotated
 		POVRot.Yaw = RemoteViewYaw;
 		POVRot.Yaw = POVRot.Yaw * 360.0f / 255.0f;
 	}
+
 
 	return POVRot;
 }
@@ -639,20 +694,20 @@ void ASSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction(FName(TEXT("Reload")), IE_Pressed, this, &ASSCharacter::OnReloadPressed);
 	PlayerInputComponent->BindAction(FName(TEXT("Reload")), IE_Released, this, &ASSCharacter::OnReloadReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Item0")), IE_Pressed, this, &ASSCharacter::OnItem0Pressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Item0")), IE_Released, this, &ASSCharacter::OnItem0Released);
+	PlayerInputComponent->BindAction(FName(TEXT("FirstItem")), IE_Pressed, this, &ASSCharacter::OnFirstItemPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("FirstItem")), IE_Released, this, &ASSCharacter::OnFirstItemReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Item1")), IE_Pressed, this, &ASSCharacter::OnItem1Pressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Item1")), IE_Released, this, &ASSCharacter::OnItem1Released);
+	PlayerInputComponent->BindAction(FName(TEXT("SecondItem")), IE_Pressed, this, &ASSCharacter::OnSecondItemPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("SecondItem")), IE_Released, this, &ASSCharacter::OnSecondItemReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Item2")), IE_Pressed, this, &ASSCharacter::OnItem2Pressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Item2")), IE_Released, this, &ASSCharacter::OnItem2Released);
+	PlayerInputComponent->BindAction(FName(TEXT("ThirdItem")), IE_Pressed, this, &ASSCharacter::OnThirdItemPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("ThirdItem")), IE_Released, this, &ASSCharacter::OnThirdItemReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Item3")), IE_Pressed, this, &ASSCharacter::OnItem3Pressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Item3")), IE_Released, this, &ASSCharacter::OnItem3Released);
+	PlayerInputComponent->BindAction(FName(TEXT("FourthItem")), IE_Pressed, this, &ASSCharacter::OnFourthItemPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("FourthItem")), IE_Released, this, &ASSCharacter::OnFourthItemReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Item4")), IE_Pressed, this, &ASSCharacter::OnItem4Pressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Item4")), IE_Released, this, &ASSCharacter::OnItem4Released);
+	PlayerInputComponent->BindAction(FName(TEXT("FifthItem")), IE_Pressed, this, &ASSCharacter::OnFifthItemPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("FifthItem")), IE_Released, this, &ASSCharacter::OnFifthItemReleased);
 
 	PlayerInputComponent->BindAction(FName(TEXT("SwitchWeapon")), IE_Pressed, this, &ASSCharacter::OnSwitchWeaponPressed);
 	PlayerInputComponent->BindAction(FName(TEXT("SwitchWeapon")), IE_Released, this, &ASSCharacter::OnSwitchWeaponReleased);
@@ -780,43 +835,43 @@ void ASSCharacter::OnReloadReleased()
 {
 }
 
-void ASSCharacter::OnItem0Pressed()
+void ASSCharacter::OnFirstItemPressed()
 {
 
 }
-void ASSCharacter::OnItem0Released()
+void ASSCharacter::OnFirstItemReleased()
 {
 }
 
-void ASSCharacter::OnItem1Pressed()
+void ASSCharacter::OnSecondItemPressed()
 {
 
 }
-void ASSCharacter::OnItem1Released()
+void ASSCharacter::OnSecondItemReleased()
 {
 }
 
-void ASSCharacter::OnItem2Pressed()
+void ASSCharacter::OnThirdItemPressed()
 {
 
 }
-void ASSCharacter::OnItem2Released()
+void ASSCharacter::OnThirdItemReleased()
 {
 }
 
-void ASSCharacter::OnItem3Pressed()
+void ASSCharacter::OnFourthItemPressed()
 {
 
 }
-void ASSCharacter::OnItem3Released()
+void ASSCharacter::OnFourthItemReleased()
 {
 }
 
-void ASSCharacter::OnItem4Pressed()
+void ASSCharacter::OnFifthItemPressed()
 {
 
 }
-void ASSCharacter::OnItem4Released()
+void ASSCharacter::OnFifthItemReleased()
 {
 }
 

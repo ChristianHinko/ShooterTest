@@ -292,9 +292,7 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 
 				FGameplayAbilitySpec Spec(ExtraAbility.GetDefaultObject(), 1, INDEX_NONE, AbilitySource);
 
-				//=@OVERRIDED CODE MARKER@= what we modified in this override we use our grant ability instead of give ability
-				FGameplayAbilitySpecHandle Handle = Cast<UASSAbilitySystemComponent>(ASC)->GrantAbility(ExtraAbility, AbilitySource);
-				//END =@OVERRIDED CODE MARKER@=
+				FGameplayAbilitySpecHandle Handle = ASC->GiveAbility(Spec);
 				StoreInto.AddedAbilities.Add(Handle);
 			}
 

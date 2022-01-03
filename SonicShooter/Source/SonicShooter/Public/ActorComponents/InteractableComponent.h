@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "Interfaces\Interactable.h"
 #include "GameplayAbilitySpec.h"
-#include "AbilitySystem/SSGameplayAbility.h"
+#include "AbilitySystem/ASSGameplayAbility.h"
 
 #include "InteractableComponent.generated.h"
 

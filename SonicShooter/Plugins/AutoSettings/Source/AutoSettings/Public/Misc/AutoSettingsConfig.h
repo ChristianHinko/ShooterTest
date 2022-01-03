@@ -4,24 +4,21 @@
 
 #include "GameplayTagContainer.h"
 #include "Engine/DeveloperSettings.h"
-#include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerInput.h"
 #include "InputMapping/InputMappingPreset.h"
 #include "AutoSettingsConfig.generated.h"
 
-// Defines an icon texture for a key
+// Deprecated structure
 USTRUCT()
 struct FKeyIconPair
 {
 	GENERATED_BODY()
 
-	// Key that the icon is for
-	UPROPERTY(config, EditAnywhere, Category = "Key Icon Pair")
-	FKey Key;
+	UPROPERTY()
+	FKey Key_DEPRECATED;
 
-	// Icon texture to be assigned to the key
-	UPROPERTY(EditAnywhere, Category = "Key Icon Pair")
-	UTexture* Icon;
+	UPROPERTY()
+	class UTexture* Icon_DEPRECATED;
 };
 
 // Set of key icons
@@ -36,8 +33,11 @@ struct FKeyIconSet
 	FGameplayTagContainer Tags;
 
 	// Icons defined for different keys
-	UPROPERTY(config, EditAnywhere, Category = "Key Icon Set", meta = (TitleProperty = "Key"))
-	TArray<FKeyIconPair> Icons;
+	UPROPERTY(config, EditAnywhere, Category = "Key Icon Set")
+	TMap<FKey, TSoftObjectPtr<UTexture>> IconMap;
+	
+	UPROPERTY()
+	TArray<FKeyIconPair> Icons_DEPRECATED;
 
 	// Return the icon texture for the given key
 	UTexture* GetIcon(FKey Key) const;
@@ -283,7 +283,7 @@ public:
 	FInputMappingPreset GetInputPresetByTag(FGameplayTag PresetTag) const;
 
 	// Returns the icon texture for the given key and key icon tags
-	UTexture* GetIconForKey(FKey InKey, FGameplayTagContainer Tags) const;
+	UTexture* GetIconForKey(FKey InKey, FGameplayTagContainer Tags, float AxisScale = 0.f) const;
 
 	// Returns the Friendly Name override for the key if available (specified in AutoSettings config) or falls back to the FKey DisplayName
 	FText GetKeyFriendlyName(FKey Key) const;
@@ -312,6 +312,10 @@ public:
 
 	// True if the given key is an axis key in any stored Axis Association
 	bool IsAxisKey(FKey Key) const;
+
+	// Gets an axis button in any stored Axis Association
+	// e.g. turn AxisKey= "Gamepad Left Stick Y" AxisScale= -1 into "Gamepad Left Stick Down"
+	FKey GetAxisButton(FKey AxisKey, float AxisScale) const;
 
 	// True if the given key is whitelisted (if applicable) and not blacklisted
 	bool IsKeyAllowed(FKey Key) const;

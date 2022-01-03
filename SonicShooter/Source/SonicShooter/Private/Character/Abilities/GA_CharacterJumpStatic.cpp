@@ -3,8 +3,9 @@
 
 #include "Character/Abilities/GA_CharacterJumpStatic.h"
 
-#include "Character/AbilitySystemCharacter.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
+#include "GameFramework/Character.h"
 
 // THIS ABILITY IS WAYYYYYY OUTDATED!!!!!!!!!!!!!!!!
 // WE HAVE NOT IMPLEMENTED THE NEW WAY OF DOING MOVEMENT ABILITIES FOR THIS STATIC VERISON OF JUMP!!!!
@@ -13,9 +14,10 @@
 
 UGA_CharacterJumpStatic::UGA_CharacterJumpStatic()
 {
+	AbilityInputID = EAbilityInputID::Jump;
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::NonInstanced;
 	bReplicateInputDirectly = true;		// bReplicateEndAbility in EndAbility() when replicating to the server doesn't always work because client's ability most likely isn't confirmed yet. So we do this bool instead to tell the server to run EndAbility(). (the better alternative to this bool is to use the input tasks but we can't because this is a non-instanced ability)
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Movement.JumpStatic")));
+	AbilityTags.AddTag(Tag_JumpStaticAbility);
 }
 
 
@@ -26,14 +28,14 @@ bool UGA_CharacterJumpStatic::CanActivateAbility(const FGameplayAbilitySpecHandl
 		return false;
 	}
 
-	const AAbilitySystemCharacter* Character = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
+	const ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	return Character && Character->CanJump();
 }
 
 void UGA_CharacterJumpStatic::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	
+
 
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	if (!Character)

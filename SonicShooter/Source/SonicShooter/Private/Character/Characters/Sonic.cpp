@@ -9,8 +9,9 @@
 
 //#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "Actor/AS_Health.h"
-#include "Character/AS_Character.h"
+#include "Character/AS_CharacterMovement.h"
+#include "AbilitySystem/AttributeSets/AS_Stamina.h"
+#include "AttributeSets/AS_Health.h"
 #include "Character/SSCharacterMovementComponent.h"
 
 
@@ -22,9 +23,9 @@ ASonic::ASonic(const FObjectInitializer& ObjectInitializer)
 
 	GetCapsuleComponent()->SetCapsuleHalfHeight(65.0f);
 	
-	//Bump up all meshes so it gets within the capsule
-	GetMesh()->SetRelativeLocation(FVector(GetMesh()->GetRelativeLocation().X, GetMesh()->GetRelativeLocation().Y, GetMesh()->GetRelativeLocation().Z + 44.f-13.f));
-	GetPOVMesh()->SetRelativeLocation(FVector(GetPOVMesh()->GetRelativeLocation().X, GetPOVMesh()->GetRelativeLocation().Y, GetPOVMesh()->GetRelativeLocation().Z + 44.f - 13.f));
+	////Bump up all meshes so it gets within the capsule
+	//GetMesh()->SetRelativeLocation(FVector(GetMesh()->GetRelativeLocation().X, GetMesh()->GetRelativeLocation().Y, GetMesh()->GetRelativeLocation().Z + 44.f-13.f));
+	//GetPOVMesh()->SetRelativeLocation(FVector(GetPOVMesh()->GetRelativeLocation().X, GetPOVMesh()->GetRelativeLocation().Y, GetPOVMesh()->GetRelativeLocation().Z + 44.f - 13.f));
 
 	GetCameraBoom()->SetRelativeLocation(FVector(GetCameraBoom()->GetRelativeLocation().X, GetCameraBoom()->GetRelativeLocation().Y, 39.f));
 }
@@ -58,10 +59,10 @@ void ASonic::Tick(float DeltaSeconds)
 	//}
 	//if (IsLocallyControlled())
 	//{
-		//if (GetCharacterAttributeSet())
-		//{
-		//	UKismetSystemLibrary::PrintString(this, GetCharacterAttributeSet()->GetStaminaAttribute().AttributeName + ": " + FString::SanitizeFloat(GetCharacterAttributeSet()->GetStamina()), true, false);
-		//}
+	//	if (GetStaminaAttributeSet())
+	//	{
+	//		UKismetSystemLibrary::PrintString(this, GetStaminaAttributeSet()->GetStaminaAttribute().AttributeName + ": " + FString::SanitizeFloat(GetStaminaAttributeSet()->GetStamina()), true, false);
+	//	}
 	//}
 }
 

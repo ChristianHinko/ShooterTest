@@ -17,7 +17,7 @@ class AUTOSETTINGS_API URadioSelectSetting : public USelectSetting
 public:
 
 	// RadioButton class to create for each option
-	UPROPERTY(EditAnywhere, NoClear, Category = "Radio Select Setting")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, NoClear, Category = "Radio Select Setting")
 	TSubclassOf<URadioButton> RadioButtonClass;
 
 protected:

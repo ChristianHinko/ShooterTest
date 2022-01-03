@@ -35,6 +35,8 @@ class ARCINVENTORY_API UArcInventoryComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
+	friend struct FArcInventoryItemSlot;
+
 	// Sets default values for this component's properties
 	UArcInventoryComponent(const FObjectInitializer& ObjectInitializer);
 
@@ -85,9 +87,6 @@ public:
 
 	virtual UArcItemStack* GetItemInSlot(const FArcInventoryItemSlotReference& Reference);
 	  
-	//UPROPERTY(ReplicatedUsing=OnRep_BagInventory)
-	//TArray<FArcInventoryItemSlot> BagInventory;
-
 	UPROPERTY(BlueprintReadWrite, Category = "Inventory")
 		FArcInventoryItemSlotReference SwapFromSlot;
 
@@ -102,6 +101,8 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Arc|Inventory")
 	virtual TArray<FArcInventoryItemSlotReference> GetAllSlotReferences();
+
+	void PopulateSlotReferenceArray(TArray<FArcInventoryItemSlotReference>& RefArray);
 
 
 	UPROPERTY(BlueprintAssignable, Category = "Arc|Inventory")
@@ -124,9 +125,16 @@ public:
 	virtual class UAbilitySystemComponent* GetOwnerAbilitySystem();
 
 
+
 private:
 	UPROPERTY(Replicated)
 	FArcInventoryItemSlotArray BagInventory;
+
+	TArray<FArcInventoryItemSlotReference> AllReferences;
+
+	int32 IdCounter;
+
+	void PostInventoryUpdate();
 
 	//Inventory Searching
 public:
@@ -139,6 +147,54 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory | Item Queries", meta = (ScriptName = "ItemQuery_GetAllItems"))
 	void Query_GetAllItems(const FArcInventoryQuery& Query, TArray<UArcItemStack*>& OutItems);
 
+	//Iterate through each item slot.
+	//Lambda looks like this: [](const FArcInventoryItemSlot& Slot) { }
+	template<typename PRED>
+	void ForEachItemSlot_ReadOnly(PRED Predicate) const
+	{
+		ForEachItemSlot_ReadOnly(FArcInventoryQuery(), Predicate);
+	}
+
+	//Iterate through each item slot, matching a slot query.
+	//Lambda looks like this: [](const FArcInventoryItemSlot& Slot) { }
+	template<typename PRED>
+	void ForEachItemSlot_ReadOnly(const FArcInventoryQuery& Query, PRED Predicate) const
+	{
+		for (const FArcInventoryItemSlot& ItemSlot : BagInventory.Slots)
+		{
+			if (Query.MatchesSlot(ItemSlot)) 
+			{
+				Predicate(ItemSlot);				
+			}
+		}
+	}
+
+	//Iterate through each item slot.
+	//Note: This is a writable version.  It will mark any item slot touched for replication, regardless of changes
+	//Use the _ReadOnly version if you are just trying to read the slots
+	//Lambda looks like this: [](FArcInventoryItemSlot& Slot) { }
+	template<typename PRED>
+	void ForEachItemSlot_Mutable(PRED Predicate)
+	{
+		ForEachItemSlot_Mutable(FArcInventoryQuery(), Predicate);
+	}
+
+	//Iterate through each item slot, matching a slot query.
+	//Note: This is a writable version.  It will mark any item slot touched for replication, regardless of changes
+	//Use the _ReadOnly version if you are just trying to read the slots
+	//Lambda looks like this: [](FArcInventoryItemSlot& Slot) { }
+	template<typename PRED>
+	void ForEachItemSlot_Mutable(const FArcInventoryQuery& Query, PRED Predicate)
+	{
+		for (FArcInventoryItemSlot& ItemSlot : BagInventory.Slots)
+		{
+			if (Query.MatchesSlot(ItemSlot))
+			{
+				Predicate(ItemSlot);
+				BagInventory.MarkItemDirty(ItemSlot);
+			}
+		}
+	}
 
 	//Debugging Section
 public:

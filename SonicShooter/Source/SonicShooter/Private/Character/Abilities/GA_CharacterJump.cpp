@@ -3,8 +3,9 @@
 
 #include "Character/Abilities/GA_CharacterJump.h"
 
-#include "Character/AbilitySystemCharacter.h"
+#include "Character/SSCharacter.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
 #include "Character/SSCharacterMovementComponent.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -13,39 +14,44 @@
 
 UGA_CharacterJump::UGA_CharacterJump()
 {
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Movement.Jump")));
+	AbilityInputID = EAbilityInputID::Jump;
+	AbilityTags.AddTag(Tag_JumpAbility);
 
 
-	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Movement.Crouch"));
-	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Movement.Run"));
+	CancelAbilitiesWithTag.AddTag(Tag_CrouchAbility);
+	CancelAbilitiesWithTag.AddTag(Tag_RunAbility);
 }
 
 
 void UGA_CharacterJump::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-	Super::OnAvatarSet(ActorInfo, Spec);
+	TryCallOnAvatarSetOnPrimaryInstance
+		Super::OnAvatarSet(ActorInfo, Spec);
 
 	// Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times
 	if (!ActorInfo)
 	{
 		return;
 	}
-	if (!ActorInfo->AvatarActor.Get())
+	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
+	if (!AvatarActor)
 	{
 		return;
 	}
 
 
-	GASCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
-	if (!GASCharacter)
+	SSCharacter = Cast<ASSCharacter>(AvatarActor);
+	if (SSCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL"), *FString(__FUNCTION__));
+		CMC = SSCharacter->GetSSCharacterMovementComponent();
+		if (!CMC)
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetCharacterMovement was NULL"), *FString(__FUNCTION__));
+		}
 	}
-
-	CMC = GASCharacter->GetSSCharacterMovementComponent();
-	if (!CMC)
+	else
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetSSCharacterMovementComponent was NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL"), *FString(__FUNCTION__));
 	}
 }
 
@@ -56,9 +62,9 @@ bool UGA_CharacterJump::CanActivateAbility(const FGameplayAbilitySpecHandle Hand
 		return false;
 	}
 
-	if (!GASCharacter)
+	if (!SSCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
 	if (!CMC)
@@ -106,7 +112,7 @@ void UGA_CharacterJump::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 
 void UGA_CharacterJump::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-  	if (!IsEndAbilityValid(Handle, ActorInfo))
+	if (!IsEndAbilityValid(Handle, ActorInfo))
 	{
 		return;
 	}

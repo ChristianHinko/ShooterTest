@@ -30,7 +30,7 @@ public:
 
 	// If true will use the Key Group of the owning player
 	// See InputMappingManager SetPlayerKeyGroup
-	UPROPERTY(EditAnywhere, Category = "Input Label")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input Label")
 	bool bUsePlayerKeyGroup;
 
 	// Tags to determine which key icon should be used

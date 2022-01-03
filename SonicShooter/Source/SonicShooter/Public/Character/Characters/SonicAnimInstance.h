@@ -3,23 +3,38 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/ShooterCharacterAnimInstance.h"
+#include "Character/AI_ShooterCharacter.h"
+
 #include "SonicAnimInstance.generated.h"
+
+
 
 /**
  * 
  */
 UCLASS()
-class SONICSHOOTER_API USonicAnimInstance : public UShooterCharacterAnimInstance
+class SONICSHOOTER_API USonicAnimInstance : public UAI_ShooterCharacter
 {
 	GENERATED_BODY()
 
+public:
+	USonicAnimInstance(const FObjectInitializer& ObjectInitializer);
+
+	UMaterialInstanceDynamic* REyeDynamicMat;
+	UMaterialInstanceDynamic* LEyeDynamicMat;
+
 protected:
+	virtual void NativeInitializeAnimation() override;
+	virtual void NativeUpdateAnimation(float DeltaTimeX) override;
+
+
 
 	AActor* LookTarget;
 
 	UPROPERTY(BlueprintReadOnly)
-		FRotator lookRot;
+		FRotator RightEyelookRot;
+	UPROPERTY(BlueprintReadOnly)
+		FRotator LeftEyelookRot;
 
 
 	UPROPERTY(BlueprintReadWrite)
@@ -36,14 +51,6 @@ protected:
 		float lEyeLookAtAlpha;
 
 
-	FRotator Look(AActor* lookTarget, float deltaTime);
-
-public:
-	USonicAnimInstance();
-	virtual void NativeInitializeAnimation() override;
-	virtual void NativeUpdateAnimation(float DeltaTimeX) override;
-
-	UMaterialInstanceDynamic* REyeDynamicMat;
-	UMaterialInstanceDynamic* LEyeDynamicMat;
+	FRotator Look(FName boneName, AActor* lookTarget, float deltaTime);
 
 };

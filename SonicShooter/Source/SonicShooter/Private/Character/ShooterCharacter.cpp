@@ -4,12 +4,16 @@
 #include "Character/ShooterCharacter.h"
 
 #include "Net/UnrealNetwork.h"
+#include "Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
 #include "ActorComponents/InteractorComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
 #include "ArcItemStack.h"
+#include "AbilitySystem/ASSGameplayAbility.h"
+#include "AttributeSets/AS_Health.h"
 
 
 
@@ -17,32 +21,39 @@ void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+
+	DOREPLIFETIME(AShooterCharacter, HealthAttributeSet);
+
+
 	DOREPLIFETIME_CONDITION(AShooterCharacter, InteractInstantAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, InteractDurationAbilitySpecHandle, COND_OwnerOnly);
 
 	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToLastActiveItemAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToNextItemAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToPreviousItemAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToItem0AbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToItem1AbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToItem2AbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToItem3AbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToItem4AbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToFirstItemAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToSecondItemAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToThirdItemAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToFourthItemAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToFifthItemAbilitySpecHandle, COND_OwnerOnly);
 
 	DOREPLIFETIME_CONDITION(AShooterCharacter, DropItemAbilitySpecHandle, COND_OwnerOnly);
 }
 
-FName AShooterCharacter::InventoryComponentName(TEXT("InventoryComponent"));
+const FName AShooterCharacter::InventoryComponentName(TEXT("InventoryComponent"));
 
 AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<USSArcInventoryComponent_Active>(InventoryComponentName))
 {
+	// Default to first person
+	bFirstPerson = true;
+	bUseControllerRotationYaw = true; // let the camera rotation determine our yaw
+	GetCharacterMovement()->bOrientRotationToMovement = false; // don't rotate theCharacter in the movement direction
+
+
+
 	InventoryComponent = CreateDefaultSubobject<UArcInventoryComponent>(InventoryComponentName);
 	SSInventoryComponentActive = Cast<USSArcInventoryComponent_Active>(InventoryComponent);
-
-
-	OnServerAknowledgeClientSetupAbilitySystem.AddUObject(this, &AShooterCharacter::RefreshInventoryAbilitySystemInfo);
-
 
 
 	Interactor = CreateDefaultSubobject<UInteractorComponent>(TEXT("Interactor"));
@@ -51,57 +62,133 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 	AddedCameraSwayDuringADS = FVector(0, -1.1f, -.1f);
 }
 
-bool AShooterCharacter::GrantStartingAbilities()
+void AShooterCharacter::PossessedBy(AController* NewController)
 {
-	if (Super::GrantStartingAbilities() == false)
-	{
-		return false;	// Did not pass predefined checks
-	}
-	//	We are on authority and have a valid ASC to work with
+	Super::PossessedBy(NewController);
 
-	InteractInstantAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractInstantAbilityTSub, this, EAbilityInputID::Interact/*, GetLevel()*/);
-	InteractDurationAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractDurationAbilityTSub, this, EAbilityInputID::Interact/*, GetLevel()*/);
 
-	SwapToLastActiveItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToLastActiveItemAbilityTSub, this, EAbilityInputID::SwitchWeapon/*, GetLevel()*/);
-	SwapToNextItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToNextItemAbilityTSub, this, EAbilityInputID::NextItem/*, GetLevel()*/);
-	SwapToPreviousItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToPreviousItemAbilityTSub, this, EAbilityInputID::PreviousItem/*, GetLevel()*/);
-	SwapToItem0AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem0AbilityTSub, this, EAbilityInputID::Item0/*, GetLevel()*/);
-	SwapToItem1AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem1AbilityTSub, this, EAbilityInputID::Item1/*, GetLevel()*/);
-	SwapToItem2AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem2AbilityTSub, this, EAbilityInputID::Item2/*, GetLevel()*/);
-	SwapToItem3AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem3AbilityTSub, this, EAbilityInputID::Item3/*, GetLevel()*/);
-	SwapToItem4AbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToItem4AbilityTSub, this, EAbilityInputID::Item4/*, GetLevel()*/);
-
-	DropItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(DropItemAbilityTSub, this, EAbilityInputID::DropItem/*, GetLevel()*/);
-
-	return true;
 }
 
-void AShooterCharacter::RefreshInventoryAbilitySystemInfo()
+void AShooterCharacter::BeginPlay()
 {
-	if (USSArcInventoryComponent_Active* Inventory = SSInventoryComponentActive)
-	{
-		// Make the inventory re-give us our item's abilities and attribute sets and stuff
-		Inventory->MakeItemActive(Inventory->GetActiveItemSlot());
-	}
+	Super::BeginPlay();
+
 }
-void AShooterCharacter::UnPossessed()
+
+void AShooterCharacter::CreateAttributeSets()
 {
-	Super::UnPossessed();
+	Super::CreateAttributeSets();
 
 
-	if (USSArcInventoryComponent_Active* Inventory = SSInventoryComponentActive)
+	if (!HealthAttributeSet)
 	{
-		// Clear ability system stuff from inventory for this ASC
-		Inventory->MakeItemInactive();
+		HealthAttributeSet = NewObject<UAS_Health>(this, UAS_Health::StaticClass(), TEXT("HealthAttributeSet"));
+	}
+	else
+	{
+		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), *FString(__FUNCTION__), *HealthAttributeSet->GetName());
 	}
 }
 
-//#include "Kismet/KismetSystemLibrary.h"
+void AShooterCharacter::RegisterAttributeSets()
+{
+	Super::RegisterAttributeSets();
+
+
+	if (HealthAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(HealthAttributeSet))	// If HealthAttributeSet is valid and it's not yet registered with the Character's ASC
+	{
+		GetAbilitySystemComponent()->AddAttributeSetSubobject(HealthAttributeSet);
+	}
+	else
+	{
+		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() HealthAttributeSet was either NULL or already added to the character's ASC. Character: %s"), *FString(__FUNCTION__), *GetName());
+	}
+}
+void AShooterCharacter::GrantStartingAbilities()
+{
+	Super::GrantStartingAbilities();
+
+
+	InteractInstantAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractInstantAbilityTSub, this/*, GetLevel()*/);
+	InteractDurationAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractDurationAbilityTSub, this/*, GetLevel()*/);
+
+	SwapToLastActiveItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToLastActiveItemAbilityTSub, this/*, GetLevel()*/);
+	SwapToNextItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToNextItemAbilityTSub, this/*, GetLevel()*/);
+	SwapToPreviousItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToPreviousItemAbilityTSub, this/*, GetLevel()*/);
+	SwapToFirstItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToFirstItemAbilityTSub, this/*, GetLevel()*/);
+	SwapToSecondItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToSecondItemAbilityTSub, this/*, GetLevel()*/);
+	SwapToThirdItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToThirdItemAbilityTSub, this/*, GetLevel()*/);
+	SwapToFourthItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToFourthItemAbilityTSub, this/*, GetLevel()*/);
+	SwapToFifthItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToFifthItemAbilityTSub, this/*, GetLevel()*/);
+
+	DropItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(DropItemAbilityTSub, this/*, GetLevel()*/);
+
+}
+
+#include "Kismet/KismetSystemLibrary.h"
+#include "AttributeSets/AS_Health.h"
+#include "Item/AS_Ammo.h"
+#include "AbilitySystem/AttributeSets/AS_Stamina.h"
+#include "ArcItemBPFunctionLibrary.h"
+#include "Item\ArcItemDefinition_New.h"
 //#include "Kismet/KismetMathLibrary.h"
 //#include "GameFramework/SpringArmComponent.h"
 void AShooterCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	if (GetHealthAttributeSet())
+	{
+		//UKismetSystemLibrary::PrintString(this, FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
+	}
+
+	//for (int32 i = 0; i < SSInventoryComponentActive->ActiveItemHistory.Num(); ++i)
+	//{
+	//	FArcInventoryItemSlotReference current = SSInventoryComponentActive->ActiveItemHistory[i];
+
+	//	UKismetSystemLibrary::PrintString(this, "["+FString::FromInt(current.SlotId)+"] " + current.SlotTags.GetByIndex(1).ToString(), true, false, FLinearColor::Green);
+	//}
+
+	if (SSInventoryComponentActive)
+	{
+		//UKismetSystemLibrary::PrintString(this, "Current Item Slot: " + FString::FromInt(SSInventoryComponentActive->GetActiveItemSlot().SlotId), true, false);
+		//UKismetSystemLibrary::PrintString(this, "Pending Item Slot: " + FString::FromInt(SSInventoryComponentActive->PendingItemSlot), true, false);
+	}
+
+	if (GetAbilitySystemComponent())
+	{
+		for (UAttributeSet* AttributeSet : GetAbilitySystemComponent()->GetSpawnedAttributes())
+		{
+			//if (UAS_Ammo* AmmoAttributeSet = Cast<UAS_Ammo>(AttributeSet))
+			//{
+			//	UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetBackupAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetBackupAmmo()), true, false);
+			//	UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->ClipAmmo.GetPropertyName().ToString() + ": " + FString::SanitizeFloat(AmmoAttributeSet->ClipAmmo), true, false);
+			//}
+
+			//if (UAS_Stamina* FoundStaminaAttributeSet = Cast<UAS_Stamina>(AttributeSet))
+			//{
+			//	UKismetSystemLibrary::PrintString(this, FoundStaminaAttributeSet->Stamina.GetPropertyName().ToString() + ": " + FString::SanitizeFloat(FoundStaminaAttributeSet->Stamina), true, false);
+			//}
+		}
+
+	}
+
+	//}
+
+	//	Item history debug
+	//UKismetSystemLibrary::PrintString(this, "------------", true, false);
+	//if (SSInventoryComponentActive)
+	//{
+	//	for (FArcInventoryItemSlotReference slotRef : SSInventoryComponentActive->ActiveItemHistory)
+	//	{
+	//		UKismetSystemLibrary::PrintString(this, UArcItemBPFunctionLibrary::GetItemFromSlot(slotRef)->GetItemDefinition().GetDefaultObject()->GetFName().ToString(), true, false);
+
+	//	}
+	//}
+	//UKismetSystemLibrary::PrintString(this, "-----------", true, false);
+
+
+	
 
 	//float frameHorizontalMouseRate = 0;
 	//float frameVerticalMouseRate = 0;
@@ -161,7 +248,24 @@ void AShooterCharacter::OnPrimaryFirePressed()
 {
 	if (GetAbilitySystemComponent())
 	{
-		GetAbilitySystemComponent()->TryActivateAbilitiesByTag(FGameplayTag::RequestGameplayTag(FName("Ability.Fire")).GetSingleTagContainer());
+		TArray<FGameplayAbilitySpec*> Specs; // our found specs
+		GetAbilitySystemComponent()->GetActivatableGameplayAbilitySpecsByAllMatchingTags(Tag_AbilityInputPrimaryFire.GetTag().GetSingleTagContainer(), Specs);
+
+		for (FGameplayAbilitySpec* Spec : Specs)
+		{
+			// Our spec handle to activate
+			FGameplayAbilitySpecHandle Handle = Spec->Handle;
+
+			GetAbilitySystemComponent()->TryActivateAbility(Handle);
+		}
+	}
+}
+
+void AShooterCharacter::OnReloadPressed()
+{
+	if (GetAbilitySystemComponent())
+	{
+		GetAbilitySystemComponent()->TryActivateAbilitiesByTag(Tag_ReloadAbility.GetTag().GetSingleTagContainer());
 	}
 }
 
@@ -169,25 +273,25 @@ void AShooterCharacter::OnSwitchWeaponPressed()
 {
 	GetAbilitySystemComponent()->TryActivateAbility(SwapToLastActiveItemAbilitySpecHandle);
 }
-void AShooterCharacter::OnItem0Pressed()
+void AShooterCharacter::OnFirstItemPressed()
 {
-	GetAbilitySystemComponent()->TryActivateAbility(SwapToItem0AbilitySpecHandle);
+	GetAbilitySystemComponent()->TryActivateAbility(SwapToFirstItemAbilitySpecHandle);
 }
-void AShooterCharacter::OnItem1Pressed()
+void AShooterCharacter::OnSecondItemPressed()
 {
-	GetAbilitySystemComponent()->TryActivateAbility(SwapToItem1AbilitySpecHandle);
+	GetAbilitySystemComponent()->TryActivateAbility(SwapToSecondItemAbilitySpecHandle);
 }
-void AShooterCharacter::OnItem2Pressed()
+void AShooterCharacter::OnThirdItemPressed()
 {
-	GetAbilitySystemComponent()->TryActivateAbility(SwapToItem2AbilitySpecHandle);
+	GetAbilitySystemComponent()->TryActivateAbility(SwapToThirdItemAbilitySpecHandle);
 }
-void AShooterCharacter::OnItem3Pressed()
+void AShooterCharacter::OnFourthItemPressed()
 {
-	GetAbilitySystemComponent()->TryActivateAbility(SwapToItem3AbilitySpecHandle);
+	GetAbilitySystemComponent()->TryActivateAbility(SwapToFourthItemAbilitySpecHandle);
 }
-void AShooterCharacter::OnItem4Pressed()
+void AShooterCharacter::OnFifthItemPressed()
 {
-	GetAbilitySystemComponent()->TryActivateAbility(SwapToItem4AbilitySpecHandle);
+	GetAbilitySystemComponent()->TryActivateAbility(SwapToFifthItemAbilitySpecHandle);
 }
 void AShooterCharacter::OnNextItemPressed()
 {
@@ -200,15 +304,22 @@ void AShooterCharacter::OnPreviousItemPressed()
 
 void AShooterCharacter::OnPausePressed()
 {
+	Super::OnPausePressed();
 }
 
 void AShooterCharacter::OnScoreSheetPressed()
 {
+	Super::OnScoreSheetPressed();
 }
 
 void AShooterCharacter::OnDropItemPressed()
 {
-	GetAbilitySystemComponent()->TryActivateAbility(DropItemAbilitySpecHandle);
+	FArcInventoryItemSlotReference ActiveItem = SSInventoryComponentActive->GetActiveItemSlot();
+	if (SSInventoryComponentActive->IsValidActiveItemSlot(ActiveItem.SlotId))
+	{
+		SSInventoryComponentActive->PendingItemDrop = SSInventoryComponentActive->GetActiveItemSlot();
+		GetAbilitySystemComponent()->TryActivateAbility(DropItemAbilitySpecHandle, true);
+	}
 }
 
 

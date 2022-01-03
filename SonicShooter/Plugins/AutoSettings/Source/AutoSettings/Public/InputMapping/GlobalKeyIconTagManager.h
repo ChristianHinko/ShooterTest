@@ -32,7 +32,7 @@ public:
 
 	// Get icon for key including global icon tags
 	UFUNCTION(BlueprintPure, Category = "Key Icons")
-	static class UTexture* GetIconForKey(FKey InKey, FGameplayTagContainer IconTags);
+	static class UTexture* GetIconForKey(FKey InKey, FGameplayTagContainer IconTags, float AxisScale = 0.f);
 	
 private:
 	static UGlobalKeyIconTagManager* Singleton;

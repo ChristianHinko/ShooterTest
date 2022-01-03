@@ -3,18 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSGameplayAbility.h"
+#include "AbilitySystem/ASSGameplayAbility.h"
 
 #include "GA_CharacterJump.generated.h"
 
-class AAbilitySystemCharacter;
+
+class ASSCharacter;
 class USSCharacterMovementComponent;
+
+
 
 /**
  * This is a nice minimal implementation of the CMC jumping into the ability system
  */
 UCLASS()
-class SONICSHOOTER_API UGA_CharacterJump : public USSGameplayAbility
+class SONICSHOOTER_API UGA_CharacterJump : public UASSGameplayAbility
 {
 	GENERATED_BODY()
 
@@ -27,7 +30,7 @@ protected:
 	FActiveGameplayEffectHandle JumpEffectActiveHandle;
 
 	UPROPERTY()
-		AAbilitySystemCharacter* GASCharacter;
+		ASSCharacter* SSCharacter;
 	UPROPERTY()
 		USSCharacterMovementComponent* CMC;
 

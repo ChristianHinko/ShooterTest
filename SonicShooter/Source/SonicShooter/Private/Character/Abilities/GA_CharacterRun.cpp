@@ -3,9 +3,10 @@
 
 #include "Character\Abilities\GA_CharacterRun.h"
 
-#include "Character/AbilitySystemCharacter.h"
+#include "Character/SSCharacter.h"
 #include "Character/SSCharacterMovementComponent.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -13,41 +14,45 @@
 
 UGA_CharacterRun::UGA_CharacterRun()
 {
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Movement.Run")));
+	AbilityInputID = EAbilityInputID::Run;
+	AbilityTags.AddTag(Tag_RunAbility);
 
 
-	FGameplayTag RunDisabledTag = FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled");
-	ActivationBlockedTags.AddTag(RunDisabledTag);	// This isn't the singular thing stopping you from running. The CMC is what listens for the presence of the RunDisabledTag and blocks running. This check just saves an ability activation.
+	ActivationBlockedTags.AddTag(Tag_RunDisabled);	// This isn't the singular thing stopping you from running. The CMC is what listens for the presence of the RunDisabledTag and blocks running. This check just saves an ability activation.
 
-	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Movement.Crouch"));
+	CancelAbilitiesWithTag.AddTag(Tag_CrouchAbility);
 }
 
 
 void UGA_CharacterRun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-	Super::OnAvatarSet(ActorInfo, Spec);
+	TryCallOnAvatarSetOnPrimaryInstance
+		Super::OnAvatarSet(ActorInfo, Spec);
 
 	// Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times
 	if (!ActorInfo)
 	{
 		return;
 	}
-	if (!ActorInfo->AvatarActor.Get())
+	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
+	if (!AvatarActor)
 	{
 		return;
 	}
 
 
-	GASCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
-	if (!GASCharacter)
+	SSCharacter = Cast<ASSCharacter>(AvatarActor);
+	if (SSCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL"), *FString(__FUNCTION__));
-		return;
+		CMC = SSCharacter->GetSSCharacterMovementComponent();
+		if (!CMC)
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetSSCharacterMovementComponent was NULL"), *FString(__FUNCTION__));
+		}
 	}
-	CMC = GASCharacter->GetSSCharacterMovementComponent();
-	if (!CMC)
+	else
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetSSCharacterMovementComponent was NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL"), *FString(__FUNCTION__));
 	}
 }
 
@@ -59,9 +64,9 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 		return false;
 	}
 
-	if (!GASCharacter)
+	if (!SSCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
 	if (!CMC)

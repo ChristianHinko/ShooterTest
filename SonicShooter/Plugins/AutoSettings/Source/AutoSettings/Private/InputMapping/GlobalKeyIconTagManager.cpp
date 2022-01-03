@@ -25,8 +25,8 @@ void UGlobalKeyIconTagManager::SetGlobalKeyIconTags(FGameplayTagContainer InGlob
 	}
 }
 
-UTexture* UGlobalKeyIconTagManager::GetIconForKey(FKey InKey, FGameplayTagContainer IconTags)
+UTexture* UGlobalKeyIconTagManager::GetIconForKey(FKey InKey, FGameplayTagContainer IconTags, float AxisScale)
 {
 	IconTags.AppendTags(Get()->GlobalKeyIconTags);
-	return GetDefault<UAutoSettingsConfig>()->GetIconForKey(InKey, IconTags);
+	return GetDefault<UAutoSettingsConfig>()->GetIconForKey(InKey, IconTags, AxisScale);
 }

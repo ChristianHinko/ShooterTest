@@ -18,11 +18,11 @@ class AUTOSETTINGS_API URadioSelect : public UUserWidget
 	
 public:
 	// Option definitions
-	UPROPERTY(EditAnywhere, Category = "Radio Select")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Radio Select")
 	TArray<FSettingOption> Options;
 
 	// RadioButton class to create for each option
-	UPROPERTY(EditAnywhere, NoClear, Category = "Radio Select")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, NoClear, Category = "Radio Select")
 	TSubclassOf<URadioButton> RadioButtonClass;
 
 	// Fired when the selection changes

@@ -28,7 +28,7 @@ public:
 protected:
 	// Mapping group index - if an input has multiple mappings, this will determine which one to use
 	// A value of -1 will use the first mapping group available
-	UPROPERTY(EditAnywhere, Category = "Input Mapping")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input Mapping")
 	int32 MappingGroup;
 
 	// Tag of key group to use - useful for separating groups of keys from each other such as gamepad from keyboard

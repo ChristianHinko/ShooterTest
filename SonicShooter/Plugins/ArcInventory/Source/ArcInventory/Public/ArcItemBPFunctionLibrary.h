@@ -82,6 +82,9 @@ public:
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Equal FArcInventoryItemSlotReference", CompactNodeTitle = "==", Keywords = "== equal"), Category = "Arc|Inventory")
 	static bool EqualEqual_FArcInventoryItemSlotReference(const FArcInventoryItemSlotReference& ItemSlotRef, const FArcInventoryItemSlotReference& OtherItemSlotRef);
 
+	UFUNCTION(BlueprintPure, Category = "Arc|Inventory")
+	static UArcInventoryComponent* GetInventoryFromSlot(const FArcInventoryItemSlotReference& ItemSlotRef);
+
 	/////INVENTORY QUERY
 	UFUNCTION(BlueprintPure, Category = "Arc|Inventory")
 	static bool IsValidInventoryQuery(const FArcInventoryQuery& Query);	
@@ -94,9 +97,5 @@ public:
 	static bool ASCHasAttributeSet(UAbilitySystemComponent* ASC, TSubclassOf<UAttributeSet> AttributeSetClass);
 	static bool ASCAddInstancedAttributeSet(UAbilitySystemComponent* ASC, UAttributeSet* AttributeSet);
 	static bool ASCRemoveInstancedAttributeSet(UAbilitySystemComponent* ASC, UAttributeSet* AttributeSet);
-
-
-	UFUNCTION(BlueprintCallable, Category = "Arc|Inventory|Editor")
-	static void ConvertOldAttributeModelToNew(TSubclassOf<class UArcItemDefinition_Equipment> EquipmentItemDef);
 };
 

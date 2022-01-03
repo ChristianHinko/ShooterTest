@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem\SSGameplayAbility.h"
+#include "AbilitySystem\ASSGameplayAbility.h"
 #include "Interfaces/Interactable.h"
 #include "GA_CharacterAutoInteract.generated.h"
 
@@ -13,7 +13,7 @@ class AShooterCharacter;
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UGA_CharacterAutoInteract : public USSGameplayAbility
+class SONICSHOOTER_API UGA_CharacterAutoInteract : public UASSGameplayAbility
 {
 	GENERATED_BODY()
 

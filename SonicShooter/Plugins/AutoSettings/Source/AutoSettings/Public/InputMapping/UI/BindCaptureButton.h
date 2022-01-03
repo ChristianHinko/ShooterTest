@@ -24,7 +24,7 @@ public:
 	FGameplayTag KeyGroup;
 
 	// BindCapturePrompt class to create when button is clicked
-	UPROPERTY(EditAnywhere, NoClear, Category = "Bind Capture Button")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, NoClear, Category = "Bind Capture Button")
 	TSubclassOf<UBindCapturePrompt> BindCapturePromptClass;
 
 	// Z-order to open capture prompts with

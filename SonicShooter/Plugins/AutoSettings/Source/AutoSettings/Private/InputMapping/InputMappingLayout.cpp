@@ -1,5 +1,6 @@
 ﻿#include "InputMapping/InputMappingLayout.h"
 #include "Misc/AutoSettingsConfig.h"
+#include "GameFramework/PlayerController.h"
 
 TArray<int32> FInputMappingLayout::GetMappingGroupsToUnbind(int32 SourceMappingGroup) const
 {
@@ -20,7 +21,7 @@ void FInputMappingLayout::SetMappings(TArray<FInputActionKeyMapping> ActionMappi
 {
 	MappingGroups.Empty();
 
-	for (const FInputActionKeyMapping Action : ActionMappings)
+	for (const FInputActionKeyMapping& Action : ActionMappings)
 	{
 		// Find first group without that action
 		bool FoundGroup = false;
@@ -40,7 +41,7 @@ void FInputMappingLayout::SetMappings(TArray<FInputActionKeyMapping> ActionMappi
 		}
 	}
 
-	for (const FInputAxisKeyMapping Axis : AxisMappings)
+	for (const FInputAxisKeyMapping& Axis : AxisMappings)
 	{
 		// Find first group without that axis
 		const bool bIsAxisKey = GetDefault<UAutoSettingsConfig>()->IsAxisKey(Axis.Key);

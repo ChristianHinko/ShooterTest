@@ -142,7 +142,7 @@ IInteractable* UInteractorComponent::ScanForCurrentPrioritizedInteractable(FHitR
 	// Try to return an interactable that is overlapping with the capsule component. It chooses the most recent one you overlap with (top of the stack). 
 	if (CurrentOverlapInteractablesStack.Num() > 0)
 	{
-		for (int32 i = CurrentOverlapInteractablesStack.Num() - 1; i >= 0; i--)
+		for (int32 i = CurrentOverlapInteractablesStack.Num() - 1; i >= 0; --i)
 		{
 			if (CurrentOverlapInteractablesStack.IsValidIndex(i))
 			{

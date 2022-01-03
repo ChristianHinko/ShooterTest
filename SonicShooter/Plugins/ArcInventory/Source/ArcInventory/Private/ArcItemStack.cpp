@@ -3,7 +3,13 @@
 #include "ArcItemStack.h"
 #include "ArcInventory.h"
 
-#include "Engine/ActorChannel.h"
+#include "Net/UnrealNetwork.h"
+
+#include "Engine/ActorChannel.h" 
+#include "Engine/NetDriver.h"
+#include "Engine/NetConnection.h"
+
+#include "GameFramework/PlayerController.h"
 
 
 UArcItemStack::UArcItemStack(const FObjectInitializer& ObjectInitializer)
@@ -11,6 +17,7 @@ UArcItemStack::UArcItemStack(const FObjectInitializer& ObjectInitializer)
 {
 	StackSize = 1;
 	ItemName = NSLOCTEXT("ItemStack", "DefaultItemName", "Default Item Name");
+	SubItemStacks.ParentStack = this;
 }
 
 const int32 Method_Rename = 0;
@@ -24,10 +31,11 @@ void UArcItemStack::TransferStackOwnership(UArcItemStack*& ItemStack, AActor* Ow
 	{		
 		ItemStack->Rename(nullptr, Owner);
 		//Recursively rename out substacks
-		for (UArcItemStack* SubStack : ItemStack->SubItemStacks)
+		for (FArcSubItemArrayEntry& SubStack : ItemStack->SubItemStacks.Items)
 		{
-			TransferStackOwnership(SubStack, Owner);
+			TransferStackOwnership(SubStack.SubItemStack, Owner);
 		}
+		ItemStack->SubItemStacks.MarkArrayDirty();
 	}
 	else if (TransferMethod == Method_Duplicate)
 	{
@@ -44,27 +52,27 @@ void UArcItemStack::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty> &
 	DOREPLIFETIME(UArcItemStack, Rarity);
 	DOREPLIFETIME(UArcItemStack, ItemDefinition);
 	DOREPLIFETIME(UArcItemStack, SubItemStacks);
-	DOREPLIFETIME_CONDITION(UArcItemStack, ItemName, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(UArcItemStack, StackSize, COND_OwnerOnly);
+	DOREPLIFETIME(UArcItemStack, ItemName);
+	DOREPLIFETIME(UArcItemStack, StackSize);
 }
 
 bool UArcItemStack::ReplicateSubobjects(class UActorChannel *Channel, class FOutBunch *Bunch, FReplicationFlags *RepFlags)
 {
 	bool bWroteSomething = false;
 
-	for (UArcItemStack* SubSack : SubItemStacks)
+	for (FArcSubItemArrayEntry SubStack : SubItemStacks.Items)
 	{
-		bWroteSomething |= Channel->ReplicateSubobject(SubSack, *Bunch, *RepFlags);
-		//bWroteSomething |= SubSack->ReplicateSubobjects(Channel, Bunch, RepFlags);
+		if (IsValid(SubStack.SubItemStack))
+		{
+			bWroteSomething |= Channel->ReplicateSubobject(SubStack.SubItemStack, *Bunch, *RepFlags);
+			bWroteSomething |= SubStack.SubItemStack->ReplicateSubobjects(Channel, Bunch, RepFlags);
+		}
+		
 	}
 
 	return bWroteSomething;
 }
 
-bool UArcItemStack::IsNameStableForNetworking() const
-{
-	return GetOuter()->IsNameStableForNetworking();
-}
 
 bool UArcItemStack::IsSupportedForNetworking() const
 {
@@ -91,19 +99,41 @@ void UArcItemStack::PostDuplicate(EDuplicateMode::Type DuplicateMode)
 	if (DuplicateMode == EDuplicateMode::Normal)
 	{
 		//Duplicate the SubItems
-		TArray<UArcItemStack*> OldSubItems(SubItemStacks);
-		SubItemStacks.Empty(OldSubItems.Num());
+
+		TArray<UArcItemStack*> OldSubItems;
+		GetSubItems(OldSubItems);
+		SubItemStacks.Items.Empty(OldSubItems.Num());
 		for (auto SubItem : OldSubItems)
 		{
 			UArcItemStack* NewSubItem = DuplicateObject(SubItem, GetOuter());
-			SubItemStacks.Add(NewSubItem);
+			AddSubItemStack(NewSubItem);
 		}
 	}
 }
 
 AActor* UArcItemStack::GetOwner() const
 {
-	return Cast<AActor>(GetOuter());
+	return GetTypedOuter<AActor>();
+}
+
+void UArcItemStack::OnRep_Rarity(UArcItemRarity* PreviousRarity)
+{
+	//Blank, so that subclasses can override this function
+}
+
+void UArcItemStack::OnRep_ItemName(FText PreviousItemName)
+{
+	//Blank, so that subclasses can override this function
+}
+
+void UArcItemStack::OnRep_ItemDefinition(TSubclassOf<UArcItemDefinition_New> PreviousItemDefinition)
+{
+	//Blank, so that subclasses can override this function
+}
+
+void UArcItemStack::OnRep_StackSize(int32 PreviousStackSize)
+{
+	//Blank, so that subclasses can override this function
 }
 
 TSubclassOf<UArcItemDefinition_New> UArcItemStack::GetItemDefinition() const
@@ -160,7 +190,7 @@ bool UArcItemStack::MergeItemStacks(UArcItemStack* OtherStack)
 
 	if (StackSize + OtherStack->StackSize > MaxStacks)
 	{
-		int32 Diff = MaxStacks - StackSize;
+		int32 Diff = (MaxStacks + OtherStack->StackSize) - StackSize;
 		StackSize = MaxStacks;
 		OtherStack->StackSize = Diff;
 
@@ -226,19 +256,38 @@ bool UArcItemStack::AddSubItemStack(UArcItemStack* SubItemStack)
 		return false;
 	}
 
-	if (SubItemStacks.Contains(SubItemStack))
+	if (SubItemStacks.Items.ContainsByPredicate([SubItemStack](auto x) { return x.SubItemStack == SubItemStack; }))
 	{
 		return false;
 	}
 
+	if (Cast<AActor>(GetOuter()))
+	{
+		if (SubItemStack->GetOuter() != GetOuter())
+		{
+			TransferStackOwnership(SubItemStack, Cast<AActor>(GetOuter()));
+		}
+	}
+	
+
 	SubItemStack->ParentItemStack = this;
-	return SubItemStacks.AddUnique(SubItemStack) >= 0;
+	FArcSubItemArrayEntry Entry;
+	Entry.SubItemStack = SubItemStack;
+	SubItemStacks.Items.Add(Entry);
+	SubItemStacks.MarkArrayDirty();
+
+	OnSubStackAdded.Broadcast(this, SubItemStack);
+
+	return true;
 }
 
 bool UArcItemStack::RemoveSubItemStack(UArcItemStack* SubItemStack)
 {
-	if (SubItemStacks.Remove(SubItemStack) > 0)
+	if (SubItemStacks.Items.RemoveAll([SubItemStack] (auto x) {return x.SubItemStack == SubItemStack; }) > 0)
 	{
+		SubItemStacks.MarkArrayDirty();
+		OnSubStackRemoved.Broadcast(this, SubItemStack);
+
 		SubItemStack->ParentItemStack = nullptr;
 		return true;
 	}
@@ -252,18 +301,27 @@ UArcUIData_ItemDefinition* UArcItemStack::GetUIData()
 
 UArcItemStack* UArcItemStack::QueryForSubItem(const FGameplayTagQuery& StackQuery)
 {
-	for (UArcItemStack* Stack : SubItemStacks)
+	for (const FArcSubItemArrayEntry& Stack : SubItemStacks.Items)
 	{
 		FGameplayTagContainer TagContainer;
-		Stack->GetOwnedGameplayTags(TagContainer);
+		Stack.SubItemStack->GetOwnedGameplayTags(TagContainer);
 
 		if (StackQuery.Matches(TagContainer))
 		{
-			return Stack;
+			return Stack.SubItemStack;
 		}
 	}
 
 	return nullptr;
+}
+
+void UArcItemStack::GetSubItems(TArray<UArcItemStack*>& SubItemArray)
+{
+	SubItemArray.Empty(SubItemStacks.Items.Num());
+	for (const FArcSubItemArrayEntry& Stack : SubItemStacks.Items)
+	{
+		SubItemArray.Add(Stack.SubItemStack);
+	}
 }
 
 void UArcItemStack::GetDebugStrings(TArray<FString>& OutStrings, bool Detailed) const
@@ -272,9 +330,26 @@ void UArcItemStack::GetDebugStrings(TArray<FString>& OutStrings, bool Detailed) 
 	if (Detailed)
 	{
 		FString RarityName = IsValid(Rarity) ? Rarity->RarityName.ToString() : TEXT("null");
-		OutStrings.Add(FString::Printf(TEXT("StackSize: %d, Rarity: %s, SubItems: %d"), StackSize, *RarityName, SubItemStacks.Num()));
-		
-	}
-	
+		OutStrings.Add(FString::Printf(TEXT("StackSize: %d, Rarity: %s, SubItems: %d"), StackSize, *RarityName, SubItemStacks.Items.Num()));		
+	}	
 }
 
+void FArcSubItemArrayEntry::PreReplicatedRemove(const struct FArcSubItemStackArray& InArraySerializer)
+{
+	if (IsValid(InArraySerializer.ParentStack))
+	{
+		InArraySerializer.ParentStack->OnSubStackRemoved.Broadcast(InArraySerializer.ParentStack, SubItemStack);
+	}
+
+	PreviousStack = InArraySerializer.ParentStack;
+}
+
+void FArcSubItemArrayEntry::PostReplicatedChange(const struct FArcSubItemStackArray& InArraySerializer)
+{
+	if (!PreviousStack.IsValid() && IsValid(InArraySerializer.ParentStack))
+	{
+		InArraySerializer.ParentStack->OnSubStackAdded.Broadcast(InArraySerializer.ParentStack, SubItemStack);
+	}
+
+	PreviousStack = SubItemStack;
+}

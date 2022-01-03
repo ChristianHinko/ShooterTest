@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 #include "GameplayAbilitySpec.h"
-#include "AbilitySystem/SSGameplayAbility.h"
+#include "AbilitySystem/ASSGameplayAbility.h"
 
 #include "Interactable.generated.h"
 

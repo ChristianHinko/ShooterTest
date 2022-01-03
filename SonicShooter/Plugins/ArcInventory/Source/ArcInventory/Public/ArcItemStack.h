@@ -5,11 +5,63 @@
 #include "UObject/NoExportTypes.h"
 #include "CoreMinimal.h"
 #include "Perks/ArcItemPerkTypes.h"
+#include "Engine/NetSerialization.h"
 #include "ArcItemStack.generated.h"
 
 class UArcItemDefinition_New;
 class UArcItemRarity;
 class UArcItemPerkDefinition;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FArcItemStackSubstackEvent, UArcItemStack*, ItemStack, UArcItemStack*, SubItemStack);
+
+USTRUCT()
+struct FArcSubItemArrayEntry : public FFastArraySerializerItem
+{
+	GENERATED_BODY()
+public:
+	FArcSubItemArrayEntry()
+		: SubItemStack(nullptr)
+		, PreviousStack(nullptr)
+	{
+	}
+
+	UPROPERTY()
+	UArcItemStack* SubItemStack;
+
+
+	TWeakObjectPtr<UArcItemStack> PreviousStack;
+
+	void PreReplicatedRemove(const struct FArcSubItemStackArray& InArraySerializer);
+	void PostReplicatedChange(const struct FArcSubItemStackArray& InArraySerializer);
+	
+};
+
+USTRUCT()
+struct FArcSubItemStackArray : public FFastArraySerializer
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY()
+	TArray<FArcSubItemArrayEntry> Items;
+
+	UArcItemStack* ParentStack;
+
+	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms)
+	{
+		return FFastArraySerializer::FastArrayDeltaSerialize<FArcSubItemArrayEntry, FArcSubItemStackArray>(Items, DeltaParms, *this);
+	}
+
+};
+
+template<>
+struct TStructOpsTypeTraits< FArcSubItemStackArray > : public TStructOpsTypeTraitsBase2< FArcSubItemStackArray >
+{
+	enum
+	{
+		WithNetDeltaSerializer = true,
+	};
+};
+
 
 /**
  * 
@@ -27,7 +79,6 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty> & OutLifetimeProps) const override;
 	virtual bool ReplicateSubobjects(class UActorChannel *Channel, class FOutBunch *Bunch, FReplicationFlags *RepFlags);
 
-	virtual bool IsNameStableForNetworking() const override;
 	virtual bool IsSupportedForNetworking() const override;
 
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
@@ -36,26 +87,41 @@ public:
 
 	AActor* GetOwner() const;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Item", Replicated)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Item", ReplicatedUsing=OnRep_Rarity)
 	UArcItemRarity* Rarity;	
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category="UI", Replicated)
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category="UI", ReplicatedUsing=OnRep_ItemName)
 	FText ItemName;
 
+	UPROPERTY(BlueprintAssignable)
+	FArcItemStackSubstackEvent OnSubStackAdded;
+	
+	UPROPERTY(BlueprintAssignable)
+	FArcItemStackSubstackEvent OnSubStackRemoved;
+
 protected:
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Item", Replicated)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Item", ReplicatedUsing=OnRep_ItemDefinition)
 	TSubclassOf<UArcItemDefinition_New> ItemDefinition;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Item", Replicated)
-	TArray<UArcItemStack*> SubItemStacks;
+	UPROPERTY(Replicated)
+	FArcSubItemStackArray SubItemStacks;
 
 	UPROPERTY()
 	UArcItemStack* ParentItemStack;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Item", Replicated)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Item", ReplicatedUsing=OnRep_StackSize)
 	int32 StackSize;
 
 public:
+	UFUNCTION()
+	virtual void OnRep_Rarity(UArcItemRarity* PreviousRarity);
+	UFUNCTION()
+	virtual void OnRep_ItemName(FText PreviousItemName);
+	UFUNCTION()
+	virtual void OnRep_ItemDefinition(TSubclassOf<UArcItemDefinition_New> PreviousItemDefinition);
+	UFUNCTION()
+	virtual void OnRep_StackSize(int32 PreviousStackSize);
+
 	virtual TSubclassOf<UArcItemDefinition_New> GetItemDefinition() const;
 	virtual int32 GetStackSize() const;
 
@@ -91,7 +157,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Arc|Inventory|ItemStack")
 	virtual UArcItemStack* QueryForSubItem(const FGameplayTagQuery& StackQuery);
 
-	TArray<UArcItemStack*>& GetSubItemStacks() { return SubItemStacks; }
-
+	UFUNCTION(BlueprintPure, Category = "Arc|Inventory|ItemStack")
+	virtual void GetSubItems(TArray<UArcItemStack*>& SubItemArray);
+	
 	virtual void GetDebugStrings(TArray<FString>& OutStrings, bool Detailed) const;
+
 };

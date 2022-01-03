@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/SSAbilitySystemComponent.h"
+#include "AbilitySystemComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Console/CVarChangeListenerManager.h"
 
@@ -11,13 +11,14 @@
 
 
 class ASSCharacter;
-class USSAbilitySystemComponent;
-class UAS_Character;
-class AAbilitySystemCharacter;
+class UAS_CharacterMovement;
+class UAS_Stamina;
+class IAbilitySystemInterface;
 
 
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterMovementWantsToChanged, bool);
+DECLARE_MULTICAST_DELEGATE(FCharacterMovementStateNotify);
 
 
 /**
@@ -27,27 +28,27 @@ UENUM()
 enum ECustomMovementMode																		// should we make this an enum class?
 {
 	/** None (custom movement is disabled). */
-	CMOVE_None						UMETA(DisplayName="None"),
+	CMOVE_None						UMETA(DisplayName = "None"),
 	/** Walking on a surface with the ability to walk up any slope angle */
-	CMOVE_InfiniteAngleWalking		UMETA(DisplayName="InfiniteAngleWalking"),
+	CMOVE_InfiniteAngleWalking		UMETA(DisplayName = "InfiniteAngleWalking"),
 
 	CMOVE_MAX						UMETA(Hidden)
 };
 
 /**
  * Our custom base implementation of the CMC
- * 
+ *
  *																An overview:
  *													--- not everything is documented ---
- * 
- * 
+ *
+ *
  * Movement restrictions:
  *		- Movement restrictions is a way to expose the CMC for gameplay related code.
  *			- Ex: if a stun grenade hits a character, you would set bRunDisabled to true (or add the Gameplay Tag RunDisabled) for the duration of the stun and
  *			this would work flawlessly over the network
- * 
- * 
- * 
+ *
+ *
+ *
  * Integration with GAS:
  *		- Do not try to make your movement abilities set compressed flags
  *			- This would be predictively predicting (ability prediction predicting a movement prediction all in one) a move which gets really weird
@@ -60,18 +61,18 @@ enum ECustomMovementMode																		// should we make this an enum class?
  *				that the client and server determine whether they can move or not independently
  *			- Make sure your movement abilities (though all of your abilities should have this) have NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ServerOnlyTermination and bServerRespectsRemoteAbilityCancellation = false.
  *			- When you want to stop a movement (maybe in UpdateCharacterStateBeforeMovement()), cancel the movement ability so that the server ends the client.
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  * Custom client adjustment:
- *		- Client adjustment occurs when the difference between the client and server's position exceed an allowable threshold or when the client and 
+ *		- Client adjustment occurs when the difference between the client and server's position exceed an allowable threshold or when the client and
  *			server's movement modes do not match up.
  *		- Variables to consider puting in a custom client adjustment should be ones that the server only needs to send when a client correction occurs.
  *			- Therefore you should only consider making a variable a client adjustment variable if it is position related or physics related.
  *			- It is rare to need a custom client adjustment.
  *				- One of the few cases I can think of is that you may want to make your custom movement mode enum an adjustable variable.
- * 
+ *
  *		1) To have custom client adjustment variables, make your own ClientAdjustPosition unreliable client RPC.
  *			- Add a parameter for each variable you want the server to correct (a good prefix is "adjusted" for example: AdjustedCustomMovementMode).
  *			- In your _Implementation, set your adjustable CMC variables to their corresponding "adjusted" variables.
@@ -84,49 +85,47 @@ enum ECustomMovementMode																		// should we make this an enum class?
  *				|		MyPositionRelatedVariable = AdjustedMyPositionRelatedVariable;
  *				|	}
  *				---------------------------------------------------------------------------------------------------
- * 
+ *
  *		2) Override the ClientAdjustPosition() function as an event to call your custom RPCs
  *			- NOT THE _IMPLEMENTATION! We want the server to call the RPC not the client.
  *			- Call the Super, and make it call your client adjust RPC.
  *			- This is a perfect event to call your custom client adjust RPCs.
- * 
+ *
  *		- If you have children CMCs and they also want custom client adjustment, they can repeat this process.
  *			- You may say all of these RPCs are bad and you are correct but the CMC in general is bad, this is the best and most clean solution.
  *				- Ex: if you are 3 levels deep of inheritance witht the CMC, thats 3 client RPCs at once when the client is corrected.
- * 
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
+ *
  *										I realized documenting this is probably a waste of time but its here if you want to finish it:
- * 
+ *
  * Steps to make a custom move:
  *		1) Make a function for activating it (ex: SetWantsToRun)
  *		2) Make a corresponding compressed movement flag for the move
  *			- Its good to define a macro representing that flag
- *		3) 
+ *		3)
  */
 UCLASS()
 class SONICSHOOTER_API USSCharacterMovementComponent : public UCharacterMovementComponent
 {
 	GENERATED_BODY()
-	
 
-	friend class FSavedMove_SSCharacter;
+
+		friend class FSavedMove_SSCharacter;
 
 public:
 	USSCharacterMovementComponent();
-	
 
-	AAbilitySystemCharacter* GetAbilitySystemCharacterOwner() const { return AbilitySystemCharacterOwner; }
 
 	bool GetToggleCrouchEnabled() const { return bToggleCrouchEnabled; }
 	bool GetToggleRunEnabled() const { return bToggleRunEnabled; }
 
 	/**
 	 * Desire cancellations.
-	 * 
+	 *
 	 * If a movements's toggle mode is enabled, then another movement can cancel the player's desire to do it.
 	 * Ex: If bRunCancelsDesireToRun is true and bToggleRunEnabled is true, then when you crouch, that means
 	 * that you don't want to run. So if you are running and you crouch and uncrouch, you will no longer be running (even though you may be able to).
@@ -139,7 +138,7 @@ public:
 
 	/**
 	 * Set WantsTos.
-	 *  
+	 *
 	 * Is replicated to the server but doesn't actually make the character run. Whether you run or not is also depenent on CanRunInCurrentState which
 	 * is calculated on the local machine (the server and client independently determine whether you actually run or not)
 	 */
@@ -148,7 +147,7 @@ public:
 
 	/**
 	 * Can In Current State.
-	 * 
+	 *
 	 * Checks on whether you actually can perform moves or not. This gives security to the client->server replicated compressed flags (or WantsTo bools)
 	 */
 	virtual bool CanAttemptJump() const override;
@@ -160,10 +159,10 @@ public:
 	/** Basically a UpdateCharacterStateBeforeMovement() for the jump */
 	virtual void CheckJumpInput(float DeltaTime);
 	virtual void ClearJumpInput(float DeltaTime);
-	
+
 	/**
 	 * Boolean Timestamps.
-	 * 
+	 *
 	 * Represent the timestamp the moment wanted to do something.
 	 * If negative, represents the timestamp the moment you stopped wanting to do something.
 	 * And, I guess, if zero, null which is kind of cool.
@@ -203,19 +202,24 @@ public:
 
 	FRotator CurrentRotationRate;
 
+	FCharacterMovementStateNotify OnAccelerationStart;
+	FCharacterMovementStateNotify OnAccelerationStop;
+
+	FCharacterMovementStateNotify OnStartedFalling;
+	FCharacterMovementStateNotify OnStoppedFalling;
+
 
 protected:
 	//	Don't know for sure if this is the best event to use but works for now
 	virtual void InitializeComponent() override;
 
+	IAbilitySystemInterface* AbilitySystemOwner;
 	UPROPERTY()
 		ASSCharacter* SSCharacterOwner;
 	UPROPERTY()
-		AAbilitySystemCharacter* AbilitySystemCharacterOwner;
+		UAS_CharacterMovement* CharacterMovementAttributeSet;
 	UPROPERTY()
-		USSAbilitySystemComponent* OwnerASC;
-	UPROPERTY()
-		UAS_Character* CharacterAttributeSet;
+		UAS_Stamina* StaminaAttributeSet;
 
 	UFUNCTION()
 		virtual void OnOwningCharacterAbilitySystemReady();
@@ -235,6 +239,9 @@ protected:
 	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override; // DO NOT UTILIZE THIS EVENT FOR MOVEMENT
 	//END CMC Interface
+
+	// A new thing added to the engine TODO: look into this and see if we need to fix anything because of this
+	virtual void ServerMove_PerformMovement(const FCharacterNetworkMoveData& MoveData) override;
 
 
 #pragma region Compressed Flags

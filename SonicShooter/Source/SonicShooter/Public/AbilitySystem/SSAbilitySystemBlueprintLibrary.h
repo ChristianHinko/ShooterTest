@@ -3,20 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystemBlueprintLibrary.h"
-#include "AbilitySystem/TargetActor/GATDF_MultiFilter.h"
+#include "AbilitySystem/ASSAbilitySystemBlueprintLibrary.h"
+
 #include "SSAbilitySystemBlueprintLibrary.generated.h"
 
+
+
 /**
- * 
+ * Our custom AbilitySystemBlueprintLibrary
  */
 UCLASS()
-class SONICSHOOTER_API USSAbilitySystemBlueprintLibrary : public UAbilitySystemBlueprintLibrary
+class SONICSHOOTER_API USSAbilitySystemBlueprintLibrary : public UASSAbilitySystemBlueprintLibrary
 {
 	GENERATED_BODY()
-	
+
 public:
-	/** Create a handle for filtering target data, filling out all fields */
-	UFUNCTION(BlueprintPure, Category = "Filter")
-		static FGATDF_MultiFilterHandle MakeMultiFilterHandle(FGATDF_MultiFilter MultiFilter/*, AActor* FilterActor*/);
+
+
 };

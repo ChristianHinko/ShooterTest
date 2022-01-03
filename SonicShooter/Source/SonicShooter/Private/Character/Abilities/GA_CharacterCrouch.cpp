@@ -3,9 +3,10 @@
 
 #include "Character/Abilities/GA_CharacterCrouch.h"
 
-#include "Character/AbilitySystemCharacter.h"
-#include "Character/SSCharacterMovementComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
+#include "GameFramework/Character.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -13,38 +14,43 @@
 
 UGA_CharacterCrouch::UGA_CharacterCrouch()
 {
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Movement.Crouch")));
+	AbilityInputID = EAbilityInputID::Crouch;
+	AbilityTags.AddTag(Tag_CrouchAbility);
 
 
-	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Movement.Run"));
+	CancelAbilitiesWithTag.AddTag(Tag_RunAbility);
 }
 
 
 void UGA_CharacterCrouch::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-	Super::OnAvatarSet(ActorInfo, Spec);
+	TryCallOnAvatarSetOnPrimaryInstance
+		Super::OnAvatarSet(ActorInfo, Spec);
 
 	// Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times
 	if (!ActorInfo)
 	{
 		return;
 	}
-	if (!ActorInfo->AvatarActor.Get())
+	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
+	if (!AvatarActor)
 	{
 		return;
 	}
 
 
-	GASCharacter = Cast<AAbilitySystemCharacter>(ActorInfo->AvatarActor.Get());
-	if (!GASCharacter)
+	Character = Cast<ACharacter>(AvatarActor);
+	if (Character)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL"), *FString(__FUNCTION__));
+		CMC = Character->GetCharacterMovement();
+		if (!CMC)
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetCharacterMovement was NULL"), *FString(__FUNCTION__));
+		}
 	}
-
-	CMC = GASCharacter->GetSSCharacterMovementComponent();
-	if (!CMC)
+	else
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetSSCharacterMovementComponent was NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL"), *FString(__FUNCTION__));
 	}
 }
 
@@ -55,9 +61,9 @@ bool UGA_CharacterCrouch::CanActivateAbility(const FGameplayAbilitySpecHandle Ha
 		return false;
 	}
 
-	if (!GASCharacter)
+	if (!Character)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GASCharacter was NULL. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL. Returned false"), *FString(__FUNCTION__));
 		return false;
 	}
 	if (!CMC)
@@ -111,7 +117,7 @@ void UGA_CharacterCrouch::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &UGA_CharacterCrouch::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
 		return;
 	}
-	
+
 
 
 	CMC->UnCrouch();

@@ -27,7 +27,7 @@ FText UKeyLabel::GetDisplayName() const
 
 UTexture * UKeyLabel::GetIcon() const
 {
-	return UGlobalKeyIconTagManager::Get()->GetIconForKey(Key, IconTags);
+	return UGlobalKeyIconTagManager::Get()->GetIconForKey(Key, IconTags, AxisScale);
 }
 
 bool UKeyLabel::HasIcon() const

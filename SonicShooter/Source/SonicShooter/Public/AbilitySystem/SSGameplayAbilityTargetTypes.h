@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/ASSGameplayAbilityTargetTypes.h"
+#include "AbilitySystem/Types/ASSGameplayAbilityTargetTypes.h"
 
 #include "SSGameplayAbilityTargetTypes.generated.h"
 

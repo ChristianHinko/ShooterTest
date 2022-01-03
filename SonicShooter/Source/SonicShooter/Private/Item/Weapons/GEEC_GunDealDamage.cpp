@@ -7,7 +7,7 @@
 #include "AttributeSets/AS_Damage.h"
 
 #include "Item/Weapons/AS_Gun.h"
-#include "AbilitySystem/SSGameplayEffectTypes.h"
+#include "AbilitySystem/Types/SSGameplayEffectTypes.h"
 
 
 // Declare the attributes to capture and define how we want to capture them from the Source and Target

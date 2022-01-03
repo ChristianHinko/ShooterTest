@@ -5,7 +5,7 @@
 
 #include "Net/UnrealNetwork.h"
 #include "GameplayAbilities/Public/GameplayEffectExtension.h"
-#include "AbilitySystem/SSGameplayAbilityTypes.h"
+#include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
 #include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
 
 

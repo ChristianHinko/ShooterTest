@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/SSGameplayAbilityTypes.h"
+#include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
 
 #include "Character/SSCharacter.h"
 #include "Player/SSPlayerController.h"

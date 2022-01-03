@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/Types/ASSGameplayEffectTypes.h"
 
-#include "AbilitySystem/SSGameplayAbilityTargetTypes.h"
+#include "AbilitySystem/Types/SSGameplayAbilityTargetTypes.h"
 
 #include "SSGameplayEffectTypes.generated.h"
 

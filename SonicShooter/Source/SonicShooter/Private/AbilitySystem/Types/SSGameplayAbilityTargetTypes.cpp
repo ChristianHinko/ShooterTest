@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem\SSGameplayAbilityTargetTypes.h"
+#include "AbilitySystem/Types/SSGameplayAbilityTargetTypes.h"
 
 #include "Utilities/LogCategories.h"
 
@@ -19,7 +19,7 @@ FSSGameplayAbilityTargetData::FSSGameplayAbilityTargetData()
 ////////////////////////////////////////////////////////////////
 
 
-#include "AbilitySystem\SSGameplayEffectTypes.h"
+#include "AbilitySystem/Types/SSGameplayEffectTypes.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffect.h"
 #include "AbilitySystemComponent.h"

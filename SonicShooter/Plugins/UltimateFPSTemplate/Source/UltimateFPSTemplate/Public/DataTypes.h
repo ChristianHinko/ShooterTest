@@ -3,6 +3,8 @@
 #pragma once
 
 #include "Templates/SubclassOf.h"
+#include "Engine/NetSerialization.h"
+
 #include "DataTypes.generated.h"
 
 UENUM(BlueprintType)
@@ -14,11 +16,11 @@ enum class EMagazineState : uint8
 };
 
 UENUM(BlueprintType)
-enum class EFirearmGripType : uint8
+enum class ELightLaser : uint8
 {
-	None			UMETA(DisplayName, "None"),
-	VerticalGrip	UMETA(DisplayName, "ForwardGrip"),
-	AngledGrip		UMETA(DisplayName, "AngledGrip")
+	Light	UMETA(DisplayName, "Light"),
+	Laser	UMETA(DisplayName, "Laser"),
+	Both	UMETA(DisplayName, "Both")
 };
 
 UENUM(BlueprintType)
@@ -52,7 +54,6 @@ enum class EPartType : uint8
 {
 	Sight			UMETA(DisplayName, "Sight"),
 	Magnifier		UMETA(DisplayName, "Magnifier"),
-	FlipMount		UMETA(DisplayName, "FlipMount"),
 	LightLaser		UMETA(DisplayName, "LightLaser"),
 	Handguard		UMETA(DisplayName, "Handguard"),
 	Barrel			UMETA(DisplayName, "Barrel"),
@@ -71,10 +72,37 @@ enum class EFirearmInHand : uint8
 	Test		UMETA(DisplayName, "Test"),
 };
 
+UENUM(BlueprintType)
+enum class EMeasurementType : uint8
+{
+	Metric	UMETA(DisplayName, "Metric"),
+	Imperial	UMETA(DisplayName, "Imperial")
+};
+
 class UMaterialInstance;
 class UMaterialInstanceDynamic;
 class UFXSystemAsset;
 class USoundBase;
+
+USTRUCT(BlueprintType)
+struct FHoleMaterial
+{
+	GENERATED_BODY()
+	UMaterialInstanceDynamic* MaterialInstance = nullptr;
+	TArray<FVector> HoleLocations;
+	uint8 HoleIndex = 0;
+	uint8 MaxHoleCount = 8;
+};
+
+USTRUCT(BlueprintType)
+struct FHoleMaterialSetting
+{
+	GENERATED_BODY()
+	UPROPERTY(EditDefaultsOnly, Category = "FPSTemplate")
+	int32 MaxHoleCount = 8;
+	UPROPERTY(EditDefaultsOnly, Category = "FPSTemplate")
+	int32 MaterialIndex = 0;
+};
 
 USTRUCT(BlueprintType)
 struct FFirearmPartStats
@@ -146,9 +174,10 @@ struct FFirearmPartData
 	GENERATED_BODY()
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FPSTemplate")
 	TSubclassOf<class AFPSTemplate_PartBase> PartClass;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FPSTemplate")
 	class UTexture2D* PartImage = nullptr;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FPSTemplate")
+	FString PartName;
 };
 
 USTRUCT(BlueprintType)
@@ -166,16 +195,77 @@ USTRUCT(BlueprintType)
 struct FImpactEffects
 {
 	GENERATED_BODY()
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPSTemplate")
 	UFXSystemAsset* ImpactEffect = nullptr;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPSTemplate")
 	UMaterialInstance* ImpactDecal = nullptr;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPSTemplate")
 	bool bUseParticlesRotation = false;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPSTemplate")
 	FVector DecalSize = FVector(2.5f, 2.5f, 2.5f);
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPSTemplate")
 	float DecalLifeTime = 8.0f;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPSTemplate")
 	USoundBase* ImpactSound = nullptr;
+};
+
+USTRUCT(BlueprintType)
+struct FFirearmPartList
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	FString ComponentName;
+	UPROPERTY()
+	TSubclassOf<class AFPSTemplateFirearm> ParentFirearm;
+	UPROPERTY()
+	TSubclassOf<class AFPSTemplate_PartBase> Parent;
+	UPROPERTY()
+	TSubclassOf<class AFPSTemplate_PartBase> Part;
+	UPROPERTY()
+	float PartOffset = 0.0f;
+	
+	bool bHasBeenCreated = false;
+};
+
+USTRUCT(BlueprintType)
+struct FFirearm
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TSubclassOf<class AFPSTemplateFirearm> FirearmClass;
+	UPROPERTY()
+	TArray<FFirearmPartList> PartsList;
+};
+
+USTRUCT(BlueprintType)
+struct FProjectileTransform
+{
+	GENERATED_BODY()
+	UPROPERTY(BlueprintReadWrite, Category = "FPSTemplate | Projectile")
+	FVector_NetQuantize Location;
+	UPROPERTY(BlueprintReadWrite, Category = "FPSTemplate | Projectile")
+	FVector_NetQuantize Rotation;
+
+	FProjectileTransform() {Location = FVector_NetQuantize(); Rotation = FVector_NetQuantize();}
+	FProjectileTransform(const FVector& INLocation, const FRotator& INRotation)
+	{
+		Location = FVector_NetQuantize(INLocation);
+		Rotation = FVector_NetQuantize(INRotation.Pitch, INRotation.Yaw, INRotation.Roll);
+	}
+	FProjectileTransform(const FTransform& INTransform)
+	{
+		Location = FVector_NetQuantize(INTransform.GetLocation());
+		Rotation = FVector_NetQuantize(INTransform.Rotator().Pitch, INTransform.Rotator().Yaw, INTransform.Rotator().Roll);
+	}
+	
+	static FTransform GetTransformFromProjectile(const FProjectileTransform& ProjectileTransform)
+	{
+		FVector_NetQuantize Rot = ProjectileTransform.Rotation;
+		FVector Loc = ProjectileTransform.Location;
+		return FTransform(FRotator(ProjectileTransform.Rotation.X, ProjectileTransform.Rotation.Y, ProjectileTransform.Rotation.Z).Quaternion(), ProjectileTransform.Location, FVector::OneVector);
+	}
+	FTransform GetTransformFromProjectile() const
+	{
+		return FTransform(FRotator(Rotation.X, Rotation.Y, Rotation.Z).Quaternion(), Location, FVector::OneVector);
+	}
 };

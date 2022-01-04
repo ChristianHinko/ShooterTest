@@ -3,11 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FirearmParts/BaseClasses/FPSTemplate_PartStatic.h"
+#include "FirearmParts/BaseClasses/FPSTemplate_PartBase.h"
 #include "FPSTemplate_ForwardGrip.generated.h"
 
+class UAnimSequence;
+
 UCLASS()
-class ULTIMATEFPSTEMPLATE_API AFPSTemplate_ForwardGrip : public AFPSTemplate_PartStatic
+class ULTIMATEFPSTEMPLATE_API AFPSTemplate_ForwardGrip : public AFPSTemplate_PartBase
 {
 	GENERATED_BODY()
 public:
@@ -18,13 +20,13 @@ protected:
 	FName HandGripSocket;
 
 	UPROPERTY(EditDefaultsOnly, Category = "FPSTemplate | Default")
-	EFirearmGripType GripType;
+	UAnimSequence* GripAnimation;
 
 	virtual void BeginPlay() override;
 
 public:
 	UFUNCTION(BlueprintPure, Category = "FPSTemplate | Animation")
 	FTransform GetGripTransform() const;
-	UFUNCTION(BlueprintPure, Category = "FPSTemplate | Animation")
-	EFirearmGripType GetGripType() const;
+
+	UAnimSequence* GetGripAnimation() const { return GripAnimation; }
 };

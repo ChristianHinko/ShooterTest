@@ -4,7 +4,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "DataTypes.h"
-#include "FPSTemplateProjectile.h"
+#include "Actors/FPSTemplateProjectile.h"
 #include "FPSTemplateFirearm_Magazine.generated.h"
 
 //class AFPSTemplateProjectile;

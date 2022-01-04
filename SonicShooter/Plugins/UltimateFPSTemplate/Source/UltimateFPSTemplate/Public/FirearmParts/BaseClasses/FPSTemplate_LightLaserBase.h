@@ -21,8 +21,9 @@ public:
 
 protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "FPSTemplate | Default")
+	USceneComponent* Root;
+	UPROPERTY(VisibleDefaultsOnly, Category = "FPSTemplate | Default")
 	UStaticMeshComponent* LaserMesh;
-	
 	UPROPERTY(VisibleDefaultsOnly, Category = "FPSTemplate | Default")
 	USpotLightComponent* SpotLightComponent;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "FPSTemplate | Default")
@@ -58,15 +59,17 @@ protected:
 	UFUNCTION()
 	void OnRep_LaserColorIndex();
 
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Unreliable, WithValidation)
 	void Server_ToggleLight();
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Unreliable, WithValidation)
 	void Server_ToggleLaser();
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Unreliable, WithValidation)
 	void Server_CycleLaserColor(uint8 Index);
 
 	virtual void PostInitProperties() override;
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginPlay() override;
+	virtual void SetupPartMesh() override;
 	
 public:
 	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Toggle")

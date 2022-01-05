@@ -208,9 +208,6 @@ protected:
 	virtual void PostInitProperties() override;
 
 
-	virtual void SetSoftAttributeDefaults() override;
-
-
 	void OnActorInfoInitted();
 
 	void UpdateFromActorInfo();

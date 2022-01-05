@@ -227,13 +227,6 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 						}
 					}
 				}
-
-				//BEGIN =@OVERRIDED CODE MARKER@= Make it run soft attribute defaults after setting hard default values
-				if (UASSAttributeSet* SSNewAttributeSet = Cast<UASSAttributeSet>(NewAttributeSet))
-				{
-					SSNewAttributeSet->SetSoftAttributeDefaults();
-				}
-				//END =@OVERRIDED CODE MARKER@=
 			}
 
 			//and then tell watchers that a new attribute set has been created

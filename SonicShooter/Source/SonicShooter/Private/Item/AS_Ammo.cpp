@@ -32,24 +32,15 @@ void UAS_Ammo::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 }
 
 UAS_Ammo::UAS_Ammo()
-	: MaxAmmo(100),
-	MaxClipAmmo(10)
+	: MaxAmmo(100)
+	, MaxClipAmmo(10)
+	, ClipAmmo(GetMaxClipAmmo(), this, FName(TEXT("ClipAmmo")))
+	, BackupAmmo(GetMaxAmmo() - ClipAmmo)
 
 {
-	ClipAmmo = FFloatPropertyWrapper(this, FName(TEXT("ClipAmmo")));
-	SetSoftAttributeDefaults();
-
 
 }
 
-void UAS_Ammo::SetSoftAttributeDefaults()
-{
-	Super::SetSoftAttributeDefaults();
-
-
-	ClipAmmo = GetMaxClipAmmo();
-	BackupAmmo = GetMaxAmmo() - ClipAmmo;
-}
 
 void UAS_Ammo::PostInitProperties()
 {

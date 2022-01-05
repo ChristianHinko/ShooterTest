@@ -43,8 +43,6 @@ public:
 	//ATTRIBUTE_ACCESSORS(UAS_Ammo, BackupAmmoReceive)
 
 protected:
-	virtual void SetSoftAttributeDefaults() override;
-
 	virtual void PostInitProperties() override;
 
 

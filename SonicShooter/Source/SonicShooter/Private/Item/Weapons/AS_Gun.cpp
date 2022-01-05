@@ -46,42 +46,31 @@ void UAS_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 }
 
 UAS_Gun::UAS_Gun()
-	: MinBulletSpread(10.f),
-	MovingBulletSpread(20.f),
-	BulletSpreadIncRate(70.f),
-	FireBulletSpread(50.f),
-	BulletSpreadDecSpeed(15.f),
+	: MinBulletSpread(10.f)
+	, CurrentBulletSpread(GetMinBulletSpread(), this, FName(TEXT("CurrentBulletSpread")))
+	, MovingBulletSpread(20.f)
+	, BulletSpreadIncRate(70.f)
+	, FireBulletSpread(50.f)
+	, BulletSpreadDecSpeed(15.f)
 
-	NumberOfBulletsPerFire(1.f),
-	MaxRange(100000.f),
-	Penetrations(-1),
-	Ricochets(-1),
-	InitialBulletSpeed(20.f),
-	BulletSpeedFalloff(.9f),
+	, NumberOfBulletsPerFire(1.f)
+	, MaxRange(100000.f)
+	, Penetrations(-1)
+	, Ricochets(-1)
+	, InitialBulletSpeed(20.f)
+	, BulletSpeedFalloff(.9f)
 
-	bFullAuto(0),
-	TimeBetweenShots(0.1f),
-	TimeBetweenFiresOverride(-1.f),
-	TimeBetweenBurstsOverride(-1.f),
+	, bFullAuto(0)
+	, TimeBetweenShots(0.1f)
+	, TimeBetweenFiresOverride(-1.f)
+	, TimeBetweenBurstsOverride(-1.f)
 
-	NumShotsPerBurst(3),
-	AmmoCost(1.f)
+	, NumShotsPerBurst(3)
+	, AmmoCost(1.f)
 {
-	CurrentBulletSpread = FFloatPropertyWrapper(this, FName(TEXT("CurrentBulletSpread")));
-	SetSoftAttributeDefaults();
-
-
-
 
 }
 
-void UAS_Gun::SetSoftAttributeDefaults()
-{
-	Super::SetSoftAttributeDefaults();
-
-
-	CurrentBulletSpread = GetMinBulletSpread();
-}
 
 void UAS_Gun::PostInitProperties()
 {

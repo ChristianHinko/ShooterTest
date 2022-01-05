@@ -44,7 +44,7 @@ void ASSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 }
 
 
-FName ASSCharacter::POVMeshComponentName(TEXT("POVMesh"));
+const FName ASSCharacter::POVMeshComponentName = TEXT("POVMesh");
 
 ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<USSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))

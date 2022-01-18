@@ -3,10 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/ASSEffectExecutionCalculation.h"
-#include "Runtime\GameplayTags\Classes\GameplayTagContainer.h"
+#include "GameplayEffectExecutionCalculation.h"
 
-#include "GEEC_GunDealDamage.generated.h"
+#include "GEEC_FAMASInitialization.generated.h"
 
 
 
@@ -14,12 +13,12 @@
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UGEEC_GunDealDamage : public UASSEffectExecutionCalculation
+class SONICSHOOTER_API UGEEC_FAMASInitialization : public UGameplayEffectExecutionCalculation
 {
 	GENERATED_BODY()
 
 public:
-	UGEEC_GunDealDamage();
+	UGEEC_FAMASInitialization();
 
 
 protected:

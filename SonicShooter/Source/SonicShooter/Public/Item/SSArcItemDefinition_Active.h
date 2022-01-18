@@ -38,6 +38,6 @@ public:
 
 	/* Effect that initializes the item's attributes. Attributes that need complex formulas for initialization can be done in an GameplayEffectExecutionCalculation class. For non-attribute properties (ie. raw floats, strings, pointers, etc) you can use UASSAttributeSet::OnDefaultStatsEffectApplied() to manually set those. */
 	UPROPERTY(EditDefaultsOnly, Category = "Initialization")
-		TSubclassOf<UGameplayEffect> InitializationEffect;
+		TSubclassOf<UGameplayEffect> InitializationEffectTSub;
 
 };

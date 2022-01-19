@@ -7,10 +7,7 @@
 		{
 			"Name": "SonicShooter",
 			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"AdditionalDependencies": [
-				"GameplayAbilities"
-			]
+			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [

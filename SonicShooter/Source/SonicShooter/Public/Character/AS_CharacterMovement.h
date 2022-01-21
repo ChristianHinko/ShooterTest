@@ -48,9 +48,6 @@ public:
 
 
 protected:
-	virtual void SetSoftAttributeDefaults() override;
-
-
 	//	Server only. Handle applying any modifications to incomming effects (ie. subtracting incomming damage using a shield attribute)
 	virtual bool PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data) override;
 	//	Server only. Handle using 'meta' attributes for modifying 'persistant' attributes. Such as Damage modifying Health

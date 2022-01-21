@@ -78,7 +78,7 @@ class ASSCharacter : public AAbilitySystemSetupCharacter
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Character")
 		USkeletalMeshComponent* POVMesh;
-	static FName POVMeshComponentName;
+	static const FName POVMeshComponentName;
 
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 		UCameraComponent* FollowCamera;

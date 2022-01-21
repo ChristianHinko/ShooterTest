@@ -65,6 +65,8 @@ void USSArcInventoryComponent_Active::InitializeComponent()
 
 	OnItemActive.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemActiveEvent);
 	OnItemInactive.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemInactiveEvent);
+
+	OnAttributeSetCreated.AddDynamic(this, &USSArcInventoryComponent_Active::OnAttributeSetCreatedEvent);
 }
 
 void USSArcInventoryComponent_Active::BeginPlay()
@@ -227,13 +229,6 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 						}
 					}
 				}
-
-				//BEGIN =@OVERRIDED CODE MARKER@= Make it run soft attribute defaults after setting hard default values
-				if (UASSAttributeSet* SSNewAttributeSet = Cast<UASSAttributeSet>(NewAttributeSet))
-				{
-					SSNewAttributeSet->SetSoftAttributeDefaults();
-				}
-				//END =@OVERRIDED CODE MARKER@=
 			}
 
 			//and then tell watchers that a new attribute set has been created
@@ -290,9 +285,12 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 					continue;
 				}
 
-				FGameplayAbilitySpec Spec(ExtraAbility.GetDefaultObject(), 1, INDEX_NONE, AbilitySource);
+				//--------------=@OVERRIDED CODE MARKER@= what we modified in this override we use our grant ability instead of give ability--------------
+				FGameplayAbilitySpecHandle Handle = Cast<UASSAbilitySystemComponent>(ASC)->GrantAbility(ExtraAbility, AbilitySource);
+				//FGameplayAbilitySpec Spec(ExtraAbility.GetDefaultObject(), 1, INDEX_NONE, AbilitySource);
 
-				FGameplayAbilitySpecHandle Handle = ASC->GiveAbility(Spec);
+				//FGameplayAbilitySpecHandle Handle = ASC->GiveAbility(Spec);
+				//--------------End OVERRIDED CODE MARKER--------------
 				StoreInto.AddedAbilities.Add(Handle);
 			}
 
@@ -329,6 +327,47 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 		
 	}
 
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// After Super code
+
+
+
+
+	// Check if we created any Attribute Sets
+	if (bCreatedAttributeSets)
+	{
+		// Attribute Sets have been created! - so apply default stats Effect
+		UAbilitySystemComponent* ASC = GetOwnerAbilitySystem();
+		if (IsValid(ASC))
+		{
+			USSArcItemDefinition_Active* SSItemDefinition = Cast<USSArcItemDefinition_Active>(AbilitySource->GetItemDefinition().GetDefaultObject());
+			if (IsValid(SSItemDefinition))
+			{
+				// Apply the default stats Effect
+				FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
+				EffectContextHandle.AddInstigator(GetOwner(), GetOwner());
+				EffectContextHandle.AddSourceObject(GetOwner());
+
+				FGameplayEffectSpecHandle NewEffectSpecHandle = ASC->MakeOutgoingSpec(SSItemDefinition->InitializationEffectTSub, 1/*GetLevel()*/, EffectContextHandle);
+				if (NewEffectSpecHandle.IsValid())
+				{
+					ASC->ApplyGameplayEffectSpecToSelf(*NewEffectSpecHandle.Data.Get());
+				}
+				else
+				{
+					UE_LOG(LogArcInventorySetup, Warning, TEXT("%s() Tried to apply the InitializationEffectTSub but failed. Maybe check if you filled out your USSArcItemDefinition_Active::InitializationEffectTSub correctly in Blueprint"), ANSI_TO_TCHAR(__FUNCTION__));
+				}
+			}
+		}
+
+	}
+
+	bCreatedAttributeSets = false;
+
+
+
+
 	return true;
 }
 
@@ -336,17 +375,6 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 void USSArcInventoryComponent_Active::OnItemSlotChangeEvent(UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
 {
 	// Problem 1: Not sure if this is a UI problem or if it's maybe just some problem with attribute initializers or something like that, but for some reason the ui starts you off with 0 backup ammo and you nmeed to reload in order for the backup ammo to update (happened on listening server but using that as a reference since client version doesn't exactly work rn because of problem 2)
-	// Problem 2: This event on the client gets nullptr passed into the PreviousItemStack unfortunately. This means we can't destroy the previous item's widget when it's unequiped
-	// Problem 3: Right now only the server runs this when the game fills the players inventory with startup weapons, so we need this to somehow be called on client too on startup
-	// Looks like Roy is working on fixing both problems 2 and 3... Well just wait on the next ArcInventory update to finish this stuff (problem 1 might be easier to solve after 2 and 3 are fixed)
-	/*
-		If we are getting egar to have problem 2 fixed before Roy gets out the new update, we can just paste this check in ArcInventoryItemTypes.cpp line 143:
-		if (IsValid(ItemStack))
-		{
-			Owner->OnItemSlotChange.Broadcast(Owner, FArcInventoryItemSlotReference(*this, Owner), ItemStack, nullptr);
-		}
-	*/
-
 
 	// Untested since we are waiting on these problems to be resolved for the next ArcInventory update
 	if (IsValid(ItemStack))		// if we are equiping
@@ -489,4 +517,10 @@ void USSArcInventoryComponent_Active::OnItemInactiveEvent(UArcInventoryComponent
 			}
 		}
 	}
+}
+
+
+void USSArcInventoryComponent_Active::OnAttributeSetCreatedEvent(UArcInventoryComponent_Equippable* Inventory, UAttributeSet* AttributeSet, UArcItemStack* AttributeSource)
+{
+	bCreatedAttributeSets = true;
 }

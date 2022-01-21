@@ -27,10 +27,6 @@ public:
 		FGameplayAttributeData MaxAmmo;
 	ATTRIBUTE_ACCESSORS(UAS_Ammo, MaxAmmo)
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BackupAmmo, Category = "Attributes")
-		FGameplayAttributeData BackupAmmo;
-	ATTRIBUTE_ACCESSORS(UAS_Ammo, BackupAmmo)
-
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxClipAmmo, Category = "Attributes")
 		FGameplayAttributeData MaxClipAmmo;
 	ATTRIBUTE_ACCESSORS(UAS_Ammo, MaxClipAmmo)
@@ -38,13 +34,15 @@ public:
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Attributes", meta = (HideFromModifiers))
 		FFloatPropertyWrapper ClipAmmo;
 
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BackupAmmo, Category = "Attributes")
+		FGameplayAttributeData BackupAmmo;
+	ATTRIBUTE_ACCESSORS(UAS_Ammo, BackupAmmo)
+
 	//UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromLevelInfos))
 	//	FGameplayAttributeData BackupAmmoReceive;
 	//ATTRIBUTE_ACCESSORS(UAS_Ammo, BackupAmmoReceive)
 
 protected:
-	virtual void SetSoftAttributeDefaults() override;
-
 	virtual void PostInitProperties() override;
 
 

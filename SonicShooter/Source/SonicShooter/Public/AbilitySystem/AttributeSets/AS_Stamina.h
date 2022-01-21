@@ -56,9 +56,6 @@ public:
 #pragma endregion
 
 protected:
-	virtual void SetSoftAttributeDefaults() override;
-
-
 	virtual void Tick(float DeltaTime) override;
 	virtual bool ShouldTick() const override;
 	virtual void SetShouldTick(bool newShouldTick);

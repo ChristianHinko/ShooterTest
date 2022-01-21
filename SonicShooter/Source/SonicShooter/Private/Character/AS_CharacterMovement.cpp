@@ -33,18 +33,10 @@ UAS_CharacterMovement::UAS_CharacterMovement()
 	RunSpeed(600.f),
 	RunAccelaration(4096.f)
 {
-	SetSoftAttributeDefaults();
 
 
 }
 
-void UAS_CharacterMovement::SetSoftAttributeDefaults()
-{
-	Super::SetSoftAttributeDefaults();
-
-
-
-}
 
 bool UAS_CharacterMovement::PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data)
 {

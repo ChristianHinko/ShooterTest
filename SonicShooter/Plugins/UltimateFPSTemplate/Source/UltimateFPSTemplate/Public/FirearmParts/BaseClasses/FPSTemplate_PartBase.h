@@ -10,6 +10,7 @@
 
 class UFPSTemplate_PartComponent;
 class AFPSTemplateFirearm;
+class UMeshComponent;
 
 #define MAX_PartStack 10
 
@@ -23,14 +24,19 @@ public:
 	AFPSTemplate_PartBase();
 
 protected:
+	UMeshComponent* PartMesh;
+	virtual void SetupPartMesh();
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FPSTemplate | Default")
 	FFirearmPartStats PartStats;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FPSTemplate | Default")
 	FFirearmPartData PartData;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FPSTemplate | Default")
 	EPartType PartType;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FPSTemplate | Default", meta = (EditCondition = "PartType == EPartType::Stock"))
+	float StockLengthOfPull;
 	UPROPERTY(EditDefaultsOnly, Category = "FPSTemplate | Default")
-	TEnumAsByte<ECollisionChannel> PoseCollision;
+	TEnumAsByte<ECollisionChannel> FirearmCollisionChannel;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "FPSTemplate | Aim")
 	bool bIsAimable;
@@ -39,6 +45,8 @@ protected:
 
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "FPSTemplate | Parts")
 	TArray<UFPSTemplate_PartComponent*> PartComponents;
+
+	UFPSTemplate_PartComponent* OwningPartComponent;
 
 	float MinOffset;
 	float MaxOffset;
@@ -51,6 +59,7 @@ protected:
 	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void PostInitializeComponents() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = "FPSTemplate | Events")
@@ -63,19 +72,21 @@ protected:
 	bool bHasRenderTarget;
 	
 public:
-	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Stats")
+	UFUNCTION(BlueprintPure, Category = "FPSTemplate | Stats")
 	virtual FFirearmPartStats GetPartStats();
-	
-	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Default")
+	UFUNCTION(BlueprintPure, Category = "FPSTemplate | Stats")
+	FFirearmPartData GetPartData() const { return PartData; }
+	UFUNCTION(BlueprintPure, Category = "FPSTemplate | Default")
 	EPartType GetPartType() const { return PartType; }
-	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Default")
+	UFUNCTION(BlueprintPure, Category = "FPSTemplate | Default")
 	AFPSTemplateFirearm* GetOwningFirearm();
-	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Default")
-	class AFPSTemplateCharacter* GetOwningCharacter();
+	UFUNCTION(BlueprintPure, Category = "FPSTemplate | Default")
+	class UFPSTemplate_CharacterComponent* GetOwningCharacterComponent();
 
 	TArray<UFPSTemplate_PartComponent*> GetPartComponents();
 
 	void PartsUpdated();
+	virtual void CacheParts() {}
 
 	void SetMinMaxOffset(float Min, float Max);
 	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Default")
@@ -102,10 +113,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Aiming")
 	void EnableAiming();
 	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Aiming")
-	virtual FTransform GetAimSocketTransform() const { return FTransform(); };
+	virtual FTransform GetAimSocketTransform() const;
+	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Aiming")
+	float GetStockLengthOfPull() const { return StockLengthOfPull; }
 
 	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Render")
 	bool HasRenderTarget() const { return bHasRenderTarget; }
 	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Render")
 	virtual void DisableRenderTarget(bool Disable) {}
+
+	void SetOwningPartComponent(UFPSTemplate_PartComponent* PartComponent) { OwningPartComponent = PartComponent; }
 };

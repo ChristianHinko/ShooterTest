@@ -34,23 +34,14 @@ void UAS_Stamina::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 //	These are default values BEFORE the default attribute values effect gets applied
 UAS_Stamina::UAS_Stamina()
 	: MaxStamina(5)
+	, Stamina(GetMaxStamina(), this, FName(TEXT("Stamina")))
 	, StaminaDrain(1)
 	, StaminaGain(1)
 	, StaminaRegenPause(2)
 {
-	Stamina = FFloatPropertyWrapper(this, FName(TEXT("Stamina")));
-	SetSoftAttributeDefaults();
-
 
 }
 
-void UAS_Stamina::SetSoftAttributeDefaults()
-{
-	Super::SetSoftAttributeDefaults();
-
-
-	Stamina = GetMaxStamina(); // TODO: this event is server only (after constructer call at least) but Stamina isn't replicated so the client won't this updated
-}
 
 void UAS_Stamina::Tick(float DeltaTime)
 {

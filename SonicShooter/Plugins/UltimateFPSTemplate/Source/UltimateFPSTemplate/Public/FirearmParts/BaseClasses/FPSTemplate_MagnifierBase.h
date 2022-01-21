@@ -3,40 +3,30 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FirearmParts/BaseClasses/FPSTemplate_PartBase.h"
+#include "FirearmParts/BaseClasses/FPSTemplate_SightMagnifiedRTBase.h"
 #include "FPSTemplate_MagnifierBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ULTIMATEFPSTEMPLATE_API AFPSTemplate_MagnifierBase : public AFPSTemplate_PartBase
+class ULTIMATEFPSTEMPLATE_API AFPSTemplate_MagnifierBase : public AFPSTemplate_SightMagnifiedRTBase
 {
 	GENERATED_BODY()
 public:
 	AFPSTemplate_MagnifierBase();
 
 protected:
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "FPSTemplate | Default")
-	class USceneCaptureComponent2D* SceneCapture;
-	UPROPERTY(EditDefaultsOnly, Category = "FPSTemplate | Default")
-	float MagnifierRefreshRate;
-	UPROPERTY(EditDefaultsOnly, Category = "FPSTemplate | Default")
-	float Magnification;
-	UPROPERTY(EditDefaultsOnly, Category = "FPSTemplate | Default")
-	bool bDisableWhenUnflipped;
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_FlippedOut, Category = "FPSTemplate | Magnifier")
+	bool bFlippedOut;
+	UFUNCTION()
+	void OnRep_FlippedOut();
 
-	virtual void BeginPlay() override;
-	virtual void PostInitProperties() override;
-	virtual void OnRep_Owner() override;
-	virtual void Tick(float DeltaSeconds) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	void HandleRenderTargetSetup();
-	void SetFOVAngle();
-
+	UFUNCTION(Server, Unreliable, WithValidation)
+	void Server_Flip(bool bFlip);
+	
 public:
-	virtual void DisableRenderTarget(bool Disable) override;
-
-	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Default")
-	bool DisableWhenFlipped() const { return bDisableWhenUnflipped; }
+	virtual void Use_Implementation() override;
 };

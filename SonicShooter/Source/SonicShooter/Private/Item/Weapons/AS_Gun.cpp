@@ -47,11 +47,11 @@ void UAS_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 
 UAS_Gun::UAS_Gun()
 	: MinBulletSpread(10.f)
-	, CurrentBulletSpread(GetMinBulletSpread(), this, FName(TEXT("CurrentBulletSpread")))
 	, MovingBulletSpread(20.f)
 	, BulletSpreadIncRate(70.f)
 	, FireBulletSpread(50.f)
 	, BulletSpreadDecSpeed(15.f)
+	, CurrentBulletSpread(GetMinBulletSpread(), this, FName(TEXT("CurrentBulletSpread")))
 
 	, NumberOfBulletsPerFire(1.f)
 	, MaxRange(100000.f)
@@ -64,7 +64,6 @@ UAS_Gun::UAS_Gun()
 	, TimeBetweenShots(0.1f)
 	, TimeBetweenFiresOverride(-1.f)
 	, TimeBetweenBurstsOverride(-1.f)
-
 	, NumShotsPerBurst(1)
 	, AmmoCost(1.f)
 {

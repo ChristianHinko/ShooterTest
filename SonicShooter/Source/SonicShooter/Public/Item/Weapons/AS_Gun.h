@@ -29,6 +29,7 @@ public:
 
 
 	// Attributes:
+
 #pragma region BulletSpread
 	/**
 	 * The minimum bullet spread while staying still in degrees (90 degs would be a right-angled cone)
@@ -135,6 +136,11 @@ public:
 
 
 
+
+
+
+
+
 	/**
 	 * If full-auto enabled or not (0 is false, 1 is true).
 	 * If true, just hold down to fire gun - no need to keep clicking. This applies to burst guns aswell.
@@ -193,6 +199,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_AmmoCost, Category = "Attributes")
 		FGameplayAttributeData AmmoCost;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, AmmoCost)
+
+
+
 
 
 
@@ -290,4 +299,5 @@ protected:
 
 	UFUNCTION()
 		virtual void OnRep_AmmoCost(const FGameplayAttributeData& ServerBaseValue);
+
 };

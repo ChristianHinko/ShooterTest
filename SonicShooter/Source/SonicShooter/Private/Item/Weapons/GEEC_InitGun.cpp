@@ -98,6 +98,7 @@ void UGEEC_InitGun::Execute_Implementation(const FGameplayEffectCustomExecutionP
 	UAbilitySystemComponent* TargetAbilitySystemComponent = ExecutionParams.GetTargetAbilitySystemComponent();
 	if (!IsValid(TargetAbilitySystemComponent))
 	{
+		UE_LOG(LogSSAbilitySystemSetup, Error, TEXT("%s(): TargetAbilitySystemComponent was NULL. Failed to init gun"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
 

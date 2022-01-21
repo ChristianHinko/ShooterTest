@@ -47,6 +47,7 @@ void UGEEC_InitAmmo::Execute_Implementation(const FGameplayEffectCustomExecution
 	UAbilitySystemComponent* TargetAbilitySystemComponent = ExecutionParams.GetTargetAbilitySystemComponent();
 	if (!IsValid(TargetAbilitySystemComponent))
 	{
+		UE_LOG(LogSSAbilitySystemSetup, Error, TEXT("%s(): TargetAbilitySystemComponent was NULL. Failed to init ammo"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
 

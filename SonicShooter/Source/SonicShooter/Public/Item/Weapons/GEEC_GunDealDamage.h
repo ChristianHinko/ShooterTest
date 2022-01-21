@@ -8,6 +8,8 @@
 
 #include "GEEC_GunDealDamage.generated.h"
 
+
+
 /**
  * 
  */
@@ -19,8 +21,8 @@ class SONICSHOOTER_API UGEEC_GunDealDamage : public UASSEffectExecutionCalculati
 public:
 	UGEEC_GunDealDamage();
 
-	virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
 
 protected:
+	virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
 
 };

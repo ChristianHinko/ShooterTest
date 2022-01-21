@@ -65,6 +65,8 @@ void USSArcInventoryComponent_Active::InitializeComponent()
 
 	OnItemActive.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemActiveEvent);
 	OnItemInactive.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemInactiveEvent);
+
+	OnAttributeSetCreated.AddDynamic(this, &USSArcInventoryComponent_Active::OnAttributeSetCreatedEvent);
 }
 
 void USSArcInventoryComponent_Active::BeginPlay()
@@ -227,13 +229,6 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 						}
 					}
 				}
-
-				//BEGIN =@OVERRIDED CODE MARKER@= Make it run soft attribute defaults after setting hard default values
-				if (UASSAttributeSet* SSNewAttributeSet = Cast<UASSAttributeSet>(NewAttributeSet))
-				{
-					SSNewAttributeSet->SetSoftAttributeDefaults();
-				}
-				//END =@OVERRIDED CODE MARKER@=
 			}
 
 			//and then tell watchers that a new attribute set has been created
@@ -331,6 +326,47 @@ bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDe
 
 		
 	}
+
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// After Super code
+
+
+
+
+	// Check if we created any Attribute Sets
+	if (bCreatedAttributeSets)
+	{
+		// Attribute Sets have been created! - so apply default stats Effect
+		UAbilitySystemComponent* ASC = GetOwnerAbilitySystem();
+		if (IsValid(ASC))
+		{
+			USSArcItemDefinition_Active* SSItemDefinition = Cast<USSArcItemDefinition_Active>(AbilitySource->GetItemDefinition().GetDefaultObject());
+			if (IsValid(SSItemDefinition))
+			{
+				// Apply the default stats Effect
+				FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
+				EffectContextHandle.AddInstigator(GetOwner(), GetOwner());
+				EffectContextHandle.AddSourceObject(GetOwner());
+
+				FGameplayEffectSpecHandle NewEffectSpecHandle = ASC->MakeOutgoingSpec(SSItemDefinition->InitializationEffectTSub, 1/*GetLevel()*/, EffectContextHandle);
+				if (NewEffectSpecHandle.IsValid())
+				{
+					ASC->ApplyGameplayEffectSpecToSelf(*NewEffectSpecHandle.Data.Get());
+				}
+				else
+				{
+					UE_LOG(LogArcInventorySetup, Warning, TEXT("%s() Tried to apply the InitializationEffectTSub but failed. Maybe check if you filled out your USSArcItemDefinition_Active::InitializationEffectTSub correctly in Blueprint"), ANSI_TO_TCHAR(__FUNCTION__));
+				}
+			}
+		}
+
+	}
+
+	bCreatedAttributeSets = false;
+
+
+
 
 	return true;
 }
@@ -481,4 +517,10 @@ void USSArcInventoryComponent_Active::OnItemInactiveEvent(UArcInventoryComponent
 			}
 		}
 	}
+}
+
+
+void USSArcInventoryComponent_Active::OnAttributeSetCreatedEvent(UArcInventoryComponent_Equippable* Inventory, UAttributeSet* AttributeSet, UArcItemStack* AttributeSource)
+{
+	bCreatedAttributeSets = true;
 }

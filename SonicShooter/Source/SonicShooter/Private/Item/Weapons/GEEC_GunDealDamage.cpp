@@ -4,64 +4,52 @@
 #include "Item/Weapons/GEEC_GunDealDamage.h"
 
 #include "AttributeSets/AS_Health.h"
-#include "AttributeSets/AS_Damage.h"
-
-#include "Item/Weapons/AS_Gun.h"
 #include "AbilitySystem/Types/SSGameplayEffectTypes.h"
 
 
-// Declare the attributes to capture and define how we want to capture them from the Source and Target
-struct SSDamageStatics
+
+struct FDamageStatics
 {
-	// Source
-	//DECLARE_ATTRIBUTE_CAPTUREDEF(OutgoingDamage);	// Here as an example. We are currently trusting the client's bullet speed value to determine damage to deal
-	
-	// Target
-	DECLARE_ATTRIBUTE_CAPTUREDEF(IncomingDamage);
+	FGameplayEffectAttributeCaptureDefinition IncomingDamageDef;
 
-
-
-
-	SSDamageStatics()
+	FDamageStatics()
 	{
-		// Snapshot happens at time of GESpec creation
-
-		//Source captures
-		//DEFINE_ATTRIBUTE_CAPTUREDEF(UAS_Damage, OutgoingDamage, Source, true);
-
-		//Target captures
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UAS_Health, IncomingDamage, Target, false);	// This is the attribute we will change on the target
+		IncomingDamageDef = FGameplayEffectAttributeCaptureDefinition(UAS_Health::GetIncomingDamageAttribute(), EGameplayEffectAttributeCaptureSource::Target, false);
 	}
 };
 
-static const SSDamageStatics& DamageStatics()
+static const FDamageStatics& GetDamageStatics()
 {
-	static SSDamageStatics DStatics;
-	return DStatics;
+	static FDamageStatics Statics;
+	return Statics;
 }
+
+
+
+
+
+
+
+
 
 UGEEC_GunDealDamage::UGEEC_GunDealDamage()
 {
-	//Source
-	//RelevantAttributesToCapture.Add(DamageStatics().OutgoingDamageDef);
-
-	//Target
-	RelevantAttributesToCapture.Add(DamageStatics().IncomingDamageDef);
+	RelevantAttributesToCapture.Add(GetDamageStatics().IncomingDamageDef);
 }
 
 void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
-	UAbilitySystemComponent* TargetAbilitySystemComponent = ExecutionParams.GetTargetAbilitySystemComponent();
 	UAbilitySystemComponent* SourceAbilitySystemComponent = ExecutionParams.GetSourceAbilitySystemComponent();
+	UAbilitySystemComponent* TargetAbilitySystemComponent = ExecutionParams.GetTargetAbilitySystemComponent();
 
-	if (!SourceAbilitySystemComponent || !TargetAbilitySystemComponent)
+	if (!IsValid(SourceAbilitySystemComponent) || !IsValid(TargetAbilitySystemComponent))
 	{
 		return;
 	}
 
 
-	AActor* SourceActor = SourceAbilitySystemComponent ? SourceAbilitySystemComponent->GetAvatarActor() : nullptr;
-	AActor* TargetActor = TargetAbilitySystemComponent ? TargetAbilitySystemComponent->GetAvatarActor() : nullptr;
+	AActor* SourceActor = SourceAbilitySystemComponent->GetAvatarActor();
+	AActor* TargetActor = TargetAbilitySystemComponent->GetAvatarActor();
 
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
 	FGameplayTagContainer AssetTags;
@@ -77,26 +65,30 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 
 
 
-	
-
-
 	// Needed parameter for AttemptCalculateCapturedAttributeMagnitude()
 	FAggregatorEvaluateParameters EvaluationParameters;
 	EvaluationParameters.SourceTags = SourceTags;
 	EvaluationParameters.TargetTags = TargetTags;
 
+
+
+
+
+
+
+
 	//// Lets get the values we need for our damage calculation (ie. source/target attributes, passed in values)
 	//float RawDamage = 0.0f;
-	//ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().OutgoingDamageDef, EvaluationParameters, RawDamage);
+	//ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(GetDamageStatics().OutgoingDamageDef, EvaluationParameters, RawDamage);
 
 	//// Example for if you want to get a SetByCaller
 	//const float totalDistanceBulletTraveled = Spec.GetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("SetByCaller.RicochetsBeforeHit"), true, 0);		// This is not an actual SetByCaller, just an example
 
 	// Lets get our effect context's data
-	const float bulletSpeedAtImpact = Context->GetHitInfo().bulletSpeedAtImpact;
+	const float BulletSpeedAtImpact = Context->GetHitInfo().bulletSpeedAtImpact;
 
 	// Lets start calculating
-	float damageToApply = bulletSpeedAtImpact;
+	float DamageToApply = BulletSpeedAtImpact;
 
 	
 
@@ -115,5 +107,5 @@ void UGEEC_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExec
 
 
 	// Set the Target's IncomingDamage meta attribute
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().IncomingDamageProperty, EGameplayModOp::Additive, damageToApply));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetDamageStatics().IncomingDamageDef.AttributeToCapture, EGameplayModOp::Additive, DamageToApply));
 }

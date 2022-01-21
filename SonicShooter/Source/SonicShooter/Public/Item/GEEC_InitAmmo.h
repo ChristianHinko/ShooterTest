@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameplayEffectExecutionCalculation.h"
 
-#include "GEEC_AmmoInitialization.generated.h"
+#include "GEEC_InitAmmo.generated.h"
 
 
 

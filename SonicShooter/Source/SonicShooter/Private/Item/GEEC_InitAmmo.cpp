@@ -32,7 +32,7 @@ static const FAmmoInitializationStatics& GetAmmoInitializationStatics()
 
 
 
-UGEEC_AmmoInitialization::UGEEC_AmmoInitialization()
+UGEEC_InitAmmo::UGEEC_InitAmmo()
 {
 	const UAS_Ammo* DefaultAmmoAttributeSet = GetDefault<UAS_Ammo>(UAS_Ammo::StaticClass());
 
@@ -40,7 +40,7 @@ UGEEC_AmmoInitialization::UGEEC_AmmoInitialization()
 	MaxClipAmmo = DefaultAmmoAttributeSet->GetMaxClipAmmo();
 }
 
-void UGEEC_AmmoInitialization::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
+void UGEEC_InitAmmo::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
 	Super::Execute_Implementation(ExecutionParams, OutExecutionOutput);
 

@@ -65,7 +65,7 @@ static const FGunInitializationStatics& GetGunInitializationStatics()
 
 
 
-UGEEC_GunInitialization::UGEEC_GunInitialization()
+UGEEC_InitGun::UGEEC_InitGun()
 {
 	const UAS_Gun* DefaultGunAttributeSet = GetDefault<UAS_Gun>(UAS_Gun::StaticClass());
 
@@ -91,7 +91,7 @@ UGEEC_GunInitialization::UGEEC_GunInitialization()
 	AmmoCost = DefaultGunAttributeSet->GetAmmoCost();
 }
 
-void UGEEC_GunInitialization::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
+void UGEEC_InitGun::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
 	Super::Execute_Implementation(ExecutionParams, OutExecutionOutput);
 

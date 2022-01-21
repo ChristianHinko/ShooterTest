@@ -14,12 +14,12 @@
  * Children can subclass this (in BP or cpp) and fill out default values
  */
 UCLASS()
-class SONICSHOOTER_API UGEEC_GunInitialization : public UGameplayEffectExecutionCalculation
+class SONICSHOOTER_API UGEEC_InitGun : public UGameplayEffectExecutionCalculation
 {
 	GENERATED_BODY()
 
 public:
-	UGEEC_GunInitialization();
+	UGEEC_InitGun();
 
 protected:
 	virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;

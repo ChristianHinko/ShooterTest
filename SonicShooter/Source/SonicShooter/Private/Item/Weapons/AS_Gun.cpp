@@ -65,7 +65,7 @@ UAS_Gun::UAS_Gun()
 	, TimeBetweenFiresOverride(-1.f)
 	, TimeBetweenBurstsOverride(-1.f)
 
-	, NumShotsPerBurst(3)
+	, NumShotsPerBurst(1)
 	, AmmoCost(1.f)
 {
 

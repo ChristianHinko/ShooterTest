@@ -509,7 +509,7 @@ bool UGA_FireGun::EnoughAmmoToShoot() const
 
 bool UGA_FireGun::IsFullAuto() const
 {
-	return !!GunAttributeSet->GetbFullAuto();
+	return static_cast<bool>(GunAttributeSet->GetbFullAuto());
 }
 bool UGA_FireGun::IsBurst() const
 {

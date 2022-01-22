@@ -104,9 +104,9 @@ void AShooterCharacter::RegisterAttributeSets()
 		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() HealthAttributeSet was either NULL or already added to the character's ASC. Character: %s"), *FString(__FUNCTION__), *GetName());
 	}
 }
-void AShooterCharacter::GrantStartingAbilities()
+void AShooterCharacter::GiveStartingAbilities()
 {
-	Super::GrantStartingAbilities();
+	Super::GiveStartingAbilities();
 
 	InteractInstantAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(InteractInstantAbilityTSub, /*GetLevel()*/1, -1, this));
 	InteractDurationAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(InteractDurationAbilityTSub, /*GetLevel()*/1, -1, this));

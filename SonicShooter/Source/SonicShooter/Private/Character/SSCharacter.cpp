@@ -236,9 +236,9 @@ void ASSCharacter::RegisterAttributeSets()
 	}
 }
 
-void ASSCharacter::GrantStartingAbilities()
+void ASSCharacter::GiveStartingAbilities()
 {
-	Super::GrantStartingAbilities();
+	Super::GiveStartingAbilities();
 
 	CharacterJumpAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(CharacterJumpAbilityTSub, /*GetLevel()*/1, -1, this));
 	CharacterCrouchAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(CharacterCrouchAbilityTSub, /*GetLevel()*/1, -1, this));

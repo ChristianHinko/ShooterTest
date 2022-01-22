@@ -39,14 +39,14 @@ void UGA_DropItem::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const
 	ShooterCharacter = Cast<AShooterCharacter>(ActorInfo->AvatarActor.Get());
 	if (!ShooterCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShooterCharacter was NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShooterCharacter was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
 
 	IArcInventoryInterface* InventoryInterface = Cast<IArcInventoryInterface>(ShooterCharacter);
 	if (!InventoryInterface)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Cast to InventoryInterface failed"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Cast to InventoryInterface failed"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
 	Inventory = InventoryInterface->GetInventoryComponent();
@@ -62,12 +62,12 @@ bool UGA_DropItem::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, c
 
 	if (!ShooterCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShooterCharacter was NULL. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShooterCharacter was NULL. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 	if (!Inventory)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Inventory was NULL. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Inventory was NULL. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
@@ -89,7 +89,7 @@ void UGA_DropItem::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	UArcAbilityTask_DropItem* DropItemTask = UArcAbilityTask_DropItem::DropItemFromInventory(this, Inventory->PendingItemDrop);
 	if (!DropItemTask)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DropItemTask was NULL when trying to activate DropItem ability. Called EndAbility()"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DropItemTask was NULL when trying to activate DropItem ability. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
@@ -106,7 +106,7 @@ void UGA_DropItem::OnDataRecieved(const FArcInventoryItemSlotReference& FromSlot
 	RemovedItemStack = UArcItemBPFunctionLibrary::GetItemFromSlot(FromSlot);
 	if (!IsValid(RemovedItemStack))
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() RemovedItemStack was NULL when trying to spawn the removed item into the world. Spawning into the world without a valid stack D:"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() RemovedItemStack was NULL when trying to spawn the removed item into the world. Spawning into the world without a valid stack D:"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 	if (Inventory->RemoveItemFromInventory(FromSlot))

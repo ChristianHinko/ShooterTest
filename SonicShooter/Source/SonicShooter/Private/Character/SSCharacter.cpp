@@ -200,7 +200,7 @@ void ASSCharacter::CreateAttributeSets()
 	}
 	else
 	{
-		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), *FString(__FUNCTION__), *CharacterMovementAttributeSet->GetName());
+		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), ANSI_TO_TCHAR(__FUNCTION__), *CharacterMovementAttributeSet->GetName());
 	}
 
 	if (!StaminaAttributeSet)
@@ -209,7 +209,7 @@ void ASSCharacter::CreateAttributeSets()
 	}
 	else
 	{
-		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), *FString(__FUNCTION__), *StaminaAttributeSet->GetName());
+		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), ANSI_TO_TCHAR(__FUNCTION__), *StaminaAttributeSet->GetName());
 	}
 }
 void ASSCharacter::RegisterAttributeSets()
@@ -223,7 +223,7 @@ void ASSCharacter::RegisterAttributeSets()
 	}
 	else
 	{
-		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() CharacterMovementAttributeSet was either NULL or already added to the character's ASC. Character: %s"), *FString(__FUNCTION__), *GetName());
+		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() CharacterMovementAttributeSet was either NULL or already added to the character's ASC. Character: %s"), ANSI_TO_TCHAR(__FUNCTION__), *GetName());
 	}
 
 	if (StaminaAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(StaminaAttributeSet))	// If StaminaAttributeSet is valid and it's not yet registered with the Character's ASC
@@ -232,7 +232,7 @@ void ASSCharacter::RegisterAttributeSets()
 	}
 	else
 	{
-		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() StaminaAttributeSet was either NULL or already added to the character's ASC. Character: %s"), *FString(__FUNCTION__), *GetName());
+		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() StaminaAttributeSet was either NULL or already added to the character's ASC. Character: %s"), ANSI_TO_TCHAR(__FUNCTION__), *GetName());
 	}
 }
 

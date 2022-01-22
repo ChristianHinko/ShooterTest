@@ -32,7 +32,7 @@ bool UGA_CharacterInstantInteract::CanActivateAbility(const FGameplayAbilitySpec
 	////////////// Allow the implementer to create custom conditions before we activate (may make this specific to the type of interact) ////////////
 	if (ShooterCharacter->Interactor->CurrentPrioritizedInteractable->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from IInteractable's implementor"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from IInteractable's implementor"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 	return true;

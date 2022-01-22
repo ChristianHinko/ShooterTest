@@ -436,7 +436,7 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 								UUW_ActiveItem* WidgetToDisplay = nullptr;			// This ptr represents the widget that will show up on screen (whether it's already created or not)
 								if (SSArcItemStack->ActiveItemWidget == nullptr)	// If for some reason the widget wasn't created successfully on item equip
 								{
-									UE_LOG(UISetup, Warning, TEXT("%s() New active item stack did not point to a valid item widget when trying to make it visible. Equipping the item maybe didn't successfully create the widget so we have nothing. We will create the widget now but something seams to have messed up at some point"), *FString(__FUNCTION__));
+									UE_LOG(UISetup, Warning, TEXT("%s() New active item stack did not point to a valid item widget when trying to make it visible. Equipping the item maybe didn't successfully create the widget so we have nothing. We will create the widget now but something seams to have messed up at some point"), ANSI_TO_TCHAR(__FUNCTION__));
 									// Create the widget and add to viewport
 									WidgetToDisplay = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, ItemUIData->ActiveItemWidgetTSub, OwningPC));
 									if (WidgetToDisplay)
@@ -467,7 +467,7 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 								}
 								else
 								{
-									UE_LOG(LogUI, Fatal, TEXT("%s(): When trying to inject the new active item name into UUW_Ammo on create, we couldn't, because the cast from UUserWidget to UUW_Ammo failed"), *FString(__FUNCTION__));
+									UE_LOG(LogUI, Fatal, TEXT("%s(): When trying to inject the new active item name into UUW_Ammo on create, we couldn't, because the cast from UUserWidget to UUW_Ammo failed"), ANSI_TO_TCHAR(__FUNCTION__));
 								}
 								ShooterHUD->AmmoWidget = NewAmmoWidget;
 								if (ShooterHUD->AmmoWidget)
@@ -484,7 +484,7 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 
 	if (bSuccessfullyAdded == false)
 	{
-		UE_LOG(UISetup, Warning, TEXT("%s() Item's widget was not successfully displayed on item active (a cast must have failed in the process)"), *FString(__FUNCTION__));
+		UE_LOG(UISetup, Warning, TEXT("%s() Item's widget was not successfully displayed on item active (a cast must have failed in the process)"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 }
 

@@ -34,7 +34,7 @@ float AGATA_BulletTrace::GetMaxRange() const
 		return GunAttributeSet->GetMaxRange();
 	}
 
-	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its MaxRange attribute! Will return value from Default Object of UAS_Gun instead!"), *FString(__FUNCTION__));
+	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its MaxRange attribute! Will return value from Default Object of UAS_Gun instead!"), ANSI_TO_TCHAR(__FUNCTION__));
 	return GetDefault<UAS_Gun>()->GetMaxRange();
 }
 int32 AGATA_BulletTrace::GetNumberOfTraces() const
@@ -44,7 +44,7 @@ int32 AGATA_BulletTrace::GetNumberOfTraces() const
 		return GunAttributeSet->GetNumberOfBulletsPerFire();
 	}
 
-	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its NumberOfBulletsPerFire attribute! Will return value from Default Object of UAS_Gun instead!"), *FString(__FUNCTION__));
+	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its NumberOfBulletsPerFire attribute! Will return value from Default Object of UAS_Gun instead!"), ANSI_TO_TCHAR(__FUNCTION__));
 	return GetDefault<UAS_Gun>()->GetNumberOfBulletsPerFire();
 }
 int32 AGATA_BulletTrace::GetPenetrations() const
@@ -54,7 +54,7 @@ int32 AGATA_BulletTrace::GetPenetrations() const
 		return GunAttributeSet->GetPenetrations();
 	}
 
-	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its Penetrations attribute! Will return value from Default Object of UAS_Gun instead!"), *FString(__FUNCTION__));
+	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its Penetrations attribute! Will return value from Default Object of UAS_Gun instead!"), ANSI_TO_TCHAR(__FUNCTION__));
 	return GetDefault<UAS_Gun>()->GetPenetrations();
 }
 int32 AGATA_BulletTrace::GetRicochets() const
@@ -64,7 +64,7 @@ int32 AGATA_BulletTrace::GetRicochets() const
 		return GunAttributeSet->GetRicochets();
 	}
 
-	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its Ricochets attribute! Will return value from Default Object of UAS_Gun instead!"), *FString(__FUNCTION__));
+	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its Ricochets attribute! Will return value from Default Object of UAS_Gun instead!"), ANSI_TO_TCHAR(__FUNCTION__));
 	return GetDefault<UAS_Gun>()->GetRicochets();
 }
 float AGATA_BulletTrace::GetInitialBulletSpeed() const
@@ -74,7 +74,7 @@ float AGATA_BulletTrace::GetInitialBulletSpeed() const
 		return GunAttributeSet->GetInitialBulletSpeed();
 	}
 
-	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its InitialBulletSpeed attribute! Will return value from Default Object of UAS_Gun instead!"), *FString(__FUNCTION__));
+	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its InitialBulletSpeed attribute! Will return value from Default Object of UAS_Gun instead!"), ANSI_TO_TCHAR(__FUNCTION__));
 	return GetDefault<UAS_Gun>()->GetInitialBulletSpeed();
 }
 float AGATA_BulletTrace::GetBulletSpeedFalloff() const
@@ -84,7 +84,7 @@ float AGATA_BulletTrace::GetBulletSpeedFalloff() const
 		return GunAttributeSet->GetBulletSpeedFalloff();
 	}
 
-	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its BulletSpeedFalloff attribute! Will return value from Default Object of UAS_Gun instead!"), *FString(__FUNCTION__));
+	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its BulletSpeedFalloff attribute! Will return value from Default Object of UAS_Gun instead!"), ANSI_TO_TCHAR(__FUNCTION__));
 	return GetDefault<UAS_Gun>()->GetBulletSpeedFalloff();
 }
 
@@ -597,7 +597,7 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, int32 bulle
 		}
 		else
 		{
-			UE_LOG(LogGameplayAbilityTargetActor, Warning, TEXT("%s() A BulletStep had no RicochetPoint or TraceSegment.... Something's wrong"), *FString(__FUNCTION__));
+			UE_LOG(LogGameplayAbilityTargetActor, Warning, TEXT("%s() A BulletStep had no RicochetPoint or TraceSegment.... Something's wrong"), ANSI_TO_TCHAR(__FUNCTION__));
 		}
 	}
 	

@@ -102,7 +102,7 @@ ASSActor* UActorPoolerSubsystem::SpawnOrReactivate(TSubclassOf<ASSActor> ActorCl
 	{
 		if (!Cast<IPoolable>(ActorClass.GetDefaultObject()))
 		{
-			UE_LOG(LogPooling, Error, TEXT("%s() Caller passed in actor that doesn't implement IPoolable... Returning nullptr"), *FString(__FUNCTION__));
+			UE_LOG(LogPooling, Error, TEXT("%s() Caller passed in actor that doesn't implement IPoolable... Returning nullptr"), ANSI_TO_TCHAR(__FUNCTION__));
 			return nullptr;
 		}
 
@@ -138,7 +138,7 @@ void UActorPoolerSubsystem::DeativateToPool(ASSActor* ActorToDeactivate)
 	}
 	if (Poolable->bIsCurentlyInPool)
 	{
-		UE_LOG(LogPooling, Error, TEXT("%s() Tried to deactivate to pool but already is in pool"), *FString(__FUNCTION__));
+		UE_LOG(LogPooling, Error, TEXT("%s() Tried to deactivate to pool but already is in pool"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
 

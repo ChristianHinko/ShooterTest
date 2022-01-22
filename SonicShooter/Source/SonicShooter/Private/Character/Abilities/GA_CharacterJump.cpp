@@ -46,12 +46,12 @@ void UGA_CharacterJump::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, 
 		CMC = SSCharacter->GetSSCharacterMovementComponent();
 		if (!CMC)
 		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetCharacterMovement was NULL"), *FString(__FUNCTION__));
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetCharacterMovement was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 		}
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 }
 
@@ -64,18 +64,18 @@ bool UGA_CharacterJump::CanActivateAbility(const FGameplayAbilitySpecHandle Hand
 
 	if (!SSCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 	if (!CMC)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
 	if (CMC->CanAttemptJump() == false)
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Was not able to jump when trying to activate ability. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Was not able to jump when trying to activate ability. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
@@ -102,7 +102,7 @@ void UGA_CharacterJump::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("JumpEffectTSub empty in %s - please fill out Character Jump ability blueprint"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("JumpEffectTSub empty in %s - please fill out Character Jump ability blueprint"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 	CMC->DoJump(false);

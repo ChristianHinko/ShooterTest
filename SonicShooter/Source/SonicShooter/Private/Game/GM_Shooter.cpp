@@ -107,12 +107,12 @@ void AGM_Shooter::GiveInventoryStartupItems(UArcInventoryComponent* Inventory)
 	//			}
 	//			else
 	//			{
-	//				UE_LOG(LogArcInventorySetup, Error, TEXT("%s() Could not place starting item into slot because CustomInventorySlots[i] did not match to an actual slot reference. (This should like never happen since the inventory slots are generated from this CustomInventorySlots array)"), *FString(__FUNCTION__), *GetName());
+	//				UE_LOG(LogArcInventorySetup, Error, TEXT("%s() Could not place starting item into slot because CustomInventorySlots[i] did not match to an actual slot reference. (This should like never happen since the inventory slots are generated from this CustomInventorySlots array)"), ANSI_TO_TCHAR(__FUNCTION__), *GetName());
 	//			}
 	//		}
 	//		else
 	//		{
-	//			UE_LOG(LogArcInventorySetup, Error, TEXT("%s() GeneratedItem was NULL. We tried to give the new newly spawned pawn a starting item for a certain slot, but did not generate corectly."), *FString(__FUNCTION__), *GetName());
+	//			UE_LOG(LogArcInventorySetup, Error, TEXT("%s() GeneratedItem was NULL. We tried to give the new newly spawned pawn a starting item for a certain slot, but did not generate corectly."), ANSI_TO_TCHAR(__FUNCTION__), *GetName());
 	//		}
 	//	}
 	//}

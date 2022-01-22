@@ -73,24 +73,24 @@ bool UGA_Reload::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 
 	if (!DepleteBackupAmmoEffectTSub)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DepleteBackupAmmoEffectTSub was NULL. Returned false. - Please fill out blueprint TSubs"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DepleteBackupAmmoEffectTSub was NULL. Returned false. - Please fill out blueprint TSubs"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
 	if (!AmmoAttributeSet)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() AmmoAttributeSet was NULL. returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() AmmoAttributeSet was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
 	if (AmmoAttributeSet->ClipAmmo >= AmmoAttributeSet->GetMaxClipAmmo())
 	{
-		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Already have full ammo. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Already have full ammo. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 	if (AmmoAttributeSet->GetBackupAmmo() <= 0)
 	{
-		UE_LOG(LogGameplayAbility, Log, TEXT("%s() No backup ammo to use to reload. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Log, TEXT("%s() No backup ammo to use to reload. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
@@ -116,7 +116,7 @@ void UGA_Reload::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("ReloadingEffectTSub TSubclassOf empty in %s"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("ReloadingEffectTSub TSubclassOf empty in %s"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 

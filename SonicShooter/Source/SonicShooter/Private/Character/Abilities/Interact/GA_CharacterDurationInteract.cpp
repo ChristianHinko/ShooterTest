@@ -33,7 +33,7 @@ bool UGA_CharacterDurationInteract::CanActivateAbility(const FGameplayAbilitySpe
 	////////////// Allow the implementer to create custom conditions before we activate (may make this specific to the type of interact) ////////////
 	if (ShooterCharacter->Interactor->CurrentPrioritizedInteractable->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from IInteractable's implementor"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from IInteractable's implementor"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 	return true;
@@ -49,7 +49,7 @@ void UGA_CharacterDurationInteract::ActivateAbility(const FGameplayAbilitySpecHa
 	UAT_DurationInteractCallbacks* DurationInteractCallbacks = UAT_DurationInteractCallbacks::DurationInteractCallbacks(this, ShooterCharacter, Interactable);
 	if (!DurationInteractCallbacks)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DurationInteractCallbacks was NULL when trying to activate InteractDuration ability. May have been because a NULL Character or Interactable reference was passed in. Called EndAbility()"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DurationInteractCallbacks was NULL when trying to activate InteractDuration ability. May have been because a NULL Character or Interactable reference was passed in. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
 		InteractEndReason = EDurationInteractEndReason::REASON_Unknown;
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
@@ -58,7 +58,7 @@ void UGA_CharacterDurationInteract::ActivateAbility(const FGameplayAbilitySpecHa
 	UAbilityTask_WaitInputRelease* InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
 	if (!InputReleasedTask)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate InteractDuration ability. Called EndAbility()"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate InteractDuration ability. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
 		InteractEndReason = EDurationInteractEndReason::REASON_Unknown;
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
@@ -180,7 +180,7 @@ void UGA_CharacterDurationInteract::EndAbility(const FGameplayAbilitySpecHandle 
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() RemoveActiveGameplayEffect(InteractEffectActiveHandle) failed. AbilitySystemComponent was NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() RemoveActiveGameplayEffect(InteractEffectActiveHandle) failed. AbilitySystemComponent was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 	

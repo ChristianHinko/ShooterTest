@@ -47,12 +47,12 @@ void UGA_CharacterRun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, c
 		CMC = SSCharacter->GetSSCharacterMovementComponent();
 		if (!CMC)
 		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetSSCharacterMovementComponent was NULL"), *FString(__FUNCTION__));
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetSSCharacterMovementComponent was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 		}
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 }
 
@@ -66,18 +66,18 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 
 	if (!SSCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 	if (!CMC)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
 	if (CMC->CanRunInCurrentState() == false)
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Was not able to run in current state when trying to activate ability. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Was not able to run in current state when trying to activate ability. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 

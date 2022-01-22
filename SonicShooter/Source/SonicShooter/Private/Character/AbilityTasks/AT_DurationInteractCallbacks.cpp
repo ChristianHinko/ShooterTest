@@ -20,7 +20,7 @@ UAT_DurationInteractCallbacks* UAT_DurationInteractCallbacks::DurationInteractCa
 {
 	if (!InInteract || !OwningAbility || !ShooterCharacter)
 	{
-		UE_LOG(LogGameplayAbilityTask, Error, TEXT("%s() InInteract, OwningAbility, or ShooterCharacter was NULL when trying activate task"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbilityTask, Error, TEXT("%s() InInteract, OwningAbility, or ShooterCharacter was NULL when trying activate task"), ANSI_TO_TCHAR(__FUNCTION__));
 		return nullptr;
 	}
 

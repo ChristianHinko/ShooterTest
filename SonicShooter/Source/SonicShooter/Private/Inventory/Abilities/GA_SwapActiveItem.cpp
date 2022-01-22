@@ -38,14 +38,14 @@ void UGA_SwapActiveItem::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo,
 	ShooterCharacter = Cast<AShooterCharacter>(ActorInfo->AvatarActor.Get());
 	if (!ShooterCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShooterCharacter was NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShooterCharacter was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
 
 	SSInventoryComponentActive = ShooterCharacter->SSInventoryComponentActive;
 	if (!SSInventoryComponentActive)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSInventoryComponentActive was NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSInventoryComponentActive was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
 }
@@ -60,13 +60,13 @@ bool UGA_SwapActiveItem::CanActivateAbility(const FGameplayAbilitySpecHandle Han
 
 	if (!ShooterCharacter)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShooterCharacter was NULL. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShooterCharacter was NULL. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
 	if (!SSInventoryComponentActive)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSInventoryComponentActive was NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSInventoryComponentActive was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
@@ -105,7 +105,7 @@ void UGA_SwapActiveItem::PerformSwap()
 		case ESwapMethod::ByIndex:
 			if (SSInventoryComponentActive->IsActiveItemSlotIndexValid(itemSlotIndexToSwitchTo) == false)
 			{
-				UE_LOG(LogGameplayAbility, Warning, TEXT("%s() No valid index to switch to"), *FString(__FUNCTION__));
+				UE_LOG(LogGameplayAbility, Warning, TEXT("%s() No valid index to switch to"), ANSI_TO_TCHAR(__FUNCTION__));
 				break;
 			}
 			SSInventoryComponentActive->SwapActiveItems(itemSlotIndexToSwitchTo);
@@ -113,7 +113,7 @@ void UGA_SwapActiveItem::PerformSwap()
 		case ESwapMethod::ByTagQuery:
 			if (ItemSlotTagQueryForSwitching.IsEmpty())
 			{
-				UE_LOG(LogGameplayAbility, Warning, TEXT("%s() ItemSlotTagQueryForSwitching empty when trying to switch to inventory slot with the matching query"), *FString(__FUNCTION__));
+				UE_LOG(LogGameplayAbility, Warning, TEXT("%s() ItemSlotTagQueryForSwitching empty when trying to switch to inventory slot with the matching query"), ANSI_TO_TCHAR(__FUNCTION__));
 				break;
 			}
 			SSInventoryComponentActive->SwapActiveItems(SSInventoryComponentActive->GetIndexForActiveItemSlotTagQuery(ItemSlotTagQueryForSwitching));
@@ -123,7 +123,7 @@ void UGA_SwapActiveItem::PerformSwap()
 
 			if (SlotsWithMatchingQuery.Num() > 1)
 			{
-				UE_LOG(LogGameplayAbility, Warning, TEXT("%s() More than one slot matched the tag query when switching. Ambiguous which one is wanted (check to make sure you made your query how you wanted it). Making active the first match"), *FString(__FUNCTION__));
+				UE_LOG(LogGameplayAbility, Warning, TEXT("%s() More than one slot matched the tag query when switching. Ambiguous which one is wanted (check to make sure you made your query how you wanted it). Making active the first match"), ANSI_TO_TCHAR(__FUNCTION__));
 			}
 #endif
 
@@ -139,7 +139,7 @@ void UGA_SwapActiveItem::PerformSwap()
 		case ESwapMethod::ByItemHistory:
 			if (SSInventoryComponentActive->ActiveItemHistory.IsValidIndex(itemHistoryIndex) == false)
 			{
-				UE_LOG(LogGameplayAbility, Error, TEXT("%s() No valid index to switch to"), *FString(__FUNCTION__));
+				UE_LOG(LogGameplayAbility, Error, TEXT("%s() No valid index to switch to"), ANSI_TO_TCHAR(__FUNCTION__));
 				break;
 			}
 

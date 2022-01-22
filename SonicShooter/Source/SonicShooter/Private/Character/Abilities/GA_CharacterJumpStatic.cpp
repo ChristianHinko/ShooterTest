@@ -40,7 +40,7 @@ void UGA_CharacterJumpStatic::ActivateAbility(const FGameplayAbilitySpecHandle H
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	if (!Character)
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Character was NULL when trying to activate static jump ability. Called EndAbility()"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Character was NULL when trying to activate static jump ability. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
@@ -102,12 +102,12 @@ void UGA_CharacterJumpStatic::EndAbility(const FGameplayAbilitySpecHandle Handle
 		}
 		else
 		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() Couldn't call Character->StopJumping() because Character* was NULL"), *FString(__FUNCTION__));
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() Couldn't call Character->StopJumping() because Character* was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 		}
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo was NULL when trying to remove when trying to call StopJumping on the character"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo was NULL when trying to remove when trying to call StopJumping on the character"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 

@@ -54,7 +54,7 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	TimeBetweenShotsAttributeChangedDelegate = &(GetAbilitySystemComponentFromActorInfo()->GetGameplayAttributeValueChangeDelegate(TimeBetweenShotsAttribute));
 	if (!TimeBetweenShotsAttributeChangedDelegate)
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() No valid TimeBetweenShotsAttributeChangedDelegate when giving the fire ability. Runtime changes of TimeBetweenShots will result in unexpected behavior."), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() No valid TimeBetweenShotsAttributeChangedDelegate when giving the fire ability. Runtime changes of TimeBetweenShots will result in unexpected behavior."), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 	// Need to make the item generators use the GunStack now
@@ -62,7 +62,7 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	GunToFire = Cast<UGunStack>(GetCurrentSourceObject());
 	if (!GunToFire)
 	{
-		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid Gun when giving the fire ability"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid Gun when giving the fire ability"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
 
@@ -96,7 +96,7 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	BulletTraceTargetActor = GetWorld()->SpawnActorDeferred<AGATA_BulletTrace>(GunToFire->BulletTraceTargetActorTSub, FTransform());
 	if (!BulletTraceTargetActor)
 	{
-		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid BulletTraceTargetActor in the GunStack when giving the fire ability. How the heck we supposed to fire the gun!?!?"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid BulletTraceTargetActor in the GunStack when giving the fire ability. How the heck we supposed to fire the gun!?!?"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
 	BulletTraceTargetActor->OwningAbility = this;
@@ -133,29 +133,29 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 
 	if (!GunToFire)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GunToFire was NULL. returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GunToFire was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
 	if (!BulletTraceTargetActor)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() BulletTraceTargetActor was NULL. returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() BulletTraceTargetActor was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
 	if (!GunAttributeSet)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GunAttributeSet was NULL. returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GunAttributeSet was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 	if (!AmmoAttributeSet)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() AmmoAttributeSet was NULL. returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() AmmoAttributeSet was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 	if (!EnoughAmmoToShoot())
 	{
-		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Not enough ammo to perform a fire. returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Not enough ammo to perform a fire. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
@@ -163,7 +163,7 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 	const float timePassed = GetWorld()->GetTimeSeconds() - timestampPreviousFireEnd;
 	if (timePassed < GetTimeBetweenFires())
 	{
-		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Tried firing gun faster than the gun's FireRate allowed. returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Tried firing gun faster than the gun's FireRate allowed. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
@@ -182,7 +182,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		TickerTask = UAT_Ticker::Ticker(this, false, -1.f, GetTimeBetweenShots());
 		if (!TickerTask)
 		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() TickerTask was NULL when trying to activate fire ability. Called EndAbility()"), *FString(__FUNCTION__));
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() TickerTask was NULL when trying to activate fire ability. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 			return;
 		}
@@ -195,7 +195,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		WaitInputReleaseTask = UAT_WaitInputRelease::WaitInputRelease(this, false, true);
 		if (!WaitInputReleaseTask)
 		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputReleaseTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), *FString(__FUNCTION__));
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputReleaseTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), ANSI_TO_TCHAR(__FUNCTION__));
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 			return;
 		}
@@ -208,7 +208,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		WaitInputPressTask = UAT_WaitInputPress::WaitInputPress(this, false, true);
 		if (!WaitInputPressTask)
 		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputPressTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), *FString(__FUNCTION__));
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputPressTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), ANSI_TO_TCHAR(__FUNCTION__));
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 			return;
 		}
@@ -229,7 +229,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("IsFiringGunEffectTSub TSubclassOf empty in %s"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("IsFiringGunEffectTSub TSubclassOf empty in %s"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 
@@ -245,7 +245,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s TimeBetweenShotsAttributeChangedDelegate was null when activating FireGun ability. Runtime changes of TimeBetweenShots during this ability activation will result in unexpected behavior."), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s TimeBetweenShotsAttributeChangedDelegate was null when activating FireGun ability. Runtime changes of TimeBetweenShots during this ability activation will result in unexpected behavior."), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 	TickerTask->OnTick.AddDynamic(this, &UGA_FireGun::OnShootTick);
@@ -325,7 +325,7 @@ void UGA_FireGun::Shoot()
 		// The reason you may want to do this is so that you could do some kind of thing in response to a shot not having ammo (ie. play clicking sound or animation idk)
 		// Not saying this is where it should be done, but thought it might be useful to keep for now if we ever end up liking the idea.
 		// Another suggestion of where to do these kind of things would maybe to do it in the OnShootTick(), so we don't have to call this function and we could do these effects in there.
-		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Not enough ammo to shoot"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Not enough ammo to shoot"), ANSI_TO_TCHAR(__FUNCTION__));
 
 		return;
 	}
@@ -334,7 +334,7 @@ void UGA_FireGun::Shoot()
 	UAbilityTask_PlayMontageAndWait* PlayMontageAndWaitTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("ShootMontage"), ShootMontage, 1.f, NAME_None, false);
 	if (!PlayMontageAndWaitTask)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() PlayMontageAndWaitTask was NULL when trying to shoot. Called EndAbility() so shot doesn't happen to keep things consistant"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() PlayMontageAndWaitTask was NULL when trying to shoot. Called EndAbility() so shot doesn't happen to keep things consistant"), ANSI_TO_TCHAR(__FUNCTION__));
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 		return;
 	}
@@ -344,7 +344,7 @@ void UGA_FireGun::Shoot()
 	UASSAbilityTask_WaitTargetData* WaitTargetDataActorTask = UASSAbilityTask_WaitTargetData::ASSWaitTargetDataUsingActor(this, TEXT("WaitTargetDataActorTask"), EGameplayTargetingConfirmation::Instant, BulletTraceTargetActor);
 	if (!WaitTargetDataActorTask)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitTargetDataActorTask was NULL when trying to shoot. Called EndAbility()"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitTargetDataActorTask was NULL when trying to shoot. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 		return;
 	}
@@ -406,7 +406,7 @@ void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s(): GunToFire gave us an empty BulletHitEffectTSub. Make sure to fill out DefaultBulletHitEffectTSub in the Gun generator"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s(): GunToFire gave us an empty BulletHitEffectTSub. Make sure to fill out DefaultBulletHitEffectTSub in the Gun generator"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 	// Execute cues
@@ -447,7 +447,7 @@ void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 }
 void UGA_FireGun::OnCancelled(const FGameplayAbilityTargetDataHandle& Data)
 {
-	UE_LOG(LogGameplayAbility, Warning, TEXT("%s(): Not sure how this got hit :/ Something unexpected happened"), *FString(__FUNCTION__));
+	UE_LOG(LogGameplayAbility, Warning, TEXT("%s(): Not sure how this got hit :/ Something unexpected happened"), ANSI_TO_TCHAR(__FUNCTION__));
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }
 
@@ -473,7 +473,7 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() TimeBetweenShotsAttributeChangedDelegate was NULL when trying to unbind from it. This is weird"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() TimeBetweenShotsAttributeChangedDelegate was NULL when trying to unbind from it. This is weird"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 	// Store when this fire ended so next fire can determine fire rate
 	timestampPreviousFireEnd = GetWorld()->GetTimeSeconds();
@@ -488,7 +488,7 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo->AbilitySystemComponent.Get() was NULL when trying to remove IsFiringGunEffectActiveHandle"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo->AbilitySystemComponent.Get() was NULL when trying to remove IsFiringGunEffectActiveHandle"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 

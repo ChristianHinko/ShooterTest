@@ -20,6 +20,7 @@
 #include "GameFramework/Pawn.h"
 #include "Character/AS_CharacterMovement.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
+#include "AbilitySystem/ASSGameplayAbility.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -235,13 +236,15 @@ void ASSCharacter::RegisterAttributeSets()
 	}
 }
 
-void ASSCharacter::GrantStartingAbilities()
+void ASSCharacter::GiveStartingAbilities()
 {
-	Super::GrantStartingAbilities();
+	Super::GiveStartingAbilities();
 
-	CharacterJumpAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterJumpAbilityTSub, this/*, GetLevel()*/);
-	CharacterCrouchAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterCrouchAbilityTSub, this/*, GetLevel()*/);
-	CharacterRunAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterRunAbilityTSub, this/*, GetLevel()*/);
+	CharacterJumpAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(CharacterJumpAbilityTSub, /*GetLevel()*/1, -1, this));
+	CharacterCrouchAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(CharacterCrouchAbilityTSub, /*GetLevel()*/1, -1, this));
+	CharacterRunAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(CharacterRunAbilityTSub, /*GetLevel()*/1, -1, this));
+
+
 }
 
 

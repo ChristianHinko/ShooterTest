@@ -104,25 +104,23 @@ void AShooterCharacter::RegisterAttributeSets()
 		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() HealthAttributeSet was either NULL or already added to the character's ASC. Character: %s"), *FString(__FUNCTION__), *GetName());
 	}
 }
-void AShooterCharacter::GrantStartingAbilities()
+void AShooterCharacter::GiveStartingAbilities()
 {
-	Super::GrantStartingAbilities();
+	Super::GiveStartingAbilities();
 
+	InteractInstantAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(InteractInstantAbilityTSub, /*GetLevel()*/1, -1, this));
+	InteractDurationAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(InteractDurationAbilityTSub, /*GetLevel()*/1, -1, this));
 
-	InteractInstantAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractInstantAbilityTSub, this/*, GetLevel()*/);
-	InteractDurationAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(InteractDurationAbilityTSub, this/*, GetLevel()*/);
+	SwapToLastActiveItemAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(SwapToLastActiveItemAbilityTSub, /*GetLevel()*/1, -1, this));
+	SwapToNextItemAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(SwapToNextItemAbilityTSub, /*GetLevel()*/1, -1, this));
+	SwapToPreviousItemAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(SwapToPreviousItemAbilityTSub, /*GetLevel()*/1, -1, this));
+	SwapToFirstItemAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(SwapToFirstItemAbilityTSub, /*GetLevel()*/1, -1, this));
+	SwapToSecondItemAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(SwapToSecondItemAbilityTSub, /*GetLevel()*/1, -1, this));
+	SwapToThirdItemAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(SwapToThirdItemAbilityTSub, /*GetLevel()*/1, -1, this));
+	SwapToFourthItemAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(SwapToFourthItemAbilityTSub, /*GetLevel()*/1, -1, this));
+	SwapToFifthItemAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(SwapToFifthItemAbilityTSub, /*GetLevel()*/1, -1, this));
 
-	SwapToLastActiveItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToLastActiveItemAbilityTSub, this/*, GetLevel()*/);
-	SwapToNextItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToNextItemAbilityTSub, this/*, GetLevel()*/);
-	SwapToPreviousItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToPreviousItemAbilityTSub, this/*, GetLevel()*/);
-	SwapToFirstItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToFirstItemAbilityTSub, this/*, GetLevel()*/);
-	SwapToSecondItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToSecondItemAbilityTSub, this/*, GetLevel()*/);
-	SwapToThirdItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToThirdItemAbilityTSub, this/*, GetLevel()*/);
-	SwapToFourthItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToFourthItemAbilityTSub, this/*, GetLevel()*/);
-	SwapToFifthItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(SwapToFifthItemAbilityTSub, this/*, GetLevel()*/);
-
-	DropItemAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(DropItemAbilityTSub, this/*, GetLevel()*/);
-
+	DropItemAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(DropItemAbilityTSub, /*GetLevel()*/1, -1, this));
 }
 
 #include "Kismet/KismetSystemLibrary.h"

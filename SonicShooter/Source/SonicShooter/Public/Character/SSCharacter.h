@@ -187,7 +187,7 @@ protected:
 
 	virtual void CreateAttributeSets() override;
 	virtual void RegisterAttributeSets() override;
-	virtual void GrantStartingAbilities() override;
+	virtual void GiveStartingAbilities() override;
 
 	UPROPERTY()
 		USSCharacterMovementComponent* SSCharacterMovementComponent;

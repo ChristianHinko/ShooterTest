@@ -240,7 +240,7 @@ void USSArcInventoryComponent_Active::OnItemSlotChangeEvent(UArcInventoryCompone
 		{
 			if (!IsValid(SSArcItemStack->ActiveItemWidget))		// only create a new widget if it doesn't already exist
 			{
-				if (USSUArcUIData_ActiveItemDefinition* ItemUIData = Cast<USSUArcUIData_ActiveItemDefinition>(ItemStack->GetUIData()))
+				if (USSArcUIData_ItemDefinition* ItemUIData = Cast<USSArcUIData_ItemDefinition>(ItemStack->GetUIData()))
 				{
 					if (APawn* OwningPawn = GetTypedOuter<APawn>())
 					{
@@ -287,7 +287,7 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 			{
 				if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
 				{
-					if (USSUArcUIData_ActiveItemDefinition* ItemUIData = Cast<USSUArcUIData_ActiveItemDefinition>(ItemStack->GetUIData()))
+					if (USSArcUIData_ItemDefinition* ItemUIData = Cast<USSArcUIData_ItemDefinition>(ItemStack->GetUIData()))
 					{
 						if (AHUD_Shooter* ShooterHUD = Cast<AHUD_Shooter>(OwningPC->GetHUD()))
 						{

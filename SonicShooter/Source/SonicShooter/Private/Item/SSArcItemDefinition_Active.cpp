@@ -5,7 +5,7 @@
 
 
 
-USSUArcUIData_ActiveItemDefinition::USSUArcUIData_ActiveItemDefinition()
+USSArcUIData_ItemDefinition::USSArcUIData_ItemDefinition()
 {
 
 }

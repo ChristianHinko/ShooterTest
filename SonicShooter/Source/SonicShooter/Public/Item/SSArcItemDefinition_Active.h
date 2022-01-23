@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Item/Definitions/ArcItemDefinition_Active.h"
-#include "UI\UMG\Widgets\UW_ActiveItem.h"
+#include "UI/UMG/Widgets/UW_ActiveItem.h"
 
 #include "SSArcItemDefinition_Active.generated.h"
 
@@ -13,12 +13,12 @@
 
 
 UCLASS(Blueprintable, BlueprintType)
-class SONICSHOOTER_API USSUArcUIData_ActiveItemDefinition : public UArcUIData_ItemDefinition
+class SONICSHOOTER_API USSArcUIData_ItemDefinition : public UArcUIData_ItemDefinition
 {
 	GENERATED_BODY()
 
 public:
-	USSUArcUIData_ActiveItemDefinition();
+	USSArcUIData_ItemDefinition();
 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")

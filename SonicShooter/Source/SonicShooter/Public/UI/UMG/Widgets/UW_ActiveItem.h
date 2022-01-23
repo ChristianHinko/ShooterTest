@@ -37,7 +37,7 @@ protected:
 
 
 	UPROPERTY(meta = (BindWidget))
-		UUW_Crosshair* CrosshairWidget; 
+		UUW_Crosshair* CrosshairWidget;
 	UPROPERTY(meta = (BindWidget))
 		UUW_Ammo* AmmoWidget;
 	UPROPERTY(meta = (BindWidget))

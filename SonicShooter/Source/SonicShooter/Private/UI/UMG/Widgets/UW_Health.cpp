@@ -4,6 +4,8 @@
 #include "UI/UMG/Widgets/UW_Health.h"
 
 #include "AttributeSets/AS_Health.h"
+#include "Components/TextBlock.h"
+#include "Components/ProgressBar.h"
 
 
 
@@ -23,21 +25,30 @@ void UUW_Health::OnAttributeChanged(const FOnAttributeChangeData& Data)
 
 	if (Attribute == UAS_Health::GetHealthAttribute())
 	{
-		SetCurrentHealth(NewValue);
+		CurrentHealth = NewValue;
+		UpdateHealthStatus();
 	}
 	if (Attribute == UAS_Health::GetMaxHealthAttribute())
 	{
-		SetMaxHealth(NewValue);
+		MaxHealth = NewValue;
+		UpdateHealthStatus();
 	}
 }
 
-void UUW_Health::SetCurrentHealth(float NewCurrentHealth)
+void UUW_Health::UpdateHealthStatus()
 {
-	CurrentHealth = NewCurrentHealth;
-	UpdateHealthStatus();
-}
-void UUW_Health::SetMaxHealth(float NewMaxHealth)
-{
-	MaxHealth = NewMaxHealth;
-	UpdateHealthStatus();
+	// Set our Text Block
+	const int CeiledHealth = FMath::CeilToInt(CurrentHealth);
+	HealthTextBlock->SetText(FText::AsNumber(CeiledHealth));
+
+
+	if (MaxHealth <= 0)
+	{
+		// Avoid division by zero
+		HealthProgressBar->SetPercent(0.f);
+		return;
+	}
+
+	// Set our Progress Bar
+	HealthProgressBar->SetPercent(CurrentHealth / MaxHealth);
 }

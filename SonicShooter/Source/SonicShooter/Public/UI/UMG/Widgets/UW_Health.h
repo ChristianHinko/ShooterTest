@@ -9,6 +9,8 @@
 
 
 struct FOnAttributeChangeData;
+class UTextBlock;
+class UProgressBar;
 
 
 
@@ -33,12 +35,14 @@ public:
 		float MaxHealth;
 
 protected:
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		UTextBlock* HealthTextBlock;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		UProgressBar* HealthProgressBar;
+
+
 	virtual void OnAttributeChanged(const FOnAttributeChangeData& Data) override;
 
-	void SetCurrentHealth(float NewCurrentHealth);
-	void SetMaxHealth(float NewMaxHealth);
-
 	/** Called on Health changed. Use this to update Health based UI */
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Health", meta = (Keywords = "Tick"))
-		void UpdateHealthStatus();
+	void UpdateHealthStatus();
 };

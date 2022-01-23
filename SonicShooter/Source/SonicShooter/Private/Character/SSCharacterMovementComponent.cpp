@@ -6,7 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Character/SSCharacterMovementComponent.h"
 #include "Character/SSCharacter.h"
-#include "Character/AS_CharacterMovement.h"
+#include "Character/AttributeSets/AS_CharacterMovement.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
 #include "Utilities/LogCategories.h"
 #include "Utilities/SSNativeGameplayTags.h"

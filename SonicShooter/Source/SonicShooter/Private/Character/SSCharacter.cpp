@@ -18,7 +18,7 @@
 #include "Game/SSGameState.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/Pawn.h"
-#include "Character/AS_CharacterMovement.h"
+#include "Character/AttributeSets/AS_CharacterMovement.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
 #include "AbilitySystem/ASSGameplayAbility.h"
 

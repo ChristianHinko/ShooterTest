@@ -4,12 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "UI/ASSEUserWidget.h"
+#include "Styling\SlateBrush.h"
 
 #include "UW_Crosshair.generated.h"
 
 
 class UASC_Shooter;
-
+class USizeBox;
+class UImage;
 
 
 /**
@@ -23,13 +25,36 @@ class SONICSHOOTER_API UUW_Crosshair : public UASSEUserWidget
 	
 public:
 	UUW_Crosshair(const FObjectInitializer& ObjectInitializer);
+	virtual void NativeConstruct() override;
 
 
 	/** The current spread value of the attribute */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly/*, BlueprintReadWrite, BlueprintSetter = SetCurrentSpread*/, Category = "Crosshair")
 		float CurrentSpread;
 
+
+	UPROPERTY(EditAnywhere/*, BlueprintReadWrite, BlueprintSetter = SetCurrentSpread*/, Category = "Crosshair")
+		FSlateBrush Brush_CrossHair;
 protected:
+	UPROPERTY(BlueprintReadOnly, Meta = (BindWidget))
+		USizeBox* SB_Top;
+	UPROPERTY(BlueprintReadOnly, Meta = (BindWidget))
+		USizeBox* SB_Bottom;
+	UPROPERTY(BlueprintReadOnly, Meta = (BindWidget))
+		USizeBox* SB_Left;
+	UPROPERTY(BlueprintReadOnly, Meta = (BindWidget))
+		USizeBox* SB_Right;
+
+	UPROPERTY(BlueprintReadOnly, Meta = (BindWidget))
+		UImage* Image_Top;
+	UPROPERTY(BlueprintReadOnly, Meta = (BindWidget))
+		UImage* Image_Bottom;
+	UPROPERTY(BlueprintReadOnly, Meta = (BindWidget))
+		UImage* Image_Left;
+	UPROPERTY(BlueprintReadOnly, Meta = (BindWidget))
+		UImage* Image_Right;
+
+
 	virtual void OnPlayerASCValid() override;
 	UASC_Shooter* ShooterASC;
 
@@ -41,7 +66,6 @@ protected:
 		void SetCurrentSpread(float NewSpread);
 
 	/** Called on CurrentSpread changed. Use this to update CurrentSpread based UI */
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Crosshair", meta = (Keywords = "Tick"))
 		void UpdateCrosshair();
 
 

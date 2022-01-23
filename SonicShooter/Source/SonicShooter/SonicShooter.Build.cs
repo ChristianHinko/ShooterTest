@@ -14,6 +14,7 @@ public class SonicShooter : ModuleRules
 			new string[] {
 				"InputCore",
 				"PhysicsCore",
+				"SlateCore",
 				"GameplayTags",
 				"GameplayAbilities",
 				"GameplayTasks",

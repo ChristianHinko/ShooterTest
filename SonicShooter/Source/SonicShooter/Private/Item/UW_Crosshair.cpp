@@ -5,6 +5,8 @@
 
 #include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
 #include "Item/Weapons/AS_Gun.h"
+#include "Components\Image.h"
+#include "Components\SizeBox.h"
 
 
 
@@ -14,6 +16,16 @@ UUW_Crosshair::UUW_Crosshair(const FObjectInitializer& ObjectInitializer)
 
 }
 
+
+void UUW_Crosshair::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	Image_Top->SetBrush(Brush_CrossHair);
+	Image_Bottom->SetBrush(Brush_CrossHair);
+	Image_Left->SetBrush(Brush_CrossHair);
+	Image_Right->SetBrush(Brush_CrossHair);
+}
 
 void UUW_Crosshair::OnPlayerASCValid()
 {
@@ -49,6 +61,14 @@ void UUW_Crosshair::SetCurrentSpread(float NewSpread)
 {
 	CurrentSpread = NewSpread;
 	UpdateCrosshair();
+}
+
+void UUW_Crosshair::UpdateCrosshair()
+{
+	SB_Top->SetRenderTranslation(FVector2D(0, -CurrentSpread));
+	SB_Bottom->SetRenderTranslation(FVector2D(0, CurrentSpread));
+	SB_Left->SetRenderTranslation(FVector2D(-CurrentSpread, 0));
+	SB_Right->SetRenderTranslation(FVector2D(CurrentSpread, 0));
 }
 
 

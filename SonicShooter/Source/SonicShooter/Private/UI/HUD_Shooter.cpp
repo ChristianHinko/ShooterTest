@@ -23,7 +23,7 @@ void AHUD_Shooter::PostInitializeComponents()
 	HealthWidget = UWidgetBlueprintLibrary::Create(this, HealthWidgetTSub, GetOwningPlayerController());
 	if (HealthWidget)
 	{
-		HealthWidget->AddToViewport();
+		HealthWidget->AddToPlayerScreen();
 	}
 	else
 	{

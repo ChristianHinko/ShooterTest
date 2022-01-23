@@ -299,7 +299,7 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 									{
 										SSArcItemStack->ActiveItemWidget = WidgetToAdd;
 										ShooterHUD->CurrentActiveItemWidget = WidgetToAdd;
-										WidgetToAdd->AddToViewport();
+										WidgetToAdd->AddToPlayerScreen();
 									}
 								}
 								else												// The widget from USSArcItemStack was valid as expected (it was created on item equip), so we will add it to viewport
@@ -307,7 +307,7 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 									WidgetToAdd = SSArcItemStack->ActiveItemWidget;
 									if (WidgetToAdd)
 									{
-										WidgetToAdd->AddToViewport();
+										WidgetToAdd->AddToPlayerScreen();
 										ShooterHUD->CurrentActiveItemWidget = WidgetToAdd;
 
 									}
@@ -329,7 +329,7 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 								ShooterHUD->AmmoWidget = NewAmmoWidget;
 								if (ShooterHUD->AmmoWidget)
 								{
-									ShooterHUD->AmmoWidget->AddToViewport();
+									ShooterHUD->AmmoWidget->AddToPlayerScreen();
 								}*/
 							}
 						}

@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "UI/ASSEUserWidget.h"
-#include "Styling\SlateBrush.h"
 
 #include "UW_Crosshair.generated.h"
 
@@ -12,6 +11,7 @@
 class UASC_Shooter;
 class USizeBox;
 class UImage;
+
 
 
 /**
@@ -25,49 +25,48 @@ class SONICSHOOTER_API UUW_Crosshair : public UASSEUserWidget
 	
 public:
 	UUW_Crosshair(const FObjectInitializer& ObjectInitializer);
-	virtual void NativeConstruct() override;
 
 
-	/** The current spread value of the attribute */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly/*, BlueprintReadWrite, BlueprintSetter = SetCurrentSpread*/, Category = "Crosshair")
-		float CurrentSpread;
+	UPROPERTY(EditAnywhere, Category = "Crosshair")
+		FSlateBrush CrosshairBrush;
 
-
-	UPROPERTY(EditAnywhere/*, BlueprintReadWrite, BlueprintSetter = SetCurrentSpread*/, Category = "Crosshair")
-		FSlateBrush Brush_CrossHair;
 protected:
-	UPROPERTY(BlueprintReadOnly, Meta = (BindWidget))
-		USizeBox* SB_Top;
-	UPROPERTY(BlueprintReadOnly, Meta = (BindWidget))
-		USizeBox* SB_Bottom;
-	UPROPERTY(BlueprintReadOnly, Meta = (BindWidget))
-		USizeBox* SB_Left;
-	UPROPERTY(BlueprintReadOnly, Meta = (BindWidget))
-		USizeBox* SB_Right;
-
-	UPROPERTY(BlueprintReadOnly, Meta = (BindWidget))
-		UImage* Image_Top;
-	UPROPERTY(BlueprintReadOnly, Meta = (BindWidget))
-		UImage* Image_Bottom;
-	UPROPERTY(BlueprintReadOnly, Meta = (BindWidget))
-		UImage* Image_Left;
-	UPROPERTY(BlueprintReadOnly, Meta = (BindWidget))
-		UImage* Image_Right;
-
-
+	virtual void NativePreConstruct() override;
+	virtual void NativeConstruct() override;
 	virtual void OnPlayerASCValid() override;
+	virtual void NativeDestruct() override;
+
 	UASC_Shooter* ShooterASC;
+
+
+	UPROPERTY(meta = (BindWidget))
+		USizeBox* SizeBoxTop;
+	UPROPERTY(meta = (BindWidget))
+		USizeBox* SizeBoxBottom;
+	UPROPERTY(meta = (BindWidget))
+		USizeBox* SizeBoxLeft;
+	UPROPERTY(meta = (BindWidget))
+		USizeBox* SizeBoxRight;
+
+	UPROPERTY(meta = (BindWidget))
+		UImage* ImageTop;
+	UPROPERTY(meta = (BindWidget))
+		UImage* ImageBottom;
+	UPROPERTY(meta = (BindWidget))
+		UImage* ImageLeft;
+	UPROPERTY(meta = (BindWidget))
+		UImage* ImageRight;
+
+
 
 	UFUNCTION()
 		void OnCurrentBulletSpreadChange(const float& OldValue, const float& NewValue);
 
-
-	//UFUNCTION(BlueprintSetter)
-		void SetCurrentSpread(float NewSpread);
+	/** The current spread value of the Attribute */
+	float CurrentSpread;
 
 	/** Called on CurrentSpread changed. Use this to update CurrentSpread based UI */
-		void UpdateCrosshair();
+	void UpdateCrosshair();
 
 
-	virtual void NativeDestruct() override;
 };

@@ -1,12 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Item/UW_Crosshair.h"
 
 #include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
 #include "Item/Weapons/AS_Gun.h"
-#include "Components\Image.h"
-#include "Components\SizeBox.h"
+#include "Components/Image.h"
+#include "Components/SizeBox.h"
 
 
 
@@ -17,14 +16,25 @@ UUW_Crosshair::UUW_Crosshair(const FObjectInitializer& ObjectInitializer)
 }
 
 
+void UUW_Crosshair::NativePreConstruct()
+{
+	Super::NativePreConstruct();
+
+
+	//ImageTop->SetRenderTransformAngle(0.f);
+	//ImageBottom->SetRenderTransformAngle(180.f);
+	//ImageLeft->SetRenderTransformAngle(-90.f);
+	//ImageRight->SetRenderTransformAngle(90.f);
+}
+
 void UUW_Crosshair::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	Image_Top->SetBrush(Brush_CrossHair);
-	Image_Bottom->SetBrush(Brush_CrossHair);
-	Image_Left->SetBrush(Brush_CrossHair);
-	Image_Right->SetBrush(Brush_CrossHair);
+	ImageTop->SetBrush(CrosshairBrush);
+	ImageBottom->SetBrush(CrosshairBrush);
+	ImageLeft->SetBrush(CrosshairBrush);
+	ImageRight->SetBrush(CrosshairBrush);
 }
 
 void UUW_Crosshair::OnPlayerASCValid()
@@ -54,21 +64,28 @@ void UUW_Crosshair::OnPlayerASCValid()
 
 void UUW_Crosshair::OnCurrentBulletSpreadChange(const float& OldValue, const float& NewValue)
 {
-	SetCurrentSpread(NewValue);
-}
-
-void UUW_Crosshair::SetCurrentSpread(float NewSpread)
-{
-	CurrentSpread = NewSpread;
+	CurrentSpread = NewValue;
 	UpdateCrosshair();
 }
 
+
 void UUW_Crosshair::UpdateCrosshair()
 {
-	SB_Top->SetRenderTranslation(FVector2D(0, -CurrentSpread));
-	SB_Bottom->SetRenderTranslation(FVector2D(0, CurrentSpread));
-	SB_Left->SetRenderTranslation(FVector2D(-CurrentSpread, 0));
-	SB_Right->SetRenderTranslation(FVector2D(CurrentSpread, 0));
+	if (CurrentSpread <= 0)
+	{
+		SizeBoxTop->SetRenderTranslation(FVector2D::ZeroVector);
+		SizeBoxBottom->SetRenderTranslation(FVector2D::ZeroVector);
+		SizeBoxLeft->SetRenderTranslation(FVector2D::ZeroVector);
+		SizeBoxRight->SetRenderTranslation(FVector2D::ZeroVector);
+		return;
+	}
+
+	const float number = 5.f; // arbitrary multiplier
+
+	SizeBoxTop->SetRenderTranslation(CurrentSpread * number * FVector2D(0, -1));
+	SizeBoxBottom->SetRenderTranslation(CurrentSpread * number * FVector2D(0, 1));
+	SizeBoxLeft->SetRenderTranslation(CurrentSpread * number * FVector2D(-1, 0));
+	SizeBoxRight->SetRenderTranslation(CurrentSpread * number * FVector2D(1, 0));
 }
 
 

@@ -27,6 +27,6 @@ void UUW_ActiveItem::NativeConstruct()
 	if (CrosshairWidget)
 	{
 		// Inject crosshair brush TODO: this is bad but i just want this to work
-		CrosshairWidget->Brush_CrossHair = CrosshairBrush;
+		CrosshairWidget->CrosshairBrush = CrosshairBrush;
 	}
 }

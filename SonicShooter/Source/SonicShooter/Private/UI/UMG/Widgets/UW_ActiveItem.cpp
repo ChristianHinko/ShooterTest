@@ -2,6 +2,7 @@
 
 #include "UI/UMG/Widgets/UW_ActiveItem.h"
 
+#include "Item/UW_Crosshair.h"
 #include "Components/TextBlock.h"
 
 
@@ -17,8 +18,15 @@ void UUW_ActiveItem::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+
 	if (ItemTextBlock)
 	{
 		ItemTextBlock->Text = ActiveItemName;
+	}
+
+	if (CrosshairWidget)
+	{
+		// Inject crosshair brush TODO: this is bad but i just want this to work
+		CrosshairWidget->Brush_CrossHair = CrosshairBrush;
 	}
 }

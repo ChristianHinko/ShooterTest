@@ -26,6 +26,9 @@ public:
 	UUW_ActiveItem(const FObjectInitializer& ObjectInitializer);
 
 
+	UPROPERTY(EditAnywhere, Category = "Crosshair")
+		FSlateBrush CrosshairBrush;
+
 	/** Inject item name here immediately after Widget creation */
 	FText ActiveItemName;
 
@@ -33,11 +36,11 @@ protected:
 	virtual void NativeConstruct() override;
 
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (BindWidget))
-		UUW_Crosshair* CrosshairWidget;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget))
+		UUW_Crosshair* CrosshairWidget; 
+	UPROPERTY(meta = (BindWidget))
 		UUW_Ammo* AmmoWidget;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget))
 		UTextBlock* ItemTextBlock;
 
 };

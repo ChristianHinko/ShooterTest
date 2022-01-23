@@ -14,14 +14,11 @@ UUW_ActiveItem::UUW_ActiveItem(const FObjectInitializer& ObjectInitializer)
 }
 
 
-void UUW_ActiveItem::NativeConstruct()
+void UUW_ActiveItem::NativeOnInitialized()
 {
-	Super::NativeConstruct();
-
-
 	if (ItemTextBlock)
 	{
-		ItemTextBlock->Text = ActiveItemName;
+		ItemTextBlock->SetText(ActiveItemName);
 	}
 
 	if (CrosshairWidget)
@@ -29,4 +26,7 @@ void UUW_ActiveItem::NativeConstruct()
 		// Inject crosshair brush TODO: this is bad but i just want this to work
 		CrosshairWidget->CrosshairBrush = CrosshairBrush;
 	}
+
+
+	Super::NativeOnInitialized();
 }

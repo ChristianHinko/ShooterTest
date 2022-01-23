@@ -33,7 +33,7 @@ public:
 	FText ActiveItemName;
 
 protected:
-	virtual void NativeConstruct() override;
+	virtual void NativeOnInitialized() override;
 
 
 	UPROPERTY(meta = (BindWidget))

@@ -10,6 +10,7 @@
 
 class UUW_Crosshair;
 class UUW_Ammo;
+class UTextBlock;
 
 
 
@@ -25,16 +26,18 @@ public:
 	UUW_ActiveItem(const FObjectInitializer& ObjectInitializer);
 
 
-	UPROPERTY(BlueprintReadOnly, Meta = (BindWidget))
-		UUW_Crosshair* CrosshairWidget;
-	UPROPERTY(BlueprintReadOnly, Meta = (BindWidget))
-		UUW_Ammo* AmmoWidget;
-
-
-	UPROPERTY(BlueprintReadOnly, Category = "Item")
-		FText ActiveItemName;
+	/** Inject item name here immediately after Widget creation */
+	FText ActiveItemName;
 
 protected:
 	virtual void NativeConstruct() override;
+
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (BindWidget))
+		UUW_Crosshair* CrosshairWidget;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (BindWidget))
+		UUW_Ammo* AmmoWidget;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (BindWidget))
+		UTextBlock* ItemTextBlock;
 
 };

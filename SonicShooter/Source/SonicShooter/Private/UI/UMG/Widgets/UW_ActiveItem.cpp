@@ -2,7 +2,7 @@
 
 #include "UI/UMG/Widgets/UW_ActiveItem.h"
 
-#include "UI/UMG/Widgets/UW_Ammo.h"
+#include "Components/TextBlock.h"
 
 
 
@@ -17,8 +17,8 @@ void UUW_ActiveItem::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (AmmoWidget)
+	if (ItemTextBlock)
 	{
-		AmmoWidget->ActiveItemName = ActiveItemName;
+		ItemTextBlock->Text = ActiveItemName;
 	}
 }

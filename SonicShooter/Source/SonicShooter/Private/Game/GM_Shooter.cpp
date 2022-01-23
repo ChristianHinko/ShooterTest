@@ -3,6 +3,8 @@
 
 #include "Game/GM_Shooter.h"
 
+#include "Player/PS_Shooter.h"
+#include "UI/HUD_Shooter.h"
 #include "Character/ShooterCharacter.h"
 #include "ArcInventory\Public\ArcInventoryComponent.h"
 #include "Generators/ArcItemGenerator_Unique.h"
@@ -13,9 +15,12 @@
 
 
 
-AGM_Shooter::AGM_Shooter()
+AGM_Shooter::AGM_Shooter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
-
+	PlayerStateClass = APS_Shooter::StaticClass();
+	HUDClass = AHUD_Shooter::StaticClass();
+	DefaultPawnClass = AShooterCharacter::StaticClass();
 }
 
 

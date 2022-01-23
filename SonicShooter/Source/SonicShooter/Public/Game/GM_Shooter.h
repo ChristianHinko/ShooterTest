@@ -21,7 +21,7 @@ class SONICSHOOTER_API AGM_Shooter : public ASSGameMode
 	GENERATED_BODY()
 	
 public:
-	AGM_Shooter();
+	AGM_Shooter(const FObjectInitializer& ObjectInitializer);
 
 
 protected:

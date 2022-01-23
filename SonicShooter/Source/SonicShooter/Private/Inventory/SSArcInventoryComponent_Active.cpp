@@ -246,9 +246,11 @@ void USSArcInventoryComponent_Active::OnItemSlotChangeEvent(UArcInventoryCompone
 						{
 							if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
 							{
-								if (UUW_ActiveItem* WidgetToCreate = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, ItemUIData->ActiveItemWidgetTSub, OwningPC)))
+								if (UUW_ActiveItem* Widget = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, ItemUIData->ActiveItemWidgetTSub, OwningPC)))
 								{
-									SSArcItemStack->ActiveItemWidget = WidgetToCreate;
+									Widget->ActiveItemName = ItemStack->ItemName; // inject ItemName
+
+									SSArcItemStack->ActiveItemWidget = Widget;
 								}
 							}
 						}
@@ -297,6 +299,8 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 									WidgetToAdd = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, ItemUIData->ActiveItemWidgetTSub, OwningPC));
 									if (WidgetToAdd)
 									{
+										WidgetToAdd->ActiveItemName = ItemStack->ItemName; // inject ItemName
+
 										SSArcItemStack->ActiveItemWidget = WidgetToAdd;
 										ShooterHUD->CurrentActiveItemWidget = WidgetToAdd;
 										WidgetToAdd->AddToPlayerScreen();
@@ -312,25 +316,6 @@ void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_A
 
 									}
 								}
-								
-
-
-								// COMMENTED OUT CODE FOR NOW SINCE WE MAY USE A SIMILAR METHOD LATER FOR INJECTING IN DATA ABOUT THE ITEM FOR THE ACTIVE ITEM WIDGET
-								//	With this widget we want to inject the new weapon's name into the widget since the widget has no way of getting the new item stack since this event is too early for that
-								/*UUserWidget* NewAmmoWidget = UWidgetBlueprintLibrary::Create(this, ItemUIData->AmmoWidgetTSub, OwningPC);
-								if (UUW_Ammo* NewAmmoWidgetCasted = Cast<UUW_Ammo>(NewAmmoWidget))
-								{
-									NewAmmoWidgetCasted->ActiveItemName = ItemStack->ItemName;
-								}
-								else
-								{
-									UE_LOG(LogUI, Fatal, TEXT("%s(): When trying to inject the new active item name into UUW_Ammo on create, we couldn't, because the cast from UUserWidget to UUW_Ammo failed"), ANSI_TO_TCHAR(__FUNCTION__));
-								}
-								ShooterHUD->AmmoWidget = NewAmmoWidget;
-								if (ShooterHUD->AmmoWidget)
-								{
-									ShooterHUD->AmmoWidget->AddToPlayerScreen();
-								}*/
 							}
 						}
 					}

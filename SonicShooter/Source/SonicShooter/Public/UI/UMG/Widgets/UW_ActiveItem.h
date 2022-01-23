@@ -8,8 +8,8 @@
 #include "UW_ActiveItem.generated.h"
 
 
-struct FOnAttributeChangeData;
-class UASC_Shooter;
+class UUW_Crosshair;
+class UUW_Ammo;
 
 
 
@@ -24,9 +24,17 @@ class SONICSHOOTER_API UUW_ActiveItem : public UASSEUserWidget
 public:
 	UUW_ActiveItem(const FObjectInitializer& ObjectInitializer);
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+
+	UPROPERTY(BlueprintReadOnly, Meta = (BindWidget))
+		UUW_Crosshair* CrosshairWidget;
+	UPROPERTY(BlueprintReadOnly, Meta = (BindWidget))
+		UUW_Ammo* AmmoWidget;
+
+
+	UPROPERTY(BlueprintReadOnly, Category = "Item")
 		FText ActiveItemName;
 
 protected:
-	virtual void NativeDestruct() override;
+	virtual void NativeConstruct() override;
+
 };

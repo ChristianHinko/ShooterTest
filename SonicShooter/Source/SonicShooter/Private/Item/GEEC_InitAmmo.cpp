@@ -7,6 +7,10 @@
 
 
 
+////////////////////////////////////////////////
+/// UGEEC_InitFAmmoInitializationStaticsAmmo
+////////////////////////////////////////////////
+
 struct FAmmoInitializationStatics
 {
 	// No need to capture these Attributes since we aren't reading from them, but writing to them
@@ -31,13 +35,19 @@ static const FAmmoInitializationStatics& GetAmmoInitializationStatics()
 
 
 
+////////////////////////////////////////////////
+/// UGEEC_InitAmmo
+////////////////////////////////////////////////
 
-UGEEC_InitAmmo::UGEEC_InitAmmo()
+
+UGEEC_InitAmmo::UGEEC_InitAmmo(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
-	const UAS_Ammo* DefaultAmmoAttributeSet = GetDefault<UAS_Ammo>(UAS_Ammo::StaticClass());
+	const UAS_Ammo* DefaultAttributeSet = GetDefault<UAS_Ammo>(UAS_Ammo::StaticClass());
 
-	MaxAmmo = DefaultAmmoAttributeSet->GetMaxAmmo();
-	MaxClipAmmo = DefaultAmmoAttributeSet->GetMaxClipAmmo();
+	// Populate defaults
+	MaxAmmo = DefaultAttributeSet->GetMaxAmmo();
+	MaxClipAmmo = DefaultAttributeSet->GetMaxClipAmmo();
 }
 
 void UGEEC_InitAmmo::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
@@ -53,14 +63,15 @@ void UGEEC_InitAmmo::Execute_Implementation(const FGameplayEffectCustomExecution
 
 
 	// Set defaults
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetAmmoInitializationStatics().MaxAmmoAttribute, EGameplayModOp::Override, MaxAmmo));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetAmmoInitializationStatics().MaxClipAmmoAttribute, EGameplayModOp::Override, MaxClipAmmo));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetAmmoInitializationStatics().MaxAmmoAttribute,		EGameplayModOp::Override, MaxAmmo));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetAmmoInitializationStatics().MaxClipAmmoAttribute,	EGameplayModOp::Override, MaxClipAmmo));
+
 
 	// Calculate defaults
 	float ClipAmmo = MaxClipAmmo;
 	float BackupAmmo = MaxAmmo - MaxClipAmmo;
 
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetAmmoInitializationStatics().BackupAmmoAttribute, EGameplayModOp::Override, BackupAmmo));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetAmmoInitializationStatics().BackupAmmoAttribute,		EGameplayModOp::Override, BackupAmmo));
 	
 	// Search for ammo Attribute Set and initialize ClipAmmo. TODO: this is really bad accessing an Ability System Component's Attribute Sets directly - move ClipAmmo somewhere else!
 	{

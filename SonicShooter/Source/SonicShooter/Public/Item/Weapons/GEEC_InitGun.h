@@ -22,7 +22,7 @@ class SONICSHOOTER_API UGEEC_InitGun : public UGameplayEffectExecutionCalculatio
 	GENERATED_BODY()
 
 public:
-	UGEEC_InitGun();
+	UGEEC_InitGun(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;

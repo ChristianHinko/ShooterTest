@@ -19,7 +19,7 @@ class SONICSHOOTER_API UASC_Shooter : public UASSAbilitySystemComponent
 	GENERATED_BODY()
 	
 public:
-	UASC_Shooter();
+	UASC_Shooter(const FObjectInitializer& ObjectInitializer);
 
 
 	// Change delegates:

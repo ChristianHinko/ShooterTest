@@ -8,7 +8,8 @@
 
 
 
-USSAbilitySystemGlobals::USSAbilitySystemGlobals()
+USSAbilitySystemGlobals::USSAbilitySystemGlobals(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 
 }

@@ -18,7 +18,7 @@ class SONICSHOOTER_API USSAbilitySystemGlobals : public UASSAbilitySystemGlobals
 	GENERATED_BODY()
 
 public:
-	USSAbilitySystemGlobals();
+	USSAbilitySystemGlobals(const FObjectInitializer& ObjectInitializer);
 
 
 	virtual FGameplayAbilityActorInfo* AllocAbilityActorInfo() const override;

@@ -363,7 +363,6 @@ void UGA_FireGun::Shoot()
 	BulletTraceTargetActor->FireSpecificNetSafeRandomSeed = fireRandomSeed;					// Inject this random seed into our target actor (target actor will make random seed unique to each bullet in the fire if there are multible bullets in the fire)
 
 	// Lets finally fire
-	UKismetSystemLibrary::PrintString(this, "Shoot", true, false, FLinearColor::Blue, 5.f);
 	AmmoAttributeSet->ClipAmmo = AmmoAttributeSet->ClipAmmo - GunAttributeSet->GetAmmoCost();
 	WaitTargetDataActorTask->ReadyForActivation();
 	GunAttributeSet->ApplyFireBulletSpread();
@@ -372,13 +371,11 @@ void UGA_FireGun::Shoot()
 
 void UGA_FireGun::OnPress(float TimeWaited)
 {
-	UKismetSystemLibrary::PrintString(this, "OnPress", true, false, FLinearColor::Green);
 	bInputPressed = true;
 }
 
 void UGA_FireGun::OnRelease(float TimeHeld)
 {
-	UKismetSystemLibrary::PrintString(this, "OnRelease", true, false, FLinearColor::Yellow, 5.f);
 	bInputPressed = false;
 
 	// Only thing to do left is see if we should end the ability
@@ -464,8 +461,6 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &UGA_FireGun::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
 		return;
 	}
-
-	UKismetSystemLibrary::PrintString(this, "End", true, false, FLinearColor::Red, 5.f);
 
 	if (TimeBetweenShotsAttributeChangedDelegate)
 	{

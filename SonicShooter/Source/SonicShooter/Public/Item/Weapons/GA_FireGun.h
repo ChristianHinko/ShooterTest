@@ -84,8 +84,6 @@ protected:
 	void OnTimeBetweenShotsAttributeValueChanged(const FOnAttributeChangeData& Data);
 
 #pragma region AttributeSet Helpers
-	bool EnoughAmmoToShoot() const;
-
 	bool IsFullAuto() const;
 	bool IsBurst() const;
 

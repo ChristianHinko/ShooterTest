@@ -166,8 +166,8 @@ bool UGA_FireGun::CheckCooldown(const FGameplayAbilitySpecHandle Handle, const F
 	}
 
 	// If we're firing too fast
-	const float timePassed = GetWorld()->GetTimeSeconds() - TimestampPreviousFireEnd;
-	if (timePassed < GetTimeBetweenFires())
+	const float TimePassed = GetWorld()->GetTimeSeconds() - TimestampPreviousFireEnd;
+	if (TimePassed < GetTimeBetweenFires())
 	{
 		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Tried firing gun faster than the gun's FireRate allowed. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
@@ -183,7 +183,9 @@ bool UGA_FireGun::CheckCost(const FGameplayAbilitySpecHandle Handle, const FGame
 		return false;
 	}
 
-	if (!EnoughAmmoToShoot())
+	// If we don't have enough ammo
+	const float ClipAmmoAfterNextShot = AmmoAttributeSet->ClipAmmo - GunAttributeSet->GetAmmoCost();
+	if (ClipAmmoAfterNextShot < 0)
 	{
 		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Not enough ammo to perform a fire. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
@@ -296,12 +298,12 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 
 
 	// Burst logic:
-	int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
+	int32 ShotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
 
 	// Semi-auto burst
 	if (IsFullAuto() == false)
 	{
-		if (TimesBursted < shotsPerBurst)
+		if (TimesBursted < ShotsPerBurst)
 		{
 			Shoot();
 			++TimesBursted;
@@ -313,13 +315,13 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 	}
 
 	// Full-auto burst
-	if (TimesBursted < shotsPerBurst)
+	if (TimesBursted < ShotsPerBurst)
 	{
 		Shoot();
 		++TimesBursted;
 
 		// If this was our last shot in this burst
-		if (TimesBursted >= shotsPerBurst)
+		if (TimesBursted >= ShotsPerBurst)
 		{
 			TimesBursted = 0; // reset times bursted
 
@@ -341,7 +343,7 @@ void UGA_FireGun::Shoot()
 {
 	++ShotNumber;
 
-	if (!EnoughAmmoToShoot())
+	if (!CheckCost(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo()))
 	{
 		// Currently this never gets hit. But left it here for now in case we want to make this ability trigger the shoot function even if you have no ammo.
 		// The reason you may want to do this is so that you could do some kind of thing in response to a shot not having ammo (ie. play clicking sound or animation idk)
@@ -380,9 +382,9 @@ void UGA_FireGun::Shoot()
 	
 
 	// btw it's cool that we have a net safe random seed and we have a system for it, but reality is we don't need it now since client will just send its target data to server.
-	const int16 predKey = GetCurrentActivationInfo().GetActivationPredictionKey().Current;	// Use the prediction key as a net safe random seed.
-	const int32 fireRandomSeed = predKey + ShotNumber;										// Make the random seed unique to this particular fire
-	BulletTraceTargetActor->FireSpecificNetSafeRandomSeed = fireRandomSeed;					// Inject this random seed into our target actor (target actor will make random seed unique to each bullet in the fire if there are multible bullets in the fire)
+	const int16 PredictionKey = GetCurrentActivationInfo().GetActivationPredictionKey().Current;	// Use the prediction key as a net safe random seed.
+	const int32 FireRandomSeed = PredictionKey + ShotNumber;										// Make the random seed unique to this particular fire
+	BulletTraceTargetActor->FireSpecificNetSafeRandomSeed = FireRandomSeed;					// Inject this random seed into our target actor (target actor will make random seed unique to each bullet in the fire if there are multible bullets in the fire)
 
 	// Lets finally fire
 	AmmoAttributeSet->ClipAmmo = AmmoAttributeSet->ClipAmmo - GunAttributeSet->GetAmmoCost();
@@ -438,7 +440,7 @@ void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 
 
 	// If we don't have enough ammo for another shot, always end here
-	if (!EnoughAmmoToShoot())
+	if (!CheckCost(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo()))
 	{
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 		return;
@@ -518,22 +520,16 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 
 
 #pragma region AttributeSet Helpers
-bool UGA_FireGun::EnoughAmmoToShoot() const
-{
-	const float clipAmmoAfterNextShot = AmmoAttributeSet->ClipAmmo - GunAttributeSet->GetAmmoCost();
-	return (clipAmmoAfterNextShot >= 0);
-}
-
 bool UGA_FireGun::IsFullAuto() const
 {
 	return static_cast<bool>(GunAttributeSet->GetbFullAuto());
 }
 bool UGA_FireGun::IsBurst() const
 {
-	const int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
+	const int32 ShotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
 
-	const bool isBurst = (shotsPerBurst > 1);
-	return isBurst;
+	const bool bIsBurst = (ShotsPerBurst > 1);
+	return bIsBurst;
 }
 
 float UGA_FireGun::GetTimeBetweenFires() const
@@ -556,10 +552,10 @@ bool UGA_FireGun::CurrentlyBursting() const
 		return false;
 	}
 
-	const int32 shotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
+	const int32 ShotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
 
-	const bool hasBurstsLeft = (TimesBursted > 0 && TimesBursted < shotsPerBurst);
-	return hasBurstsLeft;
+	const bool bHasBurstsLeft = (TimesBursted > 0 && TimesBursted < ShotsPerBurst);
+	return bHasBurstsLeft;
 }
 #pragma endregion
 

@@ -10,6 +10,7 @@
 
 struct FOnAttributeChangeData;
 class UASC_Shooter;
+class UTextBlock;
 
 
 
@@ -34,6 +35,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ammo")
 		float BackupAmmo;
 
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		UTextBlock* ClipAmmoText;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		UTextBlock* BackupAmmoText;
+
 protected:
 	virtual void OnPlayerASCValid() override;
 	UASC_Shooter* ShooterASC;
@@ -47,7 +54,7 @@ protected:
 	void SetBackupAmmo(float NewBackupAmmo);
 
 	/** Called on CurrentSpread changed. Use this to update CurrentSpread based UI */
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Ammo", meta = (Keywords = "Tick"))
+	UFUNCTION()
 		void UpdateAmmoStatus();
 
 

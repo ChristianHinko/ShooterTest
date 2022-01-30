@@ -17,6 +17,8 @@ class USSAbilityTask_WaitTargetData;
 class UAT_Ticker;
 struct FOnAttributeChangeData;
 
+
+
 /**
  * Notes:
  *	This seems to be overall a really good implementation, however, we are creating a PlayMontageAndWait task every shot and playing the shoot montage, which may
@@ -39,7 +41,7 @@ protected:
 		UAnimMontage* ShootMontage;
 
 	// Used to give each fire a unique random seed since machine guns only have 1 prediction key across fires
-	int32 shotNumber;
+	int32 ShotNumber;
 
 
 	//BEGIN UGameplayAbility Interface
@@ -49,6 +51,8 @@ protected:
 	virtual void OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+	virtual bool CheckCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+	virtual bool CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
@@ -80,8 +84,6 @@ protected:
 	void OnTimeBetweenShotsAttributeValueChanged(const FOnAttributeChangeData& Data);
 
 #pragma region AttributeSet Helpers
-	bool EnoughAmmoToShoot() const;
-
 	bool IsFullAuto() const;
 	bool IsBurst() const;
 
@@ -100,9 +102,9 @@ protected:
 		void OnRelease(float TimeHeld);
 
 private:
-	int32 timesBursted; // we could get the current burst by % modding shotNumber by NumShotsPerBurst but i think this would be less reliable: what if they cancel a burst and don't shoot all of the burst. Or what if NumShotsPerBurst changes while shooting
+	int32 TimesBursted; // we could get the current burst by % modding shotNumber by NumShotsPerBurst but i think this would be less reliable: what if they cancel a burst and don't shoot all of the burst. Or what if NumShotsPerBurst changes while shooting
 
-	float timestampPreviousFireEnd;
+	float TimestampPreviousFireEnd;
 	// Client only bool
 	uint8 bInputPressed : 1;
 };

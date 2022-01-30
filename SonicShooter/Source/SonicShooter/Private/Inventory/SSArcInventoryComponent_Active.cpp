@@ -63,7 +63,6 @@ void USSArcInventoryComponent_Active::InitializeComponent()
 
 	OnItemSlotChange.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemSlotChangeEvent);
 
-	OnItemActive.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemActiveEvent);
 	OnItemInactive.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemInactiveEvent);
 
 	OnAttributeSetCreated.AddDynamic(this, &USSArcInventoryComponent_Active::OnAttributeSetCreatedEvent);
@@ -154,7 +153,15 @@ void USSArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponen
 void USSArcInventoryComponent_Active::MakeItemActive(int32 NewActiveItemSlot)
 {
 	Super::MakeItemActive(NewActiveItemSlot);
+	// Earliest point for the validity of UArcInventoryComponent_Active::ActiveItemSlot and hence GetActiveItemStack() can be used
+	// NOTE: This is not the case for Roy's UArcInventoryComponent_Active::OnItemActive delegate (this delegate is not safe)
 
+
+	UArcItemStack* ActiveItemStack = GetActiveItemStack();
+	if (!IsValid(ActiveItemStack))
+	{
+		return;
+	}
 
 	// Check if we created any Attribute Sets
 	if (bCreatedAttributeSets)
@@ -163,7 +170,7 @@ void USSArcInventoryComponent_Active::MakeItemActive(int32 NewActiveItemSlot)
 		UAbilitySystemComponent* ASC = GetOwnerAbilitySystem();
 		if (IsValid(ASC))
 		{
-			USSArcItemDefinition_Active* SSItemDefinition = Cast<USSArcItemDefinition_Active>(GetActiveItemStack()->GetItemDefinition().GetDefaultObject());
+			USSArcItemDefinition_Active* SSItemDefinition = Cast<USSArcItemDefinition_Active>(ActiveItemStack->GetItemDefinition().GetDefaultObject());
 			if (IsValid(SSItemDefinition))
 			{
 				// Apply the default stats Effect
@@ -185,6 +192,61 @@ void USSArcInventoryComponent_Active::MakeItemActive(int32 NewActiveItemSlot)
 
 	}
 	bCreatedAttributeSets = false;
+
+
+
+
+
+	// Add UIData widget
+	bool bSuccessfullyAdded = true;
+	if (const APawn* OwningPawn = GetTypedOuter<APawn>())
+	{
+		if (OwningPawn->IsLocallyControlled())
+		{
+			if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
+			{
+				if (USSArcUIData_ItemDefinition* ItemUIData = Cast<USSArcUIData_ItemDefinition>(ActiveItemStack->GetUIData()))
+				{
+					if (AHUD_Shooter* ShooterHUD = Cast<AHUD_Shooter>(OwningPC->GetHUD()))
+					{
+						if (USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(ActiveItemStack))
+						{
+							UUW_ActiveItem* WidgetToAdd = nullptr;			// This ptr represents the widget that will be added to the screen (whether it's already created or not)
+							if (SSArcItemStack->ActiveItemWidget == nullptr)	// If for some reason the widget wasn't created successfully on item equip
+							{
+								UE_LOG(UISetup, Warning, TEXT("%s() New active item stack did not point to a valid item widget when trying to add it to viewport. Equipping the item maybe didn't successfully create the widget so we have nothing. We will create the widget now but something seams to have messed up at some point"), ANSI_TO_TCHAR(__FUNCTION__));
+								// Create the widget and add to viewport
+								WidgetToAdd = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, ItemUIData->ActiveItemWidgetTSub, OwningPC));
+								if (WidgetToAdd)
+								{
+									WidgetToAdd->ActiveItemName = ActiveItemStack->ItemName; // inject ItemName
+
+									SSArcItemStack->ActiveItemWidget = WidgetToAdd;
+									ShooterHUD->CurrentActiveItemWidget = WidgetToAdd;
+									WidgetToAdd->AddToPlayerScreen();
+								}
+							}
+							else												// The widget from USSArcItemStack was valid as expected (it was created on item equip), so we will add it to viewport
+							{
+								WidgetToAdd = SSArcItemStack->ActiveItemWidget;
+								if (WidgetToAdd)
+								{
+									WidgetToAdd->AddToPlayerScreen();
+									ShooterHUD->CurrentActiveItemWidget = WidgetToAdd;
+
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if (bSuccessfullyAdded == false)
+	{
+		UE_LOG(UISetup, Warning, TEXT("%s() Item's widget was not successfully displayed on item active (a cast must have failed in the process)"), ANSI_TO_TCHAR(__FUNCTION__));
+	}
 
 }
 
@@ -265,63 +327,6 @@ void USSArcInventoryComponent_Active::OnItemSlotChangeEvent(UArcInventoryCompone
 				WidgetToRemove->RemoveFromParent();
 			}
 		}
-	}
-}
-
-void USSArcInventoryComponent_Active::OnItemActiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
-{
-	// Add UIData widget
-	bool bSuccessfullyAdded = true;
-	if (ItemStack)
-	{
-		if (const APawn* OwningPawn = GetTypedOuter<APawn>())
-		{
-			if (OwningPawn->IsLocallyControlled())
-			{
-				if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
-				{
-					if (USSArcUIData_ItemDefinition* ItemUIData = Cast<USSArcUIData_ItemDefinition>(ItemStack->GetUIData()))
-					{
-						if (AHUD_Shooter* ShooterHUD = Cast<AHUD_Shooter>(OwningPC->GetHUD()))
-						{
-							if (USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(ItemStack))
-							{
-								UUW_ActiveItem* WidgetToAdd = nullptr;			// This ptr represents the widget that will be added to the screen (whether it's already created or not)
-								if (SSArcItemStack->ActiveItemWidget == nullptr)	// If for some reason the widget wasn't created successfully on item equip
-								{
-									UE_LOG(UISetup, Warning, TEXT("%s() New active item stack did not point to a valid item widget when trying to add it to viewport. Equipping the item maybe didn't successfully create the widget so we have nothing. We will create the widget now but something seams to have messed up at some point"), ANSI_TO_TCHAR(__FUNCTION__));
-									// Create the widget and add to viewport
-									WidgetToAdd = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, ItemUIData->ActiveItemWidgetTSub, OwningPC));
-									if (WidgetToAdd)
-									{
-										WidgetToAdd->ActiveItemName = ItemStack->ItemName; // inject ItemName
-
-										SSArcItemStack->ActiveItemWidget = WidgetToAdd;
-										ShooterHUD->CurrentActiveItemWidget = WidgetToAdd;
-										WidgetToAdd->AddToPlayerScreen();
-									}
-								}
-								else												// The widget from USSArcItemStack was valid as expected (it was created on item equip), so we will add it to viewport
-								{
-									WidgetToAdd = SSArcItemStack->ActiveItemWidget;
-									if (WidgetToAdd)
-									{
-										WidgetToAdd->AddToPlayerScreen();
-										ShooterHUD->CurrentActiveItemWidget = WidgetToAdd;
-
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	if (bSuccessfullyAdded == false)
-	{
-		UE_LOG(UISetup, Warning, TEXT("%s() Item's widget was not successfully displayed on item active (a cast must have failed in the process)"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 }
 

@@ -10,6 +10,7 @@
 #include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
 #include "Item/Weapons/GunStack.h"
+#include "Components/TextBlock.h"
 
 
 
@@ -78,6 +79,15 @@ void UUW_Ammo::SetBackupAmmo(float NewBackupAmmo)
 {
 	CurrentBackupAmmo = NewBackupAmmo;
 	UpdateAmmoStatus();
+}
+
+void UUW_Ammo::UpdateAmmoStatus()
+{
+	FString clipText = FString::FromInt(FMath::TruncToFloat(CurrentClipAmmo)) + "/";
+	ClipAmmoText->SetText(FText::FromString(clipText));
+
+
+	BackupAmmoText->SetText(FText::FromString(FString::FromInt(FMath::TruncToFloat(CurrentBackupAmmo))));
 }
 
 

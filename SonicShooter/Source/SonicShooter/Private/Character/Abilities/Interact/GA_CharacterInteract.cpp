@@ -7,8 +7,8 @@
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "Utilities/LogCategories.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
-#include "Character\AbilityTasks\AT_DurationInteractCallbacks.h"
-#include "ActorComponents/InteractorComponent.h"
+#include "Character/AbilityTasks/AT_DurationInteractCallbacks.h"
+#include "Subobjects/ActorComponents/InteractorComponent.h"
 
 UGA_CharacterInteract::UGA_CharacterInteract()
 {

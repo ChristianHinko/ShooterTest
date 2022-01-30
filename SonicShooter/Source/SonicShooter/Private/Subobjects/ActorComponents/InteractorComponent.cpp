@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ActorComponents\InteractorComponent.h"
+#include "Subobjects/ActorComponents/InteractorComponent.h"
 
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"

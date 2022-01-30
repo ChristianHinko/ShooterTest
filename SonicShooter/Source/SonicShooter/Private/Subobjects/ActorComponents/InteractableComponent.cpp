@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ActorComponents/InteractableComponent.h"
-#include "..\..\Public\ActorComponents\InteractableComponent.h"
+#include "Subobjects/ActorComponents/InteractableComponent.h"
+#include "Subobjects/ActorComponents/InteractableComponent.h"
 
 UInteractableComponent::UInteractableComponent()
 {

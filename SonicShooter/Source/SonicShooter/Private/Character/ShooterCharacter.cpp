@@ -8,7 +8,7 @@
 #include "Utilities/SSNativeGameplayTags.h"
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
-#include "ActorComponents/InteractorComponent.h"
+#include "Subobjects/ActorComponents/InteractorComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
 #include "ArcItemStack.h"

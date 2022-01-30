@@ -37,4 +37,9 @@ protected:
 		virtual bool IsTickableWhenPaused() const override { return false; };
 		//END FTickableGameObject interface
 
+private:
+	bool bShouldTick;
+
+	bool bStaminaDraining;
+	float timeSinceStaminaDrain;
 };

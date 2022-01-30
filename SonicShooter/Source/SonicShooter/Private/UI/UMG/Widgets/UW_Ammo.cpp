@@ -6,6 +6,10 @@
 #include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
 #include "UI/UMG/Widgets/UW_ActiveItem.h"
 #include "Item/AS_Ammo.h"
+#include "Subobjects/O_Ammo.h"
+#include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
+#include "Inventory/SSArcInventoryComponent_Active.h"
+#include "Item/Weapons/GunStack.h"
 
 
 
@@ -20,22 +24,30 @@ void UUW_Ammo::OnPlayerASCValid()
 	Super::OnPlayerASCValid();
 
 
-	ShooterASC = Cast<UASC_Shooter>(PlayerASC);
-	if (ShooterASC)
+	// Get ammo subobject
+	if (const FGAAI_Shooter* ShooterActorInfo = static_cast<const FGAAI_Shooter*>(PlayerASC->AbilityActorInfo.Get()))
 	{
-		ShooterASC->OnClipAmmoChange->AddDynamic(this, &UUW_Ammo::OnClipAmmoChange);
-
-
-		// Search for an Ammo AttributeSet
-		for (UAttributeSet* AttributeSet : PlayerASC->GetSpawnedAttributes_Mutable())
+		USSArcInventoryComponent_Active* InventoryComponent = ShooterActorInfo->GetInventoryComponent();
+		if (IsValid(InventoryComponent))
 		{
-			if (UAS_Ammo* AmmoAttributeSet = Cast<UAS_Ammo>(AttributeSet))
+			const UArcItemStack* ActiveItemStack = InventoryComponent->GetActiveItemStack();
+			if (IsValid(ActiveItemStack))
 			{
-				// Call manually for initial value
-				float clipAmmo = AmmoAttributeSet->ClipAmmo;
-				OnClipAmmoChange(clipAmmo, clipAmmo);
+				const UGunStack* GunStack = Cast<UGunStack>(ActiveItemStack);
+				if (IsValid(GunStack))
+				{
+					AmmoSubobject = GunStack->GetAmmoSubobject();
+				}
 			}
 		}
+	}
+
+	if (IsValid(AmmoSubobject))
+	{
+		AmmoSubobject->OnClipAmmoChange.Get().AddDynamic(this, &UUW_Ammo::OnClipAmmoChange);
+
+		const float& ClipAmmo = AmmoSubobject->ClipAmmo;
+		OnClipAmmoChange(ClipAmmo, ClipAmmo);
 	}
 
 }
@@ -59,21 +71,21 @@ void UUW_Ammo::OnClipAmmoChange(const float& OldValue, const float& NewValue)
 
 void UUW_Ammo::SetClipAmmo(float NewClipAmmo)
 {
-	ClipAmmo = NewClipAmmo;
+	CurrentClipAmmo = NewClipAmmo;
 	UpdateAmmoStatus();
 }
 void UUW_Ammo::SetBackupAmmo(float NewBackupAmmo)
 {
-	BackupAmmo = NewBackupAmmo;
+	CurrentBackupAmmo = NewBackupAmmo;
 	UpdateAmmoStatus();
 }
 
 
 void UUW_Ammo::NativeDestruct()
 {
-	if (ShooterASC)
+	if (AmmoSubobject)
 	{
-		ShooterASC->OnClipAmmoChange->RemoveAll(this);
+		AmmoSubobject->OnClipAmmoChange.Get().RemoveAll(this);
 	}
 
 

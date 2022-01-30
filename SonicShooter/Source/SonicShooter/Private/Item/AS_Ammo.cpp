@@ -5,8 +5,6 @@
 
 #include "Net/UnrealNetwork.h"
 #include "GameplayAbilities/Public/GameplayEffectExtension.h"
-#include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
-#include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
 
 
 
@@ -24,46 +22,14 @@ void UAS_Ammo::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Ammo, BackupAmmo, Params);
 	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Ammo, MaxClipAmmo, Params);
 
-	Params.RepNotifyCondition = REPNOTIFY_OnChanged;
-	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Ammo, ClipAmmo, Params);
-	Params.RepNotifyCondition = REPNOTIFY_Always;
-
-
 }
 
 UAS_Ammo::UAS_Ammo()
 	: MaxAmmo(100)
 	, MaxClipAmmo(10)
-	, ClipAmmo(GetMaxClipAmmo(), this, FName(TEXT("ClipAmmo")))
-	, BackupAmmo(GetMaxAmmo() - ClipAmmo)
-
+	, BackupAmmo(GetMaxAmmo() - GetMaxClipAmmo())
 {
 
-}
-
-
-void UAS_Ammo::PostInitProperties()
-{
-	Super::PostInitProperties();
-
-	if (GetWorld() == nullptr || GetWorld()->IsGameWorld() == false)
-	{
-		return;
-	}
-	if (HasAnyFlags(RF_ClassDefaultObject))
-	{
-		return;
-	}
-	//---------------------------------------- safe "BeginPlay" logic here ------------------------
-
-
-	if (FGAAI_Shooter* ShooterActorInfo = static_cast<FGAAI_Shooter*>(GetActorInfo()))
-	{
-		if (UASC_Shooter* ShooterASC = ShooterActorInfo->GetShooterAbilitySystemComponent())
-		{
-			ClipAmmo.SetValueChangeDelegate(ShooterASC->OnClipAmmoChange);
-		}
-	}
 }
 
 

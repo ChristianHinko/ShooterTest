@@ -21,9 +21,10 @@ public:
 	UO_Ammo(const FObjectInitializer& ObjectInitializer);
 
 
+	TSharedRef<FFloatValueChange> OnClipAmmoChange;
+
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Ammo")
 		FFloatPropertyWrapper ClipAmmo;
-	TSharedRef<FFloatValueChange> OnClipAmmoChange;
 
 protected:
 

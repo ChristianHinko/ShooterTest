@@ -7,8 +7,8 @@
 #include "Utilities/SSNativeGameplayTags.h"
 #include "Item/AS_Ammo.h"
 #include "AbilitySystemBlueprintLibrary.h"
-
-#include "Kismet/KismetSystemLibrary.h"
+#include "Item/Weapons/GunStack.h"
+#include "Subobjects/O_Ammo.h"
 
 
 
@@ -44,23 +44,21 @@ void UGA_Reload::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const
 	Super::OnGiveAbility(ActorInfo, Spec);
 
 
-	UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
-
-	for (UAttributeSet* AttributeSet : ASC->GetSpawnedAttributes())
+	UGunStack* SourceGun = Cast<UGunStack>(GetCurrentSourceObject());
+	if (!IsValid(SourceGun))
 	{
-		if (UAS_Ammo* AmmoAS = Cast<UAS_Ammo>(AttributeSet))
-		{
-			AmmoAttributeSet = AmmoAS;
-			break;
-		}
+		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid Gun when given the reload ability - ensure you are assigning the SourceObject to a GunStack when calling GiveAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
+		return;
 	}
+
+	AmmoSubobject = SourceGun->GetAmmoSubobject();
 }
 void UGA_Reload::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnRemoveAbility(ActorInfo, Spec);
 
 
-	AmmoAttributeSet = nullptr;
+	AmmoSubobject = nullptr;
 }
 
 bool UGA_Reload::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
@@ -77,18 +75,20 @@ bool UGA_Reload::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 		return false;
 	}
 
-	if (!AmmoAttributeSet)
+	if (!IsValid(AmmoSubobject))
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() AmmoAttributeSet was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() AmmoSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
-
-	if (AmmoAttributeSet->ClipAmmo >= AmmoAttributeSet->GetMaxClipAmmo())
+	
+	const float MaxClipAmmo = ActorInfo->AbilitySystemComponent->GetNumericAttribute(UAS_Ammo::GetMaxClipAmmoAttribute());
+	if (AmmoSubobject->ClipAmmo >= MaxClipAmmo)
 	{
 		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Already have full ammo. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
-	if (AmmoAttributeSet->GetBackupAmmo() <= 0)
+	const float BackupAmmo = ActorInfo->AbilitySystemComponent->GetNumericAttribute(UAS_Ammo::GetBackupAmmoAttribute());
+	if (BackupAmmo <= 0)
 	{
 		UE_LOG(LogGameplayAbility, Log, TEXT("%s() No backup ammo to use to reload. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
@@ -121,15 +121,17 @@ void UGA_Reload::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 
 
 	// Amount to move out of BackupAmmo, and into ClipAmmo
-	float AmmoToMove = AmmoAttributeSet->GetMaxClipAmmo() - AmmoAttributeSet->ClipAmmo;
+	const float MaxClipAmmo = ActorInfo->AbilitySystemComponent->GetNumericAttribute(UAS_Ammo::GetMaxClipAmmoAttribute());
+	float AmmoToMove = MaxClipAmmo - AmmoSubobject->ClipAmmo;
 
 	// Check if BackupAmmo went negative
 	{
-		float postBackupAmmo = AmmoAttributeSet->GetBackupAmmo() - AmmoToMove;
-		if (postBackupAmmo < 0)
+		const float BackupAmmo = ActorInfo->AbilitySystemComponent->GetNumericAttribute(UAS_Ammo::GetBackupAmmoAttribute());
+		float PostBackupAmmo = BackupAmmo - AmmoToMove;
+		if (PostBackupAmmo < 0)
 		{
 			// Make it so we don't take that much away
-			AmmoToMove -= FMath::Abs(postBackupAmmo);
+			AmmoToMove -= FMath::Abs(PostBackupAmmo);
 		}
 	}
 
@@ -141,7 +143,7 @@ void UGA_Reload::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 
 
 	// Move ammo into clip
-	AmmoAttributeSet->ClipAmmo = AmmoAttributeSet->ClipAmmo + AmmoToMove;
+	AmmoSubobject->ClipAmmo = AmmoSubobject->ClipAmmo + AmmoToMove;
 
 
 

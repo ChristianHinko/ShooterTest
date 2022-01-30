@@ -4,6 +4,10 @@
 #include "Item/GEEC_InitAmmo.h"
 
 #include "Item/AS_Ammo.h"
+#include "Subobjects/O_Ammo.h"
+#include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
+#include "Inventory/SSArcInventoryComponent_Active.h"
+#include "Item/Weapons/GunStack.h"
 
 
 
@@ -43,7 +47,7 @@ static const FAmmoInitializationStatics& GetAmmoInitializationStatics()
 UGEEC_InitAmmo::UGEEC_InitAmmo(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	const UAS_Ammo* DefaultAttributeSet = GetDefault<UAS_Ammo>(UAS_Ammo::StaticClass());
+	const UAS_Ammo* DefaultAttributeSet = GetDefault<UAS_Ammo>();
 
 	// Populate defaults
 	MaxAmmo = DefaultAttributeSet->GetMaxAmmo();
@@ -73,17 +77,21 @@ void UGEEC_InitAmmo::Execute_Implementation(const FGameplayEffectCustomExecution
 
 	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetAmmoInitializationStatics().BackupAmmoAttribute,		EGameplayModOp::Override, BackupAmmo));
 	
-	// Search for ammo Attribute Set and initialize ClipAmmo. TODO: this is really bad accessing an Ability System Component's Attribute Sets directly - move ClipAmmo somewhere else!
+	// Get ammo subobject and initialize ClipAmmo
+	if (const FGAAI_Shooter* ShooterActorInfo = static_cast<const FGAAI_Shooter*>(TargetAbilitySystemComponent->AbilityActorInfo.Get()))
 	{
-		UAS_Ammo** AmmoAttributeSetPtr = nullptr;
-		int32* index = nullptr;
-		TargetAbilitySystemComponent->GetSpawnedAttributes_Mutable().FindItemByClass<UAS_Ammo>(AmmoAttributeSetPtr, index, 0);
-		if (AmmoAttributeSetPtr)
+		USSArcInventoryComponent_Active* InventoryComponent = ShooterActorInfo->GetInventoryComponent();
+		if (IsValid(InventoryComponent))
 		{
-			UAS_Ammo* AmmoAttributeSet = *AmmoAttributeSetPtr;
-			if (IsValid(AmmoAttributeSet))
+			// NOTE: UArcInventoryComponent_Active::ActiveItemSlot is currently not valid at this point! because we are applying this Effect before it gets assigned
+			const UArcItemStack* ActiveItemStack = InventoryComponent->GetActiveItemStack();
+			if (IsValid(ActiveItemStack))
 			{
-				AmmoAttributeSet->ClipAmmo = ClipAmmo;
+				const UGunStack* GunStack = Cast<UGunStack>(ActiveItemStack);
+				if (IsValid(GunStack))
+				{
+					GunStack->GetAmmoSubobject()->ClipAmmo = ClipAmmo;
+				}
 			}
 		}
 	}

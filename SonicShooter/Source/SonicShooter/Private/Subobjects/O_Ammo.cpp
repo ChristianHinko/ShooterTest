@@ -23,9 +23,9 @@ void UO_Ammo::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 
 UO_Ammo::UO_Ammo(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	, ClipAmmo(0.f/*GetMaxClipAmmo()*/, this, FName("ClipAmmo"))
 	, OnClipAmmoChange(MakeShared<FFloatValueChange>())
+	, ClipAmmo(this, FName("ClipAmmo"), OnClipAmmoChange)
 {
-	ClipAmmo.SetValueChangeDelegate(OnClipAmmoChange);
+	ClipAmmo = 0.f;
 
 }

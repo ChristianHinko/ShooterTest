@@ -9,7 +9,7 @@
 
 
 struct FOnAttributeChangeData;
-class UASC_Shooter;
+class UO_Ammo;
 
 
 
@@ -29,16 +29,17 @@ public:
 		FText ActiveItemName;
 	/** The current clip ammo value of the attribute */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ammo")
-		float ClipAmmo;
+		float CurrentClipAmmo;
 	/** The current backup ammo value of the attribute */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ammo")
-		float BackupAmmo;
+		float CurrentBackupAmmo;
 
 protected:
 	virtual void OnPlayerASCValid() override;
-	UASC_Shooter* ShooterASC;
 
 	virtual void OnAttributeChanged(const FOnAttributeChangeData& Data) override;
+
+	UO_Ammo* AmmoSubobject;
 	UFUNCTION()
 		void OnClipAmmoChange(const float& OldValue, const float& NewValue);
 

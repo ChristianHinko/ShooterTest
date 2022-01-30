@@ -49,7 +49,7 @@ public:
 	 */
 	static const FName InventoryComponentName;
 
-	class UArcInventoryComponent* GetInventoryComponent() const override { return InventoryComponent; }
+	UArcInventoryComponent* GetInventoryComponent() const override { return InventoryComponent; }
 
 	UPROPERTY(VisibleAnywhere)
 		UInteractorComponent* Interactor;

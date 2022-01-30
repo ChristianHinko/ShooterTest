@@ -7,7 +7,10 @@
 
 #include "GA_Reload.generated.h"
 
-class UAS_Ammo;
+
+class UO_Ammo;
+
+
 
 /**
  *
@@ -41,5 +44,5 @@ protected:
 	//END UGameplayAbility Interface
 
 
-	UAS_Ammo* AmmoAttributeSet;
+	UO_Ammo* AmmoSubobject;
 };

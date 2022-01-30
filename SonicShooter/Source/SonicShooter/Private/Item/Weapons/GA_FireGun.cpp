@@ -9,7 +9,7 @@
 #include "Utilities/SSNativeGameplayTags.h"
 #include "Utilities/CollisionChannels.h"
 #include "Item/Weapons/AS_Gun.h"
-#include "Item/AS_Ammo.h"
+#include "Subobjects/O_Ammo.h"
 #include "Item\Weapons\GunStack.h"
 #include "ArcInventoryItemTypes.h"
 #include "Item\Definitions\ArcItemDefinition_Active.h"
@@ -59,35 +59,22 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	// Need to make the item generators use the GunStack now
 	// instead of it using item stack so this cast works.
 	GunToFire = Cast<UGunStack>(GetCurrentSourceObject());
-	if (!GunToFire)
+	if (!IsValid(GunToFire))
 	{
-		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid Gun when giving the fire ability"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid Gun when given the fire ability - ensure you are assigning the SourceObject to a GunStack when calling GiveAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
 
+	AmmoSubobject = GunToFire->GetAmmoSubobject();
+
 	// Search for Attribute Sets
+	UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
+	for (UAttributeSet* AttributeSet : ASC->GetSpawnedAttributes())
 	{
-		bool bFoundGunAS = false;
-		bool bFoundAmmoAS = false;
-
-		UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
-		for (UAttributeSet* AttributeSet : ASC->GetSpawnedAttributes())
+		if (UAS_Gun* GunAS = Cast<UAS_Gun>(AttributeSet))
 		{
-			if (UAS_Gun* GunAS = Cast<UAS_Gun>(AttributeSet))
-			{
-				GunAttributeSet = GunAS;
-				bFoundGunAS = true;
-			}
-			if (UAS_Ammo* AmmoAS = Cast<UAS_Ammo>(AttributeSet))
-			{
-				AmmoAttributeSet = AmmoAS;
-				bFoundAmmoAS = true;
-			}
-
-			if (bFoundGunAS && bFoundAmmoAS) // this is a kind of a stupid optimization it's here
-			{
-				break;
-			}
+			GunAttributeSet = GunAS;
+			break;
 		}
 	}
 
@@ -120,7 +107,7 @@ void UGA_FireGun::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, co
 	}
 
 	GunAttributeSet = nullptr;
-	AmmoAttributeSet = nullptr;
+	AmmoSubobject = nullptr;
 }
 
 bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
@@ -148,9 +135,9 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GunAttributeSet was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
-	if (!AmmoAttributeSet)
+	if (!AmmoSubobject)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() AmmoAttributeSet was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() AmmoSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
@@ -184,7 +171,7 @@ bool UGA_FireGun::CheckCost(const FGameplayAbilitySpecHandle Handle, const FGame
 	}
 
 	// If we don't have enough ammo
-	const float ClipAmmoAfterNextShot = AmmoAttributeSet->ClipAmmo - GunAttributeSet->GetAmmoCost();
+	const float ClipAmmoAfterNextShot = AmmoSubobject->ClipAmmo - GunAttributeSet->GetAmmoCost();
 	if (ClipAmmoAfterNextShot < 0)
 	{
 		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Not enough ammo to perform a fire. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
@@ -387,7 +374,7 @@ void UGA_FireGun::Shoot()
 	BulletTraceTargetActor->FireSpecificNetSafeRandomSeed = FireRandomSeed;					// Inject this random seed into our target actor (target actor will make random seed unique to each bullet in the fire if there are multible bullets in the fire)
 
 	// Lets finally fire
-	AmmoAttributeSet->ClipAmmo = AmmoAttributeSet->ClipAmmo - GunAttributeSet->GetAmmoCost();
+	AmmoSubobject->ClipAmmo = AmmoSubobject->ClipAmmo - GunAttributeSet->GetAmmoCost();
 	WaitTargetDataActorTask->ReadyForActivation();
 	GunAttributeSet->ApplyFireBulletSpread();
 }

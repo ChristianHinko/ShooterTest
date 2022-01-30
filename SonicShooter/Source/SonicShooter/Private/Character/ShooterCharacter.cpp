@@ -126,9 +126,11 @@ void AShooterCharacter::GiveStartingAbilities()
 #include "Kismet/KismetSystemLibrary.h"
 #include "AttributeSets/AS_Health.h"
 #include "Item/AS_Ammo.h"
+#include "Subobjects/O_Ammo.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
 #include "ArcItemBPFunctionLibrary.h"
 #include "Item\ArcItemDefinition_New.h"
+#include "Item/Weapons/GunStack.h"
 //#include "Kismet/KismetMathLibrary.h"
 //#include "GameFramework/SpringArmComponent.h"
 void AShooterCharacter::Tick(float DeltaSeconds)
@@ -153,16 +155,26 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 		//UKismetSystemLibrary::PrintString(this, "Pending Item Slot: " + FString::FromInt(SSInventoryComponentActive->PendingItemSlot), true, false);
 	}
 
+	if (IsValid(SSInventoryComponentActive))
+	{
+		const UArcItemStack* ActiveItemStack = SSInventoryComponentActive->GetActiveItemStack();
+		if (IsValid(ActiveItemStack))
+		{
+			const UGunStack* GunStack = Cast<UGunStack>(ActiveItemStack);
+			if (IsValid(GunStack))
+			{
+				const FFloatPropertyWrapper& ClipAmmo = GunStack->GetAmmoSubobject()->ClipAmmo;
+				UKismetSystemLibrary::PrintString(this, ClipAmmo.GetPropertyName().ToString() + ": " + FString::SanitizeFloat(ClipAmmo), true, false);
+			}
+		}
+
+
+	}
+
 	if (GetAbilitySystemComponent())
 	{
 		for (UAttributeSet* AttributeSet : GetAbilitySystemComponent()->GetSpawnedAttributes())
 		{
-			//if (UAS_Ammo* AmmoAttributeSet = Cast<UAS_Ammo>(AttributeSet))
-			//{
-			//	UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->GetBackupAmmoAttribute().GetName() + ": " + FString::SanitizeFloat(AmmoAttributeSet->GetBackupAmmo()), true, false);
-			//	UKismetSystemLibrary::PrintString(this, AmmoAttributeSet->ClipAmmo.GetPropertyName().ToString() + ": " + FString::SanitizeFloat(AmmoAttributeSet->ClipAmmo), true, false);
-			//}
-
 			//if (UAS_Stamina* FoundStaminaAttributeSet = Cast<UAS_Stamina>(AttributeSet))
 			//{
 			//	UKismetSystemLibrary::PrintString(this, FoundStaminaAttributeSet->Stamina.GetPropertyName().ToString() + ": " + FString::SanitizeFloat(FoundStaminaAttributeSet->Stamina), true, false);

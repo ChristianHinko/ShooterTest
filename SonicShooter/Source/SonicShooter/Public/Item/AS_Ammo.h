@@ -31,9 +31,6 @@ public:
 		FGameplayAttributeData MaxClipAmmo;
 	ATTRIBUTE_ACCESSORS(UAS_Ammo, MaxClipAmmo)
 
-	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Attributes", meta = (HideFromModifiers))
-		FFloatPropertyWrapper ClipAmmo;
-
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BackupAmmo, Category = "Attributes")
 		FGameplayAttributeData BackupAmmo;
 	ATTRIBUTE_ACCESSORS(UAS_Ammo, BackupAmmo)
@@ -43,9 +40,6 @@ public:
 	//ATTRIBUTE_ACCESSORS(UAS_Ammo, BackupAmmoReceive)
 
 protected:
-	virtual void PostInitProperties() override;
-
-
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 
 

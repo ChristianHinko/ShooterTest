@@ -26,6 +26,5 @@ public:
 	TSharedRef<FFloatValueChange> OnClipAmmoChange;
 
 protected:
-	virtual void PostInitProperties() override;
 
 };

@@ -4,6 +4,7 @@
 #include "Item/Weapons/GunStack.h"
 
 #include "Net/UnrealNetwork.h"
+#include "Subobjects/O_Ammo.h"
 
 
 
@@ -13,4 +14,11 @@ void UGunStack::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 
 	DOREPLIFETIME_CONDITION(UGunStack, BulletTraceTargetActorTSub, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(UGunStack, BulletHitEffectTSub, COND_OwnerOnly);
+}
+
+UGunStack::UGunStack(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	AmmoSubobject = CreateDefaultSubobject<UO_Ammo>(TEXT("AmmoSubobject"));
+
 }

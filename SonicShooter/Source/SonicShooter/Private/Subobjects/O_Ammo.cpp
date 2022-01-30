@@ -26,23 +26,6 @@ UO_Ammo::UO_Ammo(const FObjectInitializer& ObjectInitializer)
 	, ClipAmmo(0.f/*GetMaxClipAmmo()*/, this, FName("ClipAmmo"))
 	, OnClipAmmoChange(MakeShared<FFloatValueChange>())
 {
-
-}
-
-void UO_Ammo::PostInitProperties()
-{
-	Super::PostInitProperties();
-
-	if (GetWorld() == nullptr || GetWorld()->IsGameWorld() == false)
-	{
-		return;
-	}
-	if (HasAnyFlags(RF_ClassDefaultObject))
-	{
-		return;
-	}
-
-	// Safe "BeginPlay" logic here
 	ClipAmmo.SetValueChangeDelegate(OnClipAmmoChange);
 
 }

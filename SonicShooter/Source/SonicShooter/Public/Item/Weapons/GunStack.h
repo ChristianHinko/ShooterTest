@@ -9,6 +9,7 @@
 
 
 class AGATA_BulletTrace;
+class UO_Ammo;
 
 
 
@@ -19,8 +20,17 @@ UCLASS()
 class SONICSHOOTER_API UGunStack : public USSArcItemStack
 {
 	GENERATED_BODY()
+
+protected:
+	UPROPERTY(VisibleAnywhere, Category = "Ammo")
+		UO_Ammo* AmmoSubobject;
 	
 public:
+	UGunStack(const FObjectInitializer& ObjectInitializer);
+
+
+	UO_Ammo* GetAmmoSubobject() const { return AmmoSubobject; }
+
 	/**
 	 * This gun's target actor (what it will shoot)
 	 */
@@ -34,5 +44,5 @@ public:
 		TSubclassOf<UGameplayEffect> BulletHitEffectTSub;
 
 protected:
-	//UWeaponDefinition* WeaponDefinition;
+
 };

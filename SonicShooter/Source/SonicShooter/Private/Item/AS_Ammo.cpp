@@ -18,8 +18,8 @@ void UAS_Ammo::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	FDoRepLifetimeParams Params;
 	Params.Condition = COND_None;
 	Params.RepNotifyCondition = REPNOTIFY_Always;
-
 	Params.bIsPushBased = true;
+
 	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Ammo, MaxAmmo, Params);
 	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Ammo, BackupAmmo, Params);
 	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Ammo, MaxClipAmmo, Params);

@@ -3,3 +3,46 @@
 
 #include "Subobjects/O_Ammo.h"
 
+#include "Net/UnrealNetwork.h"
+
+
+
+void UO_Ammo::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+
+	FDoRepLifetimeParams Params;
+	Params.Condition = COND_None;
+	Params.RepNotifyCondition = REPNOTIFY_OnChanged;
+	Params.bIsPushBased = true;
+
+	DOREPLIFETIME_WITH_PARAMS_FAST(UO_Ammo, ClipAmmo, Params);
+
+}
+
+UO_Ammo::UO_Ammo(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+	, ClipAmmo(0.f/*GetMaxClipAmmo()*/, this, FName("ClipAmmo"))
+	, OnClipAmmoChange(MakeShared<FFloatValueChange>())
+{
+
+}
+
+void UO_Ammo::PostInitProperties()
+{
+	Super::PostInitProperties();
+
+	if (GetWorld() == nullptr || GetWorld()->IsGameWorld() == false)
+	{
+		return;
+	}
+	if (HasAnyFlags(RF_ClassDefaultObject))
+	{
+		return;
+	}
+
+	// Safe "BeginPlay" logic here
+	ClipAmmo.SetValueChangeDelegate(OnClipAmmoChange);
+
+}

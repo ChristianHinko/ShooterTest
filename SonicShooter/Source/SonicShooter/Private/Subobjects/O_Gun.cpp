@@ -3,23 +3,23 @@
 
 #include "Subobjects/O_Gun.h"
 
-#include "Net/UnrealNetwork.h"
+//#include "Net/UnrealNetwork.h"
 
 
 
-void UO_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-
-	FDoRepLifetimeParams Params;
-	Params.Condition = COND_None;
-	Params.RepNotifyCondition = REPNOTIFY_OnChanged;
-	Params.bIsPushBased = true;
-
-	DOREPLIFETIME_WITH_PARAMS_FAST(UO_Gun, CurrentBulletSpread, Params);
-
-}
+//void UO_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+//{
+//	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+//
+//
+//	FDoRepLifetimeParams Params;
+//	Params.Condition = COND_None;
+//	Params.RepNotifyCondition = REPNOTIFY_OnChanged;
+//	Params.bIsPushBased = true;
+//
+//	DOREPLIFETIME_WITH_PARAMS_FAST(UO_Gun, CurrentBulletSpread, Params);
+//
+//}
 
 UO_Gun::UO_Gun(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

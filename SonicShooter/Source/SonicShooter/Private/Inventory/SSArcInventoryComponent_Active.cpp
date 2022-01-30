@@ -5,22 +5,14 @@
 
 #include "Net/UnrealNetwork.h"
 #include "ArcItemStack.h"
-#include "Item/Definitions/ArcItemDefinition_Active.h"
 #include "AbilitySystem/ASSAbilitySystemComponent.h"
-#include "ArcItemBPFunctionLibrary.h"
-#include "Input/ArcInvInputBinder.h"
-#include "AbilitySystemGlobals.h"
+#include "ArcInventory.h" // for Roy's Native Gameplay Tags
 
 #include "UI/HUD_Shooter.h"
 #include "Item/SSArcItemDefinition_Active.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
-#include "Item/UW_Crosshair.h"
-#include "UI/UMG/Widgets/UW_Ammo.h"
 #include "Utilities/LogCategories.h"
 #include "Item/SSArcItemStack.h"
-#include "ArcInventory.h" // for Roy's Native Gameplay Tags
-
-#include "AbilitySystem/ASSAttributeSet.h"
 
 
 
@@ -31,8 +23,8 @@ void USSArcInventoryComponent_Active::GetLifetimeReplicatedProps(TArray<FLifetim
 
 	FDoRepLifetimeParams Params;
 
-	Params.bIsPushBased = true;
 	Params.Condition = COND_OwnerOnly;
+	Params.bIsPushBased = true;
 	DOREPLIFETIME_WITH_PARAMS_FAST(USSArcInventoryComponent_Active, ActiveItemHistory, Params);
 }
 
@@ -61,11 +53,11 @@ void USSArcInventoryComponent_Active::InitializeComponent()
 	Super::InitializeComponent();
 
 
+	OnAttributeSetCreated.AddDynamic(this, &USSArcInventoryComponent_Active::OnAttributeSetCreatedEvent);
+
 	OnItemSlotChange.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemSlotChangeEvent);
 
 	OnItemInactive.AddDynamic(this, &USSArcInventoryComponent_Active::OnItemInactiveEvent);
-
-	OnAttributeSetCreated.AddDynamic(this, &USSArcInventoryComponent_Active::OnAttributeSetCreatedEvent);
 }
 
 void USSArcInventoryComponent_Active::BeginPlay()
@@ -75,25 +67,24 @@ void USSArcInventoryComponent_Active::BeginPlay()
 	MakeItemInactive();
 	ActiveItemSlot = OldActiveItem;
 
-	GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
-		{
-			SwapActiveItems(StartingActiveItemSlot);
+	GetWorld()->GetTimerManager().SetTimerForNextTick([this]() {
+		SwapActiveItems(StartingActiveItemSlot);
 
 
-			//////////////////////// We aren't going to do this stuff from the super since it just makes things dufficult ////////////////////////
-			////Check to see if we have an active item in our first slot and set it to that to start with  
-			//if (PendingItemSlot != INDEX_NONE)
-			//{
-			//	this->SwitchToPendingItemSlot();
-			//}
-			////Sometimes, on the client, we get the initial ActiveItemSlot before we've begun play
-			////In that case, PendingItemSlot would be none, and we have a valid ActiveItemSlot that hasn't been made active yet
-			////So we'll do it here.
-			//else if (ActiveItemSlot != INDEX_NONE && GetOwnerRole() != ROLE_Authority)
-			//{
-			//	this->MakeItemActive(ActiveItemSlot);
-			//}
-		});
+		//////////////////////// We aren't going to do this stuff from the super since it just makes things dufficult ////////////////////////
+		////Check to see if we have an active item in our first slot and set it to that to start with  
+		//if (PendingItemSlot != INDEX_NONE)
+		//{
+		//	this->SwitchToPendingItemSlot();
+		//}
+		////Sometimes, on the client, we get the initial ActiveItemSlot before we've begun play
+		////In that case, PendingItemSlot would be none, and we have a valid ActiveItemSlot that hasn't been made active yet
+		////So we'll do it here.
+		//else if (ActiveItemSlot != INDEX_NONE && GetOwnerRole() != ROLE_Authority)
+		//{
+		//	this->MakeItemActive(ActiveItemSlot);
+		//}
+	});
 
 
 	Super::Super::BeginPlay();
@@ -150,6 +141,13 @@ void USSArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponen
 
 }
 
+
+void USSArcInventoryComponent_Active::OnAttributeSetCreatedEvent(UArcInventoryComponent_Equippable* Inventory, UAttributeSet* AttributeSet, UArcItemStack* AttributeSource)
+{
+	// Tells us to apply the default stats Effect
+	bCreatedAttributeSets = true;
+}
+
 void USSArcInventoryComponent_Active::MakeItemActive(int32 NewActiveItemSlot)
 {
 	Super::MakeItemActive(NewActiveItemSlot);
@@ -198,55 +196,61 @@ void USSArcInventoryComponent_Active::MakeItemActive(int32 NewActiveItemSlot)
 
 
 	// Add UIData widget
-	bool bSuccessfullyAdded = true;
-	if (const APawn* OwningPawn = GetTypedOuter<APawn>())
+	const APawn* OwningPawn = GetTypedOuter<APawn>();
+	if (IsValid(OwningPawn))
 	{
 		if (OwningPawn->IsLocallyControlled())
 		{
-			if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
+			bool bSuccessfullyAdded = true;
+
+			APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController());
+			if (IsValid(OwningPC))
 			{
-				if (USSArcUIData_ItemDefinition* ItemUIData = Cast<USSArcUIData_ItemDefinition>(ActiveItemStack->GetUIData()))
+				const USSArcUIData_ItemDefinition* UIData = Cast<USSArcUIData_ItemDefinition>(ActiveItemStack->GetUIData());
+				if (IsValid(UIData))
 				{
-					if (AHUD_Shooter* ShooterHUD = Cast<AHUD_Shooter>(OwningPC->GetHUD()))
+					AHUD_Shooter* ShooterHUD = Cast<AHUD_Shooter>(OwningPC->GetHUD());
+					if (IsValid(ShooterHUD))
 					{
-						if (USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(ActiveItemStack))
+						USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(ActiveItemStack);
+						if (IsValid(SSArcItemStack))
 						{
-							UUW_ActiveItem* WidgetToAdd = nullptr;			// This ptr represents the widget that will be added to the screen (whether it's already created or not)
-							if (SSArcItemStack->ActiveItemWidget == nullptr)	// If for some reason the widget wasn't created successfully on item equip
+							UUW_ActiveItem* WidgetToAdd = SSArcItemStack->ActiveItemWidget;
+
+							if (!IsValid(WidgetToAdd))
 							{
-								UE_LOG(UISetup, Warning, TEXT("%s() New active item stack did not point to a valid item widget when trying to add it to viewport. Equipping the item maybe didn't successfully create the widget so we have nothing. We will create the widget now but something seams to have messed up at some point"), ANSI_TO_TCHAR(__FUNCTION__));
-								// Create the widget and add to viewport
-								WidgetToAdd = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, ItemUIData->ActiveItemWidgetTSub, OwningPC));
+								// No valid Widget! - For some reason the Widget wasn't created successfully in OnItemSlotChangeEvent()!
+								UE_LOG(UISetup, Warning, TEXT("%s() New active Item Stack did not point to a valid item Widget when trying to add it to Viewport. Equipping the item maybe didn't successfully create the Widget so we have nothing. We will create the Widget now but something seams to have messed up at some point"), ANSI_TO_TCHAR(__FUNCTION__));
+								
+								// Create the Widget
+								WidgetToAdd = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, UIData->ActiveItemWidgetTSub, OwningPC));
 								if (WidgetToAdd)
 								{
 									WidgetToAdd->ActiveItemName = ActiveItemStack->ItemName; // inject ItemName
 
 									SSArcItemStack->ActiveItemWidget = WidgetToAdd;
-									ShooterHUD->CurrentActiveItemWidget = WidgetToAdd;
-									WidgetToAdd->AddToPlayerScreen();
 								}
 							}
-							else												// The widget from USSArcItemStack was valid as expected (it was created on item equip), so we will add it to viewport
-							{
-								WidgetToAdd = SSArcItemStack->ActiveItemWidget;
-								if (WidgetToAdd)
-								{
-									WidgetToAdd->AddToPlayerScreen();
-									ShooterHUD->CurrentActiveItemWidget = WidgetToAdd;
 
-								}
+							// Add the Widget to Viewport
+							if (IsValid(WidgetToAdd))
+							{
+								WidgetToAdd->AddToPlayerScreen();
+								ShooterHUD->CurrentActiveItemWidget = WidgetToAdd;
 							}
 						}
 					}
 				}
 			}
+
+			if (bSuccessfullyAdded == false)
+			{
+				UE_LOG(UISetup, Warning, TEXT("%s() Item's widget was not successfully displayed on item active (a cast must have failed in the process)"), ANSI_TO_TCHAR(__FUNCTION__));
+			}
 		}
 	}
 
-	if (bSuccessfullyAdded == false)
-	{
-		UE_LOG(UISetup, Warning, TEXT("%s() Item's widget was not successfully displayed on item active (a cast must have failed in the process)"), ANSI_TO_TCHAR(__FUNCTION__));
-	}
+
 
 }
 
@@ -260,50 +264,53 @@ bool USSArcInventoryComponent_Active::MakeItemActive_Internal(const FArcInventor
 		AddToActiveItemHistory(ItemSlot);
 	}
 
-
 	return bSuccess;
 }
 
 void USSArcInventoryComponent_Active::AddToActiveItemHistory(const FArcInventoryItemSlotReference& NewActiveItemSlotReference)
 {
-	int32 sizeChange = 0;
+	int32 SizeChange = 0;
 
-
-	if (ActiveItemHistory.RemoveSingle(NewActiveItemSlotReference) == 1)		// we don't want duplicates.... remove the item from the history buffer so we can make it a new recent
+	if (ActiveItemHistory.RemoveSingle(NewActiveItemSlotReference) == 1)
 	{
-		--sizeChange;
+		--SizeChange; // we don't want duplicates.... remove the item from the history buffer so we can make it a new recent
 	}
-	ActiveItemHistory.Insert(NewActiveItemSlotReference, 0);						// make item new recent
-	++sizeChange;
+
+	// Make item new recent
+	ActiveItemHistory.Insert(NewActiveItemSlotReference, 0);
+	++SizeChange;
 
 	if (ActiveItemHistory.Num() > MaxItemHistoryBufferSize)
 	{
-		ActiveItemHistory.RemoveAt(ActiveItemHistory.Num() - 1);						// remove oldest stored item if we are passed the max buffer size
+		ActiveItemHistory.RemoveAt(ActiveItemHistory.Num() - 1); // remove oldest stored item if we are passed the max buffer size
 	}
-
 
 }
 
 
 void USSArcInventoryComponent_Active::OnItemSlotChangeEvent(UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
 {
-	// Untested since we are waiting on these problems to be resolved for the next ArcInventory update
-	if (IsValid(ItemStack))		// if we are equiping
+	if (IsValid(ItemStack)) // if we are Equiping
 	{
-		// We will create the item's widget so we can add it when it later becomes "Active"
-		if (USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(ItemStack))
+		const APawn* OwningPawn = GetTypedOuter<APawn>();
+		if (IsValid(OwningPawn))
 		{
-			if (!IsValid(SSArcItemStack->ActiveItemWidget))		// only create a new widget if it doesn't already exist
+			if (OwningPawn->IsLocallyControlled())
 			{
-				if (USSArcUIData_ItemDefinition* ItemUIData = Cast<USSArcUIData_ItemDefinition>(ItemStack->GetUIData()))
+				// We will create the item's Widget so we can add it when it later becomes "Active"
+				USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(ItemStack);
+				if (IsValid(SSArcItemStack))
 				{
-					if (APawn* OwningPawn = GetTypedOuter<APawn>())
+					if (!IsValid(SSArcItemStack->ActiveItemWidget)) // only create a new Widget if it doesn't already exist
 					{
-						if (OwningPawn->IsLocallyControlled())
+						const USSArcUIData_ItemDefinition* UIData = Cast<USSArcUIData_ItemDefinition>(ItemStack->GetUIData());
+						if (IsValid(UIData))
 						{
-							if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
+							APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController());
+							if (IsValid(OwningPC))
 							{
-								if (UUW_ActiveItem* Widget = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, ItemUIData->ActiveItemWidgetTSub, OwningPC)))
+								UUW_ActiveItem* Widget = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, UIData->ActiveItemWidgetTSub, OwningPC));
+								if (IsValid(Widget))
 								{
 									Widget->ActiveItemName = ItemStack->ItemName; // inject ItemName
 
@@ -313,51 +320,58 @@ void USSArcInventoryComponent_Active::OnItemSlotChangeEvent(UArcInventoryCompone
 						}
 					}
 				}
+
 			}
 		}
 	}
-	else						// if we are UnEquiping
+	else // if we are UnEquiping
 	{
-		// We completely get rid of the widget since the inventory now longer has the item
-		if (USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(PreviousItemStack))
+		USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(PreviousItemStack);
+		if (IsValid(SSArcItemStack))
 		{
 			UUW_ActiveItem* WidgetToRemove = SSArcItemStack->ActiveItemWidget;
-			if (WidgetToRemove)
+			if (IsValid(WidgetToRemove))
 			{
+				// We completely get rid of the widget since the inventory now longer has the item
 				WidgetToRemove->RemoveFromParent();
+				SSArcItemStack->ActiveItemWidget = nullptr;
 			}
 		}
 	}
+
 }
 
 void USSArcInventoryComponent_Active::OnItemInactiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
 {
 	// Remove UIData widgets
-	if (const APawn* OwningPawn = GetTypedOuter<APawn>())
+	const APawn* OwningPawn = GetTypedOuter<APawn>();
+	if (IsValid(OwningPawn))
 	{
 		if (OwningPawn->IsLocallyControlled())
 		{
-			if (APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController()))
+			const APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController());
+			if (IsValid(OwningPC))
 			{
-				if (AHUD_Shooter* ShooterHUD = Cast<AHUD_Shooter>(OwningPC->GetHUD()))
+				const USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(ItemStack);
+				if (IsValid(SSArcItemStack))
 				{
-					if (USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(ItemStack))
+					UUW_ActiveItem* WidgetToRemove = SSArcItemStack->ActiveItemWidget;
+					if (IsValid(WidgetToRemove))
 					{
-						UUW_ActiveItem* WidgetToRemove = SSArcItemStack->ActiveItemWidget;
-						if (WidgetToRemove)
+						// Remove ActiveItemWidget from Viewport and clear the pointer from ShooterHUD
+						WidgetToRemove->RemoveFromViewport();
+
+						// And clear the pointer from the HUD
+						AHUD_Shooter* ShooterHUD = Cast<AHUD_Shooter>(OwningPC->GetHUD());
+						if (IsValid(ShooterHUD))
 						{
-							WidgetToRemove->RemoveFromViewport();
-							ShooterHUD->CurrentActiveItemWidget = nullptr; // we set this pointer to null since at this point it's not visible to the Player (indicating the Item is no longer active)
+							ShooterHUD->CurrentActiveItemWidget = nullptr;
 						}
 					}
 				}
 			}
+
 		}
 	}
-}
 
-
-void USSArcInventoryComponent_Active::OnAttributeSetCreatedEvent(UArcInventoryComponent_Equippable* Inventory, UAttributeSet* AttributeSet, UArcItemStack* AttributeSource)
-{
-	bCreatedAttributeSets = true;
 }

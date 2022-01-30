@@ -11,7 +11,7 @@
 
 
 /**
- * 
+ * Shooter specific ASC
  */
 UCLASS()
 class SONICSHOOTER_API UASC_Shooter : public UASSAbilitySystemComponent
@@ -24,8 +24,7 @@ public:
 
 	// Change delegates:
 
-	TSharedRef<FFloatValueChange> OnClipAmmoChange = MakeShared<FFloatValueChange>();
-	TSharedRef<FFloatValueChange> OnCurrentBulletSpreadChange = MakeShared<FFloatValueChange>();
+	TSharedRef<FFloatValueChange> OnCurrentBulletSpreadChange;
 
 
 protected:

@@ -64,7 +64,7 @@ protected:
 	virtual bool MakeItemActive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack) override;
 
 private:
-	// Used in ApplyAbilityInfo_Internal() override to tell us when to apply the default stats Effect filled out in USSArcItemDefinition_Active::InitializationEffectTSub
+	// Used in to tell us when to apply the default stats Effect filled out in USSArcItemDefinition_Active::InitializationEffectTSub
 	uint8 bCreatedAttributeSets : 1;
 
 };

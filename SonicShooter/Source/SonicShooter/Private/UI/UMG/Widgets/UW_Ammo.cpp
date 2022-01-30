@@ -3,7 +3,6 @@
 
 #include "UI/UMG/Widgets/UW_Ammo.h"
 
-#include "UI/UMG/Widgets/UW_ActiveItem.h"
 #include "Item/AS_Ammo.h"
 #include "Subobjects/O_Ammo.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
@@ -82,11 +81,10 @@ void UUW_Ammo::SetBackupAmmo(float NewBackupAmmo)
 
 void UUW_Ammo::UpdateAmmoStatus()
 {
-	FString clipText = FString::FromInt(FMath::TruncToFloat(CurrentClipAmmo)) + "/";
-	ClipAmmoText->SetText(FText::FromString(clipText));
+	FString ClipAmmoString = FString::FromInt(FMath::TruncToInt(CurrentClipAmmo)) + TEXT("/");
+	ClipAmmoText->SetText(FText::FromString(ClipAmmoString));
 
-
-	BackupAmmoText->SetText(FText::FromString(FString::FromInt(FMath::TruncToFloat(CurrentBackupAmmo))));
+	BackupAmmoText->SetText(FText::AsNumber(FMath::TruncToInt(CurrentBackupAmmo)));
 }
 
 

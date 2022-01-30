@@ -6,6 +6,7 @@
 #include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
 #include "UI/UMG/Widgets/UW_ActiveItem.h"
 #include "Item/AS_Ammo.h"
+#include "Components/TextBlock.h"
 
 
 
@@ -66,6 +67,15 @@ void UUW_Ammo::SetBackupAmmo(float NewBackupAmmo)
 {
 	BackupAmmo = NewBackupAmmo;
 	UpdateAmmoStatus();
+}
+
+void UUW_Ammo::UpdateAmmoStatus()
+{
+	FString clipText = FString::FromInt(FMath::TruncToFloat(ClipAmmo)) + "/";
+	ClipAmmoText->SetText(FText::FromString(clipText));
+
+
+	BackupAmmoText->SetText(FText::FromString(FString::FromInt(FMath::TruncToFloat(BackupAmmo))));
 }
 
 

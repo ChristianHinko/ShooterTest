@@ -23,7 +23,8 @@ public:
 
 		TSharedRef<FFloatValueChange> OnCurrentBulletSpreadChange;
 
-		UPROPERTY(BlueprintReadOnly, Replicated, Category = "Gun")
+		/** Current bullet spread. Non-replicated because set every frame */
+		UPROPERTY(BlueprintReadOnly/*, Replicated*/, Category = "Gun")
 			FFloatPropertyWrapper CurrentBulletSpread;
 
 protected:

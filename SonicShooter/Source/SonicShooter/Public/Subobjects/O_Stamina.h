@@ -3,11 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
+#include "Wrappers/PropertyWrappers.h"
+
 #include "O_Stamina.generated.h"
 
+
+
 /**
- * 
+ * Has stamina float
  */
 UCLASS()
 class SONICSHOOTER_API UO_Stamina : public UObject, public FTickableGameObject
@@ -15,15 +18,23 @@ class SONICSHOOTER_API UO_Stamina : public UObject, public FTickableGameObject
 	GENERATED_BODY()
 
 public:
-		UO_Stamina();
+		UO_Stamina(const FObjectInitializer& ObjectInitializer);
 
-		// Begin FTickableObjectBase interface
-		virtual bool IsTickable() const;
+
+		TSharedRef<FFloatValueChange> OnStaminaChange;
+
+		UPROPERTY(BlueprintReadOnly, Replicated, Category = "Stamina")
+			FFloatPropertyWrapper Stamina;
+
+protected:
+		//BEGIN FTickableObjectBase interface
+		virtual bool IsTickable() const override;
 		virtual void Tick(float DeltaTime) override;
 		virtual TStatId GetStatId() const override { return TStatId(); }
-		// End FTickableObjectBase interface
+		//END FTickableObjectBase interface
 
-		// Begin FTickableGameObject interface
-		virtual bool IsTickableWhenPaused() const { return false; };
-		// end FTickableGameObject interface
+		//BEGIN FTickableGameObject interface
+		virtual bool IsTickableWhenPaused() const override { return false; };
+		//END FTickableGameObject interface
+
 };

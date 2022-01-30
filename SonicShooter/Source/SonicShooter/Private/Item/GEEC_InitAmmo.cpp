@@ -83,7 +83,6 @@ void UGEEC_InitAmmo::Execute_Implementation(const FGameplayEffectCustomExecution
 		USSArcInventoryComponent_Active* InventoryComponent = ShooterActorInfo->GetInventoryComponent();
 		if (IsValid(InventoryComponent))
 		{
-			// NOTE: UArcInventoryComponent_Active::ActiveItemSlot is currently not valid at this point! because we are applying this Effect before it gets assigned
 			const UArcItemStack* ActiveItemStack = InventoryComponent->GetActiveItemStack();
 			if (IsValid(ActiveItemStack))
 			{

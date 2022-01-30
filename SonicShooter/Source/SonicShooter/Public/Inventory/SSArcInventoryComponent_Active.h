@@ -62,11 +62,8 @@ protected:
 	UFUNCTION()
 		void OnAttributeSetCreatedEvent(UArcInventoryComponent_Equippable* Inventory, UAttributeSet* AttributeSet, UArcItemStack* AttributeSource);
 	
-
+	virtual void MakeItemActive(int32 NewActiveItemSlot) override;
 	virtual bool MakeItemActive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack) override;
-	
-	virtual bool ApplyAbilityInfo_Internal(const FArcItemDefinition_AbilityInfo& AbilityInfo, FArcEquippedItemInfo& StoreInto, UArcItemStack* AbilitySource) override;
-
 
 private:
 	// Used in ApplyAbilityInfo_Internal() override to tell us when to apply the default stats Effect filled out in USSArcItemDefinition_Active::InitializationEffectTSub

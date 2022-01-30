@@ -151,6 +151,43 @@ void USSArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponen
 
 }
 
+void USSArcInventoryComponent_Active::MakeItemActive(int32 NewActiveItemSlot)
+{
+	Super::MakeItemActive(NewActiveItemSlot);
+
+
+	// Check if we created any Attribute Sets
+	if (bCreatedAttributeSets)
+	{
+		// Attribute Sets have been created! - so apply default stats Effect
+		UAbilitySystemComponent* ASC = GetOwnerAbilitySystem();
+		if (IsValid(ASC))
+		{
+			USSArcItemDefinition_Active* SSItemDefinition = Cast<USSArcItemDefinition_Active>(GetActiveItemStack()->GetItemDefinition().GetDefaultObject());
+			if (IsValid(SSItemDefinition))
+			{
+				// Apply the default stats Effect
+				FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
+				EffectContextHandle.AddInstigator(GetOwner(), GetOwner());
+				EffectContextHandle.AddSourceObject(GetOwner());
+
+				FGameplayEffectSpecHandle NewEffectSpecHandle = ASC->MakeOutgoingSpec(SSItemDefinition->InitializationEffectTSub, 1/*GetLevel()*/, EffectContextHandle);
+				if (NewEffectSpecHandle.IsValid())
+				{
+					ASC->ApplyGameplayEffectSpecToSelf(*NewEffectSpecHandle.Data.Get());
+				}
+				else
+				{
+					UE_LOG(LogArcInventorySetup, Warning, TEXT("%s() Tried to apply the InitializationEffectTSub but failed. Maybe check if you filled out your USSArcItemDefinition_Active::InitializationEffectTSub correctly in Blueprint"), ANSI_TO_TCHAR(__FUNCTION__));
+				}
+			}
+		}
+
+	}
+	bCreatedAttributeSets = false;
+
+}
+
 bool USSArcInventoryComponent_Active::MakeItemActive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack)
 {
 	bool bSuccess = Super::MakeItemActive_Internal(ItemSlot, ItemStack);
@@ -183,48 +220,6 @@ void USSArcInventoryComponent_Active::AddToActiveItemHistory(const FArcInventory
 	}
 
 
-}
-
-bool USSArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDefinition_AbilityInfo& AbilityInfo, FArcEquippedItemInfo& StoreInto, UArcItemStack* AbilitySource)
-{
-	Super::ApplyAbilityInfo_Internal(AbilityInfo, StoreInto, AbilitySource);
-
-
-	// Check if we created any Attribute Sets
-	if (bCreatedAttributeSets)
-	{
-		// Attribute Sets have been created! - so apply default stats Effect
-		UAbilitySystemComponent* ASC = GetOwnerAbilitySystem();
-		if (IsValid(ASC))
-		{
-			USSArcItemDefinition_Active* SSItemDefinition = Cast<USSArcItemDefinition_Active>(AbilitySource->GetItemDefinition().GetDefaultObject());
-			if (IsValid(SSItemDefinition))
-			{
-				// Apply the default stats Effect
-				FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
-				EffectContextHandle.AddInstigator(GetOwner(), GetOwner());
-				EffectContextHandle.AddSourceObject(GetOwner());
-
-				FGameplayEffectSpecHandle NewEffectSpecHandle = ASC->MakeOutgoingSpec(SSItemDefinition->InitializationEffectTSub, 1/*GetLevel()*/, EffectContextHandle);
-				if (NewEffectSpecHandle.IsValid())
-				{
-					ASC->ApplyGameplayEffectSpecToSelf(*NewEffectSpecHandle.Data.Get());
-				}
-				else
-				{
-					UE_LOG(LogArcInventorySetup, Warning, TEXT("%s() Tried to apply the InitializationEffectTSub but failed. Maybe check if you filled out your USSArcItemDefinition_Active::InitializationEffectTSub correctly in Blueprint"), ANSI_TO_TCHAR(__FUNCTION__));
-				}
-			}
-		}
-
-	}
-
-	bCreatedAttributeSets = false;
-
-
-
-
-	return true;
 }
 
 

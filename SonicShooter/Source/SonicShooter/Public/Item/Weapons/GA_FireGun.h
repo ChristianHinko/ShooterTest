@@ -12,6 +12,7 @@
 class AGATA_BulletTrace;
 class UAS_Gun;
 class UO_Ammo;
+class UO_Gun;
 class UGunStack;
 class USSAbilityTask_WaitTargetData;
 class UAT_Ticker;
@@ -65,8 +66,11 @@ protected:
 		AGATA_BulletTrace* BulletTraceTargetActor;
 	UPROPERTY()
 		UAS_Gun* GunAttributeSet;
+
 	UPROPERTY()
 		UO_Ammo* AmmoSubobject;
+	UPROPERTY()
+		UO_Gun* GunSubobject;
 
 	void Shoot();
 

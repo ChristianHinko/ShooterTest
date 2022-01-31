@@ -2,10 +2,13 @@
 
 #include "Item/UW_Crosshair.h"
 
-#include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
 #include "Item/Weapons/AS_Gun.h"
 #include "Components/Image.h"
 #include "Components/SizeBox.h"
+#include "Subobjects/O_Gun.h"
+#include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
+#include "Inventory/SSArcInventoryComponent_Active.h"
+#include "Item/Weapons/GunStack.h"
 
 
 
@@ -42,22 +45,30 @@ void UUW_Crosshair::OnPlayerASCValid()
 	Super::OnPlayerASCValid();
 
 
-	ShooterASC = Cast<UASC_Shooter>(PlayerASC);
-	if (ShooterASC)
+	// Get gun subobject
+	if (const FGAAI_Shooter* ShooterActorInfo = static_cast<const FGAAI_Shooter*>(PlayerASC->AbilityActorInfo.Get()))
 	{
-		ShooterASC->OnCurrentBulletSpreadChange->AddDynamic(this, &UUW_Crosshair::OnCurrentBulletSpreadChange);
-
-
-		// Search for a Gun AttributeSet
-		for (UAttributeSet* AttributeSet : PlayerASC->GetSpawnedAttributes_Mutable())
+		USSArcInventoryComponent_Active* InventoryComponent = ShooterActorInfo->GetInventoryComponent();
+		if (IsValid(InventoryComponent))
 		{
-			if (UAS_Gun* GunAttributeSet = Cast<UAS_Gun>(AttributeSet))
+			const UArcItemStack* ActiveItemStack = InventoryComponent->GetActiveItemStack();
+			if (IsValid(ActiveItemStack))
 			{
-				// Call manually for initial value
-				float currentBulletSpread = GunAttributeSet->CurrentBulletSpread;
-				OnCurrentBulletSpreadChange(currentBulletSpread, currentBulletSpread);
+				const UGunStack* GunStack = Cast<UGunStack>(ActiveItemStack);
+				if (IsValid(GunStack))
+				{
+					GunSubobject = GunStack->GetGunSubobject();
+				}
 			}
 		}
+	}
+
+	if (IsValid(GunSubobject))
+	{
+		GunSubobject->OnCurrentBulletSpreadChange.Get().AddDynamic(this, &UUW_Crosshair::OnCurrentBulletSpreadChange);
+
+		const float& CurrentBulletSpread = GunSubobject->CurrentBulletSpread;
+		OnCurrentBulletSpreadChange(CurrentBulletSpread, CurrentBulletSpread);
 	}
 
 }
@@ -91,9 +102,9 @@ void UUW_Crosshair::UpdateCrosshair()
 
 void UUW_Crosshair::NativeDestruct()
 {
-	if (ShooterASC)
+	if (GunSubobject)
 	{
-		ShooterASC->OnCurrentBulletSpreadChange->RemoveAll(this);
+		GunSubobject->OnCurrentBulletSpreadChange.Get().RemoveAll(this);
 	}
 
 

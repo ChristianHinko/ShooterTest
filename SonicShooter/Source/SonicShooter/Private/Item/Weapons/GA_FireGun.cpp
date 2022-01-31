@@ -10,6 +10,7 @@
 #include "Utilities/CollisionChannels.h"
 #include "Item/Weapons/AS_Gun.h"
 #include "Subobjects/O_Ammo.h"
+#include "Subobjects/O_Gun.h"
 #include "Item\Weapons\GunStack.h"
 #include "ArcInventoryItemTypes.h"
 #include "Item\Definitions\ArcItemDefinition_Active.h"
@@ -66,6 +67,7 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	}
 
 	AmmoSubobject = GunToFire->GetAmmoSubobject();
+	GunSubobject = GunToFire->GetGunSubobject();
 
 	// Search for Attribute Sets
 	UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
@@ -89,6 +91,7 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	BulletTraceTargetActor->OwningAbility = this;
 	BulletTraceTargetActor->bDestroyOnConfirmation = false;
 	BulletTraceTargetActor->GunAttributeSet = GunAttributeSet;
+	BulletTraceTargetActor->GunSubobject = GunSubobject;
 
 	UGameplayStatics::FinishSpawningActor(BulletTraceTargetActor, FTransform());
 }
@@ -107,7 +110,9 @@ void UGA_FireGun::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, co
 	}
 
 	GunAttributeSet = nullptr;
+
 	AmmoSubobject = nullptr;
+	GunSubobject = nullptr;
 }
 
 bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
@@ -129,15 +134,20 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() BulletTraceTargetActor was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
-
 	if (!GunAttributeSet)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GunAttributeSet was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
+
 	if (!AmmoSubobject)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() AmmoSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+		return false;
+	}
+	if (!GunSubobject)
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GunSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
@@ -376,7 +386,7 @@ void UGA_FireGun::Shoot()
 	// Lets finally fire
 	AmmoSubobject->ClipAmmo = AmmoSubobject->ClipAmmo - GunAttributeSet->GetAmmoCost();
 	WaitTargetDataActorTask->ReadyForActivation();
-	GunAttributeSet->ApplyFireBulletSpread();
+	GunSubobject->ApplyFireBulletSpread();
 }
 
 

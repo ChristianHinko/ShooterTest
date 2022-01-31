@@ -4,15 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/ASSAttributeSet.h"
-#include "GameplayAbilities/Public/TickableAttributeSetInterface.h"
 #include "AbilitySystemComponent.h"
-#include "Wrappers/PropertyWrappers.h"
 
 #include "AS_Gun.generated.h"
-
-
-class USSArcInventoryComponent_Active;
-class USSCharacterMovementComponent;
 
 
 
@@ -20,7 +14,7 @@ class USSCharacterMovementComponent;
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UAS_Gun : public UASSAttributeSet, public ITickableAttributeSetInterface
+class SONICSHOOTER_API UAS_Gun : public UASSAttributeSet
 {
 	GENERATED_BODY()
 
@@ -67,15 +61,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadDecSpeed, Category = "Attributes")
 		FGameplayAttributeData BulletSpreadDecSpeed;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, BulletSpreadDecSpeed)
-
-
-	/**
-	 * Current bullet spread. Non-replicated because set every frame
-	 * 
-	 * TODO: when switching weapons this freazes sometimes i think
-	 */
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", meta = (HideFromModifiers))
-		FFloatPropertyWrapper CurrentBulletSpread;
 #pragma endregion
 
 	
@@ -204,46 +189,7 @@ public:
 
 
 
-
-
-	bool IsMovingToIncBulletSpread() const;
-
-	float GetRestBulletSpread() const;
-
-	void ApplyFireBulletSpread();
-	 
-
 protected:
-	virtual void PostInitProperties() override;
-
-
-	void OnActorInfoInitted();
-
-	void UpdateFromActorInfo();
-
-	USSArcInventoryComponent_Active* Inventory;
-	UFUNCTION()
-		void OnInventoryItemActive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
-	UFUNCTION()
-		void OnInventoryItemInactive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
-
-	USSCharacterMovementComponent* CMC;
-
-	void OnAccelerationStartCMC();
-	void OnAccelerationStopCMC();
-
-	void OnStartedFallingCMC();
-	void OnStoppedFallingCMC();
-
-
-
-	virtual void Tick(float DeltaTime) override;
-	virtual bool ShouldTick() const override;
-
-
-
-
-
 	UFUNCTION()
 		virtual void OnRep_MinBulletSpread(const FGameplayAttributeData& ServerBaseValue);
 

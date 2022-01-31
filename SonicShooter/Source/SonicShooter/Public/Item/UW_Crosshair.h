@@ -8,9 +8,9 @@
 #include "UW_Crosshair.generated.h"
 
 
-class UASC_Shooter;
 class USizeBox;
 class UImage;
+class UO_Gun;
 
 
 
@@ -36,8 +36,6 @@ protected:
 	virtual void OnPlayerASCValid() override;
 	virtual void NativeDestruct() override;
 
-	UASC_Shooter* ShooterASC;
-
 
 	UPROPERTY(meta = (BindWidget))
 		USizeBox* SizeBoxTop;
@@ -59,6 +57,7 @@ protected:
 
 
 
+	UO_Gun* GunSubobject;
 	UFUNCTION()
 		void OnCurrentBulletSpreadChange(const float& OldValue, const float& NewValue);
 

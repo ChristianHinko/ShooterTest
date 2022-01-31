@@ -115,6 +115,7 @@ private:
 
 
 class UAS_Gun;
+class UO_Gun;
 
 
 /**
@@ -153,6 +154,9 @@ public:
 
 	UPROPERTY()
 		UAS_Gun* GunAttributeSet;
+
+	UPROPERTY()
+		UO_Gun* GunSubobject;
 
 	/** This is injected in every fire */
 	int16 FireSpecificNetSafeRandomSeed;

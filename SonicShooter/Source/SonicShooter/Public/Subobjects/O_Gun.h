@@ -4,8 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Wrappers/PropertyWrappers.h"
+#include "AttributeSet.h"
 
 #include "O_Gun.generated.h"
+
+
+class UAbilitySystemComponent;
+class UCharacterMovementComponent;
 
 
 
@@ -18,24 +23,45 @@ class SONICSHOOTER_API UO_Gun : public UObject, public FTickableGameObject
 	GENERATED_BODY()
 
 public:
-		UO_Gun(const FObjectInitializer& ObjectInitializer);
+	UO_Gun(const FObjectInitializer& ObjectInitializer);
 
 
-		TSharedRef<FFloatValueChange> OnCurrentBulletSpreadChange;
+	TSharedRef<FFloatValueChange> OnCurrentBulletSpreadChange;
 
-		/** Current bullet spread. Non-replicated because set every frame */
-		UPROPERTY(BlueprintReadOnly/*, Replicated*/, Category = "Gun")
-			FFloatPropertyWrapper CurrentBulletSpread;
+	/** Current bullet spread. Non-replicated because set every frame */
+	UPROPERTY(BlueprintReadOnly/*, Replicated*/, Category = "Gun")
+		FFloatPropertyWrapper CurrentBulletSpread;
+
+
+	bool IsMovingToIncBulletSpread() const;
+
+	float GetRestBulletSpread() const;
+
+	void ApplyFireBulletSpread();
 
 protected:
-		//BEGIN FTickableObjectBase interface
-		virtual bool IsTickable() const override;
-		virtual void Tick(float DeltaTime) override;
-		virtual TStatId GetStatId() const override { return TStatId(); }
-		//END FTickableObjectBase interface
+	virtual void PostInitProperties() override;
 
-		//BEGIN FTickableGameObject interface
-		virtual bool IsTickableWhenPaused() const override { return false; };
-		//END FTickableGameObject interface
+
+	//BEGIN FTickableObjectBase interface
+	virtual bool IsTickable() const override;
+	virtual void Tick(float DeltaTime) override;
+	virtual TStatId GetStatId() const override { return TStatId(); }
+	//END FTickableObjectBase interface
+
+	//BEGIN FTickableGameObject interface
+	virtual bool IsTickableWhenPaused() const override { return false; };
+	//END FTickableGameObject interface
+
+private:
+	const UAbilitySystemComponent* OwnerASC;
+	const UCharacterMovementComponent* CMC;
+
+	// Cached attribute properties
+	const FGameplayAttribute MinBulletSpreadAttribute;
+	const FGameplayAttribute MovingBulletSpreadAttribute;
+	const FGameplayAttribute BulletSpreadIncRateAttribute;
+	const FGameplayAttribute FireBulletSpreadAttribute;
+	const FGameplayAttribute BulletSpreadDecSpeedAttribute;
 
 };

@@ -23,7 +23,7 @@ void UO_Stamina::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 
 UO_Stamina::UO_Stamina(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	, OnStaminaChange(TSharedRef<FFloatValueChange>())
+	, OnStaminaChange(MakeShared<FFloatValueChange>())
 	, Stamina(this, FName("Stamina"), OnStaminaChange)
 {
 	Stamina = 0.f;

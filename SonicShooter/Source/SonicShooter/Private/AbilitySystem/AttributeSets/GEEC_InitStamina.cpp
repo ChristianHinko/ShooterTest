@@ -2,8 +2,11 @@
 
 
 #include "AbilitySystem/AttributeSets/GEEC_InitStamina.h"
+#include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
 
+#include "Character/SSCharacterMovementComponent.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
+#include "Subobjects/O_Stamina.h"
 
 
 
@@ -74,23 +77,18 @@ void UGEEC_InitStamina::Execute_Implementation(const FGameplayEffectCustomExecut
 	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetStaminaInitializationStatics().StaminaRegenPauseAttribute,		EGameplayModOp::Override, StaminaRegenPause));
 
 
+
+
+
 	// Calculate defaults
 	float Stamina = MaxStamina;
-
-	// Search for stamina Attribute Set and initialize Stamina. NOTE: this is really bad accessing an Ability System Component's Attribute Sets directly
+	// Get stamina subobject and initialize Stamina
+	if (const FGAAI_Shooter* ShooterActorInfo = static_cast<const FGAAI_Shooter*>(TargetAbilitySystemComponent->AbilityActorInfo.Get()))
 	{
-		UAS_Stamina** StaminaAttributeSetPtr = nullptr;
-		int32* index = nullptr;
-		TargetAbilitySystemComponent->GetSpawnedAttributes_Mutable().FindItemByClass<UAS_Stamina>(StaminaAttributeSetPtr, index, 0);
-		if (StaminaAttributeSetPtr)
+		USSCharacterMovementComponent* SSCMC = ShooterActorInfo->GetSSCharacterMovementComponent();
+		if (IsValid(SSCMC))
 		{
-			UAS_Stamina* StaminaAttributeSet = *StaminaAttributeSetPtr;
-			if (IsValid(StaminaAttributeSet))
-			{
-				StaminaAttributeSet->Stamina = Stamina;
-			}
+			SSCMC->StaminaSubobject->Stamina = Stamina;
 		}
 	}
-
-
 }

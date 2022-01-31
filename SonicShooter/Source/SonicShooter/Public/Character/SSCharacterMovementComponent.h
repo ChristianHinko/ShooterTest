@@ -12,7 +12,7 @@
 
 class ASSCharacter;
 class UAS_CharacterMovement;
-class UAS_Stamina;
+class UO_Stamina;
 class IAbilitySystemInterface;
 
 
@@ -209,6 +209,10 @@ public:
 	FCharacterMovementStateNotify OnStoppedFalling;
 
 
+	UPROPERTY()
+		UO_Stamina* StaminaSubobject;
+
+
 protected:
 	//	Don't know for sure if this is the best event to use but works for now
 	virtual void InitializeComponent() override;
@@ -218,8 +222,6 @@ protected:
 		ASSCharacter* SSCharacterOwner;
 	UPROPERTY()
 		UAS_CharacterMovement* CharacterMovementAttributeSet;
-	UPROPERTY()
-		UAS_Stamina* StaminaAttributeSet;
 
 	UFUNCTION()
 		virtual void OnOwningCharacterAbilitySystemReady();

@@ -7,7 +7,7 @@
 #include "Character/SSCharacterMovementComponent.h"
 #include "Character/SSCharacter.h"
 #include "Character/AttributeSets/AS_CharacterMovement.h"
-#include "AbilitySystem/AttributeSets/AS_Stamina.h"
+#include "Subobjects/O_Stamina.h"
 #include "Utilities/LogCategories.h"
 #include "Utilities/SSNativeGameplayTags.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -20,9 +20,6 @@
 
 USSCharacterMovementComponent::USSCharacterMovementComponent()
 {
-
-
-
 	bCrouchCancelsDesireToRun = true;
 	bRunCancelsDesireToCrouch = true;
 	bJumpCancelsDesireToCrouch = true;
@@ -31,6 +28,10 @@ USSCharacterMovementComponent::USSCharacterMovementComponent()
 
 	bCanCrouchJump = false;
 	bCanWalkOffLedgesWhenCrouching = true;
+
+
+
+	StaminaSubobject = CreateDefaultSubobject<UO_Stamina>(TEXT("StaminaSubobject"));
 }
 
 void USSCharacterMovementComponent::CVarToggleCrouchChanged(bool newToggleCrouch)
@@ -87,12 +88,11 @@ void USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady()
 	if (SSCharacterOwner)
 	{
 		CharacterMovementAttributeSet = SSCharacterOwner->GetCharacterAttributeSet();
-		StaminaAttributeSet = SSCharacterOwner->GetStaminaAttributeSet(); // TODO: use injecting instead of searching. i want StaminaAttributeSet on a subclass of SSCharacter which would inject it into here
 	}
 
-	if (StaminaAttributeSet)
+	if (StaminaSubobject)
 	{
-		StaminaAttributeSet->OnStaminaFullyDrained.AddUObject(this, &USSCharacterMovementComponent::OnStaminaFullyDrained);
+		StaminaSubobject->OnStaminaFullyDrained.AddUObject(this, &USSCharacterMovementComponent::OnStaminaFullyDrained);
 	}
 }
 
@@ -162,7 +162,7 @@ void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 	bool newWantsToRun = bWantsToRun;
 
 
-	if (StaminaAttributeSet && StaminaAttributeSet->Stamina <= 0.f)
+	if (StaminaSubobject && StaminaSubobject->Stamina <= 0.f)
 	{
 		if (IsMovingOnGround()) // only if we are on the ground. if we are in the air, the player will be expecting to run anyways
 		{
@@ -642,7 +642,7 @@ bool USSCharacterMovementComponent::CanRunInCurrentState() const
 	//{
 	//	return false;
 	//}
-	if (StaminaAttributeSet && StaminaAttributeSet->Stamina <= 0)
+	if (StaminaSubobject && StaminaSubobject->Stamina <= 0)
 	{
 		return false;
 	}
@@ -700,17 +700,17 @@ void USSCharacterMovementComponent::UnCrouch(bool bClientSimulation)
 void USSCharacterMovementComponent::Run()
 {
 	SSCharacterOwner->bIsRunning = true;
-	if (StaminaAttributeSet)
+	if (StaminaSubobject)
 	{
-		StaminaAttributeSet->SetStaminaDraining(true);
+		StaminaSubobject->SetStaminaDraining(true);
 	}
 }
 void USSCharacterMovementComponent::UnRun()
 {
 	SSCharacterOwner->bIsRunning = false;
-	if (StaminaAttributeSet)
+	if (StaminaSubobject)
 	{
-		StaminaAttributeSet->SetStaminaDraining(false);
+		StaminaSubobject->SetStaminaDraining(false);
 	}
 }
 

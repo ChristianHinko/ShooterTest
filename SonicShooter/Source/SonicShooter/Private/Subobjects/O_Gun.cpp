@@ -23,7 +23,7 @@
 
 UO_Gun::UO_Gun(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	, OnCurrentBulletSpreadChange(TSharedRef<FFloatValueChange>())
+	, OnCurrentBulletSpreadChange(MakeShared<FFloatValueChange>())
 	, CurrentBulletSpread(this, FName("CurrentBulletSpread"), OnCurrentBulletSpreadChange)
 {
 	CurrentBulletSpread = 0.f;

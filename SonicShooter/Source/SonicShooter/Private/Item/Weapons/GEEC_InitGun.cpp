@@ -4,6 +4,10 @@
 #include "Item/Weapons/GEEC_InitGun.h"
 
 #include "Item/Weapons/AS_Gun.h"
+#include "Subobjects/O_Gun.h"
+#include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
+#include "Inventory/SSArcInventoryComponent_Active.h"
+#include "Item/Weapons/GunStack.h"
 
 
 
@@ -130,17 +134,20 @@ void UGEEC_InitGun::Execute_Implementation(const FGameplayEffectCustomExecutionP
 	// Calculate defaults
 	float CurrentBulletSpread = MinBulletSpread;
 
-	// Search for gun Attribute Set and initialize CurrentBulletSpread. TODO: this is really bad accessing an Ability System Component's Attribute Sets directly - move CurrentBulletSpread somewhere else!
+	// Get ammo subobject and initialize ClipAmmo
+	if (const FGAAI_Shooter* ShooterActorInfo = static_cast<const FGAAI_Shooter*>(TargetAbilitySystemComponent->AbilityActorInfo.Get()))
 	{
-		UAS_Gun** GunAttributeSetPtr = nullptr;
-		int32* index = nullptr;
-		TargetAbilitySystemComponent->GetSpawnedAttributes_Mutable().FindItemByClass<UAS_Gun>(GunAttributeSetPtr, index, 0);
-		if (GunAttributeSetPtr)
+		USSArcInventoryComponent_Active* InventoryComponent = ShooterActorInfo->GetInventoryComponent();
+		if (IsValid(InventoryComponent))
 		{
-			UAS_Gun* GunAttributeSet = *GunAttributeSetPtr;
-			if (IsValid(GunAttributeSet))
+			const UArcItemStack* ActiveItemStack = InventoryComponent->GetActiveItemStack();
+			if (IsValid(ActiveItemStack))
 			{
-				GunAttributeSet->CurrentBulletSpread = CurrentBulletSpread;
+				const UGunStack* GunStack = Cast<UGunStack>(ActiveItemStack);
+				if (IsValid(GunStack))
+				{
+					GunStack->GetGunSubobject()->CurrentBulletSpread = CurrentBulletSpread;
+				}
 			}
 		}
 	}

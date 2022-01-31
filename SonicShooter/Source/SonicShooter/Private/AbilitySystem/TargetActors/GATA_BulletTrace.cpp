@@ -9,6 +9,7 @@
 #include "AbilitySystem/Types/SSGameplayAbilityTargetTypes.h"
 #include "AbilitySystemComponent.h"
 #include "Item/Weapons/AS_Gun.h"
+#include "Subobjects/O_Gun.h"
 #include "BlueprintFunctionLibraries\BFL_CollisionQueryHelpers.h"
 #include "PhysicalMaterial/ShooterPhysicalMaterial.h"
 #include "BlueprintFunctionLibraries/BFL_HitResultHelpers.h"
@@ -184,7 +185,7 @@ void AGATA_BulletTrace::CalculateAimDirection(FVector& OutAimStart, FVector& Out
 
 
 	// Calculate new OutAimDir with random bullet spread offset if needed
-	float currentBulletSpread = GunAttributeSet->CurrentBulletSpread;
+	float currentBulletSpread = GunSubobject->CurrentBulletSpread;
 	if (currentBulletSpread > SMALL_NUMBER)
 	{
 		// Our injected random seed is only unique to each fire. We need a random seed that is also unique to each bullet in the fire, so we will do this by using t

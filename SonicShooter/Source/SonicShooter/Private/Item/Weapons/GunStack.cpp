@@ -5,6 +5,7 @@
 
 #include "Net/UnrealNetwork.h"
 #include "Subobjects/O_Ammo.h"
+#include "Subobjects/O_Gun.h"
 
 
 
@@ -20,5 +21,6 @@ UGunStack::UGunStack(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	AmmoSubobject = CreateDefaultSubobject<UO_Ammo>(TEXT("AmmoSubobject"));
+	GunSubobject = CreateDefaultSubobject<UO_Gun>(TEXT("GunSubobject"));
 
 }

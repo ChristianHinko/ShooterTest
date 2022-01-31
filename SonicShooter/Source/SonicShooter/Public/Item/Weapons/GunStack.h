@@ -10,6 +10,7 @@
 
 class AGATA_BulletTrace;
 class UO_Ammo;
+class UO_Gun;
 
 
 
@@ -24,12 +25,15 @@ class SONICSHOOTER_API UGunStack : public USSArcItemStack
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Ammo")
 		UO_Ammo* AmmoSubobject;
+	UPROPERTY(VisibleAnywhere, Category = "Gun")
+		UO_Gun* GunSubobject;
 	
 public:
 	UGunStack(const FObjectInitializer& ObjectInitializer);
 
 
 	UO_Ammo* GetAmmoSubobject() const { return AmmoSubobject; }
+	UO_Gun* GetGunSubobject() const { return GunSubobject; }
 
 	/**
 	 * This gun's target actor (what it will shoot)

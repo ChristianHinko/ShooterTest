@@ -121,6 +121,28 @@ bool UArcInventoryComponent::LootItem(UArcItemStack* Item)
 		return false;
 	}
 
+	if (!IsValid(Item))
+	{
+		return false;
+	}
+
+	//If the item is stackable, try to find a buddy to stack with
+	if (Item->GetItemDefinition().GetDefaultObject()->MaxStackSize > 1)
+	{
+		for (auto Slot : BagInventory.Slots)
+		{
+			if (IsValid(Slot.ItemStack) && Slot.ItemStack->CanStackWith(Item))
+			{
+				//If we've successfully merged with that other stack (and there is nothing left over), returning here will drop the looted item to get garbage collected.
+				//Otherwise this loop will continue, potentially merging with more stacks or finding a slot for the rest of the stack
+				if (Slot.ItemStack->MergeItemStacks(Item))
+				{
+					return true;
+				}
+			}
+		}
+	}
+
 	//Find the first empty item slot
 	for (auto Slot : BagInventory.Slots)
 	{
@@ -140,6 +162,18 @@ bool UArcInventoryComponent::PlaceItemIntoSlot(UArcItemStack* Item, const FArcIn
 	if (GetOwnerRole() != ROLE_Authority)
 	{
 		return false;
+	}
+
+	//If there is an item in this slot, try to merge it with the incoming item.
+	if (UArcItemStack* ItemInSlot = GetItemInSlot(ItemSlot))
+	{
+		if (ItemInSlot->CanStackWith(Item))
+		{
+			//If there are any bits left over after attempting to merge this item stack, return false.  Otherwise, if we've consumed the whole item, return true
+			//Merging the item stack has modified the stack and has potentially taken some stacks from the item passed in.  
+			//We need to have the caller decide what to do with what is left.
+			return ItemInSlot->MergeItemStacks(Item);
+		}
 	}
 	
 	if (!AcceptsItem(Item, ItemSlot))
@@ -388,6 +422,11 @@ void UArcInventoryComponent::PopulateSlotReferenceArray(TArray<FArcInventoryItem
 
 #pragma region Debugging
 
+namespace ArcInventoryDebug
+{
+
+
+
 struct FArcInventoryDebugTargetInfo
 {
 	FArcInventoryDebugTargetInfo()
@@ -451,7 +490,7 @@ UArcInventoryComponent* GetDebugTarget(FArcInventoryDebugTargetInfo* TargetInfo)
 	}
 	return TargetInfo->LastDebugTarget.Get();
 }
-
+}
 
 
 //FArcOnItemSlotUpdate& UArcInventoryComponent::GetItemSlotUpdateDelegate(const FArcInventoryItemSlotReference& ItemSlotRef)
@@ -519,6 +558,7 @@ static TAutoConsoleVariable<int32> DetailedItemStackInfo(TEXT("ArcInventory.Debu
 
 void UArcInventoryComponent::OnShowDebugInfo(AHUD* HUD, UCanvas* Canvas, const FDebugDisplayInfo& DisplayInfo, float& YL, float& YPos)
 {
+	using namespace ArcInventoryDebug;
 	if (DisplayInfo.IsDisplayOn(TEXT("Inventory")) )
 	{
 		UWorld* World = HUD->GetWorld();
@@ -537,6 +577,7 @@ void UArcInventoryComponent::OnShowDebugInfo(AHUD* HUD, UCanvas* Canvas, const F
 
 void UArcInventoryComponent::DisplayDebug(class UCanvas* Canvas, const class FDebugDisplayInfo& DebugDisplay, float& YL, float& YPos)
 {
+	using namespace ArcInventoryDebug;
 	if (DebugDisplay.IsDisplayOn(TEXT("CInventory")))
 	{
 		FInventoryComponentDebugInfo DebugInfo;

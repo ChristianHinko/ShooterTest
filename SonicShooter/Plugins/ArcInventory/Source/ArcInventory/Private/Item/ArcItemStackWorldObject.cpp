@@ -2,7 +2,6 @@
 
 #include "Item/ArcItemStackWorldObject.h"
 #include "ArcInventoryItemTypes.h"
-#include "Engine/StaticMesh.h" // =@MODIFIED MARKER@= this fixes line 79 ``&& IsValid(InventoryStack->GetItemDefinition().GetDefaultObject()->WorldItemModel))`` with inconsistent compiler errors Roy needs to fix this
 
 #include "ArcInventory.h"
 #include "Engine/ActorChannel.h"

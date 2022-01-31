@@ -120,18 +120,7 @@ UArcItemStack* UArcInventoryComponent_Active::GetActiveItemStackInSlot(int32 InA
 bool UArcInventoryComponent_Active::IsValidActiveItemSlot(int32 InActiveItemSlot)
 {
 	//Do we have a valid index?
-	if (InActiveItemSlot < 0)
-	{
-		return false;
-	}
-	if (InActiveItemSlot >= CachedActiveItemSlots.Num())
-	{
-		return false;
-	}
-
-	//Is the index a valid item?
-	UArcItemStack* ItemStack = GetActiveItemStackInSlot(InActiveItemSlot);
-	if (!IsValid(ItemStack))
+	if (!CachedActiveItemSlots.IsValidIndex(InActiveItemSlot))
 	{
 		return false;
 	}

@@ -2,14 +2,13 @@
 
 
 #include "Subobjects/O_Gun.h"
+//#include "Net/UnrealNetwork.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
 #include "AbilitySystemComponent.h"
 #include "Item/Weapons/AS_Gun.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BlueprintFunctionLibraries/BFL_InterfaceHelpers.h"
-
-//#include "Net/UnrealNetwork.h"
 
 
 
@@ -31,7 +30,7 @@ UO_Gun::UO_Gun(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 
 	, OnCurrentBulletSpreadChange(MakeShared<FFloatValueChange>())
-	, CurrentBulletSpread(this, FName("CurrentBulletSpread"), OnCurrentBulletSpreadChange)
+	, CurrentBulletSpread(0.f, this, FName("CurrentBulletSpread"), OnCurrentBulletSpreadChange)
 
 	, OwnerASC(nullptr)
 	, CMC(nullptr)
@@ -42,7 +41,6 @@ UO_Gun::UO_Gun(const FObjectInitializer& ObjectInitializer)
 	, FireBulletSpreadAttribute(UAS_Gun::GetFireBulletSpreadAttribute())
 	, BulletSpreadDecSpeedAttribute(UAS_Gun::GetBulletSpreadDecSpeedAttribute())
 {
-	CurrentBulletSpread = 0.f;
 
 }
 
@@ -114,6 +112,23 @@ void UO_Gun::ApplyFireBulletSpread()
 
 	CurrentBulletSpread = CurrentBulletSpread + FireBulletSpread;
 
+}
+
+void UO_Gun::ResetBulletSpread()
+{
+	if (!IsValid(OwnerASC))
+	{
+		return;
+	}
+
+	const float& MinBulletSpread = OwnerASC->GetNumericAttribute(MinBulletSpreadAttribute);
+	const float& MovingBulletSpread = OwnerASC->GetNumericAttribute(MovingBulletSpreadAttribute);
+	const float& BulletSpreadIncRate = OwnerASC->GetNumericAttribute(BulletSpreadIncRateAttribute);
+	const float& FireBulletSpread = OwnerASC->GetNumericAttribute(FireBulletSpreadAttribute);
+	const float& BulletSpreadDecSpeed = OwnerASC->GetNumericAttribute(BulletSpreadDecSpeedAttribute);
+
+
+	CurrentBulletSpread = MinBulletSpread;
 }
 
 bool UO_Gun::IsMovingToIncBulletSpread() const

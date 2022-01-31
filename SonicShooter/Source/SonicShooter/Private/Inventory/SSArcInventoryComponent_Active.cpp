@@ -13,6 +13,8 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Utilities/LogCategories.h"
 #include "Item/SSArcItemStack.h"
+#include "Item/Weapons/GunStack.h"
+#include "Subobjects/O_Gun.h"
 
 
 
@@ -161,6 +163,7 @@ void USSArcInventoryComponent_Active::MakeItemActive(int32 NewActiveItemSlot)
 		return;
 	}
 
+
 	// Check if we created any Attribute Sets
 	if (bCreatedAttributeSets)
 	{
@@ -193,6 +196,17 @@ void USSArcInventoryComponent_Active::MakeItemActive(int32 NewActiveItemSlot)
 
 
 
+
+
+
+	// Reset our Gun's CurrentBulletSpread
+	{
+		UGunStack* GunStack = Cast<UGunStack>(ActiveItemStack);
+		if (IsValid(GunStack))
+		{
+			GunStack->GetGunSubobject()->ResetBulletSpread();
+		}
+	}
 
 
 	// Add UIData widget
@@ -343,6 +357,16 @@ void USSArcInventoryComponent_Active::OnItemSlotChangeEvent(UArcInventoryCompone
 
 void USSArcInventoryComponent_Active::OnItemInactiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
 {
+	// Reset our Gun's CurrentBulletSpread
+	{
+		UGunStack* GunStack = Cast<UGunStack>(ItemStack);
+		if (IsValid(GunStack))
+		{
+			GunStack->GetGunSubobject()->ResetBulletSpread();
+		}
+	}
+
+
 	// Remove UIData widgets
 	const APawn* OwningPawn = GetTypedOuter<APawn>();
 	if (IsValid(OwningPawn))

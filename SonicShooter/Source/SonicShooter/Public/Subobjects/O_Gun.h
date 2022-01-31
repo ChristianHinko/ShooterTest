@@ -33,11 +33,12 @@ public:
 		FFloatPropertyWrapper CurrentBulletSpread;
 
 
-	bool IsMovingToIncBulletSpread() const;
-
 	float GetRestBulletSpread() const;
 
 	void ApplyFireBulletSpread();
+	void ResetBulletSpread();
+
+	bool IsMovingToIncBulletSpread() const;
 
 protected:
 	virtual void PostInitProperties() override;

@@ -38,7 +38,6 @@ bool UO_Gun::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FRepl
 
 UO_Gun::UO_Gun(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-
 	, OnCurrentBulletSpreadChange(MakeShared<FFloatValueChange>())
 	, CurrentBulletSpread(0.f, this, FName("CurrentBulletSpread"), OnCurrentBulletSpreadChange)
 

@@ -147,6 +147,7 @@ void UGEEC_InitGun::Execute_Implementation(const FGameplayEffectCustomExecutionP
 				if (IsValid(GunStack))
 				{
 					GunStack->GetGunSubobject()->CurrentBulletSpread = CurrentBulletSpread;
+					GunStack->GetGunSubobject()->CurrentBulletSpread.MarkNetDirty(); // we are server-only right now so replicate it
 				}
 			}
 		}

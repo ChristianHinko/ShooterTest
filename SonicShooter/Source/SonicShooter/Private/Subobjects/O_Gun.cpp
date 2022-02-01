@@ -2,7 +2,7 @@
 
 
 #include "Subobjects/O_Gun.h"
-//#include "Net/UnrealNetwork.h"
+#include "Net/UnrealNetwork.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
 #include "AbilitySystemComponent.h"
@@ -12,19 +12,29 @@
 
 
 
-//void UO_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-//{
-//	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-//
-//
-//	FDoRepLifetimeParams Params;
-//	Params.Condition = COND_None;
-//	Params.RepNotifyCondition = REPNOTIFY_OnChanged;
-//	Params.bIsPushBased = true;
-//
-//	DOREPLIFETIME_WITH_PARAMS_FAST(UO_Gun, CurrentBulletSpread, Params);
-//
-//}
+void UO_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+
+	FDoRepLifetimeParams Params;
+	Params.Condition = COND_None;
+	Params.RepNotifyCondition = REPNOTIFY_OnChanged;
+	Params.bIsPushBased = true;
+
+	DOREPLIFETIME_WITH_PARAMS_FAST(UO_Gun, CurrentBulletSpread, Params);
+
+}
+bool UO_Gun::IsSupportedForNetworking() const
+{
+	return true;
+}
+bool UO_Gun::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
+{
+	bool bWroteSomething = false;
+
+	return bWroteSomething;
+}
 
 UO_Gun::UO_Gun(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

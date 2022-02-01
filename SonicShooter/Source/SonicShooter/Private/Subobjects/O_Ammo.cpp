@@ -20,12 +20,21 @@ void UO_Ammo::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	DOREPLIFETIME_WITH_PARAMS_FAST(UO_Ammo, ClipAmmo, Params);
 
 }
+bool UO_Ammo::IsSupportedForNetworking() const
+{
+	return true;
+}
+bool UO_Ammo::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
+{
+	bool bWroteSomething = false;
+
+	return bWroteSomething;
+}
 
 UO_Ammo::UO_Ammo(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 	, OnClipAmmoChange(MakeShared<FFloatValueChange>())
-	, ClipAmmo(this, FName("ClipAmmo"), OnClipAmmoChange)
+	, ClipAmmo(0.f, this, FName("ClipAmmo"), OnClipAmmoChange)
 {
-	ClipAmmo = 0.f;
 
 }

@@ -16,6 +16,10 @@ UCLASS()
 class SONICSHOOTER_API UO_Ammo : public UObject
 {
 	GENERATED_BODY()
+
+public:
+	virtual bool IsSupportedForNetworking() const override;
+	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags);
 	
 public:
 	UO_Ammo(const FObjectInitializer& ObjectInitializer);
@@ -25,6 +29,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Ammo")
 		FFloatPropertyWrapper ClipAmmo;
+
 
 protected:
 

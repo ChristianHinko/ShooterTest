@@ -22,6 +22,9 @@ class SONICSHOOTER_API UGunStack : public USSArcItemStack
 {
 	GENERATED_BODY()
 
+public:
+	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
+
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Ammo")
 		UO_Ammo* AmmoSubobject;

@@ -23,13 +23,17 @@ class SONICSHOOTER_API UO_Gun : public UObject, public FTickableGameObject
 	GENERATED_BODY()
 
 public:
+	virtual bool IsSupportedForNetworking() const override;
+	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags);
+
+public:
 	UO_Gun(const FObjectInitializer& ObjectInitializer);
 
 
 	TSharedRef<FFloatValueChange> OnCurrentBulletSpreadChange;
 
 	/** Current bullet spread. Non-replicated because set every frame */
-	UPROPERTY(BlueprintReadOnly/*, Replicated*/, Category = "Gun")
+	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Gun")
 		FFloatPropertyWrapper CurrentBulletSpread;
 
 

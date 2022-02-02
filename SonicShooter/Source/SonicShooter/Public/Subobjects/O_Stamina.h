@@ -16,6 +16,10 @@ DECLARE_MULTICAST_DELEGATE(FStaminaStatus)
 
 /**
  * Has stamina float
+ * 
+ * Note: In its current state, UO_Stamina isn't super modular, since it requries a supposed "UAS_Stamina". This means in order
+ * for your game to use this UObject, it would require you to create an "UAS_Stamina" attribute set with those required attributes.
+ * To decouple, we could use injection so you can give the UObject values without it knowing where you got it from (but we haven't don't this yet).
  */
 UCLASS()
 class SONICSHOOTER_API UO_Stamina : public UObject, public FTickableGameObject

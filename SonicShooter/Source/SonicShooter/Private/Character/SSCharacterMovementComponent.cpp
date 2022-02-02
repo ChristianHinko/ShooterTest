@@ -28,10 +28,6 @@ USSCharacterMovementComponent::USSCharacterMovementComponent()
 
 	bCanCrouchJump = false;
 	bCanWalkOffLedgesWhenCrouching = true;
-
-
-
-	StaminaSubobject = CreateDefaultSubobject<UO_Stamina>(TEXT("StaminaSubobject"));
 }
 
 void USSCharacterMovementComponent::CVarToggleCrouchChanged(bool newToggleCrouch)
@@ -66,6 +62,7 @@ void USSCharacterMovementComponent::InitializeComponent()
 	{
 		AbilitySystemSetupOwner->GetAbilitySystemSetup()->PreApplyStartupEffects.AddUObject(this, &USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady);
 	}
+
 }
 
 #pragma region Ability System
@@ -84,12 +81,12 @@ void USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady()
 		OwnerASC->RegisterGameplayTagEvent(Tag_CrouchDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCrouchDisabledTagChanged);
 	}
 
-
 	if (SSCharacterOwner)
 	{
 		CharacterMovementAttributeSet = SSCharacterOwner->GetCharacterAttributeSet();
 	}
 
+	StaminaSubobject = NewObject<UO_Stamina>(this);
 	if (StaminaSubobject)
 	{
 		StaminaSubobject->OnStaminaFullyDrained.AddUObject(this, &USSCharacterMovementComponent::OnStaminaFullyDrained);

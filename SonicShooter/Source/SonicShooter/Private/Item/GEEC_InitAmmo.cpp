@@ -90,6 +90,7 @@ void UGEEC_InitAmmo::Execute_Implementation(const FGameplayEffectCustomExecution
 				if (IsValid(GunStack))
 				{
 					GunStack->GetAmmoSubobject()->ClipAmmo = ClipAmmo;
+					GunStack->GetAmmoSubobject()->ClipAmmo.MarkNetDirty(); // we are server-only right now so replicate it
 				}
 			}
 		}

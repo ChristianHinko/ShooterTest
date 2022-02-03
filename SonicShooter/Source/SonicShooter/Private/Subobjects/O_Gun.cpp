@@ -2,13 +2,15 @@
 
 
 #include "Subobjects/O_Gun.h"
+
 #include "Net/UnrealNetwork.h"
+#include "BlueprintFunctionLibraries/BFL_InterfaceHelpers.h"
 #include "AbilitySystemInterface.h"
-#include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
+#include "Inventory/SSArcInventoryComponent_Active.h"
 #include "Item/Weapons/AS_Gun.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "BlueprintFunctionLibraries/BFL_InterfaceHelpers.h"
 
 
 
@@ -44,11 +46,11 @@ UO_Gun::UO_Gun(const FObjectInitializer& ObjectInitializer)
 	, OwnerASC(nullptr)
 	, CMC(nullptr)
 
-	, MinBulletSpreadAttribute(UAS_Gun::GetMinBulletSpreadAttribute())
-	, MovingBulletSpreadAttribute(UAS_Gun::GetMovingBulletSpreadAttribute())
-	, BulletSpreadIncRateAttribute(UAS_Gun::GetBulletSpreadIncRateAttribute())
-	, FireBulletSpreadAttribute(UAS_Gun::GetFireBulletSpreadAttribute())
-	, BulletSpreadDecSpeedAttribute(UAS_Gun::GetBulletSpreadDecSpeedAttribute())
+	, MinBulletSpread(0.f)
+	, MovingBulletSpread(0.f)
+	, BulletSpreadIncRate(0.f)
+	, FireBulletSpread(0.f)
+	, BulletSpreadDecSpeed(0.f)
 {
 
 }
@@ -76,27 +78,61 @@ void UO_Gun::PostInitProperties()
 
 	if (IsValid(OwnerASC))
 	{
-		if (const FGameplayAbilityActorInfo* ShooterActorInfo = OwnerASC->AbilityActorInfo.Get())
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetMinBulletSpreadAttribute()).AddUObject(this, &UO_Gun::OnMinBulletSpreadChange);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetMovingBulletSpreadAttribute()).AddUObject(this, &UO_Gun::OnMovingBulletSpreadChange);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetBulletSpreadIncRateAttribute()).AddUObject(this, &UO_Gun::OnBulletSpreadIncRateChange);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetFireBulletSpreadAttribute()).AddUObject(this, &UO_Gun::OnFireBulletSpreadChange);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetBulletSpreadDecSpeedAttribute()).AddUObject(this, &UO_Gun::OnBulletSpreadDecSpeedChange);
+
+		if (const FGameplayAbilityActorInfo* ActorInfo = OwnerASC->AbilityActorInfo.Get())
 		{
-			CMC = Cast<UCharacterMovementComponent>(ShooterActorInfo->MovementComponent.Get());
+			CMC = Cast<UCharacterMovementComponent>(ActorInfo->MovementComponent.Get());
+
+			if (const FGAAI_Shooter* ShooterActorInfo = static_cast<const FGAAI_Shooter*>(ActorInfo))
+			{
+				USSArcInventoryComponent_Active* InventoryComponent = ShooterActorInfo->GetInventoryComponent();
+				if (IsValid(InventoryComponent))
+				{
+					InventoryComponent->OnItemActive.AddDynamic(this, &UO_Gun::OnItemActive);
+					InventoryComponent->OnItemActive.AddDynamic(this, &UO_Gun::OnItemInactive);
+				}
+			}
 		}
 	}
+}
+
+void UO_Gun::OnItemActive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
+{
+	if (IsValid(OwnerASC))
+	{
+		// Refresh attribute values
+		MinBulletSpread = OwnerASC->GetNumericAttribute(UAS_Gun::GetMinBulletSpreadAttribute());
+		MovingBulletSpread = OwnerASC->GetNumericAttribute(UAS_Gun::GetMovingBulletSpreadAttribute());
+		BulletSpreadIncRate = OwnerASC->GetNumericAttribute(UAS_Gun::GetBulletSpreadIncRateAttribute());
+		FireBulletSpread = OwnerASC->GetNumericAttribute(UAS_Gun::GetFireBulletSpreadAttribute());
+		BulletSpreadDecSpeed = OwnerASC->GetNumericAttribute(UAS_Gun::GetBulletSpreadDecSpeedAttribute());
+	}
+
+	ResetBulletSpread();
+}
+void UO_Gun::OnItemInactive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
+{
+	if (IsValid(OwnerASC))
+	{
+		// Refresh attribute values
+		MinBulletSpread = OwnerASC->GetNumericAttribute(UAS_Gun::GetMinBulletSpreadAttribute());
+		MovingBulletSpread = OwnerASC->GetNumericAttribute(UAS_Gun::GetMovingBulletSpreadAttribute());
+		BulletSpreadIncRate = OwnerASC->GetNumericAttribute(UAS_Gun::GetBulletSpreadIncRateAttribute());
+		FireBulletSpread = OwnerASC->GetNumericAttribute(UAS_Gun::GetFireBulletSpreadAttribute());
+		BulletSpreadDecSpeed = OwnerASC->GetNumericAttribute(UAS_Gun::GetBulletSpreadDecSpeedAttribute());
+	}
+
+	ResetBulletSpread();
 }
 
 
 float UO_Gun::GetRestBulletSpread() const
 {
-	if (!IsValid(OwnerASC))
-	{
-		return CurrentBulletSpread;
-	}
-
-	const float& MinBulletSpread = OwnerASC->GetNumericAttribute(MinBulletSpreadAttribute);
-	const float& MovingBulletSpread = OwnerASC->GetNumericAttribute(MovingBulletSpreadAttribute);
-	const float& BulletSpreadIncRate = OwnerASC->GetNumericAttribute(BulletSpreadIncRateAttribute);
-	const float& FireBulletSpread = OwnerASC->GetNumericAttribute(FireBulletSpreadAttribute);
-	const float& BulletSpreadDecSpeed = OwnerASC->GetNumericAttribute(BulletSpreadDecSpeedAttribute);
-
 	float RetVal = MinBulletSpread;
 	if (IsMovingToIncBulletSpread())
 	{
@@ -108,51 +144,16 @@ float UO_Gun::GetRestBulletSpread() const
 
 void UO_Gun::ApplyFireBulletSpread()
 {
-	if (!IsValid(OwnerASC))
-	{
-		return;
-	}
-
-	const float& MinBulletSpread = OwnerASC->GetNumericAttribute(MinBulletSpreadAttribute);
-	const float& MovingBulletSpread = OwnerASC->GetNumericAttribute(MovingBulletSpreadAttribute);
-	const float& BulletSpreadIncRate = OwnerASC->GetNumericAttribute(BulletSpreadIncRateAttribute);
-	const float& FireBulletSpread = OwnerASC->GetNumericAttribute(FireBulletSpreadAttribute);
-	const float& BulletSpreadDecSpeed = OwnerASC->GetNumericAttribute(BulletSpreadDecSpeedAttribute);
-
 	CurrentBulletSpread = CurrentBulletSpread + FireBulletSpread;
-
 }
 
 void UO_Gun::ResetBulletSpread()
 {
-	if (!IsValid(OwnerASC))
-	{
-		return;
-	}
-
-	const float& MinBulletSpread = OwnerASC->GetNumericAttribute(MinBulletSpreadAttribute);
-	const float& MovingBulletSpread = OwnerASC->GetNumericAttribute(MovingBulletSpreadAttribute);
-	const float& BulletSpreadIncRate = OwnerASC->GetNumericAttribute(BulletSpreadIncRateAttribute);
-	const float& FireBulletSpread = OwnerASC->GetNumericAttribute(FireBulletSpreadAttribute);
-	const float& BulletSpreadDecSpeed = OwnerASC->GetNumericAttribute(BulletSpreadDecSpeedAttribute);
-
-
 	CurrentBulletSpread = MinBulletSpread;
 }
 
 bool UO_Gun::IsMovingToIncBulletSpread() const
 {
-	if (!IsValid(OwnerASC))
-	{
-		return false;
-	}
-
-	const float& MinBulletSpread = OwnerASC->GetNumericAttribute(MinBulletSpreadAttribute);
-	const float& MovingBulletSpread = OwnerASC->GetNumericAttribute(MovingBulletSpreadAttribute);
-	const float& BulletSpreadIncRate = OwnerASC->GetNumericAttribute(BulletSpreadIncRateAttribute);
-	const float& FireBulletSpread = OwnerASC->GetNumericAttribute(FireBulletSpreadAttribute);
-	const float& BulletSpreadDecSpeed = OwnerASC->GetNumericAttribute(BulletSpreadDecSpeedAttribute);
-
 	if (BulletSpreadIncRate <= 0)
 	{
 		return false;
@@ -175,17 +176,6 @@ bool UO_Gun::IsMovingToIncBulletSpread() const
 
 void UO_Gun::Tick(float DeltaTime)
 {
-	if (!IsValid(OwnerASC))
-	{
-		return;
-	}
-
-	const float& MinBulletSpread = OwnerASC->GetNumericAttribute(MinBulletSpreadAttribute);
-	const float& MovingBulletSpread = OwnerASC->GetNumericAttribute(MovingBulletSpreadAttribute);
-	const float& BulletSpreadIncRate = OwnerASC->GetNumericAttribute(BulletSpreadIncRateAttribute);
-	const float& FireBulletSpread = OwnerASC->GetNumericAttribute(FireBulletSpreadAttribute);
-	const float& BulletSpreadDecSpeed = OwnerASC->GetNumericAttribute(BulletSpreadDecSpeedAttribute);
-
 	//UKismetSystemLibrary::PrintString(this, "UAS_Gun::Tick()", true, false);
 	if (IsMovingToIncBulletSpread())
 	{

@@ -5,17 +5,23 @@
 #include "CoreMinimal.h"
 #include "Wrappers/PropertyWrappers.h"
 #include "AttributeSet.h"
+#include "GameplayEffectTypes.h"
 
 #include "O_Gun.generated.h"
 
 
 class UAbilitySystemComponent;
 class UCharacterMovementComponent;
+class UArcInventoryComponent_Active;
+class UArcItemStack;
 
 
 
 /**
- * Has CurrentBulletSpread float
+ * Has CurrentBulletSpread float.
+ * 
+ * Currently searches for external required variables - this is bad. We should change to
+ * using injection of these variables and events into the subobject.
  */
 UCLASS()
 class SONICSHOOTER_API UO_Gun : public UObject, public FTickableGameObject
@@ -59,14 +65,26 @@ protected:
 	//END FTickableGameObject interface
 
 private:
-	const UAbilitySystemComponent* OwnerASC;
+	UAbilitySystemComponent* OwnerASC;
 	const UCharacterMovementComponent* CMC;
 
-	// Cached attribute properties
-	const FGameplayAttribute MinBulletSpreadAttribute;
-	const FGameplayAttribute MovingBulletSpreadAttribute;
-	const FGameplayAttribute BulletSpreadIncRateAttribute;
-	const FGameplayAttribute FireBulletSpreadAttribute;
-	const FGameplayAttribute BulletSpreadDecSpeedAttribute;
+	UFUNCTION()
+		void OnItemActive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
+	UFUNCTION()
+		void OnItemInactive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
+
+
+	// Attribute values
+	float MinBulletSpread;
+	float MovingBulletSpread;
+	float BulletSpreadIncRate;
+	float FireBulletSpread;
+	float BulletSpreadDecSpeed;
+
+	void OnMinBulletSpreadChange(const FOnAttributeChangeData& Data) { MinBulletSpread = Data.NewValue; }
+	void OnMovingBulletSpreadChange(const FOnAttributeChangeData& Data) { MovingBulletSpread = Data.NewValue; }
+	void OnBulletSpreadIncRateChange(const FOnAttributeChangeData& Data) { BulletSpreadIncRate = Data.NewValue; }
+	void OnFireBulletSpreadChange(const FOnAttributeChangeData& Data) { FireBulletSpread = Data.NewValue; }
+	void OnBulletSpreadDecSpeedChange(const FOnAttributeChangeData& Data) { BulletSpreadDecSpeed = Data.NewValue; }
 
 };

@@ -240,7 +240,7 @@ protected:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override; // DO NOT UTILIZE THIS EVENT FOR MOVEMENT
 	//END CMC Interface
 
-	// A new thing added to the engine TODO: look into this and see if we need to fix anything because of this
+	// A new thing added to the engine NOTE: look into this and see if we need to fix anything because of this
 	virtual void ServerMove_PerformMovement(const FCharacterNetworkMoveData& MoveData) override;
 
 

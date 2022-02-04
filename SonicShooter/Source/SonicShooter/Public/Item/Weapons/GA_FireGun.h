@@ -64,8 +64,6 @@ protected:
 		UGunStack* GunToFire;
 	UPROPERTY()
 		AGATA_BulletTrace* BulletTraceTargetActor;
-	UPROPERTY()
-		UAS_Gun* GunAttributeSet;
 
 	UPROPERTY()
 		UO_Ammo* AmmoSubobject;

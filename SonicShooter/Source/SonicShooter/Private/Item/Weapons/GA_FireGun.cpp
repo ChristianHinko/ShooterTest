@@ -92,15 +92,6 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 
 
 
-	// Search for Attribute Sets
-	for (UAttributeSet* AttributeSet : ASC->GetSpawnedAttributes())
-	{
-		if (UAS_Gun* GunAS = Cast<UAS_Gun>(AttributeSet))
-		{
-			GunAttributeSet = GunAS;
-			break;
-		}
-	}
 
 
 	// Inject the data our target actor needs and spawn it 
@@ -112,8 +103,18 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	}
 	BulletTraceTargetActor->OwningAbility = this;
 	BulletTraceTargetActor->bDestroyOnConfirmation = false;
-	BulletTraceTargetActor->GunAttributeSet = GunAttributeSet;
 	BulletTraceTargetActor->GunSubobject = GunSubobject;
+
+
+	// Search for Attribute Sets		(This will be gone in a soon commit)
+	for (UAttributeSet* AttributeSet : ASC->GetSpawnedAttributes())
+	{
+		if (UAS_Gun* GunAS = Cast<UAS_Gun>(AttributeSet))
+		{
+			BulletTraceTargetActor->GunAttributeSet = GunAS;
+			break;
+		}
+	}
 
 	UGameplayStatics::FinishSpawningActor(BulletTraceTargetActor, FTransform());
 }
@@ -148,8 +149,6 @@ void UGA_FireGun::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, co
 		BulletTraceTargetActor = nullptr;
 	}
 
-	GunAttributeSet = nullptr;
-
 	AmmoSubobject = nullptr;
 	GunSubobject = nullptr;
 }
@@ -171,11 +170,6 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 	if (!BulletTraceTargetActor)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() BulletTraceTargetActor was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
-		return false;
-	}
-	if (!GunAttributeSet)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GunAttributeSet was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 

@@ -64,14 +64,29 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	TimeBetweenShots = ASC->GetNumericAttribute(UAS_Gun::GetTimeBetweenShotsAttribute());
 	TimeBetweenBurstsOverride = ASC->GetNumericAttribute(UAS_Gun::GetTimeBetweenBurstsOverrideAttribute());
 
-	// Bind to attribute value change delegates
+	MaxRange = ASC->GetNumericAttribute(UAS_Gun::GetMaxRangeAttribute());
+	NumberOfBulletsPerFire = ASC->GetNumericAttribute(UAS_Gun::GetNumberOfBulletsPerFireAttribute());
+	Penetrations = ASC->GetNumericAttribute(UAS_Gun::GetPenetrationsAttribute());
+	Ricochets = ASC->GetNumericAttribute(UAS_Gun::GetRicochetsAttribute());
+	InitialBulletSpeed = ASC->GetNumericAttribute(UAS_Gun::GetInitialBulletSpeedAttribute());
+	BulletSpeedFalloff = ASC->GetNumericAttribute(UAS_Gun::GetBulletSpeedFalloffAttribute());
+
+
+	////// Begin Attribute value change binding
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetAmmoCostAttribute()).AddUObject(this, &UGA_FireGun::OnAmmoCostChange);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetNumShotsPerBurstAttribute()).AddUObject(this, &UGA_FireGun::OnNumShotsPerBurstChange);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetbFullAutoAttribute()).AddUObject(this, &UGA_FireGun::OnbFullAutoChange);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetTimeBetweenFiresOverrideAttribute()).AddUObject(this, &UGA_FireGun::OnTimeBetweenFiresOverrideChange);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetTimeBetweenShotsAttribute()).AddUObject(this, &UGA_FireGun::OnTimeBetweenShotsChange);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetTimeBetweenBurstsOverrideAttribute()).AddUObject(this, &UGA_FireGun::OnTimeBetweenBurstsOverrideChange);
-			
+
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetMaxRangeAttribute()).AddUObject(this, &UGA_FireGun::OnMaxRangeChange);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetNumberOfBulletsPerFireAttribute()).AddUObject(this, &UGA_FireGun::OnNumberOfBulletsPerFireChange);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetPenetrationsAttribute()).AddUObject(this, &UGA_FireGun::OnPenetrationsChange);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetRicochetsAttribute()).AddUObject(this, &UGA_FireGun::OnRicochetsChange);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetInitialBulletSpeedAttribute()).AddUObject(this, &UGA_FireGun::OnInitialBulletSpeedChange);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetBulletSpeedFalloffAttribute()).AddUObject(this, &UGA_FireGun::OnBulletSpeedFalloffChange);
+	////// End Attribute value change binding
 
 
 
@@ -131,13 +146,21 @@ void UGA_FireGun::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, co
 		return;
 	}
 
-	// Unbind from attribute value change delegates
+	////// Begin Unbind from attribute value change delegates
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetAmmoCostAttribute()).RemoveAll(this);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetNumShotsPerBurstAttribute()).RemoveAll(this);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetbFullAutoAttribute()).RemoveAll(this);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetTimeBetweenFiresOverrideAttribute()).RemoveAll(this);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetTimeBetweenShotsAttribute()).RemoveAll(this);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetTimeBetweenBurstsOverrideAttribute()).RemoveAll(this);
+
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetMaxRangeAttribute()).RemoveAll(this);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetNumberOfBulletsPerFireAttribute()).RemoveAll(this);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetPenetrationsAttribute()).RemoveAll(this);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetRicochetsAttribute()).RemoveAll(this);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetInitialBulletSpeedAttribute()).RemoveAll(this);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetBulletSpeedFalloffAttribute()).RemoveAll(this);
+	////// End Unbind from attribute value change delegates
 
 
 

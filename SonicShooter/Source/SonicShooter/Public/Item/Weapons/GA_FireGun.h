@@ -107,7 +107,9 @@ private:
 
 
 
-	// Attribute value change
+	////// Begin Attribute value change
+	
+	// For attributes used in the GA_FireGun
 	float AmmoCost;
 	void OnAmmoCostChange(const FOnAttributeChangeData& Data) { AmmoCost = Data.NewValue; }
 
@@ -125,4 +127,24 @@ private:
 
 	float TimeBetweenBurstsOverride;
 	void OnTimeBetweenBurstsOverrideChange(const FOnAttributeChangeData& Data) { TimeBetweenBurstsOverride = Data.NewValue; }
+
+	// For attributes to inject into the GATA_BulletTrace
+	float MaxRange;
+	void OnMaxRangeChange(const FOnAttributeChangeData& Data) { MaxRange = Data.NewValue; }
+
+	float NumberOfBulletsPerFire;
+	void OnNumberOfBulletsPerFireChange(const FOnAttributeChangeData& Data) { NumberOfBulletsPerFire = Data.NewValue; }
+
+	float Penetrations;
+	void OnPenetrationsChange(const FOnAttributeChangeData& Data) { Penetrations = Data.NewValue; }
+
+	float Ricochets;
+	void OnRicochetsChange(const FOnAttributeChangeData& Data) { Ricochets = Data.NewValue; }
+
+	float InitialBulletSpeed;
+	void OnInitialBulletSpeedChange(const FOnAttributeChangeData& Data) { InitialBulletSpeed = Data.NewValue; }
+
+	float BulletSpeedFalloff;
+	void OnBulletSpeedFalloffChange(const FOnAttributeChangeData& Data) { BulletSpeedFalloff = Data.NewValue; }
+	////// End Attribute value change
 };

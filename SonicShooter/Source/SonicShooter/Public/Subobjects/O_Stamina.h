@@ -32,6 +32,7 @@ class SONICSHOOTER_API UO_Stamina : public UObject, public FTickableGameObject
 public:
 	virtual bool IsSupportedForNetworking() const override;
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags);
+	virtual void BeginDestroy() override;
 
 public:
 	UO_Stamina(const FObjectInitializer& ObjectInitializer);
@@ -70,15 +71,17 @@ private:
 	float TimeSinceStaminaDrain;
 
 
-	// Attribute values
+	////// Begin Attribute value change
 	float MaxStamina;
-	float StaminaDrain;
-	float StaminaGain;
-	float StaminaRegenPause;
-
 	void OnMaxStaminaAttributeChange(const FOnAttributeChangeData& Data) { MaxStamina = Data.NewValue; };
-	void OnStaminaDrainAttributeChange(const FOnAttributeChangeData& Data) { StaminaDrain = Data.NewValue; };
-	void OnStaminaGainAttributeChange(const FOnAttributeChangeData& Data) { StaminaGain = Data.NewValue; };
-	void OnStaminaRegenPauseAttributeChange(const FOnAttributeChangeData& Data) { StaminaRegenPause = Data.NewValue; };
 
+	float StaminaDrain;
+	void OnStaminaDrainAttributeChange(const FOnAttributeChangeData& Data) { StaminaDrain = Data.NewValue; };
+
+	float StaminaGain;
+	void OnStaminaGainAttributeChange(const FOnAttributeChangeData& Data) { StaminaGain = Data.NewValue; };
+
+	float StaminaRegenPause;
+	void OnStaminaRegenPauseAttributeChange(const FOnAttributeChangeData& Data) { StaminaRegenPause = Data.NewValue; };
+	////// End Attribute value change
 };

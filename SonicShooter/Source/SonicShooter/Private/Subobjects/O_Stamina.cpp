@@ -68,10 +68,18 @@ void UO_Stamina::PostInitProperties()
 		OwnerASC = AbilitySystemInterface->GetAbilitySystemComponent();
 		if (IsValid(OwnerASC))
 		{
+			// Get initial values
+			MaxStamina = OwnerASC->GetNumericAttribute(UAS_Stamina::GetMaxStaminaAttribute());
+			StaminaDrain = OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaDrainAttribute());
+			StaminaGain = OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaGainAttribute());
+			StaminaRegenPause = OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaRegenPauseAttribute());
+
+
+			// Bind to attribute value change delegates
 			OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetMaxStaminaAttribute()).AddUObject(this, &UO_Stamina::OnMaxStaminaAttributeChange);
-			OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaDrainAttribute()).AddUObject(this, &UO_Stamina::OnStaminaDrainAttributeChange);;
-			OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaGainAttribute()).AddUObject(this, &UO_Stamina::OnStaminaGainAttributeChange);;
-			OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaRegenPauseAttribute()).AddUObject(this, &UO_Stamina::OnStaminaRegenPauseAttributeChange);;
+			OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaDrainAttribute()).AddUObject(this, &UO_Stamina::OnStaminaDrainAttributeChange);
+			OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaGainAttribute()).AddUObject(this, &UO_Stamina::OnStaminaGainAttributeChange);
+			OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaRegenPauseAttribute()).AddUObject(this, &UO_Stamina::OnStaminaRegenPauseAttributeChange);
 		}
 	}
 }
@@ -159,3 +167,25 @@ void UO_Stamina::SetShouldTick(bool newShouldTick)
 		bShouldTick = newShouldTick;
 	}
 }
+
+
+
+
+
+
+
+void UO_Stamina::BeginDestroy()
+{
+	Super::BeginDestroy();
+
+	////// Begin Unbind from attribute value change delegates
+	if (IsValid(OwnerASC))
+	{
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetMaxStaminaAttribute()).RemoveAll(this);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaDrainAttribute()).RemoveAll(this);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaGainAttribute()).RemoveAll(this);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaRegenPauseAttribute()).RemoveAll(this);
+	}
+	////// End Unbind from attribute value change delegates
+}
+

@@ -112,16 +112,20 @@ private:
 
 	// Attribute value change
 	float AmmoCost;
-	float NumShotsPerBurst;
-	float bFullAuto;
-	float TimeBetweenFiresOverride;
-	float TimeBetweenShots;
-	float TimeBetweenBurstsOverride;
-
 	void OnAmmoCostChange(const FOnAttributeChangeData& Data) { AmmoCost = Data.NewValue; }
+
+	float NumShotsPerBurst;
 	void OnNumShotsPerBurstChange(const FOnAttributeChangeData& Data) { NumShotsPerBurst = Data.NewValue; }
+
+	float bFullAuto;
 	void OnbFullAutoChange(const FOnAttributeChangeData& Data) { bFullAuto = Data.NewValue; }
+
+	float TimeBetweenFiresOverride;
 	void OnTimeBetweenFiresOverrideChange(const FOnAttributeChangeData& Data) { TimeBetweenFiresOverride = Data.NewValue; }
+
+	float TimeBetweenShots;
 	void OnTimeBetweenShotsChange(const FOnAttributeChangeData& Data);
+
+	float TimeBetweenBurstsOverride;
 	void OnTimeBetweenBurstsOverrideChange(const FOnAttributeChangeData& Data) { TimeBetweenBurstsOverride = Data.NewValue; }
 };

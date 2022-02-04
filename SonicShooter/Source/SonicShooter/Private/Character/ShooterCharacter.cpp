@@ -127,6 +127,7 @@ void AShooterCharacter::GiveStartingAbilities()
 #include "AttributeSets/AS_Health.h"
 #include "Item/AS_Ammo.h"
 #include "Subobjects/O_Ammo.h"
+#include "Subobjects/O_Gun.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
 #include "ArcItemBPFunctionLibrary.h"
 #include "Item\ArcItemDefinition_New.h"
@@ -163,8 +164,11 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 			const UGunStack* GunStack = Cast<UGunStack>(ActiveItemStack);
 			if (IsValid(GunStack))
 			{
-				const FFloatPropertyWrapper& ClipAmmo = GunStack->GetAmmoSubobject()->ClipAmmo;
-				UKismetSystemLibrary::PrintString(this, ClipAmmo.GetPropertyName().ToString() + ": " + FString::SanitizeFloat(ClipAmmo), true, false);
+				//const FFloatPropertyWrapper& ClipAmmo = GunStack->GetAmmoSubobject()->ClipAmmo;
+				//UKismetSystemLibrary::PrintString(this, ClipAmmo.GetPropertyName().ToString() + ": " + FString::SanitizeFloat(ClipAmmo), true, false);
+
+				const FFloatPropertyWrapper& CurrentBulletSpread = GunStack->GetGunSubobject()->CurrentBulletSpread;
+				UKismetSystemLibrary::PrintString(this, CurrentBulletSpread.GetPropertyName().ToString() + ": " + FString::SanitizeFloat(CurrentBulletSpread), true, false);
 			}
 		}
 

@@ -74,6 +74,7 @@ void UO_Gun::PostInitProperties()
 
 	if (const IAbilitySystemInterface* AbilitySystem = UBFL_InterfaceHelpers::GetInterfaceTypedOuter<IAbilitySystemInterface, UAbilitySystemInterface>(this))
 	{
+		// TODO: right now this is referencing the AIAbilitySystemComponent on the client :(
 		OwnerASC = AbilitySystem->GetAbilitySystemComponent();
 	}
 

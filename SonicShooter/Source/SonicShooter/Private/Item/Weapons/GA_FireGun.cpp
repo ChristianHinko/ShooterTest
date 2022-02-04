@@ -34,7 +34,6 @@ UGA_FireGun::UGA_FireGun()
 
 	ShotNumber = 0;
 	bInputPressed = false;
-	TimeBetweenShotsAttribute = UAS_Gun::GetTimeBetweenShotsAttribute();
 }
 
 
@@ -42,8 +41,6 @@ void UGA_FireGun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const 
 {
 	TryCallOnAvatarSetOnPrimaryInstance
 	Super::OnAvatarSet(ActorInfo, Spec);
-
-
 }
 
 // This ability is only granted to the player while his Gun is active
@@ -51,11 +48,34 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
 
-	TimeBetweenShotsAttributeChangedDelegate = &(GetAbilitySystemComponentFromActorInfo()->GetGameplayAttributeValueChangeDelegate(TimeBetweenShotsAttribute));
-	if (!TimeBetweenShotsAttributeChangedDelegate)
+
+	UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
+	if (!IsValid(ASC))
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() No valid TimeBetweenShotsAttributeChangedDelegate when giving the fire ability. Runtime changes of TimeBetweenShots will result in unexpected behavior."), ANSI_TO_TCHAR(__FUNCTION__));
+		check(0);
+		return;
 	}
+
+	// Get initial values
+	AmmoCost = ASC->GetNumericAttribute(UAS_Gun::GetAmmoCostAttribute());
+	NumShotsPerBurst = ASC->GetNumericAttribute(UAS_Gun::GetNumShotsPerBurstAttribute());
+	bFullAuto = ASC->GetNumericAttribute(UAS_Gun::GetbFullAutoAttribute());
+	TimeBetweenFiresOverride = ASC->GetNumericAttribute(UAS_Gun::GetTimeBetweenFiresOverrideAttribute());
+	TimeBetweenShots = ASC->GetNumericAttribute(UAS_Gun::GetTimeBetweenShotsAttribute());
+	TimeBetweenBurstsOverride = ASC->GetNumericAttribute(UAS_Gun::GetTimeBetweenBurstsOverrideAttribute());
+
+	// Bind to attribute value change delegates
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetAmmoCostAttribute()).AddUObject(this, &UGA_FireGun::OnAmmoCostChange);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetNumShotsPerBurstAttribute()).AddUObject(this, &UGA_FireGun::OnNumShotsPerBurstChange);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetbFullAutoAttribute()).AddUObject(this, &UGA_FireGun::OnbFullAutoChange);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetTimeBetweenFiresOverrideAttribute()).AddUObject(this, &UGA_FireGun::OnTimeBetweenFiresOverrideChange);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetTimeBetweenShotsAttribute()).AddUObject(this, &UGA_FireGun::OnTimeBetweenShotsChange);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetTimeBetweenBurstsOverrideAttribute()).AddUObject(this, &UGA_FireGun::OnTimeBetweenBurstsOverrideChange);
+			
+
+
+
+
 
 	// Need to make the item generators use the GunStack now
 	// instead of it using item stack so this cast works.
@@ -69,8 +89,10 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	AmmoSubobject = GunToFire->GetAmmoSubobject();
 	GunSubobject = GunToFire->GetGunSubobject();
 
+
+
+
 	// Search for Attribute Sets
-	UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
 	for (UAttributeSet* AttributeSet : ASC->GetSpawnedAttributes())
 	{
 		if (UAS_Gun* GunAS = Cast<UAS_Gun>(AttributeSet))
@@ -101,7 +123,24 @@ void UGA_FireGun::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, co
 {
 	Super::OnRemoveAbility(ActorInfo, Spec);
 
-	TimeBetweenShotsAttributeChangedDelegate = nullptr;
+	UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
+	if (!IsValid(ASC))
+	{
+		check(0);
+		return;
+	}
+
+	// Unbind from attribute value change delegates
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetAmmoCostAttribute()).RemoveAll(this);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetNumShotsPerBurstAttribute()).RemoveAll(this);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetbFullAutoAttribute()).RemoveAll(this);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetTimeBetweenFiresOverrideAttribute()).RemoveAll(this);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetTimeBetweenShotsAttribute()).RemoveAll(this);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetTimeBetweenBurstsOverrideAttribute()).RemoveAll(this);
+
+
+
+
 
 	GunToFire = nullptr;
 	if (BulletTraceTargetActor && BulletTraceTargetActor->Destroy())
@@ -181,7 +220,7 @@ bool UGA_FireGun::CheckCost(const FGameplayAbilitySpecHandle Handle, const FGame
 	}
 
 	// If we don't have enough ammo
-	const float ClipAmmoAfterNextShot = AmmoSubobject->ClipAmmo - GunAttributeSet->GetAmmoCost();
+	const float ClipAmmoAfterNextShot = AmmoSubobject->ClipAmmo - AmmoCost;
 	if (ClipAmmoAfterNextShot < 0)
 	{
 		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Not enough ammo to perform a fire. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
@@ -260,15 +299,6 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		return;
 	}
 
-	if (TimeBetweenShotsAttributeChangedDelegate)
-	{
-		TimeBetweenShotsAttributeChangedDelegate->AddUObject(this, &UGA_FireGun::OnTimeBetweenShotsAttributeValueChanged);
-	}
-	else
-	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s TimeBetweenShotsAttributeChangedDelegate was null when activating FireGun ability. Runtime changes of TimeBetweenShots during this ability activation will result in unexpected behavior."), ANSI_TO_TCHAR(__FUNCTION__));
-	}
-
 	TickerTask->OnTick.AddDynamic(this, &UGA_FireGun::OnShootTick);
 	TickerTask->ReadyForActivation();
 
@@ -295,7 +325,7 @@ void UGA_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRema
 
 
 	// Burst logic:
-	int32 ShotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
+	int32 ShotsPerBurst = NumShotsPerBurst;
 
 	// Semi-auto burst
 	if (IsFullAuto() == false)
@@ -384,7 +414,7 @@ void UGA_FireGun::Shoot()
 	BulletTraceTargetActor->FireSpecificNetSafeRandomSeed = FireRandomSeed;					// Inject this random seed into our target actor (target actor will make random seed unique to each bullet in the fire if there are multible bullets in the fire)
 
 	// Lets finally fire
-	AmmoSubobject->ClipAmmo = AmmoSubobject->ClipAmmo - GunAttributeSet->GetAmmoCost();
+	AmmoSubobject->ClipAmmo = AmmoSubobject->ClipAmmo - AmmoCost;
 	WaitTargetDataActorTask->ReadyForActivation();
 	GunSubobject->ApplyFireBulletSpread();
 }
@@ -483,14 +513,6 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 		return;
 	}
 
-	if (TimeBetweenShotsAttributeChangedDelegate)
-	{
-		TimeBetweenShotsAttributeChangedDelegate->RemoveAll(this);
-	}
-	else
-	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() TimeBetweenShotsAttributeChangedDelegate was NULL when trying to unbind from it. This is weird"), ANSI_TO_TCHAR(__FUNCTION__));
-	}
 	// Store when this fire ended so next fire can determine fire rate
 	TimestampPreviousFireEnd = GetWorld()->GetTimeSeconds();
 
@@ -519,11 +541,11 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 #pragma region AttributeSet Helpers
 bool UGA_FireGun::IsFullAuto() const
 {
-	return static_cast<bool>(GunAttributeSet->GetbFullAuto());
+	return static_cast<bool>(bFullAuto);
 }
 bool UGA_FireGun::IsBurst() const
 {
-	const int32 ShotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
+	const int32 ShotsPerBurst = NumShotsPerBurst;
 
 	const bool bIsBurst = (ShotsPerBurst > 1);
 	return bIsBurst;
@@ -531,15 +553,15 @@ bool UGA_FireGun::IsBurst() const
 
 float UGA_FireGun::GetTimeBetweenFires() const
 {
-	return (GunAttributeSet->GetTimeBetweenFiresOverride() < 0) ? GunAttributeSet->GetTimeBetweenShots() : GunAttributeSet->GetTimeBetweenFiresOverride();
+	return (TimeBetweenFiresOverride < 0) ? TimeBetweenShots : TimeBetweenFiresOverride;
 }
 float UGA_FireGun::GetTimeBetweenBursts() const
 {
-	return (GunAttributeSet->GetTimeBetweenBurstsOverride() < 0) ? GunAttributeSet->GetTimeBetweenShots() : GunAttributeSet->GetTimeBetweenBurstsOverride();
+	return (TimeBetweenBurstsOverride < 0) ? TimeBetweenShots : TimeBetweenBurstsOverride;
 }
 float UGA_FireGun::GetTimeBetweenShots() const
 {
-	return GunAttributeSet->GetTimeBetweenShots();
+	return TimeBetweenShots;
 }
 
 bool UGA_FireGun::CurrentlyBursting() const
@@ -549,7 +571,7 @@ bool UGA_FireGun::CurrentlyBursting() const
 		return false;
 	}
 
-	const int32 ShotsPerBurst = GunAttributeSet->GetNumShotsPerBurst();
+	const int32 ShotsPerBurst = NumShotsPerBurst;
 
 	const bool bHasBurstsLeft = (TimesBursted > 0 && TimesBursted < ShotsPerBurst);
 	return bHasBurstsLeft;
@@ -558,10 +580,11 @@ bool UGA_FireGun::CurrentlyBursting() const
 
 
 
-void UGA_FireGun::OnTimeBetweenShotsAttributeValueChanged(const FOnAttributeChangeData& Data)
+void UGA_FireGun::OnTimeBetweenShotsChange(const FOnAttributeChangeData& Data)
 {
+	TimeBetweenShots = Data.NewValue;
 	if (TickerTask)
 	{
-		TickerTask->SetTickInterval(Data.NewValue);
+		TickerTask->SetTickInterval(TimeBetweenShots);
 	}
 }

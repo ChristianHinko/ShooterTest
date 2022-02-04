@@ -83,10 +83,6 @@ protected:
 	UFUNCTION()
 		void OnCancelled(const FGameplayAbilityTargetDataHandle& Data);
 
-	FOnGameplayAttributeValueChange* TimeBetweenShotsAttributeChangedDelegate;
-	FGameplayAttribute TimeBetweenShotsAttribute;
-	void OnTimeBetweenShotsAttributeValueChanged(const FOnAttributeChangeData& Data);
-
 #pragma region AttributeSet Helpers
 	bool IsFullAuto() const;
 	bool IsBurst() const;
@@ -111,4 +107,21 @@ private:
 	float TimestampPreviousFireEnd;
 	// Client only bool
 	uint8 bInputPressed : 1;
+
+
+
+	// Attribute value change
+	float AmmoCost;
+	float NumShotsPerBurst;
+	float bFullAuto;
+	float TimeBetweenFiresOverride;
+	float TimeBetweenShots;
+	float TimeBetweenBurstsOverride;
+
+	void OnAmmoCostChange(const FOnAttributeChangeData& Data) { AmmoCost = Data.NewValue; }
+	void OnNumShotsPerBurstChange(const FOnAttributeChangeData& Data) { NumShotsPerBurst = Data.NewValue; }
+	void OnbFullAutoChange(const FOnAttributeChangeData& Data) { bFullAuto = Data.NewValue; }
+	void OnTimeBetweenFiresOverrideChange(const FOnAttributeChangeData& Data) { TimeBetweenFiresOverride = Data.NewValue; }
+	void OnTimeBetweenShotsChange(const FOnAttributeChangeData& Data);
+	void OnTimeBetweenBurstsOverrideChange(const FOnAttributeChangeData& Data) { TimeBetweenBurstsOverride = Data.NewValue; }
 };

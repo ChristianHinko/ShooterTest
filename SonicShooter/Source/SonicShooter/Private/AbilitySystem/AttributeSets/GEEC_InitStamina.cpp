@@ -85,10 +85,11 @@ void UGEEC_InitStamina::Execute_Implementation(const FGameplayEffectCustomExecut
 	// Get stamina subobject and initialize Stamina
 	if (const FGAAI_Shooter* ShooterActorInfo = static_cast<const FGAAI_Shooter*>(TargetAbilitySystemComponent->AbilityActorInfo.Get()))
 	{
-		USSCharacterMovementComponent* SSCMC = ShooterActorInfo->GetSSCharacterMovementComponent();
-		if (IsValid(SSCMC))
+		USSCharacterMovementComponent* CMC = ShooterActorInfo->GetSSCharacterMovementComponent();
+		if (IsValid(CMC))
 		{
-			SSCMC->StaminaSubobject->Stamina = Stamina;
+			CMC->StaminaSubobject->Stamina = Stamina;
+			CMC->StaminaSubobject->Stamina.MarkNetDirty(); // we are server-only right now so replicate it
 		}
 	}
 }

@@ -113,8 +113,10 @@ class SONICSHOOTER_API USSCharacterMovementComponent : public UCharacterMovement
 {
 	GENERATED_BODY()
 
+	friend class FSavedMove_SSCharacter;
 
-		friend class FSavedMove_SSCharacter;
+public:
+	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 
 public:
 	USSCharacterMovementComponent();

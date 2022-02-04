@@ -22,11 +22,29 @@ void UO_Stamina::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 
 	DOREPLIFETIME_WITH_PARAMS_FAST(UO_Stamina, Stamina, Params);
 }
+bool UO_Stamina::IsSupportedForNetworking() const
+{
+	return true;
+}
+bool UO_Stamina::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
+{
+	bool bWroteSomething = false;
+
+	return bWroteSomething;
+}
 
 UO_Stamina::UO_Stamina(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
+
 	, OnStaminaChange(MakeShared<FFloatValueChange>())
 	, Stamina(0.f, this, FName("Stamina"), OnStaminaChange)
+
+	, OwnerASC(nullptr)
+
+	, MaxStamina(0.f)
+	, StaminaDrain(0.f)
+	, StaminaGain(0.f)
+	, StaminaRegenPause(0.f)
 {
 
 }
@@ -66,7 +84,7 @@ void UO_Stamina::Tick(float DeltaTime)
 {
 	if (bStaminaDraining)
 	{
-		timeSinceStaminaDrain = 0; // we are in draining mode, reset our time since drainage
+		TimeSinceStaminaDrain = 0; // we are in draining mode, reset our time since drainage
 
 		if (Stamina > 0)
 		{
@@ -95,9 +113,9 @@ void UO_Stamina::Tick(float DeltaTime)
 	}
 	else
 	{
-		timeSinceStaminaDrain += DeltaTime; // only accurate while ticking, because this won't be updated if not ticking
+		TimeSinceStaminaDrain += DeltaTime; // only accurate while ticking, because this won't be updated if not ticking
 
-		if (timeSinceStaminaDrain >= StaminaRegenPause)
+		if (TimeSinceStaminaDrain >= StaminaRegenPause)
 		{
 			if (Stamina < MaxStamina)
 			{
@@ -141,5 +159,3 @@ void UO_Stamina::SetShouldTick(bool newShouldTick)
 		bShouldTick = newShouldTick;
 	}
 }
-
-

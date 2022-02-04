@@ -89,7 +89,6 @@ protected:
 
 	float GetTimeBetweenFires() const;
 	float GetTimeBetweenBursts() const;
-	float GetTimeBetweenShots() const;
 
 	bool CurrentlyBursting() const;
 #pragma endregion

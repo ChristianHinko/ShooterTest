@@ -239,7 +239,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 
 	if (IsFullAuto() || IsBurst()) // if full auto or burst mode
 	{
-		TickerTask = UAT_Ticker::Ticker(this, false, -1.f, GetTimeBetweenShots());
+		TickerTask = UAT_Ticker::Ticker(this, false, -1.f, TimeBetweenShots);
 		if (!TickerTask)
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() TickerTask was NULL when trying to activate fire ability. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
@@ -558,10 +558,6 @@ float UGA_FireGun::GetTimeBetweenFires() const
 float UGA_FireGun::GetTimeBetweenBursts() const
 {
 	return (TimeBetweenBurstsOverride < 0) ? TimeBetweenShots : TimeBetweenBurstsOverride;
-}
-float UGA_FireGun::GetTimeBetweenShots() const
-{
-	return TimeBetweenShots;
 }
 
 bool UGA_FireGun::CurrentlyBursting() const

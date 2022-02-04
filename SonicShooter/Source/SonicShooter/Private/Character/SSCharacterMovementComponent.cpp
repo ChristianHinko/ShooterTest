@@ -3,6 +3,7 @@
 
 #include "Character/SSCharacterMovementComponent.h"
 
+#include "Engine/ActorChannel.h"
 #include "GameFramework/Character.h"
 #include "Character/SSCharacterMovementComponent.h"
 #include "Character/SSCharacter.h"
@@ -17,6 +18,24 @@
 #include "Kismet/KismetSystemLibrary.h"
 
 
+
+bool USSCharacterMovementComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
+{
+	bool bWroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+
+	// Give StaminaSubobject an opportunity to replicate
+	if (IsValid(StaminaSubobject))
+	{
+		if (StaminaSubobject->IsSupportedForNetworking())
+		{
+			bWroteSomething |= Channel->ReplicateSubobject(StaminaSubobject, *Bunch, *RepFlags);
+		}
+
+		bWroteSomething |= StaminaSubobject->ReplicateSubobjects(Channel, Bunch, RepFlags);
+	}
+
+	return bWroteSomething;
+}
 
 USSCharacterMovementComponent::USSCharacterMovementComponent()
 {

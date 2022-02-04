@@ -22,16 +22,24 @@ bool UGunStack::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FR
 	bool bWroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
 
 	// Give AmmoSubobject an opportunity to replicate
-	if (AmmoSubobject->IsSupportedForNetworking())
+	if (IsValid(AmmoSubobject))
 	{
-		bWroteSomething |= Channel->ReplicateSubobject(AmmoSubobject, *Bunch, *RepFlags);
+		if (AmmoSubobject->IsSupportedForNetworking())
+		{
+			bWroteSomething |= Channel->ReplicateSubobject(AmmoSubobject, *Bunch, *RepFlags);
+		}
+
 		bWroteSomething |= AmmoSubobject->ReplicateSubobjects(Channel, Bunch, RepFlags);
 	}
 
 	// Give GunSubobject an opportunity to replicate
-	if (GunSubobject->IsSupportedForNetworking())
+	if (IsValid(GunSubobject))
 	{
-		bWroteSomething |= Channel->ReplicateSubobject(GunSubobject, *Bunch, *RepFlags);
+		if (GunSubobject->IsSupportedForNetworking())
+		{
+			bWroteSomething |= Channel->ReplicateSubobject(GunSubobject, *Bunch, *RepFlags);
+		}
+
 		bWroteSomething |= GunSubobject->ReplicateSubobjects(Channel, Bunch, RepFlags);
 	}
 

@@ -114,17 +114,13 @@ private:
 
 
 
-class UAS_Gun;
-class UO_Gun;
-
-
 /**
  * Trace class for Bullets.
  * 
  * 
  *		- Implements the idea of Bullet Speed which can stop the tracing at any point.
  * 
- *		- Is tightly coupled with the UAS_Gun attribute set and UShooterPhysicalMaterial to determine behavior.
+ *		- Is tightly coupled with ShooterPhysicalMaterial to determine behavior.
  * 
  *		- Gives CalculateAimDirection() some random bullet spread.
  * 
@@ -142,24 +138,21 @@ public:
 
 	virtual void ConfirmTargetingAndContinue() override;
 
+	/** Injected */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet")
+		float InitialBulletSpeed;
 
-	virtual float GetMaxRange() const override;
-	virtual int32 GetNumberOfTraces() const override;
-	virtual int32 GetPenetrations() const override;
-	virtual int32 GetRicochets() const override;
+	/** Injected */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet")
+		float BulletSpeedFalloff;
 
-	float GetInitialBulletSpeed() const;
-	float GetBulletSpeedFalloff() const;
-
-
-	UPROPERTY()
-		UAS_Gun* GunAttributeSet;
-
-	UPROPERTY()
-		UO_Gun* GunSubobject;
+	/** Injected */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet")
+		float CurrentBulletSpread;
 
 	/** This is injected in every fire */
-	int16 FireSpecificNetSafeRandomSeed;
+	UPROPERTY(/*BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet"*/)
+		int16 FireSpecificNetSafeRandomSeed;
 
 protected:
 	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) override;

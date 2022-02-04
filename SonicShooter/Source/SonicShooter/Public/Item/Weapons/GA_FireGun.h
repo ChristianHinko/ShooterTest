@@ -130,21 +130,21 @@ private:
 
 	// For attributes to inject into the GATA_BulletTrace
 	float MaxRange;
-	void OnMaxRangeChange(const FOnAttributeChangeData& Data) { MaxRange = Data.NewValue; }
+	void OnMaxRangeChange(const FOnAttributeChangeData& Data);
 
 	float NumberOfBulletsPerFire;
-	void OnNumberOfBulletsPerFireChange(const FOnAttributeChangeData& Data) { NumberOfBulletsPerFire = Data.NewValue; }
+	void OnNumberOfBulletsPerFireChange(const FOnAttributeChangeData& Data);
 
 	float Penetrations;
-	void OnPenetrationsChange(const FOnAttributeChangeData& Data) { Penetrations = Data.NewValue; }
+	void OnPenetrationsChange(const FOnAttributeChangeData& Data);
 
 	float Ricochets;
-	void OnRicochetsChange(const FOnAttributeChangeData& Data) { Ricochets = Data.NewValue; }
+	void OnRicochetsChange(const FOnAttributeChangeData& Data);
 
 	float InitialBulletSpeed;
-	void OnInitialBulletSpeedChange(const FOnAttributeChangeData& Data) { InitialBulletSpeed = Data.NewValue; }
+	void OnInitialBulletSpeedChange(const FOnAttributeChangeData& Data);
 
 	float BulletSpeedFalloff;
-	void OnBulletSpeedFalloffChange(const FOnAttributeChangeData& Data) { BulletSpeedFalloff = Data.NewValue; }
+	void OnBulletSpeedFalloffChange(const FOnAttributeChangeData& Data);
 	////// End Attribute value change
 };

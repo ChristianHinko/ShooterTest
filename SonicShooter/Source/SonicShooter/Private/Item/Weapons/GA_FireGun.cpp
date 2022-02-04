@@ -111,25 +111,13 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 
 	// Inject the data our target actor needs and spawn it 
 	BulletTraceTargetActor = GetWorld()->SpawnActorDeferred<AGATA_BulletTrace>(GunToFire->BulletTraceTargetActorTSub, FTransform());
-	if (!BulletTraceTargetActor)
+	if (!IsValid(BulletTraceTargetActor))
 	{
 		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid BulletTraceTargetActor in the GunStack when giving the fire ability. How the heck we supposed to fire the gun!?!?"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
 	BulletTraceTargetActor->OwningAbility = this;
 	BulletTraceTargetActor->bDestroyOnConfirmation = false;
-	BulletTraceTargetActor->GunSubobject = GunSubobject;
-
-
-	// Search for Attribute Sets		(This will be gone in a soon commit)
-	for (UAttributeSet* AttributeSet : ASC->GetSpawnedAttributes())
-	{
-		if (UAS_Gun* GunAS = Cast<UAS_Gun>(AttributeSet))
-		{
-			BulletTraceTargetActor->GunAttributeSet = GunAS;
-			break;
-		}
-	}
 
 	UGameplayStatics::FinishSpawningActor(BulletTraceTargetActor, FTransform());
 }
@@ -167,7 +155,7 @@ void UGA_FireGun::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, co
 
 
 	GunToFire = nullptr;
-	if (BulletTraceTargetActor && BulletTraceTargetActor->Destroy())
+	if (IsValid(BulletTraceTargetActor) && BulletTraceTargetActor->Destroy())
 	{
 		BulletTraceTargetActor = nullptr;
 	}
@@ -257,7 +245,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	if (IsFullAuto() || IsBurst()) // if full auto or burst mode
 	{
 		TickerTask = UAT_Ticker::Ticker(this, false, -1.f, TimeBetweenShots);
-		if (!TickerTask)
+		if (!IsValid(TickerTask))
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() TickerTask was NULL when trying to activate fire ability. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
@@ -270,7 +258,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	if (IsFullAuto())
 	{
 		WaitInputReleaseTask = UAT_WaitInputRelease::WaitInputRelease(this, false, true);
-		if (!WaitInputReleaseTask)
+		if (!IsValid(WaitInputReleaseTask))
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputReleaseTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), ANSI_TO_TCHAR(__FUNCTION__));
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
@@ -283,7 +271,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	if (IsFullAuto() && IsBurst()) // if we are full auto burst
 	{
 		WaitInputPressTask = UAT_WaitInputPress::WaitInputPress(this, false, true);
-		if (!WaitInputPressTask)
+		if (!IsValid(WaitInputPressTask))
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputPressTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), ANSI_TO_TCHAR(__FUNCTION__));
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
@@ -400,7 +388,7 @@ void UGA_FireGun::Shoot()
 
 	// Play shoot montage
 	UAbilityTask_PlayMontageAndWait* PlayMontageAndWaitTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("ShootMontage"), ShootMontage, 1.f, NAME_None, false);
-	if (!PlayMontageAndWaitTask)
+	if (!IsValid(PlayMontageAndWaitTask))
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() PlayMontageAndWaitTask was NULL when trying to shoot. Called EndAbility() so shot doesn't happen to keep things consistant"), ANSI_TO_TCHAR(__FUNCTION__));
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
@@ -410,7 +398,7 @@ void UGA_FireGun::Shoot()
 
 	// Try to make wait target data task for this shot
 	UASSAbilityTask_WaitTargetData* WaitTargetDataActorTask = UASSAbilityTask_WaitTargetData::ASSWaitTargetDataUsingActor(this, TEXT("WaitTargetDataActorTask"), EGameplayTargetingConfirmation::Instant, BulletTraceTargetActor);
-	if (!WaitTargetDataActorTask)
+	if (!IsValid(WaitTargetDataActorTask))
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitTargetDataActorTask was NULL when trying to shoot. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
@@ -424,11 +412,23 @@ void UGA_FireGun::Shoot()
 	// Update our target actor's start location
 	BulletTraceTargetActor->bUseAimPointAsStartLocation = true; // we just want to use the player camera position directly for our StartLocation
 	
-
-	// btw it's cool that we have a net safe random seed and we have a system for it, but reality is we don't need it now since client will just send its target data to server.
+	// Inject random seed - btw it's cool that we have a net safe random seed and we have a system for it, but reality is we don't need it now since client will just send its target data to server.
 	const int16 PredictionKey = GetCurrentActivationInfo().GetActivationPredictionKey().Current;	// Use the prediction key as a net safe random seed.
 	const int32 FireRandomSeed = PredictionKey + ShotNumber;										// Make the random seed unique to this particular fire
 	BulletTraceTargetActor->FireSpecificNetSafeRandomSeed = FireRandomSeed;					// Inject this random seed into our target actor (target actor will make random seed unique to each bullet in the fire if there are multible bullets in the fire)
+
+	// Inject our CurrentBulletSpread
+	BulletTraceTargetActor->CurrentBulletSpread = GunSubobject->CurrentBulletSpread;
+
+	// Inject our current Attribute values
+	BulletTraceTargetActor->MaxRange = MaxRange;
+	BulletTraceTargetActor->NumberOfTraces = NumberOfBulletsPerFire;
+	BulletTraceTargetActor->Penetrations = Penetrations;
+	BulletTraceTargetActor->Ricochets = Ricochets;
+	BulletTraceTargetActor->InitialBulletSpeed = InitialBulletSpeed;
+	BulletTraceTargetActor->BulletSpeedFalloff = BulletSpeedFalloff;
+
+
 
 	// Lets finally fire
 	AmmoSubobject->ClipAmmo = AmmoSubobject->ClipAmmo - AmmoCost;
@@ -596,8 +596,73 @@ bool UGA_FireGun::CurrentlyBursting() const
 void UGA_FireGun::OnTimeBetweenShotsChange(const FOnAttributeChangeData& Data)
 {
 	TimeBetweenShots = Data.NewValue;
-	if (TickerTask)
+
+	if (IsValid(TickerTask))
 	{
+		// Update AT_Ticker
 		TickerTask->SetTickInterval(TimeBetweenShots);
+	}
+}
+
+
+
+void UGA_FireGun::OnMaxRangeChange(const FOnAttributeChangeData& Data)
+{
+	MaxRange = Data.NewValue;
+
+	if (IsValid(BulletTraceTargetActor))
+	{
+		// Update GATA_BulletTrace
+		BulletTraceTargetActor->MaxRange = MaxRange;
+	}
+}
+void UGA_FireGun::OnNumberOfBulletsPerFireChange(const FOnAttributeChangeData& Data)
+{
+	NumberOfBulletsPerFire = Data.NewValue;
+
+	if (IsValid(BulletTraceTargetActor))
+	{
+		// Update GATA_BulletTrace
+		BulletTraceTargetActor->NumberOfTraces = NumberOfBulletsPerFire;
+	}
+}
+void UGA_FireGun::OnPenetrationsChange(const FOnAttributeChangeData& Data)
+{
+	Penetrations = Data.NewValue;
+
+	if (IsValid(BulletTraceTargetActor))
+	{
+		// Update GATA_BulletTrace
+		BulletTraceTargetActor->Penetrations = Penetrations;
+	}
+}
+void UGA_FireGun::OnRicochetsChange(const FOnAttributeChangeData& Data)
+{
+	Ricochets = Data.NewValue;
+
+	if (IsValid(BulletTraceTargetActor))
+	{
+		// Update GATA_BulletTrace
+		BulletTraceTargetActor->Ricochets = Ricochets;
+	}
+}
+void UGA_FireGun::OnInitialBulletSpeedChange(const FOnAttributeChangeData& Data)
+{
+	InitialBulletSpeed = Data.NewValue;
+
+	if (IsValid(BulletTraceTargetActor))
+	{
+		// Update GATA_BulletTrace
+		BulletTraceTargetActor->InitialBulletSpeed = InitialBulletSpeed;
+	}
+}
+void UGA_FireGun::OnBulletSpeedFalloffChange(const FOnAttributeChangeData& Data)
+{
+	BulletSpeedFalloff = Data.NewValue;
+
+	if (IsValid(BulletTraceTargetActor))
+	{
+		// Update GATA_BulletTrace
+		BulletTraceTargetActor->BulletSpeedFalloff = BulletSpeedFalloff;
 	}
 }

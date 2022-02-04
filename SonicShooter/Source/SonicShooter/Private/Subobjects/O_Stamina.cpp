@@ -176,8 +176,6 @@ void UO_Stamina::SetShouldTick(bool newShouldTick)
 
 void UO_Stamina::BeginDestroy()
 {
-	Super::BeginDestroy();
-
 	////// Begin Unbind from attribute value change delegates
 	if (IsValid(OwnerASC))
 	{
@@ -187,5 +185,8 @@ void UO_Stamina::BeginDestroy()
 		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaRegenPauseAttribute()).RemoveAll(this);
 	}
 	////// End Unbind from attribute value change delegates
+
+
+	Super::BeginDestroy();
 }
 

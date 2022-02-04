@@ -31,6 +31,7 @@ class SONICSHOOTER_API UO_Gun : public UObject, public FTickableGameObject
 public:
 	virtual bool IsSupportedForNetworking() const override;
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags);
+	virtual void BeginDestroy() override;
 
 public:
 	UO_Gun(const FObjectInitializer& ObjectInitializer);
@@ -74,17 +75,20 @@ private:
 		void OnItemInactive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
 
 
-	// Attribute values
+	////// Begin Attribute value change
 	float MinBulletSpread;
-	float MovingBulletSpread;
-	float BulletSpreadIncRate;
-	float FireBulletSpread;
-	float BulletSpreadDecSpeed;
-
 	void OnMinBulletSpreadChange(const FOnAttributeChangeData& Data) { MinBulletSpread = Data.NewValue; }
-	void OnMovingBulletSpreadChange(const FOnAttributeChangeData& Data) { MovingBulletSpread = Data.NewValue; }
-	void OnBulletSpreadIncRateChange(const FOnAttributeChangeData& Data) { BulletSpreadIncRate = Data.NewValue; }
-	void OnFireBulletSpreadChange(const FOnAttributeChangeData& Data) { FireBulletSpread = Data.NewValue; }
-	void OnBulletSpreadDecSpeedChange(const FOnAttributeChangeData& Data) { BulletSpreadDecSpeed = Data.NewValue; }
 
+	float MovingBulletSpread;
+	void OnMovingBulletSpreadChange(const FOnAttributeChangeData& Data) { MovingBulletSpread = Data.NewValue; }
+
+	float BulletSpreadIncRate;
+	void OnBulletSpreadIncRateChange(const FOnAttributeChangeData& Data) { BulletSpreadIncRate = Data.NewValue; }
+
+	float FireBulletSpread;
+	void OnFireBulletSpreadChange(const FOnAttributeChangeData& Data) { FireBulletSpread = Data.NewValue; }
+
+	float BulletSpreadDecSpeed;
+	void OnBulletSpreadDecSpeedChange(const FOnAttributeChangeData& Data) { BulletSpreadDecSpeed = Data.NewValue; }
+	////// End Attribute value change
 };

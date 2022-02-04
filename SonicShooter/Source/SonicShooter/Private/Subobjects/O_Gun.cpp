@@ -213,3 +213,25 @@ bool UO_Gun::IsTickable() const
 
 	return false;
 }
+
+
+
+
+
+
+
+void UO_Gun::BeginDestroy()
+{
+	Super::BeginDestroy();
+
+	////// Begin Unbind from attribute value change delegates
+	if (IsValid(OwnerASC))
+	{
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetMinBulletSpreadAttribute()).RemoveAll(this);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetMovingBulletSpreadAttribute()).RemoveAll(this);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetBulletSpreadIncRateAttribute()).RemoveAll(this);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetFireBulletSpreadAttribute()).RemoveAll(this);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetBulletSpreadDecSpeedAttribute()).RemoveAll(this);
+	}
+	////// End Unbind from attribute value change delegates
+}

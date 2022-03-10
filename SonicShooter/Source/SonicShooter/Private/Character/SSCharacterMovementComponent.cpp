@@ -14,6 +14,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "AbilitySystemSetupComponent/AbilitySystemSetupInterface.h"
 #include "AbilitySystemSetupComponent/AbilitySystemSetupComponent.h"
+#include "AbilitySystem/AttributeSets/AS_Stamina.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -47,6 +48,12 @@ USSCharacterMovementComponent::USSCharacterMovementComponent()
 
 	bCanCrouchJump = false;
 	bCanWalkOffLedgesWhenCrouching = true;
+
+	StaminaSubobject = CreateDefaultSubobject<UO_Stamina>(TEXT("StaminaSubobject"));
+	if (StaminaSubobject)
+	{
+		StaminaSubobject->OnStaminaFullyDrained.AddUObject(this, &USSCharacterMovementComponent::OnStaminaFullyDrained);
+	}
 }
 
 void USSCharacterMovementComponent::CVarToggleCrouchChanged(bool newToggleCrouch)
@@ -81,13 +88,11 @@ void USSCharacterMovementComponent::InitializeComponent()
 	{
 		AbilitySystemSetupOwner->GetAbilitySystemSetup()->PreApplyStartupEffects.AddUObject(this, &USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady);
 	}
-
 }
 
 #pragma region Ability System
 void USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady()
 {
-	UAbilitySystemComponent* OwnerASC = nullptr;
 	if (AbilitySystemOwner)
 	{
 		OwnerASC = AbilitySystemOwner->GetAbilitySystemComponent();
@@ -105,10 +110,20 @@ void USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady()
 		CharacterMovementAttributeSet = SSCharacterOwner->GetCharacterAttributeSet();
 	}
 
-	StaminaSubobject = NewObject<UO_Stamina>(this);
-	if (StaminaSubobject)
+	if (IsValid(StaminaSubobject) && IsValid(OwnerASC))
 	{
-		StaminaSubobject->OnStaminaFullyDrained.AddUObject(this, &USSCharacterMovementComponent::OnStaminaFullyDrained);
+		// Get initial values
+		StaminaSubobject->MaxStamina = OwnerASC->GetNumericAttribute(UAS_Stamina::GetMaxStaminaAttribute());
+		StaminaSubobject->StaminaDrain = OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaDrainAttribute());
+		StaminaSubobject->StaminaGain = OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaGainAttribute());
+		StaminaSubobject->StaminaRegenPause = OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaRegenPauseAttribute());
+
+
+		// Bind to attribute value change delegates
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetMaxStaminaAttribute()).AddUObject(this, &USSCharacterMovementComponent::OnMaxStaminaAttributeChange);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaDrainAttribute()).AddUObject(this, &USSCharacterMovementComponent::OnStaminaDrainAttributeChange);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaGainAttribute()).AddUObject(this, &USSCharacterMovementComponent::OnStaminaGainAttributeChange);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaRegenPauseAttribute()).AddUObject(this, &USSCharacterMovementComponent::OnStaminaRegenPauseAttributeChange);
 	}
 }
 
@@ -144,6 +159,35 @@ void USSCharacterMovementComponent::OnCrouchDisabledTagChanged(const FGameplayTa
 	{
 		bCrouchDisabled = false;
 	}
+}
+
+void USSCharacterMovementComponent::OnMaxStaminaAttributeChange(const FOnAttributeChangeData& Data)
+{
+	if (IsValid(OwnerASC))
+		StaminaSubobject->MaxStamina = Data.NewValue;
+	else
+		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's MaxStamina value because OwnerASC was invalid"), ANSI_TO_TCHAR(__FUNCTION__));
+}
+void USSCharacterMovementComponent::OnStaminaDrainAttributeChange(const FOnAttributeChangeData& Data)
+{
+	if (IsValid(OwnerASC))
+		StaminaSubobject->StaminaDrain = Data.NewValue;
+	else
+		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaDrain value because OwnerASC was invalid"), ANSI_TO_TCHAR(__FUNCTION__));
+}
+void USSCharacterMovementComponent::OnStaminaGainAttributeChange(const FOnAttributeChangeData& Data)
+{
+	if (IsValid(OwnerASC))
+		StaminaSubobject->StaminaGain = Data.NewValue;
+	else
+		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaGain value because OwnerASC was invalid"), ANSI_TO_TCHAR(__FUNCTION__));
+}
+void USSCharacterMovementComponent::OnStaminaRegenPauseAttributeChange(const FOnAttributeChangeData& Data)
+{
+	if (IsValid(OwnerASC))
+		StaminaSubobject->StaminaRegenPause = Data.NewValue;
+	else
+		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaRegenPause value because OwnerASC was invalid"), ANSI_TO_TCHAR(__FUNCTION__));
 }
 #pragma endregion
 
@@ -537,9 +581,6 @@ void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 	// Proxies get replicated crouch state.
 	if (CharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)
 	{
-		UAbilitySystemComponent* OwnerASC = SSCharacterOwner->GetAbilitySystemComponent();
-
-
 		// Check for a change in crouch state. Players toggle crouch by changing bWantsToCrouch.
 		const bool willCrouch = bWantsToCrouch && CanCrouchInCurrentState();
 		if (IsCrouching() && !willCrouch)
@@ -578,9 +619,6 @@ void USSCharacterMovementComponent::UpdateCharacterStateAfterMovement(float Delt
 	// Proxies get replicated crouch state.
 	if (CharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)
 	{
-		UAbilitySystemComponent* OwnerASC = SSCharacterOwner->GetAbilitySystemComponent();
-
-
 		// Uncrouch if no longer allowed to be crouched
 		if (IsCrouching() && !CanCrouchInCurrentState())
 		{
@@ -1017,3 +1055,22 @@ bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/) c
 	return true;
 }
 #pragma endregion
+
+
+
+
+void USSCharacterMovementComponent::BeginDestroy()
+{
+	////// Begin Unbind from attribute value change delegates
+	if (IsValid(OwnerASC))
+	{
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetMaxStaminaAttribute()).RemoveAll(this);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaDrainAttribute()).RemoveAll(this);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaGainAttribute()).RemoveAll(this);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaRegenPauseAttribute()).RemoveAll(this);
+	}
+	////// End Unbind from attribute value change delegates
+
+
+	Super::BeginDestroy();
+}

@@ -32,12 +32,17 @@ class SONICSHOOTER_API UO_Stamina : public UObject, public FTickableGameObject
 public:
 	virtual bool IsSupportedForNetworking() const override;
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags);
-	virtual void BeginDestroy() override;
 
 public:
 	UO_Stamina(const FObjectInitializer& ObjectInitializer);
-
 	void SetStaminaDraining(bool newStaminaDraining);
+
+	// BEGIN exposed floats
+	float MaxStamina;
+	float StaminaDrain;
+	float StaminaGain;
+	float StaminaRegenPause;
+	// END exposed floats
 
 
 	TSharedRef<FFloatValueChange> OnStaminaChange;
@@ -47,41 +52,20 @@ public:
 
 	FStaminaStatus OnStaminaFullyDrained;
 	FStaminaStatus OnStaminaFullyGained;
-
 protected:
-	virtual void PostInitProperties() override;
-
-	//BEGIN FTickableObjectBase interface
-	virtual bool IsTickable() const override;	// IsTickable() gets ignored if ETickableTickType is set to "Always" or "Never". If you don't want this. If you want it to always be checked you would instead use IsAllowedToTick() ( in most cases just use IsTickable() )
+	// BEGIN FTickableObjectBase interface
+	virtual bool IsTickable() const override { return bShouldTick; }	// IsTickable() gets ignored if ETickableTickType is set to "Always" or "Never". If you don't want this. If you want it to always be checked you would instead use IsAllowedToTick() ( in most cases just use IsTickable() )
 	virtual void Tick(float DeltaTime) override;
 	virtual TStatId GetStatId() const override { return TStatId(); }
-	//END FTickableObjectBase interface
+	// END FTickableObjectBase interface
 	virtual void SetShouldTick(bool newShouldTick);
 
-	//BEGIN FTickableGameObject interface
-	virtual bool IsTickableWhenPaused() const override { return false; };
-	//END FTickableGameObject interface
-
+	// BEGIN FTickableGameObject interface
+	virtual bool IsTickableWhenPaused() const override { return false; }
+	// END FTickableGameObject interface
 private:
-	UAbilitySystemComponent* OwnerASC;
-
 	bool bShouldTick;
 
 	bool bStaminaDraining;
 	float TimeSinceStaminaDrain;
-
-
-	////// Begin Attribute value change
-	float MaxStamina;
-	void OnMaxStaminaAttributeChange(const FOnAttributeChangeData& Data) { MaxStamina = Data.NewValue; };
-
-	float StaminaDrain;
-	void OnStaminaDrainAttributeChange(const FOnAttributeChangeData& Data) { StaminaDrain = Data.NewValue; };
-
-	float StaminaGain;
-	void OnStaminaGainAttributeChange(const FOnAttributeChangeData& Data) { StaminaGain = Data.NewValue; };
-
-	float StaminaRegenPause;
-	void OnStaminaRegenPauseAttributeChange(const FOnAttributeChangeData& Data) { StaminaRegenPause = Data.NewValue; };
-	////// End Attribute value change
 };

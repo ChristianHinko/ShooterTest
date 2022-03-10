@@ -218,10 +218,12 @@ public:
 protected:
 	//	Don't know for sure if this is the best event to use but works for now
 	virtual void InitializeComponent() override;
+	virtual void BeginDestroy() override;
 
 	IAbilitySystemInterface* AbilitySystemOwner;
 	UPROPERTY()
 		ASSCharacter* SSCharacterOwner;
+	UAbilitySystemComponent* OwnerASC;
 	UPROPERTY()
 		UAS_CharacterMovement* CharacterMovementAttributeSet;
 
@@ -300,6 +302,15 @@ protected:
 private:
 	FRotator PreviousRotation;
 
+	////// Begin Attribute value change
+	// stamina subobject
+	void OnMaxStaminaAttributeChange(const FOnAttributeChangeData& Data);
+	void OnStaminaDrainAttributeChange(const FOnAttributeChangeData& Data);
+	void OnStaminaGainAttributeChange(const FOnAttributeChangeData& Data);
+	void OnStaminaRegenPauseAttributeChange(const FOnAttributeChangeData& Data);
+
+
+	////// End Attribute value change
 };
 
 

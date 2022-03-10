@@ -39,8 +39,6 @@ UO_Stamina::UO_Stamina(const FObjectInitializer& ObjectInitializer)
 	, OnStaminaChange(MakeShared<FFloatValueChange>())
 	, Stamina(0.f, this, FName("Stamina"), OnStaminaChange)
 
-	, OwnerASC(nullptr)
-
 	, MaxStamina(0.f)
 	, StaminaDrain(0.f)
 	, StaminaGain(0.f)
@@ -49,45 +47,6 @@ UO_Stamina::UO_Stamina(const FObjectInitializer& ObjectInitializer)
 
 }
 
-void UO_Stamina::PostInitProperties()
-{
-	Super::PostInitProperties();
-
-	if (GetWorld() == nullptr || GetWorld()->IsGameWorld() == false)
-	{
-		return;
-	}
-	if (HasAnyFlags(RF_ClassDefaultObject))
-	{
-		return;
-	}
-
-	// Safe "BeginPlay" logic here
-	if (IAbilitySystemInterface* AbilitySystemInterface = UBFL_InterfaceHelpers::GetInterfaceTypedOuter<IAbilitySystemInterface, UAbilitySystemInterface>(this))
-	{
-		OwnerASC = AbilitySystemInterface->GetAbilitySystemComponent();
-		if (IsValid(OwnerASC))
-		{
-			// Get initial values
-			MaxStamina = OwnerASC->GetNumericAttribute(UAS_Stamina::GetMaxStaminaAttribute());
-			StaminaDrain = OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaDrainAttribute());
-			StaminaGain = OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaGainAttribute());
-			StaminaRegenPause = OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaRegenPauseAttribute());
-
-
-			// Bind to attribute value change delegates
-			OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetMaxStaminaAttribute()).AddUObject(this, &UO_Stamina::OnMaxStaminaAttributeChange);
-			OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaDrainAttribute()).AddUObject(this, &UO_Stamina::OnStaminaDrainAttributeChange);
-			OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaGainAttribute()).AddUObject(this, &UO_Stamina::OnStaminaGainAttributeChange);
-			OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaRegenPauseAttribute()).AddUObject(this, &UO_Stamina::OnStaminaRegenPauseAttributeChange);
-		}
-	}
-}
-
-bool UO_Stamina::IsTickable() const
-{
-	return bShouldTick;
-}
 void UO_Stamina::Tick(float DeltaTime)
 {
 	if (bStaminaDraining)
@@ -153,11 +112,10 @@ void UO_Stamina::SetStaminaDraining(bool newStaminaDraining)
 {
 	if (bStaminaDraining != newStaminaDraining)
 	{
-		bStaminaDraining = newStaminaDraining;
-
-		SetShouldTick(true);
-		OwnerASC->UpdateShouldTick();
+		SetShouldTick(true);	// this will get hit if we start draining or start regening
 	}
+
+	bStaminaDraining = newStaminaDraining;
 }
 
 void UO_Stamina::SetShouldTick(bool newShouldTick)
@@ -167,26 +125,3 @@ void UO_Stamina::SetShouldTick(bool newShouldTick)
 		bShouldTick = newShouldTick;
 	}
 }
-
-
-
-
-
-
-
-void UO_Stamina::BeginDestroy()
-{
-	////// Begin Unbind from attribute value change delegates
-	if (IsValid(OwnerASC))
-	{
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetMaxStaminaAttribute()).RemoveAll(this);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaDrainAttribute()).RemoveAll(this);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaGainAttribute()).RemoveAll(this);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaRegenPauseAttribute()).RemoveAll(this);
-	}
-	////// End Unbind from attribute value change delegates
-
-
-	Super::BeginDestroy();
-}
-

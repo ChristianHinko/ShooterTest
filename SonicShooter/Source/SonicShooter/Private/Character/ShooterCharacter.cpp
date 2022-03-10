@@ -128,10 +128,15 @@ void AShooterCharacter::GiveStartingAbilities()
 #include "Item/AS_Ammo.h"
 #include "Subobjects/O_Ammo.h"
 #include "Subobjects/O_Gun.h"
+#include "Subobjects/O_Stamina.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
 #include "ArcItemBPFunctionLibrary.h"
 #include "Item\ArcItemDefinition_New.h"
 #include "Item/Weapons/GunStack.h"
+#include "Character/SSCharacterMovementComponent.h"
+#include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
+#include "AbilitySystem/ASSAbilitySystemComponent.h"
+#include "AbilitySystem/AttributeSets/AS_Stamina.h"
 //#include "Kismet/KismetMathLibrary.h"
 //#include "GameFramework/SpringArmComponent.h"
 void AShooterCharacter::Tick(float DeltaSeconds)
@@ -165,14 +170,36 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 			if (IsValid(GunStack))
 			{
 				//const FFloatPropertyWrapper& ClipAmmo = GunStack->GetAmmoSubobject()->ClipAmmo;
-				//UKismetSystemLibrary::PrintString(this, ClipAmmo.GetPropertyName().ToString() + ": " + FString::SanitizeFloat(ClipAmmo), true, false);
+				//UKismetSystemLibrary::PrintString(this, ClipAmmo.GetPropertyName().ToString() + TEXT(": ") + FString::SanitizeFloat(ClipAmmo), true, false);
 
-				const FFloatPropertyWrapper& CurrentBulletSpread = GunStack->GetGunSubobject()->CurrentBulletSpread;
-				UKismetSystemLibrary::PrintString(this, CurrentBulletSpread.GetPropertyName().ToString() + ": " + FString::SanitizeFloat(CurrentBulletSpread), true, false);
+				//const FFloatPropertyWrapper& CurrentBulletSpread = GunStack->GetGunSubobject()->CurrentBulletSpread;
+				//UKismetSystemLibrary::PrintString(this, CurrentBulletSpread.GetPropertyName().ToString() + TEXT(": ") + FString::SanitizeFloat(CurrentBulletSpread), true, false);
 			}
 		}
 
 
+	}
+
+	if (IsValid(SSCharacterMovementComponent))
+	{
+		//if (IsValid(SSCharacterMovementComponent->StaminaSubobject))
+		//{
+		//	const FFloatPropertyWrapper& Stamina = SSCharacterMovementComponent->StaminaSubobject->Stamina;
+		//	UKismetSystemLibrary::PrintString(this, Stamina.GetPropertyName().ToString() + TEXT(": ") + FString::SanitizeFloat(Stamina), true, false);
+
+		//}
+	}
+	if (IsValid(GetAbilitySystemComponent()))
+	{
+		//const float MaxStamina = GetAbilitySystemComponent()->GetNumericAttribute(UAS_Stamina::GetMaxStaminaAttribute());
+		//const float StaminaDrain = GetAbilitySystemComponent()->GetNumericAttribute(UAS_Stamina::GetStaminaDrainAttribute());
+		//const float StaminaGain = GetAbilitySystemComponent()->GetNumericAttribute(UAS_Stamina::GetStaminaGainAttribute());
+		//const float StaminaRegenPause = GetAbilitySystemComponent()->GetNumericAttribute(UAS_Stamina::GetStaminaRegenPauseAttribute());
+
+		//UKismetSystemLibrary::PrintString(this, TEXT("MaxStamina: ") + FString::SanitizeFloat(MaxStamina), true, false);
+		//UKismetSystemLibrary::PrintString(this, TEXT("StaminaDrain: ") + FString::SanitizeFloat(StaminaDrain), true, false);
+		//UKismetSystemLibrary::PrintString(this, TEXT("StaminaGain: ") + FString::SanitizeFloat(StaminaGain), true, false);
+		//UKismetSystemLibrary::PrintString(this, TEXT("StaminaRegenPause: ") + FString::SanitizeFloat(StaminaRegenPause), true, false);
 	}
 
 	if (GetAbilitySystemComponent())

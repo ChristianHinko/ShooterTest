@@ -113,10 +113,10 @@ void USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady()
 	if (IsValid(StaminaSubobject) && IsValid(OwnerASC))
 	{
 		// Get initial values
-		StaminaSubobject->MaxStamina = OwnerASC->GetNumericAttribute(UAS_Stamina::GetMaxStaminaAttribute());
-		StaminaSubobject->StaminaDrain = OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaDrainAttribute());
-		StaminaSubobject->StaminaGain = OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaGainAttribute());
-		StaminaSubobject->StaminaRegenPause = OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaRegenPauseAttribute());
+		StaminaSubobject->SetMaxStamina(OwnerASC->GetNumericAttribute(UAS_Stamina::GetMaxStaminaAttribute()));
+		StaminaSubobject->SetStaminaDrain(OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaDrainAttribute()));
+		StaminaSubobject->SetStaminaGain(OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaGainAttribute()));
+		StaminaSubobject->SetStaminaRegenPause(OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaRegenPauseAttribute()));
 
 
 		// Bind to attribute value change delegates
@@ -163,31 +163,31 @@ void USSCharacterMovementComponent::OnCrouchDisabledTagChanged(const FGameplayTa
 
 void USSCharacterMovementComponent::OnMaxStaminaAttributeChange(const FOnAttributeChangeData& Data)
 {
-	if (IsValid(OwnerASC))
-		StaminaSubobject->MaxStamina = Data.NewValue;
+	if (IsValid(OwnerASC) && IsValid(StaminaSubobject))
+		StaminaSubobject->SetMaxStamina(Data.NewValue);
 	else
-		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's MaxStamina value because OwnerASC was invalid"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's MaxStamina value. We needed OwnerASC and StaminaSubobject to both be valid"), ANSI_TO_TCHAR(__FUNCTION__));
 }
 void USSCharacterMovementComponent::OnStaminaDrainAttributeChange(const FOnAttributeChangeData& Data)
 {
-	if (IsValid(OwnerASC))
-		StaminaSubobject->StaminaDrain = Data.NewValue;
+	if (IsValid(OwnerASC) && IsValid(StaminaSubobject))
+		StaminaSubobject->SetStaminaDrain(Data.NewValue);
 	else
-		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaDrain value because OwnerASC was invalid"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaDrain value. We needed OwnerASC and StaminaSubobject to both be valid"), ANSI_TO_TCHAR(__FUNCTION__));
 }
 void USSCharacterMovementComponent::OnStaminaGainAttributeChange(const FOnAttributeChangeData& Data)
 {
-	if (IsValid(OwnerASC))
-		StaminaSubobject->StaminaGain = Data.NewValue;
+	if (IsValid(OwnerASC) && IsValid(StaminaSubobject))
+		StaminaSubobject->SetStaminaGain(Data.NewValue);
 	else
-		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaGain value because OwnerASC was invalid"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaGain value. We needed OwnerASC and StaminaSubobject to both be valid"), ANSI_TO_TCHAR(__FUNCTION__));
 }
 void USSCharacterMovementComponent::OnStaminaRegenPauseAttributeChange(const FOnAttributeChangeData& Data)
 {
-	if (IsValid(OwnerASC))
-		StaminaSubobject->StaminaRegenPause = Data.NewValue;
+	if (IsValid(OwnerASC) && IsValid(StaminaSubobject))
+		StaminaSubobject->SetStaminaRegenPause(Data.NewValue);
 	else
-		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaRegenPause value because OwnerASC was invalid"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaRegenPause value. We needed OwnerASC and StaminaSubobject to both be valid"), ANSI_TO_TCHAR(__FUNCTION__));
 }
 #pragma endregion
 

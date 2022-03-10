@@ -118,6 +118,16 @@ void UO_Stamina::SetStaminaDraining(bool newStaminaDraining)
 	bStaminaDraining = newStaminaDraining;
 }
 
+void UO_Stamina::SetMaxStamina(float newValue)
+{
+	MaxStamina = newValue;
+
+	if (Stamina != MaxStamina && bShouldTick == false)
+	{
+		SetShouldTick(true);	// start ticking again, we need to adjust to the new MaxStamina
+	}
+}
+
 void UO_Stamina::SetShouldTick(bool newShouldTick)
 {
 	if (bShouldTick != newShouldTick)

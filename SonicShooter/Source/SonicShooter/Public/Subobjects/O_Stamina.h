@@ -33,16 +33,13 @@ public:
 	virtual bool IsSupportedForNetworking() const override;
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags);
 
-public:
 	UO_Stamina(const FObjectInitializer& ObjectInitializer);
 	void SetStaminaDraining(bool newStaminaDraining);
 
-	// BEGIN exposed floats
-	float MaxStamina;
-	float StaminaDrain;
-	float StaminaGain;
-	float StaminaRegenPause;
-	// END exposed floats
+	void SetMaxStamina(float newValue);
+	void SetStaminaDrain(float newValue)		{ StaminaDrain			= newValue; }
+	void SetStaminaGain(float newValue)			{ StaminaGain			= newValue; }
+	void SetStaminaRegenPause(float newValue)	{ StaminaRegenPause		= newValue; }
 
 
 	TSharedRef<FFloatValueChange> OnStaminaChange;
@@ -68,4 +65,10 @@ private:
 
 	bool bStaminaDraining;
 	float TimeSinceStaminaDrain;
+
+
+	float MaxStamina;
+	float StaminaDrain;
+	float StaminaGain;
+	float StaminaRegenPause;
 };

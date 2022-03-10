@@ -36,7 +36,7 @@ public:
 	UO_Stamina(const FObjectInitializer& ObjectInitializer);
 	void SetStaminaDraining(bool newStaminaDraining);
 
-	void SetMaxStamina(float newValue);
+	void SetMaxStamina(float newMaxStamina);
 	void SetStaminaDrain(float newValue)		{ StaminaDrain			= newValue; }
 	void SetStaminaGain(float newValue)			{ StaminaGain			= newValue; }
 	void SetStaminaRegenPause(float newValue)	{ StaminaRegenPause		= newValue; }

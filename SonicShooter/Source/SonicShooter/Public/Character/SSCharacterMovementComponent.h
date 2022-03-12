@@ -302,15 +302,12 @@ protected:
 private:
 	FRotator PreviousRotation;
 
-	////// Begin Attribute value change
-	// stamina subobject
+	// BEGIN Attribute value change
 	void OnMaxStaminaAttributeChange(const FOnAttributeChangeData& Data);
 	void OnStaminaDrainAttributeChange(const FOnAttributeChangeData& Data);
 	void OnStaminaGainAttributeChange(const FOnAttributeChangeData& Data);
 	void OnStaminaRegenPauseAttributeChange(const FOnAttributeChangeData& Data);
-
-
-	////// End Attribute value change
+	// END Attribute value change
 };
 
 

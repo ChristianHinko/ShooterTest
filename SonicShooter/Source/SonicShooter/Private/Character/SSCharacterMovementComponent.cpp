@@ -1061,7 +1061,7 @@ bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/) c
 
 void USSCharacterMovementComponent::BeginDestroy()
 {
-	////// Begin Unbind from attribute value change delegates
+	// BEGIN Unbind from attribute value change delegates
 	if (IsValid(OwnerASC))
 	{
 		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetMaxStaminaAttribute()).RemoveAll(this);
@@ -1069,7 +1069,7 @@ void USSCharacterMovementComponent::BeginDestroy()
 		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaGainAttribute()).RemoveAll(this);
 		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaRegenPauseAttribute()).RemoveAll(this);
 	}
-	////// End Unbind from attribute value change delegates
+	// END Unbind from attribute value change delegates
 
 
 	Super::BeginDestroy();

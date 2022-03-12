@@ -107,7 +107,7 @@ private:
 
 
 
-	////// Begin Attribute value change
+	// BEGIN Attribute value change
 	
 	// For attributes used in the GA_FireGun
 	float AmmoCost;
@@ -146,5 +146,5 @@ private:
 
 	float BulletSpeedFalloff;
 	void OnBulletSpeedFalloffChange(const FOnAttributeChangeData& Data);
-	////// End Attribute value change
+	// END Attribute value change
 };

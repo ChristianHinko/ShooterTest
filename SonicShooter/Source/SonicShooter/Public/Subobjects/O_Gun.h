@@ -75,7 +75,7 @@ private:
 		void OnItemInactive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
 
 
-	////// Begin Attribute value change
+	// BEGIN Attribute value change
 	float MinBulletSpread;
 	void OnMinBulletSpreadChange(const FOnAttributeChangeData& Data) { MinBulletSpread = Data.NewValue; }
 
@@ -90,5 +90,5 @@ private:
 
 	float BulletSpreadDecSpeed;
 	void OnBulletSpreadDecSpeedChange(const FOnAttributeChangeData& Data) { BulletSpreadDecSpeed = Data.NewValue; }
-	////// End Attribute value change
+	// END Attribute value change
 };

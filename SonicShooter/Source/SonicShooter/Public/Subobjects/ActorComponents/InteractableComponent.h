@@ -21,7 +21,7 @@ public:
 	UInteractableComponent();
 
 
-	// Begin IInteractable interface
+	// BEGIN IInteractable interface
 	virtual bool CanActivateInteractAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const override;
 	virtual TSubclassOf<UGameplayEffect> GetInteractableEffectTSub() override;
 
@@ -48,7 +48,7 @@ public:
 	virtual bool GetShouldSkipFirstTick() override;
 	virtual bool GetShouldFireDetectionEvents() override;
 	virtual bool GetCanCurrentlyBeInteractedWith() override;
-	// End IItneractable interface
+	// END IInteractable interface
 
 
 protected:

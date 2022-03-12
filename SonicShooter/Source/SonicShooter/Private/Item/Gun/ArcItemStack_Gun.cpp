@@ -14,8 +14,8 @@ void UArcItemStack_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(UArcItemStack_Gun, BulletTraceTargetActorTSub, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(UArcItemStack_Gun, BulletHitEffectTSub, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(UArcItemStack_Gun, BulletTargetActorTSub, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(UArcItemStack_Gun, BulletInflictEffectTSub, COND_OwnerOnly);
 }
 bool UArcItemStack_Gun::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
 {

@@ -8,7 +8,7 @@
 #include "ArcItemDefinition_Gun.generated.h"
 
 
-class AGATA_BulletTrace;
+class AGameplayAbilityTargetActor;
 
 
 
@@ -28,12 +28,12 @@ public:
 	 * This gun's Target Actor (what it will shoot)
 	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gun Firing")
-		TSubclassOf<AGATA_BulletTrace> DefaultBulletTraceTargetActorTSub;
+		TSubclassOf<AGameplayAbilityTargetActor> DefaultBulletTargetActorTSub;
 
 	/**
 	 * The Effect that will be applied to the target that this bullet hits
 	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gun Firing")
-		TSubclassOf<UGameplayEffect> DefaultBulletHitEffectTSub;
+		TSubclassOf<UGameplayEffect> DefaultBulletInflictEffectTSub;
 
 };

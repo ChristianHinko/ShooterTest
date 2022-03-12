@@ -43,7 +43,7 @@ public:
 
 	/**
 	 * Display name of the Item for UI.
-	 * May be overriden by the Item Generator or changed during the game by the Item Stack (e.g. TF2 name tags and description tags)
+	 * May be overriden by the Item Generator (e.g. TF2 name tags and description tags).
 	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
 		FText DefaultItemName;

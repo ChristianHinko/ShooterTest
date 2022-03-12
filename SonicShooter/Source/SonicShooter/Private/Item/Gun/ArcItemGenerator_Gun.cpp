@@ -38,8 +38,8 @@ UArcItemStack* UArcItemGenerator_Gun::GenerateItemStack_Implementation(const FAr
 			UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ItemStack);
 			if (IsValid(GunStack))
 			{
-				GunStack->BulletTraceTargetActorTSub		= GunDefinition->DefaultBulletTraceTargetActorTSub;
-				GunStack->BulletHitEffectTSub				= GunDefinition->DefaultBulletHitEffectTSub;
+				GunStack->BulletTargetActorTSub			= GunDefinition->DefaultBulletTargetActorTSub;
+				GunStack->BulletInflictEffectTSub		= GunDefinition->DefaultBulletInflictEffectTSub;
 			}
 		}
 	}

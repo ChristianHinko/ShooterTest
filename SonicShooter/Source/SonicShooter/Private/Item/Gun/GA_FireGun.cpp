@@ -72,7 +72,7 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	BulletSpeedFalloff = ASC->GetNumericAttribute(UAS_Gun::GetBulletSpeedFalloffAttribute());
 
 
-	////// Begin Attribute value change binding
+	// BEGIN Attribute value change binding
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetAmmoCostAttribute()).AddUObject(this, &UGA_FireGun::OnAmmoCostChange);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetNumShotsPerBurstAttribute()).AddUObject(this, &UGA_FireGun::OnNumShotsPerBurstChange);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetbFullAutoAttribute()).AddUObject(this, &UGA_FireGun::OnbFullAutoChange);
@@ -86,7 +86,7 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetRicochetsAttribute()).AddUObject(this, &UGA_FireGun::OnRicochetsChange);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetInitialBulletSpeedAttribute()).AddUObject(this, &UGA_FireGun::OnInitialBulletSpeedChange);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetBulletSpeedFalloffAttribute()).AddUObject(this, &UGA_FireGun::OnBulletSpeedFalloffChange);
-	////// End Attribute value change binding
+	// END Attribute value change binding
 
 
 
@@ -110,7 +110,7 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 
 
 	// Inject the data our target actor needs and spawn it 
-	BulletTraceTargetActor = GetWorld()->SpawnActorDeferred<AGATA_BulletTrace>(GunToFire->BulletTraceTargetActorTSub, FTransform());
+	BulletTraceTargetActor = GetWorld()->SpawnActorDeferred<AGATA_BulletTrace>(GunToFire->BulletTargetActorTSub, FTransform());
 	if (!IsValid(BulletTraceTargetActor))
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() No valid BulletTraceTargetActor in the GunStack when giving the fire ability. How the heck we supposed to fire the gun!?!?"), ANSI_TO_TCHAR(__FUNCTION__));
@@ -134,7 +134,7 @@ void UGA_FireGun::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, co
 		return;
 	}
 
-	////// Begin Unbind from attribute value change delegates
+	////// BEGIN Unbind from attribute value change delegates
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetAmmoCostAttribute()).RemoveAll(this);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetNumShotsPerBurstAttribute()).RemoveAll(this);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetbFullAutoAttribute()).RemoveAll(this);
@@ -148,7 +148,7 @@ void UGA_FireGun::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, co
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetRicochetsAttribute()).RemoveAll(this);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetInitialBulletSpeedAttribute()).RemoveAll(this);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetBulletSpeedFalloffAttribute()).RemoveAll(this);
-	////// End Unbind from attribute value change delegates
+	////// END Unbind from attribute value change delegates
 
 
 
@@ -462,11 +462,11 @@ void UGA_FireGun::OnRelease(float TimeHeld)
 void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 {
 	// Apply effects
-	if (TSubclassOf<UGameplayEffect> BulletHitEffectTSub = GunToFire->BulletHitEffectTSub)
+	if (TSubclassOf<UGameplayEffect> BulletHitEffectTSub = GunToFire->BulletInflictEffectTSub)
 	{
 		if (Data.Num() > 0)	// No need to call if we have no targets
 		{
-			ApplyGameplayEffectToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), Data, GunToFire->BulletHitEffectTSub, GetAbilityLevel());
+			ApplyGameplayEffectToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), Data, GunToFire->BulletInflictEffectTSub, GetAbilityLevel());
 		}
 	}
 	else

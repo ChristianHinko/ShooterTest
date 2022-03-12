@@ -223,7 +223,7 @@ bool UO_Gun::IsTickable() const
 
 void UO_Gun::BeginDestroy()
 {
-	////// Begin Unbind from attribute value change delegates
+	// BEGIN Unbind from attribute value change delegates
 	if (IsValid(OwnerASC))
 	{
 		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetMinBulletSpreadAttribute()).RemoveAll(this);
@@ -232,7 +232,7 @@ void UO_Gun::BeginDestroy()
 		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetFireBulletSpreadAttribute()).RemoveAll(this);
 		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetBulletSpreadDecSpeedAttribute()).RemoveAll(this);
 	}
-	////// End Unbind from attribute value change delegates
+	// END Unbind from attribute value change delegates
 
 
 	Super::BeginDestroy();

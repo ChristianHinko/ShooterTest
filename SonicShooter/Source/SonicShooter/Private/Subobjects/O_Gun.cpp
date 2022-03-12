@@ -9,7 +9,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
-#include "Item/Gun/AS_Gun.h"
+#include "Inventory/Item/Gun/AS_Gun.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 

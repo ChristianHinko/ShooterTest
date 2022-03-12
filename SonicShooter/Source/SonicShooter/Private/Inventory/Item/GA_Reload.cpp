@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Item/GA_Reload.h"
+#include "Inventory/Item/GA_Reload.h"
 
 #include "Utilities/LogCategories.h"
 #include "Utilities/SSNativeGameplayTags.h"
-#include "Item/AS_Ammo.h"
+#include "Inventory/Item/AS_Ammo.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "Item/Gun/ArcItemStack_Gun.h"
+#include "Inventory/Item/Gun/ArcItemStack_Gun.h"
 #include "Subobjects/O_Ammo.h"
 
 

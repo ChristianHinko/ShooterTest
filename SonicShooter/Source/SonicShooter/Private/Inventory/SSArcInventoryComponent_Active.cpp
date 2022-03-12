@@ -9,12 +9,12 @@
 #include "ArcInventory.h" // for Roy's Native Gameplay Tags
 
 #include "UI/HUD_Shooter.h"
-#include "Item/SSArcItemDefinition_Active.h"
+#include "Inventory/Item/SSArcItemDefinition_Active.h"
 #include "UI/UMG/Widgets/UW_ActiveItem.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Utilities/LogCategories.h"
-#include "Item/SSArcItemStack.h"
-#include "Item/Gun/ArcItemStack_Gun.h"
+#include "Inventory/Item/SSArcItemStack.h"
+#include "Inventory/Item/Gun/ArcItemStack_Gun.h"
 #include "Subobjects/O_Gun.h"
 
 

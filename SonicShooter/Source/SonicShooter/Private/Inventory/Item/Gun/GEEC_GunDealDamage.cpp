@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Item/Gun/GEEC_GunDealDamage.h"
+#include "Inventory/Item/Gun/GEEC_GunDealDamage.h"
 
 #include "AttributeSets/AS_Health.h"
 #include "AbilitySystem/Types/SSGameplayEffectTypes.h"

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Item/AS_Ammo.h"
+#include "Inventory/Item/AS_Ammo.h"
 
 #include "Net/UnrealNetwork.h"
 #include "GameplayAbilities/Public/GameplayEffectExtension.h"

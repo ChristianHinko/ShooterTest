@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Item/SSArcItemStack.h"
+#include "Inventory/Item/SSArcItemStack.h"
 
 #include "ArcItemStack_Gun.generated.h"
 

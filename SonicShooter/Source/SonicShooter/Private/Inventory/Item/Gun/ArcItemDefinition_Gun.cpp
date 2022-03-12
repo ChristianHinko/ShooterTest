@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Item/Gun/ArcItemDefinition_Gun.h"
+#include "Inventory/Item/Gun/ArcItemDefinition_Gun.h"
 
 
 

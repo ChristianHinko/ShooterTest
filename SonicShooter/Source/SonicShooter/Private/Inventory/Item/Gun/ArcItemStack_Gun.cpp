@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Item/Gun/ArcItemStack_Gun.h"
+#include "Inventory/Item/Gun/ArcItemStack_Gun.h"
 
 #include "Net/UnrealNetwork.h"
 #include "Engine/ActorChannel.h"

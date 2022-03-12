@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Item/Gun/GA_FireGun.h"
+#include "Inventory/Item/Gun/GA_FireGun.h"
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/AbilityTasks/ASSAbilityTask_WaitTargetData.h"
@@ -8,10 +8,10 @@
 #include "Utilities/LogCategories.h"
 #include "Utilities/SSNativeGameplayTags.h"
 #include "Utilities/CollisionChannels.h"
-#include "Item/Gun/AS_Gun.h"
+#include "Inventory/Item/Gun/AS_Gun.h"
 #include "Subobjects/O_Ammo.h"
 #include "Subobjects/O_Gun.h"
-#include "Item\Gun\ArcItemStack_Gun.h"
+#include "Inventory/Item\Gun\ArcItemStack_Gun.h"
 #include "ArcInventoryItemTypes.h"
 #include "Item\Definitions\ArcItemDefinition_Active.h"
 

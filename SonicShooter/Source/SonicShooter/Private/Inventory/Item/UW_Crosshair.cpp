@@ -1,14 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Item/UW_Crosshair.h"
+#include "Inventory/Item/UW_Crosshair.h"
 
-#include "Item/Gun/AS_Gun.h"
+#include "Inventory/Item/Gun/AS_Gun.h"
 #include "Components/Image.h"
 #include "Components/SizeBox.h"
 #include "Subobjects/O_Gun.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
-#include "Item/Gun/ArcItemStack_Gun.h"
+#include "Inventory/Item/Gun/ArcItemStack_Gun.h"
 
 
 

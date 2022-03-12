@@ -3,11 +3,11 @@
 
 #include "UI/UMG/Widgets/UW_Ammo.h"
 
-#include "Item/AS_Ammo.h"
+#include "Inventory/Item/AS_Ammo.h"
 #include "Subobjects/O_Ammo.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
-#include "Item/Gun/ArcItemStack_Gun.h"
+#include "Inventory/Item/Gun/ArcItemStack_Gun.h"
 #include "Components/TextBlock.h"
 
 

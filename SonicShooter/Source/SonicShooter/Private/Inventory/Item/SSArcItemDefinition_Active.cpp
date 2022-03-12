@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Item/SSArcItemDefinition_Active.h"
+#include "Inventory/Item/SSArcItemDefinition_Active.h"
 
 
 

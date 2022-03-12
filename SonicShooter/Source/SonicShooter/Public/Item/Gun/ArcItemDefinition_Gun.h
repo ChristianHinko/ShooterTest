@@ -25,15 +25,15 @@ public:
 
 
 	/**
-	 * This gun's target actor (what it will shoot)
+	 * This gun's Target Actor (what it will shoot)
 	 */
-	UPROPERTY(EditDefaultsOnly, Category = "Gun Firing")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gun Firing")
 		TSubclassOf<AGATA_BulletTrace> DefaultBulletTraceTargetActorTSub;
 
 	/**
-	 * The effect that will be applied to the target that this bullet hits
+	 * The Effect that will be applied to the target that this bullet hits
 	 */
-	UPROPERTY(EditDefaultsOnly, Category = "Gun Firing")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gun Firing")
 		TSubclassOf<UGameplayEffect> DefaultBulletHitEffectTSub;
 
 };

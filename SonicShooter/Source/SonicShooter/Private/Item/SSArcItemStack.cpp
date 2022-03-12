@@ -7,6 +7,8 @@
 
 USSArcItemStack::USSArcItemStack(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
+
+	, ActiveItemWidget(nullptr)
 {
-	ActiveItemWidget = nullptr;
+
 }

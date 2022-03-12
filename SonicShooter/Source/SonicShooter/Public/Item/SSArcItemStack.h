@@ -23,7 +23,12 @@ class SONICSHOOTER_API USSArcItemStack : public UArcItemStack
 public:
 	USSArcItemStack(const FObjectInitializer& ObjectInitializer);
 
-	// Only valid on the client/listening server. This keeps track of the item's widget in memory (only valid while item is equipped). Widget is destroyed on unequip.
-	UPROPERTY()
+
+	/**
+	 * Keeps track of the Item's Widget in memory. Only valid while Item is equipped - Widget is destroyed on unequip.
+	 * NOTE: Only valid on the Client and Listening Server.
+	 */
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "UI")
 		UUW_ActiveItem* ActiveItemWidget;
+
 };

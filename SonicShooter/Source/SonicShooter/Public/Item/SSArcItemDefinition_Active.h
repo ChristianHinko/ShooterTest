@@ -40,12 +40,20 @@ class SONICSHOOTER_API USSArcItemDefinition_Active : public UArcItemDefinition_A
 public:
 	USSArcItemDefinition_Active();
 
+
+	/**
+	 * Display name of the Item for UI.
+	 * May be overriden by the Item Generator or changed during the game by the Item Stack (e.g. TF2 name tags and description tags)
+	 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+		FText DefaultItemName;
+
 	/**
 	 * Effect that initializes the Item's Attributes.
 	 * Attributes that need complex formulas for initialization can be done in an GameplayEffectExecutionCalculation class.
 	 * For non-Attribute properties (e.g. raw floats, pointers, classes, etc.) you should use a GEEC to handle those in the Effect.
 	 */
-	UPROPERTY(EditDefaultsOnly, Category = "Initialization")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Initialization")
 		TSubclassOf<UGameplayEffect> InitializationEffectTSub;
 
 };

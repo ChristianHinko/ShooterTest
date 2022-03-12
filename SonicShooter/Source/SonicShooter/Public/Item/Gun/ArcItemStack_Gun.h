@@ -26,9 +26,9 @@ public:
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 
 protected:
-	UPROPERTY(VisibleAnywhere, Category = "Ammo")
+	UPROPERTY(VisibleInstanceOnly, Category = "Ammo")
 		UO_Ammo* AmmoSubobject;
-	UPROPERTY(VisibleAnywhere, Category = "Gun")
+	UPROPERTY(VisibleInstanceOnly, Category = "Gun")
 		UO_Gun* GunSubobject;
 	
 public:
@@ -39,15 +39,15 @@ public:
 	UO_Gun* GetGunSubobject() const { return GunSubobject; }
 
 	/**
-	 * This gun's target actor (what it will shoot)
+	 * This gun's Target Actor (what it will shoot)
 	 */
-	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Gun Firing")
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Gun Firing", Replicated)
 		TSubclassOf<AGATA_BulletTrace> BulletTraceTargetActorTSub;
 
 	/**
-	 * The effect that will be applied to the target that this bullet hits
+	 * The Effect that will be applied to the target that this bullet hits
 	 */
-	UPROPERTY(VisibleDefaultsOnly, Replicated, Category = "Gun Firing")
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Gun Firing", Replicated)
 		TSubclassOf<UGameplayEffect> BulletHitEffectTSub;
 
 protected:

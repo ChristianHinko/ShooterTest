@@ -24,23 +24,23 @@ bool UArcItemStack_Gun::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* B
 	// Give AmmoSubobject an opportunity to replicate
 	if (IsValid(AmmoSubobject))
 	{
+		bWroteSomething |= AmmoSubobject->ReplicateSubobjects(Channel, Bunch, RepFlags);
+
 		if (AmmoSubobject->IsSupportedForNetworking())
 		{
 			bWroteSomething |= Channel->ReplicateSubobject(AmmoSubobject, *Bunch, *RepFlags);
 		}
-
-		bWroteSomething |= AmmoSubobject->ReplicateSubobjects(Channel, Bunch, RepFlags);
 	}
 
 	// Give GunSubobject an opportunity to replicate
 	if (IsValid(GunSubobject))
 	{
+		bWroteSomething |= GunSubobject->ReplicateSubobjects(Channel, Bunch, RepFlags);
+
 		if (GunSubobject->IsSupportedForNetworking())
 		{
 			bWroteSomething |= Channel->ReplicateSubobject(GunSubobject, *Bunch, *RepFlags);
 		}
-
-		bWroteSomething |= GunSubobject->ReplicateSubobjects(Channel, Bunch, RepFlags);
 	}
 
 	return bWroteSomething;

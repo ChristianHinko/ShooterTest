@@ -27,12 +27,12 @@ bool USSCharacterMovementComponent::ReplicateSubobjects(UActorChannel* Channel, 
 	// Give StaminaSubobject an opportunity to replicate
 	if (IsValid(StaminaSubobject))
 	{
+		bWroteSomething |= StaminaSubobject->ReplicateSubobjects(Channel, Bunch, RepFlags);
+
 		if (StaminaSubobject->IsSupportedForNetworking())
 		{
 			bWroteSomething |= Channel->ReplicateSubobject(StaminaSubobject, *Bunch, *RepFlags);
 		}
-
-		bWroteSomething |= StaminaSubobject->ReplicateSubobjects(Channel, Bunch, RepFlags);
 	}
 
 	return bWroteSomething;

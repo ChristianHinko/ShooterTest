@@ -4,14 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Item/Definitions/ArcItemDefinition_Active.h"
-#include "UI/UMG/Widgets/UW_ActiveItem.h"
 
 #include "SSArcItemDefinition_Active.generated.h"
 
 
+class UUW_ActiveItem;
 
 
 
+/**
+ * 
+ */
 UCLASS(Blueprintable, BlueprintType)
 class SONICSHOOTER_API USSArcUIData_ItemDefinition : public UArcUIData_ItemDefinition
 {
@@ -25,6 +28,7 @@ public:
 		TSubclassOf<UUW_ActiveItem> ActiveItemWidgetTSub;
 };
 
+
 /**
  * 
  */
@@ -36,7 +40,11 @@ class SONICSHOOTER_API USSArcItemDefinition_Active : public UArcItemDefinition_A
 public:
 	USSArcItemDefinition_Active();
 
-	/* Effect that initializes the item's attributes. Attributes that need complex formulas for initialization can be done in an GameplayEffectExecutionCalculation class. For non-attribute properties (ie. raw floats, strings, pointers, etc) you can use UASSAttributeSet::OnDefaultStatsEffectApplied() to manually set those. */
+	/**
+	 * Effect that initializes the Item's Attributes.
+	 * Attributes that need complex formulas for initialization can be done in an GameplayEffectExecutionCalculation class.
+	 * For non-Attribute properties (e.g. raw floats, pointers, classes, etc.) you should use a GEEC to handle those in the Effect.
+	 */
 	UPROPERTY(EditDefaultsOnly, Category = "Initialization")
 		TSubclassOf<UGameplayEffect> InitializationEffectTSub;
 

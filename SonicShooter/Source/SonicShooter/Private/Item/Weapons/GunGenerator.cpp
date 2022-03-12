@@ -4,6 +4,7 @@
 #include "Item/Weapons/GunGenerator.h"
 
 #include "Item/Weapons/GunStack.h"
+#include "Item/Weapons/ArcItemDefinition_Gun.h"
 
 
 
@@ -18,13 +19,18 @@ UArcItemStack* UGunGenerator::GenerateItemStack_Implementation(const FArcItemGen
 {
 	UArcItemStack* NewItemStack = Super::GenerateItemStack_Implementation(Context);
 
-
-	if (UGunStack* NewGunStack = Cast<UGunStack>(NewItemStack))
+	
+	UGunStack* NewGunStack = Cast<UGunStack>(NewItemStack);
+	if (IsValid(NewGunStack))
 	{
-		NewGunStack->BulletTraceTargetActorTSub						= DefaultBulletTraceTargetActorTSub;
-		NewGunStack->BulletHitEffectTSub							= DefaultBulletHitEffectTSub;
+		UArcItemDefinition_Gun* GunDefinition = Cast<UArcItemDefinition_Gun>(ItemDefinition.GetDefaultObject());
+		if (IsValid(GunDefinition))
+		{
+			// Inject defaults into our new Item Stack
+			NewGunStack->BulletTraceTargetActorTSub			= GunDefinition->DefaultBulletTraceTargetActorTSub;
+			NewGunStack->BulletHitEffectTSub				= GunDefinition->DefaultBulletHitEffectTSub;
+		}
 	}
-
 
 	return NewItemStack;
 }

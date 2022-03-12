@@ -10,6 +10,7 @@
 
 #include "UI/HUD_Shooter.h"
 #include "Item/SSArcItemDefinition_Active.h"
+#include "UI/UMG/Widgets/UW_ActiveItem.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Utilities/LogCategories.h"
 #include "Item/SSArcItemStack.h"

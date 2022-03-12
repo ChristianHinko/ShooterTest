@@ -4,9 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "ArcItemStack.h"
+
 #include "SSArcItemStack.generated.h"
 
+
 class UUW_ActiveItem;
+
+
 
 /**
  * 

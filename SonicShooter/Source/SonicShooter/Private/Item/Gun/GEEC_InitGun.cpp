@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Item/Weapons/GEEC_InitGun.h"
+#include "Item/Gun/GEEC_InitGun.h"
 
-#include "Item/Weapons/AS_Gun.h"
+#include "Item/Gun/AS_Gun.h"
 #include "Subobjects/O_Gun.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
-#include "Item/Weapons/GunStack.h"
+#include "Item/Gun/ArcItemStack_Gun.h"
 
 
 
@@ -143,7 +143,7 @@ void UGEEC_InitGun::Execute_Implementation(const FGameplayEffectCustomExecutionP
 			const UArcItemStack* ActiveItemStack = InventoryComponent->GetActiveItemStack();
 			if (IsValid(ActiveItemStack))
 			{
-				const UGunStack* GunStack = Cast<UGunStack>(ActiveItemStack);
+				const UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ActiveItemStack);
 				if (IsValid(GunStack))
 				{
 					GunStack->GetGunSubobject()->CurrentBulletSpread = CurrentBulletSpread;

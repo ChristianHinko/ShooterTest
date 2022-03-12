@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Generators/ArcItemGenerator_Unique.h"
 
-#include "GunGenerator.generated.h"
+#include "ArcItemGenerator_Gun.generated.h"
 
 
 
@@ -13,12 +13,12 @@
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UGunGenerator : public UArcItemGenerator_Unique
+class SONICSHOOTER_API UArcItemGenerator_Gun : public UArcItemGenerator_Unique
 {
 	GENERATED_BODY()
 	
 public:
-	UGunGenerator(const FObjectInitializer& ObjectInitializer);
+	UArcItemGenerator_Gun(const FObjectInitializer& ObjectInitializer);
 
 
 protected:

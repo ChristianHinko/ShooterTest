@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Item/Weapons/GunStack.h"
+#include "Item/Gun/ArcItemStack_Gun.h"
 
 #include "Net/UnrealNetwork.h"
 #include "Engine/ActorChannel.h"
@@ -10,14 +10,14 @@
 
 
 
-void UGunStack::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void UArcItemStack_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(UGunStack, BulletTraceTargetActorTSub, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(UGunStack, BulletHitEffectTSub, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(UArcItemStack_Gun, BulletTraceTargetActorTSub, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(UArcItemStack_Gun, BulletHitEffectTSub, COND_OwnerOnly);
 }
-bool UGunStack::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
+bool UArcItemStack_Gun::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
 {
 	bool bWroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
 
@@ -46,11 +46,10 @@ bool UGunStack::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FR
 	return bWroteSomething;
 }
 
-UGunStack::UGunStack(const FObjectInitializer& ObjectInitializer)
+UArcItemStack_Gun::UArcItemStack_Gun(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	AmmoSubobject = CreateDefaultSubobject<UO_Ammo>(TEXT("AmmoSubobject"));
 	GunSubobject = CreateDefaultSubobject<UO_Gun>(TEXT("GunSubobject"));
 
 }
-

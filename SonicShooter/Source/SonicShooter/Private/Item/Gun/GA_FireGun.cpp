@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Item/Weapons/GA_FireGun.h"
+#include "Item/Gun/GA_FireGun.h"
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/AbilityTasks/ASSAbilityTask_WaitTargetData.h"
@@ -8,10 +8,10 @@
 #include "Utilities/LogCategories.h"
 #include "Utilities/SSNativeGameplayTags.h"
 #include "Utilities/CollisionChannels.h"
-#include "Item/Weapons/AS_Gun.h"
+#include "Item/Gun/AS_Gun.h"
 #include "Subobjects/O_Ammo.h"
 #include "Subobjects/O_Gun.h"
-#include "Item\Weapons\GunStack.h"
+#include "Item\Gun\ArcItemStack_Gun.h"
 #include "ArcInventoryItemTypes.h"
 #include "Item\Definitions\ArcItemDefinition_Active.h"
 
@@ -94,7 +94,7 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 
 	// Need to make the item generators use the GunStack now
 	// instead of it using item stack so this cast works.
-	GunToFire = Cast<UGunStack>(GetCurrentSourceObject());
+	GunToFire = Cast<UArcItemStack_Gun>(GetCurrentSourceObject());
 	if (!IsValid(GunToFire))
 	{
 		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid Gun when given the fire ability - ensure you are assigning the SourceObject to a GunStack when calling GiveAbility()"), ANSI_TO_TCHAR(__FUNCTION__));

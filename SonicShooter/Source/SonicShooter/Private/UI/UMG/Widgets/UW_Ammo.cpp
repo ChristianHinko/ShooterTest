@@ -7,7 +7,7 @@
 #include "Subobjects/O_Ammo.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
-#include "Item/Weapons/GunStack.h"
+#include "Item/Gun/ArcItemStack_Gun.h"
 #include "Components/TextBlock.h"
 
 
@@ -32,7 +32,7 @@ void UUW_Ammo::OnPlayerASCValid()
 			const UArcItemStack* ActiveItemStack = InventoryComponent->GetActiveItemStack();
 			if (IsValid(ActiveItemStack))
 			{
-				const UGunStack* GunStack = Cast<UGunStack>(ActiveItemStack);
+				const UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ActiveItemStack);
 				if (IsValid(GunStack))
 				{
 					AmmoSubobject = GunStack->GetAmmoSubobject();

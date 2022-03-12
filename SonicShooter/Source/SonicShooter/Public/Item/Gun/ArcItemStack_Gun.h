@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Item/SSArcItemStack.h"
 
-#include "GunStack.generated.h"
+#include "ArcItemStack_Gun.generated.h"
 
 
 class AGATA_BulletTrace;
@@ -18,7 +18,7 @@ class UO_Gun;
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UGunStack : public USSArcItemStack
+class SONICSHOOTER_API UArcItemStack_Gun : public USSArcItemStack
 {
 	GENERATED_BODY()
 
@@ -32,7 +32,7 @@ protected:
 		UO_Gun* GunSubobject;
 	
 public:
-	UGunStack(const FObjectInitializer& ObjectInitializer);
+	UArcItemStack_Gun(const FObjectInitializer& ObjectInitializer);
 
 
 	UO_Ammo* GetAmmoSubobject() const { return AmmoSubobject; }

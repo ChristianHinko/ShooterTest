@@ -7,7 +7,7 @@
 #include "Subobjects/O_Ammo.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
-#include "Item/Weapons/GunStack.h"
+#include "Item/Gun/ArcItemStack_Gun.h"
 
 
 
@@ -86,7 +86,7 @@ void UGEEC_InitAmmo::Execute_Implementation(const FGameplayEffectCustomExecution
 			const UArcItemStack* ActiveItemStack = InventoryComponent->GetActiveItemStack();
 			if (IsValid(ActiveItemStack))
 			{
-				const UGunStack* GunStack = Cast<UGunStack>(ActiveItemStack);
+				const UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ActiveItemStack);
 				if (IsValid(GunStack))
 				{
 					GunStack->GetAmmoSubobject()->ClipAmmo = ClipAmmo;

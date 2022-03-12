@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Item/Weapons/AS_Gun.h"
+#include "Item/Gun/AS_Gun.h"
 
 #include "Net/UnrealNetwork.h"
 

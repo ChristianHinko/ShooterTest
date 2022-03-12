@@ -13,7 +13,7 @@ class AGATA_BulletTrace;
 class UAS_Gun;
 class UO_Ammo;
 class UO_Gun;
-class UGunStack;
+class UArcItemStack_Gun;
 class USSAbilityTask_WaitTargetData;
 class UAT_Ticker;
 struct FOnAttributeChangeData;
@@ -61,7 +61,7 @@ protected:
 
 
 	UPROPERTY()
-		UGunStack* GunToFire;
+		UArcItemStack_Gun* GunToFire;
 	UPROPERTY()
 		AGATA_BulletTrace* BulletTraceTargetActor;
 

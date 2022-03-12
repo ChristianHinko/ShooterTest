@@ -14,7 +14,7 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Utilities/LogCategories.h"
 #include "Item/SSArcItemStack.h"
-#include "Item/Weapons/GunStack.h"
+#include "Item/Gun/ArcItemStack_Gun.h"
 #include "Subobjects/O_Gun.h"
 
 
@@ -202,7 +202,7 @@ void USSArcInventoryComponent_Active::MakeItemActive(int32 NewActiveItemSlot)
 
 	// Reset our Gun's CurrentBulletSpread
 	{
-		UGunStack* GunStack = Cast<UGunStack>(ActiveItemStack);
+		UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ActiveItemStack);
 		if (IsValid(GunStack))
 		{
 			GunStack->GetGunSubobject()->ResetBulletSpread();
@@ -360,7 +360,7 @@ void USSArcInventoryComponent_Active::OnItemInactiveEvent(UArcInventoryComponent
 {
 	// Reset our Gun's CurrentBulletSpread
 	{
-		UGunStack* GunStack = Cast<UGunStack>(ItemStack);
+		UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ItemStack);
 		if (IsValid(GunStack))
 		{
 			GunStack->GetGunSubobject()->ResetBulletSpread();

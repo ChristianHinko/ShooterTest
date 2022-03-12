@@ -7,7 +7,7 @@
 #include "Utilities/SSNativeGameplayTags.h"
 #include "Item/AS_Ammo.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "Item/Weapons/GunStack.h"
+#include "Item/Gun/ArcItemStack_Gun.h"
 #include "Subobjects/O_Ammo.h"
 
 
@@ -44,7 +44,7 @@ void UGA_Reload::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const
 	Super::OnGiveAbility(ActorInfo, Spec);
 
 
-	UGunStack* SourceGun = Cast<UGunStack>(GetCurrentSourceObject());
+	UArcItemStack_Gun* SourceGun = Cast<UArcItemStack_Gun>(GetCurrentSourceObject());
 	if (!IsValid(SourceGun))
 	{
 		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid Gun when given the reload ability - ensure you are assigning the SourceObject to a GunStack when calling GiveAbility()"), ANSI_TO_TCHAR(__FUNCTION__));

@@ -2,13 +2,13 @@
 
 #include "Item/UW_Crosshair.h"
 
-#include "Item/Weapons/AS_Gun.h"
+#include "Item/Gun/AS_Gun.h"
 #include "Components/Image.h"
 #include "Components/SizeBox.h"
 #include "Subobjects/O_Gun.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
-#include "Item/Weapons/GunStack.h"
+#include "Item/Gun/ArcItemStack_Gun.h"
 
 
 
@@ -54,7 +54,7 @@ void UUW_Crosshair::OnPlayerASCValid()
 			const UArcItemStack* ActiveItemStack = InventoryComponent->GetActiveItemStack();
 			if (IsValid(ActiveItemStack))
 			{
-				const UGunStack* GunStack = Cast<UGunStack>(ActiveItemStack);
+				const UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ActiveItemStack);
 				if (IsValid(GunStack))
 				{
 					GunSubobject = GunStack->GetGunSubobject();

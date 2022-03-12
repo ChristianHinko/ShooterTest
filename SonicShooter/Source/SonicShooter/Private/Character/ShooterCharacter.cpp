@@ -132,7 +132,7 @@ void AShooterCharacter::GiveStartingAbilities()
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
 #include "ArcItemBPFunctionLibrary.h"
 #include "Item\ArcItemDefinition_New.h"
-#include "Item/Weapons/GunStack.h"
+#include "Item/Gun/ArcItemStack_Gun.h"
 #include "Character/SSCharacterMovementComponent.h"
 #include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
 #include "AbilitySystem/ASSAbilitySystemComponent.h"
@@ -166,7 +166,7 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 		const UArcItemStack* ActiveItemStack = SSInventoryComponentActive->GetActiveItemStack();
 		if (IsValid(ActiveItemStack))
 		{
-			const UGunStack* GunStack = Cast<UGunStack>(ActiveItemStack);
+			const UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ActiveItemStack);
 			if (IsValid(GunStack))
 			{
 				//const FFloatPropertyWrapper& ClipAmmo = GunStack->GetAmmoSubobject()->ClipAmmo;

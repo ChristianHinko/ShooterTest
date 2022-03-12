@@ -8,7 +8,7 @@
 #include "Inventory/Item/AS_Ammo.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Inventory/Item/Gun/ArcItemStack_Gun.h"
-#include "Subobjects/O_Ammo.h"
+#include "Subobjects/O_ClipAmmo.h"
 
 
 
@@ -51,14 +51,14 @@ void UGA_Reload::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const
 		return;
 	}
 
-	AmmoSubobject = SourceGun->GetAmmoSubobject();
+	ClipAmmoSubobject = SourceGun->GetClipAmmoSubobject();
 }
 void UGA_Reload::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnRemoveAbility(ActorInfo, Spec);
 
 
-	AmmoSubobject = nullptr;
+	ClipAmmoSubobject = nullptr;
 }
 
 bool UGA_Reload::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
@@ -75,14 +75,14 @@ bool UGA_Reload::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 		return false;
 	}
 
-	if (!IsValid(AmmoSubobject))
+	if (!IsValid(ClipAmmoSubobject))
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() AmmoSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ClipAmmoSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 	
 	const float MaxClipAmmo = ActorInfo->AbilitySystemComponent->GetNumericAttribute(UAS_Ammo::GetMaxClipAmmoAttribute());
-	if (AmmoSubobject->ClipAmmo >= MaxClipAmmo)
+	if (ClipAmmoSubobject->ClipAmmo >= MaxClipAmmo)
 	{
 		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Already have full ammo. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
@@ -122,7 +122,7 @@ void UGA_Reload::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 
 	// Amount to move out of BackupAmmo, and into ClipAmmo
 	const float MaxClipAmmo = ActorInfo->AbilitySystemComponent->GetNumericAttribute(UAS_Ammo::GetMaxClipAmmoAttribute());
-	float AmmoToMove = MaxClipAmmo - AmmoSubobject->ClipAmmo;
+	float AmmoToMove = MaxClipAmmo - ClipAmmoSubobject->ClipAmmo;
 
 	// Check if BackupAmmo went negative
 	{
@@ -143,7 +143,7 @@ void UGA_Reload::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 
 
 	// Move ammo into clip
-	AmmoSubobject->ClipAmmo = AmmoSubobject->ClipAmmo + AmmoToMove;
+	ClipAmmoSubobject->ClipAmmo = ClipAmmoSubobject->ClipAmmo + AmmoToMove;
 
 
 

@@ -7,7 +7,7 @@
 #include "AttributeSet.h"
 #include "GameplayEffectTypes.h"
 
-#include "O_Gun.generated.h"
+#include "O_BulletSpread.generated.h"
 
 
 class UAbilitySystemComponent;
@@ -24,7 +24,7 @@ class UArcItemStack;
  * using injection of these variables and events into the subobject.
  */
 UCLASS()
-class SONICSHOOTER_API UO_Gun : public UObject, public FTickableGameObject
+class SONICSHOOTER_API UO_BulletSpread : public UObject, public FTickableGameObject
 {
 	GENERATED_BODY()
 
@@ -34,7 +34,7 @@ public:
 	virtual void BeginDestroy() override;
 
 public:
-	UO_Gun(const FObjectInitializer& ObjectInitializer);
+	UO_BulletSpread(const FObjectInitializer& ObjectInitializer);
 
 
 	TSharedRef<FFloatValueChange> OnCurrentBulletSpreadChange;

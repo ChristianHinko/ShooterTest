@@ -10,7 +10,7 @@
 
 class USizeBox;
 class UImage;
-class UO_Gun;
+class UO_BulletSpread;
 
 
 
@@ -57,7 +57,7 @@ protected:
 
 
 
-	UO_Gun* GunSubobject;
+	UO_BulletSpread* BulletSpreadSubobject;
 	UFUNCTION()
 		void OnCurrentBulletSpreadChange(const float& OldValue, const float& NewValue);
 

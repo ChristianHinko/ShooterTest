@@ -4,7 +4,7 @@
 #include "Inventory/Item/GEEC_InitAmmo.h"
 
 #include "Inventory/Item/AS_Ammo.h"
-#include "Subobjects/O_Ammo.h"
+#include "Subobjects/O_ClipAmmo.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
 #include "Inventory/Item/Gun/ArcItemStack_Gun.h"
@@ -77,7 +77,7 @@ void UGEEC_InitAmmo::Execute_Implementation(const FGameplayEffectCustomExecution
 
 	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetAmmoInitializationStatics().BackupAmmoAttribute,		EGameplayModOp::Override, BackupAmmo));
 	
-	// Get ammo subobject and initialize ClipAmmo
+	// Get ClipAmmo subobject and initialize ClipAmmo
 	if (const FGAAI_Shooter* ShooterActorInfo = static_cast<const FGAAI_Shooter*>(TargetAbilitySystemComponent->AbilityActorInfo.Get()))
 	{
 		USSArcInventoryComponent_Active* InventoryComponent = ShooterActorInfo->GetInventoryComponent();
@@ -89,8 +89,8 @@ void UGEEC_InitAmmo::Execute_Implementation(const FGameplayEffectCustomExecution
 				const UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ActiveItemStack);
 				if (IsValid(GunStack))
 				{
-					GunStack->GetAmmoSubobject()->ClipAmmo = ClipAmmo;
-					GunStack->GetAmmoSubobject()->ClipAmmo.MarkNetDirty(); // we are server-only right now so replicate it
+					GunStack->GetClipAmmoSubobject()->ClipAmmo = ClipAmmo;
+					GunStack->GetClipAmmoSubobject()->ClipAmmo.MarkNetDirty(); // we are server-only right now so replicate it
 				}
 			}
 		}

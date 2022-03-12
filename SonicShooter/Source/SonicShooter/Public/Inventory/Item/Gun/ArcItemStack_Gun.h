@@ -9,8 +9,8 @@
 
 
 class AGameplayAbilityTargetActor;
-class UO_Ammo;
-class UO_Gun;
+class UO_ClipAmmo;
+class UO_BulletSpread;
 
 
 
@@ -27,16 +27,16 @@ public:
 
 protected:
 	UPROPERTY(VisibleInstanceOnly, Category = "Ammo")
-		UO_Ammo* AmmoSubobject;
+		UO_ClipAmmo* ClipAmmoSubobject;
 	UPROPERTY(VisibleInstanceOnly, Category = "Gun")
-		UO_Gun* GunSubobject;
+		UO_BulletSpread* BulletSpreadSubobject;
 	
 public:
 	UArcItemStack_Gun(const FObjectInitializer& ObjectInitializer);
 
 
-	UO_Ammo* GetAmmoSubobject() const { return AmmoSubobject; }
-	UO_Gun* GetGunSubobject() const { return GunSubobject; }
+	UO_ClipAmmo* GetClipAmmoSubobject() const { return ClipAmmoSubobject; }
+	UO_BulletSpread* GetBulletSpreadSubobject() const { return BulletSpreadSubobject; }
 
 	/**
 	 * This gun's Target Actor (what it will shoot)

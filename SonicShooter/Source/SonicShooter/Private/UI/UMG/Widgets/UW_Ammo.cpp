@@ -4,7 +4,7 @@
 #include "UI/UMG/Widgets/UW_Ammo.h"
 
 #include "Inventory/Item/AS_Ammo.h"
-#include "Subobjects/O_Ammo.h"
+#include "Subobjects/O_ClipAmmo.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
 #include "Inventory/Item/Gun/ArcItemStack_Gun.h"
@@ -23,7 +23,7 @@ void UUW_Ammo::OnPlayerASCValid()
 	Super::OnPlayerASCValid();
 
 
-	// Get ammo subobject
+	// Get ClipAmmo subobject
 	if (const FGAAI_Shooter* ShooterActorInfo = static_cast<const FGAAI_Shooter*>(PlayerASC->AbilityActorInfo.Get()))
 	{
 		USSArcInventoryComponent_Active* InventoryComponent = ShooterActorInfo->GetInventoryComponent();
@@ -35,17 +35,17 @@ void UUW_Ammo::OnPlayerASCValid()
 				const UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ActiveItemStack);
 				if (IsValid(GunStack))
 				{
-					AmmoSubobject = GunStack->GetAmmoSubobject();
+					ClipAmmoSubobject = GunStack->GetClipAmmoSubobject();
 				}
 			}
 		}
 	}
 
-	if (IsValid(AmmoSubobject))
+	if (IsValid(ClipAmmoSubobject))
 	{
-		AmmoSubobject->OnClipAmmoChange.Get().AddDynamic(this, &UUW_Ammo::OnClipAmmoChange);
+		ClipAmmoSubobject->OnClipAmmoChange.Get().AddDynamic(this, &UUW_Ammo::OnClipAmmoChange);
 
-		const float& ClipAmmo = AmmoSubobject->ClipAmmo;
+		const float& ClipAmmo = ClipAmmoSubobject->ClipAmmo;
 		OnClipAmmoChange(ClipAmmo, ClipAmmo);
 	}
 
@@ -90,9 +90,9 @@ void UUW_Ammo::UpdateAmmoStatus()
 
 void UUW_Ammo::NativeDestruct()
 {
-	if (AmmoSubobject)
+	if (ClipAmmoSubobject)
 	{
-		AmmoSubobject->OnClipAmmoChange.Get().RemoveAll(this);
+		ClipAmmoSubobject->OnClipAmmoChange.Get().RemoveAll(this);
 	}
 
 

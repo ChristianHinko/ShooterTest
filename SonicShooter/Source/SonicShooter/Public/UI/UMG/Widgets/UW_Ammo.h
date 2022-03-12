@@ -9,7 +9,7 @@
 
 
 struct FOnAttributeChangeData;
-class UO_Ammo;
+class UO_ClipAmmo;
 class UTextBlock;
 
 
@@ -46,7 +46,7 @@ protected:
 
 	virtual void OnAttributeChanged(const FOnAttributeChangeData& Data) override;
 
-	UO_Ammo* AmmoSubobject;
+	UO_ClipAmmo* ClipAmmoSubobject;
 	UFUNCTION()
 		void OnClipAmmoChange(const float& OldValue, const float& NewValue);
 

@@ -5,7 +5,7 @@
 #include "Inventory/Item/Gun/AS_Gun.h"
 #include "Components/Image.h"
 #include "Components/SizeBox.h"
-#include "Subobjects/O_Gun.h"
+#include "Subobjects/O_BulletSpread.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
 #include "Inventory/Item/Gun/ArcItemStack_Gun.h"
@@ -45,7 +45,7 @@ void UUW_Crosshair::OnPlayerASCValid()
 	Super::OnPlayerASCValid();
 
 
-	// Get gun subobject
+	// Get BulletSpread subobject
 	if (const FGAAI_Shooter* ShooterActorInfo = static_cast<const FGAAI_Shooter*>(PlayerASC->AbilityActorInfo.Get()))
 	{
 		USSArcInventoryComponent_Active* InventoryComponent = ShooterActorInfo->GetInventoryComponent();
@@ -57,17 +57,17 @@ void UUW_Crosshair::OnPlayerASCValid()
 				const UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ActiveItemStack);
 				if (IsValid(GunStack))
 				{
-					GunSubobject = GunStack->GetGunSubobject();
+					BulletSpreadSubobject = GunStack->GetBulletSpreadSubobject();
 				}
 			}
 		}
 	}
 
-	if (IsValid(GunSubobject))
+	if (IsValid(BulletSpreadSubobject))
 	{
-		GunSubobject->OnCurrentBulletSpreadChange.Get().AddDynamic(this, &UUW_Crosshair::OnCurrentBulletSpreadChange);
+		BulletSpreadSubobject->OnCurrentBulletSpreadChange.Get().AddDynamic(this, &UUW_Crosshair::OnCurrentBulletSpreadChange);
 
-		const float& CurrentBulletSpread = GunSubobject->CurrentBulletSpread;
+		const float& CurrentBulletSpread = BulletSpreadSubobject->CurrentBulletSpread;
 		OnCurrentBulletSpreadChange(CurrentBulletSpread, CurrentBulletSpread);
 	}
 
@@ -102,9 +102,9 @@ void UUW_Crosshair::UpdateCrosshair()
 
 void UUW_Crosshair::NativeDestruct()
 {
-	if (GunSubobject)
+	if (BulletSpreadSubobject)
 	{
-		GunSubobject->OnCurrentBulletSpreadChange.Get().RemoveAll(this);
+		BulletSpreadSubobject->OnCurrentBulletSpreadChange.Get().RemoveAll(this);
 	}
 
 

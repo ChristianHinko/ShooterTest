@@ -5,8 +5,8 @@
 
 #include "Net/UnrealNetwork.h"
 #include "Engine/ActorChannel.h"
-#include "Subobjects/O_Ammo.h"
-#include "Subobjects/O_Gun.h"
+#include "Subobjects/O_ClipAmmo.h"
+#include "Subobjects/O_BulletSpread.h"
 
 
 
@@ -21,25 +21,25 @@ bool UArcItemStack_Gun::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* B
 {
 	bool bWroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
 
-	// Give AmmoSubobject an opportunity to replicate
-	if (IsValid(AmmoSubobject))
+	// Give ClipAmmoSubobject an opportunity to replicate
+	if (IsValid(ClipAmmoSubobject))
 	{
-		bWroteSomething |= AmmoSubobject->ReplicateSubobjects(Channel, Bunch, RepFlags);
+		bWroteSomething |= ClipAmmoSubobject->ReplicateSubobjects(Channel, Bunch, RepFlags);
 
-		if (AmmoSubobject->IsSupportedForNetworking())
+		if (ClipAmmoSubobject->IsSupportedForNetworking())
 		{
-			bWroteSomething |= Channel->ReplicateSubobject(AmmoSubobject, *Bunch, *RepFlags);
+			bWroteSomething |= Channel->ReplicateSubobject(ClipAmmoSubobject, *Bunch, *RepFlags);
 		}
 	}
 
-	// Give GunSubobject an opportunity to replicate
-	if (IsValid(GunSubobject))
+	// Give BulletSpreadSubobject an opportunity to replicate
+	if (IsValid(BulletSpreadSubobject))
 	{
-		bWroteSomething |= GunSubobject->ReplicateSubobjects(Channel, Bunch, RepFlags);
+		bWroteSomething |= BulletSpreadSubobject->ReplicateSubobjects(Channel, Bunch, RepFlags);
 
-		if (GunSubobject->IsSupportedForNetworking())
+		if (BulletSpreadSubobject->IsSupportedForNetworking())
 		{
-			bWroteSomething |= Channel->ReplicateSubobject(GunSubobject, *Bunch, *RepFlags);
+			bWroteSomething |= Channel->ReplicateSubobject(BulletSpreadSubobject, *Bunch, *RepFlags);
 		}
 	}
 
@@ -49,7 +49,7 @@ bool UArcItemStack_Gun::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* B
 UArcItemStack_Gun::UArcItemStack_Gun(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	AmmoSubobject = CreateDefaultSubobject<UO_Ammo>(TEXT("AmmoSubobject"));
-	GunSubobject = CreateDefaultSubobject<UO_Gun>(TEXT("GunSubobject"));
+	ClipAmmoSubobject = CreateDefaultSubobject<UO_ClipAmmo>(TEXT("ClipAmmoSubobject"));
+	BulletSpreadSubobject = CreateDefaultSubobject<UO_BulletSpread>(TEXT("BulletSpreadSubobject"));
 
 }

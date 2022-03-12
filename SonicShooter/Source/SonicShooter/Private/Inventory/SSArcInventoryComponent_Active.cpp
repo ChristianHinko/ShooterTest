@@ -15,7 +15,7 @@
 #include "Utilities/LogCategories.h"
 #include "Inventory/Item/SSArcItemStack.h"
 #include "Inventory/Item/Gun/ArcItemStack_Gun.h"
-#include "Subobjects/O_Gun.h"
+#include "Subobjects/O_BulletSpread.h"
 
 
 
@@ -205,7 +205,7 @@ void USSArcInventoryComponent_Active::MakeItemActive(int32 NewActiveItemSlot)
 		UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ActiveItemStack);
 		if (IsValid(GunStack))
 		{
-			GunStack->GetGunSubobject()->ResetBulletSpread();
+			GunStack->GetBulletSpreadSubobject()->ResetBulletSpread();
 		}
 	}
 
@@ -363,7 +363,7 @@ void USSArcInventoryComponent_Active::OnItemInactiveEvent(UArcInventoryComponent
 		UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ItemStack);
 		if (IsValid(GunStack))
 		{
-			GunStack->GetGunSubobject()->ResetBulletSpread();
+			GunStack->GetBulletSpreadSubobject()->ResetBulletSpread();
 		}
 	}
 

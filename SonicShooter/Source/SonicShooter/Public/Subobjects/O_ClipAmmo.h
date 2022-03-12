@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Wrappers/PropertyWrappers.h"
 
-#include "O_Ammo.generated.h"
+#include "O_ClipAmmo.generated.h"
 
 
 
@@ -13,7 +13,7 @@
  * Has ammo float
  */
 UCLASS()
-class SONICSHOOTER_API UO_Ammo : public UObject
+class SONICSHOOTER_API UO_ClipAmmo : public UObject
 {
 	GENERATED_BODY()
 
@@ -22,7 +22,7 @@ public:
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags);
 	
 public:
-	UO_Ammo(const FObjectInitializer& ObjectInitializer);
+	UO_ClipAmmo(const FObjectInitializer& ObjectInitializer);
 
 
 	TSharedRef<FFloatValueChange> OnClipAmmoChange;

@@ -126,8 +126,8 @@ void AShooterCharacter::GiveStartingAbilities()
 #include "Kismet/KismetSystemLibrary.h"
 #include "AttributeSets/AS_Health.h"
 #include "Inventory/Item/AS_Ammo.h"
-#include "Subobjects/O_Ammo.h"
-#include "Subobjects/O_Gun.h"
+#include "Subobjects/O_ClipAmmo.h"
+#include "Subobjects/O_BulletSpread.h"
 #include "Subobjects/O_Stamina.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
 #include "ArcItemBPFunctionLibrary.h"
@@ -169,10 +169,10 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 			const UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ActiveItemStack);
 			if (IsValid(GunStack))
 			{
-				//const FFloatPropertyWrapper& ClipAmmo = GunStack->GetAmmoSubobject()->ClipAmmo;
+				//const FFloatPropertyWrapper& ClipAmmo = GunStack->GetClipAmmoSubobject()->ClipAmmo;
 				//UKismetSystemLibrary::PrintString(this, ClipAmmo.GetPropertyName().ToString() + TEXT(": ") + FString::SanitizeFloat(ClipAmmo), true, false);
 
-				//const FFloatPropertyWrapper& CurrentBulletSpread = GunStack->GetGunSubobject()->CurrentBulletSpread;
+				//const FFloatPropertyWrapper& CurrentBulletSpread = GunStack->GetBulletSpreadSubobject()->CurrentBulletSpread;
 				//UKismetSystemLibrary::PrintString(this, CurrentBulletSpread.GetPropertyName().ToString() + TEXT(": ") + FString::SanitizeFloat(CurrentBulletSpread), true, false);
 			}
 		}

@@ -8,7 +8,7 @@
 #include "GA_Reload.generated.h"
 
 
-class UO_Ammo;
+class UO_ClipAmmo;
 
 
 
@@ -44,5 +44,5 @@ protected:
 	//END UGameplayAbility Interface
 
 
-	UO_Ammo* AmmoSubobject;
+	UO_ClipAmmo* ClipAmmoSubobject;
 };

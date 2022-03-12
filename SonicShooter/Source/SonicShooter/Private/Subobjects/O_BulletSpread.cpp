@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Subobjects/O_Gun.h"
+#include "Subobjects/O_BulletSpread.h"
 
 #include "Net/UnrealNetwork.h"
 #include "BlueprintFunctionLibraries/BFL_InterfaceHelpers.h"
@@ -14,7 +14,7 @@
 
 
 
-void UO_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void UO_BulletSpread::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
@@ -24,21 +24,21 @@ void UO_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimePr
 	Params.RepNotifyCondition = REPNOTIFY_OnChanged;
 	Params.bIsPushBased = true;
 
-	DOREPLIFETIME_WITH_PARAMS_FAST(UO_Gun, CurrentBulletSpread, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(UO_BulletSpread, CurrentBulletSpread, Params);
 
 }
-bool UO_Gun::IsSupportedForNetworking() const
+bool UO_BulletSpread::IsSupportedForNetworking() const
 {
 	return true;
 }
-bool UO_Gun::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
+bool UO_BulletSpread::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
 {
 	bool bWroteSomething = false;
 
 	return bWroteSomething;
 }
 
-UO_Gun::UO_Gun(const FObjectInitializer& ObjectInitializer)
+UO_BulletSpread::UO_BulletSpread(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 
 	, OnCurrentBulletSpreadChange(MakeShared<FFloatValueChange>())
@@ -56,7 +56,7 @@ UO_Gun::UO_Gun(const FObjectInitializer& ObjectInitializer)
 
 }
 
-void UO_Gun::PostInitProperties()
+void UO_BulletSpread::PostInitProperties()
 {
 	Super::PostInitProperties();
 
@@ -80,11 +80,11 @@ void UO_Gun::PostInitProperties()
 
 	if (IsValid(OwnerASC))
 	{
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetMinBulletSpreadAttribute()).AddUObject(this, &UO_Gun::OnMinBulletSpreadChange);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetMovingBulletSpreadAttribute()).AddUObject(this, &UO_Gun::OnMovingBulletSpreadChange);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetBulletSpreadIncRateAttribute()).AddUObject(this, &UO_Gun::OnBulletSpreadIncRateChange);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetFireBulletSpreadAttribute()).AddUObject(this, &UO_Gun::OnFireBulletSpreadChange);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetBulletSpreadDecSpeedAttribute()).AddUObject(this, &UO_Gun::OnBulletSpreadDecSpeedChange);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetMinBulletSpreadAttribute()).AddUObject(this, &UO_BulletSpread::OnMinBulletSpreadChange);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetMovingBulletSpreadAttribute()).AddUObject(this, &UO_BulletSpread::OnMovingBulletSpreadChange);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetBulletSpreadIncRateAttribute()).AddUObject(this, &UO_BulletSpread::OnBulletSpreadIncRateChange);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetFireBulletSpreadAttribute()).AddUObject(this, &UO_BulletSpread::OnFireBulletSpreadChange);
+		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetBulletSpreadDecSpeedAttribute()).AddUObject(this, &UO_BulletSpread::OnBulletSpreadDecSpeedChange);
 
 		if (const FGameplayAbilityActorInfo* ActorInfo = OwnerASC->AbilityActorInfo.Get())
 		{
@@ -95,15 +95,15 @@ void UO_Gun::PostInitProperties()
 				USSArcInventoryComponent_Active* InventoryComponent = ShooterActorInfo->GetInventoryComponent();
 				if (IsValid(InventoryComponent))
 				{
-					InventoryComponent->OnItemActive.AddDynamic(this, &UO_Gun::OnItemActive);
-					InventoryComponent->OnItemActive.AddDynamic(this, &UO_Gun::OnItemInactive);
+					InventoryComponent->OnItemActive.AddDynamic(this, &UO_BulletSpread::OnItemActive);
+					InventoryComponent->OnItemActive.AddDynamic(this, &UO_BulletSpread::OnItemInactive);
 				}
 			}
 		}
 	}
 }
 
-void UO_Gun::OnItemActive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
+void UO_BulletSpread::OnItemActive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
 {
 	if (IsValid(OwnerASC))
 	{
@@ -117,7 +117,7 @@ void UO_Gun::OnItemActive(UArcInventoryComponent_Active* InventoryComponent, UAr
 
 	ResetBulletSpread();
 }
-void UO_Gun::OnItemInactive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
+void UO_BulletSpread::OnItemInactive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
 {
 	if (IsValid(OwnerASC))
 	{
@@ -133,7 +133,7 @@ void UO_Gun::OnItemInactive(UArcInventoryComponent_Active* InventoryComponent, U
 }
 
 
-float UO_Gun::GetRestBulletSpread() const
+float UO_BulletSpread::GetRestBulletSpread() const
 {
 	float RetVal = MinBulletSpread;
 	if (IsMovingToIncBulletSpread())
@@ -144,17 +144,17 @@ float UO_Gun::GetRestBulletSpread() const
 	return RetVal;
 }
 
-void UO_Gun::ApplyFireBulletSpread()
+void UO_BulletSpread::ApplyFireBulletSpread()
 {
 	CurrentBulletSpread = CurrentBulletSpread + FireBulletSpread;
 }
 
-void UO_Gun::ResetBulletSpread()
+void UO_BulletSpread::ResetBulletSpread()
 {
 	CurrentBulletSpread = MinBulletSpread;
 }
 
-bool UO_Gun::IsMovingToIncBulletSpread() const
+bool UO_BulletSpread::IsMovingToIncBulletSpread() const
 {
 	if (BulletSpreadIncRate <= 0)
 	{
@@ -176,7 +176,7 @@ bool UO_Gun::IsMovingToIncBulletSpread() const
 	return false;
 }
 
-void UO_Gun::Tick(float DeltaTime)
+void UO_BulletSpread::Tick(float DeltaTime)
 {
 	//UKismetSystemLibrary::PrintString(this, "UAS_Gun::Tick()", true, false);
 	if (IsMovingToIncBulletSpread())
@@ -199,7 +199,7 @@ void UO_Gun::Tick(float DeltaTime)
 		CurrentBulletSpread = GetRestBulletSpread();
 	}
 }
-bool UO_Gun::IsTickable() const
+bool UO_BulletSpread::IsTickable() const
 {
 	if (IsMovingToIncBulletSpread()/* && CurrentBulletSpread < GetMovingBulletSpread()*/)
 	{
@@ -221,7 +221,7 @@ bool UO_Gun::IsTickable() const
 
 
 
-void UO_Gun::BeginDestroy()
+void UO_BulletSpread::BeginDestroy()
 {
 	// BEGIN Unbind from attribute value change delegates
 	if (IsValid(OwnerASC))

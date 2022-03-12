@@ -4,7 +4,7 @@
 #include "Inventory/Item/Gun/GEEC_InitGun.h"
 
 #include "Inventory/Item/Gun/AS_Gun.h"
-#include "Subobjects/O_Gun.h"
+#include "Subobjects/O_BulletSpread.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
 #include "Inventory/Item/Gun/ArcItemStack_Gun.h"
@@ -134,7 +134,7 @@ void UGEEC_InitGun::Execute_Implementation(const FGameplayEffectCustomExecutionP
 	// Calculate defaults
 	float CurrentBulletSpread = MinBulletSpread;
 
-	// Get ammo subobject and initialize ClipAmmo
+	// Get BulletSpread subobject and initialize CurrentBulletSpread
 	if (const FGAAI_Shooter* ShooterActorInfo = static_cast<const FGAAI_Shooter*>(TargetAbilitySystemComponent->AbilityActorInfo.Get()))
 	{
 		USSArcInventoryComponent_Active* InventoryComponent = ShooterActorInfo->GetInventoryComponent();
@@ -146,8 +146,8 @@ void UGEEC_InitGun::Execute_Implementation(const FGameplayEffectCustomExecutionP
 				const UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ActiveItemStack);
 				if (IsValid(GunStack))
 				{
-					GunStack->GetGunSubobject()->CurrentBulletSpread = CurrentBulletSpread;
-					GunStack->GetGunSubobject()->CurrentBulletSpread.MarkNetDirty(); // we are server-only right now so replicate it
+					GunStack->GetBulletSpreadSubobject()->CurrentBulletSpread = CurrentBulletSpread;
+					GunStack->GetBulletSpreadSubobject()->CurrentBulletSpread.MarkNetDirty(); // we are server-only right now so replicate it
 				}
 			}
 		}

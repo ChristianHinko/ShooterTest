@@ -9,8 +9,8 @@
 #include "Utilities/SSNativeGameplayTags.h"
 #include "Utilities/CollisionChannels.h"
 #include "Inventory/Item/Gun/AS_Gun.h"
-#include "Subobjects/O_Ammo.h"
-#include "Subobjects/O_Gun.h"
+#include "Subobjects/O_ClipAmmo.h"
+#include "Subobjects/O_BulletSpread.h"
 #include "Inventory/Item\Gun\ArcItemStack_Gun.h"
 #include "ArcInventoryItemTypes.h"
 #include "Item\Definitions\ArcItemDefinition_Active.h"
@@ -101,8 +101,8 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 		return;
 	}
 
-	AmmoSubobject = GunToFire->GetAmmoSubobject();
-	GunSubobject = GunToFire->GetGunSubobject();
+	ClipAmmoSubobject = GunToFire->GetClipAmmoSubobject();
+	BulletSpreadSubobject = GunToFire->GetBulletSpreadSubobject();
 
 
 
@@ -160,8 +160,8 @@ void UGA_FireGun::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, co
 		BulletTraceTargetActor = nullptr;
 	}
 
-	AmmoSubobject = nullptr;
-	GunSubobject = nullptr;
+	ClipAmmoSubobject = nullptr;
+	BulletSpreadSubobject = nullptr;
 }
 
 bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
@@ -184,14 +184,14 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 		return false;
 	}
 
-	if (!AmmoSubobject)
+	if (!ClipAmmoSubobject)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() AmmoSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ClipAmmoSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
-	if (!GunSubobject)
+	if (!BulletSpreadSubobject)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GunSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() BulletSpreadSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
@@ -225,7 +225,7 @@ bool UGA_FireGun::CheckCost(const FGameplayAbilitySpecHandle Handle, const FGame
 	}
 
 	// If we don't have enough ammo
-	const float ClipAmmoAfterNextShot = AmmoSubobject->ClipAmmo - AmmoCost;
+	const float ClipAmmoAfterNextShot = ClipAmmoSubobject->ClipAmmo - AmmoCost;
 	if (ClipAmmoAfterNextShot < 0)
 	{
 		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Not enough ammo to perform a fire. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
@@ -418,7 +418,7 @@ void UGA_FireGun::Shoot()
 	BulletTraceTargetActor->FireSpecificNetSafeRandomSeed = FireRandomSeed;					// Inject this random seed into our target actor (target actor will make random seed unique to each bullet in the fire if there are multible bullets in the fire)
 
 	// Inject our CurrentBulletSpread
-	BulletTraceTargetActor->CurrentBulletSpread = GunSubobject->CurrentBulletSpread;
+	BulletTraceTargetActor->CurrentBulletSpread = BulletSpreadSubobject->CurrentBulletSpread;
 
 	// Inject our current Attribute values
 	BulletTraceTargetActor->MaxRange = MaxRange;
@@ -431,9 +431,9 @@ void UGA_FireGun::Shoot()
 
 
 	// Lets finally fire
-	AmmoSubobject->ClipAmmo = AmmoSubobject->ClipAmmo - AmmoCost;
+	ClipAmmoSubobject->ClipAmmo = ClipAmmoSubobject->ClipAmmo - AmmoCost;
 	WaitTargetDataActorTask->ReadyForActivation();
-	GunSubobject->ApplyFireBulletSpread();
+	BulletSpreadSubobject->ApplyFireBulletSpread();
 }
 
 
@@ -462,7 +462,7 @@ void UGA_FireGun::OnRelease(float TimeHeld)
 void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 {
 	// Apply effects
-	if (TSubclassOf<UGameplayEffect> BulletHitEffectTSub = GunToFire->BulletInflictEffectTSub)
+	if (GunToFire->BulletInflictEffectTSub)
 	{
 		if (Data.Num() > 0)	// No need to call if we have no targets
 		{
@@ -471,7 +471,7 @@ void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s(): GunToFire gave us an empty BulletHitEffectTSub. Make sure to fill out DefaultBulletHitEffectTSub in the Gun generator"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s(): GunToFire gave us an empty BulletInflictEffectTSub. Make sure to fill out DefaultBulletInflictEffectTSub in the Item Generator"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 	// Execute cues

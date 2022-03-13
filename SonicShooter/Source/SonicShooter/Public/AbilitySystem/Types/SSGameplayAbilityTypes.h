@@ -93,15 +93,15 @@ struct SONICSHOOTER_API FGAAI_Shooter : public FSSGameplayAbilityActorInfo
     }
 
     // Our Shooter specific ASC.
-    UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")
+    UPROPERTY(BlueprintReadOnly, Category = "Shooter")
         TWeakObjectPtr<UASC_Shooter> ShooterAbilitySystemComponent;
 
     // Our ShooterCharacter. Often nullptr.
-    UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")
+    UPROPERTY(BlueprintReadOnly, Category = "Shooter")
         TWeakObjectPtr<AShooterCharacter> ShooterCharacter;
 
     // Our Inventory Component. Often nullptr.
-    UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")
+    UPROPERTY(BlueprintReadOnly, Category = "Shooter")
         TWeakObjectPtr<USSArcInventoryComponent_Active> InventoryComponent;
 
 

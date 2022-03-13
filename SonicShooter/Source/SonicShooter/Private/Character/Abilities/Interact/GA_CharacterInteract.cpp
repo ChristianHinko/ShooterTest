@@ -49,17 +49,17 @@ bool UGA_CharacterInteract::CanActivateAbility(const FGameplayAbilitySpecHandle 
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate interact ability"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
-	if (!ShooterCharacter->Interactor)
+	if (!ShooterCharacter->GetInteractorComponent())
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character's InteractorComponent was NULL when trying to activate interact ability"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
-	if (!ShooterCharacter->Interactor->CurrentPrioritizedInteractable)
+	if (!ShooterCharacter->GetInteractorComponent()->CurrentPrioritizedInteractable)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Detected nothing to interact with when activating interact ability. Not activating"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
-	if (!ShooterCharacter->Interactor->CurrentPrioritizedInteractable->GetCanCurrentlyBeInteractedWith())
+	if (!ShooterCharacter->GetInteractorComponent()->CurrentPrioritizedInteractable->GetCanCurrentlyBeInteractedWith())
 	{
 		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Couldn't interact because bCanCurrentlyBeInteractedWith was false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
@@ -81,7 +81,7 @@ void UGA_CharacterInteract::ActivateAbility(const FGameplayAbilitySpecHandle Han
 		return;
 	}
 
-	Interactable = ShooterCharacter->Interactor->CurrentPrioritizedInteractable;
+	Interactable = ShooterCharacter->GetInteractorComponent()->CurrentPrioritizedInteractable;
 	if (!Interactable)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Server detected nothing to interact with when activating interact duration ability. This should be an invalid state. Ending"), ANSI_TO_TCHAR(__FUNCTION__));

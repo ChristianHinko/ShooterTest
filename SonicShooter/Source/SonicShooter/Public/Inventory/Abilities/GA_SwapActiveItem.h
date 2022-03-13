@@ -4,12 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/ASSGameplayAbility.h"
+
 #include "GA_SwapActiveItem.generated.h"
+
 
 class AShooterCharacter;
 class USSArcInventoryComponent_Active;
 
-/** How we want to be able to swap item */
+
+
+/**
+ * How we want to be able to swap item
+ */
 UENUM()
 enum class ESwapMethod : uint8
 {
@@ -42,7 +48,7 @@ protected:
 	UPROPERTY()
 		AShooterCharacter* ShooterCharacter;
 	UPROPERTY()
-		USSArcInventoryComponent_Active* SSInventoryComponentActive;
+		USSArcInventoryComponent_Active* InventoryComponent;
 
 
 

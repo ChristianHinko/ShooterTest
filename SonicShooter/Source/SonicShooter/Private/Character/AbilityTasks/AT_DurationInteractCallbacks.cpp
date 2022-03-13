@@ -42,7 +42,7 @@ void UAT_DurationInteractCallbacks::Activate()
 	ENetRole role = ShooterCharacter->GetLocalRole();
 	if (Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 	{
-		OnPawnLeftOverlapInteractableDelegateHandle = ShooterCharacter->Interactor->OnElementRemovedFromFrameOverlapInteractablesStack.AddUObject(this, &UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable);
+		OnPawnLeftOverlapInteractableDelegateHandle = ShooterCharacter->GetInteractorComponent()->OnElementRemovedFromFrameOverlapInteractablesStack.AddUObject(this, &UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable);
 	}
 	
 }
@@ -51,17 +51,17 @@ void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 {
 	if (currentTime >= duration)
 	{
-		ShooterCharacter->Interactor->OnElementRemovedFromFrameOverlapInteractablesStack.Clear();	// Only want 1 end ability callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
+		ShooterCharacter->GetInteractorComponent()->OnElementRemovedFromFrameOverlapInteractablesStack.Clear();	// Only want 1 end ability callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
 		OnSuccessfulInteractDelegate.Broadcast(currentTime);
 		RemoveAllDelegates();
 		return;
 	}
 
-	if (Interactable != ShooterCharacter->Interactor->CurrentPrioritizedInteractable)
+	if (Interactable != ShooterCharacter->GetInteractorComponent()->CurrentPrioritizedInteractable)
 	{
 		if (Interactable->GetDetectType() == EDetectType::DETECTTYPE_Sweeped)		// If the character's Interaction sweep doesn't detect the same Interactable we started interacting with
 		{
-			ShooterCharacter->Interactor->OnElementRemovedFromFrameOverlapInteractablesStack.Remove(OnPawnLeftOverlapInteractableDelegateHandle);	// Only want 1 end ability callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
+			ShooterCharacter->GetInteractorComponent()->OnElementRemovedFromFrameOverlapInteractablesStack.Remove(OnPawnLeftOverlapInteractableDelegateHandle);	// Only want 1 end ability callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
 			OnInteractionSweepMissDelegate.Broadcast(currentTime);
 			RemoveAllDelegates();
 			return;

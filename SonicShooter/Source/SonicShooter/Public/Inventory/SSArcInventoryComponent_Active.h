@@ -9,7 +9,6 @@
 
 
 class UArkItemStack;
-class UArcInventoryComponent;
 
 
 
@@ -52,10 +51,6 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void InitializeComponent() override;
 
-	UFUNCTION()
-		void OnItemSlotChangeEvent(UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack);
-	UFUNCTION()
-		void OnItemInactiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
 
 	UFUNCTION()
 		void OnAttributeSetCreatedEvent(UArcInventoryComponent_Equippable* Inventory, UAttributeSet* AttributeSet, UArcItemStack* AttributeSource);

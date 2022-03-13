@@ -10,7 +10,7 @@
 #include "AbilitySystemComponent.h"
 #include "Subobjects/ActorComponents/InteractorComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Inventory/SSArcInventoryComponent_Active.h"
+#include "Inventory/ArcInventoryComponent_Shooter.h"
 #include "ArcItemStack.h"
 #include "AbilitySystem/ASSGameplayAbility.h"
 #include "AttributeSets/AS_Health.h"
@@ -43,22 +43,22 @@ void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 const FName AShooterCharacter::InventoryComponentName = TEXT("InventoryComponent");
 
 AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer.SetDefaultSubobjectClass<USSArcInventoryComponent_Active>(InventoryComponentName))
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UArcInventoryComponent_Shooter>(InventoryComponentName))
 {
 	// Default to first person
 	bFirstPerson = true;
 	bUseControllerRotationYaw = true; // let the camera rotation determine our yaw
-	GetCharacterMovement()->bOrientRotationToMovement = false; // don't rotate theCharacter in the movement direction
+	GetCharacterMovement()->bOrientRotationToMovement = false; // don't rotate the Character in the movement direction
 
 
 
 	InventoryComponent = CreateDefaultSubobject<UArcInventoryComponent>(InventoryComponentName);
-	SSInventoryComponentActive = Cast<USSArcInventoryComponent_Active>(InventoryComponent);
+	ShooterInventoryComponent = Cast<UArcInventoryComponent_Shooter>(InventoryComponent);
 
 
 	Interactor = CreateDefaultSubobject<UInteractorComponent>(TEXT("Interactor"));
 
-	CameraSwayAmount = FVector(0, 1.3f, .4f);
+	CameraSwayAmount = FVector(0, 1.3f, 0.4f);
 	AddedCameraSwayDuringADS = FVector(0, -1.1f, -.1f);
 }
 
@@ -148,22 +148,22 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 		//UKismetSystemLibrary::PrintString(this, FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
 	}
 
-	//for (int32 i = 0; i < SSInventoryComponentActive->ActiveItemHistory.Num(); ++i)
+	//for (int32 i = 0; i < ShooterInventoryComponent->ActiveItemHistory.Num(); ++i)
 	//{
-	//	FArcInventoryItemSlotReference current = SSInventoryComponentActive->ActiveItemHistory[i];
+	//	FArcInventoryItemSlotReference current = ShooterInventoryComponent->ActiveItemHistory[i];
 
 	//	UKismetSystemLibrary::PrintString(this, "["+FString::FromInt(current.SlotId)+"] " + current.SlotTags.GetByIndex(1).ToString(), true, false, FLinearColor::Green);
 	//}
 
-	if (SSInventoryComponentActive)
+	if (ShooterInventoryComponent)
 	{
-		//UKismetSystemLibrary::PrintString(this, "Current Item Slot: " + FString::FromInt(SSInventoryComponentActive->GetActiveItemSlot().SlotId), true, false);
-		//UKismetSystemLibrary::PrintString(this, "Pending Item Slot: " + FString::FromInt(SSInventoryComponentActive->PendingItemSlot), true, false);
+		//UKismetSystemLibrary::PrintString(this, "Current Item Slot: " + FString::FromInt(ShooterInventoryComponent->GetActiveItemSlot().SlotId), true, false);
+		//UKismetSystemLibrary::PrintString(this, "Pending Item Slot: " + FString::FromInt(ShooterInventoryComponent->PendingItemSlot), true, false);
 	}
 
-	if (IsValid(SSInventoryComponentActive))
+	if (IsValid(ShooterInventoryComponent))
 	{
-		const UArcItemStack* ActiveItemStack = SSInventoryComponentActive->GetActiveItemStack();
+		const UArcItemStack* ActiveItemStack = ShooterInventoryComponent->GetActiveItemStack();
 		if (IsValid(ActiveItemStack))
 		{
 			const UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ActiveItemStack);
@@ -218,9 +218,9 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 
 	//	Item history debug
 	//UKismetSystemLibrary::PrintString(this, "------------", true, false);
-	//if (SSInventoryComponentActive)
+	//if (ShooterInventoryComponent)
 	//{
-	//	for (FArcInventoryItemSlotReference slotRef : SSInventoryComponentActive->ActiveItemHistory)
+	//	for (FArcInventoryItemSlotReference slotRef : ShooterInventoryComponent->ActiveItemHistory)
 	//	{
 	//		UKismetSystemLibrary::PrintString(this, UArcItemBPFunctionLibrary::GetItemFromSlot(slotRef)->GetItemDefinition().GetDefaultObject()->GetFName().ToString(), true, false);
 
@@ -355,12 +355,10 @@ void AShooterCharacter::OnScoreSheetPressed()
 
 void AShooterCharacter::OnDropItemPressed()
 {
-	FArcInventoryItemSlotReference ActiveItem = SSInventoryComponentActive->GetActiveItemSlot();
-	if (SSInventoryComponentActive->IsValidActiveItemSlot(ActiveItem.SlotId))
+	FArcInventoryItemSlotReference ActiveItem = ShooterInventoryComponent->GetActiveItemSlot();
+	if (ShooterInventoryComponent->IsValidActiveItemSlot(ActiveItem.SlotId))
 	{
-		SSInventoryComponentActive->PendingItemDrop = SSInventoryComponentActive->GetActiveItemSlot();
+		ShooterInventoryComponent->PendingItemDrop = ShooterInventoryComponent->GetActiveItemSlot();
 		GetAbilitySystemComponent()->TryActivateAbility(DropItemAbilitySpecHandle, true);
 	}
 }
-
-

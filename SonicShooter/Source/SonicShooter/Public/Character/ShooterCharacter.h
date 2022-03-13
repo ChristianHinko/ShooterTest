@@ -12,7 +12,7 @@
 class IInteractable;
 class UInteractorComponent;
 class UArcInventoryComponent;
-class USSArcInventoryComponent_Active;
+class UArcInventoryComponent_Shooter;
 class UArcItemGenerator_Unique;
 class UAS_Health;
 
@@ -29,34 +29,18 @@ class SONICSHOOTER_API AShooterCharacter : public ASSCharacter, public IArcInven
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
 		UArcInventoryComponent* InventoryComponent;
-
-
-	
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Interactor")
+		UInteractorComponent* Interactor;
 
 public:
 	AShooterCharacter(const FObjectInitializer& ObjectInitializer);
-	virtual void BeginPlay() override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
-		USSArcInventoryComponent_Active* SSInventoryComponentActive;
 
-	/**
-	 * This setup, with the static FName InventoryComponentName and SetDefaultSubobjectClass in the constructor allows you to
-	 * have a bit of a heirarchy for your character classes. For example, you can have a base class that uses a basic
-	 * inventory component and a 'PlayerCharacter' subclass that has an Active inventory component.
-	 * It is up to you if you want to go this route.
-	 */
 	static const FName InventoryComponentName;
-
 	UArcInventoryComponent* GetInventoryComponent() const override { return InventoryComponent; }
 
-	UPROPERTY(VisibleAnywhere)
-		UInteractorComponent* Interactor;
+	UInteractorComponent* GetInteractorComponent() const { return Interactor; }
 
-#pragma region Tags
-	//FGameplayTag 
-#pragma endregion
 
 	UAS_Health* GetHealthAttributeSet() const { return HealthAttributeSet; }
 
@@ -118,6 +102,8 @@ public:
 #pragma endregion
 
 protected:
+	virtual void BeginPlay() override;
+
 
 	UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
 		FVector CameraSwayAmount;
@@ -162,5 +148,9 @@ protected:
 private:
 	UPROPERTY(Replicated)
 		UAS_Health* HealthAttributeSet;
+
+
+	// Cached Inventory
+	UArcInventoryComponent_Shooter* ShooterInventoryComponent;
 
 };

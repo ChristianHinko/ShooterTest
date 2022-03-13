@@ -28,7 +28,7 @@ public:
 	int32 StartingActiveItemSlot;
 	uint8 bUseOnEquipItemSwappingThingRoyMade : 1;
 
-	// The GM should populate the Inventory with these items
+	// The Game Mode should populate the Inventory with these Items
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
 		TArray<FArcStartingItemEntry> StartingItems;
 

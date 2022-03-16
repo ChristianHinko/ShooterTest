@@ -32,8 +32,19 @@ void UArcInventoryComponent_Shooter::InitializeComponent()
 
 void UArcInventoryComponent_Shooter::OnItemSlotChangeEvent(UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
 {
-	if (IsValid(ItemStack)) // if we are Equiping
+	if (IsValid(ItemStack) && ItemStack != PreviousItemStack) // if we are Equiping
 	{
+		// Inject our gun's Ability System Component
+		{
+			UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ItemStack);
+			if (IsValid(GunStack))
+			{
+				// Problem. TODO: For startup items on the Client, the Player's ASC is not valid here
+				GunStack->GetBulletSpreadSubobject()->SetAbilitySystemComponent(GetOwnerAbilitySystem());
+			}
+		}
+
+		// Create UI Data
 		const APawn* OwningPawn = GetTypedOuter<APawn>();
 		if (IsValid(OwningPawn))
 		{
@@ -66,8 +77,18 @@ void UArcInventoryComponent_Shooter::OnItemSlotChangeEvent(UArcInventoryComponen
 			}
 		}
 	}
-	else // if we are UnEquiping
+	else if (IsValid(PreviousItemStack) && PreviousItemStack != ItemStack) // if we are UnEquiping
 	{
+		// Clear the gun's Ability System Component
+		{
+			UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(PreviousItemStack);
+			if (IsValid(GunStack))
+			{
+				GunStack->GetBulletSpreadSubobject()->SetAbilitySystemComponent(nullptr);
+			}
+		}
+
+		// Remove UI Data
 		USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(PreviousItemStack);
 		if (IsValid(SSArcItemStack))
 		{
@@ -96,11 +117,12 @@ void UArcInventoryComponent_Shooter::MakeItemActive(int32 NewActiveItemSlot)
 
 
 
-	// Reset our Gun's CurrentBulletSpread
+	// Reset our gun's CurrentBulletSpread
 	{
 		UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ActiveItemStack);
 		if (IsValid(GunStack))
 		{
+			// Problem. TODO: For the Client, the new Attribute Sets are not added yet here (instead it uses the previous Item's ASs which is bad)
 			GunStack->GetBulletSpreadSubobject()->ResetBulletSpread();
 		}
 	}
@@ -167,7 +189,7 @@ void UArcInventoryComponent_Shooter::MakeItemActive(int32 NewActiveItemSlot)
 
 void UArcInventoryComponent_Shooter::OnItemInactiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
 {
-	// Reset our Gun's CurrentBulletSpread
+	// Reset our gun's CurrentBulletSpread
 	{
 		UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ItemStack);
 		if (IsValid(GunStack))

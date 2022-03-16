@@ -51,10 +51,10 @@ public:
 
 	bool IsMovingToIncBulletSpread() const;
 
+
+	void SetAbilitySystemComponent(UAbilitySystemComponent* NewASC);
+
 protected:
-	virtual void PostInitProperties() override;
-
-
 	//BEGIN FTickableObjectBase interface
 	virtual bool IsTickable() const override;
 	virtual void Tick(float DeltaTime) override;
@@ -68,11 +68,6 @@ protected:
 private:
 	UAbilitySystemComponent* OwnerASC;
 	const UCharacterMovementComponent* CMC;
-
-	UFUNCTION()
-		void OnItemActive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
-	UFUNCTION()
-		void OnItemInactive(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
 
 
 	// BEGIN Attribute value change

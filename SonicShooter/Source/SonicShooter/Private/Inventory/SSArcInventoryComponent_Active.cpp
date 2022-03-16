@@ -6,7 +6,7 @@
 #include "Net/UnrealNetwork.h"
 #include "ArcItemStack.h"
 #include "ArcInventory.h" // for Roy's Native Gameplay Tags
-#include "AbilitySystem/ASSAbilitySystemComponent.h"
+#include "AbilitySystemComponent.h"
 #include "Inventory/Item/SSArcItemDefinition_Active.h"
 #include "Utilities/LogCategories.h"
 #include "Inventory/Item/SSArcItemStack.h"
@@ -100,7 +100,7 @@ bool USSArcInventoryComponent_Active::IsActiveItemSlotIndexValid(int32 InActiveI
 	return true;
 }
 
-void USSArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
+void USSArcInventoryComponent_Active::OnItemEquipped(UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
 {
 	if (!bUseOnEquipItemSwappingThingRoyMade)
 	{

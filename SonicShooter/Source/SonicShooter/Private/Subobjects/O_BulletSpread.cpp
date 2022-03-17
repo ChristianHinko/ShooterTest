@@ -4,11 +4,7 @@
 #include "Subobjects/O_BulletSpread.h"
 
 #include "Net/UnrealNetwork.h"
-#include "BlueprintFunctionLibraries/BFL_InterfaceHelpers.h"
-#include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
-#include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
-#include "Inventory/SSArcInventoryComponent_Active.h"
 #include "Inventory/Item/Gun/AS_Gun.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -42,7 +38,7 @@ UO_BulletSpread::UO_BulletSpread(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 
 	, OnCurrentBulletSpreadChange(MakeShared<FFloatValueChange>())
-	, CurrentBulletSpread(0.f, this, FName("CurrentBulletSpread"), OnCurrentBulletSpreadChange)
+	, CurrentBulletSpread(0.f, this, FName(TEXT("CurrentBulletSpread")), OnCurrentBulletSpreadChange)
 
 	, OwnerASC(nullptr)
 	, CMC(nullptr)
@@ -57,56 +53,41 @@ UO_BulletSpread::UO_BulletSpread(const FObjectInitializer& ObjectInitializer)
 }
 
 
-void UO_BulletSpread::SetAbilitySystemComponent(UAbilitySystemComponent* NewASC)
+void UO_BulletSpread::SetAbilitySystemComponent(const UAbilitySystemComponent* NewASC)
 {
-	// Keep track of the old ASC
-	UAbilitySystemComponent* const OldASC = OwnerASC;
-
 	// Set the ASC
 	OwnerASC = NewASC;
 
-	// Handle changed
-	if (OldASC != OwnerASC)
+	if (IsValid(OwnerASC))
 	{
-		if (IsValid(OldASC))
-		{
-			// Unbind from change delegates
-			OldASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetMinBulletSpreadAttribute()).RemoveAll(this);
-			OldASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetMovingBulletSpreadAttribute()).RemoveAll(this);
-			OldASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetBulletSpreadIncRateAttribute()).RemoveAll(this);
-			OldASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetFireBulletSpreadAttribute()).RemoveAll(this);
-			OldASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetBulletSpreadDecSpeedAttribute()).RemoveAll(this);
-		}
-		
+		// Refresh attribute values
 		if (IsValid(OwnerASC))
 		{
-			// Bind to change delegates
-			OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetMinBulletSpreadAttribute()).AddUObject(this, &UO_BulletSpread::OnMinBulletSpreadChange);
-			OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetMovingBulletSpreadAttribute()).AddUObject(this, &UO_BulletSpread::OnMovingBulletSpreadChange);
-			OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetBulletSpreadIncRateAttribute()).AddUObject(this, &UO_BulletSpread::OnBulletSpreadIncRateChange);
-			OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetFireBulletSpreadAttribute()).AddUObject(this, &UO_BulletSpread::OnFireBulletSpreadChange);
-			OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetBulletSpreadDecSpeedAttribute()).AddUObject(this, &UO_BulletSpread::OnBulletSpreadDecSpeedChange);
-
-			// Get initial values
 			MinBulletSpread = OwnerASC->GetNumericAttribute(UAS_Gun::GetMinBulletSpreadAttribute());
 			MovingBulletSpread = OwnerASC->GetNumericAttribute(UAS_Gun::GetMovingBulletSpreadAttribute());
 			BulletSpreadIncRate = OwnerASC->GetNumericAttribute(UAS_Gun::GetBulletSpreadIncRateAttribute());
 			FireBulletSpread = OwnerASC->GetNumericAttribute(UAS_Gun::GetFireBulletSpreadAttribute());
 			BulletSpreadDecSpeed = OwnerASC->GetNumericAttribute(UAS_Gun::GetBulletSpreadDecSpeedAttribute());
-
-
-			// Set our CMC
-			if (const FGameplayAbilityActorInfo* ActorInfo = OwnerASC->AbilityActorInfo.Get())
-			{
-				CMC = Cast<UCharacterMovementComponent>(ActorInfo->MovementComponent.Get());
-			}
 		}
-		else
+
+		// Set our CMC
+		if (const FGameplayAbilityActorInfo* ActorInfo = OwnerASC->AbilityActorInfo.Get())
 		{
-			CMC = nullptr;
+			CMC = Cast<UCharacterMovementComponent>(ActorInfo->MovementComponent.Get());
 		}
 	}
+	else
+	{
+		MinBulletSpread = 0.f;
+		MovingBulletSpread = 0.f;
+		BulletSpreadIncRate = 0.f;
+		FireBulletSpread = 0.f;
+		BulletSpreadDecSpeed = 0.f;
 
+		CMC = nullptr;
+	}
+
+	CurrentBulletSpread = FMath::Clamp<float>(CurrentBulletSpread, MinBulletSpread, MovingBulletSpread);
 }
 
 
@@ -128,16 +109,6 @@ void UO_BulletSpread::ApplyFireBulletSpread()
 
 void UO_BulletSpread::ResetBulletSpread()
 {
-	// Refresh attribute values
-	if (IsValid(OwnerASC))
-	{
-		MinBulletSpread = OwnerASC->GetNumericAttribute(UAS_Gun::GetMinBulletSpreadAttribute());
-		MovingBulletSpread = OwnerASC->GetNumericAttribute(UAS_Gun::GetMovingBulletSpreadAttribute());
-		BulletSpreadIncRate = OwnerASC->GetNumericAttribute(UAS_Gun::GetBulletSpreadIncRateAttribute());
-		FireBulletSpread = OwnerASC->GetNumericAttribute(UAS_Gun::GetFireBulletSpreadAttribute());
-		BulletSpreadDecSpeed = OwnerASC->GetNumericAttribute(UAS_Gun::GetBulletSpreadDecSpeedAttribute());
-	}
-
 	CurrentBulletSpread = MinBulletSpread;
 }
 
@@ -179,8 +150,8 @@ void UO_BulletSpread::Tick(float DeltaTime)
 		}
 	}
 
-	float interptedBulletSpread = FMath::FInterpTo(CurrentBulletSpread, GetRestBulletSpread(), DeltaTime, BulletSpreadDecSpeed);
-	CurrentBulletSpread = interptedBulletSpread;
+	float InterptedBulletSpread = FMath::FInterpTo(CurrentBulletSpread, GetRestBulletSpread(), DeltaTime, BulletSpreadDecSpeed);
+	CurrentBulletSpread = InterptedBulletSpread;
 	if (CurrentBulletSpread < GetRestBulletSpread())
 	{
 		CurrentBulletSpread = GetRestBulletSpread();
@@ -188,6 +159,21 @@ void UO_BulletSpread::Tick(float DeltaTime)
 }
 bool UO_BulletSpread::IsTickable() const
 {
+	// Refresh attribute values
+	if (IsValid(OwnerASC))
+	{
+		// NOTE: this sets up the members for Tick() as well
+		MinBulletSpread = OwnerASC->GetNumericAttribute(UAS_Gun::GetMinBulletSpreadAttribute());
+		MovingBulletSpread = OwnerASC->GetNumericAttribute(UAS_Gun::GetMovingBulletSpreadAttribute());
+		BulletSpreadIncRate = OwnerASC->GetNumericAttribute(UAS_Gun::GetBulletSpreadIncRateAttribute());
+		FireBulletSpread = OwnerASC->GetNumericAttribute(UAS_Gun::GetFireBulletSpreadAttribute());
+		BulletSpreadDecSpeed = OwnerASC->GetNumericAttribute(UAS_Gun::GetBulletSpreadDecSpeedAttribute());
+	}
+
+	// NOTE: this sets up the member for Tick() as well
+	CurrentBulletSpread = FMath::Clamp<float>(CurrentBulletSpread, MinBulletSpread, MovingBulletSpread);
+
+
 	if (IsMovingToIncBulletSpread()/* && CurrentBulletSpread < GetMovingBulletSpread()*/)
 	{
 		return true;
@@ -200,27 +186,4 @@ bool UO_BulletSpread::IsTickable() const
 	}
 
 	return false;
-}
-
-
-
-
-
-
-
-void UO_BulletSpread::BeginDestroy()
-{
-	// BEGIN Unbind from attribute value change delegates
-	if (IsValid(OwnerASC))
-	{
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetMinBulletSpreadAttribute()).RemoveAll(this);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetMovingBulletSpreadAttribute()).RemoveAll(this);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetBulletSpreadIncRateAttribute()).RemoveAll(this);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetFireBulletSpreadAttribute()).RemoveAll(this);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetBulletSpreadDecSpeedAttribute()).RemoveAll(this);
-	}
-	// END Unbind from attribute value change delegates
-
-
-	Super::BeginDestroy();
 }

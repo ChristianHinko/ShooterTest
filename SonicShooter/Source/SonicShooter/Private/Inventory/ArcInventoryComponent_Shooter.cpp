@@ -10,6 +10,9 @@
 #include "Utilities/LogCategories.h"
 #include "Inventory/Item/Gun/ArcItemStack_Gun.h"
 #include "Subobjects/O_BulletSpread.h"
+#include "BlueprintFunctionLibraries/BFL_InterfaceHelpers.h"
+#include "AbilitySystemSetupComponent/AbilitySystemSetupInterface.h"
+#include "AbilitySystemSetupComponent/AbilitySystemSetupComponent.h"
 
 
 
@@ -27,20 +30,39 @@ void UArcInventoryComponent_Shooter::InitializeComponent()
 	OnItemSlotChange.AddDynamic(this, &UArcInventoryComponent_Shooter::OnItemSlotChangeEvent);
 
 	OnItemInactive.AddDynamic(this, &UArcInventoryComponent_Shooter::OnItemInactiveEvent);
+
+	if (IAbilitySystemSetupInterface* AbilitySystemSetupInterface = UBFL_InterfaceHelpers::GetInterfaceTypedOuter<IAbilitySystemSetupInterface, UAbilitySystemSetupInterface>(this))
+	{
+		UAbilitySystemSetupComponent* AbilitySystemSetupComponent = AbilitySystemSetupInterface->GetAbilitySystemSetup();
+		if (IsValid(AbilitySystemSetupComponent))
+		{
+			AbilitySystemSetupComponent->OnAbilitySystemSetUp.AddUObject(this, &UArcInventoryComponent_Shooter::OnAbilitySystemSetUp);
+		}
+	}
 }
 
+
+void UArcInventoryComponent_Shooter::OnAbilitySystemSetUp(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC)
+{
+	// Re-inject the new Ability System Component into our active gun
+	UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(GetActiveItemStack());
+	if (IsValid(GunStack))
+	{
+		GunStack->GetBulletSpreadSubobject()->SetAbilitySystemComponent(GetOwnerAbilitySystem());
+	}
+}
 
 void UArcInventoryComponent_Shooter::OnItemSlotChangeEvent(UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
 {
 	if (IsValid(ItemStack) && ItemStack != PreviousItemStack) // if we are Equiping
 	{
-		// Inject our gun's Ability System Component
+		// Inject the Ability System Component into our gun
 		{
 			UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ItemStack);
 			if (IsValid(GunStack))
 			{
-				// Problem. TODO: For startup items on the Client, the Player's ASC is not valid here
 				GunStack->GetBulletSpreadSubobject()->SetAbilitySystemComponent(GetOwnerAbilitySystem());
+				GunStack->GetBulletSpreadSubobject()->ResetBulletSpread();
 			}
 		}
 
@@ -85,6 +107,7 @@ void UArcInventoryComponent_Shooter::OnItemSlotChangeEvent(UArcInventoryComponen
 			if (IsValid(GunStack))
 			{
 				GunStack->GetBulletSpreadSubobject()->SetAbilitySystemComponent(nullptr);
+				GunStack->GetBulletSpreadSubobject()->ResetBulletSpread();
 			}
 		}
 
@@ -122,7 +145,7 @@ void UArcInventoryComponent_Shooter::MakeItemActive(int32 NewActiveItemSlot)
 		UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ActiveItemStack);
 		if (IsValid(GunStack))
 		{
-			// Problem. TODO: For the Client, the new Attribute Sets are not added yet here (instead it uses the previous Item's ASs which is bad)
+			GunStack->GetBulletSpreadSubobject()->SetAbilitySystemComponent(GetOwnerAbilitySystem()); // ensure it has the ASC
 			GunStack->GetBulletSpreadSubobject()->ResetBulletSpread();
 		}
 	}

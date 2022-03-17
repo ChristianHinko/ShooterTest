@@ -51,14 +51,10 @@ void UUW_Crosshair::OnPlayerASCValid()
 		USSArcInventoryComponent_Active* InventoryComponent = ShooterActorInfo->GetInventoryComponent();
 		if (IsValid(InventoryComponent))
 		{
-			const UArcItemStack* ActiveItemStack = InventoryComponent->GetActiveItemStack();
-			if (IsValid(ActiveItemStack))
+			const UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(InventoryComponent->GetActiveItemStack());
+			if (IsValid(GunStack))
 			{
-				const UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ActiveItemStack);
-				if (IsValid(GunStack))
-				{
-					BulletSpreadSubobject = GunStack->GetBulletSpreadSubobject();
-				}
+				BulletSpreadSubobject = GunStack->GetBulletSpreadSubobject();
 			}
 		}
 	}

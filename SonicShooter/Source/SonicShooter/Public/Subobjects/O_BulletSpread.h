@@ -31,7 +31,6 @@ class SONICSHOOTER_API UO_BulletSpread : public UObject, public FTickableGameObj
 public:
 	virtual bool IsSupportedForNetworking() const override;
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags);
-	virtual void BeginDestroy() override;
 
 public:
 	UO_BulletSpread(const FObjectInitializer& ObjectInitializer);
@@ -41,7 +40,8 @@ public:
 
 	/** Current bullet spread. Non-replicated because set every frame */
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Gun")
-		FFloatPropertyWrapper CurrentBulletSpread;
+		mutable FFloatPropertyWrapper CurrentBulletSpread;
+
 
 
 	float GetRestBulletSpread() const;
@@ -52,7 +52,7 @@ public:
 	bool IsMovingToIncBulletSpread() const;
 
 
-	void SetAbilitySystemComponent(UAbilitySystemComponent* NewASC);
+	void SetAbilitySystemComponent(const UAbilitySystemComponent* NewASC);
 
 protected:
 	//BEGIN FTickableObjectBase interface
@@ -65,25 +65,14 @@ protected:
 	virtual bool IsTickableWhenPaused() const override { return false; };
 	//END FTickableGameObject interface
 
-private:
-	UAbilitySystemComponent* OwnerASC;
+
+	const UAbilitySystemComponent* OwnerASC;
 	const UCharacterMovementComponent* CMC;
 
+	mutable float MinBulletSpread;
+	mutable float MovingBulletSpread;
+	mutable float BulletSpreadIncRate;
+	mutable float FireBulletSpread;
+	mutable float BulletSpreadDecSpeed;
 
-	// BEGIN Attribute value change
-	float MinBulletSpread;
-	void OnMinBulletSpreadChange(const FOnAttributeChangeData& Data) { MinBulletSpread = Data.NewValue; }
-
-	float MovingBulletSpread;
-	void OnMovingBulletSpreadChange(const FOnAttributeChangeData& Data) { MovingBulletSpread = Data.NewValue; }
-
-	float BulletSpreadIncRate;
-	void OnBulletSpreadIncRateChange(const FOnAttributeChangeData& Data) { BulletSpreadIncRate = Data.NewValue; }
-
-	float FireBulletSpread;
-	void OnFireBulletSpreadChange(const FOnAttributeChangeData& Data) { FireBulletSpread = Data.NewValue; }
-
-	float BulletSpreadDecSpeed;
-	void OnBulletSpreadDecSpeedChange(const FOnAttributeChangeData& Data) { BulletSpreadDecSpeed = Data.NewValue; }
-	// END Attribute value change
 };

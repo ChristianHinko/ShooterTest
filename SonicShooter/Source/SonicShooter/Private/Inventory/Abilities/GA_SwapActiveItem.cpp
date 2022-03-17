@@ -3,7 +3,7 @@
 
 #include "Inventory/Abilities/GA_SwapActiveItem.h"
 
-#include "Character/ShooterCharacter.h"
+#include "Character/C_Shooter.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
 #include "Utilities/LogCategories.h"
 #include "Utilities/SSNativeGameplayTags.h"
@@ -36,7 +36,7 @@ void UGA_SwapActiveItem::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo,
 	}
 
 
-	ShooterCharacter = Cast<AShooterCharacter>(ActorInfo->AvatarActor.Get());
+	ShooterCharacter = Cast<AC_Shooter>(ActorInfo->AvatarActor.Get());
 	if (!ShooterCharacter)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShooterCharacter was NULL"), ANSI_TO_TCHAR(__FUNCTION__));

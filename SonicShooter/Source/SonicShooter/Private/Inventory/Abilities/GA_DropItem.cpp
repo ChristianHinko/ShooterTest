@@ -4,7 +4,7 @@
 #include "Inventory/Abilities/GA_DropItem.h"
 
 #include "Utilities/LogCategories.h"
-#include "Character/ShooterCharacter.h"
+#include "Character/C_Shooter.h"
 #include "ArcInventoryComponent.h"
 #include "Abilities/Tasks/ArcAbilityTask_DropItem.h"
 #include "ArcInventoryItemTypes.h"
@@ -36,7 +36,7 @@ void UGA_DropItem::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const
 	}
 
 
-	ShooterCharacter = Cast<AShooterCharacter>(ActorInfo->AvatarActor.Get());
+	ShooterCharacter = Cast<AC_Shooter>(ActorInfo->AvatarActor.Get());
 	if (!ShooterCharacter)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShooterCharacter was NULL"), ANSI_TO_TCHAR(__FUNCTION__));

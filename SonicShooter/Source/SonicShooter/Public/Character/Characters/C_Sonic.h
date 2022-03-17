@@ -3,8 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/ShooterCharacter.h"
-#include "Sonic.generated.h"
+#include "Character/C_Shooter.h"
+
+#include "C_Sonic.generated.h"
 
 
 
@@ -12,12 +13,12 @@
  * 
  */
 UCLASS()
-class SONICSHOOTER_API ASonic : public AShooterCharacter
+class SONICSHOOTER_API AC_Sonic : public AC_Shooter
 {
 	GENERATED_BODY()
 	
 public:
-	ASonic(const FObjectInitializer& ObjectInitializer);
+	AC_Sonic(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	virtual void BeginPlay() override;

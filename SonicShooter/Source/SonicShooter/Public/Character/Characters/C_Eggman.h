@@ -3,8 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/ShooterCharacter.h"
-#include "Eggman.generated.h"
+#include "Character/C_Shooter.h"
+
+#include "C_Eggman.generated.h"
 
 
 
@@ -12,12 +13,12 @@
  * 
  */
 UCLASS()
-class SONICSHOOTER_API AEggman : public AShooterCharacter
+class SONICSHOOTER_API AC_Eggman : public AC_Shooter
 {
 	GENERATED_BODY()
 	
 public:
-	AEggman(const FObjectInitializer& ObjectInitializer);
+	AC_Eggman(const FObjectInitializer& ObjectInitializer);
 
 protected:
 

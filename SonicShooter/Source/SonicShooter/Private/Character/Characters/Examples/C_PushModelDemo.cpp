@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character\Characters\ExampleCharacters\PushModelCharacter.h"
+#include "Character\Characters\Examples\C_PushModelDemo.h"
 
 #include "Net/UnrealNetwork.h"
 #include "Net/Core/PushModel/PushModel.h"
@@ -10,7 +10,7 @@
 
 
 
-void APushModelCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void AC_PushModelDemo::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
@@ -18,17 +18,17 @@ void APushModelCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	FDoRepLifetimeParams Params;
 
 	Params.bIsPushBased = true;
-	DOREPLIFETIME_WITH_PARAMS_FAST(APushModelCharacter, MyPushModelFloat, Params);
+	DOREPLIFETIME_WITH_PARAMS_FAST(AC_PushModelDemo, MyPushModelFloat, Params);
 }
 
-APushModelCharacter::APushModelCharacter(const FObjectInitializer& ObjectInitializer)
+AC_PushModelDemo::AC_PushModelDemo(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 
 }
 
 
-void APushModelCharacter::Tick(float DeltaSeconds)
+void AC_PushModelDemo::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
@@ -36,36 +36,36 @@ void APushModelCharacter::Tick(float DeltaSeconds)
 	UKismetSystemLibrary::PrintString(this, "MyPushModelFloat: " + FString::SanitizeFloat(MyPushModelFloat), true, false);
 }
 
-void APushModelCharacter::OnPrimaryFirePressed()
+void AC_PushModelDemo::OnPrimaryFirePressed()
 {
 	ServerPrimaryFirePressed();
 }
-bool APushModelCharacter::ServerPrimaryFirePressed_Validate()
+bool AC_PushModelDemo::ServerPrimaryFirePressed_Validate()
 {
 	return true;
 }
-void APushModelCharacter::ServerPrimaryFirePressed_Implementation()
+void AC_PushModelDemo::ServerPrimaryFirePressed_Implementation()
 {
 	UKismetSystemLibrary::PrintString(this, "SET MARKED DIRTY", true, false, FLinearColor::Green);
 	SetMyPushModelFloat(MyPushModelFloat + 5);
 }
 
-void APushModelCharacter::OnSecondaryFirePressed()
+void AC_PushModelDemo::OnSecondaryFirePressed()
 {
 	ServerSecondaryFirePressed();
 }
-bool APushModelCharacter::ServerSecondaryFirePressed_Validate()
+bool AC_PushModelDemo::ServerSecondaryFirePressed_Validate()
 {
 	return true;
 }
-void APushModelCharacter::ServerSecondaryFirePressed_Implementation()
+void AC_PushModelDemo::ServerSecondaryFirePressed_Implementation()
 {
 	UKismetSystemLibrary::PrintString(this, "SET NO DIRTY", true, false, FLinearColor::Red);
 	MyPushModelFloat = MyPushModelFloat + 5;
 }
 
-void APushModelCharacter::SetMyPushModelFloat(const float NewPushModelFloat)
+void AC_PushModelDemo::SetMyPushModelFloat(const float NewPushModelFloat)
 {
 	MyPushModelFloat = NewPushModelFloat;
-	MARK_PROPERTY_DIRTY_FROM_NAME(APushModelCharacter, MyPushModelFloat, this);
+	MARK_PROPERTY_DIRTY_FROM_NAME(AC_PushModelDemo, MyPushModelFloat, this);
 }

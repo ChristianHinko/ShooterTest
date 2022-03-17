@@ -5,7 +5,7 @@
 
 #include "Player/PS_Shooter.h"
 #include "UI/HUD_Shooter.h"
-#include "Character/ShooterCharacter.h"
+#include "Character/C_Shooter.h"
 #include "ArcInventoryComponent.h"
 #include "Generators/ArcItemGenerator.h"
 #include "Utilities/LogCategories.h"
@@ -21,7 +21,7 @@ AGM_Shooter::AGM_Shooter(const FObjectInitializer& ObjectInitializer)
 {
 	PlayerStateClass = APS_Shooter::StaticClass();
 	HUDClass = AHUD_Shooter::StaticClass();
-	DefaultPawnClass = AShooterCharacter::StaticClass();
+	DefaultPawnClass = AC_Shooter::StaticClass();
 }
 
 

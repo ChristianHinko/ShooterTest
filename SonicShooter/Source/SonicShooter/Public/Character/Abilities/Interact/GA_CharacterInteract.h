@@ -8,7 +8,7 @@
 
 #include "GA_CharacterInteract.generated.h"
 
-class AShooterCharacter;
+class AC_Shooter;
 
 /**
  * 
@@ -28,7 +28,7 @@ protected:
 	FActiveGameplayEffectHandle InteractEffectActiveHandle;
 
 	UPROPERTY()
-		AShooterCharacter* ShooterCharacter;
+		AC_Shooter* ShooterCharacter;
 
 	EDurationInteractEndReason InteractEndReason;
 	float timeHeld;

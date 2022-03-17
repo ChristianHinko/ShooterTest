@@ -3,7 +3,7 @@
 
 #include "Character\AbilityTasks\AT_DurationInteractCallbacks.h"
 
-#include "Character/ShooterCharacter.h"
+#include "Character/C_Shooter.h"
 #include "Utilities/LogCategories.h"
 #include "Subobjects/ActorComponents/AC_Interactor.h"
 
@@ -16,7 +16,7 @@ UAT_DurationInteractCallbacks::UAT_DurationInteractCallbacks(const FObjectInitia
 
 }
 
-UAT_DurationInteractCallbacks* UAT_DurationInteractCallbacks::DurationInteractCallbacks(UGameplayAbility* OwningAbility, AShooterCharacter* ShooterCharacter, IInteractable*& InInteract)
+UAT_DurationInteractCallbacks* UAT_DurationInteractCallbacks::DurationInteractCallbacks(UGameplayAbility* OwningAbility, AC_Shooter* ShooterCharacter, IInteractable*& InInteract)
 {
 	if (!InInteract || !OwningAbility || !ShooterCharacter)
 	{

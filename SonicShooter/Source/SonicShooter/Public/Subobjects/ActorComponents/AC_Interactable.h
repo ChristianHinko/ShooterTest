@@ -25,15 +25,15 @@ public:
 	virtual bool CanActivateInteractAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const override;
 	virtual TSubclassOf<UGameplayEffect> GetInteractableEffectTSub() override;
 
-	virtual void OnInstantInteract(AShooterCharacter* InteractingCharacter) override;
+	virtual void OnInstantInteract(AC_Shooter* InteractingCharacter) override;
 
-	virtual void OnDurationInteractBegin(AShooterCharacter* InteractingCharacter) override;
-	virtual void InteractingTick(AShooterCharacter* InteractingCharacter, float DeltaTime, float CurrentInteractionTime) override;
-	virtual void OnDurationInteractEnd(AShooterCharacter* InteractingCharacter, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime) override;
+	virtual void OnDurationInteractBegin(AC_Shooter* InteractingCharacter) override;
+	virtual void InteractingTick(AC_Shooter* InteractingCharacter, float DeltaTime, float CurrentInteractionTime) override;
+	virtual void OnDurationInteractEnd(AC_Shooter* InteractingCharacter, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime) override;
 
-	virtual void OnInitialDetect(AShooterCharacter* InteractingCharacter) override;
-	virtual void OnConsecutiveDetect(AShooterCharacter* InteractingCharacter) override;
-	virtual void OnEndDetect(AShooterCharacter* InteractingCharacter) override;
+	virtual void OnInitialDetect(AC_Shooter* InteractingCharacter) override;
+	virtual void OnConsecutiveDetect(AC_Shooter* InteractingCharacter) override;
+	virtual void OnEndDetect(AC_Shooter* InteractingCharacter) override;
 
 
 	// If set to manual and automatic CanActivateAbility() will return false. Automatic and Manual should maybe be separate abilities

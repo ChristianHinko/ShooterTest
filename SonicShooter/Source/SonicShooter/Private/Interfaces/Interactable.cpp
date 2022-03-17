@@ -40,7 +40,7 @@ EDetectType IInteractable::GetDetectType()
 
 
 
-void IInteractable::OnInstantInteract(AShooterCharacter* InteractingCharacter)
+void IInteractable::OnInstantInteract(AC_Shooter* InteractingCharacter)
 {
 }
 
@@ -49,13 +49,13 @@ void IInteractable::OnInstantInteract(AShooterCharacter* InteractingCharacter)
 
 
 
-void IInteractable::OnDurationInteractBegin(AShooterCharacter* InteractingCharacter)
+void IInteractable::OnDurationInteractBegin(AC_Shooter* InteractingCharacter)
 {
 }
-void IInteractable::InteractingTick(AShooterCharacter* InteractingCharacter, float DeltaTime, float CurrentInteractionTime)
+void IInteractable::InteractingTick(AC_Shooter* InteractingCharacter, float DeltaTime, float CurrentInteractionTime)
 {
 }
-void IInteractable::OnDurationInteractEnd(AShooterCharacter* InteractingPawn, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime)
+void IInteractable::OnDurationInteractEnd(AC_Shooter* InteractingPawn, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime)
 {
 }
 
@@ -64,12 +64,12 @@ void IInteractable::OnDurationInteractEnd(AShooterCharacter* InteractingPawn, ED
 
 
 
-void IInteractable::OnInitialDetect(AShooterCharacter* InteractingCharacter)
+void IInteractable::OnInitialDetect(AC_Shooter* InteractingCharacter)
 {
 }
-void IInteractable::OnConsecutiveDetect(AShooterCharacter* InteractingCharacter)
+void IInteractable::OnConsecutiveDetect(AC_Shooter* InteractingCharacter)
 {
 }
-void IInteractable::OnEndDetect(AShooterCharacter* InteractingCharacter)
+void IInteractable::OnEndDetect(AC_Shooter* InteractingCharacter)
 {
 }

@@ -30,31 +30,31 @@ TSubclassOf<UGameplayEffect> UAC_Interactable::GetInteractableEffectTSub()
 	return TSubclassOf<UGameplayEffect>();
 }
 
-void UAC_Interactable::OnInstantInteract(AShooterCharacter* InteractingCharacter)
+void UAC_Interactable::OnInstantInteract(AC_Shooter* InteractingCharacter)
 {
 }
 
-void UAC_Interactable::OnDurationInteractBegin(AShooterCharacter* InteractingCharacter)
+void UAC_Interactable::OnDurationInteractBegin(AC_Shooter* InteractingCharacter)
 {
 }
 
-void UAC_Interactable::InteractingTick(AShooterCharacter* InteractingCharacter, float DeltaTime, float CurrentInteractionTime)
+void UAC_Interactable::InteractingTick(AC_Shooter* InteractingCharacter, float DeltaTime, float CurrentInteractionTime)
 {
 }
 
-void UAC_Interactable::OnDurationInteractEnd(AShooterCharacter* InteractingCharacter, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime)
+void UAC_Interactable::OnDurationInteractEnd(AC_Shooter* InteractingCharacter, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime)
 {
 }
 
-void UAC_Interactable::OnInitialDetect(AShooterCharacter* InteractingCharacter)
+void UAC_Interactable::OnInitialDetect(AC_Shooter* InteractingCharacter)
 {
 }
 
-void UAC_Interactable::OnConsecutiveDetect(AShooterCharacter* InteractingCharacter)
+void UAC_Interactable::OnConsecutiveDetect(AC_Shooter* InteractingCharacter)
 {
 }
 
-void UAC_Interactable::OnEndDetect(AShooterCharacter* InteractingCharacter)
+void UAC_Interactable::OnEndDetect(AC_Shooter* InteractingCharacter)
 {
 }
 

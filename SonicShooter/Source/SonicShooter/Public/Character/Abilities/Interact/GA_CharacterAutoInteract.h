@@ -7,7 +7,7 @@
 #include "Interfaces/Interactable.h"
 #include "GA_CharacterAutoInteract.generated.h"
 
-class AShooterCharacter;
+class AC_Shooter;
 
 /**
  * 
@@ -21,7 +21,7 @@ public:
 	UGA_CharacterAutoInteract();
 
 	UPROPERTY()
-		AShooterCharacter* ShooterCharacter;
+		AC_Shooter* ShooterCharacter;
 
 protected:
 

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/Characters/Sonic.h"
+#include "Character/Characters/C_Sonic.h"
 
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -16,7 +16,7 @@
 
 
 
-ASonic::ASonic(const FObjectInitializer& ObjectInitializer)
+AC_Sonic::AC_Sonic(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	GetMesh()->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));
@@ -31,14 +31,14 @@ ASonic::ASonic(const FObjectInitializer& ObjectInitializer)
 }
 
 
-void ASonic::BeginPlay()
+void AC_Sonic::BeginPlay()
 {
 	Super::BeginPlay();
 
 
 }
 
-void ASonic::Tick(float DeltaSeconds)
+void AC_Sonic::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
@@ -66,29 +66,29 @@ void ASonic::Tick(float DeltaSeconds)
 	//}
 }
 
-//void ASonic::OnJumpPressed()
+//void AC_Sonic::OnJumpPressed()
 //{
 //	Jump();
 //}
-//void ASonic::OnJumpReleased()
+//void AC_Sonic::OnJumpReleased()
 //{
 //	StopJumping();
 //}
 //
-//void ASonic::OnCrouchPressed()
+//void AC_Sonic::OnCrouchPressed()
 //{
 //	Crouch();
 //}
-//void ASonic::OnCrouchReleased()
+//void AC_Sonic::OnCrouchReleased()
 //{
 //	UnCrouch();
 //}
 //
-//void ASonic::OnRunPressed()
+//void AC_Sonic::OnRunPressed()
 //{
 //	SSCharacterMovementComponent->SetWantsToRun(true);
 //}
-//void ASonic::OnRunReleased()
+//void AC_Sonic::OnRunReleased()
 //{
 //	SSCharacterMovementComponent->SetWantsToRun(false);
 //}

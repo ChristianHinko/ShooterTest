@@ -3,7 +3,7 @@
 
 #include "Character/Abilities/Interact/GA_CharacterInteract.h"
 
-#include "Character/ShooterCharacter.h"
+#include "Character/C_Shooter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "Utilities/LogCategories.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
@@ -30,7 +30,7 @@ void UGA_CharacterInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorIn
 		return;
 	}
 
-	ShooterCharacter = Cast<AShooterCharacter>(ActorInfo->AvatarActor.Get());
+	ShooterCharacter = Cast<AC_Shooter>(ActorInfo->AvatarActor.Get());
 	if (!ShooterCharacter)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
@@ -73,7 +73,7 @@ void UGA_CharacterInteract::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 
-	ShooterCharacter = Cast<AShooterCharacter>(ActorInfo->AvatarActor.Get());
+	ShooterCharacter = Cast<AC_Shooter>(ActorInfo->AvatarActor.Get());
 	if (!ShooterCharacter)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Cast to ShooterCharacter was NULL when activating an interact ability"), ANSI_TO_TCHAR(__FUNCTION__));

@@ -6,7 +6,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Character/SSCharacter.h"
-#include "Character/ShooterCharacter.h"
+#include "Character/C_Shooter.h"
 #include "Kismet/KismetMathLibrary.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -33,7 +33,7 @@ void UAI_ShooterCharacter::NativeInitializeAnimation()
 	Super::NativeInitializeAnimation();
 
 
-	OwningShooterCharacter = Cast<AShooterCharacter>(GetOwningActor());
+	OwningShooterCharacter = Cast<AC_Shooter>(GetOwningActor());
 }
 void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 {
@@ -222,7 +222,7 @@ FRotator UAI_ShooterCharacter::GetHeadLookAtTargetRot(AActor* Target, float delt
 			SelfHeadLocation = OwningShooterCharacter->GetMesh()->GetSocketLocation(TEXT("head"));
 		}
 		FVector locationToLookAt;
-		if (AShooterCharacter* ShooterCharacterToLookAt = Cast<AShooterCharacter>(Target))
+		if (AC_Shooter* ShooterCharacterToLookAt = Cast<AC_Shooter>(Target))
 		{
 			if (ShooterCharacterToLookAt->GetMesh())
 			{

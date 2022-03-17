@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "AC_Interactor.generated.h"
 
-class AShooterCharacter;
+class AC_Shooter;
 class IInteractable;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnFrameOverlapStackChangeDelegate, IInteractable*&);
@@ -48,5 +48,5 @@ protected:
 	IInteractable* ScanForCurrentPrioritizedInteractable(FHitResult& OutHit);
 
 private:
-	AShooterCharacter* OwningShooterCharacter;
+	AC_Shooter* OwningShooterCharacter;
 };

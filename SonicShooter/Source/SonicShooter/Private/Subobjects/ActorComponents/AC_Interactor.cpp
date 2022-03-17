@@ -5,7 +5,7 @@
 
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
-#include "Character/ShooterCharacter.h"
+#include "Character/C_Shooter.h"
 #include "Interfaces/Interactable.h"
 #include "Utilities/CollisionChannels.h"
 #include "Camera/CameraComponent.h"
@@ -29,7 +29,7 @@ void UAC_Interactor::InitializeComponent()
 {
 	Super::InitializeComponent();
 
-	OwningShooterCharacter = Cast<AShooterCharacter>(GetOwner());
+	OwningShooterCharacter = Cast<AC_Shooter>(GetOwner());
 	OwningShooterCharacter->GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &UAC_Interactor::OnComponentBeginOverlapCharacterCapsule);
 	OwningShooterCharacter->GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &UAC_Interactor::OnComponentEndOverlapCharacterCapsule);
 }

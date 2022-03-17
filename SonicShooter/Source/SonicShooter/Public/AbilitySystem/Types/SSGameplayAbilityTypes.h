@@ -73,7 +73,7 @@ struct SONICSHOOTER_API FSSGameplayAbilityActorInfo : public FASSGameplayAbility
 
 
 class UASC_Shooter;
-class AShooterCharacter;
+class AC_Shooter;
 class USSArcInventoryComponent_Active;
 
 
@@ -98,7 +98,7 @@ struct SONICSHOOTER_API FGAAI_Shooter : public FSSGameplayAbilityActorInfo
 
     // Our ShooterCharacter. Often nullptr.
     UPROPERTY(BlueprintReadOnly, Category = "Shooter")
-        TWeakObjectPtr<AShooterCharacter> ShooterCharacter;
+        TWeakObjectPtr<AC_Shooter> ShooterCharacter;
 
     // Our Inventory Component. Often nullptr.
     UPROPERTY(BlueprintReadOnly, Category = "Shooter")
@@ -113,7 +113,7 @@ struct SONICSHOOTER_API FGAAI_Shooter : public FSSGameplayAbilityActorInfo
     UASC_Shooter* GetShooterAbilitySystemComponent() const { return ShooterAbilitySystemComponent.IsValid() ? ShooterAbilitySystemComponent.Get() : nullptr; }
 
     // Gets the ShooterCharacter. This is often nullptr.
-    AShooterCharacter* GetShooterCharacter() const { return ShooterCharacter.IsValid() ? ShooterCharacter.Get() : nullptr; }
+    AC_Shooter* GetShooterCharacter() const { return ShooterCharacter.IsValid() ? ShooterCharacter.Get() : nullptr; }
 
     // Gets the Inventory Component. This is often nullptr.
     USSArcInventoryComponent_Active* GetInventoryComponent() const { return InventoryComponent.IsValid() ? InventoryComponent.Get() : nullptr; }

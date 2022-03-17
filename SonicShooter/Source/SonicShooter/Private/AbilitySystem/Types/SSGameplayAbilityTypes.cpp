@@ -64,7 +64,7 @@ void FSSGameplayAbilityActorInfo::ClearActorInfo()
 
 
 #include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
-#include "Character/ShooterCharacter.h"
+#include "Character/C_Shooter.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
 
 
@@ -83,7 +83,7 @@ void FGAAI_Shooter::ASSInitFromActor(AActor* InOwnerActor, AActor* InAvatarActor
     ShooterAbilitySystemComponent = Cast<UASC_Shooter>(ASSAbilitySystemComponent);
 
     // Get our Shooter Character
-    ShooterCharacter = Cast<AShooterCharacter>(InAvatarActor);
+    ShooterCharacter = Cast<AC_Shooter>(InAvatarActor);
 
     // Get our Inventory
     InventoryComponent = Cast<USSArcInventoryComponent_Active>(UArcItemBPFunctionLibrary::GetInventoryComponent(InAvatarActor, true));

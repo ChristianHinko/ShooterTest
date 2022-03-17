@@ -9,7 +9,7 @@
 #include "GA_DropItem.generated.h"
 
 
-class AShooterCharacter;
+class AC_Shooter;
 class UArcInventoryComponent;
 
 
@@ -28,7 +28,7 @@ public:
 
 protected:
 	UPROPERTY()
-		AShooterCharacter* ShooterCharacter;
+		AC_Shooter* ShooterCharacter;
 	UPROPERTY()
 		UArcInventoryComponent* Inventory;
 

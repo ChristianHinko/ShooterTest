@@ -6,7 +6,7 @@
 #include "Character/SSCharacter.h"
 #include "Interfaces/ArcInventoryInterface.h"
 
-#include "ShooterCharacter.generated.h"
+#include "C_Shooter.generated.h"
 
 
 class IInteractable;
@@ -22,7 +22,7 @@ class UAS_Health;
  *
  */
 UCLASS()
-class SONICSHOOTER_API AShooterCharacter : public ASSCharacter, public IArcInventoryInterface
+class SONICSHOOTER_API AC_Shooter : public ASSCharacter, public IArcInventoryInterface
 {
 	GENERATED_BODY()
 
@@ -33,7 +33,7 @@ private:
 		UAC_Interactor* Interactor;
 
 public:
-	AShooterCharacter(const FObjectInitializer& ObjectInitializer);
+	AC_Shooter(const FObjectInitializer& ObjectInitializer);
 
 
 	static const FName InventoryComponentName;

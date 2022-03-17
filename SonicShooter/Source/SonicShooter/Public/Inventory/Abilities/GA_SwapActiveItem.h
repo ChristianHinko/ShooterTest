@@ -8,7 +8,7 @@
 #include "GA_SwapActiveItem.generated.h"
 
 
-class AShooterCharacter;
+class AC_Shooter;
 class USSArcInventoryComponent_Active;
 
 
@@ -46,7 +46,7 @@ public:
 
 protected:
 	UPROPERTY()
-		AShooterCharacter* ShooterCharacter;
+		AC_Shooter* ShooterCharacter;
 	UPROPERTY()
 		USSArcInventoryComponent_Active* InventoryComponent;
 

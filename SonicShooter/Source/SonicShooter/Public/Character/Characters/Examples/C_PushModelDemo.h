@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Character/SSCharacter.h"
 
-#include "PushModelCharacter.generated.h"
+#include "C_PushModelDemo.generated.h"
 
 
 
@@ -16,12 +16,12 @@
  * Secondary fire to increment it without marking it dirty.
  */
 UCLASS()
-class SONICSHOOTER_API APushModelCharacter : public ASSCharacter
+class SONICSHOOTER_API AC_PushModelDemo : public ASSCharacter
 {
 	GENERATED_BODY()
 
 public:
-	APushModelCharacter(const FObjectInitializer& ObjectInitializer);
+	AC_PushModelDemo(const FObjectInitializer& ObjectInitializer);
 
 
 	void SetMyPushModelFloat(const float NewPushModelFloat);

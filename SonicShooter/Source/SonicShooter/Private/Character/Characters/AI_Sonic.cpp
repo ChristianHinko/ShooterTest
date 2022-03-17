@@ -3,7 +3,7 @@
 
 #include "Character/Characters/AI_Sonic.h"
 
-#include "Character/ShooterCharacter.h"
+#include "Character/C_Shooter.h"
 #include "Kismet/KismetMathLibrary.h"
 
 
@@ -90,7 +90,7 @@ FRotator UAI_Sonic::Look(FName boneName, AActor* lookTarget, float deltaTime)
 
 
 	FVector targetLocation;
-	if (AShooterCharacter* ShooterCharacterToLookAt = Cast<AShooterCharacter>(lookTarget))
+	if (AC_Shooter* ShooterCharacterToLookAt = Cast<AC_Shooter>(lookTarget))
 	{
 		if (ShooterCharacterToLookAt->GetMesh())
 		{

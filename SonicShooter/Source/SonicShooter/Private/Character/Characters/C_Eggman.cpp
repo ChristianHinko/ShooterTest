@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/Characters/Eggman.h"
+#include "Character/Characters/C_Eggman.h"
 
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -13,7 +13,7 @@
 
 
 
-AEggman::AEggman(const FObjectInitializer& ObjectInitializer)
+AC_Eggman::AC_Eggman(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	GetMesh()->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));

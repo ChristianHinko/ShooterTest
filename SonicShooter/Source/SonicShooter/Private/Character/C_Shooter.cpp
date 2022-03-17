@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/ShooterCharacter.h"
+#include "Character/C_Shooter.h"
 
 #include "Net/UnrealNetwork.h"
 #include "Utilities/LogCategories.h"
@@ -17,32 +17,32 @@
 
 
 
-void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void AC_Shooter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 
-	DOREPLIFETIME(AShooterCharacter, HealthAttributeSet);
+	DOREPLIFETIME(AC_Shooter, HealthAttributeSet);
 
 
-	DOREPLIFETIME_CONDITION(AShooterCharacter, InteractInstantAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AShooterCharacter, InteractDurationAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AC_Shooter, InteractInstantAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AC_Shooter, InteractDurationAbilitySpecHandle, COND_OwnerOnly);
 
-	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToLastActiveItemAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToNextItemAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToPreviousItemAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToFirstItemAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToSecondItemAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToThirdItemAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToFourthItemAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AShooterCharacter, SwapToFifthItemAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AC_Shooter, SwapToLastActiveItemAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AC_Shooter, SwapToNextItemAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AC_Shooter, SwapToPreviousItemAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AC_Shooter, SwapToFirstItemAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AC_Shooter, SwapToSecondItemAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AC_Shooter, SwapToThirdItemAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AC_Shooter, SwapToFourthItemAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AC_Shooter, SwapToFifthItemAbilitySpecHandle, COND_OwnerOnly);
 
-	DOREPLIFETIME_CONDITION(AShooterCharacter, DropItemAbilitySpecHandle, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AC_Shooter, DropItemAbilitySpecHandle, COND_OwnerOnly);
 }
 
-const FName AShooterCharacter::InventoryComponentName = TEXT("InventoryComponent");
+const FName AC_Shooter::InventoryComponentName = TEXT("InventoryComponent");
 
-AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer)
+AC_Shooter::AC_Shooter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UArcInventoryComponent_Shooter>(InventoryComponentName))
 {
 	// Default to first person
@@ -62,20 +62,20 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 	AddedCameraSwayDuringADS = FVector(0, -1.1f, -.1f);
 }
 
-void AShooterCharacter::PossessedBy(AController* NewController)
+void AC_Shooter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
 
 }
 
-void AShooterCharacter::BeginPlay()
+void AC_Shooter::BeginPlay()
 {
 	Super::BeginPlay();
 
 }
 
-void AShooterCharacter::CreateAttributeSets()
+void AC_Shooter::CreateAttributeSets()
 {
 	Super::CreateAttributeSets();
 
@@ -90,7 +90,7 @@ void AShooterCharacter::CreateAttributeSets()
 	}
 }
 
-void AShooterCharacter::RegisterAttributeSets()
+void AC_Shooter::RegisterAttributeSets()
 {
 	Super::RegisterAttributeSets();
 
@@ -104,7 +104,7 @@ void AShooterCharacter::RegisterAttributeSets()
 		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() HealthAttributeSet was either NULL or already added to the character's ASC. Character: %s"), ANSI_TO_TCHAR(__FUNCTION__), *GetName());
 	}
 }
-void AShooterCharacter::GiveStartingAbilities()
+void AC_Shooter::GiveStartingAbilities()
 {
 	Super::GiveStartingAbilities();
 
@@ -139,7 +139,7 @@ void AShooterCharacter::GiveStartingAbilities()
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
 //#include "Kismet/KismetMathLibrary.h"
 //#include "GameFramework/SpringArmComponent.h"
-void AShooterCharacter::Tick(float DeltaSeconds)
+void AC_Shooter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
@@ -280,12 +280,12 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 }
 
 
-void AShooterCharacter::OnInteractPressed()
+void AC_Shooter::OnInteractPressed()
 {
 	Interactor->TryInteract();
 }
 
-void AShooterCharacter::OnPrimaryFirePressed()
+void AC_Shooter::OnPrimaryFirePressed()
 {
 	if (GetAbilitySystemComponent())
 	{
@@ -302,7 +302,7 @@ void AShooterCharacter::OnPrimaryFirePressed()
 	}
 }
 
-void AShooterCharacter::OnReloadPressed()
+void AC_Shooter::OnReloadPressed()
 {
 	if (GetAbilitySystemComponent())
 	{
@@ -310,50 +310,50 @@ void AShooterCharacter::OnReloadPressed()
 	}
 }
 
-void AShooterCharacter::OnSwitchWeaponPressed()
+void AC_Shooter::OnSwitchWeaponPressed()
 {
 	GetAbilitySystemComponent()->TryActivateAbility(SwapToLastActiveItemAbilitySpecHandle);
 }
-void AShooterCharacter::OnFirstItemPressed()
+void AC_Shooter::OnFirstItemPressed()
 {
 	GetAbilitySystemComponent()->TryActivateAbility(SwapToFirstItemAbilitySpecHandle);
 }
-void AShooterCharacter::OnSecondItemPressed()
+void AC_Shooter::OnSecondItemPressed()
 {
 	GetAbilitySystemComponent()->TryActivateAbility(SwapToSecondItemAbilitySpecHandle);
 }
-void AShooterCharacter::OnThirdItemPressed()
+void AC_Shooter::OnThirdItemPressed()
 {
 	GetAbilitySystemComponent()->TryActivateAbility(SwapToThirdItemAbilitySpecHandle);
 }
-void AShooterCharacter::OnFourthItemPressed()
+void AC_Shooter::OnFourthItemPressed()
 {
 	GetAbilitySystemComponent()->TryActivateAbility(SwapToFourthItemAbilitySpecHandle);
 }
-void AShooterCharacter::OnFifthItemPressed()
+void AC_Shooter::OnFifthItemPressed()
 {
 	GetAbilitySystemComponent()->TryActivateAbility(SwapToFifthItemAbilitySpecHandle);
 }
-void AShooterCharacter::OnNextItemPressed()
+void AC_Shooter::OnNextItemPressed()
 {
 	GetAbilitySystemComponent()->TryActivateAbility(SwapToNextItemAbilitySpecHandle);
 }
-void AShooterCharacter::OnPreviousItemPressed()
+void AC_Shooter::OnPreviousItemPressed()
 {
 	GetAbilitySystemComponent()->TryActivateAbility(SwapToPreviousItemAbilitySpecHandle);
 }
 
-void AShooterCharacter::OnPausePressed()
+void AC_Shooter::OnPausePressed()
 {
 	Super::OnPausePressed();
 }
 
-void AShooterCharacter::OnScoreSheetPressed()
+void AC_Shooter::OnScoreSheetPressed()
 {
 	Super::OnScoreSheetPressed();
 }
 
-void AShooterCharacter::OnDropItemPressed()
+void AC_Shooter::OnDropItemPressed()
 {
 	FArcInventoryItemSlotReference ActiveItem = ShooterInventoryComponent->GetActiveItemSlot();
 	if (ShooterInventoryComponent->IsValidActiveItemSlot(ActiveItem.SlotId))

@@ -9,7 +9,7 @@
 
 #include "Interactable.generated.h"
 
-class AShooterCharacter;
+class AC_Shooter;
 
 /** Describes the detection state */
 UENUM()
@@ -111,7 +111,7 @@ public:
 #pragma region InstantInteraction
 
 	// Called from ActivateAbility() (valid prediction key)
-	virtual void OnInstantInteract(AShooterCharacter* InteractingCharacter);
+	virtual void OnInstantInteract(AC_Shooter* InteractingCharacter);
 #pragma endregion
 
 
@@ -122,11 +122,11 @@ public:
 
 
 	// Called the first frame of interaction (on press interact input) (valid prediction key)
-	virtual void OnDurationInteractBegin(AShooterCharacter* InteractingCharacter);
+	virtual void OnDurationInteractBegin(AC_Shooter* InteractingCharacter);
 	// Called every frame during a duration interaction (while interact input is down)
-	virtual void InteractingTick(AShooterCharacter* InteractingCharacter, float DeltaTime, float CurrentInteractionTime);
+	virtual void InteractingTick(AC_Shooter* InteractingCharacter, float DeltaTime, float CurrentInteractionTime);
 	// Called anytime a duration interaction ends (whatever the reason may be)
-	virtual void OnDurationInteractEnd(AShooterCharacter* InteractingCharacter, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime);
+	virtual void OnDurationInteractEnd(AC_Shooter* InteractingCharacter, EDurationInteractEndReason DurationInteractEndReason, float InteractionTime);
 #pragma endregion
 
 
@@ -137,11 +137,11 @@ public:
 #pragma region Detection Events
 
 	// This became the player's current interactable
-	virtual void OnInitialDetect(AShooterCharacter* InteractingCharacter);
+	virtual void OnInitialDetect(AC_Shooter* InteractingCharacter);
 	// This remains the player's current interactable
-	virtual void OnConsecutiveDetect(AShooterCharacter* InteractingCharacter);
+	virtual void OnConsecutiveDetect(AC_Shooter* InteractingCharacter);
 	// This is no longer the player's current interactable
-	virtual void OnEndDetect(AShooterCharacter* InteractingCharacter);
+	virtual void OnEndDetect(AC_Shooter* InteractingCharacter);
 #pragma endregion
 
 

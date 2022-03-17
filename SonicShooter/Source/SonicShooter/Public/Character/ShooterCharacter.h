@@ -10,7 +10,7 @@
 
 
 class IInteractable;
-class UInteractorComponent;
+class UAC_Interactor;
 class UArcInventoryComponent;
 class UArcInventoryComponent_Shooter;
 class UArcItemGenerator_Unique;
@@ -30,7 +30,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
 		UArcInventoryComponent* InventoryComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Interactor")
-		UInteractorComponent* Interactor;
+		UAC_Interactor* Interactor;
 
 public:
 	AShooterCharacter(const FObjectInitializer& ObjectInitializer);
@@ -39,7 +39,7 @@ public:
 	static const FName InventoryComponentName;
 	UArcInventoryComponent* GetInventoryComponent() const override { return InventoryComponent; }
 
-	UInteractorComponent* GetInteractorComponent() const { return Interactor; }
+	UAC_Interactor* GetInteractorComponent() const { return Interactor; }
 
 
 	UAS_Health* GetHealthAttributeSet() const { return HealthAttributeSet; }

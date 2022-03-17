@@ -8,7 +8,7 @@
 #include "Utilities/SSNativeGameplayTags.h"
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
-#include "Subobjects/ActorComponents/InteractorComponent.h"
+#include "Subobjects/ActorComponents/AC_Interactor.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Inventory/ArcInventoryComponent_Shooter.h"
 #include "ArcItemStack.h"
@@ -56,7 +56,7 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 	ShooterInventoryComponent = Cast<UArcInventoryComponent_Shooter>(InventoryComponent);
 
 
-	Interactor = CreateDefaultSubobject<UInteractorComponent>(TEXT("Interactor"));
+	Interactor = CreateDefaultSubobject<UAC_Interactor>(TEXT("Interactor"));
 
 	CameraSwayAmount = FVector(0, 1.3f, 0.4f);
 	AddedCameraSwayDuringADS = FVector(0, -1.1f, -.1f);

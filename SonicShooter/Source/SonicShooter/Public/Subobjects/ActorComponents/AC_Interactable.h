@@ -8,17 +8,17 @@
 #include "GameplayAbilitySpec.h"
 #include "AbilitySystem/ASSGameplayAbility.h"
 
-#include "InteractableComponent.generated.h"
+#include "AC_Interactable.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class SONICSHOOTER_API UInteractableComponent : public UActorComponent, public IInteractable
+class SONICSHOOTER_API UAC_Interactable : public UActorComponent, public IInteractable
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UInteractableComponent();
+	UAC_Interactable();
 
 
 	// BEGIN IInteractable interface

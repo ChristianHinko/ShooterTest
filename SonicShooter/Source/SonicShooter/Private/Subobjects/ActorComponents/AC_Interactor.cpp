@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Subobjects/ActorComponents/InteractorComponent.h"
+#include "Subobjects/ActorComponents/AC_Interactor.h"
 
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
@@ -12,7 +12,7 @@
 
 #include "Kismet/KismetSystemLibrary.h"
 
-UInteractorComponent::UInteractorComponent()
+UAC_Interactor::UAC_Interactor()
 {
 	bWantsInitializeComponent = true;
 	PrimaryComponentTick.bCanEverTick = true;
@@ -25,16 +25,16 @@ UInteractorComponent::UInteractorComponent()
 }
 
 
-void UInteractorComponent::InitializeComponent()
+void UAC_Interactor::InitializeComponent()
 {
 	Super::InitializeComponent();
 
 	OwningShooterCharacter = Cast<AShooterCharacter>(GetOwner());
-	OwningShooterCharacter->GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &UInteractorComponent::OnComponentBeginOverlapCharacterCapsule);
-	OwningShooterCharacter->GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &UInteractorComponent::OnComponentEndOverlapCharacterCapsule);
+	OwningShooterCharacter->GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &UAC_Interactor::OnComponentBeginOverlapCharacterCapsule);
+	OwningShooterCharacter->GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &UAC_Interactor::OnComponentEndOverlapCharacterCapsule);
 }
 
-void UInteractorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UAC_Interactor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
@@ -86,7 +86,7 @@ void UInteractorComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 }
 
 
-void UInteractorComponent::OnComponentBeginOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void UAC_Interactor::OnComponentBeginOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
 	{
@@ -95,7 +95,7 @@ void UInteractorComponent::OnComponentBeginOverlapCharacterCapsule(UPrimitiveCom
 		CurrentOverlapInteractablesStack.Push(Interactable);
 	}
 }
-void UInteractorComponent::OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void UAC_Interactor::OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
 	{
@@ -116,7 +116,7 @@ void UInteractorComponent::OnComponentEndOverlapCharacterCapsule(UPrimitiveCompo
 
 
 
-IInteractable* UInteractorComponent::ScanForCurrentPrioritizedInteractable(FHitResult& OutHit)
+IInteractable* UAC_Interactor::ScanForCurrentPrioritizedInteractable(FHitResult& OutHit)
 {
 	// Check if sphere sweep detects blocking hit as an interactable (a blocking hit doesn't necessarily mean the object is collidable. It's can just be collidable to the Interact trace channel).
 	if (GetWorld() && OwningShooterCharacter->GetFollowCamera())
@@ -170,7 +170,7 @@ IInteractable* UInteractorComponent::ScanForCurrentPrioritizedInteractable(FHitR
 	return nullptr;
 }
 
-void UInteractorComponent::TryInteract()
+void UAC_Interactor::TryInteract()
 {
 	if (CurrentPrioritizedInteractable)
 	{

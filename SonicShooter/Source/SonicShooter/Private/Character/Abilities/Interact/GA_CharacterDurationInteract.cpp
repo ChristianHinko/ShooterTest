@@ -9,7 +9,7 @@
 #include "Utilities/SSNativeGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "Character\AbilityTasks\AT_DurationInteractCallbacks.h"
-#include "Subobjects/ActorComponents/InteractorComponent.h"
+#include "Subobjects/ActorComponents/AC_Interactor.h"
 
 
 UGA_CharacterDurationInteract::UGA_CharacterDurationInteract()

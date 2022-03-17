@@ -5,7 +5,7 @@
 
 #include "Character/ShooterCharacter.h"
 #include "Utilities/LogCategories.h"
-#include "Subobjects/ActorComponents/InteractorComponent.h"
+#include "Subobjects/ActorComponents/AC_Interactor.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 

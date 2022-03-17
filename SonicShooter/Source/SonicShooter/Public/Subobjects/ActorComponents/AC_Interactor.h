@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "InteractorComponent.generated.h"
+#include "AC_Interactor.generated.h"
 
 class AShooterCharacter;
 class IInteractable;
@@ -12,13 +12,13 @@ class IInteractable;
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnFrameOverlapStackChangeDelegate, IInteractable*&);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class SONICSHOOTER_API UInteractorComponent : public UActorComponent
+class SONICSHOOTER_API UAC_Interactor : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UInteractorComponent();
+	UAC_Interactor();
 
 	virtual void InitializeComponent() override;
 

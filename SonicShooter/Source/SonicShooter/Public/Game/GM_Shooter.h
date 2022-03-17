@@ -9,6 +9,7 @@
 
 
 class UArcInventoryComponent;
+class UAbilitySystemComponent;
 
 
 
@@ -29,4 +30,7 @@ protected:
 
 	/** Override this event if you want to customize how this Game Mode gives you your startup items */
 	virtual void GiveInventoryStartupItems(UArcInventoryComponent* Inventory);
+
+private:
+	void OnAbilitySystemSetUp(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC, UArcInventoryComponent* Inventory);
 };

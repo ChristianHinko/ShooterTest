@@ -86,12 +86,12 @@ void USSCharacterMovementComponent::InitializeComponent()
 
 	if (AbilitySystemSetupOwner)
 	{
-		AbilitySystemSetupOwner->GetAbilitySystemSetup()->PreApplyStartupEffects.AddUObject(this, &USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady);
+		AbilitySystemSetupOwner->GetAbilitySystemSetup()->OnAbilitySystemSetUpPreInitialized.AddUObject(this, &USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady);
 	}
 }
 
 #pragma region Ability System
-void USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady()
+void USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC)
 {
 	if (AbilitySystemOwner)
 	{

@@ -227,8 +227,7 @@ protected:
 	UPROPERTY()
 		UAS_CharacterMovement* CharacterMovementAttributeSet;
 
-	UFUNCTION()
-		virtual void OnOwningCharacterAbilitySystemReady();
+	virtual void OnOwningCharacterAbilitySystemReady(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC);
 
 	//BEGIN CMC Interface
 	virtual void UpdateFromCompressedFlags(uint8 Flags) override;

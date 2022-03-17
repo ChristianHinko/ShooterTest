@@ -3,7 +3,7 @@
 
 #include "UI/UMG/Widgets/UW_ActiveItem.h"
 
-#include "Inventory/Item/UW_Crosshair.h"
+#include "UI/UMG/Widgets/UW_Crosshair.h"
 #include "Components/TextBlock.h"
 
 

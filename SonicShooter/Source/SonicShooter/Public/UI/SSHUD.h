@@ -20,7 +20,7 @@ class SONICSHOOTER_API ASSHUD : public AHUD
 	GENERATED_BODY()
 
 public:
-	ASSHUD();
+	ASSHUD(const FObjectInitializer& ObjectInitializer);
 
 
 #if 0

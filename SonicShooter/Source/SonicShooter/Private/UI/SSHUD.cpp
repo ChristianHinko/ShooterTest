@@ -5,7 +5,8 @@
 
 
 
-ASSHUD::ASSHUD()
+ASSHUD::ASSHUD(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 
 }

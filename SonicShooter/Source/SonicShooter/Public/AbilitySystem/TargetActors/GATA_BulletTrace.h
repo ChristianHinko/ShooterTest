@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "TargetActors/GATA_Trace.h"
 #include "BlueprintFunctionLibraries/BFL_CollisionQueryHelpers.h"
-#include "PhysicalMaterial/ShooterPhysicalMaterial.h"
+#include "PhysicalMaterial/PM_Shooter.h"
 
 #include "GATA_BulletTrace.generated.h"
 
@@ -61,8 +61,9 @@ struct FBulletStep
 		// For each Phys Mat in this Segment
 		for (const UPhysicalMaterial* PhysMat : InTraceSegment.GetPhysMaterials())
 		{
-			// If this is a ShooterPhysicalMaterial, it has Bullet Speed loss data
-			if (const UShooterPhysicalMaterial* ShooterPhysMat = Cast<UShooterPhysicalMaterial>(PhysMat))
+			// If this is a PM_Shooter, it has Bullet Speed loss data
+			const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(PhysMat);
+			if (IsValid(ShooterPhysMat))
 			{
 				const float SpeedLossPerCentimeter = (ShooterPhysMat->BulletPenetrationSpeedReduction / 100);
 				const float SpeedToTakeAway = (InTraceSegment.GetSegmentDistance() * SpeedLossPerCentimeter);
@@ -81,8 +82,9 @@ struct FBulletStep
 
 		// Evaluate BulletSpeedToTakeAway:
 
-		// If this is a ShooterPhysicalMaterial, it has Bullet Speed loss data
-		if (const UShooterPhysicalMaterial* ShooterPhysMat = Cast<UShooterPhysicalMaterial>(InRicochetPoint.PhysMaterial))
+		// If this is a PM_Shooter, it has Bullet Speed loss data
+		const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(InRicochetPoint.PhysMaterial);
+		if (IsValid(ShooterPhysMat))
 		{
 			BulletSpeedToTakeAway = ShooterPhysMat->BulletRicochetSpeedReduction;
 		}
@@ -120,11 +122,11 @@ private:
  * 
  *		- Implements the idea of Bullet Speed which can stop the tracing at any point.
  * 
- *		- Is tightly coupled with ShooterPhysicalMaterial to determine behavior.
+ *		- Is tightly coupled with PM_Shooter to determine behavior.
  * 
  *		- Gives CalculateAimDirection() some random bullet spread.
  * 
- *		- Ditches the RicochetableSurfaces array and ricochets based on what ShouldRicochetOffOf()'s UShooterPhysicalMaterial says.
+ *		- Ditches the RicochetableSurfaces array and ricochets based on what ShouldRicochetOffOf()'s UPM_Shooter says.
  * 
  */
 UCLASS()

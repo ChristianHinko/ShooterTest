@@ -9,10 +9,12 @@
 
 
 
-AHUD_Shooter::AHUD_Shooter()
+AHUD_Shooter::AHUD_Shooter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 
 }
+
 void AHUD_Shooter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();

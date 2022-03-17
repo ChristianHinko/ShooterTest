@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Inventory/Item/UW_Crosshair.h"
+#include "UI/UMG/Widgets/UW_Crosshair.h"
 
 #include "Inventory/Item/Gun/AS_Gun.h"
 #include "Components/Image.h"

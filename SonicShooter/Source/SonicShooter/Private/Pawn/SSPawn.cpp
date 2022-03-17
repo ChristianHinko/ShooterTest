@@ -29,68 +29,68 @@ void ASSPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	//Action
-	PlayerInputComponent->BindAction(FName(TEXT("Run")), IE_Pressed, this, &ASSPawn::OnRunPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Run")), IE_Released, this, &ASSPawn::OnRunReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("Run")), IE_Pressed, this, &ThisClass::OnRunPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("Run")), IE_Released, this, &ThisClass::OnRunReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Jump")), IE_Pressed, this, &ASSPawn::OnJumpPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Jump")), IE_Released, this, &ASSPawn::OnJumpReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("Jump")), IE_Pressed, this, &ThisClass::OnJumpPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("Jump")), IE_Released, this, &ThisClass::OnJumpReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Crouch")), IE_Pressed, this, &ASSPawn::OnCrouchPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Crouch")), IE_Released, this, &ASSPawn::OnCrouchReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("Crouch")), IE_Pressed, this, &ThisClass::OnCrouchPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("Crouch")), IE_Released, this, &ThisClass::OnCrouchReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Interact")), IE_Pressed, this, &ASSPawn::OnInteractPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Interact")), IE_Released, this, &ASSPawn::OnInteractReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("Interact")), IE_Pressed, this, &ThisClass::OnInteractPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("Interact")), IE_Released, this, &ThisClass::OnInteractReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("PrimaryFire")), IE_Pressed, this, &ASSPawn::OnPrimaryFirePressed);
-	PlayerInputComponent->BindAction(FName(TEXT("PrimaryFire")), IE_Released, this, &ASSPawn::OnPrimaryFireReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("PrimaryFire")), IE_Pressed, this, &ThisClass::OnPrimaryFirePressed);
+	PlayerInputComponent->BindAction(FName(TEXT("PrimaryFire")), IE_Released, this, &ThisClass::OnPrimaryFireReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("SecondaryFire")), IE_Pressed, this, &ASSPawn::OnSecondaryFirePressed);
-	PlayerInputComponent->BindAction(FName(TEXT("SecondaryFire")), IE_Released, this, &ASSPawn::OnSecondaryFireReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("SecondaryFire")), IE_Pressed, this, &ThisClass::OnSecondaryFirePressed);
+	PlayerInputComponent->BindAction(FName(TEXT("SecondaryFire")), IE_Released, this, &ThisClass::OnSecondaryFireReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Reload")), IE_Pressed, this, &ASSPawn::OnReloadPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Reload")), IE_Released, this, &ASSPawn::OnReloadReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("Reload")), IE_Pressed, this, &ThisClass::OnReloadPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("Reload")), IE_Released, this, &ThisClass::OnReloadReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Item0")), IE_Pressed, this, &ASSPawn::OnItem0Pressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Item0")), IE_Released, this, &ASSPawn::OnItem0Released);
+	PlayerInputComponent->BindAction(FName(TEXT("Item0")), IE_Pressed, this, &ThisClass::OnItem0Pressed);
+	PlayerInputComponent->BindAction(FName(TEXT("Item0")), IE_Released, this, &ThisClass::OnItem0Released);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Item1")), IE_Pressed, this, &ASSPawn::OnItem1Pressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Item1")), IE_Released, this, &ASSPawn::OnItem1Released);
+	PlayerInputComponent->BindAction(FName(TEXT("Item1")), IE_Pressed, this, &ThisClass::OnItem1Pressed);
+	PlayerInputComponent->BindAction(FName(TEXT("Item1")), IE_Released, this, &ThisClass::OnItem1Released);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Item2")), IE_Pressed, this, &ASSPawn::OnItem2Pressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Item2")), IE_Released, this, &ASSPawn::OnItem2Released);
+	PlayerInputComponent->BindAction(FName(TEXT("Item2")), IE_Pressed, this, &ThisClass::OnItem2Pressed);
+	PlayerInputComponent->BindAction(FName(TEXT("Item2")), IE_Released, this, &ThisClass::OnItem2Released);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Item3")), IE_Pressed, this, &ASSPawn::OnItem3Pressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Item3")), IE_Released, this, &ASSPawn::OnItem3Released);
+	PlayerInputComponent->BindAction(FName(TEXT("Item3")), IE_Pressed, this, &ThisClass::OnItem3Pressed);
+	PlayerInputComponent->BindAction(FName(TEXT("Item3")), IE_Released, this, &ThisClass::OnItem3Released);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Item4")), IE_Pressed, this, &ASSPawn::OnItem4Pressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Item4")), IE_Released, this, &ASSPawn::OnItem4Released);
+	PlayerInputComponent->BindAction(FName(TEXT("Item4")), IE_Pressed, this, &ThisClass::OnItem4Pressed);
+	PlayerInputComponent->BindAction(FName(TEXT("Item4")), IE_Released, this, &ThisClass::OnItem4Released);
 
-	PlayerInputComponent->BindAction(FName(TEXT("SwitchWeapon")), IE_Pressed, this, &ASSPawn::OnSwitchWeaponPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("SwitchWeapon")), IE_Released, this, &ASSPawn::OnSwitchWeaponReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("SwitchWeapon")), IE_Pressed, this, &ThisClass::OnSwitchWeaponPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("SwitchWeapon")), IE_Released, this, &ThisClass::OnSwitchWeaponReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("NextItem")), IE_Pressed, this, &ASSPawn::OnNextItemPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("NextItem")), IE_Released, this, &ASSPawn::OnNextItemReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("NextItem")), IE_Pressed, this, &ThisClass::OnNextItemPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("NextItem")), IE_Released, this, &ThisClass::OnNextItemReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("PreviousItem")), IE_Pressed, this, &ASSPawn::OnPreviousItemPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("PreviousItem")), IE_Released, this, &ASSPawn::OnPreviousItemReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("PreviousItem")), IE_Pressed, this, &ThisClass::OnPreviousItemPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("PreviousItem")), IE_Released, this, &ThisClass::OnPreviousItemReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("DropItem")), IE_Pressed, this, &ASSPawn::OnDropItemPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("DropItem")), IE_Released, this, &ASSPawn::OnDropItemReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("DropItem")), IE_Pressed, this, &ThisClass::OnDropItemPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("DropItem")), IE_Released, this, &ThisClass::OnDropItemReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Pause")), IE_Pressed, this, &ASSPawn::OnPausePressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Pause")), IE_Released, this, &ASSPawn::OnPauseReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("Pause")), IE_Pressed, this, &ThisClass::OnPausePressed);
+	PlayerInputComponent->BindAction(FName(TEXT("Pause")), IE_Released, this, &ThisClass::OnPauseReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("ScoreSheet")), IE_Pressed, this, &ASSPawn::OnScoreSheetPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("ScoreSheet")), IE_Released, this, &ASSPawn::OnScoreSheetReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("ScoreSheet")), IE_Pressed, this, &ThisClass::OnScoreSheetPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("ScoreSheet")), IE_Released, this, &ThisClass::OnScoreSheetReleased);
 
 
 
 	//Axis
-	PlayerInputComponent->BindAxis(FName(TEXT("MoveForward")), this, &ASSPawn::MoveForward);
-	PlayerInputComponent->BindAxis(FName(TEXT("MoveRight")), this, &ASSPawn::MoveRight);
+	PlayerInputComponent->BindAxis(FName(TEXT("MoveForward")), this, &ThisClass::MoveForward);
+	PlayerInputComponent->BindAxis(FName(TEXT("MoveRight")), this, &ThisClass::MoveRight);
 
-	PlayerInputComponent->BindAxis(FName(TEXT("TurnRightRate")), this, &ASSPawn::HorizontalLook);
-	PlayerInputComponent->BindAxis(FName(TEXT("LookUpRate")), this, &ASSPawn::VerticalLook);
+	PlayerInputComponent->BindAxis(FName(TEXT("TurnRightRate")), this, &ThisClass::HorizontalLook);
+	PlayerInputComponent->BindAxis(FName(TEXT("LookUpRate")), this, &ThisClass::VerticalLook);
 }
 
 

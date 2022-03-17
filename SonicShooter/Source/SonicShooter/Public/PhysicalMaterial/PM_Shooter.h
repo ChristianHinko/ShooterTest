@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 
-#include "ShooterPhysicalMaterial.generated.h"
+#include "PM_Shooter.generated.h"
 
 
 
@@ -13,12 +13,12 @@
  * 
  */
 UCLASS()
-class SONICSHOOTER_API UShooterPhysicalMaterial : public UPhysicalMaterial
+class SONICSHOOTER_API UPM_Shooter : public UPhysicalMaterial
 {
 	GENERATED_BODY()
 
 public:
-	UShooterPhysicalMaterial();
+	UPM_Shooter();
 
 	/** Bullet can ricochet off of this physical material if there is enough speed. If not enough speed, it will stop */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shooter")

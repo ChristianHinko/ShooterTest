@@ -1,14 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/Characters/SonicAnimInstance.h"
+#include "Character/Characters/AI_Sonic.h"
 
 #include "Character/ShooterCharacter.h"
 #include "Kismet/KismetMathLibrary.h"
 
 
 
-USonicAnimInstance::USonicAnimInstance(const FObjectInitializer& ObjectInitializer)
+UAI_Sonic::UAI_Sonic(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	LookTarget = nullptr;
@@ -23,7 +23,7 @@ USonicAnimInstance::USonicAnimInstance(const FObjectInitializer& ObjectInitializ
 	lEyeLookAtAlpha = 1;
 }
 
-void USonicAnimInstance::NativeInitializeAnimation()
+void UAI_Sonic::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
@@ -33,7 +33,7 @@ void USonicAnimInstance::NativeInitializeAnimation()
 		LEyeDynamicMat = SkelMesh->CreateDynamicMaterialInstance(6);
 	}
 }
-void USonicAnimInstance::NativeUpdateAnimation(float DeltaTimeX)
+void UAI_Sonic::NativeUpdateAnimation(float DeltaTimeX)
 {
 	Super::NativeUpdateAnimation(DeltaTimeX);
 	
@@ -72,7 +72,7 @@ void USonicAnimInstance::NativeUpdateAnimation(float DeltaTimeX)
 	}
 }
 
-FRotator USonicAnimInstance::Look(FName boneName, AActor* lookTarget, float deltaTime)
+FRotator UAI_Sonic::Look(FName boneName, AActor* lookTarget, float deltaTime)
 {
 	if (!lookTarget || !OwningShooterCharacter)
 	{

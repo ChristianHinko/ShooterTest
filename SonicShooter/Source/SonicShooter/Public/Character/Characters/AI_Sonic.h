@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Character/AI_ShooterCharacter.h"
 
-#include "SonicAnimInstance.generated.h"
+#include "AI_Sonic.generated.h"
 
 
 
@@ -13,12 +13,12 @@
  * 
  */
 UCLASS()
-class SONICSHOOTER_API USonicAnimInstance : public UAI_ShooterCharacter
+class SONICSHOOTER_API UAI_Sonic : public UAI_ShooterCharacter
 {
 	GENERATED_BODY()
 
 public:
-	USonicAnimInstance(const FObjectInitializer& ObjectInitializer);
+	UAI_Sonic(const FObjectInitializer& ObjectInitializer);
 
 	UMaterialInstanceDynamic* REyeDynamicMat;
 	UMaterialInstanceDynamic* LEyeDynamicMat;

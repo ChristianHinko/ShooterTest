@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "PhysicalMaterial/ShooterPhysicalMaterial.h"
+#include "PhysicalMaterial/PM_Shooter.h"
 
 
 
-UShooterPhysicalMaterial::UShooterPhysicalMaterial()
+UPM_Shooter::UPM_Shooter()
 {
 	bRichochetsBullets = false;
 	BulletPenetrationSpeedReduction = 20.f;

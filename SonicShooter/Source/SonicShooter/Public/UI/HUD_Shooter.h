@@ -12,6 +12,7 @@ class UUW_Health;
 class UUW_ActiveItem;
 
 
+
 /**
  * ShooterCharacter specific HUD
  */
@@ -21,7 +22,7 @@ class SONICSHOOTER_API AHUD_Shooter : public ASSHUD
 	GENERATED_BODY()
 
 public:
-	AHUD_Shooter();
+	AHUD_Shooter(const FObjectInitializer& ObjectInitializer);
 
 
 

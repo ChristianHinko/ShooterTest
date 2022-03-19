@@ -4,12 +4,27 @@
 
 #include "CoreMinimal.h"
 #include "Character/SSCharacterMovementComponent.h"
+#include "GameplayEffectTypes.h"
 
 #include "CMC_Shooter.generated.h"
 
 
 class UO_Stamina;
 
+
+
+/**
+ * Shooter custom movement mode that "inherits" from ECustomMovementMode
+ */
+UENUM()
+enum class ECustomMovementMode_Shooter : uint8
+{
+	/** Shooter custom move */
+	MOVE_Example = static_cast<uint8>(ECustomMovementMode::MOVE_MAX) + 1		UMETA(DisplayName = "Example"),
+
+
+	MOVE_MAX																	UMETA(Hidden)
+};
 
 
 /**
@@ -39,6 +54,11 @@ public:
 	virtual bool CanRunInCurrentState() const override;
 	virtual void Run() override;
 	virtual void UnRun() override;
+
+
+	//BEGIN UCharacterMovementComponent Interface
+	virtual FString GetMovementName() const override;
+	//END UCharacterMovementComponent Interface
 
 protected:
 	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;

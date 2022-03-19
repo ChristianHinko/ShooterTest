@@ -3,13 +3,13 @@
 
 #include "Character/SSCharacterMovementComponent.h"
 
-#include "Engine/ActorChannel.h"
 #include "GameFramework/Character.h"
-#include "Character/SSCharacter.h"
-#include "Character/AttributeSets/AS_CharacterMovement.h"
 #include "Utilities/LogCategories.h"
 #include "Utilities/SSNativeGameplayTags.h"
+#include "Character/SSCharacter.h"
+#include "Character/AttributeSets/AS_CharacterMovement.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "AbilitySystemSetupComponent/AbilitySystemSetupInterface.h"
 #include "AbilitySystemSetupComponent/AbilitySystemSetupComponent.h"
 
@@ -752,13 +752,13 @@ float USSCharacterMovementComponent::GetMaxSpeed() const
 	}
 	case MOVE_Custom:
 	{
-		switch (CustomMovementMode)
+		switch (static_cast<ECustomMovementMode>(CustomMovementMode))
 		{
-		case ECustomMovementMode::CMOVE_None:
+		case ECustomMovementMode::MOVE_None:
 		{
 			break;
 		}
-		case ECustomMovementMode::CMOVE_InfiniteAngleWalking:
+		case ECustomMovementMode::MOVE_InfiniteAngleWalking:
 		{
 			break;
 		}
@@ -816,13 +816,13 @@ float USSCharacterMovementComponent::GetMaxAcceleration() const
 	}
 	case MOVE_Custom:
 	{
-		switch (CustomMovementMode)
+		switch (static_cast<ECustomMovementMode>(CustomMovementMode))
 		{
-		case ECustomMovementMode::CMOVE_None:
+		case ECustomMovementMode::MOVE_None:
 		{
 			break;
 		}
-		case ECustomMovementMode::CMOVE_InfiniteAngleWalking:
+		case ECustomMovementMode::MOVE_InfiniteAngleWalking:
 		{
 			break;
 		}
@@ -856,36 +856,20 @@ FString USSCharacterMovementComponent::GetMovementName() const
 {
 	if (MovementMode == MOVE_Custom)
 	{
-		switch (CustomMovementMode)
+		const UEnum* CustomMovementModeEnum = FindObject<const UEnum>(ANY_PACKAGE, TEXT("ECustomMovementMode"));
+		if (IsValid(CustomMovementModeEnum))
 		{
-		case ECustomMovementMode::CMOVE_None:
-		{
-			return TEXT("Custom_None");
-			break;
-		}
-		case ECustomMovementMode::CMOVE_InfiniteAngleWalking:
-		{
-			return TEXT("Custom_InfiniteAngleWalking");
-			break;
-		}
-
-		default:
-		{
-			break;
-		}
+			// If this value is in our custom movement enum
+			if (CustomMovementModeEnum->IsValidEnumValue(CustomMovementMode))
+			{
+				// Return the display name!
+				return CustomMovementModeEnum->GetDisplayNameTextByValue(CustomMovementMode).ToString();
+			}
 		}
 	}
 
 
 	return Super::GetMovementName();
-}
-
-void USSCharacterMovementComponent::SetMovementMode(EMovementMode NewMovementMode, uint8 NewCustomMode)
-{
-	Super::SetMovementMode(NewMovementMode, NewCustomMode);
-
-
-	CustomMovementMode = static_cast<TEnumAsByte<ECustomMovementMode>>(NewCustomMode);
 }
 
 void USSCharacterMovementComponent::OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode)
@@ -914,13 +898,13 @@ void USSCharacterMovementComponent::PhysCustom(float deltaTime, int32 Iterations
 	Super::PhysCustom(deltaTime, Iterations);
 
 
-	switch (CustomMovementMode)
+	switch (static_cast<ECustomMovementMode>(CustomMovementMode))
 	{
-	case ECustomMovementMode::CMOVE_None:
+	case ECustomMovementMode::MOVE_None:
 	{
 		break;
 	}
-	case ECustomMovementMode::CMOVE_InfiniteAngleWalking:
+	case ECustomMovementMode::MOVE_InfiniteAngleWalking:
 	{
 		PhysInfiniteAngleWalking(deltaTime, Iterations);
 		break;
@@ -928,7 +912,7 @@ void USSCharacterMovementComponent::PhysCustom(float deltaTime, int32 Iterations
 	default:
 	{
 		UE_LOG(LogCharacterMovementSetup, Warning, TEXT("%s has unsupported custom movement mode %d"), *CharacterOwner->GetName(), static_cast<uint8>(CustomMovementMode));
-		SetMovementMode(EMovementMode::MOVE_Custom, static_cast<uint8>(ECustomMovementMode::CMOVE_None));
+		SetMovementMode(EMovementMode::MOVE_Custom, static_cast<uint8>(ECustomMovementMode::MOVE_None));
 		break;
 	}
 	}

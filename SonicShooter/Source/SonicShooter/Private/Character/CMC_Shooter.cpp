@@ -3,13 +3,10 @@
 
 #include "Character/CMC_Shooter.h"
 
-#include "Engine/ActorChannel.h"
-#include "AbilitySystem/AttributeSets/AS_Stamina.h"
-#include "Subobjects/O_Stamina.h"
-#include "GameFramework/Character.h"
 #include "Utilities/LogCategories.h"
-#include "AbilitySystemSetupComponent/AbilitySystemSetupInterface.h"
-#include "AbilitySystemSetupComponent/AbilitySystemSetupComponent.h"
+#include "Engine/ActorChannel.h"
+#include "Subobjects/O_Stamina.h"
+#include "AbilitySystem/AttributeSets/AS_Stamina.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -185,6 +182,27 @@ void UCMC_Shooter::UnRun()
 	{
 		StaminaSubobject->SetStaminaDraining(false);
 	}
+}
+
+
+FString UCMC_Shooter::GetMovementName() const
+{
+	if (MovementMode == MOVE_Custom)
+	{
+		const UEnum* ShooterCustomMovementModeEnum = FindObject<const UEnum>(ANY_PACKAGE, TEXT("ECustomMovementMode_Shooter"));
+		if (IsValid(ShooterCustomMovementModeEnum))
+		{
+			// If this value is in our custom movement enum
+			if (ShooterCustomMovementModeEnum->IsValidEnumValue(CustomMovementMode))
+			{
+				// Return the display name!
+				return ShooterCustomMovementModeEnum->GetDisplayNameTextByValue(CustomMovementMode).ToString();
+			}
+		}
+	}
+
+
+	return Super::GetMovementName();
 }
 
 void UCMC_Shooter::TweakWantsToRunBeforeTick(bool& outTweakedWantsToRun) const

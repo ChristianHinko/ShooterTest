@@ -3,16 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystemComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameplayTags/Classes/GameplayTagContainer.h"
 #include "Console/CVarChangeListenerManager.h"
 
 #include "SSCharacterMovementComponent.generated.h"
 
 
 class ASSCharacter;
+class UAbilitySystemComponent;
 class UAS_CharacterMovement;
-class IAbilitySystemInterface;
 
 
 
@@ -21,17 +21,17 @@ DECLARE_MULTICAST_DELEGATE(FCharacterMovementStateNotify);
 
 
 /**
- * Custom movement modes. used when MovementMode == MOVE_Custom
+ * Custom movement modes. Used when MovementMode == MOVE_Custom
  */
 UENUM()
 enum class ECustomMovementMode : uint8
 {
 	/** None (custom movement is disabled). */
-	CMOVE_None						UMETA(DisplayName = "None"),
+	MOVE_None						UMETA(DisplayName = "None"),
 	/** Walking on a surface with the ability to walk up any slope angle */
-	CMOVE_InfiniteAngleWalking		UMETA(DisplayName = "InfiniteAngleWalking"),
+	MOVE_InfiniteAngleWalking		UMETA(DisplayName = "Infinite Angle Walking"),
 
-	CMOVE_MAX						UMETA(Hidden)
+	MOVE_MAX						UMETA(Hidden)
 };
 
 /**
@@ -206,8 +206,14 @@ public:
 	FCharacterMovementStateNotify OnStoppedFalling;
 
 
+	//BEGIN UCharacterMovementComponent Interface
+	virtual FString GetMovementName() const override;
+	virtual float GetMaxSpeed() const override;
+	virtual float GetMaxAcceleration() const override;
+	virtual float GetMaxBrakingDeceleration() const override;
+	//END UCharacterMovementComponent Interface
+
 protected:
-	//	Don't know for sure if this is the best event to use but works for now
 	virtual void InitializeComponent() override;
 
 	UPROPERTY()
@@ -220,21 +226,16 @@ protected:
 	virtual void OnAbilitySystemSetUpPreInitialized(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC);
 	virtual void OnAbilitySystemSetUp(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC);
 
-	//BEGIN CMC Interface
+	//BEGIN UCharacterMovementComponent Interface
 	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
 	virtual void UpdateFromCompressedFlags(uint8 Flags) override;
 	virtual void UpdateCharacterStateBeforeMovement(float DeltaSeconds) override;
 	virtual void OnMovementUpdated(float deltaTime, const FVector& OldLocation, const FVector& OldVelocity) override;
 	virtual void UpdateCharacterStateAfterMovement(float DeltaSeconds) override;
-	virtual float GetMaxSpeed() const override;
-	virtual float GetMaxAcceleration() const override;
-	virtual float GetMaxBrakingDeceleration() const override;
-	virtual FString GetMovementName() const override;
-	virtual void SetMovementMode(EMovementMode NewMovementMode, uint8 NewCustomMode = 0) override;
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 	virtual void PhysCustom(float deltaTime, int32 Iterations) override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override; // DO NOT UTILIZE THIS EVENT FOR MOVEMENT
-	//END CMC Interface
+	//END UCharacterMovementComponent Interface
 
 	// A new thing added to the engine NOTE: look into this and see if we need to fix anything because of this
 	virtual void ServerMove_PerformMovement(const FCharacterNetworkMoveData& MoveData) override;
@@ -274,9 +275,6 @@ protected:
 	void OnCrouchDisabledTagChanged(const FGameplayTag Tag, int32 NewCount);
 	uint8 bCrouchDisabled : 1;
 #pragma endregion
-
-	// TODO: why do we have this repetitive member???? The engine already has UCharacterMovementComponent::CustomMovementMode
-	ECustomMovementMode CustomMovementMode;
 
 #pragma region Custom Movement Physics
 	virtual void PhysInfiniteAngleWalking(float deltaTime, int32 Iterations);

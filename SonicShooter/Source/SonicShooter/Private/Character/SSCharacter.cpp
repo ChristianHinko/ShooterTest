@@ -341,7 +341,7 @@ void ASSCharacter::Jump()
 		{
 			Super::Jump(); // set to true
 
-			SSCharacterMovementComponent->timestampWantsToJump = GetWorld()->GetTimeSeconds();
+			SSCharacterMovementComponent->TimestampWantsToJump = GetWorld()->GetTimeSeconds();
 		}
 
 	}
@@ -355,7 +355,7 @@ void ASSCharacter::StopJumping()
 		{
 			Super::StopJumping(); // set to false
 
-			SSCharacterMovementComponent->timestampWantsToJump = -1 * GetWorld()->GetTimeSeconds();
+			SSCharacterMovementComponent->TimestampWantsToJump = -1 * GetWorld()->GetTimeSeconds();
 		}
 	}
 }
@@ -442,7 +442,7 @@ void ASSCharacter::Crouch(bool bClientSimulation)
 			if (SSCharacterMovementComponent->bWantsToCrouch == false) // if changed
 			{
 				SSCharacterMovementComponent->bWantsToCrouch = true;
-				SSCharacterMovementComponent->timestampWantsToCrouch = GetWorld()->GetTimeSeconds();
+				SSCharacterMovementComponent->TimestampWantsToCrouch = GetWorld()->GetTimeSeconds();
 			}
 		}
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
@@ -461,7 +461,7 @@ void ASSCharacter::UnCrouch(bool bClientSimulation)
 		{
 			Super::UnCrouch(bClientSimulation); // set to false
 
-			SSCharacterMovementComponent->timestampWantsToCrouch = -1 * GetWorld()->GetTimeSeconds();
+			SSCharacterMovementComponent->TimestampWantsToCrouch = -1 * GetWorld()->GetTimeSeconds();
 		}
 	}
 }
@@ -515,7 +515,7 @@ void ASSCharacter::OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust)
 		CameraBoomRelativeLocation.Z += HeightAdjust;
 
 		// Store where our camera should be. This is our goal that we will smooth to
-		crouchToHeight = DefaultSSChar->CameraBoom->GetRelativeLocation().Z - HeightAdjust;
+		CrouchToHeight = DefaultSSChar->CameraBoom->GetRelativeLocation().Z - HeightAdjust;
 	}
 
 	// Call BP event
@@ -566,7 +566,7 @@ void ASSCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
 		CameraBoomRelativeLocation.Z -= HeightAdjust;
 
 		// Store where our camera should be. This is our goal that we will smooth to
-		crouchToHeight = DefaultSSChar->CameraBoom->GetRelativeLocation().Z;
+		CrouchToHeight = DefaultSSChar->CameraBoom->GetRelativeLocation().Z;
 	}
 
 
@@ -612,9 +612,9 @@ void ASSCharacter::CrouchTick(float DeltaTime)
 	float interpedHeight;
 	if (SSCharacterMovementComponent->GetToggleCrouchEnabled()) // toggle crouch feels better with a linear interp
 	{
-		interpedHeight = FMath::FInterpConstantTo(crouchFromHeight, crouchToHeight, DeltaTime, CrouchSpeed);
+		interpedHeight = FMath::FInterpConstantTo(crouchFromHeight, CrouchToHeight, DeltaTime, CrouchSpeed);
 
-		if (interpedHeight == crouchToHeight)
+		if (interpedHeight == CrouchToHeight)
 		{
 			// We've reached our goal, make this our last tick
 			CrouchTickFunction.SetTickFunctionEnable(false);
@@ -622,12 +622,12 @@ void ASSCharacter::CrouchTick(float DeltaTime)
 	}
 	else // hold to crouch feels better with a smooth interp
 	{
-		interpedHeight = FMath::FInterpTo(crouchFromHeight, crouchToHeight, DeltaTime, CrouchSpeed / 10);
+		interpedHeight = FMath::FInterpTo(crouchFromHeight, CrouchToHeight, DeltaTime, CrouchSpeed / 10);
 
-		if (FMath::IsNearlyEqual(interpedHeight, crouchToHeight, KINDA_SMALL_NUMBER * 100))
+		if (FMath::IsNearlyEqual(interpedHeight, CrouchToHeight, KINDA_SMALL_NUMBER * 100))
 		{
 			// We've nearly reached our goal, set our official height and make this our last tick
-			interpedHeight = crouchToHeight;
+			interpedHeight = CrouchToHeight;
 			CrouchTickFunction.SetTickFunctionEnable(false);
 		}
 	}
@@ -931,7 +931,7 @@ void ASSCharacter::OnScoreSheetReleased()
 //Axis
 void ASSCharacter::MoveForward(float Value)
 {
-	forwardInputAxis = Value;
+	ForwardInputAxis = Value;
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
 		// find out which way is forward
@@ -945,7 +945,7 @@ void ASSCharacter::MoveForward(float Value)
 }
 void ASSCharacter::MoveRight(float Value)
 {
-	rightInputAxis = Value;
+	RightInputAxis = Value;
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
 		// find out which way is right

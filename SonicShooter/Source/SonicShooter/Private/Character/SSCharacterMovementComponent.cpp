@@ -79,61 +79,63 @@ void USSCharacterMovementComponent::InitializeComponent()
 	// Get reference to our SSCharacter
 	SSCharacterOwner = Cast<ASSCharacter>(PawnOwner);
 
-	AbilitySystemOwner = Cast<IAbilitySystemInterface>(GetOwner());
-
 	// Get reference to our AbilitySystemCharacter
 	IAbilitySystemSetupInterface* AbilitySystemSetupOwner = Cast<IAbilitySystemSetupInterface>(SSCharacterOwner);
 
 	if (AbilitySystemSetupOwner)
 	{
-		AbilitySystemSetupOwner->GetAbilitySystemSetup()->OnAbilitySystemSetUpPreInitialized.AddUObject(this, &USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady);
+		AbilitySystemSetupOwner->GetAbilitySystemSetup()->OnAbilitySystemSetUpPreInitialized.AddUObject(this, &USSCharacterMovementComponent::OnAbilitySystemSetUpPreInitialized);
+		AbilitySystemSetupOwner->GetAbilitySystemSetup()->OnAbilitySystemSetUp.AddUObject(this, &USSCharacterMovementComponent::OnAbilitySystemSetUp);
 	}
 }
 
 #pragma region Ability System
-void USSCharacterMovementComponent::OnOwningCharacterAbilitySystemReady(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC)
+void USSCharacterMovementComponent::OnAbilitySystemSetUpPreInitialized(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC)
 {
-	if (AbilitySystemOwner)
-	{
-		OwnerASC = AbilitySystemOwner->GetAbilitySystemComponent();
-	}
+	OwnerASC = NewASC;
 
-	if (OwnerASC)
+	if (IsValid(OwnerASC))
 	{
 		OwnerASC->RegisterGameplayTagEvent(Tag_RunDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnRunDisabledTagChanged);
 		OwnerASC->RegisterGameplayTagEvent(Tag_JumpDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnJumpDisabledTagChanged);
 		OwnerASC->RegisterGameplayTagEvent(Tag_CrouchDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCrouchDisabledTagChanged);
 	}
+}
+void USSCharacterMovementComponent::OnAbilitySystemSetUp(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC)
+{
+	OwnerASC = NewASC;
 
-	if (SSCharacterOwner)
+	if (IsValid(SSCharacterOwner))
 	{
-		CharacterMovementAttributeSet = SSCharacterOwner->GetCharacterAttributeSet();
+		CharacterMovementAttributeSet = SSCharacterOwner->GetCharacterMovementAttributeSet();
 	}
 
-	if (IsValid(StaminaSubobject) && IsValid(OwnerASC))
+	if (IsValid(OwnerASC))
 	{
-		// Get initial values
-		StaminaSubobject->SetMaxStamina(OwnerASC->GetNumericAttribute(UAS_Stamina::GetMaxStaminaAttribute()));
-		StaminaSubobject->SetStaminaDrain(OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaDrainAttribute()));
-		StaminaSubobject->SetStaminaGain(OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaGainAttribute()));
-		StaminaSubobject->SetStaminaRegenPause(OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaRegenPauseAttribute()));
-
-
-		// Bind to attribute value change delegates
+		// Bind to Attribute value change delegates
 		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetMaxStaminaAttribute()).AddUObject(this, &USSCharacterMovementComponent::OnMaxStaminaAttributeChange);
 		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaDrainAttribute()).AddUObject(this, &USSCharacterMovementComponent::OnStaminaDrainAttributeChange);
 		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaGainAttribute()).AddUObject(this, &USSCharacterMovementComponent::OnStaminaGainAttributeChange);
 		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaRegenPauseAttribute()).AddUObject(this, &USSCharacterMovementComponent::OnStaminaRegenPauseAttributeChange);
+
+		// Get initial values
+		if (IsValid(StaminaSubobject))
+		{
+			StaminaSubobject->SetMaxStamina(OwnerASC->GetNumericAttribute(UAS_Stamina::GetMaxStaminaAttribute()));
+			StaminaSubobject->SetStaminaDrain(OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaDrainAttribute()));
+			StaminaSubobject->SetStaminaGain(OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaGainAttribute()));
+			StaminaSubobject->SetStaminaRegenPause(OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaRegenPauseAttribute()));
+		}
 	}
 }
 
 void USSCharacterMovementComponent::OnRunDisabledTagChanged(const FGameplayTag Tag, int32 NewCount)
 {
-	if (NewCount > 0)	// If RunDisabled tag present
+	if (NewCount > 0) // if RunDisabled tag present
 	{
 		bRunDisabled = true;
 	}
-	else 			    // If RunDisabled tag not present
+	else // if RunDisabled tag not present
 	{
 		bRunDisabled = false;
 	}
@@ -163,31 +165,43 @@ void USSCharacterMovementComponent::OnCrouchDisabledTagChanged(const FGameplayTa
 
 void USSCharacterMovementComponent::OnMaxStaminaAttributeChange(const FOnAttributeChangeData& Data)
 {
-	if (IsValid(OwnerASC) && IsValid(StaminaSubobject))
-		StaminaSubobject->SetMaxStamina(Data.NewValue);
-	else
-		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's MaxStamina value. We needed OwnerASC and StaminaSubobject to both be valid"), ANSI_TO_TCHAR(__FUNCTION__));
+	if (!IsValid(StaminaSubobject))
+	{
+		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's MaxStamina value - StaminaSubobject was not valid"), ANSI_TO_TCHAR(__FUNCTION__));
+		return;
+	}
+
+	StaminaSubobject->SetMaxStamina(Data.NewValue);
 }
 void USSCharacterMovementComponent::OnStaminaDrainAttributeChange(const FOnAttributeChangeData& Data)
 {
-	if (IsValid(OwnerASC) && IsValid(StaminaSubobject))
-		StaminaSubobject->SetStaminaDrain(Data.NewValue);
-	else
-		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaDrain value. We needed OwnerASC and StaminaSubobject to both be valid"), ANSI_TO_TCHAR(__FUNCTION__));
+	if (!IsValid(StaminaSubobject))
+	{
+		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaDrain value - StaminaSubobject was not valid"), ANSI_TO_TCHAR(__FUNCTION__));
+		return;
+	}
+
+	StaminaSubobject->SetStaminaDrain(Data.NewValue);
 }
 void USSCharacterMovementComponent::OnStaminaGainAttributeChange(const FOnAttributeChangeData& Data)
 {
-	if (IsValid(OwnerASC) && IsValid(StaminaSubobject))
-		StaminaSubobject->SetStaminaGain(Data.NewValue);
-	else
-		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaGain value. We needed OwnerASC and StaminaSubobject to both be valid"), ANSI_TO_TCHAR(__FUNCTION__));
+	if (!IsValid(StaminaSubobject))
+	{
+		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaGain value - StaminaSubobject was not valid"), ANSI_TO_TCHAR(__FUNCTION__));
+		return;
+	}
+
+	StaminaSubobject->SetStaminaGain(Data.NewValue);
 }
 void USSCharacterMovementComponent::OnStaminaRegenPauseAttributeChange(const FOnAttributeChangeData& Data)
 {
-	if (IsValid(OwnerASC) && IsValid(StaminaSubobject))
-		StaminaSubobject->SetStaminaRegenPause(Data.NewValue);
-	else
-		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaRegenPause value. We needed OwnerASC and StaminaSubobject to both be valid"), ANSI_TO_TCHAR(__FUNCTION__));
+	if (!IsValid(StaminaSubobject))
+	{
+		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaRegenPause value - StaminaSubobject was not valid"), ANSI_TO_TCHAR(__FUNCTION__));
+		return;
+	}
+
+	StaminaSubobject->SetStaminaRegenPause(Data.NewValue);
 }
 #pragma endregion
 
@@ -200,11 +214,11 @@ void USSCharacterMovementComponent::SetWantsToRun(bool newWantsToRun)
 
 		if (bWantsToRun == true)
 		{
-			timestampWantsToRun = GetWorld()->GetTimeSeconds();
+			TimestampWantsToRun = GetWorld()->GetTimeSeconds();
 		}
 		else
 		{
-			timestampWantsToRun = -1 * GetWorld()->GetTimeSeconds();
+			TimestampWantsToRun = -1 * GetWorld()->GetTimeSeconds();
 		}
 	}
 }
@@ -244,7 +258,7 @@ void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 		newWantsToRun = false;
 	}
 
-	if (currentTimeSeconds == -timestampWantsToRun) // if we just stopped running
+	if (CurrentTimeSeconds == -TimestampWantsToRun) // if we just stopped running
 	{
 		if (!IsMovingOnGround() && bToggleRunEnabled && isMovingForward)
 		{
@@ -263,7 +277,7 @@ void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 	////////////////////////////////////////////////////////////////////////////// Desire Cancellations (for Toggle Modes) //////////
 
 
-	if (currentTimeSeconds == timestampWantsToJump)
+	if (CurrentTimeSeconds == TimestampWantsToJump)
 	{
 		if (bJumpCancelsDesireToCrouch)
 		{
@@ -281,7 +295,7 @@ void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 		}
 	}
 
-	if (currentTimeSeconds == timestampWantsToCrouch)
+	if (CurrentTimeSeconds == TimestampWantsToCrouch)
 	{
 		if (bCrouchCancelsDesireToRun)
 		{
@@ -292,7 +306,7 @@ void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 		}
 	}
 
-	if (currentTimeSeconds == timestampWantsToRun)
+	if (CurrentTimeSeconds == TimestampWantsToRun)
 	{
 		if (bRunCancelsDesireToCrouch)
 		{
@@ -306,29 +320,29 @@ void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 
 void USSCharacterMovementComponent::BroadcastMovementDelegates()
 {
-	if (currentTimeSeconds == timestampWantsToJump)
+	if (CurrentTimeSeconds == TimestampWantsToJump)
 	{
 		OnWantsToJumpChanged.Broadcast(true);
 	}
-	else if (currentTimeSeconds == -1 * timestampWantsToJump)
+	else if (CurrentTimeSeconds == -1 * TimestampWantsToJump)
 	{
 		OnWantsToJumpChanged.Broadcast(false);
 	}
 
-	if (currentTimeSeconds == timestampWantsToCrouch)
+	if (CurrentTimeSeconds == TimestampWantsToCrouch)
 	{
 		OnWantsToCrouchChanged.Broadcast(true);
 	}
-	else if (currentTimeSeconds == -1 * timestampWantsToCrouch)
+	else if (CurrentTimeSeconds == -1 * TimestampWantsToCrouch)
 	{
 		OnWantsToCrouchChanged.Broadcast(false);
 	}
 
-	if (currentTimeSeconds == timestampWantsToRun)
+	if (CurrentTimeSeconds == TimestampWantsToRun)
 	{
 		OnWantsToRunChanged.Broadcast(true);
 	}
-	else if (currentTimeSeconds == -1 * timestampWantsToRun)
+	else if (CurrentTimeSeconds == -1 * TimestampWantsToRun)
 	{
 		OnWantsToRunChanged.Broadcast(false);
 	}
@@ -589,7 +603,7 @@ void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 		}
 		else if (!IsCrouching() && willCrouch)
 		{
-			if (timestampWantsToCrouch > timestampWantsToRun)
+			if (TimestampWantsToCrouch > TimestampWantsToRun)
 			{
 				OwnerASC->TryActivateAbility(SSCharacterOwner->CharacterCrouchAbilitySpecHandle);
 			}
@@ -603,7 +617,7 @@ void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 		}
 		else if (!IsRunning() && willRun)
 		{
-			if (timestampWantsToRun > timestampWantsToCrouch)
+			if (TimestampWantsToRun > TimestampWantsToCrouch)
 			{
 				OwnerASC->TryActivateAbility(SSCharacterOwner->CharacterRunAbilitySpecHandle);
 			}
@@ -992,7 +1006,7 @@ void USSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 {
 	// DO NOT UTILIZE THIS EVENT FOR MOVEMENT
 
-	currentTimeSeconds = GetWorld()->GetTimeSeconds();
+	CurrentTimeSeconds = GetWorld()->GetTimeSeconds();
 
 	CurrentRotationRate = (PawnOwner->GetActorRotation() - PreviousRotation) * (DeltaTime * 1000);
 

@@ -169,15 +169,15 @@ public:
 	 * If negative, represents the timestamp the moment you stopped wanting to do something.
 	 * And, I guess, if zero, null which is kind of cool.
 	 */
-	float timestampWantsToJump;
+	float TimestampWantsToJump;
 	FCharacterMovementWantsToChanged OnWantsToJumpChanged;
-	float timestampWantsToCrouch;
+	float TimestampWantsToCrouch;
 	FCharacterMovementWantsToChanged OnWantsToCrouchChanged;
-	float timestampWantsToRun;
+	float TimestampWantsToRun;
 	FCharacterMovementWantsToChanged OnWantsToRunChanged;
 
 
-	float currentTimeSeconds;
+	float CurrentTimeSeconds;
 	void BroadcastMovementDelegates();
 
 
@@ -220,14 +220,15 @@ protected:
 	virtual void InitializeComponent() override;
 	virtual void BeginDestroy() override;
 
-	IAbilitySystemInterface* AbilitySystemOwner;
 	UPROPERTY()
 		ASSCharacter* SSCharacterOwner;
-	UAbilitySystemComponent* OwnerASC;
+	UPROPERTY()
+		UAbilitySystemComponent* OwnerASC;
 	UPROPERTY()
 		UAS_CharacterMovement* CharacterMovementAttributeSet;
 
-	virtual void OnOwningCharacterAbilitySystemReady(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC);
+	virtual void OnAbilitySystemSetUpPreInitialized(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC);
+	virtual void OnAbilitySystemSetUp(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC);
 
 	//BEGIN CMC Interface
 	virtual void UpdateFromCompressedFlags(uint8 Flags) override;

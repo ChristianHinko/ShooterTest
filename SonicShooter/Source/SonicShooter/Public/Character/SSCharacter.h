@@ -95,7 +95,7 @@ public:
 	UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 
-	UAS_CharacterMovement* GetCharacterAttributeSet() const { return CharacterMovementAttributeSet; }
+	UAS_CharacterMovement* GetCharacterMovementAttributeSet() const { return CharacterMovementAttributeSet; }
 	UAS_Stamina* GetStaminaAttributeSet() const { return StaminaAttributeSet; }
 
 #pragma region Abilities
@@ -154,8 +154,8 @@ public:
 	void SetRemoteViewYaw(float NewRemoteViewYaw);
 	virtual FRotator GetBaseAimRotation() const override;
 
-	float GetForwardInputAxis() const { return forwardInputAxis; }
-	float GetRightInputAxis() const { return rightInputAxis; }
+	float GetForwardInputAxis() const { return ForwardInputAxis; }
+	float GetRightInputAxis() const { return RightInputAxis; }
 
 	virtual void Jump() override;
 	virtual void StopJumping() override;
@@ -276,8 +276,8 @@ protected:
 	virtual void VerticalLook(float Rate);
 #pragma endregion
 
-	float forwardInputAxis;
-	float rightInputAxis;
+	float ForwardInputAxis;
+	float RightInputAxis;
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	float HorizontalSensitivity;
@@ -291,5 +291,5 @@ private:
 	UPROPERTY(Replicated)
 		UAS_Stamina* StaminaAttributeSet;
 
-	float crouchToHeight;
+	float CrouchToHeight;
 };

@@ -34,7 +34,7 @@ bool UO_ClipAmmo::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, 
 UO_ClipAmmo::UO_ClipAmmo(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 	, OnClipAmmoChange(MakeShared<FFloatValueChange>())
-	, ClipAmmo(0.f, this, FName("ClipAmmo"), OnClipAmmoChange)
+	, ClipAmmo(0.f, this, FName(TEXT("ClipAmmo")), OnClipAmmoChange)
 {
 
 }

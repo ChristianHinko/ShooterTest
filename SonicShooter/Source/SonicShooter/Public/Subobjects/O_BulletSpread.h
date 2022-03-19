@@ -20,8 +20,7 @@ class UArcItemStack;
 /**
  * Has CurrentBulletSpread float.
  * 
- * Currently searches for external required variables - this is bad. We should change to
- * using injection of these variables and events into the subobject.
+ * NOTE: Searches externally for Stamina-related Attributes
  */
 UCLASS()
 class SONICSHOOTER_API UO_BulletSpread : public UObject, public FTickableGameObject

@@ -6,6 +6,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Utilities/LogCategories.h"
 #include "Utilities/SSNativeGameplayTags.h"
+#include "Character/CMC_Shooter.h"
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
 #include "Subobjects/ActorComponents/AC_Interactor.h"
@@ -14,6 +15,7 @@
 #include "ArcItemStack.h"
 #include "AbilitySystem/ASSGameplayAbility.h"
 #include "AttributeSets/AS_Health.h"
+#include "AbilitySystem/AttributeSets/AS_Stamina.h"
 
 
 
@@ -23,6 +25,7 @@ void AC_Shooter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 
 
 	DOREPLIFETIME(AC_Shooter, HealthAttributeSet);
+	DOREPLIFETIME(AC_Shooter, StaminaAttributeSet);
 
 
 	DOREPLIFETIME_CONDITION(AC_Shooter, InteractInstantAbilitySpecHandle, COND_OwnerOnly);
@@ -43,7 +46,10 @@ void AC_Shooter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 const FName AC_Shooter::InventoryComponentName = TEXT("InventoryComponent");
 
 AC_Shooter::AC_Shooter(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer.SetDefaultSubobjectClass<UArcInventoryComponent_Shooter>(InventoryComponentName))
+	: Super(ObjectInitializer
+		.SetDefaultSubobjectClass<UCMC_Shooter>(CharacterMovementComponentName)
+		.SetDefaultSubobjectClass<UArcInventoryComponent_Shooter>(InventoryComponentName)
+	)
 {
 	// Default to first person
 	bFirstPerson = true;
@@ -58,8 +64,8 @@ AC_Shooter::AC_Shooter(const FObjectInitializer& ObjectInitializer)
 
 	Interactor = CreateDefaultSubobject<UAC_Interactor>(TEXT("Interactor"));
 
-	CameraSwayAmount = FVector(0, 1.3f, 0.4f);
-	AddedCameraSwayDuringADS = FVector(0, -1.1f, -.1f);
+	CameraSwayAmount = FVector(0.f, 1.3f, 0.4f);
+	AddedCameraSwayDuringADS = FVector(0.f, -1.1f, -0.1f);
 }
 
 void AC_Shooter::PossessedBy(AController* NewController)
@@ -88,6 +94,15 @@ void AC_Shooter::CreateAttributeSets()
 	{
 		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), ANSI_TO_TCHAR(__FUNCTION__), *HealthAttributeSet->GetName());
 	}
+
+	if (!StaminaAttributeSet)
+	{
+		StaminaAttributeSet = NewObject<UAS_Stamina>(this, UAS_Stamina::StaticClass(), TEXT("StaminaAttributeSet"));
+	}
+	else
+	{
+		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), ANSI_TO_TCHAR(__FUNCTION__), *StaminaAttributeSet->GetName());
+	}
 }
 
 void AC_Shooter::RegisterAttributeSets()
@@ -102,6 +117,15 @@ void AC_Shooter::RegisterAttributeSets()
 	else
 	{
 		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() HealthAttributeSet was either NULL or already added to the character's ASC. Character: %s"), ANSI_TO_TCHAR(__FUNCTION__), *GetName());
+	}
+
+	if (StaminaAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(StaminaAttributeSet))	// If StaminaAttributeSet is valid and it's not yet registered with the Character's ASC
+	{
+		GetAbilitySystemComponent()->AddAttributeSetSubobject(StaminaAttributeSet);
+	}
+	else
+	{
+		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() StaminaAttributeSet was either NULL or already added to the character's ASC. Character: %s"), ANSI_TO_TCHAR(__FUNCTION__), *GetName());
 	}
 }
 void AC_Shooter::GiveStartingAbilities()

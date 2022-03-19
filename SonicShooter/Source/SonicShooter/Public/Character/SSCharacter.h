@@ -14,7 +14,6 @@ class USpringArmComponent;
 class USSCharacterMovementComponent;
 class ASSGameState;
 class UAS_CharacterMovement;
-class UAS_Stamina;
 
 
 
@@ -26,8 +25,7 @@ struct FCrouchTickFunction : public FTickFunction
 {
 	GENERATED_BODY()
 
-
-		FCrouchTickFunction()
+	FCrouchTickFunction()
 	{
 		// This bool doesn't actually do anything for some reason so we have to call SetTickFunctionEnable after
 		bStartWithTickEnabled = false;
@@ -42,15 +40,16 @@ struct FCrouchTickFunction : public FTickFunction
 		//bRunOnAnyThread = true; // i want to do this but we set component locations in the tick so we can't
 	}
 
+
 	ASSCharacter* Target;
 
 	virtual void ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent) override;
+
 
 	virtual FString DiagnosticMessage() override
 	{
 		return FString(TEXT("FCrouchTickFunction"));
 	}
-
 	virtual FName DiagnosticContext(bool bDetailed) override
 	{
 		return FName(TEXT("ASSCharacter"));
@@ -96,7 +95,6 @@ public:
 
 
 	UAS_CharacterMovement* GetCharacterMovementAttributeSet() const { return CharacterMovementAttributeSet; }
-	UAS_Stamina* GetStaminaAttributeSet() const { return StaminaAttributeSet; }
 
 #pragma region Abilities
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
@@ -288,8 +286,6 @@ protected:
 private:
 	UPROPERTY(Replicated)
 		UAS_CharacterMovement* CharacterMovementAttributeSet;
-	UPROPERTY(Replicated)
-		UAS_Stamina* StaminaAttributeSet;
 
 	float CrouchToHeight;
 };

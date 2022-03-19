@@ -19,7 +19,6 @@
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/Pawn.h"
 #include "Character/AttributeSets/AS_CharacterMovement.h"
-#include "AbilitySystem/AttributeSets/AS_Stamina.h"
 #include "AbilitySystem/ASSGameplayAbility.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -38,7 +37,6 @@ void ASSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME_CONDITION(ASSCharacter, RemoteViewYaw, COND_SkipOwner); // we also do a custom condition for this in PreReplication() (but we aren't using COND_Custom because we still want to COND_SkipOwner)
 
 	DOREPLIFETIME(ASSCharacter, CharacterMovementAttributeSet);
-	DOREPLIFETIME(ASSCharacter, StaminaAttributeSet);
 	DOREPLIFETIME_CONDITION(ASSCharacter, CharacterJumpAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(ASSCharacter, CharacterCrouchAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(ASSCharacter, CharacterRunAbilitySpecHandle, COND_OwnerOnly);
@@ -48,12 +46,12 @@ void ASSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 const FName ASSCharacter::POVMeshComponentName = TEXT("POVMesh");
 
 ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer.SetDefaultSubobjectClass<USSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<USSCharacterMovementComponent>(CharacterMovementComponentName))
 {
 	SSCharacterMovementComponent = Cast<USSCharacterMovementComponent>(GetMovementComponent());
 
 	// Set size for collision capsule
-	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.f);
 
 	// Set our turn rates for input
 	HorizontalSensitivity = 1.f;
@@ -141,7 +139,7 @@ void ASSCharacter::PostEditChangeProperty(FPropertyChangedEvent& PropertyChanged
 
 	if (GetMesh())
 	{
-		GetMesh()->SetRelativeLocation(FVector(0, 0, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * -1));
+		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * -1));
 		GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 		GetMesh()->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
 	}
@@ -202,15 +200,6 @@ void ASSCharacter::CreateAttributeSets()
 	{
 		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), ANSI_TO_TCHAR(__FUNCTION__), *CharacterMovementAttributeSet->GetName());
 	}
-
-	if (!StaminaAttributeSet)
-	{
-		StaminaAttributeSet = NewObject<UAS_Stamina>(this, UAS_Stamina::StaticClass(), TEXT("StaminaAttributeSet"));
-	}
-	else
-	{
-		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), ANSI_TO_TCHAR(__FUNCTION__), *StaminaAttributeSet->GetName());
-	}
 }
 void ASSCharacter::RegisterAttributeSets()
 {
@@ -224,15 +213,6 @@ void ASSCharacter::RegisterAttributeSets()
 	else
 	{
 		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() CharacterMovementAttributeSet was either NULL or already added to the character's ASC. Character: %s"), ANSI_TO_TCHAR(__FUNCTION__), *GetName());
-	}
-
-	if (StaminaAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(StaminaAttributeSet))	// If StaminaAttributeSet is valid and it's not yet registered with the Character's ASC
-	{
-		GetAbilitySystemComponent()->AddAttributeSetSubobject(StaminaAttributeSet);
-	}
-	else
-	{
-		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() StaminaAttributeSet was either NULL or already added to the character's ASC. Character: %s"), ANSI_TO_TCHAR(__FUNCTION__), *GetName());
 	}
 }
 

@@ -30,9 +30,9 @@ public:
 	UO_Stamina(const FObjectInitializer& ObjectInitializer);
 
 
+	TSharedRef<FFloatValueChange> OnStaminaChange;
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Stamina")
 		FFloatPropertyWrapper Stamina;
-	TSharedRef<FFloatValueChange> OnStaminaChange;
 
 
 	void SetMaxStamina(float newMaxStamina);

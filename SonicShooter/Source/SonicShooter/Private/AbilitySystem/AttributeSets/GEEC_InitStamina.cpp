@@ -4,7 +4,7 @@
 #include "AbilitySystem/AttributeSets/GEEC_InitStamina.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
 
-#include "Character/SSCharacterMovementComponent.h"
+#include "Character/CMC_Shooter.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
 #include "Subobjects/O_Stamina.h"
 
@@ -85,11 +85,11 @@ void UGEEC_InitStamina::Execute_Implementation(const FGameplayEffectCustomExecut
 	// Get stamina subobject and initialize Stamina
 	if (const FGAAI_Shooter* ShooterActorInfo = static_cast<const FGAAI_Shooter*>(TargetAbilitySystemComponent->AbilityActorInfo.Get()))
 	{
-		USSCharacterMovementComponent* CMC = ShooterActorInfo->GetSSCharacterMovementComponent();
+		UCMC_Shooter* CMC = Cast<UCMC_Shooter>(ShooterActorInfo->GetSSCharacterMovementComponent());
 		if (IsValid(CMC))
 		{
-			CMC->StaminaSubobject->Stamina = Stamina;
-			CMC->StaminaSubobject->Stamina.MarkNetDirty(); // we are server-only right now so replicate it
+			CMC->GetStaminaSubobject()->Stamina = Stamina;
+			CMC->GetStaminaSubobject()->Stamina.MarkNetDirty(); // we are server-only right now so replicate it
 		}
 	}
 }

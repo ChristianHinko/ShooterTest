@@ -12,7 +12,6 @@
 
 class ASSCharacter;
 class UAS_CharacterMovement;
-class UO_Stamina;
 class IAbilitySystemInterface;
 
 
@@ -25,7 +24,7 @@ DECLARE_MULTICAST_DELEGATE(FCharacterMovementStateNotify);
  * Custom movement modes. used when MovementMode == MOVE_Custom
  */
 UENUM()
-enum ECustomMovementMode																		// should we make this an enum class?
+enum class ECustomMovementMode : uint8
 {
 	/** None (custom movement is disabled). */
 	CMOVE_None						UMETA(DisplayName = "None"),
@@ -113,13 +112,9 @@ class SONICSHOOTER_API USSCharacterMovementComponent : public UCharacterMovement
 {
 	GENERATED_BODY()
 
-	friend class FSavedMove_SSCharacter;
-
+	friend class FSSSavedMove_Character;
 public:
-	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
-
-public:
-	USSCharacterMovementComponent();
+	USSCharacterMovementComponent(const FObjectInitializer& ObjectInitializer);
 
 
 	bool GetToggleCrouchEnabled() const { return bToggleCrouchEnabled; }
@@ -211,14 +206,9 @@ public:
 	FCharacterMovementStateNotify OnStoppedFalling;
 
 
-	UPROPERTY()
-		UO_Stamina* StaminaSubobject;
-
-
 protected:
 	//	Don't know for sure if this is the best event to use but works for now
 	virtual void InitializeComponent() override;
-	virtual void BeginDestroy() override;
 
 	UPROPERTY()
 		ASSCharacter* SSCharacterOwner;
@@ -231,6 +221,7 @@ protected:
 	virtual void OnAbilitySystemSetUp(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC);
 
 	//BEGIN CMC Interface
+	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
 	virtual void UpdateFromCompressedFlags(uint8 Flags) override;
 	virtual void UpdateCharacterStateBeforeMovement(float DeltaSeconds) override;
 	virtual void OnMovementUpdated(float deltaTime, const FVector& OldLocation, const FVector& OldVelocity) override;
@@ -242,7 +233,6 @@ protected:
 	virtual void SetMovementMode(EMovementMode NewMovementMode, uint8 NewCustomMode = 0) override;
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 	virtual void PhysCustom(float deltaTime, int32 Iterations) override;
-	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override; // DO NOT UTILIZE THIS EVENT FOR MOVEMENT
 	//END CMC Interface
 
@@ -254,12 +244,17 @@ protected:
 	uint8 bWantsToRun : 1;
 #pragma endregion
 
-	virtual void OnStaminaFullyDrained();
-
 	/** WARNING: This check does not work on dedicated server */
 	bool IsMovingForward(/*float degreeTolerance = 45.f*/) const;
 
+
+	/**
+	 * Tweak the user's move desires before ticking
+	 */
 	virtual void TweakCompressedFlagsBeforeTick();
+
+	/** For calculating whether we WANT to run or not */
+	virtual void TweakWantsToRunBeforeTick(bool& outTweakedWantsToRun) const;
 
 
 	//// This is a good event for calling your custom client adjustment RPCs
@@ -280,8 +275,8 @@ protected:
 	uint8 bCrouchDisabled : 1;
 #pragma endregion
 
-
-	TEnumAsByte<ECustomMovementMode> CustomMovementMode;
+	// TODO: why do we have this repetitive member???? The engine already has UCharacterMovementComponent::CustomMovementMode
+	ECustomMovementMode CustomMovementMode;
 
 #pragma region Custom Movement Physics
 	virtual void PhysInfiniteAngleWalking(float deltaTime, int32 Iterations);
@@ -301,24 +296,15 @@ protected:
 
 private:
 	FRotator PreviousRotation;
-
-	// BEGIN Attribute value change
-	void OnMaxStaminaAttributeChange(const FOnAttributeChangeData& Data);
-	void OnStaminaDrainAttributeChange(const FOnAttributeChangeData& Data);
-	void OnStaminaGainAttributeChange(const FOnAttributeChangeData& Data);
-	void OnStaminaRegenPauseAttributeChange(const FOnAttributeChangeData& Data);
-	// END Attribute value change
 };
 
 
-#define FLAG_WantsToRun FSavedMove_SSCharacter::FLAG_Custom_0
+#define FLAG_WantsToRun FSavedMove_Character::CompressedFlags::FLAG_Custom_0
 
-class FSavedMove_SSCharacter : public FSavedMove_Character
+class FSSSavedMove_Character : public FSavedMove_Character
 {
-public:
 	typedef FSavedMove_Character Super;
-
-
+public:
 	virtual void Clear() override;
 	virtual void PrepMoveFor(ACharacter* Character) override;
 	virtual void SetMoveFor(ACharacter* Character, float InDeltaTime, FVector const& NewAccel, FNetworkPredictionData_Client_Character& ClientData) override;
@@ -327,15 +313,16 @@ public:
 
 protected:
 	uint8 bSavedWantsToRun : 1;
+
 };
 
-class FNetworkPredictionData_Client_SSCharacter : public FNetworkPredictionData_Client_Character
+class FSSNetworkPredictionData_Client_Character : public FNetworkPredictionData_Client_Character
 {
-public:
 	typedef FNetworkPredictionData_Client_Character Super;
+public:
+	FSSNetworkPredictionData_Client_Character(const UCharacterMovementComponent& ClientMovement);
 
-
-	FNetworkPredictionData_Client_SSCharacter(const UCharacterMovementComponent& ClientMovement);
 
 	virtual FSavedMovePtr AllocateNewMove() override;
+
 };

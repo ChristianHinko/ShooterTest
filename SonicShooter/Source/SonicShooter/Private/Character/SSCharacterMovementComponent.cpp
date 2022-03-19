@@ -5,40 +5,20 @@
 
 #include "Engine/ActorChannel.h"
 #include "GameFramework/Character.h"
-#include "Character/SSCharacterMovementComponent.h"
 #include "Character/SSCharacter.h"
 #include "Character/AttributeSets/AS_CharacterMovement.h"
-#include "Subobjects/O_Stamina.h"
 #include "Utilities/LogCategories.h"
 #include "Utilities/SSNativeGameplayTags.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "AbilitySystemSetupComponent/AbilitySystemSetupInterface.h"
 #include "AbilitySystemSetupComponent/AbilitySystemSetupComponent.h"
-#include "AbilitySystem/AttributeSets/AS_Stamina.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
 
 
-bool USSCharacterMovementComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
-{
-	bool bWroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
-
-	// Give StaminaSubobject an opportunity to replicate
-	if (IsValid(StaminaSubobject))
-	{
-		bWroteSomething |= StaminaSubobject->ReplicateSubobjects(Channel, Bunch, RepFlags);
-
-		if (StaminaSubobject->IsSupportedForNetworking())
-		{
-			bWroteSomething |= Channel->ReplicateSubobject(StaminaSubobject, *Bunch, *RepFlags);
-		}
-	}
-
-	return bWroteSomething;
-}
-
-USSCharacterMovementComponent::USSCharacterMovementComponent()
+USSCharacterMovementComponent::USSCharacterMovementComponent(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	bCrouchCancelsDesireToRun = true;
 	bRunCancelsDesireToCrouch = true;
@@ -48,13 +28,32 @@ USSCharacterMovementComponent::USSCharacterMovementComponent()
 
 	bCanCrouchJump = false;
 	bCanWalkOffLedgesWhenCrouching = true;
-
-	StaminaSubobject = CreateDefaultSubobject<UO_Stamina>(TEXT("StaminaSubobject"));
-	if (StaminaSubobject)
-	{
-		StaminaSubobject->OnStaminaFullyDrained.AddUObject(this, &USSCharacterMovementComponent::OnStaminaFullyDrained);
-	}
 }
+
+#pragma region Prediciton Data Client
+FNetworkPredictionData_Client* USSCharacterMovementComponent::GetPredictionData_Client() const
+{
+	if (ClientPredictionData == nullptr)
+	{
+		// Return our custom client prediction struct instead
+		USSCharacterMovementComponent* MutableThis = const_cast<USSCharacterMovementComponent*>(this);
+		MutableThis->ClientPredictionData = new FSSNetworkPredictionData_Client_Character(*this);
+	}
+
+	return ClientPredictionData;
+}
+
+FSSNetworkPredictionData_Client_Character::FSSNetworkPredictionData_Client_Character(const UCharacterMovementComponent& ClientMovement)
+	: Super(ClientMovement)
+{
+
+}
+FSavedMovePtr FSSNetworkPredictionData_Client_Character::AllocateNewMove()
+{
+	// Return our custom move struct instead
+	return FSavedMovePtr(new FSSSavedMove_Character());
+}
+#pragma endregion
 
 void USSCharacterMovementComponent::CVarToggleCrouchChanged(bool newToggleCrouch)
 {
@@ -109,24 +108,6 @@ void USSCharacterMovementComponent::OnAbilitySystemSetUp(UAbilitySystemComponent
 	{
 		CharacterMovementAttributeSet = SSCharacterOwner->GetCharacterMovementAttributeSet();
 	}
-
-	if (IsValid(OwnerASC))
-	{
-		// Bind to Attribute value change delegates
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetMaxStaminaAttribute()).AddUObject(this, &USSCharacterMovementComponent::OnMaxStaminaAttributeChange);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaDrainAttribute()).AddUObject(this, &USSCharacterMovementComponent::OnStaminaDrainAttributeChange);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaGainAttribute()).AddUObject(this, &USSCharacterMovementComponent::OnStaminaGainAttributeChange);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaRegenPauseAttribute()).AddUObject(this, &USSCharacterMovementComponent::OnStaminaRegenPauseAttributeChange);
-
-		// Get initial values
-		if (IsValid(StaminaSubobject))
-		{
-			StaminaSubobject->SetMaxStamina(OwnerASC->GetNumericAttribute(UAS_Stamina::GetMaxStaminaAttribute()));
-			StaminaSubobject->SetStaminaDrain(OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaDrainAttribute()));
-			StaminaSubobject->SetStaminaGain(OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaGainAttribute()));
-			StaminaSubobject->SetStaminaRegenPause(OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaRegenPauseAttribute()));
-		}
-	}
 }
 
 void USSCharacterMovementComponent::OnRunDisabledTagChanged(const FGameplayTag Tag, int32 NewCount)
@@ -162,47 +143,6 @@ void USSCharacterMovementComponent::OnCrouchDisabledTagChanged(const FGameplayTa
 		bCrouchDisabled = false;
 	}
 }
-
-void USSCharacterMovementComponent::OnMaxStaminaAttributeChange(const FOnAttributeChangeData& Data)
-{
-	if (!IsValid(StaminaSubobject))
-	{
-		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's MaxStamina value - StaminaSubobject was not valid"), ANSI_TO_TCHAR(__FUNCTION__));
-		return;
-	}
-
-	StaminaSubobject->SetMaxStamina(Data.NewValue);
-}
-void USSCharacterMovementComponent::OnStaminaDrainAttributeChange(const FOnAttributeChangeData& Data)
-{
-	if (!IsValid(StaminaSubobject))
-	{
-		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaDrain value - StaminaSubobject was not valid"), ANSI_TO_TCHAR(__FUNCTION__));
-		return;
-	}
-
-	StaminaSubobject->SetStaminaDrain(Data.NewValue);
-}
-void USSCharacterMovementComponent::OnStaminaGainAttributeChange(const FOnAttributeChangeData& Data)
-{
-	if (!IsValid(StaminaSubobject))
-	{
-		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaGain value - StaminaSubobject was not valid"), ANSI_TO_TCHAR(__FUNCTION__));
-		return;
-	}
-
-	StaminaSubobject->SetStaminaGain(Data.NewValue);
-}
-void USSCharacterMovementComponent::OnStaminaRegenPauseAttributeChange(const FOnAttributeChangeData& Data)
-{
-	if (!IsValid(StaminaSubobject))
-	{
-		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaRegenPause value - StaminaSubobject was not valid"), ANSI_TO_TCHAR(__FUNCTION__));
-		return;
-	}
-
-	StaminaSubobject->SetStaminaRegenPause(Data.NewValue);
-}
 #pragma endregion
 
 #pragma region Move Requests
@@ -227,51 +167,10 @@ void USSCharacterMovementComponent::SetWantsToRun(bool newWantsToRun)
 #pragma region WantsTo Configuration
 void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 {
-	////////////////////////////////////////////////////////////////////////////// WantsTo Calculations //////////
-
-	// When calculation whether we want to run or not, modify this. We will
-	// set bWantsToRun to this using SetWantsToRun() at the end of our calculations.
-	// The reason we do this is to avoid messing up timestamps or
-	// calling it multiple times for no reason.
-	bool newWantsToRun = bWantsToRun;
-
-
-	if (StaminaSubobject && StaminaSubobject->Stamina <= 0.f)
-	{
-		if (IsMovingOnGround()) // only if we are on the ground. if we are in the air, the player will be expecting to run anyways
-		{
-			// We don't want to run if we are fully out of stamina or else when stamina starts regening we would run right away and be back at zero stamina
-			newWantsToRun = false;
-		}
-	}
-
-	bool isMovingForward = IsMovingForward();
-
-	if (!isMovingForward && Acceleration.SizeSquared() > 0)
-	{
-		newWantsToRun = false; // a client-only check to ensure we are moving forward (i know this is bad, it's not server verified but it's temporary so i guess hackers can run backwards if they want)
-	}
-
-	if (bToggleRunEnabled && Acceleration.SizeSquared() == 0)
-	{
-		// If we are staying still while toggle run is on, we don't want to run
-		newWantsToRun = false;
-	}
-
-	if (CurrentTimeSeconds == -TimestampWantsToRun) // if we just stopped running
-	{
-		if (!IsMovingOnGround() && bToggleRunEnabled && isMovingForward)
-		{
-			// If you're in the air moving forward (only if in toggle mode) you probably still want to run, whether you are
-			// trying to stop or not
-			newWantsToRun = true;
-		}
-	}
-
-	// Call SetWantsToRun() using our calculated value of newWantsToRun
-	SetWantsToRun(newWantsToRun);
-
-
+	// Call SetWantsToRun() using our tweaked value
+	bool bTweakedWantsToRun = bWantsToRun;
+	TweakWantsToRunBeforeTick(bTweakedWantsToRun);
+	SetWantsToRun(bTweakedWantsToRun);
 
 
 	////////////////////////////////////////////////////////////////////////////// Desire Cancellations (for Toggle Modes) //////////
@@ -318,6 +217,32 @@ void USSCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 	}
 }
 
+void USSCharacterMovementComponent::TweakWantsToRunBeforeTick(bool& outTweakedWantsToRun) const
+{
+	const bool bIsMovingForward = IsMovingForward();
+
+	if (!bIsMovingForward && Acceleration.SizeSquared() > 0)
+	{
+		outTweakedWantsToRun = false; // a client-only check to ensure we are moving forward (i know this is bad, it's not server verified but it's temporary so i guess hackers can run backwards if they want)
+	}
+
+	if (bToggleRunEnabled && Acceleration.SizeSquared() == 0)
+	{
+		// If we are staying still while toggle run is on, we don't want to run
+		outTweakedWantsToRun = false;
+	}
+
+	if (CurrentTimeSeconds == -TimestampWantsToRun) // if we just stopped running
+	{
+		if (!IsMovingOnGround() && bToggleRunEnabled && bIsMovingForward)
+		{
+			// If you're in the air moving forward (only if in toggle mode) you probably still want to run, whether you are
+			// trying to stop or not
+			outTweakedWantsToRun = true;
+		}
+	}
+}
+
 void USSCharacterMovementComponent::BroadcastMovementDelegates()
 {
 	if (CurrentTimeSeconds == TimestampWantsToJump)
@@ -350,7 +275,7 @@ void USSCharacterMovementComponent::BroadcastMovementDelegates()
 #pragma endregion
 
 #pragma region Saved Move
-void FSavedMove_SSCharacter::Clear()
+void FSSSavedMove_Character::Clear()
 {
 	Super::Clear();
 
@@ -358,7 +283,7 @@ void FSavedMove_SSCharacter::Clear()
 	bSavedWantsToRun = 0;
 }
 
-void FSavedMove_SSCharacter::PrepMoveFor(ACharacter* Character) // Client only
+void FSSSavedMove_Character::PrepMoveFor(ACharacter* Character) // Client only
 {
 	Super::PrepMoveFor(Character);
 
@@ -378,7 +303,7 @@ void FSavedMove_SSCharacter::PrepMoveFor(ACharacter* Character) // Client only
 	}
 }
 
-void FSavedMove_SSCharacter::SetMoveFor(ACharacter* Character, float InDeltaTime, FVector const& NewAccel, FNetworkPredictionData_Client_Character& ClientData)
+void FSSSavedMove_Character::SetMoveFor(ACharacter* Character, float InDeltaTime, FVector const& NewAccel, FNetworkPredictionData_Client_Character& ClientData)
 {
 	Super::SetMoveFor(Character, InDeltaTime, NewAccel, ClientData);
 
@@ -390,9 +315,9 @@ void FSavedMove_SSCharacter::SetMoveFor(ACharacter* Character, float InDeltaTime
 	}
 }
 
-bool FSavedMove_SSCharacter::CanCombineWith(const FSavedMovePtr& NewMovePtr, ACharacter* Character, float MaxDelta) const
+bool FSSSavedMove_Character::CanCombineWith(const FSavedMovePtr& NewMovePtr, ACharacter* Character, float MaxDelta) const
 {
-	const FSavedMove_SSCharacter* NewMove = static_cast<const FSavedMove_SSCharacter*>(NewMovePtr.Get());
+	const FSSSavedMove_Character* NewMove = static_cast<const FSSSavedMove_Character*>(NewMovePtr.Get());
 
 	// As an optimization, check if the we can combine saved moves.
 	if (bSavedWantsToRun != NewMove->bSavedWantsToRun)
@@ -403,7 +328,7 @@ bool FSavedMove_SSCharacter::CanCombineWith(const FSavedMovePtr& NewMovePtr, ACh
 	return Super::CanCombineWith(NewMovePtr, Character, MaxDelta);
 }
 
-uint8 FSavedMove_SSCharacter::GetCompressedFlags() const
+uint8 FSSSavedMove_Character::GetCompressedFlags() const
 {
 	uint8 retVal = Super::GetCompressedFlags();
 
@@ -710,10 +635,6 @@ bool USSCharacterMovementComponent::CanRunInCurrentState() const
 	//{
 	//	return false;
 	//}
-	if (StaminaSubobject && StaminaSubobject->Stamina <= 0)
-	{
-		return false;
-	}
 
 	if (IsCrouching() && bWantsToCrouch == false)
 	{
@@ -768,23 +689,10 @@ void USSCharacterMovementComponent::UnCrouch(bool bClientSimulation)
 void USSCharacterMovementComponent::Run()
 {
 	SSCharacterOwner->bIsRunning = true;
-	if (StaminaSubobject)
-	{
-		StaminaSubobject->SetStaminaDraining(true);
-	}
 }
 void USSCharacterMovementComponent::UnRun()
 {
 	SSCharacterOwner->bIsRunning = false;
-	if (StaminaSubobject)
-	{
-		StaminaSubobject->SetStaminaDraining(false);
-	}
-}
-
-void USSCharacterMovementComponent::OnStaminaFullyDrained()
-{
-	SetWantsToRun(false);
 }
 #pragma endregion
 
@@ -799,11 +707,13 @@ void USSCharacterMovementComponent::OnMovementUpdated(float deltaTime, const FVe
 float USSCharacterMovementComponent::GetMaxSpeed() const
 {
 	// The super already switches through MovementMode. We do it before they do to implement our custom values for specific movement modes.
-	// By default, the cases break and proceed to the super's switch
+	// By default, the cases break and proceed to the Super's switch
 	switch (MovementMode)
 	{
 	case MOVE_None:
+	{
 		break;
+	}
 	case MOVE_Walking:
 	case MOVE_NavWalking:
 	{
@@ -813,7 +723,7 @@ float USSCharacterMovementComponent::GetMaxSpeed() const
 		}
 		else
 		{
-			if (!CharacterMovementAttributeSet)
+			if (!IsValid(CharacterMovementAttributeSet))
 			{
 				UE_LOG(LogCharacterMovement, Error, TEXT("CharacterMovementAttributeSet was NULL when trying to return a speed value"));
 				return 0;
@@ -825,24 +735,40 @@ float USSCharacterMovementComponent::GetMaxSpeed() const
 			}
 			return CharacterMovementAttributeSet->GetWalkSpeed();
 		}
+
+		break;
 	}
 	case MOVE_Falling:
+	{
 		break;
+	}
 	case MOVE_Swimming:
+	{
 		break;
+	}
 	case MOVE_Flying:
+	{
 		break;
+	}
 	case MOVE_Custom:
 	{
 		switch (CustomMovementMode)
 		{
-		case CMOVE_None:
+		case ECustomMovementMode::CMOVE_None:
+		{
 			break;
-		case CMOVE_InfiniteAngleWalking:
+		}
+		case ECustomMovementMode::CMOVE_InfiniteAngleWalking:
+		{
 			break;
+		}
 		default:
+		{
 			return MaxCustomMovementSpeed;
 		}
+		}
+
+		break;
 	}
 	default:
 		break;
@@ -858,7 +784,9 @@ float USSCharacterMovementComponent::GetMaxAcceleration() const
 	switch (MovementMode)
 	{
 	case MOVE_None:
+	{
 		break;
+	}
 	case MOVE_Walking:
 	case MOVE_NavWalking:
 	{
@@ -875,23 +803,42 @@ float USSCharacterMovementComponent::GetMaxAcceleration() const
 		return CharacterMovementAttributeSet->GetWalkAcceleration();;
 	}
 	case MOVE_Falling:
+	{
 		break;
+	}
 	case MOVE_Swimming:
+	{
 		break;
+	}
 	case MOVE_Flying:
+	{
 		break;
+	}
 	case MOVE_Custom:
+	{
 		switch (CustomMovementMode)
 		{
-		case CMOVE_None:
-			break;
-		case CMOVE_InfiniteAngleWalking:
-			break;
-		default:
+		case ECustomMovementMode::CMOVE_None:
+		{
 			break;
 		}
-	default:
+		case ECustomMovementMode::CMOVE_InfiniteAngleWalking:
+		{
+			break;
+		}
+		default:
+		{
+			break;
+		}
+		}
+
 		break;
+	}
+
+	default:
+	{
+		break;
+	}
 	}
 
 
@@ -911,9 +858,21 @@ FString USSCharacterMovementComponent::GetMovementName() const
 	{
 		switch (CustomMovementMode)
 		{
-		case CMOVE_None:						return TEXT("Custom_None"); break;
-		case CMOVE_InfiniteAngleWalking:		return TEXT("Custom_InfiniteAngleWalking"); break;
-		default:								break;
+		case ECustomMovementMode::CMOVE_None:
+		{
+			return TEXT("Custom_None");
+			break;
+		}
+		case ECustomMovementMode::CMOVE_InfiniteAngleWalking:
+		{
+			return TEXT("Custom_InfiniteAngleWalking");
+			break;
+		}
+
+		default:
+		{
+			break;
+		}
 		}
 	}
 
@@ -957,15 +916,21 @@ void USSCharacterMovementComponent::PhysCustom(float deltaTime, int32 Iterations
 
 	switch (CustomMovementMode)
 	{
-	case CMOVE_None:
+	case ECustomMovementMode::CMOVE_None:
+	{
 		break;
-	case CMOVE_InfiniteAngleWalking:
+	}
+	case ECustomMovementMode::CMOVE_InfiniteAngleWalking:
+	{
 		PhysInfiniteAngleWalking(deltaTime, Iterations);
 		break;
+	}
 	default:
-		UE_LOG(LogCharacterMovementSetup, Warning, TEXT("%s has unsupported custom movement mode %d"), *CharacterOwner->GetName(), int32(CustomMovementMode));
-		SetMovementMode(EMovementMode::MOVE_Custom, ECustomMovementMode::CMOVE_None);
+	{
+		UE_LOG(LogCharacterMovementSetup, Warning, TEXT("%s has unsupported custom movement mode %d"), *CharacterOwner->GetName(), static_cast<uint8>(CustomMovementMode));
+		SetMovementMode(EMovementMode::MOVE_Custom, static_cast<uint8>(ECustomMovementMode::CMOVE_None));
 		break;
+	}
 	}
 }
 
@@ -977,30 +942,6 @@ void USSCharacterMovementComponent::PhysInfiniteAngleWalking(float deltaTime, in
 #pragma endregion
 #pragma endregion
 
-#pragma region Prediciton Data Client
-FNetworkPredictionData_Client* USSCharacterMovementComponent::GetPredictionData_Client() const
-{
-	if (ClientPredictionData == nullptr)
-	{
-		// Return our custom client prediction struct instead
-		USSCharacterMovementComponent* MutableThis = const_cast<USSCharacterMovementComponent*>(this);
-		MutableThis->ClientPredictionData = new FNetworkPredictionData_Client_SSCharacter(*this);
-	}
-
-	return ClientPredictionData;
-}
-
-FNetworkPredictionData_Client_SSCharacter::FNetworkPredictionData_Client_SSCharacter(const UCharacterMovementComponent& ClientMovement)
-	: Super(ClientMovement)
-{
-
-}
-
-FSavedMovePtr FNetworkPredictionData_Client_SSCharacter::AllocateNewMove()
-{
-	return FSavedMovePtr(new FSavedMove_SSCharacter());
-}
-#pragma endregion
 
 void USSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) // DO NOT UTILIZE THIS EVENT FOR MOVEMENT
 {
@@ -1044,24 +985,22 @@ void USSCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 #pragma region MovementHelpers
 bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/) const // THIS CHECK DOES NOT WORK ON DEDICATED SERVER
 {
-	/*
-	 * At dot product 0.7 you are looking at a 45 degrees angle
-	 * For 25 degrees tolerance use > 0.9
-	 * 0.99 gives you 8 degrees of tolerance
-	 *
-	 * ACOS(dot product) is the formula. Incidentally, it's the formula to find the angle between two vectors
-	 */
+	// At dot product 0.7 you are looking at a 45 degrees angle
+	// For 25 degrees tolerance use > 0.9
+	// 0.99 gives you 8 degrees of tolerance
+	// 
+	// ACOS(dot product) is the formula. Incidentally, it's the formula to find the angle between two vectors
 
 	const FVector ForwardDir = PawnOwner->GetActorForwardVector();
 	const FVector DesiredDir = Acceleration.GetSafeNormal();
 
-	const float forwardDifference = FVector::DotProduct(DesiredDir, ForwardDir);
+	const float ForwardDifference = FVector::DotProduct(DesiredDir, ForwardDir);
 
 
-	const float degsDiff = UKismetMathLibrary::DegAcos(forwardDifference);
-	const float graceDegs = 1 + FMath::Abs(CurrentRotationRate.Yaw) + FMath::Abs(CurrentRotationRate.Pitch) + FMath::Abs(CurrentRotationRate.Roll); // how much extra degrees of grace should be given based on how fast we are rotating. We need this because the dot product isnt perfect for some reason and gets more inaccurate the faster you rotate
+	const float DegsDiff = UKismetMathLibrary::DegAcos(ForwardDifference);
+	const float GraceDegs = 1 + FMath::Abs(CurrentRotationRate.Yaw) + FMath::Abs(CurrentRotationRate.Pitch) + FMath::Abs(CurrentRotationRate.Roll); // how much extra degrees of grace should be given based on how fast we are rotating. We need this because the dot product isnt perfect for some reason and gets more inaccurate the faster you rotate
 
-	if (degsDiff > 45.f + graceDegs) // if we are moving 45 degs or more away from our forward vector (plus some grace based on how fast we are rotating)
+	if (DegsDiff > 45.f + GraceDegs) // if we are moving 45 degs or more away from our forward vector (plus some grace based on how fast we are rotating)
 	{
 		return false;
 	}
@@ -1069,22 +1008,3 @@ bool USSCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/) c
 	return true;
 }
 #pragma endregion
-
-
-
-
-void USSCharacterMovementComponent::BeginDestroy()
-{
-	// BEGIN Unbind from attribute value change delegates
-	if (IsValid(OwnerASC))
-	{
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetMaxStaminaAttribute()).RemoveAll(this);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaDrainAttribute()).RemoveAll(this);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaGainAttribute()).RemoveAll(this);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaRegenPauseAttribute()).RemoveAll(this);
-	}
-	// END Unbind from attribute value change delegates
-
-
-	Super::BeginDestroy();
-}

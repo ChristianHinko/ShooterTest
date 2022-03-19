@@ -15,6 +15,7 @@ class UArcInventoryComponent;
 class UArcInventoryComponent_Shooter;
 class UArcItemGenerator_Unique;
 class UAS_Health;
+class UAS_Stamina;
 
 
 
@@ -43,6 +44,7 @@ public:
 
 
 	UAS_Health* GetHealthAttributeSet() const { return HealthAttributeSet; }
+	UAS_Stamina* GetStaminaAttributeSet() const { return StaminaAttributeSet; }
 
 
 #pragma region Abilities
@@ -148,6 +150,8 @@ protected:
 private:
 	UPROPERTY(Replicated)
 		UAS_Health* HealthAttributeSet;
+	UPROPERTY(Replicated)
+		UAS_Stamina* StaminaAttributeSet;
 
 
 	// Cached Inventory

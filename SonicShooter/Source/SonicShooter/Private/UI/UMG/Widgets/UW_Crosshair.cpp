@@ -61,7 +61,7 @@ void UUW_Crosshair::OnPlayerASCValid()
 
 	if (IsValid(BulletSpreadSubobject))
 	{
-		BulletSpreadSubobject->OnCurrentBulletSpreadChange.Get().AddDynamic(this, &UUW_Crosshair::OnCurrentBulletSpreadChange);
+		BulletSpreadSubobject->CurrentBulletSpread.ValueChangeDelegate.AddDynamic(this, &UUW_Crosshair::OnCurrentBulletSpreadChange);
 
 		const float& CurrentBulletSpread = BulletSpreadSubobject->CurrentBulletSpread;
 		OnCurrentBulletSpreadChange(CurrentBulletSpread, CurrentBulletSpread);
@@ -100,7 +100,7 @@ void UUW_Crosshair::NativeDestruct()
 {
 	if (BulletSpreadSubobject)
 	{
-		BulletSpreadSubobject->OnCurrentBulletSpreadChange.Get().RemoveAll(this);
+		BulletSpreadSubobject->CurrentBulletSpread.ValueChangeDelegate.RemoveAll(this);
 	}
 
 

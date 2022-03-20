@@ -37,8 +37,7 @@ bool UO_Stamina::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, F
 UO_Stamina::UO_Stamina(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 
-	, OnStaminaChange(MakeShared<FFloatValueChange>())
-	, Stamina(0.f, this, FName(TEXT("Stamina")), OnStaminaChange)
+	, Stamina(0.f, this, FName(TEXT("Stamina")))
 
 	, MaxStamina(0.f)
 	, StaminaDrain(0.f)

@@ -35,12 +35,9 @@ public:
 	UO_BulletSpread(const FObjectInitializer& ObjectInitializer);
 
 
-	TSharedRef<FFloatValueChange> OnCurrentBulletSpreadChange;
-
 	/** Current bullet spread. Non-replicated because set every frame */
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Gun")
 		mutable FFloatPropertyWrapper CurrentBulletSpread;
-
 
 
 	float GetRestBulletSpread() const;

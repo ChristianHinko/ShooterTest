@@ -30,7 +30,6 @@ public:
 	UO_Stamina(const FObjectInitializer& ObjectInitializer);
 
 
-	TSharedRef<FFloatValueChange> OnStaminaChange;
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Stamina")
 		FFloatPropertyWrapper Stamina;
 

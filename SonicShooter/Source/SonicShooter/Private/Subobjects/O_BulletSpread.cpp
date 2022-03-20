@@ -37,8 +37,7 @@ bool UO_BulletSpread::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bun
 UO_BulletSpread::UO_BulletSpread(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 
-	, OnCurrentBulletSpreadChange(MakeShared<FFloatValueChange>())
-	, CurrentBulletSpread(0.f, this, FName(TEXT("CurrentBulletSpread")), OnCurrentBulletSpreadChange)
+	, CurrentBulletSpread(0.f, this, FName(TEXT("CurrentBulletSpread")))
 
 	, OwnerASC(nullptr)
 	, CMC(nullptr)

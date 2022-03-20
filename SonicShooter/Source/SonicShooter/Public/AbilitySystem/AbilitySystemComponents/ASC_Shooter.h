@@ -22,11 +22,6 @@ public:
 	UASC_Shooter(const FObjectInitializer& ObjectInitializer);
 
 
-	// Change delegates:
-
-	TSharedRef<FFloatValueChange> OnCurrentBulletSpreadChange;
-
-
 protected:
 
 };

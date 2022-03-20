@@ -7,7 +7,6 @@
 
 UASC_Shooter::UASC_Shooter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	, OnCurrentBulletSpreadChange(MakeShared<FFloatValueChange>())
 {
 
 }

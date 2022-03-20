@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/AbilitySystemSetupCharacter.h"
+#include "Character/C_AbilitySystemSetupCharacter.h"
 
 #include "SSCharacter.generated.h"
 
@@ -69,7 +69,7 @@ struct TStructOpsTypeTraits<FCrouchTickFunction> : public TStructOpsTypeTraitsBa
  * Base character class
  */
 UCLASS()
-class ASSCharacter : public AAbilitySystemSetupCharacter
+class ASSCharacter : public AC_AbilitySystemSetupCharacter
 {
 	GENERATED_BODY()
 

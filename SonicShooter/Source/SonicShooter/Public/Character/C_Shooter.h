@@ -9,18 +9,17 @@
 #include "C_Shooter.generated.h"
 
 
-class IInteractable;
+class IInteractableInterface;
 class UAC_Interactor;
 class UArcInventoryComponent;
 class UArcInventoryComponent_Shooter;
-class UArcItemGenerator_Unique;
 class UAS_Health;
 class UAS_Stamina;
 
 
 
 /**
- *
+ * Base Shooter Character
  */
 UCLASS()
 class SONICSHOOTER_API AC_Shooter : public ASSCharacter, public IArcInventoryInterface

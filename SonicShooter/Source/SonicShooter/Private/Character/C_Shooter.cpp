@@ -112,6 +112,7 @@ void AC_Shooter::RegisterAttributeSets()
 
 	if (HealthAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(HealthAttributeSet))	// If HealthAttributeSet is valid and it's not yet registered with the Character's ASC
 	{
+		HealthAttributeSet->Rename(nullptr, this);
 		GetAbilitySystemComponent()->AddAttributeSetSubobject(HealthAttributeSet);
 	}
 	else
@@ -121,6 +122,7 @@ void AC_Shooter::RegisterAttributeSets()
 
 	if (StaminaAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(StaminaAttributeSet))	// If StaminaAttributeSet is valid and it's not yet registered with the Character's ASC
 	{
+		StaminaAttributeSet->Rename(nullptr, this);
 		GetAbilitySystemComponent()->AddAttributeSetSubobject(StaminaAttributeSet);
 	}
 	else
@@ -150,6 +152,7 @@ void AC_Shooter::GiveStartingAbilities()
 #include "Kismet/KismetSystemLibrary.h"
 #include "AttributeSets/AS_Health.h"
 #include "Inventory/Item/AS_Ammo.h"
+#include "Inventory/Item/Gun/AS_Gun.h"
 #include "Subobjects/O_ClipAmmo.h"
 #include "Subobjects/O_BulletSpread.h"
 #include "Subobjects/O_Stamina.h"
@@ -193,10 +196,10 @@ void AC_Shooter::Tick(float DeltaSeconds)
 			const UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ActiveItemStack);
 			if (IsValid(GunStack))
 			{
-				//const FFloatPropertyWrapper& ClipAmmo = GunStack->GetClipAmmoSubobject()->ClipAmmo;
+				const FFloatPropertyWrapper& ClipAmmo = GunStack->GetClipAmmoSubobject()->ClipAmmo;
 				//UKismetSystemLibrary::PrintString(this, ClipAmmo.GetPropertyName().ToString() + TEXT(": ") + FString::SanitizeFloat(ClipAmmo), true, false);
 
-				//const FFloatPropertyWrapper& CurrentBulletSpread = GunStack->GetBulletSpreadSubobject()->CurrentBulletSpread;
+				const FFloatPropertyWrapper& CurrentBulletSpread = GunStack->GetBulletSpreadSubobject()->CurrentBulletSpread;
 				//UKismetSystemLibrary::PrintString(this, CurrentBulletSpread.GetPropertyName().ToString() + TEXT(": ") + FString::SanitizeFloat(CurrentBulletSpread), true, false);
 			}
 		}
@@ -215,27 +218,26 @@ void AC_Shooter::Tick(float DeltaSeconds)
 	}
 	if (IsValid(GetAbilitySystemComponent()))
 	{
-		//const float MaxStamina = GetAbilitySystemComponent()->GetNumericAttribute(UAS_Stamina::GetMaxStaminaAttribute());
-		//const float StaminaDrain = GetAbilitySystemComponent()->GetNumericAttribute(UAS_Stamina::GetStaminaDrainAttribute());
-		//const float StaminaGain = GetAbilitySystemComponent()->GetNumericAttribute(UAS_Stamina::GetStaminaGainAttribute());
-		//const float StaminaRegenPause = GetAbilitySystemComponent()->GetNumericAttribute(UAS_Stamina::GetStaminaRegenPauseAttribute());
+		const float MaxStamina = GetAbilitySystemComponent()->GetNumericAttribute(UAS_Stamina::GetMaxStaminaAttribute());
+		const float StaminaDrain = GetAbilitySystemComponent()->GetNumericAttribute(UAS_Stamina::GetStaminaDrainAttribute());
+		const float StaminaGain = GetAbilitySystemComponent()->GetNumericAttribute(UAS_Stamina::GetStaminaGainAttribute());
+		const float StaminaRegenPause = GetAbilitySystemComponent()->GetNumericAttribute(UAS_Stamina::GetStaminaRegenPauseAttribute());
 
 		//UKismetSystemLibrary::PrintString(this, TEXT("MaxStamina: ") + FString::SanitizeFloat(MaxStamina), true, false);
 		//UKismetSystemLibrary::PrintString(this, TEXT("StaminaDrain: ") + FString::SanitizeFloat(StaminaDrain), true, false);
 		//UKismetSystemLibrary::PrintString(this, TEXT("StaminaGain: ") + FString::SanitizeFloat(StaminaGain), true, false);
 		//UKismetSystemLibrary::PrintString(this, TEXT("StaminaRegenPause: ") + FString::SanitizeFloat(StaminaRegenPause), true, false);
-	}
 
-	if (GetAbilitySystemComponent())
-	{
-		for (UAttributeSet* AttributeSet : GetAbilitySystemComponent()->GetSpawnedAttributes())
-		{
-			//if (UAS_Stamina* FoundStaminaAttributeSet = Cast<UAS_Stamina>(AttributeSet))
-			//{
-			//	UKismetSystemLibrary::PrintString(this, FoundStaminaAttributeSet->Stamina.GetPropertyName().ToString() + ": " + FString::SanitizeFloat(FoundStaminaAttributeSet->Stamina), true, false);
-			//}
-		}
 
+
+
+		const float MaxAmmo = GetAbilitySystemComponent()->GetNumericAttribute(UAS_Ammo::GetMaxAmmoAttribute());
+		const float MaxClipAmmo = GetAbilitySystemComponent()->GetNumericAttribute(UAS_Ammo::GetMaxClipAmmoAttribute());
+		const float BackupAmmo = GetAbilitySystemComponent()->GetNumericAttribute(UAS_Ammo::GetBackupAmmoAttribute());
+
+		//UKismetSystemLibrary::PrintString(this, TEXT("MaxAmmo: ") + FString::SanitizeFloat(MaxAmmo), true, false);
+		//UKismetSystemLibrary::PrintString(this, TEXT("MaxClipAmmo: ") + FString::SanitizeFloat(MaxClipAmmo), true, false);
+		//UKismetSystemLibrary::PrintString(this, TEXT("BackupAmmo: ") + FString::SanitizeFloat(BackupAmmo), true, false);
 	}
 
 	//}

@@ -53,31 +53,23 @@ void UUW_Ammo::OnPlayerASCValid()
 
 void UUW_Ammo::OnAttributeChanged(const FOnAttributeChangeData& Data)
 {
-	const FGameplayAttribute Attribute = Data.Attribute;
-	const float NewValue = Data.NewValue;
+	const FGameplayAttribute& Attribute = Data.Attribute;
+	const float& NewValue = Data.NewValue;
 
 
 	if (Attribute == UAS_Ammo::GetBackupAmmoAttribute())
 	{
-		SetBackupAmmo(NewValue);
+		CurrentBackupAmmo = NewValue;
+		UpdateAmmoStatus();
 	}
 }
 
 void UUW_Ammo::OnClipAmmoChange(const float& OldValue, const float& NewValue)
 {
-	SetClipAmmo(NewValue);
+	CurrentClipAmmo = NewValue;
+	UpdateAmmoStatus();
 }
 
-void UUW_Ammo::SetClipAmmo(float NewClipAmmo)
-{
-	CurrentClipAmmo = NewClipAmmo;
-	UpdateAmmoStatus();
-}
-void UUW_Ammo::SetBackupAmmo(float NewBackupAmmo)
-{
-	CurrentBackupAmmo = NewBackupAmmo;
-	UpdateAmmoStatus();
-}
 
 void UUW_Ammo::UpdateAmmoStatus()
 {

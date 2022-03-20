@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Interfaces\Interactable.h"
+#include "Interfaces\InteractableInterface.h"
 #include "GameplayAbilitySpec.h"
 #include "AbilitySystem/ASSGameplayAbility.h"
 
@@ -12,7 +12,7 @@
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class SONICSHOOTER_API UAC_Interactable : public UActorComponent, public IInteractable
+class SONICSHOOTER_API UAC_Interactable : public UActorComponent, public IInteractableInterface
 {
 	GENERATED_BODY()
 
@@ -21,7 +21,7 @@ public:
 	UAC_Interactable();
 
 
-	// BEGIN IInteractable interface
+	// BEGIN IInteractableInterface interface
 	virtual bool CanActivateInteractAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const override;
 	virtual TSubclassOf<UGameplayEffect> GetInteractableEffectTSub() override;
 
@@ -48,7 +48,7 @@ public:
 	virtual bool GetShouldSkipFirstTick() override;
 	virtual bool GetShouldFireDetectionEvents() override;
 	virtual bool GetCanCurrentlyBeInteractedWith() override;
-	// END IInteractable interface
+	// END IInteractableInterface interface
 
 
 protected:

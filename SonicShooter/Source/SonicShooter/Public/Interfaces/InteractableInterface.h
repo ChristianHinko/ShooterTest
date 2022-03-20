@@ -7,7 +7,7 @@
 #include "GameplayAbilitySpec.h"
 #include "AbilitySystem/ASSGameplayAbility.h"
 
-#include "Interactable.generated.h"
+#include "InteractableInterface.generated.h"
 
 class AC_Shooter;
 
@@ -35,7 +35,7 @@ enum class EDurationInteractEndReason
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI, BlueprintType)
-class UInteractable : public UInterface
+class UInteractableInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -49,12 +49,12 @@ class UInteractable : public UInterface
  *	You can treat these implementations the same way you would do logic in abilities. For instant interactions effects, montages, etc can be rolled back since InstantInteract ability is instant.
  *  Since DurationInteract is latent you only get rollback in OnDurationInteractBegin().
  */
-class SONICSHOOTER_API IInteractable
+class SONICSHOOTER_API IInteractableInterface
 {
 	GENERATED_BODY()
 
 public:
-	IInteractable();
+	IInteractableInterface();
 
 	/* This will be applied at the beginning of the ability and removed at the end (an infinite effect) */
 	virtual TSubclassOf<UGameplayEffect> GetInteractableEffectTSub() =0;

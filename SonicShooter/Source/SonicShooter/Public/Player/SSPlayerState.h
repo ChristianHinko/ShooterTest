@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Player/AbilitySystemPlayerState.h"
+#include "Player/PS_AbilitySystemPlayerState.h"
 
 #include "SSPlayerState.generated.h"
 
@@ -16,7 +16,7 @@ class UAS_PlayerState;
  * Base Player State
  */
 UCLASS()
-class SONICSHOOTER_API ASSPlayerState : public AAbilitySystemPlayerState
+class SONICSHOOTER_API ASSPlayerState : public APS_AbilitySystemPlayerState
 {
 	GENERATED_BODY()
 

@@ -83,8 +83,8 @@ void USSCharacterMovementComponent::InitializeComponent()
 
 	if (AbilitySystemSetupOwner)
 	{
-		AbilitySystemSetupOwner->GetAbilitySystemSetup()->OnAbilitySystemSetUpPreInitialized.AddUObject(this, &USSCharacterMovementComponent::OnAbilitySystemSetUpPreInitialized);
-		AbilitySystemSetupOwner->GetAbilitySystemSetup()->OnAbilitySystemSetUp.AddUObject(this, &USSCharacterMovementComponent::OnAbilitySystemSetUp);
+		AbilitySystemSetupOwner->GetAbilitySystemSetupComponent()->OnAbilitySystemSetUpPreInitialized.AddUObject(this, &USSCharacterMovementComponent::OnAbilitySystemSetUpPreInitialized);
+		AbilitySystemSetupOwner->GetAbilitySystemSetupComponent()->OnAbilitySystemSetUp.AddUObject(this, &USSCharacterMovementComponent::OnAbilitySystemSetUp);
 	}
 }
 

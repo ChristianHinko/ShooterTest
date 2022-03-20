@@ -33,7 +33,7 @@ void UArcInventoryComponent_Shooter::InitializeComponent()
 
 	if (IAbilitySystemSetupInterface* AbilitySystemSetupInterface = UBFL_InterfaceHelpers::GetInterfaceTypedOuter<IAbilitySystemSetupInterface, UAbilitySystemSetupInterface>(this))
 	{
-		UAbilitySystemSetupComponent* AbilitySystemSetupComponent = AbilitySystemSetupInterface->GetAbilitySystemSetup();
+		UAbilitySystemSetupComponent* AbilitySystemSetupComponent = AbilitySystemSetupInterface->GetAbilitySystemSetupComponent();
 		if (IsValid(AbilitySystemSetupComponent))
 		{
 			AbilitySystemSetupComponent->OnAbilitySystemSetUp.AddUObject(this, &UArcInventoryComponent_Shooter::OnAbilitySystemSetUp);

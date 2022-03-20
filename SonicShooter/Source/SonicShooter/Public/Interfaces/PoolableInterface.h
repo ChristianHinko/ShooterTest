@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "Poolable.generated.h"
+#include "PoolableInterface.generated.h"
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
-class UPoolable : public UInterface
+class UPoolableInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -21,13 +21,13 @@ class ASSActor;
 /**
  * 
  */
-class SONICSHOOTER_API IPoolable
+class SONICSHOOTER_API IPoolableInterface
 {
 	GENERATED_BODY()
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	IPoolable();
+	IPoolableInterface();
 	// This is set automatically by the interface. You shouldn't touch this
 	uint8 bIsCurentlyInPool : 1;
 

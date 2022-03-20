@@ -4,12 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Actor/SSActor.h"
-#include "Interfaces/Poolable.h"
+#include "Interfaces/PoolableInterface.h"
 
 #include "MyPooledActor.generated.h"
 
 UCLASS()
-class SONICSHOOTER_API AMyPooledActor : public ASSActor, public IPoolable
+class SONICSHOOTER_API AMyPooledActor : public ASSActor, public IPoolableInterface
 {
 	GENERATED_BODY()
 	

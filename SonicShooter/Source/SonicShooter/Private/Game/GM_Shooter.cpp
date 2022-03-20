@@ -37,7 +37,7 @@ APawn* AGM_Shooter::SpawnDefaultPawnAtTransform_Implementation(AController* NewP
 		if (IAbilitySystemSetupInterface* AbilitySystemSetupOwner = Cast<IAbilitySystemSetupInterface>(Pawn))
 		{
 			// Wait until they have they ability system set up
-			AbilitySystemSetupOwner->GetAbilitySystemSetup()->OnAbilitySystemSetUp.AddUObject(this, &AGM_Shooter::OnAbilitySystemSetUp, Inventory);
+			AbilitySystemSetupOwner->GetAbilitySystemSetupComponent()->OnAbilitySystemSetUp.AddUObject(this, &AGM_Shooter::OnAbilitySystemSetUp, Inventory);
 		}
 		else
 		{

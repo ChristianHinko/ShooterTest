@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/ASSAbilityTask.h"
-#include "Interfaces/Interactable.h"
+#include "Interfaces/InteractableInterface.h"
 #include "UObject/ScriptInterface.h"
 
 #include "AT_DurationInteractCallbacks.generated.h"
@@ -42,14 +42,14 @@ public:
 	virtual void TickTask(float DeltaTime) override;
 
 	FDelegateHandle OnPawnLeftOverlapInteractableDelegateHandle;
-	void OnPawnLeftOverlapInteractable(IInteractable*& InteractableThePawnLeft);
+	void OnPawnLeftOverlapInteractable(IInteractableInterface*& InteractableThePawnLeft);
 
 	/** Start a task that repeats an action or set of actions. */
-	static UAT_DurationInteractCallbacks* DurationInteractCallbacks(UGameplayAbility* OwningAbility, AC_Shooter* ShooterCharacter, IInteractable*& InInteract);
+	static UAT_DurationInteractCallbacks* DurationInteractCallbacks(UGameplayAbility* OwningAbility, AC_Shooter* ShooterCharacter, IInteractableInterface*& InInteract);
 
 	void Activate() override;
 
-	IInteractable* Interactable;
+	IInteractableInterface* Interactable;
 	FString GetDebugString() const override;
 	virtual void OnDestroy(bool AbilityEnded) override;
 protected:

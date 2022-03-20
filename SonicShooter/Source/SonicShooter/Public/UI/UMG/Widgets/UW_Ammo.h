@@ -50,11 +50,7 @@ protected:
 	UFUNCTION()
 		void OnClipAmmoChange(const float& OldValue, const float& NewValue);
 
-
-	void SetClipAmmo(float NewClipAmmo);
-	void SetBackupAmmo(float NewBackupAmmo);
-
-	/** Called on CurrentSpread changed. Use this to update CurrentSpread based UI */
+	/** Called on ammo values changed. Use this to update UI */
 	UFUNCTION()
 		void UpdateAmmoStatus();
 

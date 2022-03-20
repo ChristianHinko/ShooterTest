@@ -6,7 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
 #include "Character/C_Shooter.h"
-#include "Interfaces/Interactable.h"
+#include "Interfaces/InteractableInterface.h"
 #include "Utilities/CollisionChannels.h"
 #include "Camera/CameraComponent.h"
 
@@ -88,7 +88,7 @@ void UAC_Interactor::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 
 void UAC_Interactor::OnComponentBeginOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
+	if (IInteractableInterface* Interactable = Cast<IInteractableInterface>(OtherActor))
 	{
 		// If we knew at this point weather this interactable is the current one, we would be able to fire off a more helpful event in the interface.
 		Interactable->InjectDetectType(EDetectType::DETECTTYPE_Overlapped);
@@ -97,7 +97,7 @@ void UAC_Interactor::OnComponentBeginOverlapCharacterCapsule(UPrimitiveComponent
 }
 void UAC_Interactor::OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (IInteractable* Interactable = Cast<IInteractable>(OtherActor))
+	if (IInteractableInterface* Interactable = Cast<IInteractableInterface>(OtherActor))
 	{
 		if (CurrentOverlapInteractablesStack.Num() > 0)
 		{
@@ -116,7 +116,7 @@ void UAC_Interactor::OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* 
 
 
 
-IInteractable* UAC_Interactor::ScanForCurrentPrioritizedInteractable(FHitResult& OutHit)
+IInteractableInterface* UAC_Interactor::ScanForCurrentPrioritizedInteractable(FHitResult& OutHit)
 {
 	// Check if sphere sweep detects blocking hit as an interactable (a blocking hit doesn't necessarily mean the object is collidable. It's can just be collidable to the Interact trace channel).
 	if (GetWorld() && OwningShooterCharacter->GetFollowCamera())
@@ -127,7 +127,7 @@ IInteractable* UAC_Interactor::ScanForCurrentPrioritizedInteractable(FHitResult&
 		const bool bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, StartLocation, EndLocation, FQuat::Identity, COLLISION_INTERACT, FCollisionShape::MakeSphere(InteractSweepRadius), FCollisionQueryParams());
 		if (bBlockingHit)
 		{
-			if (IInteractable* BlockingHitInteractable = Cast<IInteractable>(OutHit.GetActor()))
+			if (IInteractableInterface* BlockingHitInteractable = Cast<IInteractableInterface>(OutHit.GetActor()))
 			{
 				if (BlockingHitInteractable->GetCanCurrentlyBeInteractedWith())
 				{

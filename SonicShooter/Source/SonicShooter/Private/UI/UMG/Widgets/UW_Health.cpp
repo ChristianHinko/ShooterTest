@@ -19,8 +19,8 @@ UUW_Health::UUW_Health(const FObjectInitializer& ObjectInitializer)
 
 void UUW_Health::OnAttributeChanged(const FOnAttributeChangeData& Data)
 {
-	const FGameplayAttribute Attribute = Data.Attribute;
-	const float NewValue = Data.NewValue;
+	const FGameplayAttribute& Attribute = Data.Attribute;
+	const float& NewValue = Data.NewValue;
 
 
 	if (Attribute == UAS_Health::GetHealthAttribute())

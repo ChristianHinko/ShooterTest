@@ -192,7 +192,7 @@ void ASSCharacter::CreateAttributeSets()
 	Super::CreateAttributeSets();
 
 
-	if (!CharacterMovementAttributeSet)
+	if (!IsValid(CharacterMovementAttributeSet))
 	{
 		CharacterMovementAttributeSet = NewObject<UAS_CharacterMovement>(this, UAS_CharacterMovement::StaticClass(), TEXT("CharacterMovementAttributeSet"));
 	}
@@ -206,8 +206,9 @@ void ASSCharacter::RegisterAttributeSets()
 	Super::RegisterAttributeSets();
 
 
-	if (CharacterMovementAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(CharacterMovementAttributeSet))	// If CharacterMovementAttributeSet is valid and it's not yet registered with the Character's ASC
+	if (IsValid(CharacterMovementAttributeSet) && GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(CharacterMovementAttributeSet) == false) // if CharacterMovementAttributeSet is valid and it's not yet registered with the Character's ASC
 	{
+		CharacterMovementAttributeSet->Rename(nullptr, this);
 		GetAbilitySystemComponent()->AddAttributeSetSubobject(CharacterMovementAttributeSet);
 	}
 	else
@@ -587,14 +588,14 @@ void FCrouchTickFunction::ExecuteTick(float DeltaTime, ELevelTick TickType, ENam
 void ASSCharacter::CrouchTick(float DeltaTime)
 {
 	const FVector CameraBoomLoc = CameraBoom->GetRelativeLocation();
-	const float crouchFromHeight = CameraBoomLoc.Z;
+	const float CrouchFromHeight = CameraBoomLoc.Z;
 
-	float interpedHeight;
+	float InterpedHeight;
 	if (SSCharacterMovementComponent->GetToggleCrouchEnabled()) // toggle crouch feels better with a linear interp
 	{
-		interpedHeight = FMath::FInterpConstantTo(crouchFromHeight, CrouchToHeight, DeltaTime, CrouchSpeed);
+		InterpedHeight = FMath::FInterpConstantTo(CrouchFromHeight, CrouchToHeight, DeltaTime, CrouchSpeed);
 
-		if (interpedHeight == CrouchToHeight)
+		if (InterpedHeight == CrouchToHeight)
 		{
 			// We've reached our goal, make this our last tick
 			CrouchTickFunction.SetTickFunctionEnable(false);
@@ -602,17 +603,17 @@ void ASSCharacter::CrouchTick(float DeltaTime)
 	}
 	else // hold to crouch feels better with a smooth interp
 	{
-		interpedHeight = FMath::FInterpTo(crouchFromHeight, CrouchToHeight, DeltaTime, CrouchSpeed / 10);
+		InterpedHeight = FMath::FInterpTo(CrouchFromHeight, CrouchToHeight, DeltaTime, CrouchSpeed / 10);
 
-		if (FMath::IsNearlyEqual(interpedHeight, CrouchToHeight, KINDA_SMALL_NUMBER * 100))
+		if (FMath::IsNearlyEqual(InterpedHeight, CrouchToHeight, KINDA_SMALL_NUMBER * 100))
 		{
 			// We've nearly reached our goal, set our official height and make this our last tick
-			interpedHeight = CrouchToHeight;
+			InterpedHeight = CrouchToHeight;
 			CrouchTickFunction.SetTickFunctionEnable(false);
 		}
 	}
 
-	CameraBoom->SetRelativeLocation(FVector(CameraBoomLoc.X, CameraBoomLoc.Y, interpedHeight));
+	CameraBoom->SetRelativeLocation(FVector(CameraBoomLoc.X, CameraBoomLoc.Y, InterpedHeight));
 
 
 	//UKismetSystemLibrary::PrintString(this, "crouch ticking;                      " + CameraBoom->GetRelativeLocation().ToString(), true, false);
@@ -943,14 +944,14 @@ void ASSCharacter::HorizontalLook(float Rate)
 {
 	if (Rate != 0)
 	{
-		AddControllerYawInput(Rate * HorizontalSensitivity * 0.5);
+		AddControllerYawInput(Rate * HorizontalSensitivity * 0.5f);
 	}
 }
 void ASSCharacter::VerticalLook(float Rate)
 {
 	if (Rate != 0)
 	{
-		AddControllerPitchInput(Rate * VerticalSensitivity * 0.5);
+		AddControllerPitchInput(Rate * VerticalSensitivity * 0.5f);
 	}
 }
 #pragma endregion

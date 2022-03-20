@@ -7,9 +7,9 @@
 #include "AC_Interactor.generated.h"
 
 class AC_Shooter;
-class IInteractable;
+class IInteractableInterface;
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnFrameOverlapStackChangeDelegate, IInteractable*&);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnFrameOverlapStackChangeDelegate, IInteractableInterface*&);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SONICSHOOTER_API UAC_Interactor : public UActorComponent
@@ -25,11 +25,11 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	// Treated as a stack. Not fully a stack because OnEndOverlap of an interactable we allow removing the element from whatever position it may be
-	TArray<IInteractable*> CurrentOverlapInteractablesStack;
+	TArray<IInteractableInterface*> CurrentOverlapInteractablesStack;
 	FOnFrameOverlapStackChangeDelegate OnElementRemovedFromFrameOverlapInteractablesStack;
 
-	IInteractable* CurrentPrioritizedInteractable;
-	IInteractable* LastPrioritizedInteractable;
+	IInteractableInterface* CurrentPrioritizedInteractable;
+	IInteractableInterface* LastPrioritizedInteractable;
 
 	void TryInteract();
 
@@ -45,7 +45,7 @@ protected:
 	UFUNCTION()
 		void OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	IInteractable* ScanForCurrentPrioritizedInteractable(FHitResult& OutHit);
+	IInteractableInterface* ScanForCurrentPrioritizedInteractable(FHitResult& OutHit);
 
 private:
 	AC_Shooter* OwningShooterCharacter;

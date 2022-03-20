@@ -16,7 +16,7 @@ UAT_DurationInteractCallbacks::UAT_DurationInteractCallbacks(const FObjectInitia
 
 }
 
-UAT_DurationInteractCallbacks* UAT_DurationInteractCallbacks::DurationInteractCallbacks(UGameplayAbility* OwningAbility, AC_Shooter* ShooterCharacter, IInteractable*& InInteract)
+UAT_DurationInteractCallbacks* UAT_DurationInteractCallbacks::DurationInteractCallbacks(UGameplayAbility* OwningAbility, AC_Shooter* ShooterCharacter, IInteractableInterface*& InInteract)
 {
 	if (!InInteract || !OwningAbility || !ShooterCharacter)
 	{
@@ -96,7 +96,7 @@ void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 	////
 }
 
-void UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable(IInteractable*& InteractableThePawnLeft)
+void UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable(IInteractableInterface*& InteractableThePawnLeft)
 {
 	ENetRole role = ShooterCharacter->GetLocalRole();
 	if (Interactable == InteractableThePawnLeft)

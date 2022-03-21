@@ -16,6 +16,7 @@
 #include "AbilitySystem/ASSGameplayAbility.h"
 #include "AttributeSets/AS_Health.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
+#include "AbilitySystem/ASSAbilitySystemBlueprintLibrary.h"
 
 
 
@@ -26,7 +27,6 @@ void AC_Shooter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 
 	DOREPLIFETIME(AC_Shooter, HealthAttributeSet);
 	DOREPLIFETIME(AC_Shooter, StaminaAttributeSet);
-
 
 	DOREPLIFETIME_CONDITION(AC_Shooter, InteractInstantAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AC_Shooter, InteractDurationAbilitySpecHandle, COND_OwnerOnly);
@@ -51,21 +51,36 @@ AC_Shooter::AC_Shooter(const FObjectInitializer& ObjectInitializer)
 		.SetDefaultSubobjectClass<UArcInventoryComponent_Shooter>(InventoryComponentName)
 	)
 {
+	// Create Inventory
+	InventoryComponent = CreateDefaultSubobject<UArcInventoryComponent>(InventoryComponentName);
+	ShooterInventoryComponent = Cast<UArcInventoryComponent_Shooter>(InventoryComponent);
+
+	// Create Interactor
+	Interactor = CreateDefaultSubobject<UAC_Interactor>(TEXT("Interactor"));
+
+
 	// Default to first person
 	bFirstPerson = true;
 	bUseControllerRotationYaw = true; // let the camera rotation determine our yaw
 	GetCharacterMovement()->bOrientRotationToMovement = false; // don't rotate the Character in the movement direction
 
-
-
-	InventoryComponent = CreateDefaultSubobject<UArcInventoryComponent>(InventoryComponentName);
-	ShooterInventoryComponent = Cast<UArcInventoryComponent_Shooter>(InventoryComponent);
-
-
-	Interactor = CreateDefaultSubobject<UAC_Interactor>(TEXT("Interactor"));
-
+	// Configure camera sway
 	CameraSwayAmount = FVector(0.f, 1.3f, 0.4f);
 	AddedCameraSwayDuringADS = FVector(0.f, -1.1f, -0.1f);
+}
+void AC_Shooter::PreInitializeComponents()
+{
+	Super::PreInitializeComponents();
+
+
+	// Create Attribute Sets
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		// NOTE: I would like to do this with CreateDefaultSubobject() in the contructor but then it thinks that it is name safe for replication which
+		// causes problems. Know that you CAN do that on the Owner Actor though (the Player State) because name safe replication makes sense for that (we are doing that with AS_PlayerState).
+		HealthAttributeSet = NewObject<UAS_Health>(this, TEXT("HealthAttributeSet"));
+		StaminaAttributeSet = NewObject<UAS_Stamina>(this, TEXT("StaminaAttributeSet"));
+	}
 }
 
 void AC_Shooter::PossessedBy(AController* NewController)
@@ -81,53 +96,20 @@ void AC_Shooter::BeginPlay()
 
 }
 
-void AC_Shooter::CreateAttributeSets()
-{
-	Super::CreateAttributeSets();
-
-
-	if (!HealthAttributeSet)
-	{
-		HealthAttributeSet = NewObject<UAS_Health>(this, UAS_Health::StaticClass(), TEXT("HealthAttributeSet"));
-	}
-	else
-	{
-		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), ANSI_TO_TCHAR(__FUNCTION__), *HealthAttributeSet->GetName());
-	}
-
-	if (!StaminaAttributeSet)
-	{
-		StaminaAttributeSet = NewObject<UAS_Stamina>(this, UAS_Stamina::StaticClass(), TEXT("StaminaAttributeSet"));
-	}
-	else
-	{
-		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), ANSI_TO_TCHAR(__FUNCTION__), *StaminaAttributeSet->GetName());
-	}
-}
-
 void AC_Shooter::RegisterAttributeSets()
 {
 	Super::RegisterAttributeSets();
 
 
-	if (HealthAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(HealthAttributeSet))	// If HealthAttributeSet is valid and it's not yet registered with the Character's ASC
+	if (UASSAbilitySystemBlueprintLibrary::GetAttributeSet<UAS_Health>(GetAbilitySystemComponent()) == nullptr)
 	{
 		HealthAttributeSet->Rename(nullptr, this);
 		GetAbilitySystemComponent()->AddAttributeSetSubobject(HealthAttributeSet);
 	}
-	else
-	{
-		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() HealthAttributeSet was either NULL or already added to the character's ASC. Character: %s"), ANSI_TO_TCHAR(__FUNCTION__), *GetName());
-	}
-
-	if (StaminaAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(StaminaAttributeSet))	// If StaminaAttributeSet is valid and it's not yet registered with the Character's ASC
+	if (UASSAbilitySystemBlueprintLibrary::GetAttributeSet<UAS_Stamina>(GetAbilitySystemComponent()) == nullptr)
 	{
 		StaminaAttributeSet->Rename(nullptr, this);
 		GetAbilitySystemComponent()->AddAttributeSetSubobject(StaminaAttributeSet);
-	}
-	else
-	{
-		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() StaminaAttributeSet was either NULL or already added to the character's ASC. Character: %s"), ANSI_TO_TCHAR(__FUNCTION__), *GetName());
 	}
 }
 void AC_Shooter::GiveStartingAbilities()

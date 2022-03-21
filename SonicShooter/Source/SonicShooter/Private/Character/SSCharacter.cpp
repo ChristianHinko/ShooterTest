@@ -20,6 +20,7 @@
 #include "GameFramework/Pawn.h"
 #include "Character/AttributeSets/AS_CharacterMovement.h"
 #include "AbilitySystem/ASSGameplayAbility.h"
+#include "AbilitySystem/ASSAbilitySystemBlueprintLibrary.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -37,6 +38,7 @@ void ASSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME_CONDITION(ASSCharacter, RemoteViewYaw, COND_SkipOwner); // we also do a custom condition for this in PreReplication() (but we aren't using COND_Custom because we still want to COND_SkipOwner)
 
 	DOREPLIFETIME(ASSCharacter, CharacterMovementAttributeSet);
+
 	DOREPLIFETIME_CONDITION(ASSCharacter, CharacterJumpAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(ASSCharacter, CharacterCrouchAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(ASSCharacter, CharacterRunAbilitySpecHandle, COND_OwnerOnly);
@@ -162,6 +164,19 @@ void ASSCharacter::PostEditChangeProperty(FPropertyChangedEvent& PropertyChanged
 }
 #endif
 
+void ASSCharacter::PreInitializeComponents()
+{
+	Super::PreInitializeComponents();
+
+
+	// Create Attribute Sets
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		// NOTE: I would like to do this with CreateDefaultSubobject() in the contructor but then it thinks that it is name safe for replication which
+		// causes problems. Know that you CAN do that on the Owner Actor though (the Player State) because name safe replication makes sense for that (we are doing that with AS_PlayerState).
+		CharacterMovementAttributeSet = NewObject<UAS_CharacterMovement>(this, TEXT("CharacterMovementAttributeSet"));
+	}
+}
 void ASSCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
@@ -187,33 +202,15 @@ void ASSCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTra
 }
 
 
-void ASSCharacter::CreateAttributeSets()
-{
-	Super::CreateAttributeSets();
-
-
-	if (!IsValid(CharacterMovementAttributeSet))
-	{
-		CharacterMovementAttributeSet = NewObject<UAS_CharacterMovement>(this, UAS_CharacterMovement::StaticClass(), TEXT("CharacterMovementAttributeSet"));
-	}
-	else
-	{
-		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), ANSI_TO_TCHAR(__FUNCTION__), *CharacterMovementAttributeSet->GetName());
-	}
-}
 void ASSCharacter::RegisterAttributeSets()
 {
 	Super::RegisterAttributeSets();
 
 
-	if (IsValid(CharacterMovementAttributeSet) && GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(CharacterMovementAttributeSet) == false) // if CharacterMovementAttributeSet is valid and it's not yet registered with the Character's ASC
+	if (UASSAbilitySystemBlueprintLibrary::GetAttributeSet<UAS_CharacterMovement>(GetAbilitySystemComponent()) == nullptr)
 	{
 		CharacterMovementAttributeSet->Rename(nullptr, this);
 		GetAbilitySystemComponent()->AddAttributeSetSubobject(CharacterMovementAttributeSet);
-	}
-	else
-	{
-		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() CharacterMovementAttributeSet was either NULL or already added to the character's ASC. Character: %s"), ANSI_TO_TCHAR(__FUNCTION__), *GetName());
 	}
 }
 

@@ -88,12 +88,10 @@ protected:
 public:
 	ASSCharacter(const FObjectInitializer& ObjectInitializer);
 
-	// Components
+	// Subobject getters
 	USkeletalMeshComponent* GetPOVMesh() const { return POVMesh; }
 	USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-
-
 	UAS_CharacterMovement* GetCharacterMovementAttributeSet() const { return CharacterMovementAttributeSet; }
 
 #pragma region Abilities
@@ -178,12 +176,12 @@ protected:
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 	virtual void PostInitProperties() override;
+	virtual void PreInitializeComponents() override;
 	virtual void PostInitializeComponents() override;
 	virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
-	virtual void CreateAttributeSets() override;
 	virtual void RegisterAttributeSets() override;
 	virtual void GiveStartingAbilities() override;
 

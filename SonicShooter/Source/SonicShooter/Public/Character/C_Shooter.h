@@ -29,6 +29,8 @@ class SONICSHOOTER_API AC_Shooter : public ASSCharacter, public IArcInventoryInt
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
 		UArcInventoryComponent* InventoryComponent;
+	static const FName InventoryComponentName;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Interactor")
 		UAC_Interactor* Interactor;
 
@@ -36,12 +38,9 @@ public:
 	AC_Shooter(const FObjectInitializer& ObjectInitializer);
 
 
-	static const FName InventoryComponentName;
+	// Subobject getters
 	UArcInventoryComponent* GetInventoryComponent() const override { return InventoryComponent; }
-
 	UAC_Interactor* GetInteractorComponent() const { return Interactor; }
-
-
 	UAS_Health* GetHealthAttributeSet() const { return HealthAttributeSet; }
 	UAS_Stamina* GetStaminaAttributeSet() const { return StaminaAttributeSet; }
 
@@ -103,6 +102,7 @@ public:
 #pragma endregion
 
 protected:
+	virtual void PreInitializeComponents() override;
 	virtual void BeginPlay() override;
 
 
@@ -119,7 +119,6 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 	//END AActor Interface
 
-	virtual void CreateAttributeSets() override;
 	virtual void RegisterAttributeSets() override;
 	virtual void GiveStartingAbilities() override;
 
@@ -151,7 +150,6 @@ private:
 		UAS_Health* HealthAttributeSet;
 	UPROPERTY(Replicated)
 		UAS_Stamina* StaminaAttributeSet;
-
 
 	// Cached Inventory
 	UArcInventoryComponent_Shooter* ShooterInventoryComponent;

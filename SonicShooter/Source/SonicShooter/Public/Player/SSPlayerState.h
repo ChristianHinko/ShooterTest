@@ -20,15 +20,14 @@ class SONICSHOOTER_API ASSPlayerState : public APS_AbilitySystemPlayerState
 {
 	GENERATED_BODY()
 
+protected:
+	UPROPERTY()
+		UAS_PlayerState* PlayerAttributeSet;
 
 public:
 	ASSPlayerState(const FObjectInitializer& ObjectInitializer);
 
 
-	UAS_PlayerState* GetAttributeSet() const { return AttributeSet; }
-
-protected:
-	UPROPERTY()
-		UAS_PlayerState* AttributeSet;
+	UAS_PlayerState* GetAttributeSet() const { return PlayerAttributeSet; }
 
 };

@@ -95,17 +95,17 @@ public:
 
 	//BEGIN Character Abilities
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
-		TSubclassOf<UASSGameplayAbility> CharacterJumpAbilityTSub;
+		TSubclassOf<UGameplayAbility> CharacterJumpAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle CharacterJumpAbilitySpecHandle;
 
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
-		TSubclassOf<UASSGameplayAbility> CharacterCrouchAbilityTSub;
+		TSubclassOf<UGameplayAbility> CharacterCrouchAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle CharacterCrouchAbilitySpecHandle;
 
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
-		TSubclassOf<UASSGameplayAbility> CharacterRunAbilityTSub;
+		TSubclassOf<UGameplayAbility> CharacterRunAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle CharacterRunAbilitySpecHandle;
 	//END Character Abilities

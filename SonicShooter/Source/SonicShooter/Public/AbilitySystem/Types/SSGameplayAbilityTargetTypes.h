@@ -22,7 +22,7 @@ struct SONICSHOOTER_API FSSGameplayAbilityTargetData : public FASSGameplayAbilit
 
 	virtual UScriptStruct* GetScriptStruct() const override
 	{
-		return FSSGameplayAbilityTargetData::StaticStruct();
+		return StaticStruct();
 	}
 };
 
@@ -172,7 +172,7 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 
 	virtual UScriptStruct* GetScriptStruct() const override
 	{
-		return FGATD_BulletTraceTargetHit::StaticStruct();
+		return StaticStruct();
 	}
 };
 

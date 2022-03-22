@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Wrappers/PropertyWrappers.h"
+#include "PropertyWrappers/FloatPropertyWrapper.h"
 #include "AttributeSet.h"
 #include "GameplayEffectTypes.h"
 
@@ -36,7 +36,7 @@ public:
 
 
 	/** Current bullet spread. Non-replicated because set every frame */
-	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Gun")
+	UPROPERTY(BlueprintReadOnly, Replicated, Category = "BulletSpread")
 		mutable FFloatPropertyWrapper CurrentBulletSpread;
 
 

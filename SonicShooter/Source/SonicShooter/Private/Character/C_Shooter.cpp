@@ -13,7 +13,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Inventory/ArcInventoryComponent_Shooter.h"
 #include "ArcItemStack.h"
-#include "AbilitySystem/ASSGameplayAbility.h"
 #include "AttributeSets/AS_Health.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
 #include "AbilitySystemSetupComponent/AbilitySystemSetupComponent.h"
@@ -140,10 +139,10 @@ void AC_Shooter::Tick(float DeltaSeconds)
 			if (IsValid(GunStack))
 			{
 				const FFloatPropertyWrapper& ClipAmmo = GunStack->GetClipAmmoSubobject()->ClipAmmo;
-				//UKismetSystemLibrary::PrintString(this, ClipAmmo.GetPropertyName().ToString() + TEXT(": ") + FString::SanitizeFloat(ClipAmmo), true, false);
+				//UKismetSystemLibrary::PrintString(this, ClipAmmo.GetDebugString(), true, false);
 
 				const FFloatPropertyWrapper& CurrentBulletSpread = GunStack->GetBulletSpreadSubobject()->CurrentBulletSpread;
-				//UKismetSystemLibrary::PrintString(this, CurrentBulletSpread.GetPropertyName().ToString() + TEXT(": ") + FString::SanitizeFloat(CurrentBulletSpread), true, false);
+				//UKismetSystemLibrary::PrintString(this, CurrentBulletSpread.GetDebugString(), true, false);
 			}
 		}
 
@@ -155,7 +154,7 @@ void AC_Shooter::Tick(float DeltaSeconds)
 		//if (IsValid(SSCharacterMovementComponent->StaminaSubobject))
 		//{
 		//	const FFloatPropertyWrapper& Stamina = SSCharacterMovementComponent->StaminaSubobject->Stamina;
-		//	UKismetSystemLibrary::PrintString(this, Stamina.GetPropertyName().ToString() + TEXT(": ") + FString::SanitizeFloat(Stamina), true, false);
+			//UKismetSystemLibrary::PrintString(this, Stamina.GetDebugString(), true, false);
 
 		//}
 	}

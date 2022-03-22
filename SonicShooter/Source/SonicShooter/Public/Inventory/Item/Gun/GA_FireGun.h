@@ -81,7 +81,7 @@ protected:
 	UFUNCTION()
 		void OnCancelled(const FGameplayAbilityTargetDataHandle& Data);
 
-#pragma region AttributeSet Helpers
+	//BEGIN Attribute Set helpers
 	bool IsFullAuto() const;
 	bool IsBurst() const;
 
@@ -89,7 +89,7 @@ protected:
 	float GetTimeBetweenBursts() const;
 
 	bool CurrentlyBursting() const;
-#pragma endregion
+	//END Attribute Set helpers
 
 
 

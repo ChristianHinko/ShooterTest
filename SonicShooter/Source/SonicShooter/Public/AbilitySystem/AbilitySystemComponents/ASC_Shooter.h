@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/ASSAbilitySystemComponent.h"
-#include "Wrappers/PropertyWrappers.h"
 
 #include "ASC_Shooter.generated.h"
 

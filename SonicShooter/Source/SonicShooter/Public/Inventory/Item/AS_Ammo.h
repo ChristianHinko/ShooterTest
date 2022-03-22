@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/ASSAttributeSet.h"
 #include "AbilitySystemComponent.h"
-#include "Wrappers/PropertyWrappers.h"
 
 #include "AS_Ammo.generated.h"
 

@@ -72,7 +72,7 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	BulletSpeedFalloff = ASC->GetNumericAttribute(UAS_Gun::GetBulletSpeedFalloffAttribute());
 
 
-	// BEGIN Attribute value change binding
+	//BEGIN Attribute value change binding
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetAmmoCostAttribute()).AddUObject(this, &UGA_FireGun::OnAmmoCostChange);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetNumShotsPerBurstAttribute()).AddUObject(this, &UGA_FireGun::OnNumShotsPerBurstChange);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetbFullAutoAttribute()).AddUObject(this, &UGA_FireGun::OnbFullAutoChange);
@@ -86,7 +86,7 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetRicochetsAttribute()).AddUObject(this, &UGA_FireGun::OnRicochetsChange);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetInitialBulletSpeedAttribute()).AddUObject(this, &UGA_FireGun::OnInitialBulletSpeedChange);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetBulletSpeedFalloffAttribute()).AddUObject(this, &UGA_FireGun::OnBulletSpeedFalloffChange);
-	// END Attribute value change binding
+	//END Attribute value change binding
 
 
 
@@ -134,7 +134,7 @@ void UGA_FireGun::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, co
 		return;
 	}
 
-	////// BEGIN Unbind from attribute value change delegates
+	//BEGIN Unbind from Attribute value change delegates
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetAmmoCostAttribute()).RemoveAll(this);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetNumShotsPerBurstAttribute()).RemoveAll(this);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetbFullAutoAttribute()).RemoveAll(this);
@@ -148,7 +148,7 @@ void UGA_FireGun::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, co
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetRicochetsAttribute()).RemoveAll(this);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetInitialBulletSpeedAttribute()).RemoveAll(this);
 	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Gun::GetBulletSpeedFalloffAttribute()).RemoveAll(this);
-	////// END Unbind from attribute value change delegates
+	//END Unbind from Attribute value change delegates
 
 
 
@@ -172,24 +172,24 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 	}
 
 
-	if (!GunToFire)
+	if (!IsValid(GunToFire))
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GunToFire was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
-	if (!BulletTraceTargetActor)
+	if (!IsValid(BulletTraceTargetActor))
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() BulletTraceTargetActor was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
-	if (!ClipAmmoSubobject)
+	if (!IsValid(ClipAmmoSubobject))
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ClipAmmoSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
-	if (!BulletSpreadSubobject)
+	if (!IsValid(BulletSpreadSubobject))
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() BulletSpreadSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
@@ -253,11 +253,10 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		}
 	}
 
-	// We only want a release task if we are full auto
-	UAT_WaitInputRelease* WaitInputReleaseTask = nullptr;
 	if (IsFullAuto())
 	{
-		WaitInputReleaseTask = UAT_WaitInputRelease::WaitInputRelease(this, false, true);
+		// We only want a release task if we are full auto
+		UAT_WaitInputRelease* WaitInputReleaseTask = UAT_WaitInputRelease::WaitInputRelease(this, false, true);
 		if (!IsValid(WaitInputReleaseTask))
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputReleaseTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), ANSI_TO_TCHAR(__FUNCTION__));
@@ -267,10 +266,9 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		WaitInputReleaseTask->OnRelease.AddDynamic(this, &UGA_FireGun::OnRelease);
 		WaitInputReleaseTask->ReadyForActivation();
 	}
-	UAT_WaitInputPress* WaitInputPressTask = nullptr;
 	if (IsFullAuto() && IsBurst()) // if we are full auto burst
 	{
-		WaitInputPressTask = UAT_WaitInputPress::WaitInputPress(this, false, true);
+		UAT_WaitInputPress* WaitInputPressTask = UAT_WaitInputPress::WaitInputPress(this, false, true);
 		if (!IsValid(WaitInputPressTask))
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputPressTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), ANSI_TO_TCHAR(__FUNCTION__));
@@ -555,7 +553,7 @@ void UGA_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 
 
 
-#pragma region AttributeSet Helpers
+//BEGIN Attribute Set helpers
 bool UGA_FireGun::IsFullAuto() const
 {
 	return static_cast<bool>(bFullAuto);
@@ -589,7 +587,7 @@ bool UGA_FireGun::CurrentlyBursting() const
 	const bool bHasBurstsLeft = (TimesBursted > 0 && TimesBursted < ShotsPerBurst);
 	return bHasBurstsLeft;
 }
-#pragma endregion
+//END Attribute Set helpers
 
 
 

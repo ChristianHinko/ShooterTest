@@ -4,11 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/ASSAttributeSet.h"
-#include "GameplayAbilities/Public/TickableAttributeSetInterface.h"
 #include "AbilitySystemComponent.h"
-#include "Wrappers/PropertyWrappers.h"
 
 #include "AS_Stamina.generated.h"
+
 
 
 /**

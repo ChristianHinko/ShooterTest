@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Wrappers/PropertyWrappers.h"
+#include "PropertyWrappers/FloatPropertyWrapper.h"
 
 #include "O_Stamina.generated.h"
 

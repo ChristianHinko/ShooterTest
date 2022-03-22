@@ -20,7 +20,7 @@
 #include "GameFramework/Pawn.h"
 #include "Character/AttributeSets/AS_CharacterMovement.h"
 #include "AbilitySystem/ASSGameplayAbility.h"
-#include "AbilitySystem/ASSAbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemSetupComponent/AbilitySystemSetupComponent.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -36,8 +36,6 @@ void ASSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 
 	DOREPLIFETIME_CONDITION(ASSCharacter, bIsRunning, COND_SimulatedOnly);
 	DOREPLIFETIME_CONDITION(ASSCharacter, RemoteViewYaw, COND_SkipOwner); // we also do a custom condition for this in PreReplication() (but we aren't using COND_Custom because we still want to COND_SkipOwner)
-
-	DOREPLIFETIME(ASSCharacter, CharacterMovementAttributeSet);
 
 	DOREPLIFETIME_CONDITION(ASSCharacter, CharacterJumpAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(ASSCharacter, CharacterCrouchAbilitySpecHandle, COND_OwnerOnly);
@@ -117,11 +115,12 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	GetCharacterMovement()->bOrientRotationToMovement = true; // make the Character face the direction that he is moving
 
 
-	if (GetCharacterMovement())
-	{
-		GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
-	}
+	// Attribute Sets
+	GetAbilitySystemSetupComponent()->StartupAttributeSets.Add(UAS_CharacterMovement::StaticClass());
 
+
+	// Crouching
+	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 	CrouchSpeed = 100.f;
 
 	bToggleRunAlwaysRun = false;
@@ -164,19 +163,6 @@ void ASSCharacter::PostEditChangeProperty(FPropertyChangedEvent& PropertyChanged
 }
 #endif
 
-void ASSCharacter::PreInitializeComponents()
-{
-	Super::PreInitializeComponents();
-
-
-	// Create Attribute Sets
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		// NOTE: I would like to do this with CreateDefaultSubobject() in the contructor but then it thinks that it is name safe for replication which
-		// causes problems. Know that you CAN do that on the Owner Actor though (the Player State) because name safe replication makes sense for that (we are doing that with AS_PlayerState).
-		CharacterMovementAttributeSet = NewObject<UAS_CharacterMovement>(this, TEXT("CharacterMovementAttributeSet"));
-	}
-}
 void ASSCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
@@ -202,18 +188,6 @@ void ASSCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTra
 }
 
 
-void ASSCharacter::RegisterAttributeSets()
-{
-	Super::RegisterAttributeSets();
-
-
-	if (UASSAbilitySystemBlueprintLibrary::GetAttributeSet<UAS_CharacterMovement>(GetAbilitySystemComponent()) == nullptr)
-	{
-		CharacterMovementAttributeSet->Rename(nullptr, this);
-		GetAbilitySystemComponent()->AddAttributeSetSubobject(CharacterMovementAttributeSet);
-	}
-}
-
 void ASSCharacter::GiveStartingAbilities()
 {
 	Super::GiveStartingAbilities();
@@ -221,8 +195,6 @@ void ASSCharacter::GiveStartingAbilities()
 	CharacterJumpAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(CharacterJumpAbilityTSub, /*GetLevel()*/1, -1, this));
 	CharacterCrouchAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(CharacterCrouchAbilityTSub, /*GetLevel()*/1, -1, this));
 	CharacterRunAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(CharacterRunAbilityTSub, /*GetLevel()*/1, -1, this));
-
-
 }
 
 
@@ -310,7 +282,7 @@ FRotator ASSCharacter::GetBaseAimRotation() const
 	return POVRot;
 }
 
-#pragma region Jump
+//BEGIN Jump overriding
 void ASSCharacter::Jump()
 {
 	if (SSCharacterMovementComponent)
@@ -386,8 +358,7 @@ void ASSCharacter::ClearJumpInput(float DeltaTime)
 {
 	SSCharacterMovementComponent->ClearJumpInput(DeltaTime);
 }
-
-#pragma endregion
+//END Jump overriding
 
 
 void ASSCharacter::OnRep_IsRunning()
@@ -408,7 +379,7 @@ void ASSCharacter::OnRep_IsRunning()
 	}
 }
 
-#pragma region Crouch
+//BEGIN Crouch overriding
 void ASSCharacter::Crouch(bool bClientSimulation)
 {
 	//Super::Crouch(bClientSimulation);
@@ -615,7 +586,7 @@ void ASSCharacter::CrouchTick(float DeltaTime)
 
 	//UKismetSystemLibrary::PrintString(this, "crouch ticking;                      " + CameraBoom->GetRelativeLocation().ToString(), true, false);
 }
-#pragma endregion
+//END Crouch overriding
 
 //void ASSCharacter::Tick(float DeltaTime)
 //{
@@ -648,12 +619,12 @@ void ASSCharacter::CrouchTick(float DeltaTime)
 //	}
 //}
 
-#pragma region Input
+//BEGIN Input setup
 void ASSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	//Action
+	// Action
 	PlayerInputComponent->BindAction(FName(TEXT("Run")), IE_Pressed, this, &ThisClass::OnRunPressed);
 	PlayerInputComponent->BindAction(FName(TEXT("Run")), IE_Released, this, &ThisClass::OnRunReleased);
 
@@ -709,8 +680,7 @@ void ASSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction(FName(TEXT("ScoreSheet")), IE_Released, this, &ThisClass::OnScoreSheetReleased);
 
 
-
-	//Axis
+	// Axis
 	PlayerInputComponent->BindAxis(FName(TEXT("MoveForward")), this, &ThisClass::MoveForward);
 	PlayerInputComponent->BindAxis(FName(TEXT("MoveRight")), this, &ThisClass::MoveRight);
 
@@ -719,7 +689,7 @@ void ASSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 }
 
 
-//Actions
+// Actions
 void ASSCharacter::OnRunPressed()
 {
 	if (SSCharacterMovementComponent->GetToggleRunEnabled())
@@ -906,7 +876,7 @@ void ASSCharacter::OnScoreSheetReleased()
 
 
 
-//Axis
+// Axis
 void ASSCharacter::MoveForward(float Value)
 {
 	ForwardInputAxis = Value;
@@ -951,7 +921,7 @@ void ASSCharacter::VerticalLook(float Rate)
 		AddControllerPitchInput(Rate * VerticalSensitivity * 0.5f);
 	}
 }
-#pragma endregion
+//END Input setup
 
 #pragma region Helpers
 APawn* ASSCharacter::GetNearestPawn()

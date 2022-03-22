@@ -16,7 +16,7 @@
 #include "AbilitySystem/ASSGameplayAbility.h"
 #include "AttributeSets/AS_Health.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
-#include "AbilitySystem/ASSAbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemSetupComponent/AbilitySystemSetupComponent.h"
 
 
 
@@ -24,9 +24,6 @@ void AC_Shooter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-
-	DOREPLIFETIME(AC_Shooter, HealthAttributeSet);
-	DOREPLIFETIME(AC_Shooter, StaminaAttributeSet);
 
 	DOREPLIFETIME_CONDITION(AC_Shooter, InteractInstantAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AC_Shooter, InteractDurationAbilitySpecHandle, COND_OwnerOnly);
@@ -58,6 +55,10 @@ AC_Shooter::AC_Shooter(const FObjectInitializer& ObjectInitializer)
 	// Create Interactor
 	Interactor = CreateDefaultSubobject<UAC_Interactor>(TEXT("Interactor"));
 
+	// Attribute Sets
+	GetAbilitySystemSetupComponent()->StartupAttributeSets.Add(UAS_Stamina::StaticClass());
+	GetAbilitySystemSetupComponent()->StartupAttributeSets.Add(UAS_Health::StaticClass());
+
 
 	// Default to first person
 	bFirstPerson = true;
@@ -68,27 +69,6 @@ AC_Shooter::AC_Shooter(const FObjectInitializer& ObjectInitializer)
 	CameraSwayAmount = FVector(0.f, 1.3f, 0.4f);
 	AddedCameraSwayDuringADS = FVector(0.f, -1.1f, -0.1f);
 }
-void AC_Shooter::PreInitializeComponents()
-{
-	Super::PreInitializeComponents();
-
-
-	// Create Attribute Sets
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		// NOTE: I would like to do this with CreateDefaultSubobject() in the contructor but then it thinks that it is name safe for replication which
-		// causes problems. Know that you CAN do that on the Owner Actor though (the Player State) because name safe replication makes sense for that (we are doing that with AS_PlayerState).
-		HealthAttributeSet = NewObject<UAS_Health>(this, TEXT("HealthAttributeSet"));
-		StaminaAttributeSet = NewObject<UAS_Stamina>(this, TEXT("StaminaAttributeSet"));
-	}
-}
-
-void AC_Shooter::PossessedBy(AController* NewController)
-{
-	Super::PossessedBy(NewController);
-
-
-}
 
 void AC_Shooter::BeginPlay()
 {
@@ -96,25 +76,10 @@ void AC_Shooter::BeginPlay()
 
 }
 
-void AC_Shooter::RegisterAttributeSets()
-{
-	Super::RegisterAttributeSets();
-
-
-	if (UASSAbilitySystemBlueprintLibrary::GetAttributeSet<UAS_Health>(GetAbilitySystemComponent()) == nullptr)
-	{
-		HealthAttributeSet->Rename(nullptr, this);
-		GetAbilitySystemComponent()->AddAttributeSetSubobject(HealthAttributeSet);
-	}
-	if (UASSAbilitySystemBlueprintLibrary::GetAttributeSet<UAS_Stamina>(GetAbilitySystemComponent()) == nullptr)
-	{
-		StaminaAttributeSet->Rename(nullptr, this);
-		GetAbilitySystemComponent()->AddAttributeSetSubobject(StaminaAttributeSet);
-	}
-}
 void AC_Shooter::GiveStartingAbilities()
 {
 	Super::GiveStartingAbilities();
+
 
 	InteractInstantAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(InteractInstantAbilityTSub, /*GetLevel()*/1, -1, this));
 	InteractDurationAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(InteractDurationAbilityTSub, /*GetLevel()*/1, -1, this));
@@ -152,10 +117,6 @@ void AC_Shooter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (GetHealthAttributeSet())
-	{
-		//UKismetSystemLibrary::PrintString(this, FString::SanitizeFloat(GetHealthAttributeSet()->GetHealth()), true, false);
-	}
 
 	//for (int32 i = 0; i < ShooterInventoryComponent->ActiveItemHistory.Num(); ++i)
 	//{

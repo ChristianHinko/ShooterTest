@@ -13,7 +13,6 @@ class UCameraComponent;
 class USpringArmComponent;
 class USSCharacterMovementComponent;
 class ASSGameState;
-class UAS_CharacterMovement;
 
 
 
@@ -92,9 +91,9 @@ public:
 	USkeletalMeshComponent* GetPOVMesh() const { return POVMesh; }
 	USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-	UAS_CharacterMovement* GetCharacterMovementAttributeSet() const { return CharacterMovementAttributeSet; }
+	USSCharacterMovementComponent* GetSSCharacterMovementComponent() const { return SSCharacterMovementComponent; }
 
-#pragma region Abilities
+	//BEGIN Character Abilities
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
 		TSubclassOf<UASSGameplayAbility> CharacterJumpAbilityTSub;
 	UPROPERTY(Replicated)
@@ -109,10 +108,8 @@ public:
 		TSubclassOf<UASSGameplayAbility> CharacterRunAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle CharacterRunAbilitySpecHandle;
-#pragma endregion
+	//END Character Abilities
 
-
-	USSCharacterMovementComponent* GetSSCharacterMovementComponent() const { return SSCharacterMovementComponent; }
 
 	/** Whether we are actually running. Replicated to simulated proxies so that they can simulate server movement */
 	UPROPERTY(ReplicatedUsing = OnRep_IsRunning)
@@ -140,7 +137,7 @@ public:
 		float ThirdPersonCameraArmLength;
 
 	/** Replicated so we can see where remote clients are looking. */
-	UPROPERTY(replicated)
+	UPROPERTY(Replicated)
 		uint8 RemoteViewYaw;
 	/**
 	 * Set Pawn ViewYaw, so we can see where remote clients are looking.
@@ -176,14 +173,14 @@ protected:
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 	virtual void PostInitProperties() override;
-	virtual void PreInitializeComponents() override;
 	virtual void PostInitializeComponents() override;
 	virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
-	virtual void RegisterAttributeSets() override;
+	//BEGIN IAbilitySystemSetupInterface interface
 	virtual void GiveStartingAbilities() override;
+	//END IAbilitySystemSetupInterface interface
 
 	UPROPERTY()
 		USSCharacterMovementComponent* SSCharacterMovementComponent;
@@ -207,8 +204,7 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 
-#pragma region Input Events
-	//Actions
+	//BEGIN Input actions
 	virtual void OnRunPressed();
 	virtual void OnRunReleased();
 
@@ -262,15 +258,16 @@ protected:
 
 	virtual void OnScoreSheetPressed();
 	virtual void OnScoreSheetReleased();
+	//END Input actions
 
-
-	//Axis
+	//BEGIN Input axis
 	virtual void MoveForward(float Value);
 	virtual void MoveRight(float Value);
 
 	virtual void HorizontalLook(float Rate);
 	virtual void VerticalLook(float Rate);
-#pragma endregion
+	//END Input axis
+
 
 	float ForwardInputAxis;
 	float RightInputAxis;
@@ -282,8 +279,5 @@ protected:
 
 
 private:
-	UPROPERTY(Replicated)
-		UAS_CharacterMovement* CharacterMovementAttributeSet;
-
 	float CrouchToHeight;
 };

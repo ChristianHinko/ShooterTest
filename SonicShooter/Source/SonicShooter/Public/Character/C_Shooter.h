@@ -13,8 +13,6 @@ class IInteractableInterface;
 class UAC_Interactor;
 class UArcInventoryComponent;
 class UArcInventoryComponent_Shooter;
-class UAS_Health;
-class UAS_Stamina;
 
 
 
@@ -41,12 +39,9 @@ public:
 	// Subobject getters
 	UArcInventoryComponent* GetInventoryComponent() const override { return InventoryComponent; }
 	UAC_Interactor* GetInteractorComponent() const { return Interactor; }
-	UAS_Health* GetHealthAttributeSet() const { return HealthAttributeSet; }
-	UAS_Stamina* GetStaminaAttributeSet() const { return StaminaAttributeSet; }
 
 
-#pragma region Abilities
-	// Inventory Abilities
+	//BEGIN Inventory Abilities
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
 		TSubclassOf<UASSGameplayAbility> SwapToLastActiveItemAbilityTSub;
 	UPROPERTY(Replicated)
@@ -84,12 +79,9 @@ public:
 		TSubclassOf<UASSGameplayAbility> DropItemAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle DropItemAbilitySpecHandle;
-	// -----------------------
+	//END Inventory Abilities
 
-
-
-
-
+	//BEGIN Interact Abilities
 	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Interact")
 		TSubclassOf<UASSGameplayAbility> InteractInstantAbilityTSub;
 	UPROPERTY(Replicated)
@@ -99,11 +91,17 @@ public:
 		TSubclassOf<UASSGameplayAbility> InteractDurationAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle InteractDurationAbilitySpecHandle;
-#pragma endregion
+	//END Interact Abilities
 
 protected:
-	virtual void PreInitializeComponents() override;
+	//BEGIN AActor Interface
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
+	//END AActor Interface
+
+	//BEGIN IAbilitySystemSetupInterface interface
+	virtual void GiveStartingAbilities() override;
+	//END IAbilitySystemSetupInterface interface
 
 
 	UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
@@ -111,18 +109,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
 		FVector AddedCameraSwayDuringADS;
 
-	// BEGIN APawn Interface
-	virtual void PossessedBy(AController* NewController) override;
-	// END APawn Interface
 
-	//BEGIN AActor Interface
-	virtual void Tick(float DeltaSeconds) override;
-	//END AActor Interface
-
-	virtual void RegisterAttributeSets() override;
-	virtual void GiveStartingAbilities() override;
-
-#pragma region Input Events
+	//BEGIN Input actions
 	virtual void OnInteractPressed() override;
 
 	virtual void OnPrimaryFirePressed() override;
@@ -142,15 +130,9 @@ protected:
 	virtual void OnScoreSheetPressed() override;
 
 	virtual void OnDropItemPressed() override;
-
-#pragma endregion
+	//END Input actions
 
 private:
-	UPROPERTY(Replicated)
-		UAS_Health* HealthAttributeSet;
-	UPROPERTY(Replicated)
-		UAS_Stamina* StaminaAttributeSet;
-
 	// Cached Inventory
 	UArcInventoryComponent_Shooter* ShooterInventoryComponent;
 

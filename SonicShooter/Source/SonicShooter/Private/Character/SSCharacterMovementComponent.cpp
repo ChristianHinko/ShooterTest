@@ -12,6 +12,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemSetupComponent/AbilitySystemSetupInterface.h"
 #include "AbilitySystemSetupComponent/AbilitySystemSetupComponent.h"
+#include "AbilitySystem/ASSAbilitySystemBlueprintLibrary.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -104,10 +105,7 @@ void USSCharacterMovementComponent::OnAbilitySystemSetUp(UAbilitySystemComponent
 {
 	OwnerASC = NewASC;
 
-	if (IsValid(SSCharacterOwner))
-	{
-		CharacterMovementAttributeSet = SSCharacterOwner->GetCharacterMovementAttributeSet();
-	}
+	CharacterMovementAttributeSet = UASSAbilitySystemBlueprintLibrary::GetAttributeSetCasted<UAS_CharacterMovement>(OwnerASC);
 }
 
 void USSCharacterMovementComponent::OnRunDisabledTagChanged(const FGameplayTag Tag, int32 NewCount)

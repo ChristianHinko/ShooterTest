@@ -60,19 +60,33 @@ protected:
 	//END UGameplayAbility Interface
 
 
+	/**
+	 * Our gun source object
+	 */
 	UPROPERTY()
-		UArcItemStack_Gun* GunToFire;
+		TWeakObjectPtr<UArcItemStack_Gun> GunToFire;
+	UPROPERTY()
+		TWeakObjectPtr<UO_ClipAmmo> ClipAmmoSubobject;
+	UPROPERTY()
+		TWeakObjectPtr<UO_BulletSpread> BulletSpreadSubobject;
+
+	/**
+	 * Our spawned Target Actor from the GunToFire.
+	 * NOTE: this is spawned every time the Ability is given and destroyed on Ability cleared. Maybe
+	 * instead we should keep the Actor alive on the GunToFire - but then it is less scalable.
+	 */
 	UPROPERTY()
 		AGATA_BulletTrace* BulletTraceTargetActor;
 
-	UPROPERTY()
-		UO_ClipAmmo* ClipAmmoSubobject;
-	UPROPERTY()
-		UO_BulletSpread* BulletSpreadSubobject;
-
+	/**
+	 * Actually shoot a bullet out of our GunToFire
+	 */
 	void Shoot();
 
-	UAT_Ticker* TickerTask;
+
+	UPROPERTY()
+		UAT_Ticker* TickerTask;
+
 	UFUNCTION()
 		void OnShootTick(float DeltaTime, float CurrentTime, float TimeRemaining);
 
@@ -80,6 +94,7 @@ protected:
 		void OnValidData(const FGameplayAbilityTargetDataHandle& Data);
 	UFUNCTION()
 		void OnCancelled(const FGameplayAbilityTargetDataHandle& Data);
+
 
 	//BEGIN Attribute Set helpers
 	bool IsFullAuto() const;

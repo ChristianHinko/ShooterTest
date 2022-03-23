@@ -21,7 +21,7 @@ class SONICSHOOTER_API UAS_Stamina : public UASSAttributeSet
 public:
 	UAS_Stamina();
 
-#pragma region Stamina Attributes
+
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxStamina, Category = "Attributes")
 		FGameplayAttributeData MaxStamina;
 	ATTRIBUTE_ACCESSORS(UAS_Stamina, MaxStamina)
@@ -40,7 +40,6 @@ public:
 		UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_StaminaRegenPause, Category = "Attributes")
 		FGameplayAttributeData StaminaRegenPause;
 	ATTRIBUTE_ACCESSORS(UAS_Stamina, StaminaRegenPause)
-#pragma endregion
 
 protected:
 

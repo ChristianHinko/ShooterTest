@@ -14,7 +14,7 @@
 ASSGameMode::ASSGameMode(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	bUseSeamlessTravel = true;
+	bUseSeamlessTravel = true; // multiplayer Seamless Travel
 
 	GameStateClass = ASSGameState::StaticClass();
 	PlayerControllerClass = ASSPlayerController::StaticClass();

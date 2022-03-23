@@ -28,7 +28,7 @@ protected:
 	FActiveGameplayEffectHandle InteractEffectActiveHandle;
 
 	UPROPERTY()
-		AC_Shooter* ShooterCharacter;
+		TWeakObjectPtr<AC_Shooter> ShooterCharacter;
 
 	EDurationInteractEndReason InteractEndReason;
 	float timeHeld;

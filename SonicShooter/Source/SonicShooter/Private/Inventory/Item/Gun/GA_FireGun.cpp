@@ -1,5 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+
 #include "Inventory/Item/Gun/GA_FireGun.h"
 
 #include "AbilitySystemComponent.h"
@@ -95,7 +96,7 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	// Need to make the item generators use the GunStack now
 	// instead of it using item stack so this cast works.
 	GunToFire = Cast<UArcItemStack_Gun>(GetCurrentSourceObject());
-	if (!IsValid(GunToFire))
+	if (!GunToFire.IsValid())
 	{
 		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid Gun when given the fire ability - ensure you are assigning the SourceObject to a GunStack when calling GiveAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
@@ -172,7 +173,7 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 	}
 
 
-	if (!IsValid(GunToFire))
+	if (!GunToFire.IsValid())
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GunToFire was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
@@ -184,12 +185,12 @@ bool UGA_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 		return false;
 	}
 
-	if (!IsValid(ClipAmmoSubobject))
+	if (!ClipAmmoSubobject.IsValid())
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ClipAmmoSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
-	if (!IsValid(BulletSpreadSubobject))
+	if (!BulletSpreadSubobject.IsValid())
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() BulletSpreadSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;

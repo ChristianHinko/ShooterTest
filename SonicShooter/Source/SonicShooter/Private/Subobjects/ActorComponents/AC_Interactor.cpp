@@ -38,7 +38,7 @@ void UAC_Interactor::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	if (!OwningShooterCharacter)
+	if (!OwningShooterCharacter.IsValid())
 	{
 		return;
 	}
@@ -51,12 +51,12 @@ void UAC_Interactor::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 			{
 
 				if (CurrentPrioritizedInteractable->GetShouldFireDetectionEvents())
-					CurrentPrioritizedInteractable->OnInitialDetect(OwningShooterCharacter);
+					CurrentPrioritizedInteractable->OnInitialDetect(OwningShooterCharacter.Get());
 
 				if (LastPrioritizedInteractable)
 				{
 					if (LastPrioritizedInteractable->GetShouldFireDetectionEvents())
-						LastPrioritizedInteractable->OnEndDetect(OwningShooterCharacter);
+						LastPrioritizedInteractable->OnEndDetect(OwningShooterCharacter.Get());
 				}
 
 				// Automatic interact activation might be nice here
@@ -64,7 +64,7 @@ void UAC_Interactor::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 			else
 			{
 				if (CurrentPrioritizedInteractable->GetShouldFireDetectionEvents())
-					CurrentPrioritizedInteractable->OnConsecutiveDetect(OwningShooterCharacter);
+					CurrentPrioritizedInteractable->OnConsecutiveDetect(OwningShooterCharacter.Get());
 			}
 
 
@@ -78,7 +78,7 @@ void UAC_Interactor::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 			if (LastPrioritizedInteractable != nullptr)	// If the last frame had something to interact with
 			{
 				if (LastPrioritizedInteractable->GetShouldFireDetectionEvents())
-					LastPrioritizedInteractable->OnEndDetect(OwningShooterCharacter);
+					LastPrioritizedInteractable->OnEndDetect(OwningShooterCharacter.Get());
 				LastPrioritizedInteractable = nullptr;
 			}
 		}

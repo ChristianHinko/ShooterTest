@@ -31,8 +31,4 @@ protected:
 
 	UFUNCTION()
 		virtual void OnRelease(float TimeHeld);
-
-#pragma region Gameplay Tags
-	FGameplayTag TagAimingDownSights;
-#pragma endregion
 };

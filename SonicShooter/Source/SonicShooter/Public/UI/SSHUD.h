@@ -26,7 +26,12 @@ public:
 #if 0
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<UUW_My> MyWidgetTSub;
-	UUserWidget* MyWidget;
+	UPROPERTY()
+		UUserWidget* MyWidget;
+
+	// Points to an external MyOther Widget
+	UPROPERTY()
+		TWeakObjectPtr<UUW_MyOther> CurrentMyOtherWidget;
 #endif
 
 protected:

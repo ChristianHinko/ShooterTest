@@ -39,12 +39,6 @@ UAS_Stamina::UAS_Stamina()
 
 
 
-
-
-
-
-
-
 // OnReps:
 void UAS_Stamina::OnRep_MaxStamina(const FGameplayAttributeData& ServerBaseValue)
 {

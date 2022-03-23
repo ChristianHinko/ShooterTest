@@ -118,12 +118,12 @@ void UO_Stamina::SetStaminaDraining(bool newStaminaDraining)
 	bStaminaDraining = newStaminaDraining;
 }
 
-void UO_Stamina::SetMaxStamina(float newMaxStamina)
+void UO_Stamina::SetMaxStamina(float NewMaxStamina)
 {
 	float OldMaxStamina = MaxStamina;
-	MaxStamina = newMaxStamina;
+	MaxStamina = NewMaxStamina;
 
-	if (Stamina < newMaxStamina)		// If this results in our stamina needing an increasing adjustment
+	if (Stamina < NewMaxStamina)		// If this results in our stamina needing an increasing adjustment
 	{
 		if (bShouldTick == false)
 		{
@@ -133,13 +133,13 @@ void UO_Stamina::SetMaxStamina(float newMaxStamina)
 			}
 			else
 			{
-				Stamina = newMaxStamina;	// we already had max stamina so give them the free stamina to get the the new max stamina
+				Stamina = NewMaxStamina;	// we already had max stamina so give them the free stamina to get the the new max stamina
 			}
 		}
 	}
-	else if (Stamina > newMaxStamina)	// If this results in our stamina needing a decreasing adjustment
+	else if (Stamina > NewMaxStamina)	// If this results in our stamina needing a decreasing adjustment
 	{
-		Stamina = newMaxStamina;
+		Stamina = NewMaxStamina;
 	}
 }
 

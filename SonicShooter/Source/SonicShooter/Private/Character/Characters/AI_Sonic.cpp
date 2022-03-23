@@ -37,13 +37,13 @@ void UAI_Sonic::NativeUpdateAnimation(float DeltaTimeX)
 {
 	Super::NativeUpdateAnimation(DeltaTimeX);
 	
-	if (OwningShooterCharacter)
+	if (OwningShooterCharacter.IsValid())
 	{
 		LookTarget = OwningShooterCharacter->GetNearestPawn();
-		if (LookTarget)
+		if (LookTarget.IsValid())
 		{
-			RightEyelookRot = Look(TEXT("u_Eye_r"), LookTarget, DeltaTimeX);
-			LeftEyelookRot = Look(TEXT("u_Eye_l"), LookTarget, DeltaTimeX);
+			RightEyelookRot = Look(TEXT("u_Eye_r"), LookTarget.Get(), DeltaTimeX);
+			LeftEyelookRot = Look(TEXT("u_Eye_l"), LookTarget.Get(), DeltaTimeX);
 
 
 			if (REyeDynamicMat)
@@ -74,7 +74,7 @@ void UAI_Sonic::NativeUpdateAnimation(float DeltaTimeX)
 
 FRotator UAI_Sonic::Look(FName boneName, AActor* lookTarget, float deltaTime)
 {
-	if (!lookTarget || !OwningShooterCharacter)
+	if (!lookTarget || !OwningShooterCharacter.IsValid())
 	{
 		return FRotator::ZeroRotator;
 	}

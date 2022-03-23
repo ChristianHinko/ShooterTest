@@ -49,7 +49,6 @@ void FSSGameplayAbilityActorInfo::ClearActorInfo()
 {
     Super::ClearActorInfo();
 
-
     SSCharacter = nullptr;
     SSPlayerController = nullptr;
     SSPlayerState = nullptr;

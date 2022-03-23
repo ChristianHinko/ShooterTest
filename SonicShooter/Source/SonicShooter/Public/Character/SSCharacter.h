@@ -40,7 +40,8 @@ struct FCrouchTickFunction : public FTickFunction
 	}
 
 
-	ASSCharacter* Target;
+	UPROPERTY()
+		TWeakObjectPtr<ASSCharacter> Target;
 
 	virtual void ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent) override;
 
@@ -91,7 +92,7 @@ public:
 	USkeletalMeshComponent* GetPOVMesh() const { return POVMesh; }
 	USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-	USSCharacterMovementComponent* GetSSCharacterMovementComponent() const { return SSCharacterMovementComponent; }
+	USSCharacterMovementComponent* GetSSCharacterMovementComponent() const { return SSCharacterMovementComponent.Get(); }
 
 	//BEGIN Character Abilities
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
@@ -166,7 +167,7 @@ public:
 	void CrouchTick(float DeltaTime);
 
 
-	APawn* GetNearestPawn();
+	APawn* GetNearestPawn() const;
 
 protected:
 #if WITH_EDITOR
@@ -182,8 +183,6 @@ protected:
 	virtual void GiveStartingAbilities() override;
 	//END IAbilitySystemSetupInterface interface
 
-	UPROPERTY()
-		USSCharacterMovementComponent* SSCharacterMovementComponent;
 
 	/** Whether we are currently in first person. NOTE: ONLY DIRECTLY SET THIS IN THE CONSTRUCTOR OR IN BP otherwise use the setter. */
 	UPROPERTY(EditAnywhere, Category = "First Person")
@@ -279,5 +278,10 @@ protected:
 
 
 private:
+	// Cached SSCharacterMovementComponent
+	UPROPERTY()
+		TWeakObjectPtr<USSCharacterMovementComponent> SSCharacterMovementComponent;
+
+
 	float CrouchToHeight;
 };

@@ -69,11 +69,11 @@ void FGATD_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHa
 	UE_LOG(LogGameplayAbilityTargetData, Fatal, TEXT("%s() This should not be called for this specific GATD. Use our custom overload instead (passes in index)"), ANSI_TO_TCHAR(__FUNCTION__));
 }
 
-void FGATD_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray, int32 hitInfosIndex) const
+void FGATD_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray, int32 HitInfosIndex) const
 {
 	if (FGEC_Shooter* SSContext = static_cast<FGEC_Shooter*>(Context.Get()))
 	{
-		SSContext->SetHitInfo(ActorHitInfos[hitInfosIndex]);
+		SSContext->SetHitInfo(ActorHitInfos[HitInfosIndex]);
 		SSContext->SetBulletTracePoints(BulletTracePoints);
 	}
 	else

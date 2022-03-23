@@ -31,7 +31,7 @@ void UGA_CharacterInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorIn
 	}
 
 	ShooterCharacter = Cast<AC_Shooter>(ActorInfo->AvatarActor.Get());
-	if (!ShooterCharacter)
+	if (!ShooterCharacter.IsValid())
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
@@ -44,7 +44,7 @@ bool UGA_CharacterInteract::CanActivateAbility(const FGameplayAbilitySpecHandle 
 	{
 		return false;
 	}
-	if (!ShooterCharacter)
+	if (!ShooterCharacter.IsValid())
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate interact ability"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
@@ -74,7 +74,7 @@ void UGA_CharacterInteract::ActivateAbility(const FGameplayAbilitySpecHandle Han
 
 
 	ShooterCharacter = Cast<AC_Shooter>(ActorInfo->AvatarActor.Get());
-	if (!ShooterCharacter)
+	if (!ShooterCharacter.IsValid())
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Cast to ShooterCharacter was NULL when activating an interact ability"), ANSI_TO_TCHAR(__FUNCTION__));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);

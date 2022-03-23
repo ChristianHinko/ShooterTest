@@ -1,5 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+
 #include "UI/UMG/Widgets/UW_Crosshair.h"
 
 #include "Inventory/Item/Gun/AS_Gun.h"
@@ -59,7 +60,7 @@ void UUW_Crosshair::OnPlayerASCValid()
 		}
 	}
 
-	if (IsValid(BulletSpreadSubobject))
+	if (BulletSpreadSubobject.IsValid())
 	{
 		BulletSpreadSubobject->CurrentBulletSpread.ValueChangeDelegate.AddDynamic(this, &UUW_Crosshair::OnCurrentBulletSpreadChange);
 
@@ -87,18 +88,18 @@ void UUW_Crosshair::UpdateCrosshair()
 		return;
 	}
 
-	const float number = 5.f; // arbitrary multiplier
+	const float Number = 5.f; // arbitrary multiplier
 
-	SizeBoxTop->SetRenderTranslation(CurrentSpread * number * FVector2D(0, -1));
-	SizeBoxBottom->SetRenderTranslation(CurrentSpread * number * FVector2D(0, 1));
-	SizeBoxLeft->SetRenderTranslation(CurrentSpread * number * FVector2D(-1, 0));
-	SizeBoxRight->SetRenderTranslation(CurrentSpread * number * FVector2D(1, 0));
+	SizeBoxTop->SetRenderTranslation(CurrentSpread * Number * FVector2D(0, -1));
+	SizeBoxBottom->SetRenderTranslation(CurrentSpread * Number * FVector2D(0, 1));
+	SizeBoxLeft->SetRenderTranslation(CurrentSpread * Number * FVector2D(-1, 0));
+	SizeBoxRight->SetRenderTranslation(CurrentSpread * Number * FVector2D(1, 0));
 }
 
 
 void UUW_Crosshair::NativeDestruct()
 {
-	if (BulletSpreadSubobject)
+	if (BulletSpreadSubobject.IsValid())
 	{
 		BulletSpreadSubobject->CurrentBulletSpread.ValueChangeDelegate.RemoveAll(this);
 	}

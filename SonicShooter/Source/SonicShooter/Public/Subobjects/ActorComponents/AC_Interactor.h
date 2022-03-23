@@ -48,5 +48,6 @@ protected:
 	IInteractableInterface* ScanForCurrentPrioritizedInteractable(FHitResult& OutHit);
 
 private:
-	AC_Shooter* OwningShooterCharacter;
+	UPROPERTY()
+		TWeakObjectPtr<AC_Shooter> OwningShooterCharacter;
 };

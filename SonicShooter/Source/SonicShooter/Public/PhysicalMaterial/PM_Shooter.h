@@ -20,15 +20,21 @@ class SONICSHOOTER_API UPM_Shooter : public UPhysicalMaterial
 public:
 	UPM_Shooter();
 
-	/** Bullet can ricochet off of this physical material if there is enough speed. If not enough speed, it will stop */
+	/**
+	 * Bullet can ricochet off of this physical material if there is enough speed. If not enough speed, it will stop
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shooter")
 		uint8 bRichochetsBullets : 1;
 
-	/** Slows down bullet speed by this much PER METER in penetration */
+	/**
+	 * Slows down bullet speed by this much PER METER in penetration
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "bRichochetsBullets == false", EditConditionHides), Category = "Shooter")
 		float BulletPenetrationSpeedReduction;
 
-	/** Slows down bullet speed by subtracting this much on ricochet */
+	/**
+	 * Slows down bullet speed by subtracting this much on ricochet
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "bRichochetsBullets == true", EditConditionHides), Category = "Shooter")
 		float BulletRicochetSpeedReduction;
 };

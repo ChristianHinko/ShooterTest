@@ -46,9 +46,9 @@ public:
 
 protected:
 	UPROPERTY()
-		AC_Shooter* ShooterCharacter;
+		TWeakObjectPtr<AC_Shooter> ShooterCharacter;
 	UPROPERTY()
-		USSArcInventoryComponent_Active* InventoryComponent;
+		TWeakObjectPtr<USSArcInventoryComponent_Active> InventoryComponent;
 
 
 

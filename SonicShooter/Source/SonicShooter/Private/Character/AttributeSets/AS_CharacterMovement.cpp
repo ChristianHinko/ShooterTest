@@ -4,7 +4,6 @@
 #include "Character/AttributeSets/AS_CharacterMovement.h"
 
 #include "Net/UnrealNetwork.h"
-#include "GameplayAbilities/Public/GameplayEffectExtension.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -33,26 +32,6 @@ UAS_CharacterMovement::UAS_CharacterMovement()
 	RunSpeed(600.f),
 	RunAccelaration(4096.f)
 {
-
-
-}
-
-
-bool UAS_CharacterMovement::PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data)
-{
-	Super::PreGameplayEffectExecute(Data);
-
-	const FGameplayAttribute AttributeToModify = Data.EvaluatedData.Attribute;
-
-
-	return true;
-}
-void UAS_CharacterMovement::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
-{
-	Super::PostGameplayEffectExecute(Data);
-
-	const FGameplayAttribute ModifiedAttribute = Data.EvaluatedData.Attribute;
-
 
 
 }

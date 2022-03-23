@@ -21,7 +21,15 @@ UCLASS()
 class SONICSHOOTER_API UUW_ActiveItem : public UASSEUserWidget
 {
 	GENERATED_BODY()
-	
+
+protected:
+	UPROPERTY(meta = (BindWidget))
+		UUW_Crosshair* CrosshairWidget;
+	UPROPERTY(meta = (BindWidget))
+		UUW_Ammo* AmmoWidget;
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* ItemTextBlock;
+
 public:
 	UUW_ActiveItem(const FObjectInitializer& ObjectInitializer);
 
@@ -35,13 +43,5 @@ public:
 protected:
 	virtual void NativeOnInitialized() override;
 	virtual void AddToScreen(ULocalPlayer* LocalPlayer, int32 ZOrder) override;
-
-
-	UPROPERTY(meta = (BindWidget))
-		UUW_Crosshair* CrosshairWidget;
-	UPROPERTY(meta = (BindWidget))
-		UUW_Ammo* AmmoWidget;
-	UPROPERTY(meta = (BindWidget))
-		UTextBlock* ItemTextBlock;
 
 };

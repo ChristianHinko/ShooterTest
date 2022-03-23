@@ -28,11 +28,9 @@ public:
 
 protected:
 	UPROPERTY()
-		AC_Shooter* ShooterCharacter;
+		TWeakObjectPtr<AC_Shooter> ShooterCharacter;
 	UPROPERTY()
-		UArcInventoryComponent* Inventory;
-
-	UArcItemStack* RemovedItemStack;
+		TWeakObjectPtr<UArcInventoryComponent> Inventory;
 
 
 	//BEGIN UGameplayAbility Interface
@@ -41,6 +39,9 @@ protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	//END UGameplayAbility Interface
+
+	UPROPERTY()
+		TWeakObjectPtr<UArcItemStack> RemovedItemStack;
 
 	UFUNCTION()
 		void OnDataRecieved(const FArcInventoryItemSlotReference& FromSlot);

@@ -30,9 +30,9 @@ protected:
 	FActiveGameplayEffectHandle CrouchingEffectActiveHandle;
 
 	UPROPERTY()
-		ACharacter* Character;
+		TWeakObjectPtr<ACharacter> Character;
 	UPROPERTY()
-		UCharacterMovementComponent* CMC;
+		TWeakObjectPtr<UCharacterMovementComponent> CMC;
 
 
 

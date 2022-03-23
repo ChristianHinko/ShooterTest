@@ -22,9 +22,16 @@ UCLASS()
 class SONICSHOOTER_API UUW_Ammo : public UASSEUserWidget
 {
 	GENERATED_BODY()
+
+protected:
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		UTextBlock* ClipAmmoText;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		UTextBlock* BackupAmmoText;
 	
 public:
 	UUW_Ammo(const FObjectInitializer& ObjectInitializer);
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 		FText ActiveItemName;
@@ -35,18 +42,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ammo")
 		float CurrentBackupAmmo;
 
-
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		UTextBlock* ClipAmmoText;
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		UTextBlock* BackupAmmoText;
-
 protected:
-	virtual void OnPlayerASCValid() override;
+	virtual void NativeDestruct() override;
 
+
+	virtual void OnPlayerASCValid() override;
 	virtual void OnAttributeChanged(const FOnAttributeChangeData& Data) override;
 
-	UO_ClipAmmo* ClipAmmoSubobject;
+	UPROPERTY()
+		TWeakObjectPtr<UO_ClipAmmo> ClipAmmoSubobject;
 	UFUNCTION()
 		void OnClipAmmoChange(const float& OldValue, const float& NewValue);
 
@@ -54,7 +58,4 @@ protected:
 	UFUNCTION()
 		void UpdateAmmoStatus();
 
-
-
-	virtual void NativeDestruct() override;
 };

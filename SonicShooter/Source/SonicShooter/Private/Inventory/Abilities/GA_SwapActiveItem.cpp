@@ -37,14 +37,14 @@ void UGA_SwapActiveItem::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo,
 
 
 	ShooterCharacter = Cast<AC_Shooter>(ActorInfo->AvatarActor.Get());
-	if (!ShooterCharacter)
+	if (!ShooterCharacter.IsValid())
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShooterCharacter was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
 
 	InventoryComponent = Cast<USSArcInventoryComponent_Active>(ShooterCharacter->GetInventoryComponent());
-	if (!InventoryComponent)
+	if (!InventoryComponent.IsValid())
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InventoryComponent was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
@@ -59,13 +59,13 @@ bool UGA_SwapActiveItem::CanActivateAbility(const FGameplayAbilitySpecHandle Han
 		return false;
 	}
 
-	if (!ShooterCharacter)
+	if (!ShooterCharacter.IsValid())
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShooterCharacter was NULL. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
-	if (!InventoryComponent)
+	if (!InventoryComponent.IsValid())
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InventoryComponent was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
@@ -102,51 +102,61 @@ void UGA_SwapActiveItem::PerformSwap()
 
 	switch (SwapMethod)
 	{
-		case ESwapMethod::ByIndex:
-			if (InventoryComponent->IsActiveItemSlotIndexValid(itemSlotIndexToSwitchTo) == false)
-			{
-				UE_LOG(LogGameplayAbility, Warning, TEXT("%s() No valid index to switch to"), ANSI_TO_TCHAR(__FUNCTION__));
-				break;
-			}
-			InventoryComponent->SwapActiveItems(itemSlotIndexToSwitchTo);
+	case ESwapMethod::ByIndex:
+	{
+		if (InventoryComponent->IsActiveItemSlotIndexValid(itemSlotIndexToSwitchTo) == false)
+		{
+			UE_LOG(LogGameplayAbility, Warning, TEXT("%s() No valid index to switch to"), ANSI_TO_TCHAR(__FUNCTION__));
 			break;
-		case ESwapMethod::ByTagQuery:
-			if (ItemSlotTagQueryForSwitching.IsEmpty())
-			{
-				UE_LOG(LogGameplayAbility, Warning, TEXT("%s() ItemSlotTagQueryForSwitching empty when trying to switch to inventory slot with the matching query"), ANSI_TO_TCHAR(__FUNCTION__));
-				break;
-			}
-			InventoryComponent->SwapActiveItems(InventoryComponent->GetIndexForActiveItemSlotTagQuery(ItemSlotTagQueryForSwitching));
+		}
+		InventoryComponent->SwapActiveItems(itemSlotIndexToSwitchTo);
+		break;
+	}
+	case ESwapMethod::ByTagQuery:
+	{
+		if (ItemSlotTagQueryForSwitching.IsEmpty())
+		{
+			UE_LOG(LogGameplayAbility, Warning, TEXT("%s() ItemSlotTagQueryForSwitching empty when trying to switch to inventory slot with the matching query"), ANSI_TO_TCHAR(__FUNCTION__));
+			break;
+		}
+		InventoryComponent->SwapActiveItems(InventoryComponent->GetIndexForActiveItemSlotTagQuery(ItemSlotTagQueryForSwitching));
 
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-			InventoryComponent->Query_GetAllSlots(FArcInventoryQuery::QueryForSlot(ItemSlotTagQueryForSwitching), SlotsWithMatchingQuery);
+		InventoryComponent->Query_GetAllSlots(FArcInventoryQuery::QueryForSlot(ItemSlotTagQueryForSwitching), SlotsWithMatchingQuery);
 
-			if (SlotsWithMatchingQuery.Num() > 1)
-			{
-				UE_LOG(LogGameplayAbility, Warning, TEXT("%s() More than one slot matched the tag query when switching. Ambiguous which one is wanted (check to make sure you made your query how you wanted it). Making active the first match"), ANSI_TO_TCHAR(__FUNCTION__));
-			}
+		if (SlotsWithMatchingQuery.Num() > 1)
+		{
+			UE_LOG(LogGameplayAbility, Warning, TEXT("%s() More than one slot matched the tag query when switching. Ambiguous which one is wanted (check to make sure you made your query how you wanted it). Making active the first match"), ANSI_TO_TCHAR(__FUNCTION__));
+		}
 #endif // !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
 
+		break;
+	}
+	case ESwapMethod::NextItem:
+	{
+		// We are not totaly sure what is the right way to swap to next and previous item slots for active items, but from what we've been reading, it seams active item slots maintain order so we're going with this until we notice something unexpected happens
+		InventoryComponent->SwapActiveItems(InventoryComponent->GetNextActiveItemSlot());
+		break;
+	}
+	case ESwapMethod::PreviousItem:
+	{
+		// We are not totaly sure what is the right way to swap to next and previous item slots for active items, but from what we've been reading, it seams active item slots maintain order so we're going with this until we notice something unexpected happens
+		InventoryComponent->SwapActiveItems(InventoryComponent->GetPreviousActiveItemSlot());
+		break;
+	}
+	case ESwapMethod::ByItemHistory:
+	{
+		if (InventoryComponent->ActiveItemHistory.IsValidIndex(itemHistoryIndex) == false)
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() No valid index to switch to"), ANSI_TO_TCHAR(__FUNCTION__));
 			break;
-		case ESwapMethod::NextItem:
-			// We are not totaly sure what is the right way to swap to next and previous item slots for active items, but from what we've been reading, it seams active item slots maintain order so we're going with this until we notice something unexpected happens
-			InventoryComponent->SwapActiveItems(InventoryComponent->GetNextActiveItemSlot());
-			break;
-		case ESwapMethod::PreviousItem:
-			// We are not totaly sure what is the right way to swap to next and previous item slots for active items, but from what we've been reading, it seams active item slots maintain order so we're going with this until we notice something unexpected happens
-			InventoryComponent->SwapActiveItems(InventoryComponent->GetPreviousActiveItemSlot());
-			break;
-		case ESwapMethod::ByItemHistory:
-			if (InventoryComponent->ActiveItemHistory.IsValidIndex(itemHistoryIndex) == false)
-			{
-				UE_LOG(LogGameplayAbility, Error, TEXT("%s() No valid index to switch to"), ANSI_TO_TCHAR(__FUNCTION__));
-				break;
-			}
+		}
 
-			InventoryComponent->SwapActiveItems(InventoryComponent->ActiveItemHistory[itemHistoryIndex].SlotId);
-			break;
-		default:
-			break;
+		InventoryComponent->SwapActiveItems(InventoryComponent->ActiveItemHistory[itemHistoryIndex].SlotId);
+		break;
+	}
+	default:
+		break;
 	}
 }
 

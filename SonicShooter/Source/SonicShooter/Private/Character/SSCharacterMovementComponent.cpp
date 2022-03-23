@@ -94,18 +94,18 @@ void USSCharacterMovementComponent::OnAbilitySystemSetUpPreInitialized(UAbilityS
 {
 	OwnerASC = NewASC;
 
-	if (IsValid(OwnerASC))
+	if (UAbilitySystemComponent* ASC = OwnerASC.Get())
 	{
-		OwnerASC->RegisterGameplayTagEvent(Tag_RunDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnRunDisabledTagChanged);
-		OwnerASC->RegisterGameplayTagEvent(Tag_JumpDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnJumpDisabledTagChanged);
-		OwnerASC->RegisterGameplayTagEvent(Tag_CrouchDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCrouchDisabledTagChanged);
+		ASC->RegisterGameplayTagEvent(Tag_RunDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnRunDisabledTagChanged);
+		ASC->RegisterGameplayTagEvent(Tag_JumpDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnJumpDisabledTagChanged);
+		ASC->RegisterGameplayTagEvent(Tag_CrouchDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCrouchDisabledTagChanged);
 	}
 }
 void USSCharacterMovementComponent::OnAbilitySystemSetUp(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC)
 {
 	OwnerASC = NewASC;
 
-	CharacterMovementAttributeSet = UASSAbilitySystemBlueprintLibrary::GetAttributeSetCasted<UAS_CharacterMovement>(OwnerASC);
+	CharacterMovementAttributeSet = UASSAbilitySystemBlueprintLibrary::GetAttributeSetCasted<UAS_CharacterMovement>(OwnerASC.Get());
 }
 
 void USSCharacterMovementComponent::OnRunDisabledTagChanged(const FGameplayTag Tag, int32 NewCount)
@@ -721,7 +721,7 @@ float USSCharacterMovementComponent::GetMaxSpeed() const
 		}
 		else
 		{
-			if (!IsValid(CharacterMovementAttributeSet))
+			if (!CharacterMovementAttributeSet.IsValid())
 			{
 				UE_LOG(LogCharacterMovement, Error, TEXT("CharacterMovementAttributeSet was NULL when trying to return a speed value"));
 				return 0;
@@ -788,7 +788,7 @@ float USSCharacterMovementComponent::GetMaxAcceleration() const
 	case MOVE_Walking:
 	case MOVE_NavWalking:
 	{
-		if (!CharacterMovementAttributeSet)
+		if (!CharacterMovementAttributeSet.IsValid())
 		{
 			UE_LOG(LogCharacterMovement, Error, TEXT("CharacterMovementAttributeSet was NULL when trying to return a acceleration value"));
 			return 0;

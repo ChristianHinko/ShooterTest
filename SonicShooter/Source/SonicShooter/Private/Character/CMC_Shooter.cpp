@@ -79,21 +79,21 @@ void UCMC_Shooter::OnAbilitySystemSetUp(UAbilitySystemComponent* const PreviousA
 	Super::OnAbilitySystemSetUp(PreviousASC, NewASC);
 
 
-	if (IsValid(OwnerASC))
+	if (UAbilitySystemComponent* ASC = OwnerASC.Get())
 	{
 		// Bind to Attribute value change delegates
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetMaxStaminaAttribute()).AddUObject(this, &UCMC_Shooter::OnMaxStaminaAttributeChange);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaDrainAttribute()).AddUObject(this, &UCMC_Shooter::OnStaminaDrainAttributeChange);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaGainAttribute()).AddUObject(this, &UCMC_Shooter::OnStaminaGainAttributeChange);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaRegenPauseAttribute()).AddUObject(this, &UCMC_Shooter::OnStaminaRegenPauseAttributeChange);
+		ASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetMaxStaminaAttribute()).AddUObject(this, &UCMC_Shooter::OnMaxStaminaAttributeChange);
+		ASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaDrainAttribute()).AddUObject(this, &UCMC_Shooter::OnStaminaDrainAttributeChange);
+		ASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaGainAttribute()).AddUObject(this, &UCMC_Shooter::OnStaminaGainAttributeChange);
+		ASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaRegenPauseAttribute()).AddUObject(this, &UCMC_Shooter::OnStaminaRegenPauseAttributeChange);
 
 		// Get initial values
 		if (IsValid(StaminaSubobject))
 		{
-			StaminaSubobject->SetMaxStamina(OwnerASC->GetNumericAttribute(UAS_Stamina::GetMaxStaminaAttribute()));
-			StaminaSubobject->SetStaminaDrain(OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaDrainAttribute()));
-			StaminaSubobject->SetStaminaGain(OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaGainAttribute()));
-			StaminaSubobject->SetStaminaRegenPause(OwnerASC->GetNumericAttribute(UAS_Stamina::GetStaminaRegenPauseAttribute()));
+			StaminaSubobject->SetMaxStamina(ASC->GetNumericAttribute(UAS_Stamina::GetMaxStaminaAttribute()));
+			StaminaSubobject->SetStaminaDrain(ASC->GetNumericAttribute(UAS_Stamina::GetStaminaDrainAttribute()));
+			StaminaSubobject->SetStaminaGain(ASC->GetNumericAttribute(UAS_Stamina::GetStaminaGainAttribute()));
+			StaminaSubobject->SetStaminaRegenPause(ASC->GetNumericAttribute(UAS_Stamina::GetStaminaRegenPauseAttribute()));
 		}
 	}
 }
@@ -222,12 +222,12 @@ void UCMC_Shooter::TweakWantsToRunBeforeTick(bool& outTweakedWantsToRun) const
 void UCMC_Shooter::BeginDestroy()
 {
 	//BEGIN Attribute value change delegates
-	if (IsValid(OwnerASC))
+	if (UAbilitySystemComponent* ASC = OwnerASC.Get())
 	{
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetMaxStaminaAttribute()).RemoveAll(this);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaDrainAttribute()).RemoveAll(this);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaGainAttribute()).RemoveAll(this);
-		OwnerASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaRegenPauseAttribute()).RemoveAll(this);
+		ASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetMaxStaminaAttribute()).RemoveAll(this);
+		ASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaDrainAttribute()).RemoveAll(this);
+		ASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaGainAttribute()).RemoveAll(this);
+		ASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaRegenPauseAttribute()).RemoveAll(this);
 	}
 	//END Attribute value change delegates
 

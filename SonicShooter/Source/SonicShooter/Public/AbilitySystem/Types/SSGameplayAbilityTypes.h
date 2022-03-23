@@ -31,19 +31,16 @@ struct SONICSHOOTER_API FSSGameplayAbilityActorInfo : public FASSGameplayAbility
 
     }
 
-    // Our Character. Often nullptr.
+
     UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")
         TWeakObjectPtr<ASSCharacter> SSCharacter;
 
-    // Our PC. Often nullptr.
     UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")
         TWeakObjectPtr<ASSPlayerController> SSPlayerController;
 
-    // Our PS. Often nullptr.
     UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")
         TWeakObjectPtr<ASSPlayerState> SSPlayerState;
 
-    // Our CMC. Often nullptr.
     UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")
         TWeakObjectPtr<USSCharacterMovementComponent> SSCharacterMovementComponent;
 
@@ -52,17 +49,11 @@ struct SONICSHOOTER_API FSSGameplayAbilityActorInfo : public FASSGameplayAbility
     virtual void SetAvatarActor(AActor* AvatarActor) override;
     virtual void ClearActorInfo() override;
 
-    // Gets the Character. This is often nullptr.
-    ASSCharacter* GetSSCharacter() const { return SSCharacter.IsValid() ? SSCharacter.Get() : nullptr; }
 
-    // Gets the PC. This is often nullptr.
-    ASSPlayerController* GetSSPlayerController() const { return SSPlayerController.IsValid() ? SSPlayerController.Get() : nullptr; }
-
-    // Gets the PS. This is often nullptr.
-    ASSPlayerState* GetSSPlayerState() const { return SSPlayerState.IsValid() ? SSPlayerState.Get() : nullptr; }
-
-    // Gets the CMC. This is often nullptr.
-    USSCharacterMovementComponent* GetSSCharacterMovementComponent() const { return SSCharacterMovementComponent.IsValid() ? SSCharacterMovementComponent.Get() : nullptr; }
+    ASSCharacter* GetSSCharacter() const { return SSCharacter.Get(); }
+    ASSPlayerController* GetSSPlayerController() const { return SSPlayerController.Get(); }
+    ASSPlayerState* GetSSPlayerState() const { return SSPlayerState.Get(); }
+    USSCharacterMovementComponent* GetSSCharacterMovementComponent() const { return SSCharacterMovementComponent.Get(); }
 };
 
 
@@ -92,15 +83,15 @@ struct SONICSHOOTER_API FGAAI_Shooter : public FSSGameplayAbilityActorInfo
 
     }
 
-    // Our Shooter specific ASC.
+    // Our Shooter specific ASC
     UPROPERTY(BlueprintReadOnly, Category = "Shooter")
         TWeakObjectPtr<UASC_Shooter> ShooterAbilitySystemComponent;
 
-    // Our ShooterCharacter. Often nullptr.
+    // Our ShooterCharacter
     UPROPERTY(BlueprintReadOnly, Category = "Shooter")
         TWeakObjectPtr<AC_Shooter> ShooterCharacter;
 
-    // Our Inventory Component. Often nullptr.
+    // Our Inventory Component
     UPROPERTY(BlueprintReadOnly, Category = "Shooter")
         TWeakObjectPtr<USSArcInventoryComponent_Active> InventoryComponent;
 
@@ -109,12 +100,8 @@ struct SONICSHOOTER_API FGAAI_Shooter : public FSSGameplayAbilityActorInfo
     virtual void SetAvatarActor(AActor* AvatarActor) override;
     virtual void ClearActorInfo() override;
 
-    // Gets the ShooterAbilitySystemComponent.
-    UASC_Shooter* GetShooterAbilitySystemComponent() const { return ShooterAbilitySystemComponent.IsValid() ? ShooterAbilitySystemComponent.Get() : nullptr; }
 
-    // Gets the ShooterCharacter. This is often nullptr.
-    AC_Shooter* GetShooterCharacter() const { return ShooterCharacter.IsValid() ? ShooterCharacter.Get() : nullptr; }
-
-    // Gets the Inventory Component. This is often nullptr.
-    USSArcInventoryComponent_Active* GetInventoryComponent() const { return InventoryComponent.IsValid() ? InventoryComponent.Get() : nullptr; }
+    UASC_Shooter* GetShooterAbilitySystemComponent() const { return ShooterAbilitySystemComponent.Get(); }
+    AC_Shooter* GetShooterCharacter() const { return ShooterCharacter.Get(); }
+    USSArcInventoryComponent_Active* GetInventoryComponent() const { return InventoryComponent.Get(); }
 };

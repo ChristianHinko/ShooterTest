@@ -55,7 +55,7 @@ void UGA_CharacterAutoInteract::OnAvatarSet(const FGameplayAbilityActorInfo* Act
 	}
 
 	ShooterCharacter = Cast<AC_Shooter>(ActorInfo->AvatarActor.Get());
-	if (!ShooterCharacter)
+	if (!ShooterCharacter.IsValid())
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;

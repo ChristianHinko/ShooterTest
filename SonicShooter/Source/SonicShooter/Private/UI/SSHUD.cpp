@@ -23,7 +23,7 @@ void ASSHUD::PostInitializeComponents()
 
 #if 0
 	MyWidget = UWidgetBlueprintLibrary::Create(this, MyWidgetTSub, GetOwningPlayerController());
-	if (MyWidget)
+	if (IsValid(MyWidget))
 	{
 		MyWidget->AddToPlayerScreen();
 	}

@@ -21,7 +21,7 @@ public:
 	UGA_CharacterAutoInteract();
 
 	UPROPERTY()
-		AC_Shooter* ShooterCharacter;
+		TWeakObjectPtr<AC_Shooter> ShooterCharacter;
 
 protected:
 

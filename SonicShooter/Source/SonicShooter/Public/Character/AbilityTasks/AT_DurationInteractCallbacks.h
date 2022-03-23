@@ -37,7 +37,7 @@ public:
 	void RemoveAllDelegates();
 
 	UPROPERTY()
-		AC_Shooter* ShooterCharacter;
+		TWeakObjectPtr<AC_Shooter> ShooterCharacter;
 
 	virtual void TickTask(float DeltaTime) override;
 

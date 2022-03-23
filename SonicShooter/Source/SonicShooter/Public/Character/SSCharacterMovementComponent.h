@@ -217,11 +217,11 @@ protected:
 	virtual void InitializeComponent() override;
 
 	UPROPERTY()
-		ASSCharacter* SSCharacterOwner;
+		TWeakObjectPtr<ASSCharacter> SSCharacterOwner;
 	UPROPERTY()
-		UAbilitySystemComponent* OwnerASC;
+		TWeakObjectPtr<UAbilitySystemComponent> OwnerASC;
 	UPROPERTY()
-		UAS_CharacterMovement* CharacterMovementAttributeSet;
+		TWeakObjectPtr<UAS_CharacterMovement> CharacterMovementAttributeSet;
 
 	virtual void OnAbilitySystemSetUpPreInitialized(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC);
 	virtual void OnAbilitySystemSetUp(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC);

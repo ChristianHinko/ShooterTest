@@ -28,8 +28,8 @@ protected:
 	virtual void NativeUpdateAnimation(float DeltaTimeX) override;
 
 
-
-	AActor* LookTarget;
+	UPROPERTY()
+		TWeakObjectPtr<AActor> LookTarget;
 
 	UPROPERTY(BlueprintReadOnly)
 		FRotator RightEyelookRot;

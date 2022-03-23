@@ -23,6 +23,12 @@ class SONICSHOOTER_API UUW_Health : public UASSEUserWidget
 {
 	GENERATED_BODY()
 
+protected:
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		UTextBlock* HealthTextBlock;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		UProgressBar* HealthProgressBar;
+
 public:
 	UUW_Health(const FObjectInitializer& ObjectInitializer);
 
@@ -35,12 +41,6 @@ public:
 		float MaxHealth;
 
 protected:
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		UTextBlock* HealthTextBlock;
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		UProgressBar* HealthProgressBar;
-
-
 	virtual void OnAttributeChanged(const FOnAttributeChangeData& Data) override;
 
 	/** Called on Health changed. Use this to update Health based UI */

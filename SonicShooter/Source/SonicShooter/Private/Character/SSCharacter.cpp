@@ -1,5 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+
 #include "Character/SSCharacter.h"
 
 #include "Net/UnrealNetwork.h"
@@ -284,7 +285,7 @@ FRotator ASSCharacter::GetBaseAimRotation() const
 //BEGIN Jump overriding
 void ASSCharacter::Jump()
 {
-	if (SSCharacterMovementComponent)
+	if (SSCharacterMovementComponent.IsValid())
 	{
 		if (bPressedJump == false) // if changed
 		{
@@ -298,7 +299,7 @@ void ASSCharacter::Jump()
 
 void ASSCharacter::StopJumping()
 {
-	if (SSCharacterMovementComponent)
+	if (SSCharacterMovementComponent.IsValid())
 	{
 		if (bPressedJump == true) // if changed
 		{
@@ -362,7 +363,7 @@ void ASSCharacter::ClearJumpInput(float DeltaTime)
 
 void ASSCharacter::OnRep_IsRunning()
 {
-	if (SSCharacterMovementComponent)
+	if (SSCharacterMovementComponent.IsValid())
 	{
 		if (bIsRunning)
 		{
@@ -383,7 +384,7 @@ void ASSCharacter::Crouch(bool bClientSimulation)
 {
 	//Super::Crouch(bClientSimulation);
 
-	if (SSCharacterMovementComponent)
+	if (SSCharacterMovementComponent.IsValid())
 	{
 		if (SSCharacterMovementComponent->CanEverCrouch())
 		{
@@ -403,7 +404,7 @@ void ASSCharacter::Crouch(bool bClientSimulation)
 }
 void ASSCharacter::UnCrouch(bool bClientSimulation)
 {
-	if (SSCharacterMovementComponent)
+	if (SSCharacterMovementComponent.IsValid())
 	{
 		if (SSCharacterMovementComponent->bWantsToCrouch == true) // if changed
 		{
@@ -547,7 +548,7 @@ void ASSCharacter::RecalculateBaseEyeHeight()
 
 void FCrouchTickFunction::ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent)
 {
-	if (Target && !Target->IsPendingKillOrUnreachable())
+	if (Target.IsValid())
 	{
 		Target->CrouchTick(DeltaTime);
 	}
@@ -923,7 +924,7 @@ void ASSCharacter::VerticalLook(float Rate)
 //END Input setup
 
 #pragma region Helpers
-APawn* ASSCharacter::GetNearestPawn()
+APawn* ASSCharacter::GetNearestPawn() const
 {
 	APawn* RetVal = nullptr;
 	if (UGameplayStatics::GetGameState(this))

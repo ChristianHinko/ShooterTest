@@ -38,12 +38,12 @@ void UGA_CharacterCrouch::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo
 		return;
 	}
 
-
+	
 	Character = Cast<ACharacter>(AvatarActor);
-	if (Character)
+	if (Character.IsValid())
 	{
 		CMC = Character->GetCharacterMovement();
-		if (!CMC)
+		if (!CMC.IsValid())
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetCharacterMovement was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 		}
@@ -61,12 +61,12 @@ bool UGA_CharacterCrouch::CanActivateAbility(const FGameplayAbilitySpecHandle Ha
 		return false;
 	}
 
-	if (!Character)
+	if (!Character.IsValid())
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
-	if (!CMC)
+	if (!CMC.IsValid())
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;

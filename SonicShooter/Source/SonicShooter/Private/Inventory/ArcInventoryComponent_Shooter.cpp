@@ -84,13 +84,8 @@ void UArcInventoryComponent_Shooter::OnItemSlotChangeEvent(UArcInventoryComponen
 							APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController());
 							if (IsValid(OwningPC))
 							{
-								UUW_ActiveItem* Widget = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, UIData->ActiveItemWidgetTSub, OwningPC));
-								if (IsValid(Widget))
-								{
-									Widget->ActiveItemName = ItemStack->ItemName; // inject ItemName
-
-									SSArcItemStack->ActiveItemWidget = Widget;
-								}
+								SSArcItemStack->ActiveItemWidget = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, UIData->ActiveItemWidgetTSub, OwningPC));
+								SSArcItemStack->ActiveItemWidget->ActiveItemName = ItemStack->ItemName; // inject ItemName
 							}
 						}
 					}
@@ -171,24 +166,18 @@ void UArcInventoryComponent_Shooter::MakeItemActive(int32 NewActiveItemSlot)
 						USSArcItemStack* SSArcItemStack = Cast<USSArcItemStack>(ActiveItemStack);
 						if (IsValid(SSArcItemStack))
 						{
-							UUW_ActiveItem* WidgetToAdd = SSArcItemStack->ActiveItemWidget;
-
-							if (!IsValid(WidgetToAdd))
+							if (!IsValid(SSArcItemStack->ActiveItemWidget))
 							{
 								// No valid Widget! - For some reason the Widget wasn't created successfully in OnItemSlotChangeEvent()!
 								UE_LOG(UISetup, Warning, TEXT("%s() New active Item Stack did not point to a valid item Widget when trying to add it to Viewport. Equipping the item maybe didn't successfully create the Widget so we have nothing. We will create the Widget now but something seams to have messed up at some point"), ANSI_TO_TCHAR(__FUNCTION__));
 								
 								// Create the Widget
-								WidgetToAdd = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, UIData->ActiveItemWidgetTSub, OwningPC));
-								if (WidgetToAdd)
-								{
-									WidgetToAdd->ActiveItemName = ActiveItemStack->ItemName; // inject ItemName
-
-									SSArcItemStack->ActiveItemWidget = WidgetToAdd;
-								}
+								SSArcItemStack->ActiveItemWidget = Cast<UUW_ActiveItem>(UWidgetBlueprintLibrary::Create(this, UIData->ActiveItemWidgetTSub, OwningPC));
+								SSArcItemStack->ActiveItemWidget->ActiveItemName = ActiveItemStack->ItemName; // inject ItemName
 							}
-
+							
 							// Add the Widget to Viewport
+							UUW_ActiveItem* WidgetToAdd = SSArcItemStack->ActiveItemWidget;
 							if (IsValid(WidgetToAdd))
 							{
 								WidgetToAdd->AddToPlayerScreen();

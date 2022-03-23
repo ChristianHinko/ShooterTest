@@ -62,8 +62,10 @@ protected:
 	//END FTickableGameObject interface
 
 
-	const UAbilitySystemComponent* OwnerASC;
-	const UCharacterMovementComponent* CMC;
+	UPROPERTY()
+		TWeakObjectPtr<const UAbilitySystemComponent> OwnerASC;
+	UPROPERTY()
+		TWeakObjectPtr<const UCharacterMovementComponent> CMC;
 
 	mutable float MinBulletSpread;
 	mutable float MovingBulletSpread;

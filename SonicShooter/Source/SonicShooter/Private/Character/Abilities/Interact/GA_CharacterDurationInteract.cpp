@@ -46,7 +46,7 @@ void UGA_CharacterDurationInteract::ActivateAbility(const FGameplayAbilitySpecHa
 
 	Interactable->InjectDurationInteractOccurring(true);
 	
-	UAT_DurationInteractCallbacks* DurationInteractCallbacks = UAT_DurationInteractCallbacks::DurationInteractCallbacks(this, ShooterCharacter, Interactable);
+	UAT_DurationInteractCallbacks* DurationInteractCallbacks = UAT_DurationInteractCallbacks::DurationInteractCallbacks(this, ShooterCharacter.Get(), Interactable);
 	if (!DurationInteractCallbacks)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DurationInteractCallbacks was NULL when trying to activate InteractDuration ability. May have been because a NULL Character or Interactable reference was passed in. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
@@ -79,7 +79,7 @@ void UGA_CharacterDurationInteract::ActivateAbility(const FGameplayAbilitySpecHa
 		InteractEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, InteractEffectTSub.GetDefaultObject(), GetAbilityLevel());
 	}
 
-	Interactable->OnDurationInteractBegin(ShooterCharacter);
+	Interactable->OnDurationInteractBegin(ShooterCharacter.Get());
 }
 
 
@@ -93,7 +93,7 @@ void UGA_CharacterDurationInteract::ActivateAbility(const FGameplayAbilitySpecHa
 void UGA_CharacterDurationInteract::OnInteractTick(float DeltaTime, float TimeHeld)
 {
 	timeHeld = TimeHeld;
-	Interactable->InteractingTick(ShooterCharacter, DeltaTime, TimeHeld);
+	Interactable->InteractingTick(ShooterCharacter.Get(), DeltaTime, TimeHeld);
 }
 
 void UGA_CharacterDurationInteract::OnRelease(float TimeHeld)
@@ -193,27 +193,27 @@ void UGA_CharacterDurationInteract::EndAbility(const FGameplayAbilitySpecHandle 
 		}
 		else*/ if (InteractEndReason == EDurationInteractEndReason::REASON_InputRelease)
 		{
-			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_InputRelease, timeHeld);
+			Interactable->OnDurationInteractEnd(ShooterCharacter.Get(), EDurationInteractEndReason::REASON_InputRelease, timeHeld);
 		}
 		else if (InteractEndReason == EDurationInteractEndReason::REASON_SweepMiss)
 		{
-			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_SweepMiss, timeHeld);
+			Interactable->OnDurationInteractEnd(ShooterCharacter.Get(), EDurationInteractEndReason::REASON_SweepMiss, timeHeld);
 		}
 		else if (InteractEndReason == EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap)
 		{
-			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap, timeHeld);
+			Interactable->OnDurationInteractEnd(ShooterCharacter.Get(), EDurationInteractEndReason::REASON_CharacterLeftInteractionOverlap, timeHeld);
 		}
 		else if (InteractEndReason == EDurationInteractEndReason::REASON_NewInteractionOverlapPriority)
 		{
-			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_NewInteractionOverlapPriority, timeHeld);
+			Interactable->OnDurationInteractEnd(ShooterCharacter.Get(), EDurationInteractEndReason::REASON_NewInteractionOverlapPriority, timeHeld);
 		}
 		else if (InteractEndReason == EDurationInteractEndReason::REASON_SuccessfulInteract)
 		{
-			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_SuccessfulInteract, timeHeld);
+			Interactable->OnDurationInteractEnd(ShooterCharacter.Get(), EDurationInteractEndReason::REASON_SuccessfulInteract, timeHeld);
 		}
 		else
 		{
-			Interactable->OnDurationInteractEnd(ShooterCharacter, EDurationInteractEndReason::REASON_Unknown, timeHeld);
+			Interactable->OnDurationInteractEnd(ShooterCharacter.Get(), EDurationInteractEndReason::REASON_Unknown, timeHeld);
 		}
 	}
 		

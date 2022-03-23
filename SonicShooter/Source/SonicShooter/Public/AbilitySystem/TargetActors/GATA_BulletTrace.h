@@ -11,6 +11,9 @@
 
 
 
+/**
+ * 
+ */
 struct FTracePoint
 {
 	FTracePoint()
@@ -33,8 +36,8 @@ struct FTracePoint
 struct FTraceSegment;
 
 /**
- *	This struct stores infomration about bullet movement at a certain point.
- *	Will make up a TArray of FBulletSteps which represent how the bullet moves through the world.
+ * This struct stores infomration about bullet movement at a certain point.
+ * Will make up a TArray of FBulletSteps which represent how the bullet moves through the world.
  */
 struct FBulletStep
 {

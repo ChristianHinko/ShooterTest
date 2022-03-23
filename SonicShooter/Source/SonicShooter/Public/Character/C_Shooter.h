@@ -134,6 +134,7 @@ protected:
 
 private:
 	// Cached Inventory
-	UArcInventoryComponent_Shooter* ShooterInventoryComponent;
+	UPROPERTY()
+		TWeakObjectPtr<UArcInventoryComponent_Shooter> ShooterInventoryComponent;
 
 };

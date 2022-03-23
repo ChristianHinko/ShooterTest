@@ -27,6 +27,7 @@ public:
 	virtual bool IsSupportedForNetworking() const override;
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags);
 
+public:
 	UO_Stamina(const FObjectInitializer& ObjectInitializer);
 
 
@@ -34,10 +35,10 @@ public:
 		FFloatPropertyWrapper Stamina;
 
 
-	void SetMaxStamina(float newMaxStamina);
-	void SetStaminaDrain(float newValue)		{ StaminaDrain			= newValue; }
-	void SetStaminaGain(float newValue)			{ StaminaGain			= newValue; }
-	void SetStaminaRegenPause(float newValue)	{ StaminaRegenPause		= newValue; }
+	void SetMaxStamina(float NewMaxStamina);
+	void SetStaminaDrain(float NewStaminaDrain) { StaminaDrain = NewStaminaDrain; }
+	void SetStaminaGain(float NewStaminaGain) { StaminaGain = NewStaminaGain; }
+	void SetStaminaRegenPause(float NewStaminaRegenPause) { StaminaRegenPause = NewStaminaRegenPause; }
 
 
 	void SetStaminaDraining(bool newStaminaDraining);

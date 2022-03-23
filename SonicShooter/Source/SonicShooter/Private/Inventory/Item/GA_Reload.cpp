@@ -27,8 +27,8 @@ void UGA_Reload::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const F
 	{
 		return;
 	}
-	//AActor* AvatarActor = ActorInfo->AvatarActor.Get();
-	if (!ActorInfo->AvatarActor.Get()/*AvatarActor*/)
+	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
+	if (!AvatarActor)
 	{
 		return;
 	}
@@ -75,7 +75,7 @@ bool UGA_Reload::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 		return false;
 	}
 
-	if (!IsValid(ClipAmmoSubobject))
+	if (!ClipAmmoSubobject.IsValid())
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ClipAmmoSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;

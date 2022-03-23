@@ -124,13 +124,13 @@ void AC_Shooter::Tick(float DeltaSeconds)
 	//	UKismetSystemLibrary::PrintString(this, "["+FString::FromInt(current.SlotId)+"] " + current.SlotTags.GetByIndex(1).ToString(), true, false, FLinearColor::Green);
 	//}
 
-	if (ShooterInventoryComponent)
+	if (ShooterInventoryComponent.IsValid())
 	{
 		//UKismetSystemLibrary::PrintString(this, "Current Item Slot: " + FString::FromInt(ShooterInventoryComponent->GetActiveItemSlot().SlotId), true, false);
 		//UKismetSystemLibrary::PrintString(this, "Pending Item Slot: " + FString::FromInt(ShooterInventoryComponent->PendingItemSlot), true, false);
 	}
 
-	if (IsValid(ShooterInventoryComponent))
+	if (ShooterInventoryComponent.IsValid())
 	{
 		const UArcItemStack* ActiveItemStack = ShooterInventoryComponent->GetActiveItemStack();
 		if (IsValid(ActiveItemStack))
@@ -149,11 +149,11 @@ void AC_Shooter::Tick(float DeltaSeconds)
 
 	}
 
-	if (IsValid(SSCharacterMovementComponent))
+	if (GetSSCharacterMovementComponent())
 	{
-		//if (IsValid(SSCharacterMovementComponent->StaminaSubobject))
+		//if (IsValid(GetSSCharacterMovementComponent()->StaminaSubobject))
 		//{
-		//	const FFloatPropertyWrapper& Stamina = SSCharacterMovementComponent->StaminaSubobject->Stamina;
+		//	const FFloatPropertyWrapper& Stamina = GetSSCharacterMovementComponent()->StaminaSubobject->Stamina;
 			//UKismetSystemLibrary::PrintString(this, Stamina.GetDebugString(), true, false);
 
 		//}

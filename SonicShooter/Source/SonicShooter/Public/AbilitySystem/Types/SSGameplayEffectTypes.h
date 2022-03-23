@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Types/ASSGameplayEffectTypes.h"
-
 #include "AbilitySystem/Types/SSGameplayAbilityTargetTypes.h"
 
 #include "SSGameplayEffectTypes.generated.h"
@@ -51,7 +50,7 @@ struct TStructOpsTypeTraits<FSSGameplayEffectContext> : public TStructOpsTypeTra
     enum
     {
         WithNetSerializer = true,
-        WithCopy = true		// Necessary so that TSharedPtr<FHitResult> Data is copied around
+        WithCopy = true // necessary so that TSharedPtr<FHitResult> Data is copied around
     };
 };
 
@@ -120,6 +119,6 @@ struct TStructOpsTypeTraits<FGEC_Shooter> : public TStructOpsTypeTraitsBase2<FGE
     enum
     {
         WithNetSerializer = true,
-        WithCopy = true		// Necessary so that TSharedPtr<FHitResult> Data is copied around
+        WithCopy = true // necessary so that TSharedPtr<FHitResult> Data is copied around
     };
 };

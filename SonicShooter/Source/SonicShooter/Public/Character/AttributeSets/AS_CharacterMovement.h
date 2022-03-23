@@ -22,13 +22,8 @@ public:
 	// Constructor and default values
 	UAS_CharacterMovement();
 
-#pragma region Gameplay Tags
-
-#pragma endregion
-
 
 	// Attributes
-#pragma region Movement Attributes
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_WalkSpeed, Category = "MovementAttributes")
 		FGameplayAttributeData WalkSpeed;
 	ATTRIBUTE_ACCESSORS(UAS_CharacterMovement, WalkSpeed)
@@ -44,17 +39,10 @@ public:
 		UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_RunAccelaration, Category = "MovementAttributes")
 		FGameplayAttributeData RunAccelaration;
 	ATTRIBUTE_ACCESSORS(UAS_CharacterMovement, RunAccelaration)
-#pragma endregion
 
 
 protected:
-	//	Server only. Handle applying any modifications to incomming effects (ie. subtracting incomming damage using a shield attribute)
-	virtual bool PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data) override;
-	//	Server only. Handle using 'meta' attributes for modifying 'persistant' attributes. Such as Damage modifying Health
-	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
-
-
-	//These OnReps exist to make sure the GAS internal representations are synchronized properly during replication
+	// These OnReps exist to make sure the GAS internal representations are synchronized properly during replication
 	UFUNCTION()
 		virtual void OnRep_WalkSpeed(const FGameplayAttributeData& ServerBaseValue);
 	UFUNCTION()

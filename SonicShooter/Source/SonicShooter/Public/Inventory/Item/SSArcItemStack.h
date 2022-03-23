@@ -25,7 +25,7 @@ public:
 
 
 	/**
-	 * Keeps track of the Item's Widget in memory. Only valid while Item is equipped - Widget is destroyed on unequip.
+	 * Our created Active Item Widget. Only valid while Item is equipped - Widget is destroyed on UnEquip.
 	 * NOTE: Only valid on the Client and Listening Server.
 	 */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "UI")

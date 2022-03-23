@@ -41,7 +41,7 @@ void UUW_Ammo::OnPlayerASCValid()
 		}
 	}
 
-	if (IsValid(ClipAmmoSubobject))
+	if (ClipAmmoSubobject.IsValid())
 	{
 		ClipAmmoSubobject->ClipAmmo.ValueChangeDelegate.AddDynamic(this, &UUW_Ammo::OnClipAmmoChange);
 
@@ -82,7 +82,7 @@ void UUW_Ammo::UpdateAmmoStatus()
 
 void UUW_Ammo::NativeDestruct()
 {
-	if (ClipAmmoSubobject)
+	if (ClipAmmoSubobject.IsValid())
 	{
 		ClipAmmoSubobject->ClipAmmo.ValueChangeDelegate.RemoveAll(this);
 	}

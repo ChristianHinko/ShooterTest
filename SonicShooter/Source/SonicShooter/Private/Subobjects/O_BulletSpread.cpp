@@ -57,20 +57,17 @@ void UO_BulletSpread::SetAbilitySystemComponent(const UAbilitySystemComponent* N
 	// Set the ASC
 	OwnerASC = NewASC;
 
-	if (IsValid(OwnerASC))
+	if (const UAbilitySystemComponent* ASC = OwnerASC.Get())
 	{
 		// Refresh attribute values
-		if (IsValid(OwnerASC))
-		{
-			MinBulletSpread = OwnerASC->GetNumericAttribute(UAS_Gun::GetMinBulletSpreadAttribute());
-			MovingBulletSpread = OwnerASC->GetNumericAttribute(UAS_Gun::GetMovingBulletSpreadAttribute());
-			BulletSpreadIncRate = OwnerASC->GetNumericAttribute(UAS_Gun::GetBulletSpreadIncRateAttribute());
-			FireBulletSpread = OwnerASC->GetNumericAttribute(UAS_Gun::GetFireBulletSpreadAttribute());
-			BulletSpreadDecSpeed = OwnerASC->GetNumericAttribute(UAS_Gun::GetBulletSpreadDecSpeedAttribute());
-		}
+		MinBulletSpread = ASC->GetNumericAttribute(UAS_Gun::GetMinBulletSpreadAttribute());
+		MovingBulletSpread = ASC->GetNumericAttribute(UAS_Gun::GetMovingBulletSpreadAttribute());
+		BulletSpreadIncRate = ASC->GetNumericAttribute(UAS_Gun::GetBulletSpreadIncRateAttribute());
+		FireBulletSpread = ASC->GetNumericAttribute(UAS_Gun::GetFireBulletSpreadAttribute());
+		BulletSpreadDecSpeed = ASC->GetNumericAttribute(UAS_Gun::GetBulletSpreadDecSpeedAttribute());
 
 		// Set our CMC
-		if (const FGameplayAbilityActorInfo* ActorInfo = OwnerASC->AbilityActorInfo.Get())
+		if (const FGameplayAbilityActorInfo* ActorInfo = ASC->AbilityActorInfo.Get())
 		{
 			CMC = Cast<UCharacterMovementComponent>(ActorInfo->MovementComponent.Get());
 		}
@@ -117,7 +114,7 @@ bool UO_BulletSpread::IsMovingToIncBulletSpread() const
 	{
 		return false;
 	}
-	if (!CMC)
+	if (!CMC.IsValid())
 	{
 		return false;
 	}
@@ -159,14 +156,14 @@ void UO_BulletSpread::Tick(float DeltaTime)
 bool UO_BulletSpread::IsTickable() const
 {
 	// Refresh attribute values
-	if (IsValid(OwnerASC))
+	if (const UAbilitySystemComponent* ASC = OwnerASC.Get())
 	{
 		// NOTE: this sets up the members for Tick() as well
-		MinBulletSpread = OwnerASC->GetNumericAttribute(UAS_Gun::GetMinBulletSpreadAttribute());
-		MovingBulletSpread = OwnerASC->GetNumericAttribute(UAS_Gun::GetMovingBulletSpreadAttribute());
-		BulletSpreadIncRate = OwnerASC->GetNumericAttribute(UAS_Gun::GetBulletSpreadIncRateAttribute());
-		FireBulletSpread = OwnerASC->GetNumericAttribute(UAS_Gun::GetFireBulletSpreadAttribute());
-		BulletSpreadDecSpeed = OwnerASC->GetNumericAttribute(UAS_Gun::GetBulletSpreadDecSpeedAttribute());
+		MinBulletSpread = ASC->GetNumericAttribute(UAS_Gun::GetMinBulletSpreadAttribute());
+		MovingBulletSpread = ASC->GetNumericAttribute(UAS_Gun::GetMovingBulletSpreadAttribute());
+		BulletSpreadIncRate = ASC->GetNumericAttribute(UAS_Gun::GetBulletSpreadIncRateAttribute());
+		FireBulletSpread = ASC->GetNumericAttribute(UAS_Gun::GetFireBulletSpreadAttribute());
+		BulletSpreadDecSpeed = ASC->GetNumericAttribute(UAS_Gun::GetBulletSpreadDecSpeedAttribute());
 	}
 
 	// NOTE: this sets up the member for Tick() as well

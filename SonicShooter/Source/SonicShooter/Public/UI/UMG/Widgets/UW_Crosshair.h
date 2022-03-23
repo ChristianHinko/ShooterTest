@@ -22,21 +22,8 @@ UCLASS()
 class SONICSHOOTER_API UUW_Crosshair : public UASSEUserWidget
 {
 	GENERATED_BODY()
-	
-public:
-	UUW_Crosshair(const FObjectInitializer& ObjectInitializer);
-
-
-	UPROPERTY(EditAnywhere, Category = "Crosshair")
-		FSlateBrush CrosshairBrush;
 
 protected:
-	virtual void NativePreConstruct() override;
-	virtual void NativeConstruct() override;
-	virtual void OnPlayerASCValid() override;
-	virtual void NativeDestruct() override;
-
-
 	UPROPERTY(meta = (BindWidget))
 		USizeBox* SizeBoxTop;
 	UPROPERTY(meta = (BindWidget))
@@ -54,10 +41,24 @@ protected:
 		UImage* ImageLeft;
 	UPROPERTY(meta = (BindWidget))
 		UImage* ImageRight;
+	
+public:
+	UUW_Crosshair(const FObjectInitializer& ObjectInitializer);
 
 
+	UPROPERTY(EditAnywhere, Category = "Crosshair")
+		FSlateBrush CrosshairBrush;
 
-	UO_BulletSpread* BulletSpreadSubobject;
+protected:
+	virtual void NativePreConstruct() override;
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+
+
+	virtual void OnPlayerASCValid() override;
+
+	UPROPERTY()
+		TWeakObjectPtr<UO_BulletSpread> BulletSpreadSubobject;
 	UFUNCTION()
 		void OnCurrentBulletSpreadChange(const float& OldValue, const float& NewValue);
 

@@ -50,7 +50,7 @@ void UGA_CharacterInstantInteract::ActivateAbility(const FGameplayAbilitySpecHan
 	}
 	///////////////////////////////////// we are safe to proceed /////////
 
-	Interactable->OnInstantInteract(ShooterCharacter);
+	Interactable->OnInstantInteract(ShooterCharacter.Get());
 
 	
 

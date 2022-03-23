@@ -31,7 +31,8 @@ protected:
 	virtual void NativeUpdateAnimation(float DeltaTimeX) override;
 
 
-	AC_Shooter* OwningShooterCharacter;
+	UPROPERTY()
+		TWeakObjectPtr<const AC_Shooter> OwningShooterCharacter;
 
 
 	/**

@@ -140,6 +140,13 @@ void UArcInventoryComponent_Shooter::MakeItemActive(int32 NewActiveItemSlot)
 		UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ActiveItemStack);
 		if (IsValid(GunStack))
 		{
+			// NOTE: The BulletSpread subobject looks for numeric Attribute values from the ASC. These Attribute values should be the ones
+			// from this newly active item - HOWEVER, on the Client, it has to wait for the Server to replicate the UAbilitySystemComponent::SpawnedAttributes array. So it
+			// ends up taking a bit to have the correct Bullet Spread values.
+			// This is the result of having a predictive Gameplay Ability without having predictive Attribute Set adding and removing (because addition and removal of Attribute Sets is not meant to be predictive of course).
+			// The predictive GA_SwapActiveItem Ability effectively adds and removes Attribute Sets (by changing the active item) non-predictively which is the root of the problem.
+			// I guess this is just a limitation of dynamically adding and removing Attribute Sets during runtime.
+			// You can notice this problem by looking at the crosshair. When swapping active weapons, the gun is using the old weapon's bullet spread for a split second.
 			GunStack->GetBulletSpreadSubobject()->SetAbilitySystemComponent(GetOwnerAbilitySystem()); // ensure it has the ASC
 			GunStack->GetBulletSpreadSubobject()->ResetBulletSpread();
 		}

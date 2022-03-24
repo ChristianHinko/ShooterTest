@@ -166,8 +166,11 @@ bool UO_BulletSpread::IsTickable() const
 		BulletSpreadDecSpeed = ASC->GetNumericAttribute(UAS_Gun::GetBulletSpreadDecSpeedAttribute());
 	}
 
-	// NOTE: this sets up the member for Tick() as well
-	CurrentBulletSpread = FMath::Clamp<float>(CurrentBulletSpread, MinBulletSpread, MovingBulletSpread);
+	if (CurrentBulletSpread < MinBulletSpread)
+	{
+		// NOTE: this sets up the member for Tick() as well
+		CurrentBulletSpread = MinBulletSpread;
+	}
 
 
 	if (IsMovingToIncBulletSpread()/* && CurrentBulletSpread < GetMovingBulletSpread()*/)

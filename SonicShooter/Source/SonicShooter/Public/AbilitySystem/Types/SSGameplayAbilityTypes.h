@@ -26,7 +26,7 @@ struct SONICSHOOTER_API FSSGameplayAbilityActorInfo : public FASSGameplayAbility
 
 
     FSSGameplayAbilityActorInfo();
-    virtual ~FSSGameplayAbilityActorInfo()
+    virtual ~FSSGameplayAbilityActorInfo() override
     {
 
     }
@@ -78,7 +78,7 @@ struct SONICSHOOTER_API FGAAI_Shooter : public FSSGameplayAbilityActorInfo
 
 
     FGAAI_Shooter();
-    virtual ~FGAAI_Shooter()
+    virtual ~FGAAI_Shooter() override
     {
 
     }

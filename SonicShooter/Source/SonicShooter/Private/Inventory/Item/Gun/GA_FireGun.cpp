@@ -44,7 +44,7 @@ void UGA_FireGun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const 
 	Super::OnAvatarSet(ActorInfo, Spec);
 }
 
-// This ability is only granted to the player while his Gun is active
+// This ability is only given to the player while his Gun is active
 void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
@@ -123,7 +123,7 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	UGameplayStatics::FinishSpawningActor(BulletTraceTargetActor, FTransform());
 }
 
-// This ability is only granted to the player while his Gun is active
+// This ability is only given to the player while his Gun is active
 void UGA_FireGun::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnRemoveAbility(ActorInfo, Spec);

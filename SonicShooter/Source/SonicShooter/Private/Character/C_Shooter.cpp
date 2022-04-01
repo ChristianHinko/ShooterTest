@@ -55,8 +55,8 @@ AC_Shooter::AC_Shooter(const FObjectInitializer& ObjectInitializer)
 	Interactor = CreateDefaultSubobject<UAC_Interactor>(TEXT("Interactor"));
 
 	// Attribute Sets
-	GetAbilitySystemSetupComponent()->StartupAttributeSets.Add(UAS_Stamina::StaticClass());
-	GetAbilitySystemSetupComponent()->StartupAttributeSets.Add(UAS_Health::StaticClass());
+	GetAbilitySystemSetupComponent()->StartingAttributeSets.Add(UAS_Stamina::StaticClass());
+	GetAbilitySystemSetupComponent()->StartingAttributeSets.Add(UAS_Health::StaticClass());
 
 
 	// Default to first person

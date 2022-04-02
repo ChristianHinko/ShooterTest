@@ -9,7 +9,7 @@
 #include "Perks/ArcItemPerkTypes.h"
 #include "ArcInventoryItemTypes.generated.h"
 
-extern const int32 NAMED_ITEM_SLOT;
+ARCINVENTORY_API extern const int32 NAMED_ITEM_SLOT;
 
 class UArcOLDItemDefition;
 class UArcItemRarity;		
@@ -74,11 +74,7 @@ public:
 	TMap<FGameplayAttribute, float> AttributeInitalizers;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Item")
-	TArray<TSubclassOf<UAttributeSet>> AttributeSetsToAdd;
-
-	//DEPRECATED
-	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Instanced, Category = "Item")
-		TArray<UAttributeSet*> AttributeSets;
+	TArray<TSubclassOf<UAttributeSet>> AttributeSetsToAdd;	
 };
 
 USTRUCT(BlueprintType)
@@ -129,6 +125,16 @@ public:
 
 	bool AcceptsItem(UArcItemStack* ItemStack) const;
 
+	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
+};
+
+template<>
+struct TStructOpsTypeTraits<FArcInventoryItemSlotFilter> : public TStructOpsTypeTraitsBase2<FArcInventoryItemSlotFilter>
+{
+	enum
+	{
+		WithNetSerializer = true,
+	};
 };
 
 USTRUCT()
@@ -186,7 +192,8 @@ public:
 		:FFastArraySerializerItem(),
 		ItemStack(nullptr),
 		SlotId(NAMED_ITEM_SLOT),
-		SlotTags()			
+		SlotTags(),
+		OldItemStack(nullptr)
 	{
 		
 	}
@@ -196,7 +203,8 @@ public:
 		ItemStack(Copy.ItemStack),
 		ItemSlotFilter(Copy.ItemSlotFilter),
 		SlotId(Copy.SlotId),
-		SlotTags(Copy.SlotTags)		
+		SlotTags(Copy.SlotTags),
+		OldItemStack(nullptr)
 	{
 
 	}
@@ -212,6 +220,9 @@ public:
 	
 	UPROPERTY(BlueprintReadWrite, VisibleInstanceOnly, Category = Inventory)
 	FGameplayTagContainer SlotTags;
+
+	TWeakObjectPtr<UArcItemStack> OldItemStack;
+
 
 	static FArcInventoryItemSlot Invalid;
 
@@ -329,10 +340,11 @@ public:
 	}
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Inventory)
-		int32 SlotId;	  	
-										 	
+		int32 SlotId;	
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Inventory)
 	FGameplayTagContainer SlotTags;
+
 
 	UPROPERTY(BlueprintReadWrite, VisibleInstanceOnly, Category = Inventory)
 	class UArcInventoryComponent* ParentInventory;
@@ -348,7 +360,7 @@ public:
 	{
 		const bool bIdsMatch = SlotId == Other.SlotId;
 		const bool bParentsMatch = ParentInventory == Other.ParentInventory;
-		const bool TagsMatch = SlotTags.DoesTagContainerMatch(Other.SlotTags, EGameplayTagMatchType::Explicit, EGameplayTagMatchType::Explicit, EGameplayContainerMatchType::All);
+		const bool TagsMatch = SlotTags.HasAllExact(Other.SlotTags);
 
 		return bParentsMatch && bIdsMatch && TagsMatch;
 	}
@@ -362,7 +374,7 @@ public:
 	bool operator==(const FArcInventoryItemSlot& Other) const
 	{
 		const bool bIdsMatch = SlotId == Other.SlotId;
-		const bool TagsMatch = SlotTags.DoesTagContainerMatch(Other.SlotTags, EGameplayTagMatchType::Explicit, EGameplayTagMatchType::Explicit, EGameplayContainerMatchType::All);
+		const bool TagsMatch = SlotTags.HasAllExact(Other.SlotTags);
 
 		return bIdsMatch && TagsMatch;
 	}

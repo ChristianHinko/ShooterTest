@@ -4,7 +4,8 @@
 #include "Character/Abilities/GA_CharacterCrouch.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
-#include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
 #include "GameFramework/Character.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -14,10 +15,10 @@
 UGA_CharacterCrouch::UGA_CharacterCrouch()
 {
 	AbilityInputID = EAbilityInputID::Crouch;
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Movement.Crouch")));
+	AbilityTags.AddTag(Tag_CrouchAbility);
 
 
-	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Movement.Run"));
+	CancelAbilitiesWithTag.AddTag(Tag_RunAbility);
 }
 
 
@@ -37,19 +38,19 @@ void UGA_CharacterCrouch::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo
 		return;
 	}
 
-
+	
 	Character = Cast<ACharacter>(AvatarActor);
-	if (Character)
+	if (Character.IsValid())
 	{
 		CMC = Character->GetCharacterMovement();
-		if (!CMC)
+		if (!CMC.IsValid())
 		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetCharacterMovement was NULL"), *FString(__FUNCTION__));
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetCharacterMovement was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 		}
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 }
 
@@ -60,20 +61,20 @@ bool UGA_CharacterCrouch::CanActivateAbility(const FGameplayAbilitySpecHandle Ha
 		return false;
 	}
 
-	if (!Character)
+	if (!Character.IsValid())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
-	if (!CMC)
+	if (!CMC.IsValid())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
 	if (CMC->CanCrouchInCurrentState() == false)
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Was not able to crouch in current state when trying to activate ability. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Was not able to crouch in current state when trying to activate ability. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 

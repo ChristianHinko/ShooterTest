@@ -10,6 +10,7 @@
 
 
 
+// NOTE: idk why this is still here
 // OUTDATED - figure out what to do with this later or keep it idk
 /**
  * This attribute set will be on every pawn that uses the ability system (using AbilitySystemPawn) add universal pawn attributes here

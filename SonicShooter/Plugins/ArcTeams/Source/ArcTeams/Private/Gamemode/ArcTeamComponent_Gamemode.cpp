@@ -554,6 +554,14 @@ bool UArcTeamComponent_Gamemode::CanUsePlayerStartForPlayer_Implementation(ACont
 			return true;
 		}
 	}
+	else
+	{
+		//If we don't have a valid default query, and this is a player start, let's use it!
+		if (IsValid(Cast<APlayerStart>(PlayerStart)))
+		{
+			return true;
+		}
+	}
 
 	return false;
 }

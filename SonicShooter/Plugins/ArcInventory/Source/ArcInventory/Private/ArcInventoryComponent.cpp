@@ -32,6 +32,8 @@ UArcInventoryComponent::UArcInventoryComponent(const FObjectInitializer& ObjectI
 	bWantsInitializeComponent = true;
 	SetIsReplicatedByDefault(true);
 
+	IdCounter = 0;
+
 }
 
 void UArcInventoryComponent::PostInitProperties()
@@ -57,14 +59,18 @@ void UArcInventoryComponent::InitializeComponent()
 void UArcInventoryComponent::CreateInventorySlot(const FGameplayTagContainer& SlotTags, const FArcInventoryItemSlotFilterHandle& Filter)
 {
 	FArcInventoryItemSlot Slot;
-	Slot.SlotId = BagInventory.Slots.Num();
+	Slot.SlotId = IdCounter;
 	Slot.SlotTags = SlotTags;
 	Slot.ItemSlotFilter = Filter;
 	Slot.Owner = this;
 
-	BagInventory.Slots.Add(Slot);
+	BagInventory.Slots.Add(Slot);	
+
+	IdCounter++;
 	BagInventory.MarkItemDirty(Slot);
-	
+	BagInventory.MarkArrayDirty();
+
+	PostInventoryUpdate();	
 }
 
 void UArcInventoryComponent::RemoveInventorySlot(const FArcInventoryItemSlotReference& Slot)
@@ -78,6 +84,8 @@ void UArcInventoryComponent::RemoveInventorySlot(const FArcInventoryItemSlotRefe
 
 	BagInventory.Slots.Remove(ItemSlot);
 	BagInventory.MarkArrayDirty();
+
+	PostInventoryUpdate();
 }
 
 void UArcInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -113,6 +121,28 @@ bool UArcInventoryComponent::LootItem(UArcItemStack* Item)
 		return false;
 	}
 
+	if (!IsValid(Item))
+	{
+		return false;
+	}
+
+	//If the item is stackable, try to find a buddy to stack with
+	if (Item->GetItemDefinition().GetDefaultObject()->MaxStackSize > 1)
+	{
+		for (auto Slot : BagInventory.Slots)
+		{
+			if (IsValid(Slot.ItemStack) && Slot.ItemStack->CanStackWith(Item))
+			{
+				//If we've successfully merged with that other stack (and there is nothing left over), returning here will drop the looted item to get garbage collected.
+				//Otherwise this loop will continue, potentially merging with more stacks or finding a slot for the rest of the stack
+				if (Slot.ItemStack->MergeItemStacks(Item))
+				{
+					return true;
+				}
+			}
+		}
+	}
+
 	//Find the first empty item slot
 	for (auto Slot : BagInventory.Slots)
 	{
@@ -126,35 +156,24 @@ bool UArcInventoryComponent::LootItem(UArcItemStack* Item)
 	return false;
 }
 
-//------------------=@MODIFIED MARKER@=		Added new looting function identical to original, just outputs more information
-bool UArcInventoryComponent::LootItemAndOutSlotRef(UArcItemStack* Item, FArcInventoryItemSlotReference& SlotRefAddedTo)
-{
-	//We can't do this on clients
-	if (GetOwnerRole() != ROLE_Authority)
-	{
-		return false;
-	}
-
-	//Find the first empty item slot
-	for (auto Slot : BagInventory.Slots)
-	{
-		SlotRefAddedTo = FArcInventoryItemSlotReference(Slot, this);
-		if (AcceptsItem(Item, SlotRefAddedTo) && PlaceItemIntoSlot(Item, SlotRefAddedTo))
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-//------------------
-
 bool UArcInventoryComponent::PlaceItemIntoSlot(UArcItemStack* Item, const FArcInventoryItemSlotReference& ItemSlot)
 {
 	//We can't do this on clients
 	if (GetOwnerRole() != ROLE_Authority)
 	{
 		return false;
+	}
+
+	//If there is an item in this slot, try to merge it with the incoming item.
+	if (UArcItemStack* ItemInSlot = GetItemInSlot(ItemSlot))
+	{
+		if (ItemInSlot->CanStackWith(Item))
+		{
+			//If there are any bits left over after attempting to merge this item stack, return false.  Otherwise, if we've consumed the whole item, return true
+			//Merging the item stack has modified the stack and has potentially taken some stacks from the item passed in.  
+			//We need to have the caller decide what to do with what is left.
+			return ItemInSlot->MergeItemStacks(Item);
+		}
 	}
 	
 	if (!AcceptsItem(Item, ItemSlot))
@@ -175,7 +194,7 @@ bool UArcInventoryComponent::PlaceItemIntoSlot(UArcItemStack* Item, const FArcIn
 	UArcItemStack* PreviousItem = Slot.ItemStack;
 	Slot.ItemStack = Item;
 
-
+	BagInventory.MarkItemDirty(Slot);
 
 	//Inform the world that we have placed this item here
 	OnInventoryUpdate.Broadcast(this);
@@ -210,6 +229,10 @@ bool UArcInventoryComponent::RemoveItemFromInventory(const FArcInventoryItemSlot
 
 	//then remove the item
 	Item.ItemStack = nullptr;
+
+	BagInventory.MarkItemDirty(Item);
+	BagInventory.MarkArrayDirty();
+
 	OnInventoryUpdate.Broadcast(this);
 	OnItemSlotChange.Broadcast(this, ItemSlot, Item.ItemStack, PreviousItem);
 
@@ -234,7 +257,7 @@ bool UArcInventoryComponent::RemoveAllItemsFromInventory(TArray<UArcItemStack*>&
 	return true;
 }
 
-bool UArcInventoryComponent::SwapItemSlots(const FArcInventoryItemSlotReference& FromSlot, const FArcInventoryItemSlotReference& ToSlot)
+bool UArcInventoryComponent::SwapItemSlots(const FArcInventoryItemSlotReference& SourceSlot, const FArcInventoryItemSlotReference& DestSlot)
 {
 	//If we aren't the server, Call the server RPC
 	if (GetOwnerRole() != ROLE_Authority)
@@ -245,13 +268,13 @@ bool UArcInventoryComponent::SwapItemSlots(const FArcInventoryItemSlotReference&
 
 	//Make sure both slots are valid
 	//This checks if ParentInventory is valid, which is important later.  
-	if (!IsValid(FromSlot) || !IsValid(ToSlot))
+	if (!IsValid(SourceSlot) || !IsValid(DestSlot))
 	{
 		return false;
 	}	
 
-	UArcInventoryComponent* SourceInventory = FromSlot.ParentInventory;
-	UArcInventoryComponent* DestinationInventory = ToSlot.ParentInventory;
+	UArcInventoryComponent* SourceInventory = SourceSlot.ParentInventory;
+	UArcInventoryComponent* DestinationInventory = DestSlot.ParentInventory;
 
 	//If neither the source nor the destination is us... what are we even doing here?
 	if (SourceInventory != this && DestinationInventory != this)
@@ -259,20 +282,20 @@ bool UArcInventoryComponent::SwapItemSlots(const FArcInventoryItemSlotReference&
 		return false;
 	}
 
-	UArcItemStack* FromItem = SourceInventory->GetItemInSlot(FromSlot);
-	UArcItemStack* ToItem = DestinationInventory->GetItemInSlot(ToSlot);
+	UArcItemStack* SourceItem = SourceInventory->GetItemInSlot(SourceSlot);
+	UArcItemStack* DestItem = DestinationInventory->GetItemInSlot(DestSlot);
 														 	
 	//Ensure that the two slots can hold these items
-	if (!SourceInventory->AcceptsItem_AssumeEmptySlot(FromItem, ToSlot) || !DestinationInventory->AcceptsItem_AssumeEmptySlot(ToItem, FromSlot))
+	if (!DestinationInventory->AcceptsItem_AssumeEmptySlot(SourceItem, DestSlot) || !SourceInventory->AcceptsItem_AssumeEmptySlot(DestItem, SourceSlot))
 	{
 		return false;
 	}
 
-	SourceInventory->RemoveItemFromInventory(FromSlot);
-	DestinationInventory->RemoveItemFromInventory(ToSlot);
+	SourceInventory->RemoveItemFromInventory(SourceSlot);
+	DestinationInventory->RemoveItemFromInventory(DestSlot);
 
-	SourceInventory->PlaceItemIntoSlot(FromItem, ToSlot);
-	DestinationInventory->PlaceItemIntoSlot(ToItem, FromSlot);
+	SourceInventory->PlaceItemIntoSlot(DestItem, SourceSlot);
+	DestinationInventory->PlaceItemIntoSlot(SourceItem, DestSlot);
 
 	return true;
 }
@@ -345,29 +368,35 @@ void UArcInventoryComponent::OnRep_BagInventory()
 
 bool UArcInventoryComponent::IsValidItemSlot(const FArcInventoryItemSlotReference& Slot)
 {	
-	//Check if we are in range
-	if (!BagInventory.Slots.IsValidIndex(Slot.SlotId))
+	//Check to see if we contain this reference
+	for (const FArcInventoryItemSlotReference& Ref : AllReferences)
 	{
-		return false;
+		if (Slot == Ref)
+		{
+			return true;
+		}
 	}
 
-	//Check if this reference matches the slot inside the inventory
-	FArcInventoryItemSlotReference TestSlot = FArcInventoryItemSlotReference(BagInventory.Slots[Slot.SlotId], this);
-	if (TestSlot != Slot)
-	{
-		return false;
-	}
-
-	return true;
+	return false;
+		
 }
 
 FArcInventoryItemSlot& UArcInventoryComponent::GetItemSlot(const FArcInventoryItemSlotReference& RefSlot)
 {
 	check(IsValidItemSlot(RefSlot));
 
-	FArcInventoryItemSlot&	SlotSlot = BagInventory.Slots[RefSlot.SlotId];	
-	BagInventory.MarkItemDirty(SlotSlot);
-	return SlotSlot;
+	for (FArcInventoryItemSlot& SlotSlot : BagInventory.Slots)
+	{		
+		if (RefSlot == SlotSlot)
+		{
+			BagInventory.MarkItemDirty(SlotSlot);
+			return SlotSlot;
+		}
+	}
+
+	//We'll never hit this, since we check IsValidItemSlot
+	return BagInventory.Slots[0];
+		
 } 
 
 
@@ -379,16 +408,24 @@ int32 UArcInventoryComponent::GetInventorySize()
 
 TArray<FArcInventoryItemSlotReference> UArcInventoryComponent::GetAllSlotReferences()
 {
-	TArray<FArcInventoryItemSlotReference> InventoryRefs;
+	return AllReferences;
+}
+
+void UArcInventoryComponent::PopulateSlotReferenceArray(TArray<FArcInventoryItemSlotReference>& RefArray)
+{
 	for (int i = 0; i < BagInventory.Slots.Num(); i++)
 	{
 		FArcInventoryItemSlotReference SlotRef(BagInventory.Slots[i], this);
-		InventoryRefs.Add(SlotRef);
+		RefArray.Add(SlotRef);
 	}
-	return InventoryRefs;
 }
 
 #pragma region Debugging
+
+namespace ArcInventoryDebug
+{
+
+
 
 struct FArcInventoryDebugTargetInfo
 {
@@ -453,7 +490,7 @@ UArcInventoryComponent* GetDebugTarget(FArcInventoryDebugTargetInfo* TargetInfo)
 	}
 	return TargetInfo->LastDebugTarget.Get();
 }
-
+}
 
 
 //FArcOnItemSlotUpdate& UArcInventoryComponent::GetItemSlotUpdateDelegate(const FArcInventoryItemSlotReference& ItemSlotRef)
@@ -466,18 +503,13 @@ class UAbilitySystemComponent* UArcInventoryComponent::GetOwnerAbilitySystem()
 	return UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetOwner());
 }
 
-//------------------ =@MODIFIED MARKER@= Added function
-bool UArcInventoryComponent::GetSlotReferenceByIndex(int32 index, FArcInventoryItemSlotReference& OutSlotReference)
+void UArcInventoryComponent::PostInventoryUpdate()
 {
-	if (BagInventory.Slots.IsValidIndex(index))
-	{
-		OutSlotReference = FArcInventoryItemSlotReference(BagInventory.Slots[index], this);
-		return true;
-	}
-
-	return false;
+	AllReferences.Empty(AllReferences.Num() + 1);
+	PopulateSlotReferenceArray(AllReferences); 
+	
+	OnInventoryUpdate.Broadcast(this);
 }
-//------------------
 
 bool UArcInventoryComponent::Query_GetAllSlots(const FArcInventoryQuery& Query, TArray<FArcInventoryItemSlotReference>& OutSlotRefs)
 {
@@ -504,6 +536,8 @@ FArcInventoryItemSlotReference UArcInventoryComponent::Query_GetFirstSlot(const 
 	return OutSlotRefs[0];
 }
 
+
+
 void UArcInventoryComponent::Query_GetAllItems(const FArcInventoryQuery& Query, TArray<UArcItemStack*>& OutItems)
 {
 	for (FArcInventoryItemSlot& ItemSlot : BagInventory.Slots)
@@ -524,6 +558,7 @@ static TAutoConsoleVariable<int32> DetailedItemStackInfo(TEXT("ArcInventory.Debu
 
 void UArcInventoryComponent::OnShowDebugInfo(AHUD* HUD, UCanvas* Canvas, const FDebugDisplayInfo& DisplayInfo, float& YL, float& YPos)
 {
+	using namespace ArcInventoryDebug;
 	if (DisplayInfo.IsDisplayOn(TEXT("Inventory")) )
 	{
 		UWorld* World = HUD->GetWorld();
@@ -542,6 +577,7 @@ void UArcInventoryComponent::OnShowDebugInfo(AHUD* HUD, UCanvas* Canvas, const F
 
 void UArcInventoryComponent::DisplayDebug(class UCanvas* Canvas, const class FDebugDisplayInfo& DebugDisplay, float& YL, float& YPos)
 {
+	using namespace ArcInventoryDebug;
 	if (DebugDisplay.IsDisplayOn(TEXT("CInventory")))
 	{
 		FInventoryComponentDebugInfo DebugInfo;
@@ -596,8 +632,7 @@ void UArcInventoryComponent::Debug_Internal(struct FInventoryComponentDebugInfo&
 	//Draw the bag inventory
 	{
 		DebugLine(Info, FString::Printf(TEXT("Bag Inventory (Slots: %d)"), GetInventorySize()), 0.0f, 0.0f);
-		for (auto InventorySlot : BagInventory.Slots)
-		{
+		ForEachItemSlot_ReadOnly([&Info, this, DetailedDisplay](const FArcInventoryItemSlot& InventorySlot) {
 			TArray<FString> DebugStrings;
 			InventorySlot.ToDebugStrings(DebugStrings, DetailedDisplay);
 
@@ -614,9 +649,8 @@ void UArcInventoryComponent::Debug_Internal(struct FInventoryComponentDebugInfo&
 			for (int i = 1; i < DebugStrings.Num(); i++)
 			{
 				DebugLine(Info, DebugStrings[i], 12.0f, 0.0f);
-
 			}
-		}		
+		});
 	}
 }
 

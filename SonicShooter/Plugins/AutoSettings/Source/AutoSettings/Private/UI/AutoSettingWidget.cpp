@@ -3,8 +3,8 @@
 #include "UI/AutoSettingWidget.h"
 #include "Console/ConsoleUtils.h"
 #include "SettingsManager.h"
-#include "Misc/AutoSettingsLogs.h"
-#include "Misc/AutoSettingsError.h"
+#include "AutoSettingsLogs.h"
+#include "AutoSettingsError.h"
 
 UAutoSettingWidget::UAutoSettingWidget(const FObjectInitializer& ObjectInitializer)
 	: UUserWidget(ObjectInitializer),

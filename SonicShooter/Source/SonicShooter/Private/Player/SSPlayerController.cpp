@@ -3,7 +3,7 @@
 
 #include "Player/SSPlayerController.h"
 
-#include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/LogCategories.h"
 
 
 
@@ -37,7 +37,7 @@ void ASSPlayerController::SetPendingPawnClass(const TSubclassOf<APawn>& NewPawnC
 {
 	if (GetLocalRole() < ROLE_Authority)
 	{
-		UE_LOG(LogPlayerControllerSetup, Warning, TEXT("%s() Not allowed to set the PendingPawnClass on client"), *FString(__FUNCTION__));
+		UE_LOG(LogPlayerControllerSetup, Warning, TEXT("%s() Not allowed to set the PendingPawnClass on client"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
 
@@ -47,13 +47,13 @@ APawn* ASSPlayerController::SpawnPawnFromPendingPawnClass()
 {
 	if (GetLocalRole() < ROLE_Authority)
 	{
-		UE_LOG(LogPlayerControllerSetup, Warning, TEXT("%s() Client tried to SpawnPawnFromPendingPawnClass. Refused to do anything"), *FString(__FUNCTION__));
+		UE_LOG(LogPlayerControllerSetup, Warning, TEXT("%s() Client tried to SpawnPawnFromPendingPawnClass. Refused to do anything"), ANSI_TO_TCHAR(__FUNCTION__));
 		return nullptr;
 	}
 
-	if (IsValid(PendingPawnClass))
+	if (IsValid(PendingPawnClass) == false)
 	{
-		UE_LOG(LogPlayerControllerSetup, Log, TEXT("%s() Tried spawning Pawn with invalid PendingPawnClass. Spawned no Pawn"), *FString(__FUNCTION__));
+		UE_LOG(LogPlayerControllerSetup, Warning, TEXT("%s() Tried spawning Pawn with invalid PendingPawnClass. Spawned no Pawn"), ANSI_TO_TCHAR(__FUNCTION__));
 		return nullptr;
 	}
 

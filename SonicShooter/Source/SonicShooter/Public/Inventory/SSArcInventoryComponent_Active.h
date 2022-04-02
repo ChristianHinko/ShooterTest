@@ -7,8 +7,10 @@
 
 #include "SSArcInventoryComponent_Active.generated.h"
 
+
 class UArkItemStack;
-class UArcInventoryComponent;
+
+
 
 /**
  * 
@@ -18,28 +20,25 @@ class SONICSHOOTER_API USSArcInventoryComponent_Active : public UArcInventoryCom
 {
 	GENERATED_BODY()
 	
-private:
-
 public:
 	USSArcInventoryComponent_Active(const FObjectInitializer& ObjectInitializer);
-	virtual void BeginPlay() override;
-	virtual void InitializeComponent() override;
 
-	int32 startingActiveItemSlot;
+
+	int32 StartingActiveItemSlot;
 	uint8 bUseOnEquipItemSwappingThingRoyMade : 1;
+
+	// The Game Mode should populate the Inventory with these Items
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
+		TArray<FArcStartingItemEntry> StartingItems;
 
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 		bool IsActiveItemSlotIndexValid(int32 InActiveItemSlot);
 
-	
-
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
-		int32 maxItemHistoryBufferSize;
+		int32 MaxItemHistoryBufferSize;
 	UPROPERTY(Replicated)
 		TArray<FArcInventoryItemSlotReference> ActiveItemHistory;
-
-
 
 
 	
@@ -49,14 +48,18 @@ public:
 		void AddToActiveItemHistory(const FArcInventoryItemSlotReference& NewActiveItemSlotReference);
 
 protected:
+	virtual void BeginPlay() override;
+	virtual void InitializeComponent() override;
+
+
 	UFUNCTION()
-		void OnItemSlotChangeEvent(UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack);
-	UFUNCTION()
-		void OnItemActiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
-	UFUNCTION()
-		void OnItemInactiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
-	virtual bool MakeItemActive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack) override;
+		void OnAttributeSetCreatedEvent(UArcInventoryComponent_Equippable* Inventory, UAttributeSet* AttributeSet, UArcItemStack* AttributeSource);
 	
-	virtual bool ApplyAbilityInfo_Internal(const FArcItemDefinition_AbilityInfo& AbilityInfo, FArcEquippedItemInfo& StoreInto, UArcItemStack* AbilitySource) override;
+	virtual void MakeItemActive(int32 NewActiveItemSlot) override;
+	virtual bool MakeItemActive_Internal(const FArcInventoryItemSlotReference& ItemSlot, UArcItemStack* ItemStack) override;
+
+private:
+	// Used in to tell us when to apply the default stats Effect filled out in USSArcItemDefinition_Active::InitializationEffectTSub
+	uint8 bCreatedAttributeSets : 1;
 
 };

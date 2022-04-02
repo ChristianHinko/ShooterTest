@@ -2,6 +2,16 @@
 
 #include "ArcInventory.h"
 
+UE_DEFINE_GAMEPLAY_TAG(FArcInvBagSlotTag, TEXT("Inventory.Slot.Bag"));
+UE_DEFINE_GAMEPLAY_TAG(FArcInvEquipSlotTag, TEXT("Inventory.Slot.Equipped"));
+UE_DEFINE_GAMEPLAY_TAG(FArcInvActiveSlotTag, TEXT("Inventory.Slot.Active"));
+
+UE_DEFINE_GAMEPLAY_TAG(FArcInvDropItemAbilityTag, TEXT("Ability.Inventory.DropItem"));
+UE_DEFINE_GAMEPLAY_TAG(FArcInvSwapItemSlotsAbilityTag, TEXT("Ability.Inventory.SwapItems"));
+UE_DEFINE_GAMEPLAY_TAG(FArcInvSwapPendingAbilityTag, TEXT("Ability.Inventory.SwapPending"));
+
+
+
 
 DEFINE_LOG_CATEGORY(LogInventory);
 

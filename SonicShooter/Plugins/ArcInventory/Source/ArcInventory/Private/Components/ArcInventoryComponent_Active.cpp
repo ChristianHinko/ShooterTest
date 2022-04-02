@@ -3,16 +3,12 @@
  
 #include "Components/ArcInventoryComponent_Active.h"
 #include "ArcItemStack.h"
-#include "Interfaces/ArcHeldItemInterface.h"
 #include "Item/Definitions/ArcItemDefinition_Active.h"
 
 #include "AbilitySystemGlobals.h"
 
 #include "Net/UnrealNetwork.h"
-
-//=@MODIFIED MARKER@=
-#include "ArcItemBPFunctionLibrary.h"
-#include "Input/ArcInvInputBinder.h"
+#include "EngineMinimal.h"
 
 UArcInventoryComponent_Active::UArcInventoryComponent_Active(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -67,6 +63,8 @@ void UArcInventoryComponent_Active::BeginPlay()
 
 void UArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
 {
+	Super::OnItemEquipped(Inventory, ItemSlotRef, ItemStack, PreviousItemStack);
+
 	//If we are an active item slot, make it active if we don't already have an active item		
 	if (ActiveItemSlot == INDEX_NONE && IsActiveItemSlot(ItemSlotRef) && IsValid(ItemStack))
 	{
@@ -81,17 +79,15 @@ void UArcInventoryComponent_Active::OnItemEquipped(class UArcInventoryComponent*
 		}
 	}
 
-	//If we are unequipping an item and it's the currently active item, either go to the next available active item or go to neutral
-	if (!IsValid(ItemStack))
+	//If we are unequipping an item and it's the currently active item, either go to the next available active item or go to neutral	
+	const int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);
+	if (ActiveItemSlot != INDEX_NONE && ItemSlotIndex == ActiveItemSlot)
 	{
-		int32 ItemSlotIndex = GetActiveItemIndexBySlotRef(ItemSlotRef);
-		if (ItemSlotIndex == ActiveItemSlot)
-		{
-			PendingItemSlot = GetNextValidActiveItemSlot();
-			MakeItemInactive_Internal(ItemSlotRef, PreviousItemStack);
-			SwitchToPendingItemSlot();
-		}
+		PendingItemSlot = IsValid(ItemStack) ? ItemSlotIndex : GetNextValidActiveItemSlot();
+		MakeItemInactive_Internal(ItemSlotRef, PreviousItemStack);
+		SwitchToPendingItemSlot();
 	}
+	
 }
 
 FArcInventoryItemSlotReference UArcInventoryComponent_Active::GetActiveItemSlot()
@@ -124,18 +120,7 @@ UArcItemStack* UArcInventoryComponent_Active::GetActiveItemStackInSlot(int32 InA
 bool UArcInventoryComponent_Active::IsValidActiveItemSlot(int32 InActiveItemSlot)
 {
 	//Do we have a valid index?
-	if (InActiveItemSlot < 0)
-	{
-		return false;
-	}
-	if (InActiveItemSlot >= CachedActiveItemSlots.Num())
-	{
-		return false;
-	}
-
-	//Is the index a valid item?
-	UArcItemStack* ItemStack = GetActiveItemStackInSlot(InActiveItemSlot);
-	if (!IsValid(ItemStack))
+	if (!CachedActiveItemSlots.IsValidIndex(InActiveItemSlot))
 	{
 		return false;
 	}
@@ -182,7 +167,9 @@ int32 UArcInventoryComponent_Active::GetNextValidActiveItemSlot()
 {
 	int32 TestItemSlot = GetNextActiveItemSlot();
 
-	while (TestItemSlot != ActiveItemSlot)
+	//Check to make sure we aren't INDEX_NONE or negative.  If we are either of these, then this loop goes infinite.
+	int32 StartActiveItemSlot = ActiveItemSlot < 0 ? 0 : ActiveItemSlot;
+	while (TestItemSlot != StartActiveItemSlot)
 	{
 		if (CachedActiveItemSlots.IsValidIndex(TestItemSlot))
 		{
@@ -196,8 +183,17 @@ int32 UArcInventoryComponent_Active::GetNextValidActiveItemSlot()
 
 		TestItemSlot = GetNextItemSlotFrom(TestItemSlot);
 	}
-	
-	return INDEX_NONE;
+
+	//If we started as INDEX_NONE, then the loop would fall through if there was only one active item.  
+	//So, check for that case and return the Start slot if it's valid	
+	if (StartActiveItemSlot != ActiveItemSlot && CachedActiveItemSlots.IsValidIndex(StartActiveItemSlot))
+	{
+		return StartActiveItemSlot;
+	}
+	else
+	{
+		return INDEX_NONE;
+	}
 	
 }
 
@@ -205,7 +201,9 @@ int32 UArcInventoryComponent_Active::GetPreviousValidActiveItemSlot()
 {
 	int32 TestItemSlot = GetPreviousActiveItemSlot();
 
-	while (TestItemSlot != ActiveItemSlot)
+	//Check to make sure we aren't INDEX_NONE or negative.  If we are either of these, then this loop goes infinite.
+	int32 StartActiveItemSlot = ActiveItemSlot < 0 ? 0 : ActiveItemSlot;
+	while (TestItemSlot != StartActiveItemSlot)
 	{
 		if (CachedActiveItemSlots.IsValidIndex(TestItemSlot))
 		{
@@ -220,7 +218,16 @@ int32 UArcInventoryComponent_Active::GetPreviousValidActiveItemSlot()
 		TestItemSlot = GetPreviousItemSlotFrom(TestItemSlot);
 	}
 
-	return INDEX_NONE;
+	//If we started as INDEX_NONE, then the loop would fall through if there was only one active item.  
+	//So, check for that case and return the Start slot if it's valid	
+	if (StartActiveItemSlot != ActiveItemSlot && CachedActiveItemSlots.IsValidIndex(StartActiveItemSlot))
+	{
+		return StartActiveItemSlot;
+	}
+	else
+	{
+		return INDEX_NONE;
+	}
 }
 
 int32 UArcInventoryComponent_Active::GetNextItemSlotFrom(int32 InActiveItemSlot) const
@@ -299,8 +306,7 @@ void UArcInventoryComponent_Active::MakeItemActive(const FArcInventoryItemSlotRe
 
 bool UArcInventoryComponent_Active::IsActiveItemSlot(const FArcInventoryItemSlotReference& ItemSlotRef) const
 {
-	FGameplayTag ActiveSlotTag = GetDefault<UArcInventoryDeveloperSettings>()->ActiveItemSlotTag;
-	return ItemSlotRef.SlotTags.HasTagExact(ActiveSlotTag);
+	return ItemSlotRef.SlotTags.HasTagExact(FArcInvActiveSlotTag);
 }
 
 int32 UArcInventoryComponent_Active::GetActiveItemIndexBySlotRef(const FArcInventoryItemSlotReference& ItemSlotRef)
@@ -324,11 +330,7 @@ void UArcInventoryComponent_Active::SwitchToPendingItemSlot()
 	bool bActivatedAbility = false;
 	if (UAbilitySystemComponent* ASC = UAbilitySystemGlobals::Get().GetAbilitySystemComponentFromActor(GetOwner()))
 	{
-		FGameplayTag SwitchWeaponsAbilityTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.ItemSwitch.Pending"), false);
-		if (SwitchWeaponsAbilityTag.IsValid())
-		{
-			bActivatedAbility = ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(SwitchWeaponsAbilityTag));
-		}		
+		bActivatedAbility = ASC->TryActivateAbilitiesByTag(FArcInvSwapPendingAbilityTag.GetTag().GetSingleTagContainer());
 	}
 
 	if (!bActivatedAbility)//Otherwise just quickly switch the item
@@ -342,21 +344,14 @@ void UArcInventoryComponent_Active::SwitchToPendingItemSlot()
 
 void UArcInventoryComponent_Active::UpdateActiveItemSlots(UArcInventoryComponent* InventoryComp)
 {
-
 	//Cache the Active Item Slots
-	FGameplayTag ActiveSlotTag = GetDefault<UArcInventoryDeveloperSettings>()->ActiveItemSlotTag;
-
 	CachedActiveItemSlots.Empty(CachedActiveItemSlots.Num());
-	Query_GetAllSlots(FArcInventoryQuery::QuerySlotMatchingTag(ActiveSlotTag), CachedActiveItemSlots);
+	Query_GetAllSlots(FArcInventoryQuery::QuerySlotMatchingTag(FArcInvActiveSlotTag), CachedActiveItemSlots);
 }
 
 void UArcInventoryComponent_Active::SwapActiveItems(int32 NewItemSlot)
 {
 	bSwitchingWeapons = true;
-
-	//=@MODIFIED MARKER@=
-	pendingSwapIndex = NewItemSlot;
-
 	MakeItemInactive();
 	MakeItemActive(NewItemSlot);
 	bSwitchingWeapons = false;
@@ -476,221 +471,3 @@ bool UArcInventoryComponent_Active::MakeItemActive_Internal(const FArcInventoryI
 	return bSuccess;
 }
 
-
-bool UArcInventoryComponent_Active::ApplyAbilityInfo_Internal(const FArcItemDefinition_AbilityInfo& AbilityInfo, FArcEquippedItemInfo& StoreInto, UArcItemStack* AbilitySource)
-{
-	if (GetOwnerRole() == ROLE_Authority)
-	{
-		//Setup the Item Info, duplicating attribute sets if we have to
-		for (auto AttributeSetClass : AbilityInfo.AttributeSetsToAdd)
-		{
-			//Find an attribute set with the same key
-			UAttributeSet** ContainedAttributeSet = StoreInto.InstancedAttributeSets.FindByPredicate([=](UAttributeSet* Key) {
-				return Key->GetClass() == AttributeSetClass.Get();
-				});
-			if (ContainedAttributeSet != nullptr)	 //If it exists, we've got it!
-			{
-				continue;
-			}
-
-
-
-			//Otherwise, create a new one
-			UAttributeSet* NewAttributeSet = NewObject<UAttributeSet>(GetOwner(), AttributeSetClass);
-
-			//and init the attributes
-			for (auto KV : AbilityInfo.AttributeInitalizers)
-			{
-				FGameplayAttribute Attribute = KV.Key;
-				float val = KV.Value;
-
-				if (Attribute.GetAttributeSetClass() == NewAttributeSet->GetClass())
-				{
-					if (FNumericProperty* NumericProperty = CastField<FNumericProperty>(Attribute.GetUProperty()))
-					{
-						void* ValuePtr = NumericProperty->ContainerPtrToValuePtr<void>(NewAttributeSet);
-						NumericProperty->SetFloatingPointPropertyValue(ValuePtr, val);
-					}
-					else if (FStructProperty* StructProperty = CastField<FStructProperty>(Attribute.GetUProperty()))
-					{
-						FGameplayAttributeData* DataPtr = StructProperty->ContainerPtrToValuePtr<FGameplayAttributeData>(NewAttributeSet);
-						if (DataPtr)
-						{
-							DataPtr->SetBaseValue(val);
-							DataPtr->SetCurrentValue(val);
-						}
-					}
-				}
-			}
-
-			//and then tell watchers that a new attribute set has been created
-			OnAttributeSetCreated.Broadcast(this, NewAttributeSet, AbilitySource);
-
-			StoreInto.InstancedAttributeSets.Add(NewAttributeSet);
-		}
-	}
-
-
-	if (UAbilitySystemComponent* ASC = GetOwnerAbilitySystem())
-	{
-		//Add any loose tags first, that way any abilities or effects we add later behave properly with the tags  
-		ASC->AddLooseGameplayTags(AbilityInfo.GrantedTags, 1);
-
-		if (GetOwnerRole() == ROLE_Authority)
-		{
-			//Add any attribute sets we have
-			for (UAttributeSet* AttributeSet : StoreInto.InstancedAttributeSets)
-			{
-				if (!UArcItemBPFunctionLibrary::ASCHasAttributeSet(ASC, AttributeSet->GetClass()))
-				{
-					AttributeSet->Rename(nullptr, GetOwner());
-					UArcItemBPFunctionLibrary::ASCAddInstancedAttributeSet(ASC, AttributeSet);
-
-				}
-			}
-
-
-			//Add all the active abilities for the ability slots we have
-			for (auto AbilityInfoStruct : AbilityInfo.ActiveAbilityEntries)
-			{
-				TSubclassOf<UGameplayAbility> AbilityClass = AbilityInfoStruct.ActiveAbilityClass;
-				UArcInvInputBinder* InputBinder = AbilityInfoStruct.InputBinder;
-				if (!IsValid(AbilityClass) || !IsValid(InputBinder))
-				{
-					continue;
-				}
-
-				int32 InputIndex = InputBinder->GetInputBinding(ASC, AbilityClass);
-				FGameplayAbilitySpec Spec(AbilityClass.GetDefaultObject(), 1, InputIndex, AbilitySource);
-
-
-				FGameplayAbilitySpecHandle Handle = ASC->GiveAbility(Spec);
-				StoreInto.AddedAbilities.Add(Handle);
-			}
-			//and add any extras we have
-			for (auto ExtraAbility : AbilityInfo.ExtraAbilities)
-			{
-				//If an ability exists already, then don't bother adding it
-				//if (ASC->FindAbilitySpecFromClass(ExtraAbility))
-				//{
-				//	continue;
-				//}
-
-				//=@MODIFIED MARKER@= also this class doesnt even override these functions
-				if (FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromClass(ExtraAbility))
-				{
-					if (Spec->SourceObject == AbilitySource)
-					{
-						continue;
-					}
-				}
-
-
-				FGameplayAbilitySpec Spec(ExtraAbility.GetDefaultObject(), 1, INDEX_NONE, AbilitySource);
-
-				FGameplayAbilitySpecHandle Handle = ASC->GiveAbility(Spec);
-				StoreInto.AddedAbilities.Add(Handle);
-			}
-
-
-
-			//Add any GameplayEffects we have
-			for (auto EffectClass : AbilityInfo.AddedGameplayEffects)
-			{
-				for (auto& Handle : StoreInto.AddedGameplayEffects)
-				{
-					if (ASC->GetGameplayEffectDefForHandle(Handle) == EffectClass->GetDefaultObject<UGameplayEffect>())
-					{
-						continue;
-					}
-				}
-
-				FGameplayEffectContextHandle ECH(UAbilitySystemGlobals::Get().AllocGameplayEffectContext());
-				ECH.AddInstigator(GetOwner(), GetOwner());
-				FGameplayEffectSpec Spec(EffectClass->GetDefaultObject<UGameplayEffect>(), ECH, 1);
-
-
-				FActiveGameplayEffectHandle Handle = ASC->ApplyGameplayEffectSpecToSelf(Spec);
-				//Store any non-instant handles we get.  Instant Gameplay Effects will fall off right away so we don't need to remove them later
-				//Really, items shouldn't use instant GEs.
-				if (Spec.Def->DurationPolicy != EGameplayEffectDurationType::Instant)
-				{
-					StoreInto.AddedGameplayEffects.Add(Handle);
-				}
-			}
-
-			ASC->bIsNetDirty = true;
-		}
-
-
-	}
-
-	return true;
-}
-
-bool UArcInventoryComponent_Active::ClearAbilityInfo_Internal(const FArcItemDefinition_AbilityInfo& AbilityInfo, FArcEquippedItemInfo& StoreInto)
-{
-	//Remove any abilities this item adds
-
-	if (UAbilitySystemComponent* ASC = GetOwnerAbilitySystem())
-	{
-		if (GetOwnerRole() == ROLE_Authority)
-		{
-			//Remove all of the gameplay effects
-			{
-				for (auto Handle : StoreInto.AddedGameplayEffects)
-				{
-					ASC->RemoveActiveGameplayEffect(Handle);
-				}
-			}
-
-			//Remove all the abilities we added
-			{
-				UArcItemStack* ActiveItem = GetItemInSlot(GetActiveItemSlot());
-
-				for (int32 i = 0; i < StoreInto.AddedAbilities.Num(); ++i) //=@MODIFIED MARKER@=
-				{
-					FGameplayAbilitySpecHandle Handle = StoreInto.AddedAbilities[i];
-
-					//=@MODIFIED MARKER@=
-					bool bDontClear = false;
-					for (FGameplayAbilitySpec Spec : ASC->GetActivatableAbilities())
-					{
-						if (bSwitchingWeapons)
-						{
-							if (Spec.SourceObject == GetItemInSlot(GetActiveItemSlotInSlot(pendingSwapIndex)))
-							{
-								bDontClear = true;
-							}
-						}
-					}
-					if (bDontClear)
-					{
-						continue;
-					}
-
-					ASC->CancelAbilityHandle(Handle);
-					ASC->ClearAbility(Handle);
-
-					//=@MODIFIED MARKER@=
-					StoreInto.AddedAbilities.Remove(Handle);
-					--i;
-				}
-				//StoreInto.AddedAbilities.Empty();
-			}
-
-			//Remove Attribute Sets			
-			for (UAttributeSet* AttributeSet : StoreInto.InstancedAttributeSets)
-			{
-				UArcItemBPFunctionLibrary::ASCRemoveInstancedAttributeSet(ASC, AttributeSet);
-			}
-
-		}
-
-		//Remove any extra granted tags from the player				
-		ASC->RemoveLooseGameplayTags(AbilityInfo.GrantedTags);
-	}
-
-
-	return true;
-}

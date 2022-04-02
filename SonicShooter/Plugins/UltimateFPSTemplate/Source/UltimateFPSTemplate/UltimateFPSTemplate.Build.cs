@@ -27,7 +27,10 @@ public class UltimateFPSTemplate : ModuleRules
 			{
 				"Core",
 				"PhysicsCore",
-				"Niagara"
+				"Niagara",
+				"Json",
+				"JsonUtilities",
+				"Http"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -39,7 +42,7 @@ public class UltimateFPSTemplate : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"Slate",
-				"SlateCore",
+				"SlateCore"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

@@ -18,7 +18,7 @@ class SONICSHOOTER_API ASSGameMode : public AGameMode
 	GENERATED_BODY()
 
 public:
-	ASSGameMode();
+	ASSGameMode(const FObjectInitializer& ObjectInitializer);
 
 
 protected:

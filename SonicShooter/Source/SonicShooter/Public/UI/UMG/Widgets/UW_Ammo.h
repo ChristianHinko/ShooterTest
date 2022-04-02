@@ -9,7 +9,8 @@
 
 
 struct FOnAttributeChangeData;
-class UASC_Shooter;
+class UO_ClipAmmo;
+class UTextBlock;
 
 
 
@@ -21,36 +22,40 @@ UCLASS()
 class SONICSHOOTER_API UUW_Ammo : public UASSEUserWidget
 {
 	GENERATED_BODY()
+
+protected:
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		UTextBlock* ClipAmmoText;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		UTextBlock* BackupAmmoText;
 	
 public:
 	UUW_Ammo(const FObjectInitializer& ObjectInitializer);
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 		FText ActiveItemName;
 	/** The current clip ammo value of the attribute */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ammo")
-		float ClipAmmo;
+		float CurrentClipAmmo;
 	/** The current backup ammo value of the attribute */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ammo")
-		float BackupAmmo;
+		float CurrentBackupAmmo;
 
 protected:
-	virtual void OnPlayerASCValid() override;
-	UASC_Shooter* ShooterASC;
+	virtual void NativeDestruct() override;
 
+
+	virtual void OnPlayerASCValid() override;
 	virtual void OnAttributeChanged(const FOnAttributeChangeData& Data) override;
+
+	UPROPERTY()
+		TWeakObjectPtr<UO_ClipAmmo> ClipAmmoSubobject;
 	UFUNCTION()
 		void OnClipAmmoChange(const float& OldValue, const float& NewValue);
 
-
-	void SetClipAmmo(float NewClipAmmo);
-	void SetBackupAmmo(float NewBackupAmmo);
-
-	/** Called on CurrentSpread changed. Use this to update CurrentSpread based UI */
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Ammo", meta = (Keywords = "Tick"))
+	/** Called on ammo values changed. Use this to update UI */
+	UFUNCTION()
 		void UpdateAmmoStatus();
 
-
-
-	virtual void NativeDestruct() override;
 };

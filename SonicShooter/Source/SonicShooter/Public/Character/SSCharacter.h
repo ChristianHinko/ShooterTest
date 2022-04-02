@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/AbilitySystemSetupCharacter.h"
+#include "Character/C_AbilitySystemSetupCharacter.h"
 
 #include "SSCharacter.generated.h"
 
@@ -13,8 +13,6 @@ class UCameraComponent;
 class USpringArmComponent;
 class USSCharacterMovementComponent;
 class ASSGameState;
-class UAS_CharacterMovement;
-class UAS_Stamina;
 
 
 
@@ -26,8 +24,7 @@ struct FCrouchTickFunction : public FTickFunction
 {
 	GENERATED_BODY()
 
-
-		FCrouchTickFunction()
+	FCrouchTickFunction()
 	{
 		// This bool doesn't actually do anything for some reason so we have to call SetTickFunctionEnable after
 		bStartWithTickEnabled = false;
@@ -42,15 +39,17 @@ struct FCrouchTickFunction : public FTickFunction
 		//bRunOnAnyThread = true; // i want to do this but we set component locations in the tick so we can't
 	}
 
-	ASSCharacter* Target;
+
+	UPROPERTY()
+		TWeakObjectPtr<ASSCharacter> Target;
 
 	virtual void ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent) override;
+
 
 	virtual FString DiagnosticMessage() override
 	{
 		return FString(TEXT("FCrouchTickFunction"));
 	}
-
 	virtual FName DiagnosticContext(bool bDetailed) override
 	{
 		return FName(TEXT("ASSCharacter"));
@@ -70,50 +69,48 @@ struct TStructOpsTypeTraits<FCrouchTickFunction> : public TStructOpsTypeTraitsBa
  * Base character class
  */
 UCLASS()
-class ASSCharacter : public AAbilitySystemSetupCharacter
+class ASSCharacter : public AC_AbilitySystemSetupCharacter
 {
 	GENERATED_BODY()
 
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Character")
-		USkeletalMeshComponent* POVMesh; // should this exist on every character (including AI)?
+		USkeletalMeshComponent* POVMesh;
+	static const FName POVMeshComponentName;
+
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 		UCameraComponent* FollowCamera;
+
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 		USpringArmComponent* CameraBoom;
 
 public:
 	ASSCharacter(const FObjectInitializer& ObjectInitializer);
 
-	// Components
+	// Subobject getters
 	USkeletalMeshComponent* GetPOVMesh() const { return POVMesh; }
 	USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	USSCharacterMovementComponent* GetSSCharacterMovementComponent() const { return SSCharacterMovementComponent.Get(); }
 
-
-	UAS_CharacterMovement* GetCharacterAttributeSet() const { return CharacterMovementAttributeSet; }
-	UAS_Stamina* GetStaminaAttributeSet() const { return StaminaAttributeSet; }
-
-#pragma region Abilities
+	//BEGIN Character Abilities
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
-		TSubclassOf<UASSGameplayAbility> CharacterJumpAbilityTSub;
+		TSubclassOf<UGameplayAbility> CharacterJumpAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle CharacterJumpAbilitySpecHandle;
 
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
-		TSubclassOf<UASSGameplayAbility> CharacterCrouchAbilityTSub;
+		TSubclassOf<UGameplayAbility> CharacterCrouchAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle CharacterCrouchAbilitySpecHandle;
 
 	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
-		TSubclassOf<UASSGameplayAbility> CharacterRunAbilityTSub;
+		TSubclassOf<UGameplayAbility> CharacterRunAbilityTSub;
 	UPROPERTY(Replicated)
 		FGameplayAbilitySpecHandle CharacterRunAbilitySpecHandle;
-#pragma endregion
+	//END Character Abilities
 
-
-	USSCharacterMovementComponent* GetSSCharacterMovementComponent() const { return SSCharacterMovementComponent; }
 
 	/** Whether we are actually running. Replicated to simulated proxies so that they can simulate server movement */
 	UPROPERTY(ReplicatedUsing = OnRep_IsRunning)
@@ -141,7 +138,7 @@ public:
 		float ThirdPersonCameraArmLength;
 
 	/** Replicated so we can see where remote clients are looking. */
-	UPROPERTY(replicated)
+	UPROPERTY(Replicated)
 		uint8 RemoteViewYaw;
 	/**
 	 * Set Pawn ViewYaw, so we can see where remote clients are looking.
@@ -151,8 +148,8 @@ public:
 	void SetRemoteViewYaw(float NewRemoteViewYaw);
 	virtual FRotator GetBaseAimRotation() const override;
 
-	float GetForwardInputAxis() const { return forwardInputAxis; }
-	float GetRightInputAxis() const { return rightInputAxis; }
+	float GetForwardInputAxis() const { return ForwardInputAxis; }
+	float GetRightInputAxis() const { return RightInputAxis; }
 
 	virtual void Jump() override;
 	virtual void StopJumping() override;
@@ -170,7 +167,7 @@ public:
 	void CrouchTick(float DeltaTime);
 
 
-	APawn* GetNearestPawn();
+	APawn* GetNearestPawn() const;
 
 protected:
 #if WITH_EDITOR
@@ -182,12 +179,10 @@ protected:
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
-	virtual void CreateAttributeSets() override;
-	virtual void RegisterAttributeSets() override;
-	virtual void GrantStartingAbilities() override;
+	//BEGIN IAbilitySystemSetupInterface interface
+	virtual void GiveStartingAbilities() override;
+	//END IAbilitySystemSetupInterface interface
 
-	UPROPERTY()
-		USSCharacterMovementComponent* SSCharacterMovementComponent;
 
 	/** Whether we are currently in first person. NOTE: ONLY DIRECTLY SET THIS IN THE CONSTRUCTOR OR IN BP otherwise use the setter. */
 	UPROPERTY(EditAnywhere, Category = "First Person")
@@ -208,8 +203,7 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 
-#pragma region Input Events
-	//Actions
+	//BEGIN Input actions
 	virtual void OnRunPressed();
 	virtual void OnRunReleased();
 
@@ -231,20 +225,20 @@ protected:
 	virtual void OnReloadPressed();
 	virtual void OnReloadReleased();
 
-	virtual void OnItem0Pressed();
-	virtual void OnItem0Released();
+	virtual void OnFirstItemPressed();
+	virtual void OnFirstItemReleased();
 
-	virtual void OnItem1Pressed();
-	virtual void OnItem1Released();
+	virtual void OnSecondItemPressed();
+	virtual void OnSecondItemReleased();
 
-	virtual void OnItem2Pressed();
-	virtual void OnItem2Released();
+	virtual void OnThirdItemPressed();
+	virtual void OnThirdItemReleased();
 
-	virtual void OnItem3Pressed();
-	virtual void OnItem3Released();
+	virtual void OnFourthItemPressed();
+	virtual void OnFourthItemReleased();
 
-	virtual void OnItem4Pressed();
-	virtual void OnItem4Released();
+	virtual void OnFifthItemPressed();
+	virtual void OnFifthItemReleased();
 
 	virtual void OnSwitchWeaponPressed();
 	virtual void OnSwitchWeaponReleased();
@@ -263,18 +257,19 @@ protected:
 
 	virtual void OnScoreSheetPressed();
 	virtual void OnScoreSheetReleased();
+	//END Input actions
 
-
-	//Axis
+	//BEGIN Input axis
 	virtual void MoveForward(float Value);
 	virtual void MoveRight(float Value);
 
 	virtual void HorizontalLook(float Rate);
 	virtual void VerticalLook(float Rate);
-#pragma endregion
+	//END Input axis
 
-	float forwardInputAxis;
-	float rightInputAxis;
+
+	float ForwardInputAxis;
+	float RightInputAxis;
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	float HorizontalSensitivity;
@@ -283,10 +278,10 @@ protected:
 
 
 private:
-	UPROPERTY(Replicated)
-		UAS_CharacterMovement* CharacterMovementAttributeSet;
-	UPROPERTY(Replicated)
-		UAS_Stamina* StaminaAttributeSet;
+	// Cached SSCharacterMovementComponent
+	UPROPERTY()
+		TWeakObjectPtr<USSCharacterMovementComponent> SSCharacterMovementComponent;
 
-	float crouchToHeight;
+
+	float CrouchToHeight;
 };

@@ -9,6 +9,8 @@
 
 
 struct FOnAttributeChangeData;
+class UTextBlock;
+class UProgressBar;
 
 
 
@@ -20,6 +22,12 @@ UCLASS()
 class SONICSHOOTER_API UUW_Health : public UASSEUserWidget
 {
 	GENERATED_BODY()
+
+protected:
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		UTextBlock* HealthTextBlock;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		UProgressBar* HealthProgressBar;
 
 public:
 	UUW_Health(const FObjectInitializer& ObjectInitializer);
@@ -35,10 +43,6 @@ public:
 protected:
 	virtual void OnAttributeChanged(const FOnAttributeChangeData& Data) override;
 
-	void SetCurrentHealth(float NewCurrentHealth);
-	void SetMaxHealth(float NewMaxHealth);
-
 	/** Called on Health changed. Use this to update Health based UI */
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCosmetic, Category = "Health", meta = (Keywords = "Tick"))
-		void UpdateHealthStatus();
+	void UpdateHealthStatus();
 };

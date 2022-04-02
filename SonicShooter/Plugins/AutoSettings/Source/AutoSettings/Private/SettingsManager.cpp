@@ -6,21 +6,14 @@
 #include "Scalability.h"
 #include "Console/ConsoleUtils.h"
 #include "Misc/ConfigCacheIni.h"
-#include "Misc/AutoSettingsLogs.h"
-#include "Misc/AutoSettingsError.h"
+#include "AutoSettingsLogs.h"
+#include "AutoSettingsError.h"
 #include "Utility/AutoSettingsStringUtils.h"
-
-USettingsManager* USettingsManager::Singleton = nullptr;
+#include "Engine/Engine.h"
 
 USettingsManager* USettingsManager::Get()
 {
-	if (!Singleton)
-	{
-		Singleton = NewObject<USettingsManager>();
-		Singleton->AddToRoot();
-	}
-
-	return Singleton;
+	return GEngine->GetEngineSubsystem<USettingsManager>();
 }
 
 FString USettingsManager::GetValue(FName Key, bool bPreferConfigValue)
@@ -169,7 +162,9 @@ void USettingsManager::SaveSetting(FAutoSettingData SettingData, bool bApplySett
 			ApplySetting(SettingData);
 		}
 
-		UE_LOG(LogAutoSettings, Log, TEXT("Saving setting %s with value %s"), *SettingData.Key.ToString(), *SettingData.Value);
+		const FString Previous = GetConfigValue(*SettingData.Key.ToString());
+
+		UE_LOG(LogAutoSettings, Log, TEXT("Saving setting %s with value: %s, previous: %s"), *SettingData.Key.ToString(), *SettingData.Value, *Previous);
 
 		SetConfigValue(SettingData.Key, SettingData.Value);
 		OnSettingSaved.Broadcast(SettingData);
@@ -197,8 +192,10 @@ void USettingsManager::ApplySetting(FAutoSettingData SettingData)
 		FAutoSettingsError::LogMissingCVar("Apply Setting", SettingData.Key);
 		return;
 	}
+
+	const FString Previous = UConsoleUtils::GetStringCVar(SettingData.Key);
 	
-	UE_LOG(LogAutoSettings, Log, TEXT("Applying setting %s with value %s"), *SettingData.Key.ToString(), *SettingData.Value);
+	UE_LOG(LogAutoSettings, Log, TEXT("Applying setting %s with value: %s, prevous: %s"), *SettingData.Key.ToString(), *SettingData.Value, *Previous);
 	UConsoleUtils::SetStringCVar(SettingData.Key, SettingData.Value);
 }
 
@@ -213,6 +210,8 @@ void USettingsManager::ApplySettingsFromConfig()
 
 	int32 SettingsLoaded = 0;
 
+	UE_LOG(LogAutoSettings, Log, TEXT("Applying initial settings from config"));
+	
 	if (Section)
 	{
 		TArray<FName> Keys;
@@ -223,6 +222,7 @@ void USettingsManager::ApplySettingsFromConfig()
 			const FString Value = GetConfigValue(Key, Section);
 			if (UConsoleUtils::IsCVarRegistered(Key))
 			{
+				UE_LOG(LogAutoSettings, Log, TEXT("Applying initial setting %s with value: %s"), *Key.ToString(), *Value);
 				UConsoleUtils::SetStringCVar(Key, Value);
 				SettingsLoaded++;
 			}

@@ -12,10 +12,6 @@
 class UArcInventoryAttributeSet;
 class UArcItemStack;
 
-//------------------ =@MODIFIED MARKER@= fwd declare so we can use it in FArcInventoryItemSlotDefinition
-class UArcItemGenerator_Unique;
-//------------------
-
 USTRUCT(BlueprintType)
 struct ARCINVENTORY_API FArcInventoryItemSlotDefinition
 {
@@ -25,13 +21,6 @@ public:
 		FGameplayTagContainer Tags;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Inventory")
 		FArcInventoryItemSlotFilter Filter;
-
-
-	//------------------ =@MODIFIED MARKER@=
-	/** This item generator will be used by the GameMode to populate this slot when the character is spawned */
-	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
-		TSubclassOf<UArcItemGenerator_Unique> SlotStartupItem;
-	//------------------
 };
 
 
@@ -46,11 +35,14 @@ class ARCINVENTORY_API UArcInventoryComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
+	friend struct FArcInventoryItemSlot;
+
 	// Sets default values for this component's properties
 	UArcInventoryComponent(const FObjectInitializer& ObjectInitializer);
 
 	virtual void PostInitProperties() override;
 	virtual void InitializeComponent() override;
+
 
 protected:
 	//Creates a new slot with given tags
@@ -72,14 +64,6 @@ public:
 	//Returns true if the item has been add to this inventory.  False if the item can't fit. 
 	UFUNCTION(BlueprintCallable, Category="Arc|Inventory")
 	virtual bool LootItem(UArcItemStack* Item);
-
-
-	//------------------=@MODIFIED MARKER@=		// Add this function so we know what slot ref is the one with the new item. (We use this when populating our inventory so we can add the slot ref to our item history)
-	//Returns true if the item has been add to this inventory.  False if the item can't fit. Outs the slot ref of the new item
-	UFUNCTION(BlueprintCallable, Category = "Arc|Inventory")
-		virtual bool LootItemAndOutSlotRef(UArcItemStack* Item, FArcInventoryItemSlotReference& SlotRefAddedTo);
-	//------------------
-
 
 	//Places the item into the slot.  Returns false if hte item cannot be put there.
 	UFUNCTION(BlueprintCallable, Category = "Arc|Inventory")
@@ -103,9 +87,6 @@ public:
 
 	virtual UArcItemStack* GetItemInSlot(const FArcInventoryItemSlotReference& Reference);
 	  
-	//UPROPERTY(ReplicatedUsing=OnRep_BagInventory)
-	//TArray<FArcInventoryItemSlot> BagInventory;
-
 	UPROPERTY(BlueprintReadWrite, Category = "Inventory")
 		FArcInventoryItemSlotReference SwapFromSlot;
 
@@ -120,6 +101,8 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Arc|Inventory")
 	virtual TArray<FArcInventoryItemSlotReference> GetAllSlotReferences();
+
+	void PopulateSlotReferenceArray(TArray<FArcInventoryItemSlotReference>& RefArray);
 
 
 	UPROPERTY(BlueprintAssignable, Category = "Arc|Inventory")
@@ -142,18 +125,19 @@ public:
 	virtual class UAbilitySystemComponent* GetOwnerAbilitySystem();
 
 
+
 private:
 	UPROPERTY(Replicated)
 	FArcInventoryItemSlotArray BagInventory;
 
+	TArray<FArcInventoryItemSlotReference> AllReferences;
+
+	int32 IdCounter;
+
+	void PostInventoryUpdate();
+
 	//Inventory Searching
 public:
-	//------------------ =@MODIFIED MARKER@= Added function
-	// VERY UNRELIABLE WARNING!!! SlotReferences can be dynamcically switched around during gameplay so anytime after inventory initialisation is a bad time to call this!!!!
-	UFUNCTION(BlueprintCallable, Category = "Inventory | Item Queries", meta = (ScriptName = "GetSlotReferenceByIndex"))
-	bool GetSlotReferenceByIndex(int32 index, FArcInventoryItemSlotReference& OutSlotReference);
-	//------------------
-
 	UFUNCTION(BlueprintCallable, Category="Inventory | Item Queries", meta = (ScriptName = "ItemQuery_GetAll"))
 	bool Query_GetAllSlots(const FArcInventoryQuery& Query, TArray<FArcInventoryItemSlotReference>& OutSlotRefs);
 
@@ -163,6 +147,54 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory | Item Queries", meta = (ScriptName = "ItemQuery_GetAllItems"))
 	void Query_GetAllItems(const FArcInventoryQuery& Query, TArray<UArcItemStack*>& OutItems);
 
+	//Iterate through each item slot.
+	//Lambda looks like this: [](const FArcInventoryItemSlot& Slot) { }
+	template<typename PRED>
+	void ForEachItemSlot_ReadOnly(PRED Predicate) const
+	{
+		ForEachItemSlot_ReadOnly(FArcInventoryQuery(), Predicate);
+	}
+
+	//Iterate through each item slot, matching a slot query.
+	//Lambda looks like this: [](const FArcInventoryItemSlot& Slot) { }
+	template<typename PRED>
+	void ForEachItemSlot_ReadOnly(const FArcInventoryQuery& Query, PRED Predicate) const
+	{
+		for (const FArcInventoryItemSlot& ItemSlot : BagInventory.Slots)
+		{
+			if (Query.MatchesSlot(ItemSlot)) 
+			{
+				Predicate(ItemSlot);				
+			}
+		}
+	}
+
+	//Iterate through each item slot.
+	//Note: This is a writable version.  It will mark any item slot touched for replication, regardless of changes
+	//Use the _ReadOnly version if you are just trying to read the slots
+	//Lambda looks like this: [](FArcInventoryItemSlot& Slot) { }
+	template<typename PRED>
+	void ForEachItemSlot_Mutable(PRED Predicate)
+	{
+		ForEachItemSlot_Mutable(FArcInventoryQuery(), Predicate);
+	}
+
+	//Iterate through each item slot, matching a slot query.
+	//Note: This is a writable version.  It will mark any item slot touched for replication, regardless of changes
+	//Use the _ReadOnly version if you are just trying to read the slots
+	//Lambda looks like this: [](FArcInventoryItemSlot& Slot) { }
+	template<typename PRED>
+	void ForEachItemSlot_Mutable(const FArcInventoryQuery& Query, PRED Predicate)
+	{
+		for (FArcInventoryItemSlot& ItemSlot : BagInventory.Slots)
+		{
+			if (Query.MatchesSlot(ItemSlot))
+			{
+				Predicate(ItemSlot);
+				BagInventory.MarkItemDirty(ItemSlot);
+			}
+		}
+	}
 
 	//Debugging Section
 public:

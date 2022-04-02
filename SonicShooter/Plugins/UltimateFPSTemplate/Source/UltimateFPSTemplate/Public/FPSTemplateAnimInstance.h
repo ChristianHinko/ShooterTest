@@ -8,6 +8,8 @@
 #include "FPSTemplateAnimInstance.generated.h"
 
 class AFPSTemplateFirearm;
+class UFPSTemplate_CharacterComponent;
+class UAnimSequence;
 
 UCLASS()
 class ULTIMATEFPSTEMPLATE_API UFPSTemplateAnimInstance : public UAnimInstance
@@ -20,61 +22,70 @@ public:
 	virtual void NativeBeginPlay() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
-protected:	
+protected:
 	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Default")
-	class AFPSTemplateCharacter* Character;
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Default")
-	bool bIsLocallyControlled;
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | LeftHandIK")
-	int32 FirearmIndex;
+	UFPSTemplate_CharacterComponent* CharacterComponent;
+	//class AFPSTemplateCharacter* Character;
 
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Firearm")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Firearm")
+	int32 AnimationIndex;
+
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Firearm")
+	AActor* AimingActor;
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Firearm")
 	AFPSTemplateFirearm* Firearm;
-	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPSTemplate | Default")
-	class UAnimSequence* LeftHandPose;*/
+	AFPSTemplateFirearm* OldFirearm;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPSTemplate | Default")
+	class UAnimSequence* LeftHandPose;
+	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Default")
+	bool bValidLeftHandPose;
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Firearm")
+	float MakeLeftHandFollowAlpha;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPSTemplate | Toggles")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPSTemplate | Toggles")
 	bool bUseProceduralSpine;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPSTemplate | Toggles", meta = (EditCondition = "bUseProceduralSpine"))
+	int32 SpineBoneCount;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPSTemplate | Aiming")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPSTemplate | Aiming")
 	float AimInterpolationSpeed;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPSTemplate | Aiming")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPSTemplate | Aiming")
 	float CycleSightsInterpolationSpeed;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPSTemplate | Aiming")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPSTemplate | Aiming")
 	float RotationLagResetInterpolationSpeed;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPSTemplate | Aiming")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPSTemplate | Aiming")
 	float MotionLagResetInterpolationSpeed;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPSTemplate | Aiming")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPSTemplate | Aiming")
 	FName RightHandBone;
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Aiming")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Aiming")
 	FTransform RelativeToHandTransform;
 	FTransform FinalRelativeHand;
 	bool bInterpRelativeToHand;
 
 	bool bFirstRun;
 	
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Aiming")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Aiming")
 	FTransform SightTransform;
 	float SightDistance;
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Aiming")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Aiming")
 	float AimingAlpha;
 	bool bIsAiming;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPSTemplate | Aiming")
 	FRotator HeadAimingRotation;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPSTemplate | Sway")
+	bool bInvertRotationLag;
 
 	void SetSightTransform();
 	void SetRelativeToHand();
 	void InterpRelativeToHand(float DeltaSeconds);
 
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | LeftHandIK")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | LeftHandIK")
 	FTransform LeftHandIKTransform;
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | LeftHandIK")
-	EFirearmGripType CurrentGripType;
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | LeftHandIK")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | LeftHandIK")
 	float LeftHandIKAlpha;
 	void SetLeftHandIK();
 
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Actions")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Actions")
 	float RotationAlpha;
 	
 	bool bInterpAiming;
@@ -84,25 +95,25 @@ protected:
 
 	void InterpAimingAlpha(float DeltaSeconds);
 
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Lag")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Lag")
 	FTransform RotationLagTransform;
 	FTransform UnmodifiedRotationLagTransform;
 	FRotator OldRotation;
 	void SetRotationLag(float DeltaSeconds);
 
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Lag")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Lag")
 	FTransform MovementLagTransform;
 	FTransform UnmodifiedMovementLagTransform;
 	FVector OldMovement;
 	void SetMovementLag(float DeltaSeconds);
 	FVector OldCharacterLocation;
 	
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Default")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Default")
 	FFirearmStats FirearmStats;
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Default")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Default")
 	FRotator SpineRotation;
 	
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Recoil")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Recoil")
 	FTransform RecoilTransform;
 	FTransform FinalRecoilTransform;
 
@@ -110,7 +121,7 @@ protected:
 	void RecoilInterpTo(float DeltaSeconds);
 
 	ELeaning CurrentLean;
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Default")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Default")
 	FRotator LeanRotation;
 	bool bInterpLeaning;
 	void InterpLeaning(float DeltaSeconds);
@@ -119,35 +130,37 @@ protected:
 	float VelocityMultiplier;
 	void HandleMovementSway(float DeltaSeconds);
 	void HandleSprinting();
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Default")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Default")
 	FTransform SwayTransform;
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Default")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Default")
 	FTransform SprintPoseTransform;
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Default")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Default")
 	float SprintAlpha;
 
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Default")
+	float SwayMultiplier;
+
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Default")
 	float CharacterVelocity;
 
 	bool bCustomizingFirearm;
 
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Default")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Default")
 	FTransform WeaponCustomizingTransform;
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Default")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Default")
 	float WeaponCustomizingAlpha;
 
 	bool bCanAim;
 
 	bool bInterpPortPose;
 	EPortPose PortPose;
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Default")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Default")
 	float PortPoseAlpha;
 
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Poses")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Poses")
 	FTransform CurrentPose;
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Poses")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Poses")
 	FVector ShortStockPose;
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Poses")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Poses")
 	float ShortStockPoseAlpha;
 
 	FTransform DefaultRelativeToHand;
@@ -156,7 +169,7 @@ protected:
 
 	void InterpPortPose(float DeltaSeconds);
 	FRotator OldFreeLookRotation;
-	UPROPERTY(BlueprintReadOnly, Category = "FPSTemplate | Default")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "FPSTemplate | Default")
 	FRotator FreeLookRotation;
 
 	FRotator FreeLookReleaseRotation;
@@ -183,9 +196,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Aiming")
 	void CycledSights();
-
-	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Default")
-	void SetGripType(EFirearmGripType NewGripType);
+	
 	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Default")
 	void StopMontages(float BlendOutTime);
 	
@@ -196,7 +207,11 @@ public:
 	void SetPortPose(EPortPose Pose);
 	void SetPortPoseBlend(EPortPose Pose, float Alpha);
 	bool HandleFirearmCollision(EPortPose Pose, float Alpha);
-	
-	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Extra")
-	void SetFreeLook(bool FreeLook);
+
+	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Actions")
+	void EnableLeftHandIK(bool Enable);
+	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Actions")
+	void SetLeftHandFollow(bool bMakeFollow) { MakeLeftHandFollowAlpha = bMakeFollow; }
+
+	void SetCharacterComponent(UFPSTemplate_CharacterComponent* INCharacterComponent) { CharacterComponent = INCharacterComponent;}
 };

@@ -2,80 +2,43 @@
 
 
 #include "FirearmParts/BaseClasses/FPSTemplate_MagnifierBase.h"
-#include "FPSTemplateFirearm.h"
-#include "FPSTemplateCharacter.h"
 
-#include "Components/SceneCaptureComponent2D.h"
+#include "Net/UnrealNetwork.h"
 
 AFPSTemplate_MagnifierBase::AFPSTemplate_MagnifierBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	
-	SceneCapture = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("SceneCaptureComponent"));
-	SceneCapture->bHiddenInGame = true;
-	SceneCapture->bCaptureEveryFrame = false;
-	SceneCapture->bCaptureOnMovement = false;
-	SceneCapture->bAlwaysPersistRenderingState = true;
-	SceneCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_RenderScenePrimitives;
-	
 	PartType = EPartType::Magnifier;
-	MagnifierRefreshRate = 60.0f;
-	Magnification = 3.0f;
-	bHasRenderTarget = true;
-	bDisableWhenUnflipped = true;
 }
 
-void AFPSTemplate_MagnifierBase::BeginPlay()
+void AFPSTemplate_MagnifierBase::OnRep_FlippedOut()
 {
-	Super::BeginPlay();
-	HandleRenderTargetSetup();
+	OnUse();
 }
 
-void AFPSTemplate_MagnifierBase::PostInitProperties()
+void AFPSTemplate_MagnifierBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	Super::PostInitProperties();
-
-	SceneCapture->FOVAngle = 15.0f / Magnification;
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME_CONDITION(AFPSTemplate_MagnifierBase, bFlippedOut, COND_SkipOwner);
 }
 
-void AFPSTemplate_MagnifierBase::OnRep_Owner()
+bool AFPSTemplate_MagnifierBase::Server_Flip_Validate(bool bFlip)
 {
-	HandleRenderTargetSetup();
+	return true;
 }
 
-void AFPSTemplate_MagnifierBase::Tick(float DeltaSeconds)
+void AFPSTemplate_MagnifierBase::Server_Flip_Implementation(bool bFlip)
 {
-	Super::Tick(DeltaSeconds);
-	SceneCapture->CaptureScene();
+	Use();
 }
 
-void AFPSTemplate_MagnifierBase::HandleRenderTargetSetup()
+void AFPSTemplate_MagnifierBase::Use_Implementation()
 {
-	if (AFPSTemplateCharacter* Character = GetOwningCharacter())
+	bFlippedOut = !bFlippedOut;
+	OnUse();
+	
+	if (!HasAuthority())
 	{
-		if (Character->IsLocallyControlled())
-		{
-			DisableRenderTarget(false);
-			SetActorTickInterval(1 / MagnifierRefreshRate);
-		}
-		else
-		{
-			SetActorTickEnabled(false);
-		}
+		Server_Flip(bFlippedOut);
 	}
-}
-
-void AFPSTemplate_MagnifierBase::SetFOVAngle()
-{
-	SceneCapture->FOVAngle = 15.0f / Magnification;
-}
-
-void AFPSTemplate_MagnifierBase::DisableRenderTarget(bool Disable)
-{
-	if (Disable && !bDisableWhenUnflipped)
-	{
-		return;
-	}
-	SetActorTickEnabled(!Disable);
-	SceneCapture->SetHiddenInGame(Disable);
 }

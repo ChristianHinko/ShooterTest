@@ -20,14 +20,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Display")
 	USkeletalMesh* HeldItemMesh;
 
-	//UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Active Item")
-	//TMap<FGameplayTag, class UArcAnimationSet*> ActiveAnimationSets;
-	
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Active Item")
 	FArcItemDefinition_AbilityInfo ActiveItemAbilityInfo;
-
-	UFUNCTION(BlueprintNativeEvent)
-	void SetHeldItemMesh(UArcItemStack* ItemStack, AActor* ActorToSetup);
-	virtual void SetHeldItemMesh_Implementation(UArcItemStack* ItemStack, AActor* ActorToSetup);
 	
 };

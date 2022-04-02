@@ -44,8 +44,18 @@ UArcItemStack* UArcItemGenerator::GenerateItemStack_Implementation(const FArcIte
 }
 
 UArcItemStack* UArcItemGenerator::CreateNewItemStack(TSubclassOf<UArcItemDefinition_New> ItemDefinition, UArcItemRarity* ItemRarity)
-{
+{	
 	TSubclassOf<UArcItemStack> ISC = ItemStackClass;
+
+	if (IsValid(ISC))
+	{
+		//Check to see if our ItemStack Class is a child of what the item def wants.  If not, use the item def's class
+		if (IsValid(ItemDefinition.GetDefaultObject()->DefaultItemStackClass) && !ISC->IsChildOf(ItemDefinition.GetDefaultObject()->DefaultItemStackClass))
+		{
+			ISC = ItemDefinition.GetDefaultObject()->DefaultItemStackClass;
+		}
+	}
+
 	if (!IsValid(ISC))
 	{
 		//If we don't have a valid item stack class, use the one in the developer settings.

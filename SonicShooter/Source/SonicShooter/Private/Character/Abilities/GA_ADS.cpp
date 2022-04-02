@@ -4,13 +4,14 @@
 #include "Character/Abilities/GA_ADS.h"
 
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
-#include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
 #include "GameFramework/Character.h"
 
 UGA_ADS::UGA_ADS()
 {
 	AbilityInputID = EAbilityInputID::SecondaryFire;
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.ADS")));
+	AbilityTags.AddTag(Tag_ADSAbility);
 
 
 }
@@ -37,14 +38,14 @@ void UGA_ADS::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGa
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	if (!Character)
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Character was NULL when trying to activate ADS ability. Called EndAbility()"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Character was NULL when trying to activate ADS ability. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	UAbilityTask_WaitInputRelease* InputReleasedTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
 	if (!InputReleasedTask)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate ADS ability. Called EndAbility()"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() InputReleasedTask was NULL when trying to activate ADS ability. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
@@ -62,7 +63,7 @@ void UGA_ADS::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGa
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("ADSEffectTSub TSubclassOf empty in %s"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("ADSEffectTSub TSubclassOf empty in %s"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 
@@ -107,12 +108,12 @@ void UGA_ADS::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGamepla
 		}
 		else
 		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() Couldn't call Character->StopADSing() or remove ADSEffectActiveHandle because Character* was NULL"), *FString(__FUNCTION__));
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() Couldn't call Character->StopADSing() or remove ADSEffectActiveHandle because Character* was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 		}
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo was NULL when trying to remove ADSEffectActiveHande and when trying to call StopADSing on the character"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo was NULL when trying to remove ADSEffectActiveHande and when trying to call StopADSing on the character"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 

@@ -6,6 +6,7 @@
 #include "Components/SpotLightComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/DecalComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Materials/MaterialInstance.h"
 #include "Materials/MaterialInterface.h"
 #include "Net/UnrealNetwork.h"
@@ -13,12 +14,16 @@
 AFPSTemplate_LightLaserBase::AFPSTemplate_LightLaserBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	Root = CreateDefaultSubobject<USceneComponent>(TEXT("RootSceneComponent"));
+	RootComponent = Root;
 	
 	SpotLightComponent = CreateDefaultSubobject<USpotLightComponent>(TEXT("SpotLightComponent"));
 	SpotLightComponent->SetVisibility(false);
-
+	
 	LaserMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LaserMeshComponent"));
 	LaserMesh->SetVisibility(false);
+	LaserMesh->CastShadow = false;
 	LaserMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	LaserDecalComponent = CreateDefaultSubobject<UDecalComponent>(TEXT("DecalComponent"));
@@ -31,8 +36,8 @@ AFPSTemplate_LightLaserBase::AFPSTemplate_LightLaserBase()
 	CollisionChannel = ECollisionChannel::ECC_Visibility;
 	MaxLaserDistance = 10000.0f;
 
-	LaserSocket = NAME_None;
-	AimSocket = NAME_None;
+	LaserSocket = FName("S_Laser");
+	AimSocket = FName("S_Aim");
 	
 	bLightOn = false;
 	bLaserOn = false;
@@ -47,7 +52,7 @@ void AFPSTemplate_LightLaserBase::GetLifetimeReplicatedProps(TArray<FLifetimePro
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AFPSTemplate_LightLaserBase, bLightOn);
 	DOREPLIFETIME(AFPSTemplate_LightLaserBase, bLaserOn);
-	DOREPLIFETIME(AFPSTemplate_LightLaserBase, LaserColorIndex);
+	DOREPLIFETIME_CONDITION(AFPSTemplate_LightLaserBase, LaserColorIndex, COND_SkipOwner);
 }
 
 void AFPSTemplate_LightLaserBase::PostInitProperties()
@@ -56,6 +61,42 @@ void AFPSTemplate_LightLaserBase::PostInitProperties()
 	if (!bIsLaser)
 	{
 		PrimaryActorTick.bCanEverTick = false;
+	}
+}
+
+void AFPSTemplate_LightLaserBase::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	if (IsValid(PartMesh) && bLaserOn)
+	{
+		if (PartMesh->DoesSocketExist(LaserSocket))
+		{
+			FVector Start = PartMesh->GetSocketLocation(LaserSocket);
+			FRotator Rot = PartMesh->GetSocketRotation(LaserSocket);
+			FVector End = Start + Rot.Vector() * MaxLaserDistance;
+        
+			FHitResult HitResult;
+			FCollisionQueryParams Params;
+			Params.AddIgnoredActor(this);
+    
+			if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, CollisionChannel, Params))
+			{
+				if (LaserDecalComponent)
+				{
+					LaserDecalComponent->SetVisibility(true);
+					FRotator NormalizedRotator = UKismetMathLibrary::MakeRotFromX(HitResult.Normal);
+					LaserDecalComponent->SetWorldLocationAndRotation(HitResult.Location, NormalizedRotator);
+				}
+				LaserMesh->SetWorldScale3D(FVector(1.0f, HitResult.Distance / 20.0f, 1.0f));
+			}
+			else
+			{
+				if (LaserDecalComponent)
+				{
+					LaserDecalComponent->SetVisibility(false);
+				}
+			}
+		}
 	}
 }
 
@@ -73,6 +114,17 @@ void AFPSTemplate_LightLaserBase::BeginPlay()
 	if (LaserMaterials.Num())
 	{
 		SetLaserColor(LaserColorIndex);
+	}
+}
+
+void AFPSTemplate_LightLaserBase::SetupPartMesh()
+{
+	Super::SetupPartMesh();
+	if (IsValid(PartMesh))
+	{
+		LaserMesh->AttachToComponent(PartMesh, FAttachmentTransformRules::KeepRelativeTransform);
+		SpotLightComponent->AttachToComponent(PartMesh, FAttachmentTransformRules::KeepRelativeTransform);
+		LaserDecalComponent->AttachToComponent(PartMesh, FAttachmentTransformRules::KeepRelativeTransform);
 	}
 }
 

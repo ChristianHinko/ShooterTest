@@ -2,8 +2,8 @@
 
 
 #include "FirearmParts/FPSTemplate_Handguard.h"
-#include "FPSTemplateFirearm.h"
-#include "FPSTemplate_PartComponent.h"
+#include "Actors/FPSTemplateFirearm.h"
+#include "Components/FPSTemplate_PartComponent.h"
 #include "FirearmParts/FPSTemplate_ForwardGrip.h"
 
 #include "Components/StaticMeshComponent.h"
@@ -31,39 +31,64 @@ void AFPSTemplate_Handguard::BeginPlay()
 	Super::BeginPlay();
 }
 
-FTransform AFPSTemplate_Handguard::GetGripTransform() const
+void AFPSTemplate_Handguard::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	for (UFPSTemplate_PartComponent* PartComponent : PartComponents)
-	{
-		if (PartComponent)
-		{
-			AFPSTemplate_ForwardGrip* ForwardGrip = PartComponent->GetPart<AFPSTemplate_ForwardGrip>();
-			if (IsValid(ForwardGrip))
-			{
-				return ForwardGrip->GetGripTransform();
-			}
-		}
-	}
-	return PartMesh->GetSocketTransform(HandGripSocket);
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AFPSTemplate_Handguard, ForwardGrip);
 }
 
-EFirearmGripType AFPSTemplate_Handguard::GetGripType() const
+UAnimSequence* AFPSTemplate_Handguard::GetGripAnimation() const
 {
-	for (UFPSTemplate_PartComponent* PartComponent : PartComponents)
+	if (IsValid(ForwardGrip))
 	{
-		if (PartComponent)
-		{
-			AFPSTemplate_ForwardGrip* ForwardGrip = PartComponent->GetPart<AFPSTemplate_ForwardGrip>();
-			if (IsValid(ForwardGrip))
-			{
-				return ForwardGrip->GetGripType();
-			}
-		}
+		return ForwardGrip->GetGripAnimation();
 	}
-	return EFirearmGripType::None;
+	return GripAnimation;
+}
+
+FTransform AFPSTemplate_Handguard::GetGripTransform() const
+{
+	if (IsValid(ForwardGrip))
+	{
+		return ForwardGrip->GetGripTransform();
+	}
+	
+	return IsValid(PartMesh) ? PartMesh->GetSocketTransform(HandGripSocket) : FTransform();
 }
 
 FTransform AFPSTemplate_Handguard::GetAimSocketTransform() const
 {
-	return PartMesh->GetSocketTransform(AimSocket);
+	return IsValid(PartMesh) ? PartMesh->GetSocketTransform(AimSocket) : FTransform();
+}
+
+void AFPSTemplate_Handguard::CacheParts()
+{
+	for (UFPSTemplate_PartComponent* PartComponent : PartComponents)
+	{
+		if (PartComponent)
+		{
+			if (IsValid(PartComponent->GetPart()))
+			{
+				AFPSTemplate_ForwardGrip* Grip = PartComponent->GetPart<AFPSTemplate_ForwardGrip>();
+				if (IsValid(Grip))
+				{
+					ForwardGrip = Grip;
+				}
+				else
+				{
+					for (UFPSTemplate_PartComponent* PartPartComponent : PartComponent->GetPart()->GetPartComponents())
+					{
+						if (PartPartComponent)
+						{
+							Grip = PartPartComponent->GetPart<AFPSTemplate_ForwardGrip>();
+							if (IsValid(Grip))
+							{
+								ForwardGrip = Grip;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }

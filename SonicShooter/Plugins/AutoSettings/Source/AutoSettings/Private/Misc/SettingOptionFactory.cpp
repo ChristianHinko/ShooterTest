@@ -1,7 +1,7 @@
 // Copyright Sam Bonifacio. All Rights Reserved.
 
 #include "Misc/SettingOptionFactory.h"
-#include "Misc/AutoSettingsLogs.h"
+#include "AutoSettingsLogs.h"
 
 TArray<FSettingOption> USettingOptionFactory::ConstructOptions_Implementation() const
 {

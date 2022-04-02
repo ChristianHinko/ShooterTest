@@ -9,10 +9,12 @@
 
 
 
-AHUD_Shooter::AHUD_Shooter()
+AHUD_Shooter::AHUD_Shooter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 
 }
+
 void AHUD_Shooter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
@@ -21,12 +23,12 @@ void AHUD_Shooter::PostInitializeComponents()
 	// NOTE: player state isnt valid right away (but we have event for when it is now in base ASSEUserWidget)
 
 	HealthWidget = UWidgetBlueprintLibrary::Create(this, HealthWidgetTSub, GetOwningPlayerController());
-	if (HealthWidget)
+	if (IsValid(HealthWidget))
 	{
-		HealthWidget->AddToViewport();
+		HealthWidget->AddToPlayerScreen();
 	}
 	else
 	{
-		UE_LOG(LogUI, Error, TEXT("%s(): Failed to create HealthWidget. Ensure to fill out TSubs in BP"), *FString(__FUNCTION__));
+		UE_LOG(LogUI, Error, TEXT("%s(): Failed to create HealthWidget. Ensure to fill out TSubs in BP"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 }

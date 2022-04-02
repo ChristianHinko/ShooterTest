@@ -5,7 +5,8 @@
 
 #include "Character/SSCharacter.h"
 #include "Character/SSCharacterMovementComponent.h"
-#include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -14,13 +15,12 @@
 UGA_CharacterRun::UGA_CharacterRun()
 {
 	AbilityInputID = EAbilityInputID::Run;
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Movement.Run")));
+	AbilityTags.AddTag(Tag_RunAbility);
 
 
-	FGameplayTag RunDisabledTag = FGameplayTag::RequestGameplayTag("Character.Movement.RunDisabled");
-	ActivationBlockedTags.AddTag(RunDisabledTag);	// This isn't the singular thing stopping you from running. The CMC is what listens for the presence of the RunDisabledTag and blocks running. This check just saves an ability activation.
+	ActivationBlockedTags.AddTag(Tag_RunDisabled);	// This isn't the singular thing stopping you from running. The CMC is what listens for the presence of the RunDisabledTag and blocks running. This check just saves an ability activation.
 
-	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Movement.Crouch"));
+	CancelAbilitiesWithTag.AddTag(Tag_CrouchAbility);
 }
 
 
@@ -42,17 +42,17 @@ void UGA_CharacterRun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, c
 
 
 	SSCharacter = Cast<ASSCharacter>(AvatarActor);
-	if (SSCharacter)
+	if (SSCharacter.IsValid())
 	{
 		CMC = SSCharacter->GetSSCharacterMovementComponent();
-		if (!CMC)
+		if (!CMC.IsValid())
 		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetSSCharacterMovementComponent was NULL"), *FString(__FUNCTION__));
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetSSCharacterMovementComponent was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 		}
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 }
 
@@ -64,20 +64,20 @@ bool UGA_CharacterRun::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 		return false;
 	}
 
-	if (!SSCharacter)
+	if (!SSCharacter.IsValid())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
-	if (!CMC)
+	if (!CMC.IsValid())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
 	if (CMC->CanRunInCurrentState() == false)
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Was not able to run in current state when trying to activate ability. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Was not able to run in current state when trying to activate ability. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 

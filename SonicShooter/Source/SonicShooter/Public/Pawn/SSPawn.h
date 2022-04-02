@@ -3,15 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Pawn/AbilitySystemSetupPawn.h"
+#include "Pawn/P_AbilitySystemSetupPawn.h"
 
 #include "SSPawn.generated.h"
-
-
-class USkeletalMeshComponent;
-class UCameraComponent;
-class USpringArmComponent;
-class USSCharacterMovementComponent;
 
 
 
@@ -19,7 +13,7 @@ class USSCharacterMovementComponent;
  * Base pawn class for all pawns to inherit from (besides pawns which inherit from the base pawn)
  */
 UCLASS()
-class SONICSHOOTER_API ASSPawn : public AAbilitySystemSetupPawn
+class SONICSHOOTER_API ASSPawn : public AP_AbilitySystemSetupPawn
 {
 	GENERATED_BODY()
 

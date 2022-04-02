@@ -3,12 +3,12 @@
 
 #include "Character/Abilities/Interact/GA_CharacterInteract.h"
 
-#include "Character/ShooterCharacter.h"
+#include "Character/C_Shooter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
-#include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/LogCategories.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
-#include "Character\AbilityTasks\AT_DurationInteractCallbacks.h"
-#include "ActorComponents/InteractorComponent.h"
+#include "Character/AbilityTasks/AT_DurationInteractCallbacks.h"
+#include "Subobjects/ActorComponents/AC_Interactor.h"
 
 UGA_CharacterInteract::UGA_CharacterInteract()
 {
@@ -30,10 +30,10 @@ void UGA_CharacterInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorIn
 		return;
 	}
 
-	ShooterCharacter = Cast<AShooterCharacter>(ActorInfo->AvatarActor.Get());
-	if (!ShooterCharacter)
+	ShooterCharacter = Cast<AC_Shooter>(ActorInfo->AvatarActor.Get());
+	if (!ShooterCharacter.IsValid())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
 }
@@ -44,24 +44,24 @@ bool UGA_CharacterInteract::CanActivateAbility(const FGameplayAbilitySpecHandle 
 	{
 		return false;
 	}
-	if (!ShooterCharacter)
+	if (!ShooterCharacter.IsValid())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate interact ability"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL when trying to activate interact ability"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
-	if (!ShooterCharacter->Interactor)
+	if (!ShooterCharacter->GetInteractorComponent())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character's InteractorComponent was NULL when trying to activate interact ability"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character's InteractorComponent was NULL when trying to activate interact ability"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
-	if (!ShooterCharacter->Interactor->CurrentPrioritizedInteractable)
+	if (!ShooterCharacter->GetInteractorComponent()->CurrentPrioritizedInteractable)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Detected nothing to interact with when activating interact ability. Not activating"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Detected nothing to interact with when activating interact ability. Not activating"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
-	if (!ShooterCharacter->Interactor->CurrentPrioritizedInteractable->GetCanCurrentlyBeInteractedWith())
+	if (!ShooterCharacter->GetInteractorComponent()->CurrentPrioritizedInteractable->GetCanCurrentlyBeInteractedWith())
 	{
-		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Couldn't interact because bCanCurrentlyBeInteractedWith was false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Log, TEXT("%s() Couldn't interact because bCanCurrentlyBeInteractedWith was false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 	
@@ -73,18 +73,18 @@ void UGA_CharacterInteract::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 
-	ShooterCharacter = Cast<AShooterCharacter>(ActorInfo->AvatarActor.Get());
-	if (!ShooterCharacter)
+	ShooterCharacter = Cast<AC_Shooter>(ActorInfo->AvatarActor.Get());
+	if (!ShooterCharacter.IsValid())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Cast to ShooterCharacter was NULL when activating an interact ability"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Cast to ShooterCharacter was NULL when activating an interact ability"), ANSI_TO_TCHAR(__FUNCTION__));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 
-	Interactable = ShooterCharacter->Interactor->CurrentPrioritizedInteractable;
+	Interactable = ShooterCharacter->GetInteractorComponent()->CurrentPrioritizedInteractable;
 	if (!Interactable)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Server detected nothing to interact with when activating interact duration ability. This should be an invalid state. Ending"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Server detected nothing to interact with when activating interact duration ability. This should be an invalid state. Ending"), ANSI_TO_TCHAR(__FUNCTION__));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}

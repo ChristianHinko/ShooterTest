@@ -45,10 +45,7 @@ void UArcInventoryComponent_Bag::UpdateBagInventorySlots()
 	{
 		return;
 	}
-
-	FGameplayTag BagTag = GetDefault<UArcInventoryDeveloperSettings>()->BagItemSlotTag;
-
-
+		
 	//First, Count how many bag slots we have
 	TArray<FArcInventoryItemSlotReference> Slots;
 	Query_GetAllBagSlots(Slots);
@@ -61,7 +58,7 @@ void UArcInventoryComponent_Bag::UpdateBagInventorySlots()
 	{
 		for (int32 i = 0; i < BagSlotsToCreate; i++)
 		{
-			CreateInventorySlot(BagTag.GetSingleTagContainer(), nullptr);
+			CreateInventorySlot(FArcInvBagSlotTag.GetTag().GetSingleTagContainer(), nullptr);
 		}
 	}
 	else if(BagSlotsToCreate < 0)
@@ -89,7 +86,6 @@ void UArcInventoryComponent_Bag::OnInventorySizeAttributeChange(const FOnAttribu
 
 bool UArcInventoryComponent_Bag::Query_GetAllBagSlots(TArray<FArcInventoryItemSlotReference>& OutSlotRefs)
 {
-	FGameplayTag BagTag = GetDefault<UArcInventoryDeveloperSettings>()->BagItemSlotTag;
-	return Query_GetAllSlots(FArcInventoryQuery::QuerySlotMatchingTag(BagTag), OutSlotRefs);
+	return Query_GetAllSlots(FArcInventoryQuery::QuerySlotMatchingTag(FArcInvBagSlotTag), OutSlotRefs);
 }
 

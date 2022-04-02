@@ -1,7 +1,7 @@
 // Copyright Sam Bonifacio. All Rights Reserved.
 
 #include "Misc/SettingValueMask.h"
-#include "Misc/AutoSettingsLogs.h"
+#include "AutoSettingsLogs.h"
 
 FString USettingValueMask::MaskValue_Implementation(const FString& ConsoleValue) const
 {

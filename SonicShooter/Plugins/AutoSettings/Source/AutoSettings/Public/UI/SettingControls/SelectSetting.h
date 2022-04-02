@@ -36,6 +36,10 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, Category = "Select Setting")
 	void UpdateOptions(const TArray<FSettingOption>& InOptions);
 
+	bool HasOptionWithValue(FString Value) const;
+
+	bool HasOptionWithLabel(FText Label) const;
+	
 	FSettingOption GetOptionByValue(FString Value) const;
 
 	FSettingOption GetOptionByLabel(FText Label) const;

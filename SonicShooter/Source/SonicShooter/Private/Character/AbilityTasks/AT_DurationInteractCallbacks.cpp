@@ -3,9 +3,9 @@
 
 #include "Character\AbilityTasks\AT_DurationInteractCallbacks.h"
 
-#include "Character/ShooterCharacter.h"
+#include "Character/C_Shooter.h"
 #include "Utilities/LogCategories.h"
-#include "ActorComponents/InteractorComponent.h"
+#include "Subobjects/ActorComponents/AC_Interactor.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -16,21 +16,21 @@ UAT_DurationInteractCallbacks::UAT_DurationInteractCallbacks(const FObjectInitia
 
 }
 
-UAT_DurationInteractCallbacks* UAT_DurationInteractCallbacks::DurationInteractCallbacks(UGameplayAbility* OwningAbility, AShooterCharacter* ShooterCharacter, IInteractable*& InInteract)
+UAT_DurationInteractCallbacks* UAT_DurationInteractCallbacks::DurationInteractCallbacks(UGameplayAbility* OwningAbility, AC_Shooter* ShooterCharacter, IInteractableInterface*& InInteract)
 {
 	if (!InInteract || !OwningAbility || !ShooterCharacter)
 	{
-		UE_LOG(LogGameplayAbilityTask, Error, TEXT("%s() InInteract, OwningAbility, or ShooterCharacter was NULL when trying activate task"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbilityTask, Error, TEXT("%s() InInteract, OwningAbility, or ShooterCharacter was NULL when trying activate task"), ANSI_TO_TCHAR(__FUNCTION__));
 		return nullptr;
 	}
 
 	UAT_DurationInteractCallbacks* MyObj = NewAbilityTask<UAT_DurationInteractCallbacks>(OwningAbility);
 	MyObj->ShooterCharacter = ShooterCharacter;
 	MyObj->Interactable = InInteract;
-	MyObj->duration = InInteract->interactDuration;
-	MyObj->tickInterval = InInteract->tickInterval;
-	MyObj->skipFirstTick = InInteract->bShouldSkipFirstTick;
-	MyObj->shouldCallTickEvent = InInteract->bShouldDurationInteractableTick;
+	MyObj->duration = InInteract->GetInteractDuration();
+	MyObj->tickInterval = InInteract->GetTickInterval();
+	MyObj->skipFirstTick = InInteract->GetShouldSkipFirstTick();
+	MyObj->shouldCallTickEvent = InInteract->GetShouldDurationInteractableTick();
 
 	return MyObj;
 }
@@ -42,7 +42,7 @@ void UAT_DurationInteractCallbacks::Activate()
 	ENetRole role = ShooterCharacter->GetLocalRole();
 	if (Interactable->GetDetectType() == EDetectType::DETECTTYPE_Overlapped)
 	{
-		OnPawnLeftOverlapInteractableDelegateHandle = ShooterCharacter->Interactor->OnElementRemovedFromFrameOverlapInteractablesStack.AddUObject(this, &UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable);
+		OnPawnLeftOverlapInteractableDelegateHandle = ShooterCharacter->GetInteractorComponent()->OnElementRemovedFromFrameOverlapInteractablesStack.AddUObject(this, &UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable);
 	}
 	
 }
@@ -51,17 +51,17 @@ void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 {
 	if (currentTime >= duration)
 	{
-		ShooterCharacter->Interactor->OnElementRemovedFromFrameOverlapInteractablesStack.Clear();	// Only want 1 end ability callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
+		ShooterCharacter->GetInteractorComponent()->OnElementRemovedFromFrameOverlapInteractablesStack.Clear();	// Only want 1 end ability callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
 		OnSuccessfulInteractDelegate.Broadcast(currentTime);
 		RemoveAllDelegates();
 		return;
 	}
 
-	if (Interactable != ShooterCharacter->Interactor->CurrentPrioritizedInteractable)
+	if (Interactable != ShooterCharacter->GetInteractorComponent()->CurrentPrioritizedInteractable)
 	{
 		if (Interactable->GetDetectType() == EDetectType::DETECTTYPE_Sweeped)		// If the character's Interaction sweep doesn't detect the same Interactable we started interacting with
 		{
-			ShooterCharacter->Interactor->OnElementRemovedFromFrameOverlapInteractablesStack.Remove(OnPawnLeftOverlapInteractableDelegateHandle);	// Only want 1 end ability callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
+			ShooterCharacter->GetInteractorComponent()->OnElementRemovedFromFrameOverlapInteractablesStack.Remove(OnPawnLeftOverlapInteractableDelegateHandle);	// Only want 1 end ability callback being triggered so take away the possibility of 2 being triggered. EndAbility() should only be called once now :D
 			OnInteractionSweepMissDelegate.Broadcast(currentTime);
 			RemoveAllDelegates();
 			return;
@@ -96,7 +96,7 @@ void UAT_DurationInteractCallbacks::TickTask(float DeltaTime)
 	////
 }
 
-void UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable(IInteractable*& InteractableThePawnLeft)
+void UAT_DurationInteractCallbacks::OnPawnLeftOverlapInteractable(IInteractableInterface*& InteractableThePawnLeft)
 {
 	ENetRole role = ShooterCharacter->GetLocalRole();
 	if (Interactable == InteractableThePawnLeft)

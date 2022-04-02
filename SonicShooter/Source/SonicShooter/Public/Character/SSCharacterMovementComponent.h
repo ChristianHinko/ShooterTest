@@ -3,17 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystemComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameplayTags/Classes/GameplayTagContainer.h"
 #include "Console/CVarChangeListenerManager.h"
 
 #include "SSCharacterMovementComponent.generated.h"
 
 
 class ASSCharacter;
+class UAbilitySystemComponent;
 class UAS_CharacterMovement;
-class UAS_Stamina;
-class IAbilitySystemInterface;
 
 
 
@@ -22,17 +21,17 @@ DECLARE_MULTICAST_DELEGATE(FCharacterMovementStateNotify);
 
 
 /**
- * Custom movement modes. used when MovementMode == MOVE_Custom
+ * Custom movement modes. Used when MovementMode == MOVE_Custom
  */
 UENUM()
-enum ECustomMovementMode																		// should we make this an enum class?
+enum class ECustomMovementMode : uint8
 {
 	/** None (custom movement is disabled). */
-	CMOVE_None						UMETA(DisplayName = "None"),
+	MOVE_None						UMETA(DisplayName = "None"),
 	/** Walking on a surface with the ability to walk up any slope angle */
-	CMOVE_InfiniteAngleWalking		UMETA(DisplayName = "InfiniteAngleWalking"),
+	MOVE_InfiniteAngleWalking		UMETA(DisplayName = "Infinite Angle Walking"),
 
-	CMOVE_MAX						UMETA(Hidden)
+	MOVE_MAX						UMETA(Hidden)
 };
 
 /**
@@ -113,11 +112,9 @@ class SONICSHOOTER_API USSCharacterMovementComponent : public UCharacterMovement
 {
 	GENERATED_BODY()
 
-
-		friend class FSavedMove_SSCharacter;
-
+	friend class FSSSavedMove_Character;
 public:
-	USSCharacterMovementComponent();
+	USSCharacterMovementComponent(const FObjectInitializer& ObjectInitializer);
 
 
 	bool GetToggleCrouchEnabled() const { return bToggleCrouchEnabled; }
@@ -167,15 +164,15 @@ public:
 	 * If negative, represents the timestamp the moment you stopped wanting to do something.
 	 * And, I guess, if zero, null which is kind of cool.
 	 */
-	float timestampWantsToJump;
+	float TimestampWantsToJump;
 	FCharacterMovementWantsToChanged OnWantsToJumpChanged;
-	float timestampWantsToCrouch;
+	float TimestampWantsToCrouch;
 	FCharacterMovementWantsToChanged OnWantsToCrouchChanged;
-	float timestampWantsToRun;
+	float TimestampWantsToRun;
 	FCharacterMovementWantsToChanged OnWantsToRunChanged;
 
 
-	float currentTimeSeconds;
+	float CurrentTimeSeconds;
 	void BroadcastMovementDelegates();
 
 
@@ -209,38 +206,38 @@ public:
 	FCharacterMovementStateNotify OnStoppedFalling;
 
 
+	//BEGIN UCharacterMovementComponent Interface
+	virtual FString GetMovementName() const override;
+	virtual float GetMaxSpeed() const override;
+	virtual float GetMaxAcceleration() const override;
+	virtual float GetMaxBrakingDeceleration() const override;
+	//END UCharacterMovementComponent Interface
+
 protected:
-	//	Don't know for sure if this is the best event to use but works for now
 	virtual void InitializeComponent() override;
 
-	IAbilitySystemInterface* AbilitySystemOwner;
 	UPROPERTY()
-		ASSCharacter* SSCharacterOwner;
+		TWeakObjectPtr<ASSCharacter> SSCharacterOwner;
 	UPROPERTY()
-		UAS_CharacterMovement* CharacterMovementAttributeSet;
+		TWeakObjectPtr<UAbilitySystemComponent> OwnerASC;
 	UPROPERTY()
-		UAS_Stamina* StaminaAttributeSet;
+		TWeakObjectPtr<UAS_CharacterMovement> CharacterMovementAttributeSet;
 
-	UFUNCTION()
-		virtual void OnOwningCharacterAbilitySystemReady();
+	virtual void OnAbilitySystemSetUpPreInitialized(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC);
+	virtual void OnAbilitySystemSetUp(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC);
 
-	//BEGIN CMC Interface
+	//BEGIN UCharacterMovementComponent Interface
+	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
 	virtual void UpdateFromCompressedFlags(uint8 Flags) override;
 	virtual void UpdateCharacterStateBeforeMovement(float DeltaSeconds) override;
 	virtual void OnMovementUpdated(float deltaTime, const FVector& OldLocation, const FVector& OldVelocity) override;
 	virtual void UpdateCharacterStateAfterMovement(float DeltaSeconds) override;
-	virtual float GetMaxSpeed() const override;
-	virtual float GetMaxAcceleration() const override;
-	virtual float GetMaxBrakingDeceleration() const override;
-	virtual FString GetMovementName() const override;
-	virtual void SetMovementMode(EMovementMode NewMovementMode, uint8 NewCustomMode = 0) override;
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 	virtual void PhysCustom(float deltaTime, int32 Iterations) override;
-	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override; // DO NOT UTILIZE THIS EVENT FOR MOVEMENT
-	//END CMC Interface
+	//END UCharacterMovementComponent Interface
 
-	// A new thing added to the engine TODO: look into this and see if we need to fix anything because of this
+	// A new thing added to the engine NOTE: look into this and see if we need to fix anything because of this
 	virtual void ServerMove_PerformMovement(const FCharacterNetworkMoveData& MoveData) override;
 
 
@@ -248,12 +245,17 @@ protected:
 	uint8 bWantsToRun : 1;
 #pragma endregion
 
-	virtual void OnStaminaFullyDrained();
-
 	/** WARNING: This check does not work on dedicated server */
 	bool IsMovingForward(/*float degreeTolerance = 45.f*/) const;
 
+
+	/**
+	 * Tweak the user's move desires before ticking
+	 */
 	virtual void TweakCompressedFlagsBeforeTick();
+
+	/** For calculating whether we WANT to run or not */
+	virtual void TweakWantsToRunBeforeTick(bool& outTweakedWantsToRun) const;
 
 
 	//// This is a good event for calling your custom client adjustment RPCs
@@ -274,9 +276,6 @@ protected:
 	uint8 bCrouchDisabled : 1;
 #pragma endregion
 
-
-	TEnumAsByte<ECustomMovementMode> CustomMovementMode;
-
 #pragma region Custom Movement Physics
 	virtual void PhysInfiniteAngleWalking(float deltaTime, int32 Iterations);
 #pragma endregion
@@ -295,18 +294,15 @@ protected:
 
 private:
 	FRotator PreviousRotation;
-
 };
 
 
-#define FLAG_WantsToRun FSavedMove_SSCharacter::FLAG_Custom_0
+#define FLAG_WantsToRun FSavedMove_Character::CompressedFlags::FLAG_Custom_0
 
-class FSavedMove_SSCharacter : public FSavedMove_Character
+class FSSSavedMove_Character : public FSavedMove_Character
 {
-public:
 	typedef FSavedMove_Character Super;
-
-
+public:
 	virtual void Clear() override;
 	virtual void PrepMoveFor(ACharacter* Character) override;
 	virtual void SetMoveFor(ACharacter* Character, float InDeltaTime, FVector const& NewAccel, FNetworkPredictionData_Client_Character& ClientData) override;
@@ -315,15 +311,16 @@ public:
 
 protected:
 	uint8 bSavedWantsToRun : 1;
+
 };
 
-class FNetworkPredictionData_Client_SSCharacter : public FNetworkPredictionData_Client_Character
+class FSSNetworkPredictionData_Client_Character : public FNetworkPredictionData_Client_Character
 {
-public:
 	typedef FNetworkPredictionData_Client_Character Super;
+public:
+	FSSNetworkPredictionData_Client_Character(const UCharacterMovementComponent& ClientMovement);
 
-
-	FNetworkPredictionData_Client_SSCharacter(const UCharacterMovementComponent& ClientMovement);
 
 	virtual FSavedMovePtr AllocateNewMove() override;
+
 };

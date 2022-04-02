@@ -12,8 +12,9 @@ class UUW_Health;
 class UUW_ActiveItem;
 
 
+
 /**
- * ShooterCharacter specific HUD
+ * Shooter specific HUD
  */
 UCLASS()
 class SONICSHOOTER_API AHUD_Shooter : public ASSHUD
@@ -21,8 +22,7 @@ class SONICSHOOTER_API AHUD_Shooter : public ASSHUD
 	GENERATED_BODY()
 
 public:
-	AHUD_Shooter();
-
+	AHUD_Shooter(const FObjectInitializer& ObjectInitializer);
 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
@@ -30,9 +30,11 @@ public:
 	UPROPERTY()
 		UUserWidget* HealthWidget;
 
+	// Weak Object Ptr because this is purely meant to point to Item Stack's widget - we don't want any impact on its existence
 	UPROPERTY()
-		UUW_ActiveItem* CurrentActiveItemWidget;
+		TWeakObjectPtr<UUW_ActiveItem> CurrentActiveItemWidget;
 
 protected:
 	virtual void PostInitializeComponents() override;
+
 };

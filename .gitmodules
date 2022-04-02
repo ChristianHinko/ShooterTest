@@ -1,6 +1,6 @@
 [submodule "SonicShooter/Plugins/AbilitySystemSetup"]
 	path = SonicShooter/Plugins/AbilitySystemSetup
-	url = https://github.com/include-iostream/AbilitySystemSetup.git
+	url = https://github.com/ChristianHinko/AbilitySystemSetup.git
 [submodule "SonicShooter/Plugins/HelperLibraries"]
 	path = SonicShooter/Plugins/HelperLibraries
 	url = https://github.com/brian2524/HelperLibraries.git
@@ -9,7 +9,10 @@
 	url = https://github.com/brian2524/PropertyWrapper.git
 [submodule "SonicShooter/Plugins/PrototypeAssets"]
 	path = SonicShooter/Plugins/PrototypeAssets
-	url = https://github.com/include-iostream/PrototypeAssets.git
+	url = https://github.com/ChristianHinko/PrototypeAssets.git
 [submodule "SonicShooter/Plugins/AbilitySystemSetupExtras"]
 	path = SonicShooter/Plugins/AbilitySystemSetupExtras
 	url = https://github.com/brian2524/AbilitySystemSetupExtras.git
+[submodule "SonicShooter/Plugins/MaterialFunctionLibrary"]
+	path = SonicShooter/Plugins/MaterialFunctionLibrary
+	url = https://github.com/brian2524/MaterialFunctionLibrary.git

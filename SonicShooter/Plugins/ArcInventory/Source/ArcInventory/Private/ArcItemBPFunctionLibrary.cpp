@@ -183,6 +183,11 @@ bool UArcItemBPFunctionLibrary::EqualEqual_FArcInventoryItemSlotReference(const 
 	return ItemSlotRef == OtherItemSlotRef;
 }
 
+UArcInventoryComponent* UArcItemBPFunctionLibrary::GetInventoryFromSlot(const FArcInventoryItemSlotReference& ItemSlotRef)
+{
+	return ItemSlotRef.ParentInventory;
+}
+
 bool UArcItemBPFunctionLibrary::IsValidInventoryQuery(const FArcInventoryQuery& Query)
 {
 	return Query.IsValid();
@@ -255,65 +260,6 @@ bool UArcItemBPFunctionLibrary::ASCRemoveInstancedAttributeSet(UAbilitySystemCom
 	ASC->bIsNetDirty = true;
 
 	return true;
-}
-
-namespace FArcInventoryStatics
-{
-	void ConvertAttributeData(FArcItemDefinition_AbilityInfo& AbilityInfo)
-	{
-		if (AbilityInfo.AttributeSets.Num() <= 0)
-		{
-			return;
-		}
-
-		AbilityInfo.AttributeInitalizers.Empty();
-
-		for (int32 i = 0; i < AbilityInfo.AttributeSets.Num(); i++)		
-		{
-			UAttributeSet* AttributeSet = AbilityInfo.AttributeSets[i];
-			if (!IsValid(AttributeSet))
-			{
-				continue;
-			}
-
-			for (TFieldIterator<FProperty> PropertyIt(AttributeSet->GetClass(), EFieldIteratorFlags::ExcludeSuper); PropertyIt; ++PropertyIt)
-			{
-				FGameplayAttribute Attribute(*PropertyIt);
-				if (!Attribute.IsValid())
-				{
-					continue;
-				}
-
-				if (Attribute.GetNumericValue(AttributeSet) != Attribute.GetNumericValue(AttributeSet->GetClass()->GetDefaultObject<UAttributeSet>()))
-				{
-					AbilityInfo.AttributeInitalizers.Add(Attribute, Attribute.GetNumericValue(AttributeSet));
-				}
-			}
-
-			AbilityInfo.AttributeSetsToAdd.Add(AttributeSet->GetClass());
-		}
-
-		AbilityInfo.AttributeSets.Empty();
-	}
-}
-
-void UArcItemBPFunctionLibrary::ConvertOldAttributeModelToNew(TSubclassOf<UArcItemDefinition_Equipment> EquipmentItemDef)
-{
-	if (!IsValid(EquipmentItemDef))
-	{
-
-		return;
-	}
-
-	UArcItemDefinition_Equipment* ItemDefCDO = EquipmentItemDef.GetDefaultObject();
-
-	FArcInventoryStatics::ConvertAttributeData(ItemDefCDO->EquippedItemAbilityInfo);
-
-	if (UArcItemDefinition_Active* ActiveItemDefCDO = Cast<UArcItemDefinition_Active>(ItemDefCDO))
-	{
-		FArcInventoryStatics::ConvertAttributeData(ActiveItemDefCDO->ActiveItemAbilityInfo);
-	}
-	
 }
 
 float UArcItemBPFunctionLibrary::GetActiveAttributeFromItemSlot(const FArcInventoryItemSlotReference& ItemSlotRef, FGameplayAttribute Attribute, bool& bSuccessfullyFoundAttribute)

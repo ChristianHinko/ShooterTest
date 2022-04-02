@@ -4,7 +4,8 @@
 #include "Character/Abilities/GA_CharacterJump.h"
 
 #include "Character/SSCharacter.h"
-#include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
 #include "Character/SSCharacterMovementComponent.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -14,11 +15,11 @@
 UGA_CharacterJump::UGA_CharacterJump()
 {
 	AbilityInputID = EAbilityInputID::Jump;
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Movement.Jump")));
+	AbilityTags.AddTag(Tag_JumpAbility);
 
 
-	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Movement.Crouch"));
-	CancelAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag("Ability.Movement.Run"));
+	CancelAbilitiesWithTag.AddTag(Tag_CrouchAbility);
+	CancelAbilitiesWithTag.AddTag(Tag_RunAbility);
 }
 
 
@@ -40,17 +41,17 @@ void UGA_CharacterJump::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, 
 
 
 	SSCharacter = Cast<ASSCharacter>(AvatarActor);
-	if (SSCharacter)
+	if (SSCharacter.IsValid())
 	{
 		CMC = SSCharacter->GetSSCharacterMovementComponent();
-		if (!CMC)
+		if (!CMC.IsValid())
 		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetCharacterMovement was NULL"), *FString(__FUNCTION__));
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetCharacterMovement was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 		}
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 }
 
@@ -61,20 +62,20 @@ bool UGA_CharacterJump::CanActivateAbility(const FGameplayAbilitySpecHandle Hand
 		return false;
 	}
 
-	if (!SSCharacter)
+	if (!SSCharacter.IsValid())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
-	if (!CMC)
+	if (!CMC.IsValid())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
 	if (CMC->CanAttemptJump() == false)
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Was not able to jump when trying to activate ability. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Was not able to jump when trying to activate ability. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
@@ -101,7 +102,7 @@ void UGA_CharacterJump::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("JumpEffectTSub empty in %s - please fill out Character Jump ability blueprint"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("JumpEffectTSub empty in %s - please fill out Character Jump ability blueprint"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 	CMC->DoJump(false);

@@ -3,12 +3,13 @@
 
 #include "AbilitySystem/SSAbilitySystemGlobals.h"
 
-#include "AbilitySystem/SSGameplayAbilityTypes.h"
-#include "AbilitySystem/SSGameplayEffectTypes.h"
+#include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
+#include "AbilitySystem/Types/SSGameplayEffectTypes.h"
 
 
 
-USSAbilitySystemGlobals::USSAbilitySystemGlobals()
+USSAbilitySystemGlobals::USSAbilitySystemGlobals(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 
 }

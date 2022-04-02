@@ -2,7 +2,7 @@
 
 #include "FirearmParts/FPSTemplateFirearm_Magazine.h"
 
-#include "FPSTemplateFirearm.h"
+#include "Actors/FPSTemplateFirearm.h"
 #include "Components/StaticMeshComponent.h"
 #include "Net/UnrealNetwork.h"
 

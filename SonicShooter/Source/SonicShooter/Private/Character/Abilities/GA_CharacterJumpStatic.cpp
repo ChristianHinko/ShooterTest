@@ -3,7 +3,8 @@
 
 #include "Character/Abilities/GA_CharacterJumpStatic.h"
 
-#include "SonicShooter/Private/Utilities/LogCategories.h"
+#include "Utilities/LogCategories.h"
+#include "Utilities/SSNativeGameplayTags.h"
 #include "GameFramework/Character.h"
 
 // THIS ABILITY IS WAYYYYYY OUTDATED!!!!!!!!!!!!!!!!
@@ -16,7 +17,7 @@ UGA_CharacterJumpStatic::UGA_CharacterJumpStatic()
 	AbilityInputID = EAbilityInputID::Jump;
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::NonInstanced;
 	bReplicateInputDirectly = true;		// bReplicateEndAbility in EndAbility() when replicating to the server doesn't always work because client's ability most likely isn't confirmed yet. So we do this bool instead to tell the server to run EndAbility(). (the better alternative to this bool is to use the input tasks but we can't because this is a non-instanced ability)
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Movement.JumpStatic")));
+	AbilityTags.AddTag(Tag_JumpStaticAbility);
 }
 
 
@@ -39,7 +40,7 @@ void UGA_CharacterJumpStatic::ActivateAbility(const FGameplayAbilitySpecHandle H
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	if (!Character)
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Character was NULL when trying to activate static jump ability. Called EndAbility()"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Character was NULL when trying to activate static jump ability. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
@@ -101,12 +102,12 @@ void UGA_CharacterJumpStatic::EndAbility(const FGameplayAbilitySpecHandle Handle
 		}
 		else
 		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() Couldn't call Character->StopJumping() because Character* was NULL"), *FString(__FUNCTION__));
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() Couldn't call Character->StopJumping() because Character* was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 		}
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo was NULL when trying to remove when trying to call StopJumping on the character"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo was NULL when trying to remove when trying to call StopJumping on the character"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 

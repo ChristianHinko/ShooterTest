@@ -32,7 +32,7 @@ public:
 /**
  * 
  */
-UCLASS(EditInlineNew, Abstract)
+UCLASS(EditInlineNew, Abstract, Blueprintable)
 class ARCTEAMS_API UArcTeamJoinRequirement : public UObject
 {
 	GENERATED_BODY()

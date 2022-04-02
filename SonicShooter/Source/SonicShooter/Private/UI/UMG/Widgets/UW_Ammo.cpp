@@ -3,9 +3,12 @@
 
 #include "UI/UMG/Widgets/UW_Ammo.h"
 
-#include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
-#include "UI/UMG/Widgets/UW_ActiveItem.h"
-#include "Item/AS_Ammo.h"
+#include "Inventory/Item/AS_Ammo.h"
+#include "Subobjects/O_ClipAmmo.h"
+#include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
+#include "Inventory/SSArcInventoryComponent_Active.h"
+#include "Inventory/Item/Gun/ArcItemStack_Gun.h"
+#include "Components/TextBlock.h"
 
 
 
@@ -20,60 +23,68 @@ void UUW_Ammo::OnPlayerASCValid()
 	Super::OnPlayerASCValid();
 
 
-	ShooterASC = Cast<UASC_Shooter>(PlayerASC);
-	if (ShooterASC)
+	// Get ClipAmmo subobject
+	if (const FGAAI_Shooter* ShooterActorInfo = static_cast<const FGAAI_Shooter*>(PlayerASC->AbilityActorInfo.Get()))
 	{
-		ShooterASC->OnClipAmmoChange->AddDynamic(this, &UUW_Ammo::OnClipAmmoChange);
-
-
-		// Search for an Ammo AttributeSet
-		for (UAttributeSet* AttributeSet : PlayerASC->GetSpawnedAttributes_Mutable())
+		USSArcInventoryComponent_Active* InventoryComponent = ShooterActorInfo->GetInventoryComponent();
+		if (IsValid(InventoryComponent))
 		{
-			if (UAS_Ammo* AmmoAttributeSet = Cast<UAS_Ammo>(AttributeSet))
+			const UArcItemStack* ActiveItemStack = InventoryComponent->GetActiveItemStack();
+			if (IsValid(ActiveItemStack))
 			{
-				// Call manually for initial value
-				float clipAmmo = AmmoAttributeSet->ClipAmmo;
-				OnClipAmmoChange(clipAmmo, clipAmmo);
+				const UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(ActiveItemStack);
+				if (IsValid(GunStack))
+				{
+					ClipAmmoSubobject = GunStack->GetClipAmmoSubobject();
+				}
 			}
 		}
+	}
+
+	if (ClipAmmoSubobject.IsValid())
+	{
+		ClipAmmoSubobject->ClipAmmo.ValueChangeDelegate.AddDynamic(this, &UUW_Ammo::OnClipAmmoChange);
+
+		const float& ClipAmmo = ClipAmmoSubobject->ClipAmmo;
+		OnClipAmmoChange(ClipAmmo, ClipAmmo);
 	}
 
 }
 
 void UUW_Ammo::OnAttributeChanged(const FOnAttributeChangeData& Data)
 {
-	const FGameplayAttribute Attribute = Data.Attribute;
-	const float NewValue = Data.NewValue;
+	const FGameplayAttribute& Attribute = Data.Attribute;
+	const float& NewValue = Data.NewValue;
 
 
 	if (Attribute == UAS_Ammo::GetBackupAmmoAttribute())
 	{
-		SetBackupAmmo(NewValue);
+		CurrentBackupAmmo = NewValue;
+		UpdateAmmoStatus();
 	}
 }
 
 void UUW_Ammo::OnClipAmmoChange(const float& OldValue, const float& NewValue)
 {
-	SetClipAmmo(NewValue);
+	CurrentClipAmmo = NewValue;
+	UpdateAmmoStatus();
 }
 
-void UUW_Ammo::SetClipAmmo(float NewClipAmmo)
+
+void UUW_Ammo::UpdateAmmoStatus()
 {
-	ClipAmmo = NewClipAmmo;
-	UpdateAmmoStatus();
-}
-void UUW_Ammo::SetBackupAmmo(float NewBackupAmmo)
-{
-	BackupAmmo = NewBackupAmmo;
-	UpdateAmmoStatus();
+	FString ClipAmmoString = FString::FromInt(FMath::TruncToInt(CurrentClipAmmo)) + TEXT("/");
+	ClipAmmoText->SetText(FText::FromString(ClipAmmoString));
+
+	BackupAmmoText->SetText(FText::AsNumber(FMath::TruncToInt(CurrentBackupAmmo)));
 }
 
 
 void UUW_Ammo::NativeDestruct()
 {
-	if (ShooterASC)
+	if (ClipAmmoSubobject.IsValid())
 	{
-		ShooterASC->OnClipAmmoChange->RemoveAll(this);
+		ClipAmmoSubobject->ClipAmmo.ValueChangeDelegate.RemoveAll(this);
 	}
 
 

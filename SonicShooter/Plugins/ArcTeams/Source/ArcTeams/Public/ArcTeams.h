@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EngineMinimal.h"
+#include "Net/UnrealNetwork.h"
 #include "Modules/ModuleManager.h"
 
 

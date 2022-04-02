@@ -86,7 +86,11 @@ void UArcTeamComponent_GameState::GetTeams(TArray<UArcTeam*>& OutTeams, bool bIn
 	TArray<UArcTeam*> TempTeamArray;
 	for (const FArcTeamsTeamEntry& Entry : TeamArray.Items)
 	{
-		TempTeamArray.Add(Entry.Team);
+		if (Entry.Team->IsPrimaryTeam())
+		{
+			TempTeamArray.Add(Entry.Team);
+		}
+		
 	}
 
 	AppendTeams(TempTeamArray, OutTeams, bIncludeSubTeams);

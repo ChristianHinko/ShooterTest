@@ -1,5 +1,0 @@
-# Compiled Dynamic libraries
-!*.dll
-
-# Compiled Static libraries
-!*.lib

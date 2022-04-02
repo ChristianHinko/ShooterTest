@@ -2,8 +2,8 @@
 
 #include "Console/CVarChangeListenerManager.h"
 #include "Console/ConsoleUtils.h"
-#include "Misc/AutoSettingsLogs.h"
-#include "Misc/AutoSettingsError.h"
+#include "AutoSettingsLogs.h"
+#include "AutoSettingsError.h"
 
 UCVarChangeListenerManager* UCVarChangeListenerManager::Singleton = nullptr;
 

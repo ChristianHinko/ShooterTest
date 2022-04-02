@@ -2,7 +2,7 @@
 
 #include "Console/ConsoleUtils.h"
 #include "Logging/MessageLog.h"
-#include "Misc/AutoSettingsError.h"
+#include "AutoSettingsError.h"
 
 IConsoleVariable* UConsoleUtils::GetCVar(FName Name)
 {

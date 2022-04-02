@@ -52,11 +52,6 @@
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/22b470a547a644dcaf543d7faaa3240a"
 		},
 		{
-			"Name": "MoveIt",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/1b8d6e55c50b4b189f283cbbe3d266d9"
-		},
-		{
 			"Name": "UltimateFPSTemplate",
 			"Enabled": true,
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/4986d4f5b73148deb154e1cd31dd9623"

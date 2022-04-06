@@ -15,7 +15,7 @@
 #include "ArcItemStack.h"
 #include "AttributeSets/AS_Health.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
-#include "AbilitySystemSetupComponent/AbilitySystemSetupComponent.h"
+#include "Subobjects/AbilitySystemSetupComponent.h"
 
 
 
@@ -55,8 +55,8 @@ AC_Shooter::AC_Shooter(const FObjectInitializer& ObjectInitializer)
 	Interactor = CreateDefaultSubobject<UAC_Interactor>(TEXT("Interactor"));
 
 	// Attribute Sets
-	GetAbilitySystemSetupComponent()->StartingAttributeSets.Add(UAS_Stamina::StaticClass());
-	GetAbilitySystemSetupComponent()->StartingAttributeSets.Add(UAS_Health::StaticClass());
+	AbilitySystemSetup->StartingAttributeSets.Add(UAS_Stamina::StaticClass());
+	AbilitySystemSetup->StartingAttributeSets.Add(UAS_Health::StaticClass());
 
 
 	// Default to first person
@@ -75,24 +75,28 @@ void AC_Shooter::BeginPlay()
 
 }
 
-void AC_Shooter::GiveStartingAbilities()
+void AC_Shooter::OnGiveStartingAbilities(UAbilitySystemComponent* ASC)
 {
-	Super::GiveStartingAbilities();
+	Super::OnGiveStartingAbilities(ASC);
+	if (!IsValid(ASC))
+	{
+		return;
+	}
 
 
-	InteractInstantAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(InteractInstantAbilityTSub, /*GetLevel()*/1, -1, this));
-	InteractDurationAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(InteractDurationAbilityTSub, /*GetLevel()*/1, -1, this));
+	InteractInstantAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(InteractInstantAbilityTSub, /*GetLevel()*/1, -1, this));
+	InteractDurationAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(InteractDurationAbilityTSub, /*GetLevel()*/1, -1, this));
 
-	SwapToLastActiveItemAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(SwapToLastActiveItemAbilityTSub, /*GetLevel()*/1, -1, this));
-	SwapToNextItemAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(SwapToNextItemAbilityTSub, /*GetLevel()*/1, -1, this));
-	SwapToPreviousItemAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(SwapToPreviousItemAbilityTSub, /*GetLevel()*/1, -1, this));
-	SwapToFirstItemAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(SwapToFirstItemAbilityTSub, /*GetLevel()*/1, -1, this));
-	SwapToSecondItemAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(SwapToSecondItemAbilityTSub, /*GetLevel()*/1, -1, this));
-	SwapToThirdItemAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(SwapToThirdItemAbilityTSub, /*GetLevel()*/1, -1, this));
-	SwapToFourthItemAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(SwapToFourthItemAbilityTSub, /*GetLevel()*/1, -1, this));
-	SwapToFifthItemAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(SwapToFifthItemAbilityTSub, /*GetLevel()*/1, -1, this));
+	SwapToLastActiveItemAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(SwapToLastActiveItemAbilityTSub, /*GetLevel()*/1, -1, this));
+	SwapToNextItemAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(SwapToNextItemAbilityTSub, /*GetLevel()*/1, -1, this));
+	SwapToPreviousItemAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(SwapToPreviousItemAbilityTSub, /*GetLevel()*/1, -1, this));
+	SwapToFirstItemAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(SwapToFirstItemAbilityTSub, /*GetLevel()*/1, -1, this));
+	SwapToSecondItemAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(SwapToSecondItemAbilityTSub, /*GetLevel()*/1, -1, this));
+	SwapToThirdItemAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(SwapToThirdItemAbilityTSub, /*GetLevel()*/1, -1, this));
+	SwapToFourthItemAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(SwapToFourthItemAbilityTSub, /*GetLevel()*/1, -1, this));
+	SwapToFifthItemAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(SwapToFifthItemAbilityTSub, /*GetLevel()*/1, -1, this));
 
-	DropItemAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(DropItemAbilityTSub, /*GetLevel()*/1, -1, this));
+	DropItemAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(DropItemAbilityTSub, /*GetLevel()*/1, -1, this));
 }
 
 #include "Kismet/KismetSystemLibrary.h"

@@ -179,9 +179,7 @@ protected:
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
-	//BEGIN IAbilitySystemSetupInterface interface
-	virtual void GiveStartingAbilities() override;
-	//END IAbilitySystemSetupInterface interface
+	virtual void OnGiveStartingAbilities(UAbilitySystemComponent* ASC) override;
 
 
 	/** Whether we are currently in first person. NOTE: ONLY DIRECTLY SET THIS IN THE CONSTRUCTOR OR IN BP otherwise use the setter. */

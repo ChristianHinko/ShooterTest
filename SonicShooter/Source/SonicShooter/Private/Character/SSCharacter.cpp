@@ -20,7 +20,7 @@
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/Pawn.h"
 #include "Character/AttributeSets/AS_CharacterMovement.h"
-#include "AbilitySystemSetupComponent/AbilitySystemSetupComponent.h"
+#include "Subobjects/AbilitySystemSetupComponent.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -116,7 +116,7 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 
 
 	// Attribute Sets
-	GetAbilitySystemSetupComponent()->StartingAttributeSets.Add(UAS_CharacterMovement::StaticClass());
+	AbilitySystemSetup->StartingAttributeSets.Add(UAS_CharacterMovement::StaticClass());
 
 
 	// Crouching
@@ -167,7 +167,7 @@ void ASSCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-
+	
 	CrouchTickFunction.Target = this;
 	CrouchTickFunction.RegisterTickFunction(GetLevel());
 }
@@ -188,13 +188,17 @@ void ASSCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTra
 }
 
 
-void ASSCharacter::GiveStartingAbilities()
+void ASSCharacter::OnGiveStartingAbilities(UAbilitySystemComponent* ASC)
 {
-	Super::GiveStartingAbilities();
+	Super::OnGiveStartingAbilities(ASC);
+	if (!IsValid(ASC))
+	{
+		return;
+	}
 
-	CharacterJumpAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(CharacterJumpAbilityTSub, /*GetLevel()*/1, -1, this));
-	CharacterCrouchAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(CharacterCrouchAbilityTSub, /*GetLevel()*/1, -1, this));
-	CharacterRunAbilitySpecHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(CharacterRunAbilityTSub, /*GetLevel()*/1, -1, this));
+	CharacterJumpAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(CharacterJumpAbilityTSub, /*GetLevel()*/1, -1, this));
+	CharacterCrouchAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(CharacterCrouchAbilityTSub, /*GetLevel()*/1, -1, this));
+	CharacterRunAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(CharacterRunAbilityTSub, /*GetLevel()*/1, -1, this));
 }
 
 

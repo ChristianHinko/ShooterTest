@@ -99,9 +99,7 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 	//END AActor Interface
 
-	//BEGIN IAbilitySystemSetupInterface interface
-	virtual void GiveStartingAbilities() override;
-	//END IAbilitySystemSetupInterface interface
+	virtual void OnGiveStartingAbilities(UAbilitySystemComponent* ASC) override;
 
 
 	UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")

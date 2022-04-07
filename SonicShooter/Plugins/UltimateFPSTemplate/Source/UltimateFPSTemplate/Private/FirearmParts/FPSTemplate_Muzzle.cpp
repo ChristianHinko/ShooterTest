@@ -3,9 +3,11 @@
 
 #include "FirearmParts/FPSTemplate_Muzzle.h"
 #include "FirearmParts/FPSTemplate_Barrel.h"
-#include "FPSTemplate_PartComponent.h"
-#include "FPSTemplateFirearm.h"
-#include "FPSTemplateStatics.h"
+#include "Components/FPSTemplate_PartComponent.h"
+#include "Actors/FPSTemplateFirearm.h"
+#include "Misc/FPSTemplateStatics.h"
+
+#include "Net/UnrealNetwork.h"
 
 AFPSTemplate_Muzzle::AFPSTemplate_Muzzle()
 {
@@ -22,46 +24,46 @@ AFPSTemplate_Muzzle::AFPSTemplate_Muzzle()
 	PartType = EPartType::MuzzleDevice;
 }
 
+void AFPSTemplate_Muzzle::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AFPSTemplate_Muzzle, MuzzleAttachment);
+}
+
 FTransform AFPSTemplate_Muzzle::GetMuzzleSocketTransform()
 {
-	if (PartComponents.Num())
+	if (IsValid(MuzzleAttachment) && IsValid(MuzzleAttachment->PartMesh))
 	{
-		for (UFPSTemplate_PartComponent* PartComponent : PartComponents)
-		{
-			if (PartComponent)
-			{
-				AFPSTemplate_Muzzle* Muzzle = PartComponent->GetPart<AFPSTemplate_Muzzle>();
-				if (IsValid(Muzzle))
-				{
-					return Muzzle->GetMuzzleSocketTransform();
-				}
-			}
-		}
+		return MuzzleAttachment->PartMesh->GetSocketTransform(MuzzleSocket);
 	}
-	FPSLog(TEXT("Returning Muzzle Device: %s"), *GetName());
-	return PartMesh->GetSocketTransform(MuzzleSocket);
+	return IsValid(PartMesh) ? PartMesh->GetSocketTransform(MuzzleSocket) : FTransform();
 }
 
 bool AFPSTemplate_Muzzle::DoesMuzzleSocketExist()
 {
-	return PartMesh->DoesSocketExist(MuzzleSocket);
+	return IsValid(PartMesh) ? PartMesh->DoesSocketExist(MuzzleSocket) : false;
 }
 
 bool AFPSTemplate_Muzzle::IsSuppressor() const
 {
-	if (PartComponents.Num())
+	if (IsValid(MuzzleAttachment))
 	{
-		for (UFPSTemplate_PartComponent* PartComponent : PartComponents)
+		return MuzzleAttachment->bIsSuppressor;
+	}
+	return bIsSuppressor;
+}
+
+void AFPSTemplate_Muzzle::CacheParts()
+{
+	for (UFPSTemplate_PartComponent* PartComponent : PartComponents)
+	{
+		if (PartComponent)
 		{
-			if (PartComponent)
+			AFPSTemplate_Muzzle* Muzzle = PartComponent->GetPart<AFPSTemplate_Muzzle>();
+			if (IsValid(Muzzle))
 			{
-				AFPSTemplate_Muzzle* Muzzle = PartComponent->GetPart<AFPSTemplate_Muzzle>();
-				if (IsValid(Muzzle))
-				{
-					return Muzzle->IsSuppressor();
-				}
+				MuzzleAttachment = Muzzle;
 			}
 		}
 	}
-	return bIsSuppressor;
 }

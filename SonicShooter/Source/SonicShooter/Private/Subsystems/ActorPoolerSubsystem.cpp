@@ -3,7 +3,7 @@
 #include "Subsystems/ActorPoolerSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Actor/SSActor.h"
-#include "Interfaces/Poolable.h"
+#include "Interfaces/PoolableInterface.h"
 #include "Utilities/LogCategories.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -84,7 +84,7 @@ ASSActor* UActorPoolerSubsystem::SpawnOrReactivate(TSubclassOf<ASSActor> ActorCl
 
 
 
-		if (IPoolable* Poolable = Cast<IPoolable>(Recycled))
+		if (IPoolableInterface* Poolable = Cast<IPoolableInterface>(Recycled))
 		{
 			Poolable->OnUnpooled();
 			Poolable->StartLogic();
@@ -100,16 +100,16 @@ ASSActor* UActorPoolerSubsystem::SpawnOrReactivate(TSubclassOf<ASSActor> ActorCl
 	}
 	else
 	{
-		if (!Cast<IPoolable>(ActorClass.GetDefaultObject()))
+		if (!Cast<IPoolableInterface>(ActorClass.GetDefaultObject()))
 		{
-			UE_LOG(LogPooling, Error, TEXT("%s() Caller passed in actor that doesn't implement IPoolable... Returning nullptr"), *FString(__FUNCTION__));
+			UE_LOG(LogPooling, Error, TEXT("%s() Caller passed in actor that doesn't implement IPoolableInterface... Returning nullptr"), ANSI_TO_TCHAR(__FUNCTION__));
 			return nullptr;
 		}
 
 		ASSActor* NewActor;
 		NewActor = Cast<ASSActor>(World->SpawnActorDeferred<ASSActor>(ActorClass, Transform, ActorOwner, ActorInstigator));
 		UGameplayStatics::FinishSpawningActor(NewActor, Transform);
-		if (IPoolable* Poolable = Cast<IPoolable>(NewActor))
+		if (IPoolableInterface* Poolable = Cast<IPoolableInterface>(NewActor))
 		{
 			Poolable->StartLogic();
 
@@ -131,14 +131,14 @@ void UActorPoolerSubsystem::DeativateToPool(ASSActor* ActorToDeactivate)
 	{
 		return;
 	}
-	IPoolable* Poolable = Cast<IPoolable>(ActorToDeactivate);
+	IPoolableInterface* Poolable = Cast<IPoolableInterface>(ActorToDeactivate);
 	if (!Poolable)
 	{
 		return;
 	}
 	if (Poolable->bIsCurentlyInPool)
 	{
-		UE_LOG(LogPooling, Error, TEXT("%s() Tried to deactivate to pool but already is in pool"), *FString(__FUNCTION__));
+		UE_LOG(LogPooling, Error, TEXT("%s() Tried to deactivate to pool but already is in pool"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
 

@@ -3,57 +3,46 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystem/ASSAbilityInputID.h"
 
 
 
+/**
+ * AbilityInputID enum for SonicShooter
+ */
 UENUM()
 enum EAbilityInputID
 {
-	// 0
-	// This means the ability implementor forgot to set an AbilityInputId in their ability's constructor ("Unset" is every ability's default value)
+	/** This means the Ability implementor forgot to set an AbilityInputID in their Ability's constructor (``Unset`` is every Ability's default value) */
 	Unset,
-	// 1
-	// This means the ability is triggered without input (probably gameplay code)
+	/** This means the Ability is triggered without input (probably gameplay code) */
 	NoInput,
 
-	// 2
+
 	Run,
-	// 3
 	Jump,
-	// 4
 	Crouch,
-	// 5
+
 	Interact,
-	// 6
-	PrimaryFire,
-	// 7
-	SecondaryFire,
-	// 8
-	Reload,
-	// 9
-	FirstItem,
-	// 10
-	SecondItem,
-	// 11
-	ThirdItem,
-	// 12
-	FourthItem,
-	// 13
-	FifthItem,
-	// 14
-	SwitchWeapon,
-	// 15
-	NextItem,
-	// 16
-	PreviousItem,
-	// 17
 	DropItem,
-	// 18
+
+	PrimaryFire,
+	SecondaryFire,
+	Reload,
+
+	FirstItem,
+	SecondItem,
+	ThirdItem,
+	FourthItem,
+	FifthItem,
+	SwitchWeapon,
+	NextItem,
+	PreviousItem,
+
 	Pause,
-	// 19
 	ScoreSheet,
 
 
 	// MAX
-	MAX					UMETA(Hidden) // show a Max value since this isn't an enum class
+	MAX					UMETA(Hidden)
 };

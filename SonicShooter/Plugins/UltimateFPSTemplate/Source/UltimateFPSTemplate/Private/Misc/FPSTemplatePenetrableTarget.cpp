@@ -3,8 +3,6 @@
 
 #include "Misc/FPSTemplatePenetrableTarget.h"
 
-#include "FPSTemplateStatics.h"
-
 // Sets default values
 AFPSTemplatePenetrableTarget::AFPSTemplatePenetrableTarget()
 {

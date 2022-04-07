@@ -66,19 +66,19 @@ TArray<FActiveGameplayEffectHandle> FGATD_BulletTraceTargetHit::ApplyGameplayEff
 
 void FGATD_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray) const
 {
-	UE_LOG(LogGameplayAbilityTargetData, Fatal, TEXT("%s() This should not be called for this specific GATD. Use our custom overload instead (passes in index)"), *FString(__FUNCTION__));
+	UE_LOG(LogGameplayAbilityTargetData, Fatal, TEXT("%s() This should not be called for this specific GATD. Use our custom overload instead (passes in index)"), ANSI_TO_TCHAR(__FUNCTION__));
 }
 
-void FGATD_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray, int32 hitInfosIndex) const
+void FGATD_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray, int32 HitInfosIndex) const
 {
 	if (FGEC_Shooter* SSContext = static_cast<FGEC_Shooter*>(Context.Get()))
 	{
-		SSContext->SetHitInfo(ActorHitInfos[hitInfosIndex]);
+		SSContext->SetHitInfo(ActorHitInfos[HitInfosIndex]);
 		SSContext->SetBulletTracePoints(BulletTracePoints);
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbilityTargetData, Warning, TEXT("%s() Cast to FSSGameplayEffectContext failed. Bullet specific target data info will not be in our GEEC"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbilityTargetData, Warning, TEXT("%s() Cast to FSSGameplayEffectContext failed. Bullet specific target data info will not be in our GEEC"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 }
 

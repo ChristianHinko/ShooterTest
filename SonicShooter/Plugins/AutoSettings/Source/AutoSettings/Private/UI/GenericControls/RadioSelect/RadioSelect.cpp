@@ -2,7 +2,7 @@
 
 #include "UI/GenericControls/RadioSelect/RadioSelect.h"
 #include "Misc/SettingOption.h"
-#include "Misc/AutoSettingsError.h"
+#include "AutoSettingsError.h"
 
 void URadioSelect::SetOptions(TArray<FSettingOption> InOptions)
 {

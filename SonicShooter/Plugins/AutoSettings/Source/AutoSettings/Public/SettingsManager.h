@@ -4,6 +4,7 @@
 
 #include "Console/CVarChangeListenerManager.h"
 #include "GameplayTagContainer.h"
+#include "Subsystems/EngineSubsystem.h"
 #include "SettingsManager.generated.h"
 
 // Represents data for a saved setting
@@ -38,13 +39,13 @@ public:
 	
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSettingSavedSignature, FAutoSettingData, SettingData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSettingSaved, FAutoSettingData, SettingData);
 
 /**
  * Handles saving, loading, and applying settings
  */
 UCLASS()
-class AUTOSETTINGS_API USettingsManager : public UObject
+class AUTOSETTINGS_API USettingsManager : public UEngineSubsystem
 {
 	GENERATED_BODY()
 	
@@ -52,9 +53,9 @@ public:
 
 	// Fired when a setting is saved (Must actually be a save, not a config update)
 	UPROPERTY(BlueprintAssignable, Category = "Settings")
-	FSettingSavedSignature OnSettingSaved;
+	FOnSettingSaved OnSettingSaved;
 
-	// Get singleton instance
+	// Get subsystem instance
 	static USettingsManager* Get();
 
 	// Return a setting's value from CVar or config
@@ -102,7 +103,7 @@ public:
 	static void AutoDetectSettingsStatic(int32 WorkScale = 10, float CPUMultiplier = 1.0f, float GPUMultiplier = 1.0f);
 
 	// Applies and saves a setting
-	UFUNCTION(BlueprintCallable, Category = "Settings", meta = (DisplayName = "Save Setting"))
+	UFUNCTION(BlueprintCallable, Category = "Settings", meta = (DisplayName = "Apply and Save Setting"))
 	static void SaveSettingStatic(FAutoSettingData SettingData);
 
 	// Applies a setting
@@ -134,8 +135,6 @@ public:
 	void ApplySetting(FAutoSettingData SettingData);
 	
 private:
-
-	static USettingsManager* Singleton;
 
 	UPROPERTY()
 	FString IniFilename;

@@ -10,7 +10,7 @@
 
 class ACharacter;
 class ASSCharacter;
-class AShooterCharacter;
+class AC_Shooter;
 
 
 
@@ -31,7 +31,8 @@ protected:
 	virtual void NativeUpdateAnimation(float DeltaTimeX) override;
 
 
-	AShooterCharacter* OwningShooterCharacter;
+	UPROPERTY()
+		TWeakObjectPtr<const AC_Shooter> OwningShooterCharacter;
 
 
 	/**

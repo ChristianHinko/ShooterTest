@@ -30,9 +30,9 @@ protected:
 	FActiveGameplayEffectHandle JumpEffectActiveHandle;
 
 	UPROPERTY()
-		ASSCharacter* SSCharacter;
+		TWeakObjectPtr<ASSCharacter> SSCharacter;
 	UPROPERTY()
-		USSCharacterMovementComponent* CMC;
+		TWeakObjectPtr<USSCharacterMovementComponent> CMC;
 
 	//BEGIN UGameplayAbility Interface
 	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;

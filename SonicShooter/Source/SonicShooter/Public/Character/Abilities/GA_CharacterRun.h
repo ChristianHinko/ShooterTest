@@ -14,7 +14,7 @@ class USSCharacterMovementComponent;
 
 
 /**
- *
+ * 
  */
 UCLASS()
 class SONICSHOOTER_API UGA_CharacterRun : public UASSGameplayAbility
@@ -31,9 +31,9 @@ protected:
 	FActiveGameplayEffectHandle RunningEffectActiveHandle;
 
 	UPROPERTY()
-		ASSCharacter* SSCharacter;
+		TWeakObjectPtr<ASSCharacter> SSCharacter;
 	UPROPERTY()
-		USSCharacterMovementComponent* CMC;
+		TWeakObjectPtr<USSCharacterMovementComponent> CMC;
 
 
 

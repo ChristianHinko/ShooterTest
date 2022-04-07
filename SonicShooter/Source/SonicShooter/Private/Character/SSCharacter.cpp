@@ -1,5 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+
 #include "Character/SSCharacter.h"
 
 #include "Net/UnrealNetwork.h"
@@ -18,8 +19,8 @@
 #include "Game/SSGameState.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/Pawn.h"
-#include "Character/AS_CharacterMovement.h"
-#include "AbilitySystem/AttributeSets/AS_Stamina.h"
+#include "Character/AttributeSets/AS_CharacterMovement.h"
+#include "Subobjects/AbilitySystemSetupComponent.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -36,23 +37,21 @@ void ASSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME_CONDITION(ASSCharacter, bIsRunning, COND_SimulatedOnly);
 	DOREPLIFETIME_CONDITION(ASSCharacter, RemoteViewYaw, COND_SkipOwner); // we also do a custom condition for this in PreReplication() (but we aren't using COND_Custom because we still want to COND_SkipOwner)
 
-	DOREPLIFETIME(ASSCharacter, CharacterMovementAttributeSet);
-	DOREPLIFETIME(ASSCharacter, StaminaAttributeSet);
 	DOREPLIFETIME_CONDITION(ASSCharacter, CharacterJumpAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(ASSCharacter, CharacterCrouchAbilitySpecHandle, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(ASSCharacter, CharacterRunAbilitySpecHandle, COND_OwnerOnly);
 }
 
 
-FName ASSCharacter::POVMeshComponentName(TEXT("POVMesh"));
+const FName ASSCharacter::POVMeshComponentName = TEXT("POVMesh");
 
 ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer.SetDefaultSubobjectClass<USSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<USSCharacterMovementComponent>(CharacterMovementComponentName))
 {
 	SSCharacterMovementComponent = Cast<USSCharacterMovementComponent>(GetMovementComponent());
 
 	// Set size for collision capsule
-	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.f);
 
 	// Set our turn rates for input
 	HorizontalSensitivity = 1.f;
@@ -116,11 +115,12 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	GetCharacterMovement()->bOrientRotationToMovement = true; // make the Character face the direction that he is moving
 
 
-	if (GetCharacterMovement())
-	{
-		GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
-	}
+	// Attribute Sets
+	AbilitySystemSetup->StartingAttributeSets.Add(UAS_CharacterMovement::StaticClass());
 
+
+	// Crouching
+	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 	CrouchSpeed = 100.f;
 
 	bToggleRunAlwaysRun = false;
@@ -140,7 +140,7 @@ void ASSCharacter::PostEditChangeProperty(FPropertyChangedEvent& PropertyChanged
 
 	if (GetMesh())
 	{
-		GetMesh()->SetRelativeLocation(FVector(0, 0, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * -1));
+		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * -1));
 		GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 		GetMesh()->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
 	}
@@ -167,7 +167,7 @@ void ASSCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-
+	
 	CrouchTickFunction.Target = this;
 	CrouchTickFunction.RegisterTickFunction(GetLevel());
 }
@@ -188,60 +188,17 @@ void ASSCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTra
 }
 
 
-void ASSCharacter::CreateAttributeSets()
+void ASSCharacter::OnGiveStartingAbilities(UAbilitySystemComponent* ASC)
 {
-	Super::CreateAttributeSets();
-
-
-	if (!CharacterMovementAttributeSet)
+	Super::OnGiveStartingAbilities(ASC);
+	if (!IsValid(ASC))
 	{
-		CharacterMovementAttributeSet = NewObject<UAS_CharacterMovement>(this, UAS_CharacterMovement::StaticClass(), TEXT("CharacterMovementAttributeSet"));
-	}
-	else
-	{
-		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), *FString(__FUNCTION__), *CharacterMovementAttributeSet->GetName());
+		return;
 	}
 
-	if (!StaminaAttributeSet)
-	{
-		StaminaAttributeSet = NewObject<UAS_Stamina>(this, UAS_Stamina::StaticClass(), TEXT("StaminaAttributeSet"));
-	}
-	else
-	{
-		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() %s was already valid when trying to create the attribute set; did nothing"), *FString(__FUNCTION__), *StaminaAttributeSet->GetName());
-	}
-}
-void ASSCharacter::RegisterAttributeSets()
-{
-	Super::RegisterAttributeSets();
-
-
-	if (CharacterMovementAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(CharacterMovementAttributeSet))	// If CharacterMovementAttributeSet is valid and it's not yet registered with the Character's ASC
-	{
-		GetAbilitySystemComponent()->AddAttributeSetSubobject(CharacterMovementAttributeSet);
-	}
-	else
-	{
-		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() CharacterMovementAttributeSet was either NULL or already added to the character's ASC. Character: %s"), *FString(__FUNCTION__), *GetName());
-	}
-
-	if (StaminaAttributeSet && !GetAbilitySystemComponent()->GetSpawnedAttributes().Contains(StaminaAttributeSet))	// If StaminaAttributeSet is valid and it's not yet registered with the Character's ASC
-	{
-		GetAbilitySystemComponent()->AddAttributeSetSubobject(StaminaAttributeSet);
-	}
-	else
-	{
-		UE_CLOG((GetLocalRole() == ROLE_Authority), LogSSAbilitySystemSetup, Warning, TEXT("%s() StaminaAttributeSet was either NULL or already added to the character's ASC. Character: %s"), *FString(__FUNCTION__), *GetName());
-	}
-}
-
-void ASSCharacter::GrantStartingAbilities()
-{
-	Super::GrantStartingAbilities();
-
-	CharacterJumpAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterJumpAbilityTSub, this/*, GetLevel()*/);
-	CharacterCrouchAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterCrouchAbilityTSub, this/*, GetLevel()*/);
-	CharacterRunAbilitySpecHandle = GetAbilitySystemComponent()->GrantAbility(CharacterRunAbilityTSub, this/*, GetLevel()*/);
+	CharacterJumpAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(CharacterJumpAbilityTSub, /*GetLevel()*/1, -1, this));
+	CharacterCrouchAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(CharacterCrouchAbilityTSub, /*GetLevel()*/1, -1, this));
+	CharacterRunAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(CharacterRunAbilityTSub, /*GetLevel()*/1, -1, this));
 }
 
 
@@ -329,16 +286,16 @@ FRotator ASSCharacter::GetBaseAimRotation() const
 	return POVRot;
 }
 
-#pragma region Jump
+//BEGIN Jump overriding
 void ASSCharacter::Jump()
 {
-	if (SSCharacterMovementComponent)
+	if (SSCharacterMovementComponent.IsValid())
 	{
 		if (bPressedJump == false) // if changed
 		{
 			Super::Jump(); // set to true
 
-			SSCharacterMovementComponent->timestampWantsToJump = GetWorld()->GetTimeSeconds();
+			SSCharacterMovementComponent->TimestampWantsToJump = GetWorld()->GetTimeSeconds();
 		}
 
 	}
@@ -346,13 +303,13 @@ void ASSCharacter::Jump()
 
 void ASSCharacter::StopJumping()
 {
-	if (SSCharacterMovementComponent)
+	if (SSCharacterMovementComponent.IsValid())
 	{
 		if (bPressedJump == true) // if changed
 		{
 			Super::StopJumping(); // set to false
 
-			SSCharacterMovementComponent->timestampWantsToJump = -1 * GetWorld()->GetTimeSeconds();
+			SSCharacterMovementComponent->TimestampWantsToJump = -1 * GetWorld()->GetTimeSeconds();
 		}
 	}
 }
@@ -405,13 +362,12 @@ void ASSCharacter::ClearJumpInput(float DeltaTime)
 {
 	SSCharacterMovementComponent->ClearJumpInput(DeltaTime);
 }
-
-#pragma endregion
+//END Jump overriding
 
 
 void ASSCharacter::OnRep_IsRunning()
 {
-	if (SSCharacterMovementComponent)
+	if (SSCharacterMovementComponent.IsValid())
 	{
 		if (bIsRunning)
 		{
@@ -427,19 +383,19 @@ void ASSCharacter::OnRep_IsRunning()
 	}
 }
 
-#pragma region Crouch
+//BEGIN Crouch overriding
 void ASSCharacter::Crouch(bool bClientSimulation)
 {
 	//Super::Crouch(bClientSimulation);
 
-	if (SSCharacterMovementComponent)
+	if (SSCharacterMovementComponent.IsValid())
 	{
 		if (SSCharacterMovementComponent->CanEverCrouch())
 		{
 			if (SSCharacterMovementComponent->bWantsToCrouch == false) // if changed
 			{
 				SSCharacterMovementComponent->bWantsToCrouch = true;
-				SSCharacterMovementComponent->timestampWantsToCrouch = GetWorld()->GetTimeSeconds();
+				SSCharacterMovementComponent->TimestampWantsToCrouch = GetWorld()->GetTimeSeconds();
 			}
 		}
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
@@ -452,13 +408,13 @@ void ASSCharacter::Crouch(bool bClientSimulation)
 }
 void ASSCharacter::UnCrouch(bool bClientSimulation)
 {
-	if (SSCharacterMovementComponent)
+	if (SSCharacterMovementComponent.IsValid())
 	{
 		if (SSCharacterMovementComponent->bWantsToCrouch == true) // if changed
 		{
 			Super::UnCrouch(bClientSimulation); // set to false
 
-			SSCharacterMovementComponent->timestampWantsToCrouch = -1 * GetWorld()->GetTimeSeconds();
+			SSCharacterMovementComponent->TimestampWantsToCrouch = -1 * GetWorld()->GetTimeSeconds();
 		}
 	}
 }
@@ -512,7 +468,7 @@ void ASSCharacter::OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust)
 		CameraBoomRelativeLocation.Z += HeightAdjust;
 
 		// Store where our camera should be. This is our goal that we will smooth to
-		crouchToHeight = DefaultSSChar->CameraBoom->GetRelativeLocation().Z - HeightAdjust;
+		CrouchToHeight = DefaultSSChar->CameraBoom->GetRelativeLocation().Z - HeightAdjust;
 	}
 
 	// Call BP event
@@ -563,7 +519,7 @@ void ASSCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
 		CameraBoomRelativeLocation.Z -= HeightAdjust;
 
 		// Store where our camera should be. This is our goal that we will smooth to
-		crouchToHeight = DefaultSSChar->CameraBoom->GetRelativeLocation().Z;
+		CrouchToHeight = DefaultSSChar->CameraBoom->GetRelativeLocation().Z;
 	}
 
 
@@ -596,7 +552,7 @@ void ASSCharacter::RecalculateBaseEyeHeight()
 
 void FCrouchTickFunction::ExecuteTick(float DeltaTime, ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent)
 {
-	if (Target && !Target->IsPendingKillOrUnreachable())
+	if (Target.IsValid())
 	{
 		Target->CrouchTick(DeltaTime);
 	}
@@ -604,14 +560,14 @@ void FCrouchTickFunction::ExecuteTick(float DeltaTime, ELevelTick TickType, ENam
 void ASSCharacter::CrouchTick(float DeltaTime)
 {
 	const FVector CameraBoomLoc = CameraBoom->GetRelativeLocation();
-	const float crouchFromHeight = CameraBoomLoc.Z;
+	const float CrouchFromHeight = CameraBoomLoc.Z;
 
-	float interpedHeight;
+	float InterpedHeight;
 	if (SSCharacterMovementComponent->GetToggleCrouchEnabled()) // toggle crouch feels better with a linear interp
 	{
-		interpedHeight = FMath::FInterpConstantTo(crouchFromHeight, crouchToHeight, DeltaTime, CrouchSpeed);
+		InterpedHeight = FMath::FInterpConstantTo(CrouchFromHeight, CrouchToHeight, DeltaTime, CrouchSpeed);
 
-		if (interpedHeight == crouchToHeight)
+		if (InterpedHeight == CrouchToHeight)
 		{
 			// We've reached our goal, make this our last tick
 			CrouchTickFunction.SetTickFunctionEnable(false);
@@ -619,22 +575,22 @@ void ASSCharacter::CrouchTick(float DeltaTime)
 	}
 	else // hold to crouch feels better with a smooth interp
 	{
-		interpedHeight = FMath::FInterpTo(crouchFromHeight, crouchToHeight, DeltaTime, CrouchSpeed / 10);
+		InterpedHeight = FMath::FInterpTo(CrouchFromHeight, CrouchToHeight, DeltaTime, CrouchSpeed / 10);
 
-		if (FMath::IsNearlyEqual(interpedHeight, crouchToHeight, KINDA_SMALL_NUMBER * 100))
+		if (FMath::IsNearlyEqual(InterpedHeight, CrouchToHeight, KINDA_SMALL_NUMBER * 100))
 		{
 			// We've nearly reached our goal, set our official height and make this our last tick
-			interpedHeight = crouchToHeight;
+			InterpedHeight = CrouchToHeight;
 			CrouchTickFunction.SetTickFunctionEnable(false);
 		}
 	}
 
-	CameraBoom->SetRelativeLocation(FVector(CameraBoomLoc.X, CameraBoomLoc.Y, interpedHeight));
+	CameraBoom->SetRelativeLocation(FVector(CameraBoomLoc.X, CameraBoomLoc.Y, InterpedHeight));
 
 
 	//UKismetSystemLibrary::PrintString(this, "crouch ticking;                      " + CameraBoom->GetRelativeLocation().ToString(), true, false);
 }
-#pragma endregion
+//END Crouch overriding
 
 //void ASSCharacter::Tick(float DeltaTime)
 //{
@@ -667,78 +623,77 @@ void ASSCharacter::CrouchTick(float DeltaTime)
 //	}
 //}
 
-#pragma region Input
+//BEGIN Input setup
 void ASSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	//Action
-	PlayerInputComponent->BindAction(FName(TEXT("Run")), IE_Pressed, this, &ASSCharacter::OnRunPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Run")), IE_Released, this, &ASSCharacter::OnRunReleased);
+	// Action
+	PlayerInputComponent->BindAction(FName(TEXT("Run")), IE_Pressed, this, &ThisClass::OnRunPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("Run")), IE_Released, this, &ThisClass::OnRunReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Jump")), IE_Pressed, this, &ASSCharacter::OnJumpPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Jump")), IE_Released, this, &ASSCharacter::OnJumpReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("Jump")), IE_Pressed, this, &ThisClass::OnJumpPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("Jump")), IE_Released, this, &ThisClass::OnJumpReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Crouch")), IE_Pressed, this, &ASSCharacter::OnCrouchPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Crouch")), IE_Released, this, &ASSCharacter::OnCrouchReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("Crouch")), IE_Pressed, this, &ThisClass::OnCrouchPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("Crouch")), IE_Released, this, &ThisClass::OnCrouchReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Interact")), IE_Pressed, this, &ASSCharacter::OnInteractPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Interact")), IE_Released, this, &ASSCharacter::OnInteractReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("Interact")), IE_Pressed, this, &ThisClass::OnInteractPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("Interact")), IE_Released, this, &ThisClass::OnInteractReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("PrimaryFire")), IE_Pressed, this, &ASSCharacter::OnPrimaryFirePressed);
-	PlayerInputComponent->BindAction(FName(TEXT("PrimaryFire")), IE_Released, this, &ASSCharacter::OnPrimaryFireReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("PrimaryFire")), IE_Pressed, this, &ThisClass::OnPrimaryFirePressed);
+	PlayerInputComponent->BindAction(FName(TEXT("PrimaryFire")), IE_Released, this, &ThisClass::OnPrimaryFireReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("SecondaryFire")), IE_Pressed, this, &ASSCharacter::OnSecondaryFirePressed);
-	PlayerInputComponent->BindAction(FName(TEXT("SecondaryFire")), IE_Released, this, &ASSCharacter::OnSecondaryFireReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("SecondaryFire")), IE_Pressed, this, &ThisClass::OnSecondaryFirePressed);
+	PlayerInputComponent->BindAction(FName(TEXT("SecondaryFire")), IE_Released, this, &ThisClass::OnSecondaryFireReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Reload")), IE_Pressed, this, &ASSCharacter::OnReloadPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Reload")), IE_Released, this, &ASSCharacter::OnReloadReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("Reload")), IE_Pressed, this, &ThisClass::OnReloadPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("Reload")), IE_Released, this, &ThisClass::OnReloadReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("FirstItem")), IE_Pressed, this, &ASSCharacter::OnFirstItemPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("FirstItem")), IE_Released, this, &ASSCharacter::OnFirstItemReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("FirstItem")), IE_Pressed, this, &ThisClass::OnFirstItemPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("FirstItem")), IE_Released, this, &ThisClass::OnFirstItemReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("SecondItem")), IE_Pressed, this, &ASSCharacter::OnSecondItemPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("SecondItem")), IE_Released, this, &ASSCharacter::OnSecondItemReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("SecondItem")), IE_Pressed, this, &ThisClass::OnSecondItemPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("SecondItem")), IE_Released, this, &ThisClass::OnSecondItemReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("ThirdItem")), IE_Pressed, this, &ASSCharacter::OnThirdItemPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("ThirdItem")), IE_Released, this, &ASSCharacter::OnThirdItemReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("ThirdItem")), IE_Pressed, this, &ThisClass::OnThirdItemPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("ThirdItem")), IE_Released, this, &ThisClass::OnThirdItemReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("FourthItem")), IE_Pressed, this, &ASSCharacter::OnFourthItemPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("FourthItem")), IE_Released, this, &ASSCharacter::OnFourthItemReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("FourthItem")), IE_Pressed, this, &ThisClass::OnFourthItemPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("FourthItem")), IE_Released, this, &ThisClass::OnFourthItemReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("FifthItem")), IE_Pressed, this, &ASSCharacter::OnFifthItemPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("FifthItem")), IE_Released, this, &ASSCharacter::OnFifthItemReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("FifthItem")), IE_Pressed, this, &ThisClass::OnFifthItemPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("FifthItem")), IE_Released, this, &ThisClass::OnFifthItemReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("SwitchWeapon")), IE_Pressed, this, &ASSCharacter::OnSwitchWeaponPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("SwitchWeapon")), IE_Released, this, &ASSCharacter::OnSwitchWeaponReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("SwitchWeapon")), IE_Pressed, this, &ThisClass::OnSwitchWeaponPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("SwitchWeapon")), IE_Released, this, &ThisClass::OnSwitchWeaponReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("NextItem")), IE_Pressed, this, &ASSCharacter::OnNextItemPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("NextItem")), IE_Released, this, &ASSCharacter::OnNextItemReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("NextItem")), IE_Pressed, this, &ThisClass::OnNextItemPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("NextItem")), IE_Released, this, &ThisClass::OnNextItemReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("PreviousItem")), IE_Pressed, this, &ASSCharacter::OnPreviousItemPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("PreviousItem")), IE_Released, this, &ASSCharacter::OnPreviousItemReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("PreviousItem")), IE_Pressed, this, &ThisClass::OnPreviousItemPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("PreviousItem")), IE_Released, this, &ThisClass::OnPreviousItemReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("DropItem")), IE_Pressed, this, &ASSCharacter::OnDropItemPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("DropItem")), IE_Released, this, &ASSCharacter::OnDropItemReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("DropItem")), IE_Pressed, this, &ThisClass::OnDropItemPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("DropItem")), IE_Released, this, &ThisClass::OnDropItemReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Pause")), IE_Pressed, this, &ASSCharacter::OnPausePressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Pause")), IE_Released, this, &ASSCharacter::OnPauseReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("Pause")), IE_Pressed, this, &ThisClass::OnPausePressed);
+	PlayerInputComponent->BindAction(FName(TEXT("Pause")), IE_Released, this, &ThisClass::OnPauseReleased);
 
-	PlayerInputComponent->BindAction(FName(TEXT("ScoreSheet")), IE_Pressed, this, &ASSCharacter::OnScoreSheetPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("ScoreSheet")), IE_Released, this, &ASSCharacter::OnScoreSheetReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("ScoreSheet")), IE_Pressed, this, &ThisClass::OnScoreSheetPressed);
+	PlayerInputComponent->BindAction(FName(TEXT("ScoreSheet")), IE_Released, this, &ThisClass::OnScoreSheetReleased);
 
 
+	// Axis
+	PlayerInputComponent->BindAxis(FName(TEXT("MoveForward")), this, &ThisClass::MoveForward);
+	PlayerInputComponent->BindAxis(FName(TEXT("MoveRight")), this, &ThisClass::MoveRight);
 
-	//Axis
-	PlayerInputComponent->BindAxis(FName(TEXT("MoveForward")), this, &ASSCharacter::MoveForward);
-	PlayerInputComponent->BindAxis(FName(TEXT("MoveRight")), this, &ASSCharacter::MoveRight);
-
-	PlayerInputComponent->BindAxis(FName(TEXT("TurnRightRate")), this, &ASSCharacter::HorizontalLook);
-	PlayerInputComponent->BindAxis(FName(TEXT("LookUpRate")), this, &ASSCharacter::VerticalLook);
+	PlayerInputComponent->BindAxis(FName(TEXT("TurnRightRate")), this, &ThisClass::HorizontalLook);
+	PlayerInputComponent->BindAxis(FName(TEXT("LookUpRate")), this, &ThisClass::VerticalLook);
 }
 
 
-//Actions
+// Actions
 void ASSCharacter::OnRunPressed()
 {
 	if (SSCharacterMovementComponent->GetToggleRunEnabled())
@@ -925,10 +880,10 @@ void ASSCharacter::OnScoreSheetReleased()
 
 
 
-//Axis
+// Axis
 void ASSCharacter::MoveForward(float Value)
 {
-	forwardInputAxis = Value;
+	ForwardInputAxis = Value;
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
 		// find out which way is forward
@@ -942,7 +897,7 @@ void ASSCharacter::MoveForward(float Value)
 }
 void ASSCharacter::MoveRight(float Value)
 {
-	rightInputAxis = Value;
+	RightInputAxis = Value;
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
 		// find out which way is right
@@ -960,20 +915,20 @@ void ASSCharacter::HorizontalLook(float Rate)
 {
 	if (Rate != 0)
 	{
-		AddControllerYawInput(Rate * HorizontalSensitivity * 0.5);
+		AddControllerYawInput(Rate * HorizontalSensitivity * 0.5f);
 	}
 }
 void ASSCharacter::VerticalLook(float Rate)
 {
 	if (Rate != 0)
 	{
-		AddControllerPitchInput(Rate * VerticalSensitivity * 0.5);
+		AddControllerPitchInput(Rate * VerticalSensitivity * 0.5f);
 	}
 }
-#pragma endregion
+//END Input setup
 
 #pragma region Helpers
-APawn* ASSCharacter::GetNearestPawn()
+APawn* ASSCharacter::GetNearestPawn() const
 {
 	APawn* RetVal = nullptr;
 	if (UGameplayStatics::GetGameState(this))

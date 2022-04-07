@@ -14,6 +14,7 @@ public class SonicShooter : ModuleRules
 			new string[] {
 				"InputCore",
 				"PhysicsCore",
+				"SlateCore",
 				"GameplayTags",
 				"GameplayAbilities",
 				"GameplayTasks",
@@ -26,7 +27,6 @@ public class SonicShooter : ModuleRules
 				"AutoSettings",
 				"ArcInventory",
 				"ArcTeams",
-				"MoveIt",
 				"UltimateFPSTemplate"
 			}
 		);

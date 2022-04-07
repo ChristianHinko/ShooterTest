@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "1.2.1.86",
+	"VersionName": "1.3.0.98",
 	"FriendlyName": "ArcTeams",
 	"Description": "A Multiplayer Teams Framework that just works",
 	"Category": "Other",
@@ -10,7 +10,7 @@
 	"DocsURL": "https://tracker.punyhuman.com/projects/arc_teams/wiki",
 	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/22b470a547a644dcaf543d7faaa3240a",
 	"SupportURL": "https://tracker.punyhuman.com/projects/arc_teams",
-	"EngineVersion": "4.26.0",
+	"EngineVersion": "4.27.0",
 	"CanContainContent": true,
 	"Installed": true,
 	"Modules": [
@@ -20,7 +20,6 @@
 			"LoadingPhase": "Default",
 			"WhitelistPlatforms": [
 				"Win64",
-				"Win32",
 				"Mac",
 				"Linux"
 			]

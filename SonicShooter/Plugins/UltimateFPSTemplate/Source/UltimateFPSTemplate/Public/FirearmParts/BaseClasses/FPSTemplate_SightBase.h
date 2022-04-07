@@ -22,6 +22,10 @@ protected:
 	float CameraFOVZoom;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPSTemplate | Default")
 	float CameraFOVZoomSpeed;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPSTemplate | Default")
+	float CameraDistance;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPSTemplate | Default")
+	bool bUsedFixedCameraDistance;
 	UPROPERTY(EditDefaultsOnly, Category = "FPSTemplate | Default")
 	TArray<FReticleMaterial> Reticles;
 	UPROPERTY(EditDefaultsOnly, Category = "FPSTemplate | Default")
@@ -35,6 +39,7 @@ protected:
 	uint8 ReticleBrightnessIndex;
 	
 	virtual void BeginPlay() override;
+	virtual void PostInitProperties() override;
 	
 public:
 	UFUNCTION(BlueprintPure, Category = "FPSTemplate | Sockets")
@@ -53,9 +58,9 @@ public:
 	virtual void ZoomOut() {};
 
 	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Reticle")
-	virtual void CycleReticle() {}
+	virtual void CycleReticle();
 	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Reticle")
-	virtual void SetReticle(uint8 Index) {}
+	virtual void SetReticle(uint8 Index);
 	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Reticle")
 	void IncreaseBrightness();
 	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Reticle")
@@ -66,4 +71,7 @@ public:
 	virtual void IncreaseVerticalZero() {}
 	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Reticle")
 	virtual void DecreaseVerticalZero() {}
+
+	float GetCameraDistance() const { return CameraDistance; }
+	bool UseFixedCameraDistance() const { return bUsedFixedCameraDistance; }
 };

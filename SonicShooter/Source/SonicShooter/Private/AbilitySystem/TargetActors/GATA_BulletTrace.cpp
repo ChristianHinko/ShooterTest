@@ -3,15 +3,15 @@
 
 #include "AbilitySystem/TargetActors/GATA_BulletTrace.h"
 
-#include "Utilities\LogCategories.h"
+#include "Utilities/LogCategories.h"
 #include "Abilities/GameplayAbility.h"
 #include "Utilities/CollisionChannels.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTargetTypes.h"
 #include "AbilitySystemComponent.h"
-#include "Item/Weapons/AS_Gun.h"
-#include "BlueprintFunctionLibraries\BFL_CollisionQueryHelpers.h"
-#include "PhysicalMaterial/ShooterPhysicalMaterial.h"
+#include "BlueprintFunctionLibraries/BFL_CollisionQueryHelpers.h"
+#include "PhysicalMaterial/PM_Shooter.h"
 #include "BlueprintFunctionLibraries/BFL_HitResultHelpers.h"
+#include "BlueprintFunctionLibraries/BFL_MathHelpers.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -25,68 +25,6 @@ AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer
 
 }
 
-
-
-float AGATA_BulletTrace::GetMaxRange() const
-{
-	if (GunAttributeSet)
-	{
-		return GunAttributeSet->GetMaxRange();
-	}
-
-	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its MaxRange attribute! Will return value from Default Object of UAS_Gun instead!"), *FString(__FUNCTION__));
-	return GetDefault<UAS_Gun>()->GetMaxRange();
-}
-int32 AGATA_BulletTrace::GetNumberOfTraces() const
-{
-	if (GunAttributeSet)
-	{
-		return GunAttributeSet->GetNumberOfBulletsPerFire();
-	}
-
-	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its NumberOfBulletsPerFire attribute! Will return value from Default Object of UAS_Gun instead!"), *FString(__FUNCTION__));
-	return GetDefault<UAS_Gun>()->GetNumberOfBulletsPerFire();
-}
-int32 AGATA_BulletTrace::GetPenetrations() const
-{
-	if (GunAttributeSet)
-	{
-		return GunAttributeSet->GetPenetrations();
-	}
-
-	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its Penetrations attribute! Will return value from Default Object of UAS_Gun instead!"), *FString(__FUNCTION__));
-	return GetDefault<UAS_Gun>()->GetPenetrations();
-}
-int32 AGATA_BulletTrace::GetRicochets() const
-{	
-	if (GunAttributeSet)
-	{
-		return GunAttributeSet->GetRicochets();
-	}
-
-	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its Ricochets attribute! Will return value from Default Object of UAS_Gun instead!"), *FString(__FUNCTION__));
-	return GetDefault<UAS_Gun>()->GetRicochets();
-}
-float AGATA_BulletTrace::GetInitialBulletSpeed() const
-{
-	if (GunAttributeSet)
-	{
-		return GunAttributeSet->GetInitialBulletSpeed();
-	}
-
-	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its InitialBulletSpeed attribute! Will return value from Default Object of UAS_Gun instead!"), *FString(__FUNCTION__));
-	return GetDefault<UAS_Gun>()->GetInitialBulletSpeed();
-}
-float AGATA_BulletTrace::GetBulletSpeedFalloff() const
-{
-	if (GunAttributeSet)
-	{
-		return GunAttributeSet->GetBulletSpeedFalloff();
-	}
-
-	UE_LOG(LogGameplayAbilityTargetActor, Fatal, TEXT("%s() GunAttributeSet null when trying to read its BulletSpeedFalloff attribute! Will return value from Default Object of UAS_Gun instead!"), *FString(__FUNCTION__));
-	return GetDefault<UAS_Gun>()->GetBulletSpeedFalloff();
-}
 
 void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 {
@@ -105,14 +43,14 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 		TArray<TArray<FHitResult>> TraceResults;
 		PerformTraces(TraceResults, SourceActor);
 
-		for (int32 bulletNumber = 0; bulletNumber < TraceResults.Num(); bulletNumber++)
+		for (int32 BulletNumber = 0; BulletNumber < TraceResults.Num(); BulletNumber++)
 		{
-			TArray<FHitResult>& ThisBulletHitResults = TraceResults[bulletNumber];
+			TArray<FHitResult>& ThisBulletHitResults = TraceResults[BulletNumber];
 
 			/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
 			FGATD_BulletTraceTargetHit* ThisBulletTargetData = new FGATD_BulletTraceTargetHit();
 
-			float totalDistanceUpUntilThisTrace = 0.f; // accumulated distance of the previous traces
+			float TotalDistanceUpUntilThisTrace = 0.f; // accumulated distance of the previous traces
 
 			TArray<FVector_NetQuantize> BulletTracePoints; // used to tell target data where this bullet went
 			if (ThisBulletHitResults.Num() > 0)
@@ -131,7 +69,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 					if (bIsNewTrace)
 					{
 						// Accumulate last trace's distance
-						totalDistanceUpUntilThisTrace += PreviousHit.Distance;
+						TotalDistanceUpUntilThisTrace += PreviousHit.Distance;
 
 						if (ShouldRicochetOffOf(PreviousHit))
 						{
@@ -153,8 +91,8 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 				// If we got here, we are an unfiltered hit (ie. we hit a character), add info to our target data:
 
 				// This Hit Result's distance plus the previous ricochet(s)'s traveled distance
-				const float ricochetAwareDistance = totalDistanceUpUntilThisTrace + Hit.Distance;
-				float bulletSpeedOnHit = GetBulletSpeedAtPoint(Hit.ImpactPoint, bulletNumber);
+				const float ricochetAwareDistance = TotalDistanceUpUntilThisTrace + Hit.Distance;
+				float bulletSpeedOnHit = GetBulletSpeedAtPoint(Hit.ImpactPoint, BulletNumber);
 				ThisBulletTargetData->ActorHitInfos.Emplace(Hit.GetActor(), ricochetAwareDistance, bulletSpeedOnHit);
 
 
@@ -184,22 +122,22 @@ void AGATA_BulletTrace::CalculateAimDirection(FVector& OutAimStart, FVector& Out
 
 
 	// Calculate new OutAimDir with random bullet spread offset if needed
-	float currentBulletSpread = GunAttributeSet->CurrentBulletSpread;
-	if (currentBulletSpread > SMALL_NUMBER)
+	if (CurrentBulletSpread > SMALL_NUMBER)
 	{
 		// Our injected random seed is only unique to each fire. We need a random seed that is also unique to each bullet in the fire, so we will do this by using t
-		const int32 fireAndBulletSpecificNetSafeRandomSeed = FireSpecificNetSafeRandomSeed - ((CurrentTraceIndex + 2) * FireSpecificNetSafeRandomSeed);	// Here, the 'number' multiplied to t makes the random pattern noticable after firing 'number' of times. I use the prediction key as that 'number' which i think eliminates the threshold for noticeability entirely. - its confusing to think about but i think it works
-		FMath::RandInit(fireAndBulletSpecificNetSafeRandomSeed);
+		const int32 FireAndBulletSpecificNetSafeRandomSeed = FireSpecificNetSafeRandomSeed - ((CurrentTraceIndex + 2) * FireSpecificNetSafeRandomSeed);	// Here, the 'number' multiplied to t makes the random pattern noticable after firing 'number' of times. I use the prediction key as that 'number' which i think eliminates the threshold for noticeability entirely. - its confusing to think about but i think it works
+		FMath::RandInit(FireAndBulletSpecificNetSafeRandomSeed);
 		const FRandomStream RandomStream = FRandomStream(FMath::Rand());
 
 		// Get and apply random offset to OutAimDir using randomStream
-		const float coneHalfAngleRadius = FMath::DegreesToRadians(currentBulletSpread * 0.5f);
-		OutAimDir = RandomStream.VRandCone(OutAimDir, coneHalfAngleRadius);
+		const float ConeHalfAngleRadius = FMath::DegreesToRadians(CurrentBulletSpread * 0.5f);
+		OutAimDir = RandomStream.VRandCone(OutAimDir, ConeHalfAngleRadius);
 	}
 }
 bool AGATA_BulletTrace::ShouldRicochetOffOf(const FHitResult& Hit) const
 {
-	if (const UShooterPhysicalMaterial* ShooterPhysMat = Cast<const UShooterPhysicalMaterial>(Hit.PhysMaterial.Get()))
+	const UPM_Shooter* ShooterPhysMat = Cast<const UPM_Shooter>(Hit.PhysMaterial.Get());
+	if (IsValid(ShooterPhysMat))
 	{
 		if (ShooterPhysMat->bRichochetsBullets)
 		{
@@ -240,7 +178,7 @@ void AGATA_BulletTrace::OnPrePerformTraces(TArray<TArray<FHitResult>>& OutTraceR
 
 
 	// Initialize BulletSteps for these traces
-	const int32 NumberOfBullets = GetNumberOfTraces();
+	const int32 NumberOfBullets = NumberOfTraces;
 	BulletSteps.Empty();
 	BulletSteps.Reserve(NumberOfBullets);
 	BulletSteps.AddDefaulted(NumberOfBullets);
@@ -266,7 +204,7 @@ bool AGATA_BulletTrace::OnInitialTrace(TArray<FHitResult>& OutInitialHitResults,
 	ThisRicochetTraceDir = UKismetMathLibrary::GetDirectionUnitVector(Start, End);
 
 	// Intialize CurrentBulletSpeed
-	CurrentBulletSpeed = GetInitialBulletSpeed();
+	CurrentBulletSpeed = InitialBulletSpeed;
 
 	// Initialize this bullet's BulletSteps
 	BulletSteps[CurrentTraceIndex].Empty();
@@ -274,14 +212,14 @@ bool AGATA_BulletTrace::OnInitialTrace(TArray<FHitResult>& OutInitialHitResults,
 
 	// Nerf CurrentBulletSpeed by distance traveled
 	{
-		float distanceTraveled = 0.f;
+		float DistanceTraveled = 0.f;
 		for (const FHitResult& Hit : OutInitialHitResults)
 		{
-			distanceTraveled += Hit.Distance;
+			DistanceTraveled += Hit.Distance;
 		}
 
-		const float nerfMultiplier = GetBulletSpeedFalloffNerf(GetBulletSpeedFalloff(), distanceTraveled);
-		CurrentBulletSpeed *= nerfMultiplier;
+		const float NerfMultiplier = GetBulletSpeedFalloffNerf(BulletSpeedFalloff, DistanceTraveled);
+		CurrentBulletSpeed *= NerfMultiplier;
 	}
 
 	return RetVal;
@@ -298,14 +236,14 @@ bool AGATA_BulletTrace::OnPenetrate(TArray<FHitResult>& HitResults, TArray<FHitR
 
 	// Nerf CurrentBulletSpeed by distance traveled
 	{
-		float distanceTraveled = 0.f;
+		float DistanceTraveled = 0.f;
 		for (const FHitResult& Hit : OutPenetrateHitResults)
 		{
-			distanceTraveled += Hit.Distance;
+			DistanceTraveled += Hit.Distance;
 		}
 
-		const float nerfMultiplier = GetBulletSpeedFalloffNerf(GetBulletSpeedFalloff(), distanceTraveled);
-		CurrentBulletSpeed *= nerfMultiplier;
+		const float NerfMultiplier = GetBulletSpeedFalloffNerf(BulletSpeedFalloff, DistanceTraveled);
+		CurrentBulletSpeed *= NerfMultiplier;
 	}
 
 	return RetVal;
@@ -380,14 +318,14 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 
 	// Nerf CurrentBulletSpeed by distance traveled
 	{
-		float distanceTraveled = 0.f;
+		float DistanceTraveled = 0.f;
 		for (const FHitResult& Hit : OutRicoHitResults)
 		{
-			distanceTraveled += Hit.Distance;
+			DistanceTraveled += Hit.Distance;
 		}
 
-		const float nerfMultiplier = GetBulletSpeedFalloffNerf(GetBulletSpeedFalloff(), distanceTraveled);
-		CurrentBulletSpeed *= nerfMultiplier;
+		const float NerfMultiplier = GetBulletSpeedFalloffNerf(BulletSpeedFalloff, DistanceTraveled);
+		CurrentBulletSpeed *= NerfMultiplier;
 	}
 
 
@@ -551,21 +489,21 @@ bool AGATA_BulletTrace::ApplyBulletStepsToBulletSpeed(const TArray<FBulletStep>&
 
 float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, int32 bulletNumber)
 {
-	float retVal = GetInitialBulletSpeed();
+	float RetVal = InitialBulletSpeed;
 
 
-	float totalDistanceTraveled = 0.f;
+	float TotalDistanceTraveled = 0.f;
 
-	const TArray<FBulletStep>& Steps = BulletSteps[bulletNumber];	// Get the steps from this specific bullet
+	const TArray<FBulletStep>& Steps = BulletSteps[bulletNumber]; // get the steps from this specific bullet
 	for (const FBulletStep& BulletStep : Steps)
 	{
-		retVal -= BulletStep.GetBulletSpeedToTakeAway();
+		RetVal -= BulletStep.GetBulletSpeedToTakeAway();
 
-		if (const FTraceSegment* TraceSegment = BulletStep.GetTraceSegment())	// if we're a TraceSegment
+		if (const FTraceSegment* TraceSegment = BulletStep.GetTraceSegment()) // if we're a TraceSegment
 		{
 			const float& SegmentDistance = TraceSegment->GetSegmentDistance();
 
-			totalDistanceTraveled += SegmentDistance;
+			TotalDistanceTraveled += SegmentDistance;
 
 			if (Point.Equals(TraceSegment->GetEndPoint(), KINDA_SMALL_NUMBER + (KINDA_SMALL_NUMBER * 100))) // if the given Point is this segment's EndPoint
 			{
@@ -575,14 +513,14 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, int32 bulle
 			const float TraveledDistance = FVector::Distance(TraceSegment->GetStartPoint(), Point);
 			const float UntraveledDistance = FVector::Distance(Point, TraceSegment->GetEndPoint());
 
-			if (FMath::IsNearlyEqual(TraveledDistance + UntraveledDistance, SegmentDistance))	// if the Start, End, and Point don't form a triangle, Point is on the segment
+			if (FMath::IsNearlyEqual(TraveledDistance + UntraveledDistance, SegmentDistance)) // if the Start, End, and Point don't form a triangle, Point is on the segment
 			{
 				// We took away the whole Segment's speed even though this point is within the Segment. So add back the part of the Segment that we didn't travel through
 				const float TraveledThroughnessRatio = (TraveledDistance / SegmentDistance);
-				retVal += BulletStep.GetBulletSpeedToTakeAway() * (1 - TraveledThroughnessRatio);
+				RetVal += BulletStep.GetBulletSpeedToTakeAway() * (1 - TraveledThroughnessRatio);
 
 
-				totalDistanceTraveled -= UntraveledDistance;
+				TotalDistanceTraveled -= UntraveledDistance;
 
 				break;
 			}
@@ -597,17 +535,17 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, int32 bulle
 		}
 		else
 		{
-			UE_LOG(LogGameplayAbilityTargetActor, Warning, TEXT("%s() A BulletStep had no RicochetPoint or TraceSegment.... Something's wrong"), *FString(__FUNCTION__));
+			UE_LOG(LogGameplayAbilityTargetActor, Warning, TEXT("%s() A BulletStep had no RicochetPoint or TraceSegment.... Something's wrong"), ANSI_TO_TCHAR(__FUNCTION__));
 		}
 	}
 	
 
-	// Nerf retVal by distance traveled
-	const float nerfMultiplier = GetBulletSpeedFalloffNerf(GetBulletSpeedFalloff(), totalDistanceTraveled);
-	retVal *= nerfMultiplier;
+	// Nerf RetVal by distance traveled
+	const float NerfMultiplier = GetBulletSpeedFalloffNerf(BulletSpeedFalloff, TotalDistanceTraveled);
+	RetVal *= NerfMultiplier;
 
 
-	return retVal;
+	return RetVal;
 }
 
 float AGATA_BulletTrace::GetBulletSpeedFalloffNerf(const float& bulletSpeedFalloffValue, const float& totalDistanceBulletTraveled)

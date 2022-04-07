@@ -9,7 +9,7 @@
 #include "Perks/ArcItemPerkTypes.h"
 #include "ArcInventoryItemTypes.generated.h"
 
-extern const int32 NAMED_ITEM_SLOT;
+ARCINVENTORY_API extern const int32 NAMED_ITEM_SLOT;
 
 class UArcOLDItemDefition;
 class UArcItemRarity;		

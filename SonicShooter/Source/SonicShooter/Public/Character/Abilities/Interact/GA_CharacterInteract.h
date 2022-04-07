@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/ASSGameplayAbility.h"
-#include "Interfaces/Interactable.h"
+#include "Interfaces/InteractableInterface.h"
 
 #include "GA_CharacterInteract.generated.h"
 
-class AShooterCharacter;
+class AC_Shooter;
 
 /**
  * 
@@ -21,14 +21,14 @@ class SONICSHOOTER_API UGA_CharacterInteract : public UASSGameplayAbility
 public:
 	UGA_CharacterInteract();
 
-	IInteractable* Interactable;
+	IInteractableInterface* Interactable;
 protected:
 	UPROPERTY()
 		TSubclassOf<UGameplayEffect> InteractEffectTSub;	// Implementor assigns this so we don't need "EditAnywhere"
 	FActiveGameplayEffectHandle InteractEffectActiveHandle;
 
 	UPROPERTY()
-		AShooterCharacter* ShooterCharacter;
+		TWeakObjectPtr<AC_Shooter> ShooterCharacter;
 
 	EDurationInteractEndReason InteractEndReason;
 	float timeHeld;

@@ -25,6 +25,7 @@ public:
 
 
 protected:
-	UASC_Shooter* ShooterAbilitySystemComponent;
+	UPROPERTY()
+		TWeakObjectPtr<UASC_Shooter> ShooterAbilitySystemComponent;
 
 };

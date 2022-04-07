@@ -20,13 +20,18 @@ class SONICSHOOTER_API ASSHUD : public AHUD
 	GENERATED_BODY()
 
 public:
-	ASSHUD();
+	ASSHUD(const FObjectInitializer& ObjectInitializer);
 
 
 #if 0
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<UUW_My> MyWidgetTSub;
-	UUserWidget* MyWidget;
+	UPROPERTY()
+		UUserWidget* MyWidget;
+
+	// Points to an external MyOther Widget
+	UPROPERTY()
+		TWeakObjectPtr<UUW_MyOther> CurrentMyOtherWidget;
 #endif
 
 protected:

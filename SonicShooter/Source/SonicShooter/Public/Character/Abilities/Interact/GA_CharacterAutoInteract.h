@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem\ASSGameplayAbility.h"
-#include "Interfaces/Interactable.h"
+#include "Interfaces/InteractableInterface.h"
 #include "GA_CharacterAutoInteract.generated.h"
 
-class AShooterCharacter;
+class AC_Shooter;
 
 /**
  * 
@@ -21,7 +21,7 @@ public:
 	UGA_CharacterAutoInteract();
 
 	UPROPERTY()
-		AShooterCharacter* ShooterCharacter;
+		TWeakObjectPtr<AC_Shooter> ShooterCharacter;
 
 protected:
 

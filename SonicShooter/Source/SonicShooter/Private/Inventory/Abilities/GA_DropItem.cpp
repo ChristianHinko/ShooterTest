@@ -4,7 +4,7 @@
 #include "Inventory/Abilities/GA_DropItem.h"
 
 #include "Utilities/LogCategories.h"
-#include "Character/ShooterCharacter.h"
+#include "Character/C_Shooter.h"
 #include "ArcInventoryComponent.h"
 #include "Abilities/Tasks/ArcAbilityTask_DropItem.h"
 #include "ArcInventoryItemTypes.h"
@@ -36,17 +36,17 @@ void UGA_DropItem::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const
 	}
 
 
-	ShooterCharacter = Cast<AShooterCharacter>(ActorInfo->AvatarActor.Get());
-	if (!ShooterCharacter)
+	ShooterCharacter = Cast<AC_Shooter>(ActorInfo->AvatarActor.Get());
+	if (!ShooterCharacter.IsValid())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShooterCharacter was NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShooterCharacter was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
 
 	IArcInventoryInterface* InventoryInterface = Cast<IArcInventoryInterface>(ShooterCharacter);
 	if (!InventoryInterface)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Cast to InventoryInterface failed"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Cast to InventoryInterface failed"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
 	Inventory = InventoryInterface->GetInventoryComponent();
@@ -60,14 +60,14 @@ bool UGA_DropItem::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, c
 		return false;
 	}
 
-	if (!ShooterCharacter)
+	if (!ShooterCharacter.IsValid())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShooterCharacter was NULL. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShooterCharacter was NULL. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
-	if (!Inventory)
+	if (!Inventory.IsValid())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Inventory was NULL. Returned false"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Inventory was NULL. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
@@ -89,7 +89,7 @@ void UGA_DropItem::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	UArcAbilityTask_DropItem* DropItemTask = UArcAbilityTask_DropItem::DropItemFromInventory(this, Inventory->PendingItemDrop);
 	if (!DropItemTask)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DropItemTask was NULL when trying to activate DropItem ability. Called EndAbility()"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DropItemTask was NULL when trying to activate DropItem ability. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
@@ -104,9 +104,9 @@ void UGA_DropItem::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 void UGA_DropItem::OnDataRecieved(const FArcInventoryItemSlotReference& FromSlot)
 {
 	RemovedItemStack = UArcItemBPFunctionLibrary::GetItemFromSlot(FromSlot);
-	if (!IsValid(RemovedItemStack))
+	if (!RemovedItemStack.IsValid())
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() RemovedItemStack was NULL when trying to spawn the removed item into the world. Spawning into the world without a valid stack D:"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() RemovedItemStack was NULL when trying to spawn the removed item into the world. Spawning into the world without a valid stack D:"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 	if (Inventory->RemoveItemFromInventory(FromSlot))
@@ -114,7 +114,7 @@ void UGA_DropItem::OnDataRecieved(const FArcInventoryItemSlotReference& FromSlot
 		FTransform SpawnTransform = ShooterCharacter->GetActorTransform();
 		SpawnTransform.SetLocation(SpawnTransform.GetLocation() + (ShooterCharacter->GetActorForwardVector() * 200));
 
-		UArcItemBPFunctionLibrary::SpawnWorldItem(this, RemovedItemStack, SpawnTransform);
+		UArcItemBPFunctionLibrary::SpawnWorldItem(this, RemovedItemStack.Get(), SpawnTransform);
 	}
 
 
@@ -160,4 +160,3 @@ void UGA_DropItem::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGa
 	// super end ability loops through all tasks and calls OnDestroy; however, this is a virtual function, some tasks may not be destroyed on end ability (this is probably a super rare case tho) (dan says WaitTargetData doesn't end)
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
-

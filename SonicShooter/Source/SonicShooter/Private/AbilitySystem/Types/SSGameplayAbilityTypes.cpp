@@ -7,6 +7,7 @@
 #include "Player/SSPlayerController.h"
 #include "Player/SSPlayerState.h"
 #include "Character/SSCharacterMovementComponent.h"
+#include "ArcItemBPFunctionLibrary.h"
 
 
 
@@ -48,7 +49,6 @@ void FSSGameplayAbilityActorInfo::ClearActorInfo()
 {
     Super::ClearActorInfo();
 
-
     SSCharacter = nullptr;
     SSPlayerController = nullptr;
     SSPlayerState = nullptr;
@@ -63,7 +63,7 @@ void FSSGameplayAbilityActorInfo::ClearActorInfo()
 
 
 #include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
-#include "Character/ShooterCharacter.h"
+#include "Character/C_Shooter.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
 
 
@@ -82,15 +82,10 @@ void FGAAI_Shooter::ASSInitFromActor(AActor* InOwnerActor, AActor* InAvatarActor
     ShooterAbilitySystemComponent = Cast<UASC_Shooter>(ASSAbilitySystemComponent);
 
     // Get our Shooter Character
-    ShooterCharacter = Cast<AShooterCharacter>(InAvatarActor);
+    ShooterCharacter = Cast<AC_Shooter>(InAvatarActor);
 
     // Get our Inventory
-
-    //if (ShooterCharacter.IsValid())
-    //{
-    //    InventoryComponent = ShooterCharacter->GetInventoryComponent();
-    //}
-    InventoryComponent = Cast<USSArcInventoryComponent_Active>(InAvatarActor->GetComponentByClass(USSArcInventoryComponent_Active::StaticClass()));
+    InventoryComponent = Cast<USSArcInventoryComponent_Active>(UArcItemBPFunctionLibrary::GetInventoryComponent(InAvatarActor, true));
 }
 
 void FGAAI_Shooter::SetAvatarActor(AActor* InAvatarActor)

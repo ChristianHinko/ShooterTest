@@ -6,7 +6,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Character/SSCharacter.h"
-#include "Character/ShooterCharacter.h"
+#include "Character/C_Shooter.h"
 #include "Kismet/KismetMathLibrary.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -33,29 +33,29 @@ void UAI_ShooterCharacter::NativeInitializeAnimation()
 	Super::NativeInitializeAnimation();
 
 
-	OwningShooterCharacter = Cast<AShooterCharacter>(GetOwningActor());
+	OwningShooterCharacter = Cast<AC_Shooter>(GetOwningActor());
 }
 void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 {
 	Super::NativeUpdateAnimation(DeltaTimeX);
 
 
-	if (OwningShooterCharacter)
+	if (const AC_Shooter* ShooterCharacter = OwningShooterCharacter.Get())
 	{
 #pragma region Owning Actor work
-		ActorRotation = OwningShooterCharacter->GetActorRotation();
+		ActorRotation = ShooterCharacter->GetActorRotation();
 
-		Velocity = OwningShooterCharacter->GetVelocity();
+		Velocity = ShooterCharacter->GetVelocity();
 		Speed = Velocity.Size();
 
-		ForwardSpeed = Velocity.ProjectOnTo(OwningShooterCharacter->GetActorForwardVector()).Size();
-		RightSpeed = Velocity.ProjectOnTo(OwningShooterCharacter->GetActorRightVector()).Size();
-		UpSpeed = Velocity.ProjectOnTo(OwningShooterCharacter->GetActorUpVector()).Size();
+		ForwardSpeed = Velocity.ProjectOnTo(ShooterCharacter->GetActorForwardVector()).Size();
+		RightSpeed = Velocity.ProjectOnTo(ShooterCharacter->GetActorRightVector()).Size();
+		UpSpeed = Velocity.ProjectOnTo(ShooterCharacter->GetActorUpVector()).Size();
 
 		// TODO: make this more optimized ( "Velocity.ProjectOnToNormal(UpVector).Size()" isn't working some reason )
 		HorizontalSpeed = FMath::Sqrt(FMath::Square(ForwardSpeed) + FMath::Square(RightSpeed));
 
-		Direction = CalculateDirection(Velocity, OwningShooterCharacter->GetActorRotation()); // TODO: make sure this is relative to the actor's rotation
+		Direction = CalculateDirection(Velocity, ShooterCharacter->GetActorRotation()); // TODO: make sure this is relative to the actor's rotation
 #pragma endregion
 
 
@@ -63,7 +63,7 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 
 
 #pragma region Owning Pawn work
-		AimRotation = OwningShooterCharacter->GetBaseAimRotation();	// this will be choppy when replicated but we won't automatically smooth it here
+		AimRotation = ShooterCharacter->GetBaseAimRotation();	// this will be choppy when replicated but we won't automatically smooth it here
 
 		TurnInPlace(DeltaTimeX);
 		MeshRotation = ActorRotation + FRotator(0.f, TurnInPlaceYawOffset, 0.f);
@@ -80,7 +80,7 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 
 #pragma region Owning Charcter work
 		// Update movement variables
-		if (UCharacterMovementComponent* CMC = OwningShooterCharacter->GetCharacterMovement())
+		if (UCharacterMovementComponent* CMC = ShooterCharacter->GetCharacterMovement())
 		{
 			bGrounded = CMC->IsMovingOnGround();
 			bInAir = CMC->IsFalling();
@@ -98,7 +98,7 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 
 
 #pragma region Owning ShooterChractor work
-		headLookAtRot = GetHeadLookAtTargetRot(OwningShooterCharacter->GetNearestPawn(), DeltaTimeX);
+		headLookAtRot = GetHeadLookAtTargetRot(ShooterCharacter->GetNearestPawn(), DeltaTimeX);
 #pragma endregion
 	}
 
@@ -214,7 +214,7 @@ void UAI_ShooterCharacter::TurnInPlace(float DeltaTimeX)
 FRotator UAI_ShooterCharacter::GetHeadLookAtTargetRot(AActor* Target, float deltaTime)
 {
 	FRotator retVal = FRotator::ZeroRotator;
-	if (OwningShooterCharacter && Target)
+	if (OwningShooterCharacter.IsValid() && Target)
 	{
 		FVector SelfHeadLocation;
 		if (OwningShooterCharacter->GetMesh())
@@ -222,7 +222,7 @@ FRotator UAI_ShooterCharacter::GetHeadLookAtTargetRot(AActor* Target, float delt
 			SelfHeadLocation = OwningShooterCharacter->GetMesh()->GetSocketLocation(TEXT("head"));
 		}
 		FVector locationToLookAt;
-		if (AShooterCharacter* ShooterCharacterToLookAt = Cast<AShooterCharacter>(Target))
+		if (AC_Shooter* ShooterCharacterToLookAt = Cast<AC_Shooter>(Target))
 		{
 			if (ShooterCharacterToLookAt->GetMesh())
 			{

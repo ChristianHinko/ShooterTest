@@ -5,7 +5,8 @@
 
 
 
-ASSHUD::ASSHUD()
+ASSHUD::ASSHUD(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 
 }
@@ -22,13 +23,13 @@ void ASSHUD::PostInitializeComponents()
 
 #if 0
 	MyWidget = UWidgetBlueprintLibrary::Create(this, MyWidgetTSub, GetOwningPlayerController());
-	if (MyWidget)
+	if (IsValid(MyWidget))
 	{
-		MyWidget->AddToViewport();
+		MyWidget->AddToPlayerScreen();
 	}
 	else
 	{
-		UE_LOG(LogUI, Error, TEXT("%s(): Failed to create MyWidget. Ensure to fill out TSubs in BP"), *FString(__FUNCTION__));
+		UE_LOG(LogUI, Error, TEXT("%s(): Failed to create MyWidget. Ensure to fill out TSubs in BP"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 #endif
 }

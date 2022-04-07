@@ -2,10 +2,10 @@
 
 
 #include "FirearmParts/FPSTemplate_Barrel.h"
-#include "FPSTemplateFirearm.h"
-#include "FPSTemplateStatics.h"
+#include "Actors/FPSTemplateFirearm.h"
+#include "Misc/FPSTemplateStatics.h"
 #include "FirearmParts/FPSTemplate_Muzzle.h"
-#include "FPSTemplate_PartComponent.h"
+#include "Components/FPSTemplate_PartComponent.h"
 
 #include "Net/UnrealNetwork.h"
 
@@ -33,66 +33,48 @@ void AFPSTemplate_Barrel::BeginPlay()
 void AFPSTemplate_Barrel::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(AFPSTemplate_Barrel, MuzzleComponent);
+	DOREPLIFETIME(AFPSTemplate_Barrel, MuzzleDevice);
 }
 
 FTransform AFPSTemplate_Barrel::GetMuzzleSocketTransform() const
 {
-	if (PartComponents.Num())
+	if (IsValid(MuzzleDevice))
 	{
-		for (UFPSTemplate_PartComponent* PartComponent : PartComponents)
-		{
-			if (PartComponent)
-			{
-				AFPSTemplate_Muzzle* Muzzle = PartComponent->GetPart<AFPSTemplate_Muzzle>();
-				if (IsValid(Muzzle))
-				{
-					//FPSLog(TEXT("Muzzle: %s"), *Muzzle->GetName());
-					return Muzzle->GetMuzzleSocketTransform();
-				}
-			}
-		}
+		return MuzzleDevice->GetMuzzleSocketTransform();
 	}
-	return PartMesh->GetSocketTransform(MuzzleSocket);
+	return IsValid(PartMesh) ? PartMesh->GetSocketTransform(MuzzleSocket) : FTransform();
 }
 
 bool AFPSTemplate_Barrel::DoesMuzzleSocketExist() const
 {
-	return PartMesh->DoesSocketExist(MuzzleSocket);
+	return IsValid(PartMesh) ? PartMesh->DoesSocketExist(MuzzleSocket) : false;
 }
 
-AFPSTemplate_Muzzle* AFPSTemplate_Barrel::GetMuzzleDevice() const
+AFPSTemplate_Muzzle* AFPSTemplate_Barrel::GetMuzzleDevice()
 {
-	if (PartComponents.Num())
-	{
-		for (UFPSTemplate_PartComponent* PartComponent : PartComponents)
-		{
-			if (PartComponent)
-			{
-				if (AFPSTemplate_Muzzle* Muzzle = PartComponent->GetPart<AFPSTemplate_Muzzle>())
-				{
-					return Muzzle;
-				}
-			}
-		}
-	}
-	return nullptr;
+	return Cast<AFPSTemplate_Muzzle>(GetMuzzleDeviceActor());
 }
 
 AActor* AFPSTemplate_Barrel::GetMuzzleDeviceActor()
 {
-	if (PartComponents.Num())
+	if (IsValid(MuzzleDevice))
 	{
-		for (UFPSTemplate_PartComponent* PartComponent : PartComponents)
+		return MuzzleDevice->GetMuzzleAttachment();
+	}
+	return this;
+}
+
+void AFPSTemplate_Barrel::CacheParts()
+{
+	for (UFPSTemplate_PartComponent* PartComponent : PartComponents)
+	{
+		if (PartComponent)
 		{
-			if (PartComponent)
+			AFPSTemplate_Muzzle* Muzzle = PartComponent->GetPart<AFPSTemplate_Muzzle>();
+			if (IsValid(Muzzle))
 			{
-				if (AFPSTemplate_Muzzle* Muzzle = PartComponent->GetPart<AFPSTemplate_Muzzle>())
-				{
-					return Muzzle;
-				}
+				MuzzleDevice = Muzzle;
 			}
 		}
 	}
-	return this;
 }

@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FirearmParts/BaseClasses/FPSTemplate_PartStatic.h"
+#include "FirearmParts/BaseClasses/FPSTemplate_PartBase.h"
 #include "FPSTemplate_Muzzle.generated.h"
 
 
 UCLASS()
-class ULTIMATEFPSTEMPLATE_API AFPSTemplate_Muzzle : public AFPSTemplate_PartStatic
+class ULTIMATEFPSTEMPLATE_API AFPSTemplate_Muzzle : public AFPSTemplate_PartBase
 {
 	GENERATED_BODY()
 	
@@ -23,6 +23,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FPSTemplate | Sockets")
 	FName MuzzleSocket;
 
+	UPROPERTY(Replicated)
+	AFPSTemplate_Muzzle* MuzzleAttachment;
+	
 public:
 	UFUNCTION(BlueprintCallable, Category = "SteelChallenge | Ammo")
 	FTransform GetMuzzleSocketTransform();
@@ -31,4 +34,8 @@ public:
 	bool DoesMuzzleSocketExist();
 	UFUNCTION(BlueprintCallable, Category = "FPSTemplate | Default")
 	bool IsSuppressor() const;
+	UFUNCTION(BlueprintCallable, Category = "SteelChallenge | Ammo")
+	AFPSTemplate_Muzzle* GetMuzzleAttachment() { return IsValid(MuzzleAttachment) ? MuzzleAttachment : this; }
+
+	virtual void CacheParts() override;
 };

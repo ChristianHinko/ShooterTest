@@ -22,7 +22,7 @@ struct SONICSHOOTER_API FSSGameplayAbilityTargetData : public FASSGameplayAbilit
 
 	virtual UScriptStruct* GetScriptStruct() const override
 	{
-		return FSSGameplayAbilityTargetData::StaticStruct();
+		return StaticStruct();
 	}
 };
 
@@ -45,23 +45,23 @@ struct FActorHitInfo
 	{
 
 	}
-	FActorHitInfo(const TWeakObjectPtr<AActor>& inHitActor, float inTotalTraveledDistanceBeforeHit, float inBulletSpeedAtImpact)
+	FActorHitInfo(const TWeakObjectPtr<AActor>& InHitActor, float InTotalTraveledDistanceBeforeHit, float InBulletSpeedAtImpact)
 	{
-		HitActor = inHitActor;
-		totalTraveledDistanceBeforeHit = inTotalTraveledDistanceBeforeHit;
-		bulletSpeedAtImpact = inBulletSpeedAtImpact;
+		HitActor = InHitActor;
+		TotalTraveledDistanceBeforeHit = InTotalTraveledDistanceBeforeHit;
+		BulletSpeedAtImpact = InBulletSpeedAtImpact;
 	}
 	void operator=(const FActorHitInfo& Other)
 	{
 		HitActor = Other.HitActor;
-		totalTraveledDistanceBeforeHit = Other.totalTraveledDistanceBeforeHit;
-		bulletSpeedAtImpact = Other.bulletSpeedAtImpact;
+		TotalTraveledDistanceBeforeHit = Other.TotalTraveledDistanceBeforeHit;
+		BulletSpeedAtImpact = Other.BulletSpeedAtImpact;
 	}
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
 	{
 		Ar << HitActor;
-		Ar << totalTraveledDistanceBeforeHit;
-		Ar << bulletSpeedAtImpact;
+		Ar << TotalTraveledDistanceBeforeHit;
+		Ar << BulletSpeedAtImpact;
 
 		bOutSuccess = true;
 		return true;
@@ -70,9 +70,9 @@ struct FActorHitInfo
 	UPROPERTY()
 		TWeakObjectPtr<AActor> HitActor;
 	UPROPERTY()
-		float totalTraveledDistanceBeforeHit;
+		float TotalTraveledDistanceBeforeHit;
 	UPROPERTY()
-		float bulletSpeedAtImpact;
+		float BulletSpeedAtImpact;
 };
 
 template<>
@@ -85,7 +85,7 @@ struct TStructOpsTypeTraits<FActorHitInfo> : public TStructOpsTypeTraitsBase2<FA
 };
 
 /**
- * This is the target data struct that represents the targets that were hit by a certain bullet. This is a pretty good GATD code wise :O
+ * This is the Target Data struct that represents the targets that were hit by a certain bullet. This is a pretty good GATD code wise :O
  */
 USTRUCT(BlueprintType)
 struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTargetData
@@ -94,11 +94,12 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 
 	FGATD_BulletTraceTargetHit();
 
+
 	/** Applies a previously created gameplay effect spec to each target represented */
 	virtual TArray<FActiveGameplayEffectHandle> ApplyGameplayEffectSpec(FGameplayEffectSpec& Spec, FPredictionKey PredictionKey = FPredictionKey());
 
 	virtual void AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray) const override;
-	virtual void AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray, int32 hitInfosIndex) const;		// Custom overload that asks for the hit target actor (by passing in the ActorHitInfos index)
+	virtual void AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray, int32 HitInfosIndex) const; // custom overload that asks for the hit target actor (by passing in the ActorHitInfos index)
 
 
 	virtual TArray<TWeakObjectPtr<AActor>> GetActors() const override
@@ -150,7 +151,8 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 	}
 
 
-	// -------------------------------------
+
+
 	/**
 	 * The points which describe this bullet's path. If you "connect the dots" you will get the bullet's path. The first point is the start point and the last point is the end point.
 	 * To get the number of times ricocheted, do (BulletTracePoints.Num() - 2). This adds up all of the ricochet points (if any) disregarding the start and end location.
@@ -172,7 +174,7 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 
 	virtual UScriptStruct* GetScriptStruct() const override
 	{
-		return FGATD_BulletTraceTargetHit::StaticStruct();
+		return StaticStruct();
 	}
 };
 

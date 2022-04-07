@@ -3,13 +3,13 @@
 
 #include "Character/Abilities/Interact/GA_CharacterInstantInteract.h"
 
-#include "Character/ShooterCharacter.h"
+#include "Character/C_Shooter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "Utilities/LogCategories.h"
 #include "Utilities/SSNativeGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "Character\AbilityTasks\AT_DurationInteractCallbacks.h"
-#include "ActorComponents/InteractorComponent.h"
+#include "Subobjects/ActorComponents/AC_Interactor.h"
 
 UGA_CharacterInstantInteract::UGA_CharacterInstantInteract()
 {
@@ -30,9 +30,9 @@ bool UGA_CharacterInstantInteract::CanActivateAbility(const FGameplayAbilitySpec
 	}
 
 	////////////// Allow the implementer to create custom conditions before we activate (may make this specific to the type of interact) ////////////
-	if (ShooterCharacter->Interactor->CurrentPrioritizedInteractable->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
+	if (ShooterCharacter->GetInteractorComponent()->CurrentPrioritizedInteractable->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from IInteractable's implementor"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from IInteractableInterface's implementor"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 	return true;
@@ -50,7 +50,7 @@ void UGA_CharacterInstantInteract::ActivateAbility(const FGameplayAbilitySpecHan
 	}
 	///////////////////////////////////// we are safe to proceed /////////
 
-	Interactable->OnInstantInteract(ShooterCharacter);
+	Interactable->OnInstantInteract(ShooterCharacter.Get());
 
 	
 

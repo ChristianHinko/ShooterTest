@@ -3,7 +3,7 @@
 
 #include "Character\Abilities\Interact\GA_CharacterAutoInteract.h"
 
-#include "Character/ShooterCharacter.h"
+#include "Character/C_Shooter.h"
 #include "Utilities/LogCategories.h"
 #include "Utilities/SSNativeGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
@@ -54,10 +54,10 @@ void UGA_CharacterAutoInteract::OnAvatarSet(const FGameplayAbilityActorInfo* Act
 		return;
 	}
 
-	ShooterCharacter = Cast<AShooterCharacter>(ActorInfo->AvatarActor.Get());
-	if (!ShooterCharacter)
+	ShooterCharacter = Cast<AC_Shooter>(ActorInfo->AvatarActor.Get());
+	if (!ShooterCharacter.IsValid())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL"), *FString(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
 }
@@ -77,12 +77,12 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 
 //if (!ShooterCharacter->CurrentPrioritizedInteractable->GetIsManualDurationInteract() && !ShooterCharacter->CurrentPrioritizedInteractable->GetIsAutomaticDurationInteract())
 //{
-//	UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetIsManualDurationInteract() returned false"), *FString(__FUNCTION__));
+//	UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetIsManualDurationInteract() returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 //	return false;
 //}
 //if (ShooterCharacter->CurrentPrioritizedInteractable->GetIsAutomaticInstantInteract() && ShooterCharacter->CurrentPrioritizedInteractable->GetIsManualInstantInteract())
 //{
-//	UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Interactable was set to be both automatic and manual which doesn't make sense. returned false"), *FString(__FUNCTION__));
+//	UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Interactable was set to be both automatic and manual which doesn't make sense. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 //	return false;
 //}
 
@@ -136,7 +136,7 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //	UAT_DurationInteractCallbacks* DurationInteractCallbacks = UAT_DurationInteractCallbacks::DurationInteractCallbacks(this, ShooterCharacter, Interactable);
 //	if (!DurationInteractCallbacks)
 //	{
-//		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DurationInteractCallbacks was NULL when trying to activate an automatic duration interact."), *FString(__FUNCTION__));
+//		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DurationInteractCallbacks was NULL when trying to activate an automatic duration interact."), ANSI_TO_TCHAR(__FUNCTION__));
 //      EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 //		return;
 //	}
@@ -239,7 +239,7 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //	}
 //	else
 //	{
-//		UE_LOG(LogGameplayAbility, Error, TEXT("%s() RemoveActiveGameplayEffect(InteractEffectActiveHandle) failed. AbilitySystemComponent was NULL"), *FString(__FUNCTION__));
+//		UE_LOG(LogGameplayAbility, Error, TEXT("%s() RemoveActiveGameplayEffect(InteractEffectActiveHandle) failed. AbilitySystemComponent was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 //	}
 //
 //	if (bWasCancelled)
@@ -312,7 +312,7 @@ bool UGA_CharacterAutoInteract::CanActivateAbility(const FGameplayAbilitySpecHan
 //	}
 //	else
 //	{
-//		UE_LOG(LogGameplayAbility, Error, TEXT("%s() RemoveActiveGameplayEffect(InteractEffectActiveHandle) failed. AbilitySystemComponent was NULL"), *FString(__FUNCTION__));
+//		UE_LOG(LogGameplayAbility, Error, TEXT("%s() RemoveActiveGameplayEffect(InteractEffectActiveHandle) failed. AbilitySystemComponent was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 //	}
 //
 //	if (bWasCancelled)

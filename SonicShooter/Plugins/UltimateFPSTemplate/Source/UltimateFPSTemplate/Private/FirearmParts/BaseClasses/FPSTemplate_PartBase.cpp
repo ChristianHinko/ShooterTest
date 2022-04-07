@@ -2,8 +2,8 @@
 
 
 #include "FirearmParts/BaseClasses/FPSTemplate_PartBase.h"
-#include "FPSTemplate_PartComponent.h"
-#include "FPSTemplateFirearm.h"
+#include "Components/FPSTemplate_PartComponent.h"
+#include "Actors/FPSTemplateFirearm.h"
 
 #include "Net/UnrealNetwork.h"
 
@@ -14,8 +14,9 @@ AFPSTemplate_PartBase::AFPSTemplate_PartBase()
 	PrimaryActorTick.bCanEverTick = false;
 
 	bReplicates = true;
+	NetUpdateFrequency = 30.0f;
 
-	PoseCollision = ECC_GameTraceChannel2;
+	FirearmCollisionChannel = ECC_GameTraceChannel2;
 	
 	PartStats.Weight = 0.22f;
 	PartStats.ErgonomicsChangePercentage = 0.0f;
@@ -29,6 +30,21 @@ AFPSTemplate_PartBase::AFPSTemplate_PartBase()
 	bHasRenderTarget = false;
 }
 
+void AFPSTemplate_PartBase::SetupPartMesh()
+{
+	TArray<UMeshComponent*> ActorMeshComponents;
+	GetComponents<UMeshComponent>(ActorMeshComponents);
+	for (UMeshComponent* MeshComponent : ActorMeshComponents)
+	{
+		if (IsValid(MeshComponent) && MeshComponent->ComponentHasTag(FName("FPSPart")))
+		{
+			PartMesh = MeshComponent;
+			PartMesh->SetCollisionResponseToChannel(FirearmCollisionChannel, ECR_Ignore);
+			break;
+		}
+	}
+}
+
 // Called when the game starts or when spawned
 void AFPSTemplate_PartBase::BeginPlay()
 {
@@ -38,6 +54,12 @@ void AFPSTemplate_PartBase::BeginPlay()
 	{
 		GetComponents<UFPSTemplate_PartComponent>(PartComponents);
 	}
+}
+
+void AFPSTemplate_PartBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	SetupPartMesh();
 }
 
 void AFPSTemplate_PartBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -70,6 +92,7 @@ FFirearmPartStats AFPSTemplate_PartBase::GetPartStats()
 	{
 		if (PartComponent && IsValid(PartComponent->GetPart()))
 		{
+			PartComponent->GetPart()->CacheParts();
 			ReturnPartStats += PartComponent->GetPart()->GetPartStats();
 		}
 	}
@@ -94,15 +117,14 @@ AFPSTemplateFirearm* AFPSTemplate_PartBase::GetOwningFirearm()
 	return nullptr;
 }
 
-AFPSTemplateCharacter* AFPSTemplate_PartBase::GetOwningCharacter()
+UFPSTemplate_CharacterComponent* AFPSTemplate_PartBase::GetOwningCharacterComponent()
 {
 	AFPSTemplateFirearm* Firearm = GetOwningFirearm();
 	if (Firearm)
 	{
-		AFPSTemplateCharacter* Character = Firearm->GetOwningCharacter();
-		if (Character)
+		if (UFPSTemplate_CharacterComponent* CharacterComponent = Firearm->GetCharacterComponent())
 		{
-			return Character;
+			return CharacterComponent;
 		}
 	}
 	return nullptr;
@@ -125,6 +147,7 @@ void AFPSTemplate_PartBase::PartsUpdated()
 {
 	if (AFPSTemplateFirearm* Firearm = GetOwningFirearm())
 	{
+		Firearm->AddPartCache(OwningPartComponent);
 		Firearm->PartsChanged();
 	}
 }
@@ -191,7 +214,6 @@ TArray<UFPSTemplate_PartComponent*> AFPSTemplate_PartBase::GetSightComponents()
 		{
 			if (PartComponent->GetPart()->IsAimable())
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Adding Sight: %s"), *PartComponent->GetPart()->GetName());
 				SightComponents.Add(PartComponent);
 			}
 			SightComponents.Append(PartComponent->GetPart()->GetSightComponents());
@@ -206,4 +228,9 @@ void AFPSTemplate_PartBase::EnableAiming()
 	{
 		bIsAimable = true;
 	}
+}
+
+FTransform AFPSTemplate_PartBase::GetAimSocketTransform() const
+{
+	return IsValid(PartMesh) ? PartMesh->GetSocketTransform(AimSocket) : FTransform();
 }

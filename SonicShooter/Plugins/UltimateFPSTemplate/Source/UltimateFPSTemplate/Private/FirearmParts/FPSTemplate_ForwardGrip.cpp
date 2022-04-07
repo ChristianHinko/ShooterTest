@@ -3,7 +3,7 @@
 
 #include "FirearmParts/FPSTemplate_ForwardGrip.h"
 #include "FirearmParts/FPSTemplate_Handguard.h"
-#include "FPSTemplateFirearm.h"
+#include "Actors/FPSTemplateFirearm.h"
 
 AFPSTemplate_ForwardGrip::AFPSTemplate_ForwardGrip()
 {
@@ -20,26 +20,10 @@ AFPSTemplate_ForwardGrip::AFPSTemplate_ForwardGrip()
 void AFPSTemplate_ForwardGrip::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (HasAuthority())
-	{
-		if (AFPSTemplate_Handguard* Handguard = Cast<AFPSTemplate_Handguard>(GetOwner()))
-		{
-			if (AFPSTemplateFirearm* Firearm = Cast<AFPSTemplateFirearm>(Handguard->GetOwner()))
-			{
-				//Firearm->UpdateFirearmStats();
-				//UE_LOG(LogTemp, Warning, TEXT("UPDATING STATS FORWARDGRIP"));
-			}
-		}
-	}
+	
 }
 
 FTransform AFPSTemplate_ForwardGrip::GetGripTransform() const
 {
-	return PartMesh->GetSocketTransform(HandGripSocket);
-}
-
-EFirearmGripType AFPSTemplate_ForwardGrip::GetGripType() const
-{
-	return GripType;
+	return IsValid(PartMesh) ? PartMesh->GetSocketTransform(HandGripSocket) : FTransform();
 }

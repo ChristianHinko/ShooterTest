@@ -13,6 +13,5 @@ void USSGameInstance::Init()
 	USettingsManager::RegisterBoolCVarSetting(TEXT("input.ToggleCrouch"), true, TEXT("Crouching is a toggle"));
 
 
-
 	Super::Init();
 }

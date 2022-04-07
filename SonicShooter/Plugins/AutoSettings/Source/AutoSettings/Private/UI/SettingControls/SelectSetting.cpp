@@ -19,6 +19,16 @@ void USelectSetting::UpdateOptions_Implementation(const TArray<FSettingOption>& 
 {
 }
 
+bool USelectSetting::HasOptionWithValue(FString Value) const
+{
+	return GetCombinedOptions().ContainsByPredicate([Value](const FSettingOption& Setting){ return Setting.Value == Value; });
+}
+
+bool USelectSetting::HasOptionWithLabel(FText Label) const
+{
+	return GetCombinedOptions().ContainsByPredicate([Label](const FSettingOption& Setting){ return Setting.Label.EqualTo(Label); });
+}
+
 FSettingOption USelectSetting::GetOptionByValue(FString Value) const
 {
 	for (FSettingOption Option : GetCombinedOptions())

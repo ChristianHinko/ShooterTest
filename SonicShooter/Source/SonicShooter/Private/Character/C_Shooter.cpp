@@ -184,6 +184,14 @@ void AC_Shooter::Tick(float DeltaSeconds)
 		//UKismetSystemLibrary::PrintString(this, TEXT("MaxAmmo: ") + FString::SanitizeFloat(MaxAmmo), true, false);
 		//UKismetSystemLibrary::PrintString(this, TEXT("MaxClipAmmo: ") + FString::SanitizeFloat(MaxClipAmmo), true, false);
 		//UKismetSystemLibrary::PrintString(this, TEXT("BackupAmmo: ") + FString::SanitizeFloat(BackupAmmo), true, false);
+
+
+
+		const float MaxHealth = GetAbilitySystemComponent()->GetNumericAttribute(UAS_Health::GetMaxHealthAttribute());
+		const float Health = GetAbilitySystemComponent()->GetNumericAttribute(UAS_Health::GetHealthAttribute());
+
+		//UKismetSystemLibrary::PrintString(this, TEXT("MaxHealth: ") + FString::SanitizeFloat(MaxHealth), true, false);
+		//UKismetSystemLibrary::PrintString(this, TEXT("Health: ") + FString::SanitizeFloat(Health), true, false);
 	}
 
 	//}

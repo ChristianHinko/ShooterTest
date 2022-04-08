@@ -116,7 +116,7 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 
 
 	// Attribute Sets
-	AbilitySystemSetup->StartingAttributeSets.Add(UAS_CharacterMovement::StaticClass());
+	AbilitySystemSetupComponent->StartingAttributeSets.Add(UAS_CharacterMovement::StaticClass());
 
 
 	// Crouching

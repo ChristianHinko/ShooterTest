@@ -33,7 +33,7 @@ void UArcInventoryComponent_Shooter::InitializeComponent()
 	UAbilitySystemSetupComponent* AbilitySystemSetupComponent = GetOwner()->FindComponentByClass<UAbilitySystemSetupComponent>();
 	if (IsValid(AbilitySystemSetupComponent))
 	{
-		AbilitySystemSetupComponent->OnAbilitySystemSetUp.AddUObject(this, &UArcInventoryComponent_Shooter::OnAbilitySystemSetUp);
+		AbilitySystemSetupComponent->OnAbilitySystemSetUpDelegate.AddUObject(this, &UArcInventoryComponent_Shooter::OnAbilitySystemSetUp);
 	}
 }
 

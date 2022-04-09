@@ -37,7 +37,7 @@ APawn* AGM_Shooter::SpawnDefaultPawnAtTransform_Implementation(AController* NewP
 		if (IsValid(AbilitySystemSetupComponent))
 		{
 			// Wait until they have they ability system set up
-			AbilitySystemSetupComponent->OnAbilitySystemSetUpDelegate.AddUObject(this, &AGM_Shooter::OnAbilitySystemSetUp, Inventory);
+			AbilitySystemSetupComponent->OnInitializeAbilitySystemComponentDelegate.AddUObject(this, &AGM_Shooter::OnInitializeAbilitySystemComponent, Inventory);
 		}
 		else
 		{
@@ -80,7 +80,7 @@ void AGM_Shooter::GiveInventoryStartupItems(UArcInventoryComponent* Inventory)
 
 }
 
-void AGM_Shooter::OnAbilitySystemSetUp(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC, UArcInventoryComponent* Inventory)
+void AGM_Shooter::OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC, UArcInventoryComponent* Inventory)
 {
 	GiveInventoryStartupItems(Inventory);
 }

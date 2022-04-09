@@ -33,12 +33,12 @@ void UArcInventoryComponent_Shooter::InitializeComponent()
 	UAbilitySystemSetupComponent* AbilitySystemSetupComponent = GetOwner()->FindComponentByClass<UAbilitySystemSetupComponent>();
 	if (IsValid(AbilitySystemSetupComponent))
 	{
-		AbilitySystemSetupComponent->OnAbilitySystemSetUpDelegate.AddUObject(this, &UArcInventoryComponent_Shooter::OnAbilitySystemSetUp);
+		AbilitySystemSetupComponent->OnInitializeAbilitySystemComponentDelegate.AddUObject(this, &UArcInventoryComponent_Shooter::OnInitializeAbilitySystemComponent);
 	}
 }
 
 
-void UArcInventoryComponent_Shooter::OnAbilitySystemSetUp(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC)
+void UArcInventoryComponent_Shooter::OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC)
 {
 	// Re-inject the new Ability System Component into our active gun
 	UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(GetActiveItemStack());

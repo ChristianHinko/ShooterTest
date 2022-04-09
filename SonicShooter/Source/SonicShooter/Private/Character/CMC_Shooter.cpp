@@ -74,9 +74,9 @@ FSavedMovePtr FNetworkPredictionData_Client_Shooter::AllocateNewMove()
 }
 //END Prediciton Data Client
 
-void UCMC_Shooter::OnAbilitySystemSetUp(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC)
+void UCMC_Shooter::OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC)
 {
-	Super::OnAbilitySystemSetUp(PreviousASC, NewASC);
+	Super::OnInitializeAbilitySystemComponent(PreviousASC, NewASC);
 
 
 	if (UAbilitySystemComponent* ASC = OwnerASC.Get())

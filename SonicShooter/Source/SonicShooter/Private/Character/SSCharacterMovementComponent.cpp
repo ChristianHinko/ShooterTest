@@ -81,28 +81,30 @@ void USSCharacterMovementComponent::InitializeComponent()
 	UAbilitySystemSetupComponent* AbilitySystemSetupComponent = GetOwner()->FindComponentByClass<UAbilitySystemSetupComponent>();
 	if (IsValid(AbilitySystemSetupComponent))
 	{
-		AbilitySystemSetupComponent->OnAbilitySystemSetUpPreInitializedDelegate.AddUObject(this, &USSCharacterMovementComponent::OnAbilitySystemSetUpPreInitialized);
-		AbilitySystemSetupComponent->OnAbilitySystemSetUpDelegate.AddUObject(this, &USSCharacterMovementComponent::OnAbilitySystemSetUp);
+		AbilitySystemSetupComponent->OnInitializeAbilitySystemComponentDelegate.AddUObject(this, &USSCharacterMovementComponent::OnInitializeAbilitySystemComponent);
 	}
 }
 
 #pragma region Ability System
-void USSCharacterMovementComponent::OnAbilitySystemSetUpPreInitialized(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC)
+void USSCharacterMovementComponent::OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC)
 {
 	OwnerASC = NewASC;
+
+
+	CharacterMovementAttributeSet = UASSAbilitySystemBlueprintLibrary::GetAttributeSetCasted<UAS_CharacterMovement>(OwnerASC.Get());
 
 	if (UAbilitySystemComponent* ASC = OwnerASC.Get())
 	{
+		// Bind to Tag change delegates
 		ASC->RegisterGameplayTagEvent(Tag_RunDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnRunDisabledTagChanged);
 		ASC->RegisterGameplayTagEvent(Tag_JumpDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnJumpDisabledTagChanged);
 		ASC->RegisterGameplayTagEvent(Tag_CrouchDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCrouchDisabledTagChanged);
-	}
-}
-void USSCharacterMovementComponent::OnAbilitySystemSetUp(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC)
-{
-	OwnerASC = NewASC;
 
-	CharacterMovementAttributeSet = UASSAbilitySystemBlueprintLibrary::GetAttributeSetCasted<UAS_CharacterMovement>(OwnerASC.Get());
+		// Get initial values
+		OnRunDisabledTagChanged(Tag_RunDisabled, ASC->GetTagCount(Tag_RunDisabled));
+		OnJumpDisabledTagChanged(Tag_JumpDisabled, ASC->GetTagCount(Tag_JumpDisabled));
+		OnCrouchDisabledTagChanged(Tag_CrouchDisabled, ASC->GetTagCount(Tag_CrouchDisabled));
+	}
 }
 
 void USSCharacterMovementComponent::OnRunDisabledTagChanged(const FGameplayTag Tag, int32 NewCount)

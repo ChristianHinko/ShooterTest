@@ -32,5 +32,5 @@ protected:
 	virtual void GiveInventoryStartupItems(UArcInventoryComponent* Inventory);
 
 private:
-	void OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC, UArcInventoryComponent* Inventory);
+	void OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC, UArcInventoryComponent* Inventory);
 };

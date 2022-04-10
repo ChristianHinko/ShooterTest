@@ -79,7 +79,7 @@ void AGM_Shooter::GiveInventoryStartupItems(UArcInventoryComponent* Inventory)
 
 }
 
-void AGM_Shooter::OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC, UArcInventoryComponent* Inventory)
+void AGM_Shooter::OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC, UArcInventoryComponent* Inventory)
 {
 	GiveInventoryStartupItems(Inventory);
 }

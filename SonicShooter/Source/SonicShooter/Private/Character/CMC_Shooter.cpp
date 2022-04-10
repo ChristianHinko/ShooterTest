@@ -73,27 +73,23 @@ FSavedMovePtr FNetworkPredictionData_Client_Shooter::AllocateNewMove()
 }
 //END Prediciton Data Client
 
-void UCMC_Shooter::OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC)
+void UCMC_Shooter::OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC)
 {
-	Super::OnInitializeAbilitySystemComponent(PreviousASC, NewASC);
+	Super::OnInitializeAbilitySystemComponent(ASC);
 
+	// Bind to Attribute value change delegates
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetMaxStaminaAttribute()).AddUObject(this, &UCMC_Shooter::OnMaxStaminaAttributeChange);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaDrainAttribute()).AddUObject(this, &UCMC_Shooter::OnStaminaDrainAttributeChange);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaGainAttribute()).AddUObject(this, &UCMC_Shooter::OnStaminaGainAttributeChange);
+	ASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaRegenPauseAttribute()).AddUObject(this, &UCMC_Shooter::OnStaminaRegenPauseAttributeChange);
 
-	if (UAbilitySystemComponent* ASC = OwnerASC.Get())
+	// Get initial values
+	if (IsValid(StaminaSubobject))
 	{
-		// Bind to Attribute value change delegates
-		ASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetMaxStaminaAttribute()).AddUObject(this, &UCMC_Shooter::OnMaxStaminaAttributeChange);
-		ASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaDrainAttribute()).AddUObject(this, &UCMC_Shooter::OnStaminaDrainAttributeChange);
-		ASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaGainAttribute()).AddUObject(this, &UCMC_Shooter::OnStaminaGainAttributeChange);
-		ASC->GetGameplayAttributeValueChangeDelegate(UAS_Stamina::GetStaminaRegenPauseAttribute()).AddUObject(this, &UCMC_Shooter::OnStaminaRegenPauseAttributeChange);
-
-		// Get initial values
-		if (IsValid(StaminaSubobject))
-		{
-			StaminaSubobject->SetMaxStamina(ASC->GetNumericAttribute(UAS_Stamina::GetMaxStaminaAttribute()));
-			StaminaSubobject->SetStaminaDrain(ASC->GetNumericAttribute(UAS_Stamina::GetStaminaDrainAttribute()));
-			StaminaSubobject->SetStaminaGain(ASC->GetNumericAttribute(UAS_Stamina::GetStaminaGainAttribute()));
-			StaminaSubobject->SetStaminaRegenPause(ASC->GetNumericAttribute(UAS_Stamina::GetStaminaRegenPauseAttribute()));
-		}
+		StaminaSubobject->SetMaxStamina(ASC->GetNumericAttribute(UAS_Stamina::GetMaxStaminaAttribute()));
+		StaminaSubobject->SetStaminaDrain(ASC->GetNumericAttribute(UAS_Stamina::GetStaminaDrainAttribute()));
+		StaminaSubobject->SetStaminaGain(ASC->GetNumericAttribute(UAS_Stamina::GetStaminaGainAttribute()));
+		StaminaSubobject->SetStaminaRegenPause(ASC->GetNumericAttribute(UAS_Stamina::GetStaminaRegenPauseAttribute()));
 	}
 }
 

@@ -38,5 +38,5 @@ protected:
 		void OnItemInactiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
 
 private:
-	void OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC);
+	void OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC);
 };

@@ -223,7 +223,7 @@ protected:
 	UPROPERTY()
 		TWeakObjectPtr<UAS_CharacterMovement> CharacterMovementAttributeSet;
 
-	virtual void OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC);
+	virtual void OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC);
 
 	//BEGIN UCharacterMovementComponent Interface
 	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;

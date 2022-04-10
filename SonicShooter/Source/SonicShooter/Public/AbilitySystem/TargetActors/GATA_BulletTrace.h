@@ -122,15 +122,11 @@ private:
 /**
  * Trace class for Bullets.
  * 
- * 
- *		- Implements the idea of Bullet Speed which can stop the tracing at any point.
- * 
- *		- Is tightly coupled with PM_Shooter to determine behavior.
- * 
- *		- Gives CalculateAimDirection() some random bullet spread.
- * 
- *		- Ditches the RicochetableSurfaces array and ricochets based on what ShouldRicochetOffOf()'s UPM_Shooter says.
- * 
+ * Key notes:
+ * - Implements the idea of Bullet Speed which can stop the tracing at any point. 
+ * - Is tightly coupled with PM_Shooter to determine behavior. 
+ * - Gives CalculateAimDirection() some random bullet spread. 
+ * - Ditches the RicochetableSurfaces array and ricochets based on what ShouldRicochetOffOf()'s UPM_Shooter says.
  */
 UCLASS()
 class SONICSHOOTER_API AGATA_BulletTrace : public AGATA_Trace

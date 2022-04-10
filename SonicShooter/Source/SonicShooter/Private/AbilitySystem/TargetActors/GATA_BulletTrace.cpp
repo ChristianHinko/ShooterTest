@@ -34,7 +34,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 	}
 
 
-	if (SourceActor)
+	if (IsValid(SourceActor))
 	{
 		FGameplayAbilityTargetDataHandle TargetDataHandle;
 
@@ -153,7 +153,6 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 {
 	OutHitResults.Empty();
 
-
 	FCollisionQueryParams Params = FCollisionQueryParams(SCENE_QUERY_STAT(AGATA_BulletTrace));
 	Params.AddIgnoredActor(InSourceActor);
 	Params.bTraceComplex = true;
@@ -161,9 +160,7 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 
 	FVector TraceStart = StartLocation.GetTargetingTransform().GetLocation();
 	FVector TraceEnd;
-	AimWithPlayerController(InSourceActor, Params, TraceStart, TraceEnd);		//Effective on server and launching client only
-
-	// ------------------------------------------------------
+	AimWithPlayerController(InSourceActor, Params, TraceStart, TraceEnd); // effective on server and launching client only
 
 
 	// Perform line trace

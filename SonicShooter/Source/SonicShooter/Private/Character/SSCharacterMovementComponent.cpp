@@ -89,7 +89,7 @@ void USSCharacterMovementComponent::OnInitializeAbilitySystemComponent(UAbilityS
 	OwnerASC = ASC;
 
 
-	CharacterMovementAttributeSet = UASSAbilitySystemBlueprintLibrary::GetAttributeSetCasted<UAS_CharacterMovement>(OwnerASC.Get());
+	CharacterMovementAttributeSet = UASSAbilitySystemBlueprintLibrary::GetAttributeSetCasted<UAS_CharacterMovement>(ASC);
 
 	
 	// Bind to Tag change delegates

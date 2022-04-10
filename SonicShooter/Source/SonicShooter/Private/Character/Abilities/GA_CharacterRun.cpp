@@ -5,8 +5,6 @@
 
 #include "Character/SSCharacter.h"
 #include "Character/SSCharacterMovementComponent.h"
-#include "Utilities/LogCategories.h"
-#include "Utilities/SSNativeGameplayTags.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -15,12 +13,12 @@
 UGA_CharacterRun::UGA_CharacterRun()
 {
 	AbilityInputID = EAbilityInputID::Run;
-	AbilityTags.AddTag(Tag_RunAbility);
+	AbilityTags.AddTag(NativeGameplayTags::Ability_Movement_Run);
 
 
-	ActivationBlockedTags.AddTag(Tag_RunDisabled);	// This isn't the singular thing stopping you from running. The CMC is what listens for the presence of the RunDisabledTag and blocks running. This check just saves an ability activation.
+	ActivationBlockedTags.AddTag(NativeGameplayTags::Character_RunDisabled);	// This isn't the singular thing stopping you from running. The CMC is what listens for the presence of the RunDisabledTag and blocks running. This check just saves an ability activation.
 
-	CancelAbilitiesWithTag.AddTag(Tag_CrouchAbility);
+	CancelAbilitiesWithTag.AddTag(NativeGameplayTags::Ability_Movement_Crouch);
 }
 
 

@@ -176,11 +176,11 @@ void UAC_Interactor::TryInteract()
 	{
 		if (CurrentPrioritizedInteractable->GetIsManualInstantInteract())
 		{
-			OwningShooterCharacter->GetAbilitySystemComponent()->TryActivateAbility(OwningShooterCharacter->InteractInstantAbilitySpecHandle);
+			OwningShooterCharacter->GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Interact_InstantInteract.GetTag().GetSingleTagContainer());
 		}
 		if (CurrentPrioritizedInteractable->GetIsManualDurationInteract())
 		{
-			OwningShooterCharacter->GetAbilitySystemComponent()->TryActivateAbility(OwningShooterCharacter->InteractDurationAbilitySpecHandle);
+			OwningShooterCharacter->GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Interact_DurationInteract.GetTag().GetSingleTagContainer());
 		}
 
 	}

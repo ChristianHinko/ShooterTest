@@ -8,7 +8,6 @@
 #include "Character/C_Shooter.h"
 #include "ArcInventoryComponent.h"
 #include "Generators/ArcItemGenerator.h"
-#include "Utilities/LogCategories.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
 #include "Subobjects/AbilitySystemSetupComponent.h"
 #include "ArcItemBPFunctionLibrary.h"

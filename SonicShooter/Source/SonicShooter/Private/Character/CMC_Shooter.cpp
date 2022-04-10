@@ -3,7 +3,6 @@
 
 #include "Character/CMC_Shooter.h"
 
-#include "Utilities/LogCategories.h"
 #include "Engine/ActorChannel.h"
 #include "Subobjects/O_Stamina.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"

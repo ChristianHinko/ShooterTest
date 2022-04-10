@@ -29,13 +29,13 @@ public:
 protected:
 	virtual void Tick(float DeltaSeconds) override;
 
-	virtual void OnPrimaryFirePressed() override;
+	virtual void OnPressedPrimaryFire() override;
 	UFUNCTION(Server, WithValidation, Reliable)
-		void ServerPrimaryFirePressed();
+		void ServerOnPressedPrimaryFire();
 
-	virtual void OnSecondaryFirePressed() override;
+	virtual void OnPressedSecondaryFire() override;
 	UFUNCTION(Server, WithValidation, Reliable)
-		void ServerSecondaryFirePressed();
+		void ServerOnPressedSecondaryFire();
 
 private:
 	UPROPERTY(Replicated)

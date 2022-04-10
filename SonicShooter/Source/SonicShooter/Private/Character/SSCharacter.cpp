@@ -13,7 +13,6 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet\KismetMathLibrary.h"
 #include "Utilities/CollisionChannels.h"
-#include "Utilities/LogCategories.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Game/SSGameState.h"
@@ -36,10 +35,6 @@ void ASSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 
 	DOREPLIFETIME_CONDITION(ASSCharacter, bIsRunning, COND_SimulatedOnly);
 	DOREPLIFETIME_CONDITION(ASSCharacter, RemoteViewYaw, COND_SkipOwner); // we also do a custom condition for this in PreReplication() (but we aren't using COND_Custom because we still want to COND_SkipOwner)
-
-	DOREPLIFETIME_CONDITION(ASSCharacter, CharacterJumpAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(ASSCharacter, CharacterCrouchAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(ASSCharacter, CharacterRunAbilitySpecHandle, COND_OwnerOnly);
 }
 
 
@@ -115,10 +110,6 @@ ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	GetCharacterMovement()->bOrientRotationToMovement = true; // make the Character face the direction that he is moving
 
 
-	// Attribute Sets
-	AbilitySystemSetupComponent->StartingAttributeSets.Add(UAS_CharacterMovement::StaticClass());
-
-
 	// Crouching
 	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 	CrouchSpeed = 100.f;
@@ -185,20 +176,6 @@ void ASSCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTra
 	// Custom RemoteViewYaw replication condition - only replicate if we aren't using bUseControllerRotationYaw
 	DOREPLIFETIME_ACTIVE_OVERRIDE(ASSCharacter, RemoteViewYaw, (bUseControllerRotationYaw == false));
 
-}
-
-
-void ASSCharacter::OnGiveStartingAbilities(UAbilitySystemComponent* ASC)
-{
-	Super::OnGiveStartingAbilities(ASC);
-	if (!IsValid(ASC))
-	{
-		return;
-	}
-
-	CharacterJumpAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(CharacterJumpAbilityTSub, /*GetLevel()*/1, -1, this));
-	CharacterCrouchAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(CharacterCrouchAbilityTSub, /*GetLevel()*/1, -1, this));
-	CharacterRunAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(CharacterRunAbilityTSub, /*GetLevel()*/1, -1, this));
 }
 
 
@@ -629,59 +606,59 @@ void ASSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	// Action
-	PlayerInputComponent->BindAction(FName(TEXT("Run")), IE_Pressed, this, &ThisClass::OnRunPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Run")), IE_Released, this, &ThisClass::OnRunReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("Run")), IE_Pressed, this, &ThisClass::OnPressedRun);
+	PlayerInputComponent->BindAction(FName(TEXT("Run")), IE_Released, this, &ThisClass::OnReleasedRun);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Jump")), IE_Pressed, this, &ThisClass::OnJumpPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Jump")), IE_Released, this, &ThisClass::OnJumpReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("Jump")), IE_Pressed, this, &ThisClass::OnPressedJump);
+	PlayerInputComponent->BindAction(FName(TEXT("Jump")), IE_Released, this, &ThisClass::OnReleasedJump);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Crouch")), IE_Pressed, this, &ThisClass::OnCrouchPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Crouch")), IE_Released, this, &ThisClass::OnCrouchReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("Crouch")), IE_Pressed, this, &ThisClass::OnPressedCrouch);
+	PlayerInputComponent->BindAction(FName(TEXT("Crouch")), IE_Released, this, &ThisClass::OnReleasedCrouch);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Interact")), IE_Pressed, this, &ThisClass::OnInteractPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Interact")), IE_Released, this, &ThisClass::OnInteractReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("Interact")), IE_Pressed, this, &ThisClass::OnPressedInteract);
+	PlayerInputComponent->BindAction(FName(TEXT("Interact")), IE_Released, this, &ThisClass::OnReleasedInteract);
 
-	PlayerInputComponent->BindAction(FName(TEXT("PrimaryFire")), IE_Pressed, this, &ThisClass::OnPrimaryFirePressed);
-	PlayerInputComponent->BindAction(FName(TEXT("PrimaryFire")), IE_Released, this, &ThisClass::OnPrimaryFireReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("PrimaryFire")), IE_Pressed, this, &ThisClass::OnPressedPrimaryFire);
+	PlayerInputComponent->BindAction(FName(TEXT("PrimaryFire")), IE_Released, this, &ThisClass::OnReleasedPrimaryFire);
 
-	PlayerInputComponent->BindAction(FName(TEXT("SecondaryFire")), IE_Pressed, this, &ThisClass::OnSecondaryFirePressed);
-	PlayerInputComponent->BindAction(FName(TEXT("SecondaryFire")), IE_Released, this, &ThisClass::OnSecondaryFireReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("SecondaryFire")), IE_Pressed, this, &ThisClass::OnPressedSecondaryFire);
+	PlayerInputComponent->BindAction(FName(TEXT("SecondaryFire")), IE_Released, this, &ThisClass::OnReleasedSecondaryFire);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Reload")), IE_Pressed, this, &ThisClass::OnReloadPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Reload")), IE_Released, this, &ThisClass::OnReloadReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("Reload")), IE_Pressed, this, &ThisClass::OnPressedReload);
+	PlayerInputComponent->BindAction(FName(TEXT("Reload")), IE_Released, this, &ThisClass::OnReleasedReload);
 
-	PlayerInputComponent->BindAction(FName(TEXT("FirstItem")), IE_Pressed, this, &ThisClass::OnFirstItemPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("FirstItem")), IE_Released, this, &ThisClass::OnFirstItemReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayout1st")), IE_Pressed, this, &ThisClass::OnPressedSwapToLayout1st);
+	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayout1st")), IE_Released, this, &ThisClass::OnReleasedSwapToLayout1st);
 
-	PlayerInputComponent->BindAction(FName(TEXT("SecondItem")), IE_Pressed, this, &ThisClass::OnSecondItemPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("SecondItem")), IE_Released, this, &ThisClass::OnSecondItemReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayout2nd")), IE_Pressed, this, &ThisClass::OnPressedSwapToLayout2nd);
+	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayout2nd")), IE_Released, this, &ThisClass::OnReleasedSwapToLayout2nd);
 
-	PlayerInputComponent->BindAction(FName(TEXT("ThirdItem")), IE_Pressed, this, &ThisClass::OnThirdItemPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("ThirdItem")), IE_Released, this, &ThisClass::OnThirdItemReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayout3rd")), IE_Pressed, this, &ThisClass::OnPressedSwapToLayout3rd);
+	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayout3rd")), IE_Released, this, &ThisClass::OnReleasedSwapToLayout3rd);
 
-	PlayerInputComponent->BindAction(FName(TEXT("FourthItem")), IE_Pressed, this, &ThisClass::OnFourthItemPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("FourthItem")), IE_Released, this, &ThisClass::OnFourthItemReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayout4th")), IE_Pressed, this, &ThisClass::OnPressedSwapToLayout4th);
+	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayout4th")), IE_Released, this, &ThisClass::OnReleasedSwapToLayout4th);
 
-	PlayerInputComponent->BindAction(FName(TEXT("FifthItem")), IE_Pressed, this, &ThisClass::OnFifthItemPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("FifthItem")), IE_Released, this, &ThisClass::OnFifthItemReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayout5th")), IE_Pressed, this, &ThisClass::OnPressedSwapToLayout5th);
+	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayout5th")), IE_Released, this, &ThisClass::OnReleasedSwapToLayout5th);
 
-	PlayerInputComponent->BindAction(FName(TEXT("SwitchWeapon")), IE_Pressed, this, &ThisClass::OnSwitchWeaponPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("SwitchWeapon")), IE_Released, this, &ThisClass::OnSwitchWeaponReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("SwapToPreviousSlot")), IE_Pressed, this, &ThisClass::OnPressedSwapToPreviousSlot);
+	PlayerInputComponent->BindAction(FName(TEXT("SwapToPreviousSlot")), IE_Released, this, &ThisClass::OnReleasedSwapToPreviousSlot);
 
-	PlayerInputComponent->BindAction(FName(TEXT("NextItem")), IE_Pressed, this, &ThisClass::OnNextItemPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("NextItem")), IE_Released, this, &ThisClass::OnNextItemReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayoutForward")), IE_Pressed, this, &ThisClass::OnPressedSwapToLayoutForward);
+	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayoutForward")), IE_Released, this, &ThisClass::OnReleasedSwapToLayoutForward);
 
-	PlayerInputComponent->BindAction(FName(TEXT("PreviousItem")), IE_Pressed, this, &ThisClass::OnPreviousItemPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("PreviousItem")), IE_Released, this, &ThisClass::OnPreviousItemReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayoutBackward")), IE_Pressed, this, &ThisClass::OnPressedSwapToLayoutBackward);
+	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayoutBackward")), IE_Released, this, &ThisClass::OnReleasedSwapToLayoutBackward);
 
-	PlayerInputComponent->BindAction(FName(TEXT("DropItem")), IE_Pressed, this, &ThisClass::OnDropItemPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("DropItem")), IE_Released, this, &ThisClass::OnDropItemReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("DropItem")), IE_Pressed, this, &ThisClass::OnPressedDropItem);
+	PlayerInputComponent->BindAction(FName(TEXT("DropItem")), IE_Released, this, &ThisClass::OnReleasedDropItem);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Pause")), IE_Pressed, this, &ThisClass::OnPausePressed);
-	PlayerInputComponent->BindAction(FName(TEXT("Pause")), IE_Released, this, &ThisClass::OnPauseReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("Pause")), IE_Pressed, this, &ThisClass::OnPressedPause);
+	PlayerInputComponent->BindAction(FName(TEXT("Pause")), IE_Released, this, &ThisClass::OnReleasedPause);
 
-	PlayerInputComponent->BindAction(FName(TEXT("ScoreSheet")), IE_Pressed, this, &ThisClass::OnScoreSheetPressed);
-	PlayerInputComponent->BindAction(FName(TEXT("ScoreSheet")), IE_Released, this, &ThisClass::OnScoreSheetReleased);
+	PlayerInputComponent->BindAction(FName(TEXT("ScoreSheet")), IE_Pressed, this, &ThisClass::OnPressedScoreSheet);
+	PlayerInputComponent->BindAction(FName(TEXT("ScoreSheet")), IE_Released, this, &ThisClass::OnReleasedScoreSheet);
 
 
 	// Axis
@@ -694,7 +671,7 @@ void ASSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 
 // Actions
-void ASSCharacter::OnRunPressed()
+void ASSCharacter::OnPressedRun()
 {
 	if (SSCharacterMovementComponent->GetToggleRunEnabled())
 	{
@@ -715,7 +692,7 @@ void ASSCharacter::OnRunPressed()
 		SSCharacterMovementComponent->SetWantsToRun(true);
 	}
 }
-void ASSCharacter::OnRunReleased()
+void ASSCharacter::OnReleasedRun()
 {
 	if (SSCharacterMovementComponent->GetToggleRunEnabled() == false)
 	{
@@ -723,16 +700,16 @@ void ASSCharacter::OnRunReleased()
 	}
 }
 
-void ASSCharacter::OnJumpPressed()
+void ASSCharacter::OnPressedJump()
 {
 	Jump();
 }
-void ASSCharacter::OnJumpReleased()
+void ASSCharacter::OnReleasedJump()
 {
 	StopJumping();
 }
 
-void ASSCharacter::OnCrouchPressed()
+void ASSCharacter::OnPressedCrouch()
 {
 	if (SSCharacterMovementComponent->GetToggleCrouchEnabled())
 	{
@@ -750,7 +727,7 @@ void ASSCharacter::OnCrouchPressed()
 		Crouch();
 	}
 }
-void ASSCharacter::OnCrouchReleased()
+void ASSCharacter::OnReleasedCrouch()
 {
 	if (SSCharacterMovementComponent->GetToggleCrouchEnabled() == false)
 	{
@@ -758,123 +735,123 @@ void ASSCharacter::OnCrouchReleased()
 	}
 }
 
-void ASSCharacter::OnInteractPressed()
+void ASSCharacter::OnPressedInteract()
 {
 
 }
-void ASSCharacter::OnInteractReleased()
+void ASSCharacter::OnReleasedInteract()
 {
 }
 
-void ASSCharacter::OnPrimaryFirePressed()
+void ASSCharacter::OnPressedPrimaryFire()
 {
 
 }
-void ASSCharacter::OnPrimaryFireReleased()
+void ASSCharacter::OnReleasedPrimaryFire()
 {
 }
 
-void ASSCharacter::OnSecondaryFirePressed()
+void ASSCharacter::OnPressedSecondaryFire()
 {
 
 }
-void ASSCharacter::OnSecondaryFireReleased()
+void ASSCharacter::OnReleasedSecondaryFire()
 {
 }
 
-void ASSCharacter::OnReloadPressed()
+void ASSCharacter::OnPressedReload()
 {
 
 }
-void ASSCharacter::OnReloadReleased()
+void ASSCharacter::OnReleasedReload()
 {
 }
 
-void ASSCharacter::OnFirstItemPressed()
+void ASSCharacter::OnPressedSwapToLayout1st()
 {
 
 }
-void ASSCharacter::OnFirstItemReleased()
+void ASSCharacter::OnReleasedSwapToLayout1st()
 {
 }
 
-void ASSCharacter::OnSecondItemPressed()
+void ASSCharacter::OnPressedSwapToLayout2nd()
 {
 
 }
-void ASSCharacter::OnSecondItemReleased()
+void ASSCharacter::OnReleasedSwapToLayout2nd()
 {
 }
 
-void ASSCharacter::OnThirdItemPressed()
+void ASSCharacter::OnPressedSwapToLayout3rd()
 {
 
 }
-void ASSCharacter::OnThirdItemReleased()
+void ASSCharacter::OnReleasedSwapToLayout3rd()
 {
 }
 
-void ASSCharacter::OnFourthItemPressed()
+void ASSCharacter::OnPressedSwapToLayout4th()
 {
 
 }
-void ASSCharacter::OnFourthItemReleased()
+void ASSCharacter::OnReleasedSwapToLayout4th()
 {
 }
 
-void ASSCharacter::OnFifthItemPressed()
+void ASSCharacter::OnPressedSwapToLayout5th()
 {
 
 }
-void ASSCharacter::OnFifthItemReleased()
+void ASSCharacter::OnReleasedSwapToLayout5th()
 {
 }
 
-void ASSCharacter::OnSwitchWeaponPressed()
+void ASSCharacter::OnPressedSwapToPreviousSlot()
 {
 
 }
-void ASSCharacter::OnSwitchWeaponReleased()
+void ASSCharacter::OnReleasedSwapToPreviousSlot()
 {
 }
 
-void ASSCharacter::OnNextItemPressed()
+void ASSCharacter::OnPressedSwapToLayoutForward()
 {
 
 }
-void ASSCharacter::OnNextItemReleased()
+void ASSCharacter::OnReleasedSwapToLayoutForward()
 {
 }
 
-void ASSCharacter::OnPreviousItemPressed()
+void ASSCharacter::OnPressedSwapToLayoutBackward()
 {
 
 }
-void ASSCharacter::OnPreviousItemReleased()
+void ASSCharacter::OnReleasedSwapToLayoutBackward()
 {
 }
 
-void ASSCharacter::OnDropItemPressed()
+void ASSCharacter::OnPressedDropItem()
 {
 
 }
-void ASSCharacter::OnDropItemReleased()
+void ASSCharacter::OnReleasedDropItem()
 {
 }
 
-void ASSCharacter::OnPausePressed()
+void ASSCharacter::OnPressedPause()
 {
 
 }
-void ASSCharacter::OnPauseReleased()
+void ASSCharacter::OnReleasedPause()
 {
 }
 
-void ASSCharacter::OnScoreSheetPressed()
+void ASSCharacter::OnPressedScoreSheet()
 {
 
 }
-void ASSCharacter::OnScoreSheetReleased()
+void ASSCharacter::OnReleasedScoreSheet()
 {
 }
 

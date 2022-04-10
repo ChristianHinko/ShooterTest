@@ -7,7 +7,6 @@
 #include "UI/HUD_Shooter.h"
 #include "UI/UMG/Widgets/UW_ActiveItem.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
-#include "Utilities/LogCategories.h"
 #include "Inventory/Item/Gun/ArcItemStack_Gun.h"
 #include "Subobjects/O_BulletSpread.h"
 #include "BlueprintFunctionLibraries/BFL_InterfaceHelpers.h"

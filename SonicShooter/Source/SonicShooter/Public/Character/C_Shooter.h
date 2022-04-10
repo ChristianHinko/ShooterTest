@@ -40,66 +40,11 @@ public:
 	UArcInventoryComponent* GetInventoryComponent() const override { return InventoryComponent; }
 	UAC_Interactor* GetInteractorComponent() const { return Interactor; }
 
-
-	//BEGIN Inventory Abilities
-	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UGameplayAbility> SwapToLastActiveItemAbilityTSub;
-	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle SwapToLastActiveItemAbilitySpecHandle;
-	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UGameplayAbility> SwapToNextItemAbilityTSub;
-	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle SwapToNextItemAbilitySpecHandle;
-	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UGameplayAbility> SwapToPreviousItemAbilityTSub;
-	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle SwapToPreviousItemAbilitySpecHandle;
-	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UGameplayAbility> SwapToFirstItemAbilityTSub;
-	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle SwapToFirstItemAbilitySpecHandle;
-	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UGameplayAbility> SwapToSecondItemAbilityTSub;
-	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle SwapToSecondItemAbilitySpecHandle;
-	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UGameplayAbility> SwapToThirdItemAbilityTSub;
-	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle SwapToThirdItemAbilitySpecHandle;
-	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UGameplayAbility> SwapToFourthItemAbilityTSub;
-	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle SwapToFourthItemAbilitySpecHandle;
-	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UGameplayAbility> SwapToFifthItemAbilityTSub;
-	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle SwapToFifthItemAbilitySpecHandle;
-
-	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Inventory")
-		TSubclassOf<UGameplayAbility> DropItemAbilityTSub;
-	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle DropItemAbilitySpecHandle;
-	//END Inventory Abilities
-
-	//BEGIN Interact Abilities
-	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Interact")
-		TSubclassOf<UGameplayAbility> InteractInstantAbilityTSub;
-	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle InteractInstantAbilitySpecHandle;
-
-	UPROPERTY(EditAnywhere, Category = "ShooterCharacterSetup|Abilities|Interact")
-		TSubclassOf<UGameplayAbility> InteractDurationAbilityTSub;
-	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle InteractDurationAbilitySpecHandle;
-	//END Interact Abilities
-
 protected:
 	//BEGIN AActor Interface
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 	//END AActor Interface
-
-	virtual void OnGiveStartingAbilities(UAbilitySystemComponent* ASC) override;
 
 
 	UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
@@ -109,25 +54,25 @@ protected:
 
 
 	//BEGIN Input actions
-	virtual void OnInteractPressed() override;
+	virtual void OnPressedInteract() override;
 
-	virtual void OnPrimaryFirePressed() override;
+	virtual void OnPressedPrimaryFire() override;
 
-	virtual void OnReloadPressed() override;
+	virtual void OnPressedReload() override;
 
-	virtual void OnSwitchWeaponPressed() override;
-	virtual void OnFirstItemPressed() override;
-	virtual void OnSecondItemPressed() override;
-	virtual void OnThirdItemPressed() override;
-	virtual void OnFourthItemPressed() override;
-	virtual void OnFifthItemPressed() override;
-	virtual void OnNextItemPressed() override;
-	virtual void OnPreviousItemPressed() override;
+	virtual void OnPressedSwapToPreviousSlot() override;
+	virtual void OnPressedSwapToLayout1st() override;
+	virtual void OnPressedSwapToLayout2nd() override;
+	virtual void OnPressedSwapToLayout3rd() override;
+	virtual void OnPressedSwapToLayout4th() override;
+	virtual void OnPressedSwapToLayout5th() override;
+	virtual void OnPressedSwapToLayoutForward() override;
+	virtual void OnPressedSwapToLayoutBackward() override;
 
-	virtual void OnPausePressed() override;
-	virtual void OnScoreSheetPressed() override;
+	virtual void OnPressedPause() override;
+	virtual void OnPressedScoreSheet() override;
 
-	virtual void OnDropItemPressed() override;
+	virtual void OnPressedDropItem() override;
 	//END Input actions
 
 private:

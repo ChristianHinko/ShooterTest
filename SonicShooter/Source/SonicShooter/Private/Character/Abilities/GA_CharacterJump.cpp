@@ -4,8 +4,6 @@
 #include "Character/Abilities/GA_CharacterJump.h"
 
 #include "Character/SSCharacter.h"
-#include "Utilities/LogCategories.h"
-#include "Utilities/SSNativeGameplayTags.h"
 #include "Character/SSCharacterMovementComponent.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
 
@@ -16,11 +14,11 @@
 UGA_CharacterJump::UGA_CharacterJump()
 {
 	AbilityInputID = EAbilityInputID::Jump;
-	AbilityTags.AddTag(Tag_JumpAbility);
+	AbilityTags.AddTag(NativeGameplayTags::Ability_Movement_Jump);
 
 
-	CancelAbilitiesWithTag.AddTag(Tag_CrouchAbility);
-	CancelAbilitiesWithTag.AddTag(Tag_RunAbility);
+	CancelAbilitiesWithTag.AddTag(NativeGameplayTags::Ability_Movement_Crouch);
+	CancelAbilitiesWithTag.AddTag(NativeGameplayTags::Ability_Movement_Run);
 }
 
 

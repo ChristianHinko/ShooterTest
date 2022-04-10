@@ -3,8 +3,6 @@
 
 #include "Inventory/Item/GA_Reload.h"
 
-#include "Utilities/LogCategories.h"
-#include "Utilities/SSNativeGameplayTags.h"
 #include "Inventory/Item/AS_Ammo.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Inventory/Item/Gun/ArcItemStack_Gun.h"
@@ -15,7 +13,7 @@
 UGA_Reload::UGA_Reload()
 {
 	AbilityInputID = EAbilityInputID::Reload;
-	AbilityTags.AddTag(Tag_ReloadAbility);
+	AbilityTags.AddTag(NativeGameplayTags::Ability_Reload);
 }
 
 void UGA_Reload::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -137,7 +135,7 @@ void UGA_Reload::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 
 	// Move ammo out of backup
 	FGameplayEffectSpecHandle DepleteBackupAmmoSpecHandle = MakeOutgoingGameplayEffectSpec(Handle, ActorInfo, ActivationInfo, DepleteBackupAmmoEffectTSub, GetAbilityLevel());
-	DepleteBackupAmmoSpecHandle.Data.Get()->SetSetByCallerMagnitude(Tag_SetByCallerBackupAmmoDepletion, -1 * AmmoToMove);
+	DepleteBackupAmmoSpecHandle.Data.Get()->SetSetByCallerMagnitude(NativeGameplayTags::SetByCaller_BackupAmmoDepletion, -1 * AmmoToMove);
 
 	ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, DepleteBackupAmmoSpecHandle);
 

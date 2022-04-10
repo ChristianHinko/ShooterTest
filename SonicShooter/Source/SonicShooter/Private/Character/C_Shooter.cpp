@@ -4,8 +4,6 @@
 #include "Character/C_Shooter.h"
 
 #include "Net/UnrealNetwork.h"
-#include "Utilities/LogCategories.h"
-#include "Utilities/SSNativeGameplayTags.h"
 #include "Character/CMC_Shooter.h"
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
@@ -16,28 +14,10 @@
 #include "AttributeSets/AS_Health.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
 #include "Subobjects/AbilitySystemSetupComponent.h"
+#include "ArcInventory.h"
 
 
 
-void AC_Shooter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-
-	DOREPLIFETIME_CONDITION(AC_Shooter, InteractInstantAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AC_Shooter, InteractDurationAbilitySpecHandle, COND_OwnerOnly);
-
-	DOREPLIFETIME_CONDITION(AC_Shooter, SwapToLastActiveItemAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AC_Shooter, SwapToNextItemAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AC_Shooter, SwapToPreviousItemAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AC_Shooter, SwapToFirstItemAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AC_Shooter, SwapToSecondItemAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AC_Shooter, SwapToThirdItemAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AC_Shooter, SwapToFourthItemAbilitySpecHandle, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AC_Shooter, SwapToFifthItemAbilitySpecHandle, COND_OwnerOnly);
-
-	DOREPLIFETIME_CONDITION(AC_Shooter, DropItemAbilitySpecHandle, COND_OwnerOnly);
-}
 
 const FName AC_Shooter::InventoryComponentName = TEXT("InventoryComponent");
 
@@ -53,11 +33,6 @@ AC_Shooter::AC_Shooter(const FObjectInitializer& ObjectInitializer)
 
 	// Create Interactor
 	Interactor = CreateDefaultSubobject<UAC_Interactor>(TEXT("Interactor"));
-
-	// Attribute Sets
-	AbilitySystemSetupComponent->StartingAttributeSets.Add(UAS_Stamina::StaticClass());
-	AbilitySystemSetupComponent->StartingAttributeSets.Add(UAS_Health::StaticClass());
-
 
 	// Default to first person
 	bFirstPerson = true;
@@ -75,29 +50,6 @@ void AC_Shooter::BeginPlay()
 
 }
 
-void AC_Shooter::OnGiveStartingAbilities(UAbilitySystemComponent* ASC)
-{
-	Super::OnGiveStartingAbilities(ASC);
-	if (!IsValid(ASC))
-	{
-		return;
-	}
-
-
-	InteractInstantAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(InteractInstantAbilityTSub, /*GetLevel()*/1, -1, this));
-	InteractDurationAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(InteractDurationAbilityTSub, /*GetLevel()*/1, -1, this));
-
-	SwapToLastActiveItemAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(SwapToLastActiveItemAbilityTSub, /*GetLevel()*/1, -1, this));
-	SwapToNextItemAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(SwapToNextItemAbilityTSub, /*GetLevel()*/1, -1, this));
-	SwapToPreviousItemAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(SwapToPreviousItemAbilityTSub, /*GetLevel()*/1, -1, this));
-	SwapToFirstItemAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(SwapToFirstItemAbilityTSub, /*GetLevel()*/1, -1, this));
-	SwapToSecondItemAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(SwapToSecondItemAbilityTSub, /*GetLevel()*/1, -1, this));
-	SwapToThirdItemAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(SwapToThirdItemAbilityTSub, /*GetLevel()*/1, -1, this));
-	SwapToFourthItemAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(SwapToFourthItemAbilityTSub, /*GetLevel()*/1, -1, this));
-	SwapToFifthItemAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(SwapToFifthItemAbilityTSub, /*GetLevel()*/1, -1, this));
-
-	DropItemAbilitySpecHandle = ASC->GiveAbility(FGameplayAbilitySpec(DropItemAbilityTSub, /*GetLevel()*/1, -1, this));
-}
 
 #include "Kismet/KismetSystemLibrary.h"
 #include "AttributeSets/AS_Health.h"
@@ -260,85 +212,71 @@ void AC_Shooter::Tick(float DeltaSeconds)
 }
 
 
-void AC_Shooter::OnInteractPressed()
+void AC_Shooter::OnPressedInteract()
 {
 	Interactor->TryInteract();
 }
 
-void AC_Shooter::OnPrimaryFirePressed()
+void AC_Shooter::OnPressedPrimaryFire()
 {
 	if (GetAbilitySystemComponent())
 	{
-		TArray<FGameplayAbilitySpec*> Specs; // our found specs
-		GetAbilitySystemComponent()->GetActivatableGameplayAbilitySpecsByAllMatchingTags(Tag_AbilityInputPrimaryFire.GetTag().GetSingleTagContainer(), Specs);
-
-		for (FGameplayAbilitySpec* Spec : Specs)
-		{
-			// Our spec handle to activate
-			FGameplayAbilitySpecHandle Handle = Spec->Handle;
-
-			GetAbilitySystemComponent()->TryActivateAbility(Handle);
-		}
+		GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Fire.GetTag().GetSingleTagContainer());
 	}
 }
 
-void AC_Shooter::OnReloadPressed()
+void AC_Shooter::OnPressedReload()
 {
 	if (GetAbilitySystemComponent())
 	{
-		GetAbilitySystemComponent()->TryActivateAbilitiesByTag(Tag_ReloadAbility.GetTag().GetSingleTagContainer());
+		GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Reload.GetTag().GetSingleTagContainer());
 	}
 }
 
-void AC_Shooter::OnSwitchWeaponPressed()
+void AC_Shooter::OnPressedSwapToPreviousSlot()
 {
-	GetAbilitySystemComponent()->TryActivateAbility(SwapToLastActiveItemAbilitySpecHandle);
+	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Inventory_SwapItem_ItemHistory_Previous.GetTag().GetSingleTagContainer());
 }
-void AC_Shooter::OnFirstItemPressed()
+void AC_Shooter::OnPressedSwapToLayout1st()
 {
-	GetAbilitySystemComponent()->TryActivateAbility(SwapToFirstItemAbilitySpecHandle);
+	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_1st.GetTag().GetSingleTagContainer());
 }
-void AC_Shooter::OnSecondItemPressed()
+void AC_Shooter::OnPressedSwapToLayout2nd()
 {
-	GetAbilitySystemComponent()->TryActivateAbility(SwapToSecondItemAbilitySpecHandle);
+	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_2nd.GetTag().GetSingleTagContainer());
 }
-void AC_Shooter::OnThirdItemPressed()
+void AC_Shooter::OnPressedSwapToLayout3rd()
 {
-	GetAbilitySystemComponent()->TryActivateAbility(SwapToThirdItemAbilitySpecHandle);
+	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_3rd.GetTag().GetSingleTagContainer());
 }
-void AC_Shooter::OnFourthItemPressed()
+void AC_Shooter::OnPressedSwapToLayout4th()
 {
-	GetAbilitySystemComponent()->TryActivateAbility(SwapToFourthItemAbilitySpecHandle);
+	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_4th.GetTag().GetSingleTagContainer());
 }
-void AC_Shooter::OnFifthItemPressed()
+void AC_Shooter::OnPressedSwapToLayout5th()
 {
-	GetAbilitySystemComponent()->TryActivateAbility(SwapToFifthItemAbilitySpecHandle);
+	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_5th.GetTag().GetSingleTagContainer());
 }
-void AC_Shooter::OnNextItemPressed()
+void AC_Shooter::OnPressedSwapToLayoutForward()
 {
-	GetAbilitySystemComponent()->TryActivateAbility(SwapToNextItemAbilitySpecHandle);
+	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_Forward.GetTag().GetSingleTagContainer());
 }
-void AC_Shooter::OnPreviousItemPressed()
+void AC_Shooter::OnPressedSwapToLayoutBackward()
 {
-	GetAbilitySystemComponent()->TryActivateAbility(SwapToPreviousItemAbilitySpecHandle);
-}
-
-void AC_Shooter::OnPausePressed()
-{
-	Super::OnPausePressed();
+	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_Backward.GetTag().GetSingleTagContainer());
 }
 
-void AC_Shooter::OnScoreSheetPressed()
+void AC_Shooter::OnPressedPause()
 {
-	Super::OnScoreSheetPressed();
+	Super::OnPressedPause();
 }
 
-void AC_Shooter::OnDropItemPressed()
+void AC_Shooter::OnPressedScoreSheet()
 {
-	FArcInventoryItemSlotReference ActiveItem = ShooterInventoryComponent->GetActiveItemSlot();
-	if (ShooterInventoryComponent->IsValidActiveItemSlot(ActiveItem.SlotId))
-	{
-		ShooterInventoryComponent->PendingItemDrop = ShooterInventoryComponent->GetActiveItemSlot();
-		GetAbilitySystemComponent()->TryActivateAbility(DropItemAbilitySpecHandle, true);
-	}
+	Super::OnPressedScoreSheet();
+}
+
+void AC_Shooter::OnPressedDropItem()
+{
+	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(FArcInvDropItemAbilityTag.GetTag().GetSingleTagContainer(), true);
 }

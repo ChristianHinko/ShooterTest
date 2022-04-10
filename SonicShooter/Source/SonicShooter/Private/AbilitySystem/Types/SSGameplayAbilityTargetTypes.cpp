@@ -3,8 +3,6 @@
 
 #include "AbilitySystem/Types/SSGameplayAbilityTargetTypes.h"
 
-#include "Utilities/LogCategories.h"
-
 
 
 FSSGameplayAbilityTargetData::FSSGameplayAbilityTargetData()

@@ -5,3 +5,4 @@
 #include "EngineSharedPCH.h"
 #include "Utilities/LogCategories.h"
 #include "AbilitySystem/AbilityInputID.h"
+#include "Utilities/SSNativeGameplayTags.h"

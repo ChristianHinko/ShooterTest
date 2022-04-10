@@ -4,8 +4,6 @@
 #include "Character/Abilities/GA_CharacterCrouch.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Utilities/LogCategories.h"
-#include "Utilities/SSNativeGameplayTags.h"
 #include "GameFramework/Character.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -15,10 +13,10 @@
 UGA_CharacterCrouch::UGA_CharacterCrouch()
 {
 	AbilityInputID = EAbilityInputID::Crouch;
-	AbilityTags.AddTag(Tag_CrouchAbility);
+	AbilityTags.AddTag(NativeGameplayTags::Ability_Movement_Crouch);
 
 
-	CancelAbilitiesWithTag.AddTag(Tag_RunAbility);
+	CancelAbilitiesWithTag.AddTag(NativeGameplayTags::Ability_Movement_Run);
 }
 
 

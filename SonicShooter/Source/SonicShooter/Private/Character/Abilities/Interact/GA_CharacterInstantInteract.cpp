@@ -5,15 +5,13 @@
 
 #include "Character/C_Shooter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
-#include "Utilities/LogCategories.h"
-#include "Utilities/SSNativeGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "Character\AbilityTasks\AT_DurationInteractCallbacks.h"
 #include "Subobjects/ActorComponents/AC_Interactor.h"
 
 UGA_CharacterInstantInteract::UGA_CharacterInstantInteract()
 {
-	AbilityTags.AddTag(Tag_InstantInteractAbility);
+	AbilityTags.AddTag(NativeGameplayTags::Ability_Interact_InstantInteract);
 }
 
 void UGA_CharacterInstantInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)

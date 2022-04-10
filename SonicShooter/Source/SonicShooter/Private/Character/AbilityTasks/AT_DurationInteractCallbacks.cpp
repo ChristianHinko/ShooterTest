@@ -4,7 +4,6 @@
 #include "Character\AbilityTasks\AT_DurationInteractCallbacks.h"
 
 #include "Character/C_Shooter.h"
-#include "Utilities/LogCategories.h"
 #include "Subobjects/ActorComponents/AC_Interactor.h"
 
 #include "Kismet/KismetSystemLibrary.h"

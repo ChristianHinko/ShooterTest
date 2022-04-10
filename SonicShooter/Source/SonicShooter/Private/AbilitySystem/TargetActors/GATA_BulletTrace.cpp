@@ -3,7 +3,6 @@
 
 #include "AbilitySystem/TargetActors/GATA_BulletTrace.h"
 
-#include "Utilities/LogCategories.h"
 #include "Abilities/GameplayAbility.h"
 #include "Utilities/CollisionChannels.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTargetTypes.h"

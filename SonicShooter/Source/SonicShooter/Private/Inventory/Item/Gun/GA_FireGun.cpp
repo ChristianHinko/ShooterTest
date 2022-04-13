@@ -406,10 +406,12 @@ void UGA_FireGun::Shoot()
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 		return;
 	}
+
 	// Bind to wait target data delegates
 	WaitTargetDataActorTask->ValidData.AddDynamic(this, &UGA_FireGun::OnValidData);
 	WaitTargetDataActorTask->Cancelled.AddDynamic(this, &UGA_FireGun::OnCancelled);
 
+	BulletTraceTargetActor->SourceActor = GetAvatarActorFromActorInfo();
 
 	// Update our target actor's start location
 	BulletTraceTargetActor->bUseAimPointAsStartLocation = true; // we just want to use the player camera position directly for our StartLocation
@@ -424,9 +426,9 @@ void UGA_FireGun::Shoot()
 
 	// Inject our current Attribute values
 	BulletTraceTargetActor->MaxRange = MaxRange;
-	BulletTraceTargetActor->NumberOfTraces = NumberOfBulletsPerFire;
-	BulletTraceTargetActor->Penetrations = Penetrations;
-	BulletTraceTargetActor->Ricochets = Ricochets;
+	BulletTraceTargetActor->NumOfScans = NumberOfBulletsPerFire;
+	BulletTraceTargetActor->NumOfPenetrations = Penetrations;
+	BulletTraceTargetActor->NumOfRicochets = Ricochets;
 	BulletTraceTargetActor->InitialBulletSpeed = InitialBulletSpeed;
 	BulletTraceTargetActor->BulletSpeedFalloff = BulletSpeedFalloff;
 
@@ -625,7 +627,7 @@ void UGA_FireGun::OnNumberOfBulletsPerFireChange(const FOnAttributeChangeData& D
 	if (IsValid(BulletTraceTargetActor))
 	{
 		// Update GATA_BulletTrace
-		BulletTraceTargetActor->NumberOfTraces = NumberOfBulletsPerFire;
+		BulletTraceTargetActor->NumOfScans = NumberOfBulletsPerFire;
 	}
 }
 void UGA_FireGun::OnPenetrationsChange(const FOnAttributeChangeData& Data)
@@ -635,7 +637,7 @@ void UGA_FireGun::OnPenetrationsChange(const FOnAttributeChangeData& Data)
 	if (IsValid(BulletTraceTargetActor))
 	{
 		// Update GATA_BulletTrace
-		BulletTraceTargetActor->Penetrations = Penetrations;
+		BulletTraceTargetActor->NumOfPenetrations = Penetrations;
 	}
 }
 void UGA_FireGun::OnRicochetsChange(const FOnAttributeChangeData& Data)
@@ -645,7 +647,7 @@ void UGA_FireGun::OnRicochetsChange(const FOnAttributeChangeData& Data)
 	if (IsValid(BulletTraceTargetActor))
 	{
 		// Update GATA_BulletTrace
-		BulletTraceTargetActor->Ricochets = Ricochets;
+		BulletTraceTargetActor->NumOfRicochets = Ricochets;
 	}
 }
 void UGA_FireGun::OnInitialBulletSpeedChange(const FOnAttributeChangeData& Data)

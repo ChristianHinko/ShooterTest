@@ -120,7 +120,7 @@ private:
 
 
 /**
- * Trace class for Bullets.
+ * Scan class for Bullets.
  * 
  * Key notes:
  * - Implements the idea of Bullet Speed which can stop the tracing at any point. 
@@ -156,17 +156,17 @@ public:
 		int16 FireSpecificNetSafeRandomSeed;
 
 protected:
-	virtual void PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) override;
+	virtual void PerformScan(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) override;
 	virtual void CalculateAimDirection(FVector& OutAimStart, FVector& OutAimDir) const override;
 	virtual bool ShouldRicochetOffOf(const FHitResult& Hit) const override;
 
 
-	virtual void OnPrePerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AActor* InSourceActor) override;
+	virtual void OnPrePerformScans(TArray<TArray<FHitResult>>& OutScansResults, AActor* InSourceActor) override;
 
 	virtual bool OnInitialTrace(TArray<FHitResult>& OutInitialHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& TraceParams) override;
 	virtual bool OnPenetrate(TArray<FHitResult>& HitResults, TArray<FHitResult>& OutPenetrateHitResults, const UWorld* World, const FVector& PenetrateStart, const FVector& PenetrateEnd, const FCollisionQueryParams& TraceParams) override;
 	virtual bool OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitResult>& OutRicoHitResults, const UWorld* World, const FVector& RicoStart, const FVector& RicoEnd, const FCollisionQueryParams& TraceParams) override;
-	virtual void OnPostTraces(TArray<FHitResult>& HitResults, const UWorld* World, const FCollisionQueryParams& TraceParams) override;
+	virtual void OnPostScan(TArray<FHitResult>& HitResults, const UWorld* World, const FCollisionQueryParams& QueryParams) override;
 
 	/**
 	 * Applies each of the Penetration Infos' Phys Mats' BulletPenetrationSpeedReduction to CurrentBulletSpeed.
@@ -181,14 +181,14 @@ protected:
 
 
 	float CurrentBulletSpeed;
-	float GetBulletSpeedAtPoint(const FVector& Point, int32 bulletNumber);
+	float GetBulletSpeedAtPoint(const FVector& Point, const int32 ScanIndex);
 	/**
 	 * @brief: This is a nerf that is multiplied against our bullet's damage value to simulate a bullet slowing down as it travels through the air.
-	 * @param bulletSpeedFalloffValue: Multiplier applied against the bullet's speed every 1000cm (32ft) or 10 blocks of our Proto material.
-	 * @param totalDistanceBulletTraveled: Required for our calculation.
+	 * @param BulletSpeedFalloffValue: Multiplier applied against the bullet's speed every 1000cm (32ft) or 10 blocks of our Proto material.
+	 * @param TotalDistanceBulletTraveled: Required for our calculation.
 	 * @return: The multiplier to multiply against our bullet's damage value.
 	*/
-	float GetBulletSpeedFalloffNerf(const float& bulletSpeedFalloffValue, const float& totalDistanceBulletTraveled);
+	float GetBulletSpeedFalloffNerf(const float BulletSpeedFalloffValue, const float TotalDistanceBulletTraveled);
 
 private:
 	TArray<FHitResult> ThisRicochetBlockingHits;

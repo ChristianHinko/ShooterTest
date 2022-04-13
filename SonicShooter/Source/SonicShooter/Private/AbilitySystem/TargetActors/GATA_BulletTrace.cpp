@@ -39,28 +39,28 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 		FGameplayAbilityTargetDataHandle TargetDataHandle;
 
 
-		TArray<TArray<FHitResult>> TraceResults;
-		PerformTraces(TraceResults, SourceActor);
+		TArray<TArray<FHitResult>> ScansResults;
+		PerformScans(ScansResults, SourceActor);
 
-		for (int32 BulletNumber = 0; BulletNumber < TraceResults.Num(); BulletNumber++)
+		for (int32 ScanNumber = 0; ScanNumber < ScansResults.Num(); ScanNumber++)
 		{
-			TArray<FHitResult>& ThisBulletHitResults = TraceResults[BulletNumber];
+			TArray<FHitResult>& ThisScanHitResults = ScansResults[ScanNumber];
 
 			/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
-			FGATD_BulletTraceTargetHit* ThisBulletTargetData = new FGATD_BulletTraceTargetHit();
+			FGATD_BulletTraceTargetHit* ThisScanTargetData = new FGATD_BulletTraceTargetHit();
 
 			float TotalDistanceUpUntilThisTrace = 0.f; // accumulated distance of the previous traces
 
-			TArray<FVector_NetQuantize> BulletTracePoints; // used to tell target data where this bullet went
-			if (ThisBulletHitResults.Num() > 0)
+			TArray<FVector_NetQuantize> ScanTracePoints; // this is used to tell target data where this bullet went
+			if (ThisScanHitResults.Num() > 0)
 			{
-				BulletTracePoints.Emplace(ThisBulletHitResults[0].TraceStart);
+				ScanTracePoints.Emplace(ThisScanHitResults[0].TraceStart);
 			}
 
 			FHitResult PreviousHit;
-			for (int32 index = 0, iteration = 0; index < ThisBulletHitResults.Num(); ++index, ++iteration)
+			for (int32 index = 0, iteration = 0; index < ThisScanHitResults.Num(); ++index, ++iteration)
 			{
-				const FHitResult& Hit = ThisBulletHitResults[index];
+				const FHitResult& Hit = ThisScanHitResults[index];
 
 				if (iteration != 0)
 				{
@@ -72,14 +72,14 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 						if (ShouldRicochetOffOf(PreviousHit))
 						{
-							// We ricocheted and are changing trace direction so add this point to the BulletTracePoints
-							BulletTracePoints.Emplace(Hit.TraceStart);
+							// We ricocheted and are changing trace direction so add this point to the ScanTracePoints
+							ScanTracePoints.Emplace(Hit.TraceStart);
 						}
 					}
 				}
 
 
-				if (HitResultFailsFilter(ThisBulletHitResults, index, Filter, bAllowMultipleHitsPerActor)) // don't actually filter it, just check if it passes the filter
+				if (HitResultFailsFilter(ThisScanHitResults, index, Filter, bAllowMultipleHitsPerActor)) // don't actually filter it, just check if it passes the filter
 				{
 					// This index did not pass the filter, stop here so that we don't add target data for it
 					PreviousHit = Hit;
@@ -90,9 +90,9 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 				// If we got here, we are an unfiltered hit (ie. we hit a character), add info to our target data:
 
 				// This Hit Result's distance plus the previous ricochet(s)'s traveled distance
-				const float ricochetAwareDistance = TotalDistanceUpUntilThisTrace + Hit.Distance;
-				float bulletSpeedOnHit = GetBulletSpeedAtPoint(Hit.ImpactPoint, BulletNumber);
-				ThisBulletTargetData->ActorHitInfos.Emplace(Hit.GetActor(), ricochetAwareDistance, bulletSpeedOnHit);
+				const float RicochetAwareDistance = TotalDistanceUpUntilThisTrace + Hit.Distance;
+				const float BulletSpeedOnHit = GetBulletSpeedAtPoint(Hit.ImpactPoint, ScanNumber);
+				ThisScanTargetData->ActorHitInfos.Emplace(Hit.GetActor(), RicochetAwareDistance, BulletSpeedOnHit);
 
 
 
@@ -100,14 +100,14 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 				PreviousHit = Hit;
 			}
 
-			if (ThisBulletHitResults.Num() > 0)
+			if (ThisScanHitResults.Num() > 0)
 			{
-				BulletTracePoints.Emplace(ThisBulletHitResults.Last().TraceEnd);
+				ScanTracePoints.Emplace(ThisScanHitResults.Last().TraceEnd);
 			}
-			ThisBulletTargetData->BulletTracePoints = BulletTracePoints;
+			ThisScanTargetData->BulletTracePoints = ScanTracePoints;
 
 
-			TargetDataHandle.Add(ThisBulletTargetData);
+			TargetDataHandle.Add(ThisScanTargetData);
 		}
 		
 
@@ -124,7 +124,7 @@ void AGATA_BulletTrace::CalculateAimDirection(FVector& OutAimStart, FVector& Out
 	if (CurrentBulletSpread > SMALL_NUMBER)
 	{
 		// Our injected random seed is only unique to each fire. We need a random seed that is also unique to each bullet in the fire, so we will do this by using t
-		const int32 FireAndBulletSpecificNetSafeRandomSeed = FireSpecificNetSafeRandomSeed - ((CurrentTraceIndex + 2) * FireSpecificNetSafeRandomSeed);	// Here, the 'number' multiplied to t makes the random pattern noticable after firing 'number' of times. I use the prediction key as that 'number' which i think eliminates the threshold for noticeability entirely. - its confusing to think about but i think it works
+		const int32 FireAndBulletSpecificNetSafeRandomSeed = FireSpecificNetSafeRandomSeed - ((CurrentScanIndex + 2) * FireSpecificNetSafeRandomSeed);	// Here, the 'number' multiplied to t makes the random pattern noticable after firing 'number' of times. I use the prediction key as that 'number' which i think eliminates the threshold for noticeability entirely. - its confusing to think about but i think it works
 		FMath::RandInit(FireAndBulletSpecificNetSafeRandomSeed);
 		const FRandomStream RandomStream = FRandomStream(FMath::Rand());
 
@@ -149,7 +149,7 @@ bool AGATA_BulletTrace::ShouldRicochetOffOf(const FHitResult& Hit) const
 
 
 
-void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* InSourceActor)
+void AGATA_BulletTrace::PerformScan(TArray<FHitResult>& OutHitResults, AActor* InSourceActor)
 {
 	OutHitResults.Empty();
 
@@ -164,20 +164,19 @@ void AGATA_BulletTrace::PerformTrace(TArray<FHitResult>& OutHitResults, AActor* 
 
 
 	// Perform line trace
-	LineTraceMulti(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, Params, bDebug);
+	ScanWithLineTraces(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, Params, bDebug);
 
 }
 
-void AGATA_BulletTrace::OnPrePerformTraces(TArray<TArray<FHitResult>>& OutTraceResults, AActor* InSourceActor)
+void AGATA_BulletTrace::OnPrePerformScans(TArray<TArray<FHitResult>>& OutScansResults, AActor* InSourceActor)
 {
-	Super::OnPrePerformTraces(OutTraceResults, InSourceActor);
+	Super::OnPrePerformScans(OutScansResults, InSourceActor);
 
 
-	// Initialize BulletSteps for these traces
-	const int32 NumberOfBullets = NumberOfTraces;
+	// Initialize BulletSteps for these scans
 	BulletSteps.Empty();
-	BulletSteps.Reserve(NumberOfBullets);
-	BulletSteps.AddDefaulted(NumberOfBullets);
+	BulletSteps.Reserve(NumOfScans);
+	BulletSteps.AddDefaulted(NumOfScans);
 }
 
 
@@ -202,8 +201,8 @@ bool AGATA_BulletTrace::OnInitialTrace(TArray<FHitResult>& OutInitialHitResults,
 	// Intialize CurrentBulletSpeed
 	CurrentBulletSpeed = InitialBulletSpeed;
 
-	// Initialize this bullet's BulletSteps
-	BulletSteps[CurrentTraceIndex].Empty();
+	// Initialize this scans's BulletSteps
+	BulletSteps[CurrentScanIndex].Empty();
 
 
 	// Nerf CurrentBulletSpeed by distance traveled
@@ -276,7 +275,7 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 		ThisRicochetBulletSteps.Emplace(RicochetPoint);
 	}
 
-	BulletSteps[CurrentTraceIndex].Append(ThisRicochetBulletSteps);
+	BulletSteps[CurrentScanIndex].Append(ThisRicochetBulletSteps);
 
 
 	FVector StoppedAtPoint;
@@ -336,9 +335,9 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 	}
 	return RetVal;
 }
-void AGATA_BulletTrace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorld* World, const FCollisionQueryParams& TraceParams)
+void AGATA_BulletTrace::OnPostScan(TArray<FHitResult>& HitResults, const UWorld* World, const FCollisionQueryParams& QueryParams)
 {
-	Super::OnPostTraces(HitResults, World, TraceParams);
+	Super::OnPostScan(HitResults, World, QueryParams);
 
 
 
@@ -350,7 +349,7 @@ void AGATA_BulletTrace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorl
 		if (ThisRicochetBlockingHits.Num() > 0)
 		{
 			TArray<FTraceSegment> ThisRicochetTraceSegments;
-			UBFL_CollisionQueryHelpers::BuildTraceSegments(ThisRicochetTraceSegments, ThisRicochetBlockingHits, World, TraceParams, TraceChannel);
+			UBFL_CollisionQueryHelpers::BuildTraceSegments(ThisRicochetTraceSegments, ThisRicochetBlockingHits, World, QueryParams, TraceChannel);
 			for (const FTraceSegment& TraceSegment : ThisRicochetTraceSegments)
 			{
 				ThisRicochetBulletSteps.Emplace(TraceSegment);
@@ -360,7 +359,7 @@ void AGATA_BulletTrace::OnPostTraces(TArray<FHitResult>& HitResults, const UWorl
 
 	}
 
-	BulletSteps[CurrentTraceIndex].Append(ThisRicochetBulletSteps);
+	BulletSteps[CurrentScanIndex].Append(ThisRicochetBulletSteps);
 
 
 	FVector StoppedAtPoint;
@@ -483,14 +482,14 @@ bool AGATA_BulletTrace::ApplyBulletStepsToBulletSpeed(const TArray<FBulletStep>&
 	return false;
 }
 
-float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, int32 bulletNumber)
+float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, const int32 ScanIndex)
 {
 	float RetVal = InitialBulletSpeed;
 
 
 	float TotalDistanceTraveled = 0.f;
 
-	const TArray<FBulletStep>& Steps = BulletSteps[bulletNumber]; // get the steps from this specific bullet
+	const TArray<FBulletStep>& Steps = BulletSteps[ScanIndex]; // get the steps from this specific bullet
 	for (const FBulletStep& BulletStep : Steps)
 	{
 		RetVal -= BulletStep.GetBulletSpeedToTakeAway();
@@ -544,8 +543,8 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, int32 bulle
 	return RetVal;
 }
 
-float AGATA_BulletTrace::GetBulletSpeedFalloffNerf(const float& bulletSpeedFalloffValue, const float& totalDistanceBulletTraveled)
+float AGATA_BulletTrace::GetBulletSpeedFalloffNerf(const float BulletSpeedFalloffValue, const float TotalDistanceBulletTraveled)
 {
-	// bulletSpeedFalloffValue is the multiplier applied against the bullet's speed every 1000cm (32ft) or 10 blocks of our Proto material
-	return FMath::Pow(bulletSpeedFalloffValue, (totalDistanceBulletTraveled / 1000));
+	// BulletSpeedFalloffValue is the multiplier applied against the bullet's speed every 1000cm (32ft) or 10 blocks of our Proto material
+	return FMath::Pow(BulletSpeedFalloffValue, (TotalDistanceBulletTraveled / 1000));
 }

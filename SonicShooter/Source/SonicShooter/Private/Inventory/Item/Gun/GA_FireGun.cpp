@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/AbilityTasks/ASSAbilityTask_WaitTargetData.h"
 #include "AbilitySystem/TargetActors/GATA_BulletTrace.h"
+#include "AbilitySystem/ASSAbilitySystemBlueprintLibrary.h"
 #include "Utilities/CollisionChannels.h"
 #include "Inventory/Item/Gun/AS_Gun.h"
 #include "Subobjects/O_ClipAmmo.h"
@@ -107,15 +108,20 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 
 
 
-	// Inject the data our target actor needs and spawn it 
+	// Inject the data our Target Actor needs and spawn it 
 	BulletTraceTargetActor = GetWorld()->SpawnActorDeferred<AGATA_BulletTrace>(GunToFire->BulletTargetActorTSub, FTransform());
 	if (!IsValid(BulletTraceTargetActor))
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() No valid BulletTraceTargetActor in the GunStack when giving the fire ability. How the heck we supposed to fire the gun!?!?"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
+
 	BulletTraceTargetActor->OwningAbility = this;
 	BulletTraceTargetActor->bDestroyOnConfirmation = false;
+
+	FGTDF_MultiFilter MultiFilter = FGTDF_MultiFilter();
+	MultiFilter.bOnlyAcceptAbilitySystemInterfaces = true;
+	BulletTraceTargetActor->Filter = UASSAbilitySystemBlueprintLibrary::MakeMultiFilterHandle(MultiFilter, ActorInfo->AvatarActor.Get());
 
 	UGameplayStatics::FinishSpawningActor(BulletTraceTargetActor, FTransform());
 }

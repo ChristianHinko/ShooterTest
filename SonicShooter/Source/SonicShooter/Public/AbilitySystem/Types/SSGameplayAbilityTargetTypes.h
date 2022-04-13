@@ -45,9 +45,9 @@ struct FActorHitInfo
 	{
 
 	}
-	FActorHitInfo(const TWeakObjectPtr<AActor>& InHitActor, float InTotalTraveledDistanceBeforeHit, float InBulletSpeedAtImpact)
+	FActorHitInfo(AActor* InHitActor, float InTotalTraveledDistanceBeforeHit, float InBulletSpeedAtImpact)
 	{
-		HitActor = InHitActor;
+		HitActor = TWeakObjectPtr<AActor>(InHitActor);
 		TotalTraveledDistanceBeforeHit = InTotalTraveledDistanceBeforeHit;
 		BulletSpeedAtImpact = InBulletSpeedAtImpact;
 	}

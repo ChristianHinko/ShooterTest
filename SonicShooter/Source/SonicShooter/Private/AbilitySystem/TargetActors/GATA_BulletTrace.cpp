@@ -54,7 +54,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 			TArray<FVector_NetQuantize> ScanTracePoints; // this is used to tell target data where this bullet went
 			if (ThisScanHitResults.Num() > 0)
 			{
-				ScanTracePoints.Emplace(ThisScanHitResults[0].TraceStart);
+				ScanTracePoints.Add(ThisScanHitResults[0].TraceStart);
 			}
 
 			FHitResult PreviousHit;
@@ -73,7 +73,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 						if (ShouldRicochetOffOf(PreviousHit))
 						{
 							// We ricocheted and are changing trace direction so add this point to the ScanTracePoints
-							ScanTracePoints.Emplace(Hit.TraceStart);
+							ScanTracePoints.Add(Hit.TraceStart);
 						}
 					}
 				}
@@ -92,8 +92,10 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 				// This Hit Result's distance plus the previous ricochet(s)'s traveled distance
 				const float RicochetAwareDistance = TotalDistanceUpUntilThisTrace + Hit.Distance;
 				const float BulletSpeedOnHit = GetBulletSpeedAtPoint(Hit.ImpactPoint, ScanNumber);
-				ThisScanTargetData->ActorHitInfos.Emplace(Hit.GetActor(), RicochetAwareDistance, BulletSpeedOnHit);
 
+				FActorHitInfo ActorHitInfo = FActorHitInfo(Hit.GetActor(), RicochetAwareDistance, BulletSpeedOnHit);
+				ThisScanTargetData->ActorHitInfos.Add(ActorHitInfo);
+				
 
 
 
@@ -102,7 +104,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 			if (ThisScanHitResults.Num() > 0)
 			{
-				ScanTracePoints.Emplace(ThisScanHitResults.Last().TraceEnd);
+				ScanTracePoints.Add(ThisScanHitResults.Last().TraceEnd);
 			}
 			ThisScanTargetData->BulletTracePoints = ScanTracePoints;
 
@@ -226,7 +228,7 @@ bool AGATA_BulletTrace::OnPenetrate(TArray<FHitResult>& HitResults, TArray<FHitR
 	const FHitResult& PenetratedThrough = HitResults.Last();
 
 	// Add what we penetrated through as a blocking hit for ThisRicochetBlockingHits
-	ThisRicochetBlockingHits.Emplace(PenetratedThrough);
+	ThisRicochetBlockingHits.Add(PenetratedThrough);
 
 
 	// Nerf CurrentBulletSpeed by distance traveled
@@ -250,7 +252,7 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 	const FHitResult& RicochetOffOf = HitResults.Last();
 
 
-	ThisRicochetBlockingHits.Emplace(RicochetOffOf);
+	ThisRicochetBlockingHits.Add(RicochetOffOf);
 
 
 	TArray<FBulletStep> ThisRicochetBulletSteps;
@@ -265,14 +267,14 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 			UBFL_CollisionQueryHelpers::BuildTraceSegments(ThisRicochetTraceSegments, ThisRicochetBlockingHits, RicochetOffOf.Location, World, TraceParams, TraceChannel);
 			for (const FTraceSegment& TraceSegment : ThisRicochetTraceSegments)
 			{
-				ThisRicochetBulletSteps.Emplace(TraceSegment);
+				ThisRicochetBulletSteps.Add(TraceSegment);
 			}
 
 
 		}
 
 		FTracePoint RicochetPoint = FTracePoint(RicoStart, RicochetOffOf.PhysMaterial.Get());
-		ThisRicochetBulletSteps.Emplace(RicochetPoint);
+		ThisRicochetBulletSteps.Add(RicochetPoint);
 	}
 
 	BulletSteps[CurrentScanIndex].Append(ThisRicochetBulletSteps);
@@ -300,7 +302,7 @@ bool AGATA_BulletTrace::OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitRe
 					FHitResult TraceInfo;
 					TraceInfo.TraceStart = Hit.TraceStart;
 					TraceInfo.TraceEnd = StoppedAtPoint;
-					HitResults.Emplace(TraceInfo);
+					HitResults.Add(TraceInfo);
 
 					break;
 				}
@@ -352,7 +354,7 @@ void AGATA_BulletTrace::OnPostScan(TArray<FHitResult>& HitResults, const UWorld*
 			UBFL_CollisionQueryHelpers::BuildTraceSegments(ThisRicochetTraceSegments, ThisRicochetBlockingHits, World, QueryParams, TraceChannel);
 			for (const FTraceSegment& TraceSegment : ThisRicochetTraceSegments)
 			{
-				ThisRicochetBulletSteps.Emplace(TraceSegment);
+				ThisRicochetBulletSteps.Add(TraceSegment);
 			}
 
 		}
@@ -384,7 +386,7 @@ void AGATA_BulletTrace::OnPostScan(TArray<FHitResult>& HitResults, const UWorld*
 					FHitResult TraceInfo;
 					TraceInfo.TraceStart = Hit.TraceStart;
 					TraceInfo.TraceEnd = StoppedAtPoint;
-					HitResults.Emplace(TraceInfo);
+					HitResults.Add(TraceInfo);
 
 					break;
 				}

@@ -190,9 +190,9 @@ void AGATA_BulletTrace::OnPrePerformScans(TArray<TArray<FHitResult>>& OutScansRe
 
 
 
-bool AGATA_BulletTrace::OnInitialTrace(TArray<FHitResult>& OutInitialHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& TraceParams)
+bool AGATA_BulletTrace::OnFirstTraceOfScan(TArray<FHitResult>& OutFirstTraceOfScanHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& TraceParams)
 {
-	bool RetVal = Super::OnInitialTrace(OutInitialHitResults, World, Start, End, TraceParams);
+	bool RetVal = Super::OnFirstTraceOfScan(OutFirstTraceOfScanHitResults, World, Start, End, TraceParams);
 
 
 	// Initialize ThisRicochetBlockingHits
@@ -210,7 +210,7 @@ bool AGATA_BulletTrace::OnInitialTrace(TArray<FHitResult>& OutInitialHitResults,
 	// Nerf CurrentBulletSpeed by distance traveled
 	{
 		float DistanceTraveled = 0.f;
-		for (const FHitResult& Hit : OutInitialHitResults)
+		for (const FHitResult& Hit : OutFirstTraceOfScanHitResults)
 		{
 			DistanceTraveled += Hit.Distance;
 		}

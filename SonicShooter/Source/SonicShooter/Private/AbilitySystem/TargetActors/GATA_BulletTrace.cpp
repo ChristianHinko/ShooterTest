@@ -155,18 +155,16 @@ void AGATA_BulletTrace::PerformScan(TArray<FHitResult>& OutHitResults, AActor* I
 {
 	OutHitResults.Empty();
 
-	FCollisionQueryParams Params = FCollisionQueryParams(SCENE_QUERY_STAT(AGATA_BulletTrace));
-	Params.AddIgnoredActor(InSourceActor);
-	Params.bTraceComplex = true;
-	Params.bReturnPhysicalMaterial = true;
+	FCollisionQueryParams CollisionQueryParams = FCollisionQueryParams(SCENE_QUERY_STAT(AGATA_BulletTrace));
+	CollisionQueryParams.AddIgnoredActor(InSourceActor);
+	CollisionQueryParams.bTraceComplex = true;
+	CollisionQueryParams.bReturnPhysicalMaterial = true;
 
 	FVector TraceStart = StartLocation.GetTargetingTransform().GetLocation();
-	FVector TraceEnd;
-	AimWithPlayerController(InSourceActor, Params, TraceStart, TraceEnd); // effective on server and launching client only
-
+	FVector TraceEnd = TraceStart + (GetAimDirectionOfStartLocation(CollisionQueryParams) * MaxRange);
 
 	// Perform line trace
-	ScanWithLineTraces(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, Params, bDebug);
+	ScanWithLineTraces(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, CollisionQueryParams, bDebug);
 
 }
 

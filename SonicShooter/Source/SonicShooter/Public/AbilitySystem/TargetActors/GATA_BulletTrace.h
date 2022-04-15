@@ -191,9 +191,9 @@ protected:
 	float GetBulletSpeedFalloffNerf(const float BulletSpeedFalloffValue, const float TotalDistanceBulletTraveled);
 
 private:
-	TArray<FHitResult> ThisRicochetBlockingHits;
+	TArray<FHitResult> CurrentTracingDirectionBlockingHits;
 	TArray<TArray<FBulletStep>> BulletSteps;
-	int32 ThisRicochetStartingIndex;
-	FVector ThisRicochetTraceDir;
+	int32 CurrentTracingDirectionStartIndex;
+	FVector CurrentTracingDirection;
 
 };

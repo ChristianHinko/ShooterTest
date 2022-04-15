@@ -72,7 +72,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 						if (ShouldRicochetOffOf(PreviousHit))
 						{
-							// We ricocheted and are changing trace direction so add this point to the ScanTracePoints
+							// We ricocheted and are changing tracing direction so add this point to the ScanTracePoints
 							ScanTracePoints.Add(Hit.TraceStart);
 						}
 					}
@@ -87,9 +87,9 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 				}
 
 
-				// If we got here, we are an unfiltered hit (ie. we hit a character), add info to our target data:
+				// If we got here, we are an unfiltered hit (e.g. we hit a Character), add info to our Target Data:
 
-				// This Hit Result's distance plus the previous ricochet(s)'s traveled distance
+				// This Hit Result's distance plus the previous tracing direction's traveled distance
 				const float RicochetAwareDistance = TotalDistanceUpUntilThisTrace + Hit.Distance;
 				const float BulletSpeedOnHit = GetBulletSpeedAtPoint(Hit.ImpactPoint, ScanNumber);
 
@@ -193,10 +193,10 @@ bool AGATA_BulletTrace::ShouldContinueTracingAfterFirstTrace(TArray<FHitResult>&
 	bool RetVal = Super::ShouldContinueTracingAfterFirstTrace(FirstTraceHitResults, World, Start, End, QueryParams);
 
 
-	// Initialize ThisRicochetBlockingHits
-	ThisRicochetBlockingHits.Empty();
-	ThisRicochetStartingIndex = 0;
-	ThisRicochetTraceDir = UKismetMathLibrary::GetDirectionUnitVector(Start, End);
+	// Initialize CurrentTracingDirectionBlockingHits
+	CurrentTracingDirectionBlockingHits.Empty();
+	CurrentTracingDirectionStartIndex = 0;
+	CurrentTracingDirection = UKismetMathLibrary::GetDirectionUnitVector(Start, End);
 
 	// Intialize CurrentBulletSpeed
 	CurrentBulletSpeed = InitialBulletSpeed;
@@ -225,8 +225,8 @@ bool AGATA_BulletTrace::ShouldContinueTracingAfterPenetrationTrace(TArray<FHitRe
 
 	const FHitResult& PenetratedThrough = ScanHitResults.Last();
 
-	// Add what we penetrated through as a blocking hit for ThisRicochetBlockingHits
-	ThisRicochetBlockingHits.Add(PenetratedThrough);
+	// Add what we penetrated through as a blocking hit for CurrentTracingDirectionBlockingHits
+	CurrentTracingDirectionBlockingHits.Add(PenetratedThrough);
 
 
 	// Nerf CurrentBulletSpeed by distance traveled
@@ -250,47 +250,47 @@ bool AGATA_BulletTrace::ShouldContinueTracingAfterRicochetHit(TArray<FHitResult>
 	const FHitResult& RicochetOffOf = ScanHitResults.Last();
 
 
-	ThisRicochetBlockingHits.Add(RicochetOffOf);
+	CurrentTracingDirectionBlockingHits.Add(RicochetOffOf);
 
 
-	TArray<FBulletStep> ThisRicochetBulletSteps;
+	TArray<FBulletStep> ThisTracingDirectionBulletSteps;
 
-	// Fill out ThisRicochetBulletSteps
+	// Fill out ThisTracingDirectionBulletSteps
 	{
-		// We are ricocheting so BuildTraceSegments about this previous ricochet's blocking hits
-		if (ThisRicochetBlockingHits.Num() > 0)
+		// We are changing our tracing direction so BuildTraceSegments() for the previous tracing direction's blocking hits
+		if (CurrentTracingDirectionBlockingHits.Num() > 0)
 		{
-			// We are about to ricochet so calculate Trace Segments for these blocking Hits before we move on to the next ricochet
-			TArray<FTraceSegment> ThisRicochetTraceSegments;
-			UBFL_CollisionQueryHelpers::BuildTraceSegments(ThisRicochetTraceSegments, ThisRicochetBlockingHits, RicochetOffOf.Location, World, QueryParams, TraceChannel);
-			for (const FTraceSegment& TraceSegment : ThisRicochetTraceSegments)
+			// We are about to ricochet so calculate Trace Segments for these blocking Hits before we move on to the next tracing direction
+			TArray<FTraceSegment> ThisTracingDirectionTraceSegments;
+			UBFL_CollisionQueryHelpers::BuildTraceSegments(ThisTracingDirectionTraceSegments, CurrentTracingDirectionBlockingHits, RicochetOffOf.Location, World, QueryParams, TraceChannel);
+			for (const FTraceSegment& TraceSegment : ThisTracingDirectionTraceSegments)
 			{
-				ThisRicochetBulletSteps.Add(TraceSegment);
+				ThisTracingDirectionBulletSteps.Add(TraceSegment);
 			}
 
 
 		}
 
-		FTracePoint RicochetPoint = FTracePoint(RicochetTraceStart, RicochetOffOf.PhysMaterial.Get());
-		ThisRicochetBulletSteps.Add(RicochetPoint);
+		FTracePoint RicochetPoint = FTracePoint(RicochetOffOf.Location, RicochetOffOf.PhysMaterial.Get());
+		ThisTracingDirectionBulletSteps.Add(RicochetPoint);
 	}
 
-	BulletSteps[CurrentScanIndex].Append(ThisRicochetBulletSteps);
+	BulletSteps[CurrentScanIndex].Append(ThisTracingDirectionBulletSteps);
 
 
 	FVector StoppedAtPoint;
 	bool bStoppedInSegment = false;
-	if (ApplyBulletStepsToBulletSpeed(ThisRicochetBulletSteps, StoppedAtPoint, bStoppedInSegment))
+	if (ApplyBulletStepsToBulletSpeed(ThisTracingDirectionBulletSteps, StoppedAtPoint, bStoppedInSegment))
 	{
 		if (bStoppedInSegment) // only if we stopped inside of a segment
 		{
-			// Loop through this ricochet's Hit Results until we find the first hit that happened after StoppedAtPoint, then remove it and all of the ones proceeding it
-			for (int32 i = ThisRicochetStartingIndex; i < ScanHitResults.Num(); ++i)
+			// Loop through this tracing direction's Hit Results until we find the first hit that happened after StoppedAtPoint, then remove it and all of the ones proceeding it
+			for (int32 i = CurrentTracingDirectionStartIndex; i < ScanHitResults.Num(); ++i)
 			{
 				const FHitResult& Hit = ScanHitResults[i];
 
 				const FVector LocationPointToStoppedPoint = (StoppedAtPoint - Hit.Location);
-				const bool bIsAfterStoppedPoint = (FVector::DotProduct(LocationPointToStoppedPoint, ThisRicochetTraceDir) <= 0); // if this Hit's Location is after StoppedAtLocation
+				const bool bIsAfterStoppedPoint = (FVector::DotProduct(LocationPointToStoppedPoint, CurrentTracingDirection) <= 0); // if this Hit's Location is after StoppedAtLocation
 				if (bIsAfterStoppedPoint)
 				{
 					// Remove the hits that happened after StoppedAtPoint
@@ -325,9 +325,9 @@ bool AGATA_BulletTrace::ShouldContinueTracingAfterRicochetHit(TArray<FHitResult>
 
 
 	// Reset the blocking Hit Results for the next group of blocking hits
-	ThisRicochetBlockingHits.Empty();
-	ThisRicochetStartingIndex = (ScanHitResults.Num() - 1);
-	ThisRicochetTraceDir = UKismetMathLibrary::GetDirectionUnitVector(RicochetTraceStart, RicochetTraceEnd);
+	CurrentTracingDirectionBlockingHits.Empty();
+	CurrentTracingDirectionStartIndex = (ScanHitResults.Num() - 1);
+	CurrentTracingDirection = UKismetMathLibrary::GetDirectionUnitVector(RicochetTraceStart, RicochetTraceEnd);
 
 	return RetVal;
 }
@@ -337,40 +337,40 @@ void AGATA_BulletTrace::OnFinishedScanWithLineTraces(TArray<FHitResult>& ScanHit
 
 
 
-	TArray<FBulletStep> ThisRicochetBulletSteps;
+	TArray<FBulletStep> ThisTracingDirectionBulletSteps;
 
-	// Fill out ThisRicochetBulletSteps
+	// Fill out ThisTracingDirectionBulletSteps
 	{
 		// Apply any Trace Segments left to our CurrentBulletSpeed
-		if (ThisRicochetBlockingHits.Num() > 0)
+		if (CurrentTracingDirectionBlockingHits.Num() > 0)
 		{
-			TArray<FTraceSegment> ThisRicochetTraceSegments;
-			UBFL_CollisionQueryHelpers::BuildTraceSegments(ThisRicochetTraceSegments, ThisRicochetBlockingHits, World, QueryParams, TraceChannel);
-			for (const FTraceSegment& TraceSegment : ThisRicochetTraceSegments)
+			TArray<FTraceSegment> ThisTracingDirectionTraceSegments;
+			UBFL_CollisionQueryHelpers::BuildTraceSegments(ThisTracingDirectionTraceSegments, CurrentTracingDirectionBlockingHits, World, QueryParams, TraceChannel);
+			for (const FTraceSegment& TraceSegment : ThisTracingDirectionTraceSegments)
 			{
-				ThisRicochetBulletSteps.Add(TraceSegment);
+				ThisTracingDirectionBulletSteps.Add(TraceSegment);
 			}
 
 		}
 
 	}
 
-	BulletSteps[CurrentScanIndex].Append(ThisRicochetBulletSteps);
+	BulletSteps[CurrentScanIndex].Append(ThisTracingDirectionBulletSteps);
 
 
 	FVector StoppedAtPoint;
 	bool bStoppedInSegment = false;
-	if (ApplyBulletStepsToBulletSpeed(ThisRicochetBulletSteps, StoppedAtPoint, bStoppedInSegment))
+	if (ApplyBulletStepsToBulletSpeed(ThisTracingDirectionBulletSteps, StoppedAtPoint, bStoppedInSegment))
 	{
 		if (bStoppedInSegment) // only if we stopped inside of a segment
 		{
-			// Loop through this ricochet's Hit Results until we find the first hit that happened after StoppedAtPoint, then remove it and all of the ones proceeding it
-			for (int32 i = ThisRicochetStartingIndex; i < ScanHitResults.Num(); ++i)
+			// Loop through this tracing direction's Hit Results until we find the first hit that happened after StoppedAtPoint, then remove it and all of the ones proceeding it
+			for (int32 i = CurrentTracingDirectionStartIndex; i < ScanHitResults.Num(); ++i)
 			{
 				const FHitResult& Hit = ScanHitResults[i];
 
 				const FVector LocationPointToStoppedPoint = (StoppedAtPoint - Hit.Location);
-				const bool bIsAfterStoppedPoint = (FVector::DotProduct(LocationPointToStoppedPoint, ThisRicochetTraceDir) <= 0); // if this Hit's Location is after StoppedAtLocation
+				const bool bIsAfterStoppedPoint = (FVector::DotProduct(LocationPointToStoppedPoint, CurrentTracingDirection) <= 0); // if this Hit's Location is after StoppedAtLocation
 				if (bIsAfterStoppedPoint)
 				{
 					// Remove the hits that happened after StoppedAtPoint
@@ -391,9 +391,9 @@ void AGATA_BulletTrace::OnFinishedScanWithLineTraces(TArray<FHitResult>& ScanHit
 
 
 
-	ThisRicochetBlockingHits.Empty();
-	ThisRicochetStartingIndex = 0;
-	ThisRicochetTraceDir = FVector::ZeroVector;
+	CurrentTracingDirectionBlockingHits.Empty();
+	CurrentTracingDirectionStartIndex = 0;
+	CurrentTracingDirection = FVector::ZeroVector;
 
 }
 

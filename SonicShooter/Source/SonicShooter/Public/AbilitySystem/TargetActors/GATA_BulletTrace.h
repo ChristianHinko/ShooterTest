@@ -163,10 +163,10 @@ protected:
 
 	virtual void OnPrePerformScans(TArray<TArray<FHitResult>>& OutScansResults, AActor* InSourceActor) override;
 	
-	virtual bool OnFirstTraceOfScan(TArray<FHitResult>& OutFirstTraceOfScanHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& TraceParams) override;
-	virtual bool OnPenetrate(TArray<FHitResult>& HitResults, TArray<FHitResult>& OutPenetrateHitResults, const UWorld* World, const FVector& PenetrateStart, const FVector& PenetrateEnd, const FCollisionQueryParams& TraceParams) override;
-	virtual bool OnRicochet(TArray<FHitResult>& HitResults, TArray<FHitResult>& OutRicoHitResults, const UWorld* World, const FVector& RicoStart, const FVector& RicoEnd, const FCollisionQueryParams& TraceParams) override;
-	virtual void OnPostScan(TArray<FHitResult>& HitResults, const UWorld* World, const FCollisionQueryParams& QueryParams) override;
+	virtual bool ShouldContinueTracingAfterFirstTrace(TArray<FHitResult>& FirstTraceHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& QueryParams) override;
+	virtual bool ShouldContinueTracingAfterPenetrationTrace(TArray<FHitResult>& ScanHitResults, TArray<FHitResult>& PenetrationHitResults, const UWorld* World, const FVector& PenetrationTraceStart, const FVector& PenetrationTraceEnd, const FCollisionQueryParams& QueryParams) override;
+	virtual bool ShouldContinueTracingAfterRicochetHit(TArray<FHitResult>& ScanHitResults, TArray<FHitResult>& RicochetHitResults, const UWorld* World, const FVector& RicochetTraceStart, const FVector& RicochetTraceEnd, const FCollisionQueryParams& QueryParams) override;
+	virtual void OnFinishedScanWithLineTraces(TArray<FHitResult>& ScanHitResults, const UWorld* World, const FCollisionQueryParams& QueryParams) override;
 
 	/**
 	 * Applies each of the Penetration Infos' Phys Mats' BulletPenetrationSpeedReduction to CurrentBulletSpeed.

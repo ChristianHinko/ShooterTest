@@ -479,13 +479,14 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, const int32
 	{
 		RetVal -= BulletStep.GetBulletSpeedToTakeAway();
 
+		float EqualsTolerance = KINDA_SMALL_NUMBER + TraceStartWallAvoidancePadding;
 		if (const FTraceSegment* TraceSegment = BulletStep.GetTraceSegment()) // if we're a TraceSegment
 		{
 			const float& SegmentDistance = TraceSegment->GetSegmentDistance();
 
 			TotalDistanceTraveled += SegmentDistance;
 
-			if (Point.Equals(TraceSegment->GetEndPoint(), KINDA_SMALL_NUMBER + TraceStartWallAvoidancePadding)) // if the given Point is this segment's EndPoint
+			if (Point.Equals(TraceSegment->GetEndPoint(), EqualsTolerance)) // if the given Point is this segment's EndPoint
 			{
 				break;
 			}
@@ -508,7 +509,7 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, const int32
 		}
 		else if (const FTracePoint* RicochetPoint = BulletStep.GetRicochetPoint())	// if we're a RicochetPoint
 		{
-			if (Point.Equals(RicochetPoint->Point, KINDA_SMALL_NUMBER + TraceStartWallAvoidancePadding))
+			if (Point.Equals(RicochetPoint->Point, EqualsTolerance))
 			{
 				break;
 			}

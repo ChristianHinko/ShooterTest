@@ -496,7 +496,7 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, const int32
 
 			TotalDistanceTraveled += SegmentDistance;
 
-			if (Point.Equals(TraceSegment->GetEndPoint(), KINDA_SMALL_NUMBER + (KINDA_SMALL_NUMBER * 100))) // if the given Point is this segment's EndPoint
+			if (Point.Equals(TraceSegment->GetEndPoint(), KINDA_SMALL_NUMBER + TraceStartWallAvoidancePadding)) // if the given Point is this segment's EndPoint
 			{
 				break;
 			}
@@ -519,7 +519,7 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, const int32
 		}
 		else if (const FTracePoint* RicochetPoint = BulletStep.GetRicochetPoint())	// if we're a RicochetPoint
 		{
-			if (Point.Equals(RicochetPoint->Point, KINDA_SMALL_NUMBER + (KINDA_SMALL_NUMBER * 100)))
+			if (Point.Equals(RicochetPoint->Point, KINDA_SMALL_NUMBER + TraceStartWallAvoidancePadding))
 			{
 				break;
 			}

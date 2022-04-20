@@ -40,7 +40,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 
 		TArray<TArray<FHitResult>> ScansResults;
-		PerformScans(ScansResults, SourceActor);
+		PerformScans(ScansResults);
 
 		for (int32 ScanNumber = 0; ScanNumber < ScansResults.Num(); ScanNumber++)
 		{
@@ -151,26 +151,18 @@ bool AGATA_BulletTrace::ShouldRicochetOffOf(const FHitResult& Hit) const
 
 
 
-void AGATA_BulletTrace::PerformScan(TArray<FHitResult>& OutHitResults, AActor* InSourceActor)
+void AGATA_BulletTrace::PerformScan(TArray<FHitResult>& OutHitResults)
 {
 	OutHitResults.Empty();
 
-	FCollisionQueryParams CollisionQueryParams = FCollisionQueryParams(SCENE_QUERY_STAT(AGATA_BulletTrace));
-	CollisionQueryParams.AddIgnoredActor(InSourceActor);
-	CollisionQueryParams.bTraceComplex = true;
-	CollisionQueryParams.bReturnPhysicalMaterial = true;
-
-	FVector TraceStart = StartLocation.GetTargetingTransform().GetLocation();
-	FVector TraceEnd = TraceStart + (GetAimDirectionOfStartLocation(CollisionQueryParams) * MaxRange);
-
 	// Perform line trace
-	ScanWithLineTraces(OutHitResults, InSourceActor->GetWorld(), TraceStart, TraceEnd, CollisionQueryParams, bDebug);
+	ScanWithLineTraces(OutHitResults, GetAimDirectionOfStartLocation());
 
 }
 
-void AGATA_BulletTrace::OnPrePerformScans(TArray<TArray<FHitResult>>& OutScansResults, AActor* InSourceActor)
+void AGATA_BulletTrace::OnPrePerformScans(TArray<TArray<FHitResult>>& OutScansResults)
 {
-	Super::OnPrePerformScans(OutScansResults, InSourceActor);
+	Super::OnPrePerformScans(OutScansResults);
 
 
 	// Initialize BulletSteps for these scans
@@ -188,15 +180,14 @@ void AGATA_BulletTrace::OnPrePerformScans(TArray<TArray<FHitResult>>& OutScansRe
 
 
 
-bool AGATA_BulletTrace::ShouldContinueTracingAfterFirstTrace(TArray<FHitResult>& FirstTraceHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& QueryParams)
+bool AGATA_BulletTrace::ShouldContinueTracingAfterFirstTrace(TArray<FHitResult>& FirstTraceHitResults, const UWorld* World, const FVector& CurrentTracingDirection, const FCollisionQueryParams& QueryParams)
 {
-	bool RetVal = Super::ShouldContinueTracingAfterFirstTrace(FirstTraceHitResults, World, Start, End, QueryParams);
+	bool RetVal = Super::ShouldContinueTracingAfterFirstTrace(FirstTraceHitResults, World, CurrentTracingDirection, QueryParams);
 
 
 	// Initialize CurrentTracingDirectionBlockingHits
 	CurrentTracingDirectionBlockingHits.Empty();
 	CurrentTracingDirectionStartIndex = 0;
-	CurrentTracingDirection = UKismetMathLibrary::GetDirectionUnitVector(Start, End);
 
 	// Intialize CurrentBulletSpeed
 	CurrentBulletSpeed = InitialBulletSpeed;
@@ -219,9 +210,9 @@ bool AGATA_BulletTrace::ShouldContinueTracingAfterFirstTrace(TArray<FHitResult>&
 
 	return RetVal;
 }
-bool AGATA_BulletTrace::ShouldContinueTracingAfterPenetrationTrace(TArray<FHitResult>& ScanHitResults, TArray<FHitResult>& PenetrationHitResults, const UWorld* World, const FVector& PenetrationTraceStart, const FVector& PenetrationTraceEnd, const FCollisionQueryParams& QueryParams)
+bool AGATA_BulletTrace::ShouldContinueTracingAfterPenetrationTrace(TArray<FHitResult>& ScanHitResults, TArray<FHitResult>& PenetrationHitResults, const UWorld* World, const FVector& CurrentTracingDirection, const FCollisionQueryParams& QueryParams)
 {
-	bool RetVal = Super::ShouldContinueTracingAfterPenetrationTrace(ScanHitResults, PenetrationHitResults, World, PenetrationTraceStart, PenetrationTraceEnd, QueryParams);
+	bool RetVal = Super::ShouldContinueTracingAfterPenetrationTrace(ScanHitResults, PenetrationHitResults, World, CurrentTracingDirection, QueryParams);
 
 	const FHitResult& PenetratedThrough = ScanHitResults.Last();
 
@@ -243,9 +234,9 @@ bool AGATA_BulletTrace::ShouldContinueTracingAfterPenetrationTrace(TArray<FHitRe
 
 	return RetVal;
 }
-bool AGATA_BulletTrace::ShouldContinueTracingAfterRicochetHit(TArray<FHitResult>& ScanHitResults, TArray<FHitResult>& RicochetHitResults, const UWorld* World, const FVector& RicochetTraceStart, const FVector& RicochetTraceEnd, const FCollisionQueryParams& QueryParams)
+bool AGATA_BulletTrace::ShouldContinueTracingAfterRicochetHit(TArray<FHitResult>& ScanHitResults, TArray<FHitResult>& RicochetHitResults, const UWorld* World, const FVector& CurrentTracingDirection, const FCollisionQueryParams& QueryParams)
 {
-	bool RetVal = Super::ShouldContinueTracingAfterRicochetHit(ScanHitResults, RicochetHitResults, World, RicochetTraceStart, RicochetTraceEnd, QueryParams);
+	bool RetVal = Super::ShouldContinueTracingAfterRicochetHit(ScanHitResults, RicochetHitResults, World, CurrentTracingDirection, QueryParams);
 
 	const FHitResult& RicochetOffOf = ScanHitResults.Last();
 
@@ -327,13 +318,12 @@ bool AGATA_BulletTrace::ShouldContinueTracingAfterRicochetHit(TArray<FHitResult>
 	// Reset the blocking Hit Results for the next group of blocking hits
 	CurrentTracingDirectionBlockingHits.Empty();
 	CurrentTracingDirectionStartIndex = (ScanHitResults.Num() - 1);
-	CurrentTracingDirection = UKismetMathLibrary::GetDirectionUnitVector(RicochetTraceStart, RicochetTraceEnd);
 
 	return RetVal;
 }
-void AGATA_BulletTrace::OnFinishedScanWithLineTraces(TArray<FHitResult>& ScanHitResults, const UWorld* World, const FCollisionQueryParams& QueryParams)
+void AGATA_BulletTrace::OnFinishedScanWithLineTraces(TArray<FHitResult>& ScanHitResults, const UWorld* World, const FVector& CurrentTracingDirection, const FCollisionQueryParams& QueryParams)
 {
-	Super::OnFinishedScanWithLineTraces(ScanHitResults, World, QueryParams);
+	Super::OnFinishedScanWithLineTraces(ScanHitResults, World, CurrentTracingDirection, QueryParams);
 
 
 
@@ -393,7 +383,6 @@ void AGATA_BulletTrace::OnFinishedScanWithLineTraces(TArray<FHitResult>& ScanHit
 
 	CurrentTracingDirectionBlockingHits.Empty();
 	CurrentTracingDirectionStartIndex = 0;
-	CurrentTracingDirection = FVector::ZeroVector;
 
 }
 

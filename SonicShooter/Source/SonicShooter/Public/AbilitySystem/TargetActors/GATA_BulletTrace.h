@@ -156,17 +156,17 @@ public:
 		int16 FireSpecificNetSafeRandomSeed;
 
 protected:
-	virtual void PerformScan(TArray<FHitResult>& OutHitResults, AActor* InSourceActor) override;
+	virtual void PerformScan(TArray<FHitResult>& OutHitResults) override;
 	virtual void CalculateAimDirection(FVector& OutAimStart, FVector& OutAimDir) const override;
 	virtual bool ShouldRicochetOffOf(const FHitResult& Hit) const override;
 
 
-	virtual void OnPrePerformScans(TArray<TArray<FHitResult>>& OutScansResults, AActor* InSourceActor) override;
+	virtual void OnPrePerformScans(TArray<TArray<FHitResult>>& OutScansResults) override;
 	
-	virtual bool ShouldContinueTracingAfterFirstTrace(TArray<FHitResult>& FirstTraceHitResults, const UWorld* World, const FVector& Start, const FVector& End, const FCollisionQueryParams& QueryParams) override;
-	virtual bool ShouldContinueTracingAfterPenetrationTrace(TArray<FHitResult>& ScanHitResults, TArray<FHitResult>& PenetrationHitResults, const UWorld* World, const FVector& PenetrationTraceStart, const FVector& PenetrationTraceEnd, const FCollisionQueryParams& QueryParams) override;
-	virtual bool ShouldContinueTracingAfterRicochetHit(TArray<FHitResult>& ScanHitResults, TArray<FHitResult>& RicochetHitResults, const UWorld* World, const FVector& RicochetTraceStart, const FVector& RicochetTraceEnd, const FCollisionQueryParams& QueryParams) override;
-	virtual void OnFinishedScanWithLineTraces(TArray<FHitResult>& ScanHitResults, const UWorld* World, const FCollisionQueryParams& QueryParams) override;
+	virtual bool ShouldContinueTracingAfterFirstTrace(TArray<FHitResult>& FirstTraceHitResults, const UWorld* World, const FVector& CurrentTracingDirection, const FCollisionQueryParams& QueryParams) override;
+	virtual bool ShouldContinueTracingAfterPenetrationTrace(TArray<FHitResult>& ScanHitResults, TArray<FHitResult>& PenetrationHitResults, const UWorld* World, const FVector& CurrentTracingDirection, const FCollisionQueryParams& QueryParams) override;
+	virtual bool ShouldContinueTracingAfterRicochetHit(TArray<FHitResult>& ScanHitResults, TArray<FHitResult>& RicochetHitResults, const UWorld* World, const FVector& CurrentTracingDirection, const FCollisionQueryParams& QueryParams) override;
+	virtual void OnFinishedScanWithLineTraces(TArray<FHitResult>& ScanHitResults, const UWorld* World, const FVector& CurrentTracingDirection, const FCollisionQueryParams& QueryParams) override;
 
 	/**
 	 * Applies each of the Penetration Infos' Phys Mats' BulletPenetrationSpeedReduction to CurrentBulletSpeed.
@@ -194,6 +194,5 @@ private:
 	TArray<FHitResult> CurrentTracingDirectionBlockingHits;
 	TArray<TArray<FBulletStep>> BulletSteps;
 	int32 CurrentTracingDirectionStartIndex;
-	FVector CurrentTracingDirection;
 
 };

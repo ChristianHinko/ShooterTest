@@ -210,9 +210,9 @@ bool AGATA_BulletTrace::ShouldContinueTracingAfterFirstTrace(TArray<FHitResult>&
 
 	return RetVal;
 }
-bool AGATA_BulletTrace::ShouldContinueTracingAfterPenetrationTrace(TArray<FHitResult>& ScanHitResults, TArray<FHitResult>& PenetrationHitResults, const UWorld* World, const FVector& CurrentTracingDirection, const FCollisionQueryParams& QueryParams)
+bool AGATA_BulletTrace::ShouldContinueTracingAfterPenetrationTrace(TArray<FHitResult>& ScanHitResults, TArray<FHitResult>& PenetrationTraceHitResults, const UWorld* World, const FVector& CurrentTracingDirection, const FCollisionQueryParams& QueryParams)
 {
-	bool RetVal = Super::ShouldContinueTracingAfterPenetrationTrace(ScanHitResults, PenetrationHitResults, World, CurrentTracingDirection, QueryParams);
+	bool RetVal = Super::ShouldContinueTracingAfterPenetrationTrace(ScanHitResults, PenetrationTraceHitResults, World, CurrentTracingDirection, QueryParams);
 
 	const FHitResult& PenetratedThrough = ScanHitResults.Last();
 
@@ -223,7 +223,7 @@ bool AGATA_BulletTrace::ShouldContinueTracingAfterPenetrationTrace(TArray<FHitRe
 	// Nerf CurrentBulletSpeed by distance traveled
 	{
 		float DistanceTraveled = 0.f;
-		for (const FHitResult& Hit : PenetrationHitResults)
+		for (const FHitResult& Hit : PenetrationTraceHitResults)
 		{
 			DistanceTraveled += Hit.Distance;
 		}
@@ -234,9 +234,9 @@ bool AGATA_BulletTrace::ShouldContinueTracingAfterPenetrationTrace(TArray<FHitRe
 
 	return RetVal;
 }
-bool AGATA_BulletTrace::ShouldContinueTracingAfterRicochetHit(TArray<FHitResult>& ScanHitResults, TArray<FHitResult>& RicochetHitResults, const UWorld* World, const FVector& CurrentTracingDirection, const FCollisionQueryParams& QueryParams)
+bool AGATA_BulletTrace::ShouldContinueTracingAfterRicochetHit(TArray<FHitResult>& ScanHitResults, TArray<FHitResult>& RicochetTraceHitResults, const UWorld* World, const FVector& CurrentTracingDirection, const FCollisionQueryParams& QueryParams)
 {
-	bool RetVal = Super::ShouldContinueTracingAfterRicochetHit(ScanHitResults, RicochetHitResults, World, CurrentTracingDirection, QueryParams);
+	bool RetVal = Super::ShouldContinueTracingAfterRicochetHit(ScanHitResults, RicochetTraceHitResults, World, CurrentTracingDirection, QueryParams);
 
 	const FHitResult& RicochetOffOf = ScanHitResults.Last();
 
@@ -305,7 +305,7 @@ bool AGATA_BulletTrace::ShouldContinueTracingAfterRicochetHit(TArray<FHitResult>
 	// Nerf CurrentBulletSpeed by distance traveled
 	{
 		float DistanceTraveled = 0.f;
-		for (const FHitResult& Hit : RicochetHitResults) // TODO: this isn't even doing anything right now because RicochetHitResults is empty here
+		for (const FHitResult& Hit : RicochetTraceHitResults) // TODO: this isn't even doing anything right now because RicochetTraceHitResults is empty here
 		{
 			DistanceTraveled += Hit.Distance; // TODO: will overlaps have duplicate distances and mess this up?
 		}

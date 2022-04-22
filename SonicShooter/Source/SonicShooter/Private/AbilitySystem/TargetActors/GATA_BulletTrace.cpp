@@ -153,17 +153,14 @@ void AGATA_BulletTrace::PerformScan(TArray<FHitResult>& OutHitResults)
 
 }
 
+
 void AGATA_BulletTrace::OnPrePerformScans(TArray<TArray<FHitResult>>& OutScansResults)
 {
 	Super::OnPrePerformScans(OutScansResults);
 
-
-	// Initialize BulletSteps for these scans
-	BulletSteps.Empty();
-	BulletSteps.Reserve(NumOfScans);
-	BulletSteps.AddDefaulted(NumOfScans);
+	// Initialize the BulletSteps for these scans to defaulted bullet steps
+	BulletSteps.SetNum(NumOfScans);
 }
-
 
 
 
@@ -390,7 +387,7 @@ void AGATA_BulletTrace::OnFinishedScanWithLineTraces(TArray<FHitResult>& ScanHit
 
 
 
-bool AGATA_BulletTrace::ApplyBulletStepsToBulletSpeed(const TArray<FBulletStep>& BulletStepsToApply, FVector& OutStoppedAtPoint, bool& OutStoppedInSegment)
+bool AGATA_BulletTrace::ApplyBulletStepsToBulletSpeed(const TArray<FBulletStep>& BulletStepsToApply, FVector& OutStoppedAtPoint, bool& outStoppedInSegment)
 {
 	// If we were already out of Bullet Speed
 	if (CurrentBulletSpeed <= 0)
@@ -403,7 +400,7 @@ bool AGATA_BulletTrace::ApplyBulletStepsToBulletSpeed(const TArray<FBulletStep>&
 			if (const FTraceSegment* TraceSegment = FirstStep.GetTraceSegment())
 			{
 				OutStoppedAtPoint = TraceSegment->GetStartPoint();
-				OutStoppedInSegment = true;
+				outStoppedInSegment = true;
 			}
 			else if (const FTracePoint* TracePoint = FirstStep.GetRicochetPoint())
 			{
@@ -441,7 +438,7 @@ bool AGATA_BulletTrace::ApplyBulletStepsToBulletSpeed(const TArray<FBulletStep>&
 
 				// The point which we ran out of speed
 				OutStoppedAtPoint = TraceSegment->GetStartPoint() + (TraveledThroughDistance * TraceSegment->GetTraceDir());
-				OutStoppedInSegment = true;
+				outStoppedInSegment = true;
 			}
 			else if (const FTracePoint* TracePoint = BulletStep.GetRicochetPoint())
 			{
@@ -487,7 +484,7 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, const int32
 			const float TraveledDistance = FVector::Distance(TraceSegment->GetStartPoint(), Point);
 			const float UntraveledDistance = FVector::Distance(Point, TraceSegment->GetEndPoint());
 
-			if (FMath::IsNearlyEqual(TraveledDistance + UntraveledDistance, SegmentDistance)) // if the Start, End, and Point don't form a triangle, Point is on the segment
+			if (FMath::IsNearlyEqual(TraveledDistance + UntraveledDistance, SegmentDistance)) // if StartPoint, EndPoint, and Point do not form a triangle, then Point is on the segment
 			{
 				// We took away the whole Segment's speed even though this point is within the Segment. So add back the part of the Segment that we didn't travel through
 				const float TraveledThroughnessRatio = (TraveledDistance / SegmentDistance);

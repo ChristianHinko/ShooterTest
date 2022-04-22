@@ -175,12 +175,13 @@ protected:
 	 * Returns true if we ran out of Bullet Speed.
 	 * If returned true, we have a valid OutStoppedAtPoint.
 	 * 
-	 * TODO: get rid of OutStoppedInSegment
+	 * TODO: get rid of outStoppedInSegment
 	 */
-	bool ApplyBulletStepsToBulletSpeed(const TArray<FBulletStep>& BulletStepsToApply, FVector& OutStoppedAtPoint, bool& OutStoppedInSegment);
+	bool ApplyBulletStepsToBulletSpeed(const TArray<FBulletStep>& BulletStepsToApply, FVector& OutStoppedAtPoint, bool& outStoppedInSegment);
 
 
-	float CurrentBulletSpeed;
+	float CurrentBulletSpeed; // current bullet speed
+	
 	float GetBulletSpeedAtPoint(const FVector& Point, const int32 ScanIndex);
 	/**
 	 * @brief: This is a nerf that is multiplied against our bullet's damage value to simulate a bullet slowing down as it travels through the air.
@@ -191,8 +192,8 @@ protected:
 	float GetBulletSpeedFalloffNerf(const float BulletSpeedFalloffValue, const float TotalDistanceBulletTraveled);
 
 private:
-	TArray<FHitResult> CurrentTracingDirectionBlockingHits;
-	TArray<TArray<FBulletStep>> BulletSteps;
-	int32 CurrentTracingDirectionStartIndex;
+	TArray<FHitResult> CurrentTracingDirectionBlockingHits; // all of the blocking hits for this current tracing direction
+	TArray<TArray<FBulletStep>> BulletSteps; // NOTE: the lifetime of valid data for BulletSteps starts within PerformScans() and then persists after the function. Then, next time PerformScans() is called, new BulletSteps are filled out and then, again, persist after the function.
+	int32 CurrentTracingDirectionStartIndex; // the index of this current tracing direction's first Hit Result
 
 };

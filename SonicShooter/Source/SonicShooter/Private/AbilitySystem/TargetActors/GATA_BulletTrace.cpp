@@ -212,9 +212,9 @@ bool AGATA_BulletTrace::ShouldContinueTracingAfterRicochetHit(TArray<FHitResult>
 {
 	bool RetVal = Super::ShouldContinueTracingAfterRicochetHit(ScanHitResults, RicochetTraceHitResults, World, CurrentTracingDirection, QueryParams);
 
+
+	// Add what we are ricocheting off of as a blocking hit for CurrentTracingDirectionBlockingHits
 	const FHitResult& RicochetOffOf = ScanHitResults.Last();
-
-
 	CurrentTracingDirectionBlockingHits.Add(RicochetOffOf);
 
 
@@ -222,24 +222,26 @@ bool AGATA_BulletTrace::ShouldContinueTracingAfterRicochetHit(TArray<FHitResult>
 
 	// Fill out ThisTracingDirectionBulletSteps
 	{
-		// We are changing our tracing direction so BuildTraceSegments() for the previous tracing direction's blocking hits
+		// We are about to change our tracing direction so BuildTraceSegments() for the current tracing direction's blocking hits
 		if (CurrentTracingDirectionBlockingHits.Num() > 0)
 		{
-			// We are about to ricochet so calculate Trace Segments for these blocking Hits before we move on to the next tracing direction
+			// Calculate trace segments for the current tracing direction's blocking hits
 			TArray<FTraceSegment> ThisTracingDirectionTraceSegments;
 			UBFL_CollisionQueryHelpers::BuildTraceSegments(ThisTracingDirectionTraceSegments, CurrentTracingDirectionBlockingHits, RicochetOffOf.Location, World, QueryParams, TraceChannel);
-			for (const FTraceSegment& TraceSegment : ThisTracingDirectionTraceSegments)
+			
+			// Add these trace segments as bullet steps
+			for (const FTraceSegment& PenetrationSegment : ThisTracingDirectionTraceSegments)
 			{
-				ThisTracingDirectionBulletSteps.Add(TraceSegment);
+				ThisTracingDirectionBulletSteps.Add(FBulletStep(PenetrationSegment));
 			}
-
-
 		}
 
+		// Add this ricochet point as a bullet step
 		FTracePoint RicochetPoint = FTracePoint(RicochetOffOf.Location, RicochetOffOf.PhysMaterial.Get());
-		ThisTracingDirectionBulletSteps.Add(RicochetPoint);
+		ThisTracingDirectionBulletSteps.Add(FBulletStep(RicochetPoint));
 	}
 
+	// Add the current tracing direction's bullet steps to this scan's list of bullet steps
 	BulletSteps[CurrentScanIndex].Append(ThisTracingDirectionBulletSteps);
 
 
@@ -363,7 +365,7 @@ void AGATA_BulletTrace::OnFinishedScanWithLineTraces(TArray<FHitResult>& ScanHit
 
 bool AGATA_BulletTrace::ApplyBulletStepsToBulletSpeed(const TArray<FBulletStep>& BulletStepsToApply, FVector& OutStoppedAtPoint, bool& outStoppedInSegment)
 {
-	// If we were already out of Bullet Speed
+	// Edge case: If we were already out of Bullet Speed TODO: maybe just do nothing and return false in this case
 	if (CurrentBulletSpeed <= 0)
 	{
 		// Try to set a valid OutStoppedAtPoint
@@ -373,28 +375,25 @@ bool AGATA_BulletTrace::ApplyBulletStepsToBulletSpeed(const TArray<FBulletStep>&
 
 			if (const FTraceSegment* TraceSegment = FirstStep.GetTraceSegment())
 			{
+				// Assume that the first bullet step is where we ran out of speed
 				OutStoppedAtPoint = TraceSegment->GetStartPoint();
 				outStoppedInSegment = true;
 			}
 			else if (const FTracePoint* TracePoint = FirstStep.GetRicochetPoint())
 			{
+				// Assume that the first bullet step is where we ran out of speed
 				OutStoppedAtPoint = TracePoint->Point;
 			}
 		}
 
-		CurrentBulletSpeed = 0;
+		CurrentBulletSpeed = 0.f;
 		return true;
 	}
 
 
-
-
+	// Loop through the bullet steps and apply them to our bullet speed
 	for (const FBulletStep& BulletStep : BulletStepsToApply)
 	{
-		const float SpeedToTakeAway = BulletStep.GetBulletSpeedToTakeAway();
-
-
-
 		// Take away Bullet Speed from this BulletStep
 		CurrentBulletSpeed -= BulletStep.GetBulletSpeedToTakeAway();
 
@@ -404,23 +403,24 @@ bool AGATA_BulletTrace::ApplyBulletStepsToBulletSpeed(const TArray<FBulletStep>&
 			if (const FTraceSegment* TraceSegment = BulletStep.GetTraceSegment())
 			{
 				// The speed we had before we took away
-				const float PreLossBulletSpeed = (CurrentBulletSpeed + SpeedToTakeAway); // if this is somehow negative, that means we already were below zero. But this calculation still works on it - it calculates the point that we should've stopped at when we first went below zero. This would never happen but still its kinda cool how it still works if that happens
+				const float PreLossBulletSpeed = (CurrentBulletSpeed + BulletStep.GetBulletSpeedToTakeAway());
 
 				// How far we traveled through this Segment
-				const float GotThroughnessRatio = (PreLossBulletSpeed / SpeedToTakeAway);
-				const float TraveledThroughDistance = GotThroughnessRatio * TraceSegment->GetSegmentDistance();
+				const float GotThroughnessRatio = (PreLossBulletSpeed / BulletStep.GetBulletSpeedToTakeAway());
+				const float GotThroughDistance = GotThroughnessRatio * TraceSegment->GetSegmentDistance();
 
-				// The point which we ran out of speed
-				OutStoppedAtPoint = TraceSegment->GetStartPoint() + (TraveledThroughDistance * TraceSegment->GetTraceDir());
+				// The exact point where we ran out of speed
+				OutStoppedAtPoint = TraceSegment->GetStartPoint() + (GotThroughDistance * TraceSegment->GetTraceDir());
 				outStoppedInSegment = true;
 			}
 			else if (const FTracePoint* TracePoint = BulletStep.GetRicochetPoint())
 			{
+				// The exact point where we ran out of speed
 				OutStoppedAtPoint = TracePoint->Point;
 			}
 
 			// We ran out of speed and have a valid OutStoppedAtPoint
-			CurrentBulletSpeed = 0;
+			CurrentBulletSpeed = 0.f;
 			return true;
 		}
 	}
@@ -436,10 +436,10 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, const int32
 	float RetVal = InitialBulletSpeed;
 
 
-	float TotalDistanceTraveled = 0.f;
+	float DistanceTraveledToPoint = 0.f;
 
-	const TArray<FBulletStep>& Steps = BulletSteps[ScanIndex]; // get the steps from this specific bullet
-	for (const FBulletStep& BulletStep : Steps)
+	// Loop through the bullet steps of the given scan
+	for (const FBulletStep& BulletStep : BulletSteps[ScanIndex])
 	{
 		RetVal -= BulletStep.GetBulletSpeedToTakeAway();
 
@@ -448,7 +448,7 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, const int32
 		{
 			const float& SegmentDistance = TraceSegment->GetSegmentDistance();
 
-			TotalDistanceTraveled += SegmentDistance;
+			DistanceTraveledToPoint += SegmentDistance;
 
 			if (Point.Equals(TraceSegment->GetEndPoint(), EqualsTolerance)) // if the given Point is this segment's EndPoint
 			{
@@ -465,7 +465,7 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, const int32
 				RetVal += BulletStep.GetBulletSpeedToTakeAway() * (1 - TraveledThroughnessRatio);
 
 
-				TotalDistanceTraveled -= UntraveledDistance;
+				DistanceTraveledToPoint -= UntraveledDistance;
 
 				break;
 			}
@@ -486,7 +486,7 @@ float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, const int32
 	
 
 	// Nerf RetVal by distance traveled
-	const float NerfMultiplier = GetBulletSpeedFalloffNerf(BulletSpeedFalloff, TotalDistanceTraveled);
+	const float NerfMultiplier = GetBulletSpeedFalloffNerf(BulletSpeedFalloff, DistanceTraveledToPoint);
 	RetVal *= NerfMultiplier;
 
 

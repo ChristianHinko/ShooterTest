@@ -27,94 +27,87 @@ AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer
 
 void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 {
-	check(ShouldProduceTargetData());
-	if (!IsConfirmTargetingAllowed())
+	Super::Super::ConfirmTargetingAndContinue(); // skip AGATA_Trace's stuff
+
+
+	// Our Target Data to broadcast
+	FGameplayAbilityTargetDataHandle TargetDataHandle;
+
+	// Perform our scans
+	TArray<TArray<FHitResult>> ScansResults;
+	PerformScans(ScansResults);
+
+	// Loop through our scans
+	for (int32 ScanNumber = 0; ScanNumber < ScansResults.Num(); ScanNumber++)
 	{
-		return;
-	}
+		TArray<FHitResult>& ThisScanHitResults = ScansResults[ScanNumber];
 
 
-	if (IsValid(SourceActor))
-	{
-		FGameplayAbilityTargetDataHandle TargetDataHandle;
-
-
-		TArray<TArray<FHitResult>> ScansResults;
-		PerformScans(ScansResults);
-
-		for (int32 ScanNumber = 0; ScanNumber < ScansResults.Num(); ScanNumber++)
+		FGATD_BulletTraceTargetHit* ThisScanTargetData = new FGATD_BulletTraceTargetHit(); // NOTE: these are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr)
+		float TotalDistanceUpUntilThisTrace = 0.f; // accumulated distance of the previous traces
+		TArray<FVector_NetQuantize> ScanTracePoints; // this is used to tell target data where this bullet went
+		if (ThisScanHitResults.Num() > 0)
 		{
-			TArray<FHitResult>& ThisScanHitResults = ScansResults[ScanNumber];
+			ScanTracePoints.Add(ThisScanHitResults[0].TraceStart);
+		}
 
-			/** Note: These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr) */
-			FGATD_BulletTraceTargetHit* ThisScanTargetData = new FGATD_BulletTraceTargetHit();
+		FHitResult PreviousHit;
+		for (int32 index = 0, iteration = 0; index < ThisScanHitResults.Num(); ++index, ++iteration)
+		{
+			const FHitResult& Hit = ThisScanHitResults[index];
 
-			float TotalDistanceUpUntilThisTrace = 0.f; // accumulated distance of the previous traces
-
-			TArray<FVector_NetQuantize> ScanTracePoints; // this is used to tell target data where this bullet went
-			if (ThisScanHitResults.Num() > 0)
+			if (iteration != 0)
 			{
-				ScanTracePoints.Add(ThisScanHitResults[0].TraceStart);
-			}
-
-			FHitResult PreviousHit;
-			for (int32 index = 0, iteration = 0; index < ThisScanHitResults.Num(); ++index, ++iteration)
-			{
-				const FHitResult& Hit = ThisScanHitResults[index];
-
-				if (iteration != 0)
+				const bool bIsNewTrace = !UBFL_HitResultHelpers::AreHitsFromSameTrace(Hit, PreviousHit);
+				if (bIsNewTrace)
 				{
-					const bool bIsNewTrace = !UBFL_HitResultHelpers::AreHitsFromSameTrace(Hit, PreviousHit);
-					if (bIsNewTrace)
-					{
-						// Accumulate last trace's distance
-						TotalDistanceUpUntilThisTrace += PreviousHit.Distance;
+					// Accumulate last trace's distance
+					TotalDistanceUpUntilThisTrace += PreviousHit.Distance;
 
-						if (ShouldRicochetOffOf(PreviousHit))
-						{
-							// We ricocheted and are changing tracing direction so add this point to the ScanTracePoints
-							ScanTracePoints.Add(Hit.TraceStart);
-						}
+					if (ShouldRicochetOffOf(PreviousHit))
+					{
+						// We ricocheted and are changing tracing direction so add this point to the ScanTracePoints
+						ScanTracePoints.Add(Hit.TraceStart);
 					}
 				}
-
-
-				if (HitResultFailsFilter(ThisScanHitResults, index, Filter, bAllowMultipleHitsPerActor)) // don't actually filter it, just check if it passes the filter
-				{
-					// This index did not pass the filter, stop here so that we don't add target data for it
-					PreviousHit = Hit;
-					continue;
-				}
-
-
-				// If we got here, we are an unfiltered hit (e.g. we hit a Character), add info to our Target Data:
-
-				// This Hit Result's distance plus the previous tracing direction's traveled distance
-				const float RicochetAwareDistance = TotalDistanceUpUntilThisTrace + Hit.Distance;
-				const float BulletSpeedOnHit = GetBulletSpeedAtPoint(Hit.ImpactPoint, ScanNumber);
-
-				FActorHitInfo ActorHitInfo = FActorHitInfo(Hit.GetActor(), RicochetAwareDistance, BulletSpeedOnHit);
-				ThisScanTargetData->ActorHitInfos.Add(ActorHitInfo);
-				
-
-
-
-				PreviousHit = Hit;
 			}
 
-			if (ThisScanHitResults.Num() > 0)
+
+			if (HitResultFailsFilter(ThisScanHitResults, index, Filter, bAllowMultipleHitsPerActor)) // don't actually filter it, just check if it passes the filter
 			{
-				ScanTracePoints.Add(ThisScanHitResults.Last().TraceEnd);
+				// This index did not pass the filter, stop here so that we don't add target data for it
+				PreviousHit = Hit;
+				continue;
 			}
-			ThisScanTargetData->BulletTracePoints = ScanTracePoints;
 
 
-			TargetDataHandle.Add(ThisScanTargetData);
+			// If we got here, we are an unfiltered hit (e.g. we hit a Character), add info to our Target Data:
+
+			// This Hit Result's distance plus the previous tracing direction's traveled distance
+			const float RicochetAwareDistance = TotalDistanceUpUntilThisTrace + Hit.Distance;
+			const float BulletSpeedOnHit = GetBulletSpeedAtPoint(Hit.ImpactPoint, ScanNumber);
+
+			FActorHitInfo ActorHitInfo = FActorHitInfo(Hit.GetActor(), RicochetAwareDistance, BulletSpeedOnHit);
+			ThisScanTargetData->ActorHitInfos.Add(ActorHitInfo);
+			
+
+
+
+			PreviousHit = Hit;
 		}
-		
 
-		TargetDataReadyDelegate.Broadcast(TargetDataHandle);
+		if (ThisScanHitResults.Num() > 0)
+		{
+			ScanTracePoints.Add(ThisScanHitResults.Last().TraceEnd);
+		}
+		ThisScanTargetData->BulletTracePoints = ScanTracePoints;
+
+
+		TargetDataHandle.Add(ThisScanTargetData);
 	}
+	
+
+	TargetDataReadyDelegate.Broadcast(TargetDataHandle);
 }
 
 void AGATA_BulletTrace::CalculateAimDirection(FVector& OutAimStart, FVector& OutAimDir) const
@@ -201,7 +194,7 @@ bool AGATA_BulletTrace::ShouldContinueTracingAfterFirstTrace(TArray<FHitResult>&
 		float DistanceTraveled = 0.f;
 		for (const FHitResult& Hit : FirstTraceHitResults)
 		{
-			DistanceTraveled += Hit.Distance;
+			DistanceTraveled += Hit.Distance; // TODO: will overlaps have duplicate distances and mess this up?
 		}
 
 		const float NerfMultiplier = GetBulletSpeedFalloffNerf(BulletSpeedFalloff, DistanceTraveled);
@@ -305,9 +298,9 @@ bool AGATA_BulletTrace::ShouldContinueTracingAfterRicochetHit(TArray<FHitResult>
 	// Nerf CurrentBulletSpeed by distance traveled
 	{
 		float DistanceTraveled = 0.f;
-		for (const FHitResult& Hit : RicochetHitResults) // TODO: this isn't even doing anything right now because RicochetHitResults is empty here
+		for (const FHitResult& Hit : RicochetHitResults) // TODO: this isn't even doing anything right now because RicochetHitResults is empty here. I think this was expected to run after the ricochet trace
 		{
-			DistanceTraveled += Hit.Distance; // TODO: will overlaps have duplicate distances and mess this up?
+			DistanceTraveled += Hit.Distance;
 		}
 
 		const float NerfMultiplier = GetBulletSpeedFalloffNerf(BulletSpeedFalloff, DistanceTraveled);

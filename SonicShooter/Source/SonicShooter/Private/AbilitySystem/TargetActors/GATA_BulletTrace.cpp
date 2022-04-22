@@ -34,27 +34,31 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 	FGameplayAbilityTargetDataHandle TargetDataHandle;
 
 	// Perform our scans
-	TArray<TArray<FHitResult>> ScansResults;
-	PerformScans(ScansResults);
+	TArray<TArray<FHitResult>> ScansHitResults;
+	PerformScans(ScansHitResults);
 
 	// Loop through our scans
-	for (int32 ScanNumber = 0; ScanNumber < ScansResults.Num(); ScanNumber++)
+	for (int32 ScanNumber = 0; ScanNumber < ScansHitResults.Num(); ScanNumber++)
 	{
-		TArray<FHitResult>& ThisScanHitResults = ScansResults[ScanNumber];
+		FGATD_BulletTraceTargetHit* ThisScanTargetData = new FGATD_BulletTraceTargetHit(); // These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr)
+		
+		const TArray<FHitResult>& ScanHitResults = ScansHitResults[ScanNumber];
 
 
-		FGATD_BulletTraceTargetHit* ThisScanTargetData = new FGATD_BulletTraceTargetHit(); // NOTE: these are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr)
 		float TotalDistanceUpUntilThisTrace = 0.f; // accumulated distance of the previous traces
 		TArray<FVector_NetQuantize> ScanTracePoints; // this is used to tell target data where this bullet went
-		if (ThisScanHitResults.Num() > 0)
+		if (ScanHitResults.Num() > 0)
 		{
-			ScanTracePoints.Add(ThisScanHitResults[0].TraceStart);
+			ScanTracePoints.Add(ScanHitResults[0].TraceStart);
 		}
 
+
+
+
 		FHitResult PreviousHit;
-		for (int32 index = 0, iteration = 0; index < ThisScanHitResults.Num(); ++index, ++iteration)
+		for (int32 index = 0, iteration = 0; index < ScanHitResults.Num(); ++index, ++iteration)
 		{
-			const FHitResult& Hit = ThisScanHitResults[index];
+			const FHitResult& Hit = ScanHitResults[index];
 
 			if (iteration != 0)
 			{
@@ -73,7 +77,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 			}
 
 
-			if (HitResultFailsFilter(ThisScanHitResults, index, Filter, bAllowMultipleHitsPerActor)) // don't actually filter it, just check if it passes the filter
+			if (HitResultFailsFilter(ScanHitResults, index, Filter, bAllowMultipleHitsPerActor)) // don't actually filter it, just check if it passes the filter
 			{
 				// This index did not pass the filter, stop here so that we don't add target data for it
 				PreviousHit = Hit;
@@ -96,9 +100,9 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 			PreviousHit = Hit;
 		}
 
-		if (ThisScanHitResults.Num() > 0)
+		if (ScanHitResults.Num() > 0)
 		{
-			ScanTracePoints.Add(ThisScanHitResults.Last().TraceEnd);
+			ScanTracePoints.Add(ScanHitResults.Last().TraceEnd);
 		}
 		ThisScanTargetData->BulletTracePoints = ScanTracePoints;
 

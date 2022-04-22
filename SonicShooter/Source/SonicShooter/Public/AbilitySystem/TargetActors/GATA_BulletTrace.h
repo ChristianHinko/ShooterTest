@@ -180,8 +180,11 @@ protected:
 	bool ApplyBulletStepsToBulletSpeed(const TArray<FBulletStep>& BulletStepsToApply, FVector& OutStoppedAtPoint, bool& outStoppedInSegment);
 
 
-	float CurrentBulletSpeed; // current bullet speed
+	float CurrentBulletSpeed; // this is only used for optimization to see if we can stop tracing due to loss of speed. it is NOT used for damage calculation. there is separate and nearly duplicate logic for that which is really bad.
 	
+	/**
+	 * Used to calculate FActorHitInfo::BulletSpeedAtImpact for calculating damage.
+	 */
 	float GetBulletSpeedAtPoint(const FVector& Point, const int32 ScanIndex);
 	/**
 	 * @brief: This is a nerf that is multiplied against our bullet's damage value to simulate a bullet slowing down as it travels through the air.

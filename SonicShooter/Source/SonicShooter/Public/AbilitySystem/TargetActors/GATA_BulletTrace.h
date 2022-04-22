@@ -183,6 +183,9 @@ protected:
 	float CurrentBulletSpeed; // current bullet speed
 	
 	float GetBulletSpeedAtPoint(const FVector& Point, const int32 ScanIndex);
+
+
+	void NerfCurrentBulletSpeedByDistanceTraveled(const TArray<FHitResult>& HitResults);
 	/**
 	 * @brief: This is a nerf that is multiplied against our bullet's damage value to simulate a bullet slowing down as it travels through the air.
 	 * @param BulletSpeedFalloffValue: Multiplier applied against the bullet's speed every 1000cm (32ft) or 10 blocks of our Proto material.

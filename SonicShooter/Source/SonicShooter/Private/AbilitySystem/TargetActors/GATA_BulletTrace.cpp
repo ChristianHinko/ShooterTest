@@ -77,9 +77,9 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 			}
 
 
-			if (HitResultFailsFilter(ScanHitResults, index, Filter, bAllowMultipleHitsPerActor)) // don't actually filter it, just check if it passes the filter
+			if (WouldHitResultGetFiltered(ScanHitResults, index, Filter, bAllowMultipleHitsPerActor)) // don't actually filter it, just check if it passes the filter
 			{
-				// This index did not pass the filter, stop here so that we don't add target data for it
+				// This index will get filtered, stop here so that we don't add target data for it
 				PreviousHit = Hit;
 				continue;
 			}

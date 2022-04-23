@@ -40,27 +40,26 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 	// Loop through our scans
 	for (int32 ScanNumber = 0; ScanNumber < ScansHitResults.Num(); ScanNumber++)
 	{
-		FGATD_BulletTraceTargetHit* ThisScanTargetData = new FGATD_BulletTraceTargetHit(); // These are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr)
+		FGATD_BulletTraceTargetHit* ThisScanTargetData = new FGATD_BulletTraceTargetHit(); // these are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr)
 		
 		const TArray<FHitResult>& ScanHitResults = ScansHitResults[ScanNumber];
 
 
 		float TotalDistanceUpUntilThisTrace = 0.f; // accumulated distance of the previous traces
-		TArray<FVector_NetQuantize> ScanTracePoints; // this is used to tell target data where this bullet went
 		if (ScanHitResults.Num() > 0)
 		{
-			ScanTracePoints.Add(ScanHitResults[0].TraceStart);
+			ThisScanTargetData->BulletTracePoints.Add(ScanHitResults[0].TraceStart);
 		}
 
 
 
 
 		FHitResult PreviousHit;
-		for (int32 index = 0, iteration = 0; index < ScanHitResults.Num(); ++index, ++iteration)
+		for (int32 i = 0; i < ScanHitResults.Num(); ++i)
 		{
-			const FHitResult& Hit = ScanHitResults[index];
+			const FHitResult& Hit = ScanHitResults[i];
 
-			if (iteration != 0)
+			if (i != 0)
 			{
 				const bool bIsNewTrace = !UBFL_HitResultHelpers::AreHitsFromSameTrace(Hit, PreviousHit);
 				if (bIsNewTrace)
@@ -71,40 +70,33 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 					if (ShouldRicochetOffOf(PreviousHit))
 					{
 						// We ricocheted and are changing tracing direction so add this point to the ScanTracePoints
-						ScanTracePoints.Add(Hit.TraceStart);
+						ThisScanTargetData->BulletTracePoints.Add(Hit.TraceStart);
 					}
 				}
 			}
 
 
-			if (WouldHitResultGetFiltered(ScanHitResults, index, Filter, bAllowMultipleHitsPerActor)) // don't actually filter it, just check if it would get filtered
+			if (!WouldHitResultGetFiltered(ScanHitResults, i, Filter, bAllowMultipleHitsPerActor)) // don't actually filter it, just check if it would get filtered
 			{
-				// This index will get filtered, stop here so that we don't add target data for it
-				PreviousHit = Hit;
-				continue;
+				// this hit won't get filtered, so lets add it to the target data
+
+				// This Hit Result's distance plus the previous tracing direction's traveled distance
+				const float RicochetAwareDistance = TotalDistanceUpUntilThisTrace + Hit.Distance;
+				const float BulletSpeedOnHit = GetBulletSpeedAtPoint(Hit.ImpactPoint, ScanNumber);
+
+				FActorHitInfo ActorHitInfo = FActorHitInfo(Hit.GetActor(), RicochetAwareDistance, BulletSpeedOnHit);
+				ThisScanTargetData->ActorHitInfos.Add(ActorHitInfo);
 			}
-
-
-			// If we got here, we are an unfiltered hit (e.g. we hit a Character), add info to our Target Data:
-
-			// This Hit Result's distance plus the previous tracing direction's traveled distance
-			const float RicochetAwareDistance = TotalDistanceUpUntilThisTrace + Hit.Distance;
-			const float BulletSpeedOnHit = GetBulletSpeedAtPoint(Hit.ImpactPoint, ScanNumber);
-
-			FActorHitInfo ActorHitInfo = FActorHitInfo(Hit.GetActor(), RicochetAwareDistance, BulletSpeedOnHit);
-			ThisScanTargetData->ActorHitInfos.Add(ActorHitInfo);
-			
-
-
-
 			PreviousHit = Hit;
 		}
 
+
+
+
 		if (ScanHitResults.Num() > 0)
 		{
-			ScanTracePoints.Add(ScanHitResults.Last().TraceEnd);
+			ThisScanTargetData->BulletTracePoints.Add(ScanHitResults.Last().TraceEnd);
 		}
-		ThisScanTargetData->BulletTracePoints = ScanTracePoints;
 
 
 		TargetDataHandle.Add(ThisScanTargetData);

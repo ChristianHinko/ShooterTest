@@ -6,7 +6,7 @@
 #include "Subobjects/O_BulletTrace.h"
 
 #include "Abilities/GameplayAbility.h"
-#include "Utilities/CollisionChannels.h"
+#include "Utilities/SSCollisionChannels.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTargetTypes.h"
 #include "AbilitySystemComponent.h"
 #include "BlueprintFunctionLibraries/BFL_CollisionQueryHelpers.h"

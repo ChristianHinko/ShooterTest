@@ -7,7 +7,7 @@
 #include "AbilitySystem/AbilityTasks/ASSAbilityTask_WaitTargetData.h"
 #include "AbilitySystem/TargetActors/GATA_BulletTrace.h"
 #include "AbilitySystem/ASSAbilitySystemBlueprintLibrary.h"
-#include "Utilities/CollisionChannels.h"
+#include "Utilities/SSCollisionChannels.h"
 #include "Inventory/Item/Gun/AS_Gun.h"
 #include "Subobjects/O_ClipAmmo.h"
 #include "Subobjects/O_BulletSpread.h"

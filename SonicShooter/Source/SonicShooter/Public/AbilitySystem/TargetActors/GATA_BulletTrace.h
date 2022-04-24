@@ -62,7 +62,7 @@ struct FBulletStep
 		// Evaluate BulletSpeedToTakeAway:
 
 		// For each Phys Mat in this Segment
-		for (const UPhysicalMaterial* PhysMat : InTraceSegment.GetPhysMaterials())
+		for (const UPhysicalMaterial* PhysMat : InTraceSegment.PhysMaterials)
 		{
 			// If this is a PM_Shooter, it has Bullet Speed loss data
 			const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(PhysMat);

@@ -4,6 +4,7 @@
 #include "Subobjects/O_BulletTrace.h"
 
 #include "PhysicalMaterial/PM_Shooter.h"
+#include "BlueprintFunctionLibraries/BFL_CollisionQueryHelpers.h"
 
 #include "GameFramework/PlayerController.h"
 #include "Abilities/GameplayAbility.h"
@@ -31,11 +32,7 @@ void UO_BulletTrace::ScanWithLineTraces(TArray<FHitResult>& OutHitResults, const
 
 	// Configure our TraceCollisionQueryParams
 	FCollisionQueryParams TraceCollisionQueryParams = InCollisionQueryParams;
-	TraceCollisionQueryParams.bIgnoreTouches = false; // do NOT ignore overlaps because we are tracing as an ECR_Overlap (otherwise we won't get any Hit Results)
 	TraceCollisionQueryParams.bReturnPhysicalMaterial = true; // ensure we return the Physical Material for ricochet determination
-
-	// Configure our CollisionResponseParams for the traces
-	const FCollisionResponseParams CollisionResponseParams = FCollisionResponseParams(ECollisionResponse::ECR_Overlap); // make these traces penetrate through everything
 
 
 	// Lets start
@@ -48,7 +45,7 @@ void UO_BulletTrace::ScanWithLineTraces(TArray<FHitResult>& OutHitResults, const
 	{
 		bRicocheted = false;
 
-		InWorld->LineTraceMultiByChannel(TraceHitResults, TraceStart, TraceEnd, InTraceChannel, TraceCollisionQueryParams, CollisionResponseParams);
+		UBFL_CollisionQueryHelpers::LineTraceMultiByChannelWithPenetrations(InWorld, TraceHitResults, TraceStart, TraceEnd, InTraceChannel, TraceCollisionQueryParams);
 		if (TraceHitResults.Num() <= 0)
 		{
 			break; // we traced into thin air
@@ -76,29 +73,6 @@ void UO_BulletTrace::ScanWithLineTraces(TArray<FHitResult>& OutHitResults, const
 			}
 		}
 
-
-		if (InCollisionQueryParams.bIgnoreTouches)
-		{
-			// Ignore touches (remove overlaps)
-			for (int32 i = TraceHitResults.Num() - 1; i >= 0; --i)
-			{
-				if (const UPrimitiveComponent* Component = TraceHitResults[i].Component.Get())
-				{
-					// Get the response params of this hit's component
-					ECollisionChannel ComponentCollisionChannel;
-					FCollisionResponseParams ComponentResponseParams;
-					UCollisionProfile::GetChannelAndResponseParams(Component->GetCollisionProfileName(), ComponentCollisionChannel, ComponentResponseParams);
-
-					// If our InTraceChannel overlaps this hit's component
-					if (ComponentResponseParams.CollisionResponse.GetResponse(InTraceChannel) == ECollisionResponse::ECR_Overlap)
-					{
-						// Ignore touch
-						TraceHitResults.RemoveAt(i);
-						continue;
-					}
-				}
-			}
-		}
 
 		// Lets add our findings to the return value
 		OutHitResults.Append(TraceHitResults);

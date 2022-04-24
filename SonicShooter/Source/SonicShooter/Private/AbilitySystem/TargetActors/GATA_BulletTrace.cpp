@@ -3,6 +3,8 @@
 
 #include "AbilitySystem/TargetActors/GATA_BulletTrace.h"
 
+#include "Subobjects/O_BulletTrace.h"
+
 #include "Abilities/GameplayAbility.h"
 #include "Utilities/CollisionChannels.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTargetTypes.h"
@@ -21,7 +23,7 @@ AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer
 {
 	TraceChannel = COLLISION_BULLET;
 
-
+	BulletTraceSubobject = CreateDefaultSubobject<UO_BulletTrace>(TEXT("BulletTraceSubobject"));
 }
 
 

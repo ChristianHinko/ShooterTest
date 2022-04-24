@@ -118,6 +118,7 @@ private:
 };
 
 
+class UO_BulletTrace;
 
 /**
  * Scan class for Bullets.
@@ -132,6 +133,10 @@ UCLASS()
 class SONICSHOOTER_API AGATA_BulletTrace : public AGATA_Trace
 {
 	GENERATED_BODY()
+
+protected:
+	UPROPERTY()
+		UO_BulletTrace* BulletTraceSubobject;
 
 public:
 	AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer);

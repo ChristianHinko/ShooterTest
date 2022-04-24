@@ -12,7 +12,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet\KismetMathLibrary.h"
-#include "Utilities/CollisionChannels.h"
+#include "Utilities/SSCollisionChannels.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Game/SSGameState.h"

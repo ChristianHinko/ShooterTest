@@ -7,7 +7,7 @@
 #include "AbilitySystemComponent.h"
 #include "Character/C_Shooter.h"
 #include "Interfaces/InteractableInterface.h"
-#include "Utilities/CollisionChannels.h"
+#include "Utilities/SSCollisionChannels.h"
 #include "Camera/CameraComponent.h"
 
 #include "Kismet/KismetSystemLibrary.h"

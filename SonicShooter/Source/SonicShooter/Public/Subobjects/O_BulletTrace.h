@@ -33,11 +33,10 @@ public:
 	 */
 	TArray<EPhysicalSurface> RicochetableSurfaces;
 
-protected:
 	/** Used for doing line traces in PerformScan() */
 	void ScanWithLineTraces(TArray<FHitResult>& OutHitResults, const FVector& ScanStart, const FVector& ScanDirection, const float MaxRange, const UWorld* World, const ECollisionChannel TraceChannel, FCollisionQueryParams CollisionQueryParams);
 
-
+protected:
 	/**
 	 * Determines whether we should ricochet off of the given Hit or not.
 	 * This can be overriden for custom ricochet determination.

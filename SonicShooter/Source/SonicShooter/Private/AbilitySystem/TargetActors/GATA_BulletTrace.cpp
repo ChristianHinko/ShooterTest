@@ -147,8 +147,13 @@ void AGATA_BulletTrace::PerformScan(TArray<FHitResult>& OutHitResults)
 	OutHitResults.Empty();
 
 	// Perform line trace
-	ScanWithLineTraces(OutHitResults, GetAimDirectionOfStartLocation());
+	FCollisionQueryParams CollisionQueryParams;
+	BulletTraceSubobject->ScanWithLineTraces(OutHitResults, StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, SourceActor->GetWorld(), TraceChannel, CollisionQueryParams);
 
+	if (bDebug)
+	{
+		DebugHitResults(OutHitResults, SourceActor->GetWorld());
+	}
 }
 
 

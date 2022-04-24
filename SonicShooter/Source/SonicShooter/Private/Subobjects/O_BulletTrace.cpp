@@ -39,6 +39,7 @@ void UO_BulletTrace::ScanWithLineTraces(TArray<FHitResult>& OutHitResults, const
 
 
 	// Lets start
+	int32 RicochetNumber = -1;
 	TArray<FHitResult> TraceHitResults;
 	FVector TraceStart	= InScanStart;
 	FVector TraceEnd	= InScanStart + (CurrentTracingDirection * CurrentTracingMaxRange);
@@ -61,6 +62,8 @@ void UO_BulletTrace::ScanWithLineTraces(TArray<FHitResult>& OutHitResults, const
 				if (ShooterPhysMat->bRichochetsBullets)
 				{
 					bRicocheted = true;
+					++RicochetNumber;
+
 
 					// Remove all Hit Results after the ricochet hit
 					if (TraceHitResults.IsValidIndex(i + 1))
@@ -108,5 +111,5 @@ void UO_BulletTrace::ScanWithLineTraces(TArray<FHitResult>& OutHitResults, const
 			TraceEnd = CurrentTracingDirection * CurrentTracingMaxRange;
 		}
 
-	} while (bRicocheted);
+	} while (bRicocheted && RicochetNumber < MaxRicochets);
 }

@@ -24,6 +24,7 @@ AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer
 	TraceChannel = COLLISION_BULLET;
 
 	BulletTraceSubobject = CreateDefaultSubobject<UO_BulletTrace>(TEXT("BulletTraceSubobject"));
+	BulletTraceSubobject->MaxRicochets = 1;
 }
 
 

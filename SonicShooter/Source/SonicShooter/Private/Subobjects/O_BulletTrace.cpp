@@ -47,19 +47,29 @@ FVector UO_BulletTrace::CalculateRicochetDirection(const FHitResult& FromHit) co
 }
 
 
-void UO_BulletTrace::ScanWithLineTraces(TArray<FHitResult>& OutHitResults, const FVector& ScanStart, const FVector& ScanDirection, const float MaxRange, const UWorld* World, const ECollisionChannel TraceChannel, FCollisionQueryParams CollisionQueryParams)
+void UO_BulletTrace::ScanWithLineTraces(TArray<FHitResult>& OutHitResults, const FVector& ScanStart, const FVector& ScanDirection, const float MaxRange, const UWorld* World, FCollisionQueryParams CollisionQueryParams)
 {
-	FVector CurrentTracingDirection = ScanDirection;
-	float CurrentTracingMaxRange = MaxRange; // keep track of the max range as we go through our traces
+	FVector CurrentTracingDirection = ScanDirection; // this copy is for keeping track of the tracing direction as we ricochet
+	float CurrentTracingMaxRange = MaxRange; // this copy is for keeping track of the max range as we go through our traces
 	bool bCurrentTraceHitBlockingHit = false;
 
-	FVector StartingTraceEnd = ScanStart + (CurrentTracingMaxRange * CurrentTracingDirection);
-
+	// Configure our CollisionQueryParams for the traces
+	UE_CLOG((CollisionQueryParams.bIgnoreTouches), LogBulletTrace, Warning, TEXT("%s() cannot operate as intended with bIgnoreTouches (was given CollisionQueryParams with bIgnoreTouches true)"), ANSI_TO_TCHAR(__FUNCTION__));
 	CollisionQueryParams.bReturnPhysicalMaterial = true; // ensure we return the Physical Material for ricochet determination
 	CollisionQueryParams.bTraceComplex = true; // trace complex is required for penetrations. We need this for when we are starting from inside the geometry and shooting out (this won't work for CTF_UseSimpleAsComplex and Physics Assest colliders so TODO: we will need a case that covers this)
 
-	// Perform the first trace and give the HitResults to our output parameter
-	bCurrentTraceHitBlockingHit = World->LineTraceMultiByChannel(OutHitResults, ScanStart, StartingTraceEnd, TraceChannel, CollisionQueryParams);
+	// Configure our CollisionResponseParams for the traces
+	const FCollisionResponseParams CollisionResponseParams = FCollisionResponseParams(ECollisionResponse::ECR_Overlap); // make these traces penetrate through everything
+
+	// Configure our TraceChannel for the traces
+	const ECollisionChannel& TraceChannel = ECollisionChannel::ECC_Visibility; // it doesn't matter what we use for this since we are using an FCollisionResponseParams so just use the Visibility trace channel
+
+
+
+	// Perform the first trace and give the Hit Results to our output parameter
+	FVector StartingTraceEnd = ScanStart + (CurrentTracingMaxRange * CurrentTracingDirection);
+	bCurrentTraceHitBlockingHit = World->LineTraceMultiByChannel(OutHitResults, ScanStart, StartingTraceEnd, TraceChannel, CollisionQueryParams, CollisionResponseParams);
+	
 
 
 	if (bCurrentTraceHitBlockingHit && ShouldContinueTracingAfterFirstTrace(OutHitResults, World, CurrentTracingDirection, CollisionQueryParams))

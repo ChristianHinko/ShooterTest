@@ -34,7 +34,7 @@ public:
 	TArray<EPhysicalSurface> RicochetableSurfaces;
 
 	/** Used for doing line traces in PerformScan() */
-	void ScanWithLineTraces(TArray<FHitResult>& OutHitResults, const FVector& ScanStart, const FVector& ScanDirection, const float MaxRange, const UWorld* World, const ECollisionChannel TraceChannel, FCollisionQueryParams CollisionQueryParams);
+	void ScanWithLineTraces(TArray<FHitResult>& OutHitResults, const FVector& ScanStart, const FVector& ScanDirection, const float MaxRange, const UWorld* World, FCollisionQueryParams CollisionQueryParams);
 
 protected:
 	/**

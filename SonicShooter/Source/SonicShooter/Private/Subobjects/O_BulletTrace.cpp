@@ -45,32 +45,27 @@ void UO_BulletTrace::ScanWithLineTraces(TArray<FHitResult>& OutHitResults, const
 	{
 		bRicocheted = false;
 
-		UBFL_CollisionQueryHelpers::LineTraceMultiByChannelWithPenetrations(InWorld, TraceHitResults, TraceStart, TraceEnd, InTraceChannel, TraceCollisionQueryParams);
+		UBFL_CollisionQueryHelpers::LineTraceMultiByChannelWithPenetrations(InWorld, TraceHitResults, TraceStart, TraceEnd, InTraceChannel, TraceCollisionQueryParams,
+			[&bRicocheted, &RicochetNumber](const FHitResult& HitResult)
+			{
+				if (UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(HitResult.PhysMaterial))
+				{
+					// See if we ricocheted
+					if (ShooterPhysMat->bRichochetsBullets)
+					{
+						bRicocheted = true;
+						++RicochetNumber;
+						return true;
+					}
+				}
+
+				return false;
+			}
+		);
+
 		if (TraceHitResults.Num() <= 0)
 		{
 			break; // we traced into thin air
-		}
-
-		// See if we ricocheted
-		for (int32 i = 0; i < TraceHitResults.Num(); ++i)
-		{
-			if (UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(TraceHitResults[i].PhysMaterial))
-			{
-				if (ShooterPhysMat->bRichochetsBullets)
-				{
-					bRicocheted = true;
-					++RicochetNumber;
-
-
-					// Remove all Hit Results after the ricochet hit
-					if (TraceHitResults.IsValidIndex(i + 1))
-					{
-						TraceHitResults.RemoveAt(i + 1, TraceHitResults.Num() - i - 1);
-					}
-
-					break;
-				}
-			}
 		}
 
 

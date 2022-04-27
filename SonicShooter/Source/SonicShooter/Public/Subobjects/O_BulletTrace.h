@@ -45,7 +45,7 @@ public:
 	 * Performs traces from a given ScanStart into a given ScanDirection with ricochets
 	 * Penetrates through blocking hits.
 	 */
-	void ScanWithLineTraces(TArray<FHitResult>& OutHitResults, const FVector& InScanStart, FVector ScanDirection, float DistanceToTravel, const UWorld* InWorld, const ECollisionChannel InTraceChannel, const FCollisionQueryParams& InCollisionQueryParams = FCollisionQueryParams::DefaultQueryParam, const TFunction<bool(const FHitResult&)>& ShouldRicochetOffOf = nullptr);
+	void ScanWithLineTraces(TArray<FHitResult>& OutHitResults, FVector ScanStart, FVector ScanDirection, float DistanceToTravel, const UWorld* InWorld, const ECollisionChannel InTraceChannel, const FCollisionQueryParams& InCollisionQueryParams = FCollisionQueryParams::DefaultQueryParam, const TFunction<bool(const FHitResult&)>& ShouldRicochetOffOf = nullptr);
 
 protected:
 	/** Moves our traces' start points in the trace direction by a small amount to ensure we don't get stuck hitting the same object over and over again. This allows us to avoid ignoring the component so that we can hit the same component's geometry again */

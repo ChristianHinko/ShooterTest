@@ -150,6 +150,7 @@ void AGATA_BulletTrace::PerformScan(TArray<FHitResult>& OutHitResults)
 	// Perform line trace
 	FCollisionQueryParams CollisionQueryParams;
 	CollisionQueryParams.AddIgnoredActor(SourceActor);
+	CollisionQueryParams.bReturnPhysicalMaterial = true; // ensure we return the Physical Material for ricochet determination
 	BulletTraceSubobject->ScanWithLineTraces(OutHitResults, StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, SourceActor->GetWorld(), TraceChannel, CollisionQueryParams,
 		[](const FHitResult& HitResult)
 		{

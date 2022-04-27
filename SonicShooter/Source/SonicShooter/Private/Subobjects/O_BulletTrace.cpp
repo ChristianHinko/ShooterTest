@@ -25,48 +25,32 @@ UO_BulletTrace::UO_BulletTrace(const FObjectInitializer& ObjectInitializer)
 
 }
 
-void UO_BulletTrace::ScanWithLineTraces(TArray<FHitResult>& OutHitResults, const FVector& InScanStart, FVector ScanDirection, float DistanceToTravel, const UWorld* InWorld, const ECollisionChannel InTraceChannel, const FCollisionQueryParams& InCollisionQueryParams, const TFunction<bool(const FHitResult&)>& ShouldRicochetOffOf)
+void UO_BulletTrace::ScanWithLineTraces(TArray<FHitResult>& OutHitResults, FVector ScanStart, FVector ScanDirection, float DistanceToTravel, const UWorld* InWorld, const ECollisionChannel InTraceChannel, const FCollisionQueryParams& InCollisionQueryParams, const TFunction<bool(const FHitResult&)>& ShouldRicochetOffOf)
 {
-	// Configure our TraceCollisionQueryParams
-	FCollisionQueryParams BulletCollisionQueryParams = InCollisionQueryParams;
-	BulletCollisionQueryParams.bReturnPhysicalMaterial = true; // ensure we return the Physical Material for ricochet determination
-
-
-	// Initial Trace
-	FVector BulletEnd = InScanStart + (ScanDirection * DistanceToTravel);
-	// Penetration line trace that stops at a user defined ricochetable surface
-	bool bHitRicochetableSurface = UBFL_CollisionQueryHelpers::DoubleSidedLineTraceMultiByChannelWithPenetrations(InWorld, OutHitResults, InScanStart, BulletEnd, InTraceChannel, BulletCollisionQueryParams, ShouldRicochetOffOf);
-	if (!bHitRicochetableSurface)
+	// The first iteration of this loop is the initial trace and the rest of the iterations are ricochet traces
+	for (int32 RicochetNumber = 0; RicochetNumber <= MaxRicochets; ++RicochetNumber)
 	{
-		return;
-	}
-	DistanceToTravel -= OutHitResults.Last().Distance;
-
-
-	// Ricochets
-	for (int32 RicochetNumber = 1; RicochetNumber <= MaxRicochets; ++RicochetNumber)
-	{
-		// Reflect our ScanDirection off of the ricochetable surface
-		ScanDirection = ScanDirection.MirrorByVector(OutHitResults.Last().ImpactNormal);
-
-		FVector RicochetTraceStart = OutHitResults.Last().Location + (ScanDirection * TraceStartWallAvoidancePadding);
-		FVector RicochetTraceEnd = RicochetTraceStart + (ScanDirection * DistanceToTravel);
-
+		TArray<FHitResult> TraceHitResults;
+		const FVector TraceEnd = ScanStart + (ScanDirection * DistanceToTravel);
 
 		// Penetration line trace that stops at a user defined ricochetable surface
-		TArray<FHitResult> RicochetTraceHitResults;
-		bHitRicochetableSurface = UBFL_CollisionQueryHelpers::DoubleSidedLineTraceMultiByChannelWithPenetrations(InWorld, RicochetTraceHitResults, RicochetTraceStart, RicochetTraceEnd, InTraceChannel, BulletCollisionQueryParams, ShouldRicochetOffOf);
-		OutHitResults.Append(RicochetTraceHitResults);
-			
+		const bool bHitRicochetableSurface = UBFL_CollisionQueryHelpers::DoubleSidedLineTraceMultiByChannelWithPenetrations(InWorld, TraceHitResults, ScanStart, TraceEnd, InTraceChannel, InCollisionQueryParams, ShouldRicochetOffOf);
+		OutHitResults.Append(TraceHitResults);
+
 		if (!bHitRicochetableSurface)
 		{
 			break;
 		}
 		
-		DistanceToTravel -= OutHitResults.Last().Distance; // since we stopped at a ricochet, the last hit is our ricochet hit. Take away the distance traveled of this trace from our CurrentBulletMaxRange
+		// Take away the distance traveled of this trace from our CurrentBulletMaxRange
+		DistanceToTravel -= OutHitResults.Last().Distance; // since we stopped at a ricochet, the last hit is our ricochet hit
 		if (DistanceToTravel <= 0.f)
 		{
 			break;
 		}
+
+		// Reflect our ScanDirection off of the ricochetable surface and calculate ScanStart for next ricochet
+		ScanDirection = ScanDirection.MirrorByVector(OutHitResults.Last().ImpactNormal);
+		ScanStart = OutHitResults.Last().Location + (ScanDirection * TraceStartWallAvoidancePadding);
 	}
 }

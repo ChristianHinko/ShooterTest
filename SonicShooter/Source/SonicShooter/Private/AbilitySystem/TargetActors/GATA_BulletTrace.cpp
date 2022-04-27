@@ -24,7 +24,6 @@ AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer
 	TraceChannel = COLLISION_BULLET;
 
 	BulletTraceSubobject = CreateDefaultSubobject<UO_BulletTrace>(TEXT("BulletTraceSubobject"));
-	BulletTraceSubobject->MaxRicochets = 1;
 }
 
 
@@ -151,7 +150,7 @@ void AGATA_BulletTrace::PerformScan(TArray<FHitResult>& OutHitResults)
 	FCollisionQueryParams CollisionQueryParams;
 	CollisionQueryParams.AddIgnoredActor(SourceActor);
 	CollisionQueryParams.bReturnPhysicalMaterial = true; // ensure we return the Physical Material for ricochet determination
-	BulletTraceSubobject->ScanWithLineTraces(OutHitResults, StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, SourceActor->GetWorld(), TraceChannel, CollisionQueryParams,
+	BulletTraceSubobject->ScanWithLineTraces(OutHitResults, StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, -1, -1, SourceActor->GetWorld(), TraceChannel, CollisionQueryParams,
 		[](const FHitResult& HitResult)
 		{
 			if (const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(HitResult.PhysMaterial))

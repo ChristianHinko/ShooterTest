@@ -131,7 +131,7 @@ bool AGATA_BulletTrace::ShouldRicochetOffOf(const FHitResult& Hit) const
 	const UPM_Shooter* ShooterPhysMat = Cast<const UPM_Shooter>(Hit.PhysMaterial.Get());
 	if (IsValid(ShooterPhysMat))
 	{
-		if (ShooterPhysMat->bRichochetsBullets)
+		if (ShooterPhysMat->bRicochets)
 		{
 			return true;
 		}
@@ -146,28 +146,29 @@ void AGATA_BulletTrace::PerformScan(TArray<FHitResult>& OutHitResults)
 {
 	OutHitResults.Empty();
 
+
+	BulletTraceSubobject->MaxPenetrations = MaxPenetrations;
+	BulletTraceSubobject->MaxRicochets = MaxRicochets;
+	BulletTraceSubobject->InitialBulletSpeed = InitialBulletSpeed;
+	BulletTraceSubobject->SpeedNerfImunity = 1.f;
+
 	// Perform line trace
 	FCollisionQueryParams CollisionQueryParams;
 	CollisionQueryParams.AddIgnoredActor(SourceActor);
-	CollisionQueryParams.bReturnPhysicalMaterial = true; // ensure we return the Physical Material for ricochet determination
-	BulletTraceSubobject->ScanWithLineTraces(OutHitResults, StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, -1, -1, SourceActor->GetWorld(), TraceChannel, CollisionQueryParams,
-		[](const FHitResult& HitResult)
-		{
-			if (const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(HitResult.PhysMaterial))
-			{
-				// See if we ricocheted
-				if (ShooterPhysMat->bRichochetsBullets)
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-	);
+	//CollisionQueryParams.bTraceComplex = true;
+	FScanResult ScanResult;
+	BulletTraceSubobject->ScanWithLineTracesUsingSpeed(ScanResult, StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, SourceActor->GetWorld(), TraceChannel, CollisionQueryParams);
+
+	// TODO: avoid doing this and probably just get rid of PerformScans() anyways
+	OutHitResults.Reserve(ScanResult.BulletHits.Num());
+	for (const FBulletHit& BulletHit : ScanResult.BulletHits)
+	{
+		OutHitResults.Add(BulletHit);
+	}
 
 	if (bDebug)
 	{
-		DebugHitResults(OutHitResults, SourceActor->GetWorld());
+		ScanResult.DebugScan(SourceActor->GetWorld());
 	}
 }
 

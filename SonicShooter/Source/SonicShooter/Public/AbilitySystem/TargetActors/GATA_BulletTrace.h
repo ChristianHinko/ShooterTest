@@ -68,9 +68,7 @@ struct FBulletStep
 			const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(PhysMat);
 			if (IsValid(ShooterPhysMat))
 			{
-				const float SpeedLossPerCentimeter = (ShooterPhysMat->BulletPenetrationSpeedReduction / 100);
-				const float SpeedToTakeAway = (InTraceSegment.GetSegmentDistance() * SpeedLossPerCentimeter);
-
+				const float SpeedToTakeAway = (InTraceSegment.GetSegmentDistance() * ShooterPhysMat->PenetrationSpeedNerf);
 				BulletSpeedToTakeAway += SpeedToTakeAway;
 			}
 		}
@@ -89,7 +87,7 @@ struct FBulletStep
 		const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(InRicochetPoint.PhysMaterial);
 		if (IsValid(ShooterPhysMat))
 		{
-			BulletSpeedToTakeAway = ShooterPhysMat->BulletRicochetSpeedReduction;
+			BulletSpeedToTakeAway = ShooterPhysMat->RicochetSpeedNerf;
 		}
 	}
 

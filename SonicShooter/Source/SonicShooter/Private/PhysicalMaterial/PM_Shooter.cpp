@@ -5,9 +5,11 @@
 
 
 
-UPM_Shooter::UPM_Shooter()
+UPM_Shooter::UPM_Shooter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+	, bRicochets(false)
+	, PenetrationSpeedNerf(0.20f)
+	, RicochetSpeedNerf(30.f)
 {
-	bRichochetsBullets = false;
-	BulletPenetrationSpeedReduction = 20.f;
-	BulletRicochetSpeedReduction = 30.f;
+
 }

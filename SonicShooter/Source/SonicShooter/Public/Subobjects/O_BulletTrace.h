@@ -33,36 +33,6 @@ struct FScanResult
 	FVector BulletStart;
 	FVector BulletEnd;
 
-	// This was unfinished and is not even needed anymore but I just want to keep it here for a commit
-	float GetBulletSpeedAtScanTime(const float InScanTime) const
-	{
-		const int32 TotalScanTime = BulletHits.Last().RicochetNumber + 1; // equivalent to the total number of traces
-
-		const float RemappedInScanTime = InScanTime * TotalScanTime; // remapped to the total scan time
-		const int32 TraceNumberToUse = FMath::Floor(RemappedInScanTime);
-
-		for (int32 i = 0; i < BulletHits.Num(); ++i)
-		{
-			if (BulletHits[i].RicochetNumber == TraceNumberToUse)
-			{
-				if (BulletHits.IsValidIndex(i + 1))
-				{
-					const float& ThisHitTime = BulletHits[i].Time;
-					const float& NextHitTime = BulletHits[i + 1].Time;
-					if (NextHitTime > InScanTime) // if the next bullet hit overshoots our desired time
-					{
-						// InTime is between ThisHitTime and NextHitTime
-						FVector2D RangeA = FVector2D(ThisHitTime, NextHitTime);
-						FVector2D RangeB = FVector2D(0.f, 1.f);
-						const float RemappedTime = FMath::GetMappedRangeValueClamped(RangeA, RangeB, InScanTime);
-
-						return FMath::Lerp(BulletHits[i].Speed, BulletHits[i + 1].Speed, RemappedTime);
-					}
-				}
-			}
-		}
-	}
-
 	void DebugScan(const UWorld* InWorld) const;
 };
 

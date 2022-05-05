@@ -23,109 +23,115 @@ AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer
 {
 	TraceChannel = COLLISION_BULLET;
 
+	CurrentScanIndex = INDEX_NONE;
+	bDebug = true;
+
 	BulletTraceSubobject = CreateDefaultSubobject<UO_BulletTrace>(TEXT("BulletTraceSubobject"));
 }
 
 
 void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 {
-	Super::Super::ConfirmTargetingAndContinue(); // skip AGATA_Trace's stuff
+	Super::ConfirmTargetingAndContinue();
 
 
 	// Our Target Data to broadcast
 	FGameplayAbilityTargetDataHandle TargetDataHandle;
 
 	// Perform our scans
-	TArray<TArray<FHitResult>> ScansHitResults;
-	PerformScans(ScansHitResults);
+	TArray<FScanResult> ScanResults;
 
-	// Loop through our scans
-	for (int32 ScanNumber = 0; ScanNumber < ScansHitResults.Num(); ScanNumber++)
+	// Reserve the predetermined number of scans
+	ScanResults.Reserve(NumOfScans);
+
+	// Perform scans
+	for (CurrentScanIndex = 0; CurrentScanIndex < NumOfScans; ++CurrentScanIndex)
+	{
+		BulletTraceSubobject->MaxPenetrations = MaxPenetrations;
+		BulletTraceSubobject->MaxRicochets = MaxRicochets;
+		BulletTraceSubobject->InitialBulletSpeed = InitialBulletSpeed;
+		BulletTraceSubobject->SpeedNerfImunity = 1.f;
+
+		// Perform line trace
+		FCollisionQueryParams CollisionQueryParams;
+		CollisionQueryParams.AddIgnoredActor(SourceActor);
+		//CollisionQueryParams.bTraceComplex = true;
+		FScanResult ScanResult;
+		BulletTraceSubobject->ScanWithLineTracesUsingSpeed(ScanResult, StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, SourceActor->GetWorld(), TraceChannel, CollisionQueryParams);
+		if (bDebug)
+		{
+			ScanResult.DebugScan(SourceActor->GetWorld());
+		}
+
+		ScanResults.Add(ScanResult);
+	}
+	CurrentScanIndex = INDEX_NONE;
+
+
+
+
+
+
+	for (int32 i = 0; i < ScanResults.Num(); ++i)
 	{
 		FGATD_BulletTraceTargetHit* ThisScanTargetData = new FGATD_BulletTraceTargetHit(); // these are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr)
-		
-		const TArray<FHitResult>& ScanHitResults = ScansHitResults[ScanNumber];
 
+		const FScanResult& ScanResult = ScanResults[i];
 
-		float TotalDistanceUpUntilThisTrace = 0.f; // accumulated distance of the previous traces
-		if (ScanHitResults.Num() > 0)
+		// Fill target data's BulletTracePoints
 		{
-			ThisScanTargetData->BulletTracePoints.Add(ScanHitResults[0].TraceStart);
+			ThisScanTargetData->BulletTracePoints.Reserve(ScanResult.BulletHits.Num() + 2);
+
+			ThisScanTargetData->BulletTracePoints.Add(ScanResult.BulletStart);
+			for (FHitResult Hit : ScanResult.BulletHits)
+			{
+				ThisScanTargetData->BulletTracePoints.Add(Hit.Location);
+			}
+			ThisScanTargetData->BulletTracePoints.Add(ScanResult.BulletEnd);
 		}
 
-
-
-
-		FHitResult PreviousHit;
-		for (int32 i = 0; i < ScanHitResults.Num(); ++i)
+		// Add the actor hit infos for this scan. Making a sort of custom filter to not hit the same actor more than once in the same trace
+		for (int32 j = 0; j < ScanResult.BulletHits.Num(); ++j)
 		{
-			const FHitResult& Hit = ScanHitResults[i];
+			const FBulletHit& BulletHit = ScanResult.BulletHits[j];
 
-			if (i != 0)
+			if (BulletHit.bIsExitHit)
 			{
-				const bool bIsNewTrace = !UBFL_HitResultHelpers::AreHitsFromSameTrace(Hit, PreviousHit);
-				if (bIsNewTrace)
-				{
-					// Accumulate last trace's distance
-					TotalDistanceUpUntilThisTrace += PreviousHit.Distance;
+				continue;
+			}
 
-					if (ShouldRicochetOffOf(PreviousHit))
+			if (Filter.FilterPassesForActor(BulletHit.GetActor()))
+			{
+				bool bHasAlreadyBeenHitBySameTrace = false;
+				for (int32 k = 0; k < j; ++k)
+				{
+					if (BulletHit.RicochetNumber != ScanResult.BulletHits[k].RicochetNumber) // allow it to be hit again if it's a different trace (e.g. ricochet number 0 vs 1)
 					{
-						// We ricocheted and are changing tracing direction so add this point to the ScanTracePoints
-						ThisScanTargetData->BulletTracePoints.Add(Hit.TraceStart);
+						continue;
+					}
+
+					if (BulletHit.GetActor() == ScanResult.BulletHits[k].GetActor())
+					{
+						bHasAlreadyBeenHitBySameTrace = true;
+						break;
 					}
 				}
+
+				if (!bHasAlreadyBeenHitBySameTrace)
+				{
+					// This hit won't get filtered, so lets add it to the target data
+					FActorHitInfo ActorHitInfo = FActorHitInfo(BulletHit.GetActor(), BulletHit.Speed);
+					ThisScanTargetData->ActorHitInfos.Add(ActorHitInfo);
+				}
 			}
-
-
-			if (!WouldHitResultGetFiltered(ScanHitResults, i, Filter, bAllowMultipleHitsPerActor)) // don't actually filter it, just check if it would get filtered
-			{
-				// this hit won't get filtered, so lets add it to the target data
-
-				// This Hit Result's distance plus the previous tracing direction's traveled distance
-				const float RicochetAwareDistance = TotalDistanceUpUntilThisTrace + Hit.Distance;
-				const float BulletSpeedOnHit = GetBulletSpeedAtPoint(Hit.ImpactPoint, ScanNumber);
-
-				FActorHitInfo ActorHitInfo = FActorHitInfo(Hit.GetActor(), RicochetAwareDistance, BulletSpeedOnHit);
-				ThisScanTargetData->ActorHitInfos.Add(ActorHitInfo);
-			}
-			PreviousHit = Hit;
 		}
-
-
-
-
-		if (ScanHitResults.Num() > 0)
-		{
-			ThisScanTargetData->BulletTracePoints.Add(ScanHitResults.Last().TraceEnd);
-		}
-
 
 		TargetDataHandle.Add(ThisScanTargetData);
 	}
-	
 
 	TargetDataReadyDelegate.Broadcast(TargetDataHandle);
 }
 
-void AGATA_BulletTrace::CalculateAimDirection(FVector& OutAimStart, FVector& OutAimDir) const
-{
-	Super::CalculateAimDirection(OutAimStart, OutAimDir); // call Super so we get the PC's view dir, and then we can add bullet spread ontop of that
-
-
-	// Calculate new OutAimDir with random bullet spread offset if needed
-	if (CurrentBulletSpread > SMALL_NUMBER)
-	{
-		// Our injected random seed is only unique to each fire. We need a random seed that is also unique to each bullet in the fire, so we will do this by using t
-		const int32 FireAndBulletSpecificNetSafeRandomSeed = FireSpecificNetSafeRandomSeed - ((CurrentScanIndex + 2) * FireSpecificNetSafeRandomSeed);	// Here, the 'number' multiplied to t makes the random pattern noticable after firing 'number' of times. I use the prediction key as that 'number' which i think eliminates the threshold for noticeability entirely. - its confusing to think about but i think it works
-		FMath::RandInit(FireAndBulletSpecificNetSafeRandomSeed);
-		const FRandomStream RandomStream = FRandomStream(FMath::Rand());
-
-		// Get and apply random offset to OutAimDir using randomStream
-		const float ConeHalfAngleRadius = FMath::DegreesToRadians(CurrentBulletSpread * 0.5f);
-		OutAimDir = RandomStream.VRandCone(OutAimDir, ConeHalfAngleRadius);
-	}
-}
 bool AGATA_BulletTrace::ShouldRicochetOffOf(const FHitResult& Hit) const
 {
 	const UPM_Shooter* ShooterPhysMat = Cast<const UPM_Shooter>(Hit.PhysMaterial.Get());
@@ -140,391 +146,21 @@ bool AGATA_BulletTrace::ShouldRicochetOffOf(const FHitResult& Hit) const
 	return false;
 }
 
-
-
-void AGATA_BulletTrace::PerformScan(TArray<FHitResult>& OutHitResults)
+void AGATA_BulletTrace::CalculateAimDirection(FVector& OutAimStart, FVector& OutAimDir) const
 {
-	OutHitResults.Empty();
-
-
-	BulletTraceSubobject->MaxPenetrations = MaxPenetrations;
-	BulletTraceSubobject->MaxRicochets = MaxRicochets;
-	BulletTraceSubobject->InitialBulletSpeed = InitialBulletSpeed;
-	BulletTraceSubobject->SpeedNerfImunity = 1.f;
-
-	// Perform line trace
-	FCollisionQueryParams CollisionQueryParams;
-	CollisionQueryParams.AddIgnoredActor(SourceActor);
-	//CollisionQueryParams.bTraceComplex = true;
-	FScanResult ScanResult;
-	BulletTraceSubobject->ScanWithLineTracesUsingSpeed(ScanResult, StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, SourceActor->GetWorld(), TraceChannel, CollisionQueryParams);
-
-	// TODO: avoid doing this and probably just get rid of PerformScans() anyways
-	OutHitResults.Reserve(ScanResult.BulletHits.Num());
-	for (const FBulletHit& BulletHit : ScanResult.BulletHits)
-	{
-		OutHitResults.Add(BulletHit);
-	}
-
-	if (bDebug)
-	{
-		ScanResult.DebugScan(SourceActor->GetWorld());
-	}
-}
-
-
-void AGATA_BulletTrace::OnPrePerformScans(TArray<TArray<FHitResult>>& OutScansResults)
-{
-	Super::OnPrePerformScans(OutScansResults);
-
-	// Initialize the BulletSteps for these scans to defaulted bullet steps
-	BulletSteps.SetNum(NumOfScans);
-}
-
-
-
-
-
-/////////////////////////////////////////////////////////////// BEGIN ScanWithLineTraces() events /////////////////////
-
-
-
-bool AGATA_BulletTrace::ShouldContinueTracingAfterFirstTrace(TArray<FHitResult>& FirstTraceHitResults, const UWorld* World, const FVector& CurrentTracingDirection, const FCollisionQueryParams& QueryParams)
-{
-	bool RetVal = Super::ShouldContinueTracingAfterFirstTrace(FirstTraceHitResults, World, CurrentTracingDirection, QueryParams);
-
-
-	// Initialize CurrentTracingDirectionBlockingHits
-	CurrentTracingDirectionBlockingHits.Empty();
-	CurrentTracingDirectionStartIndex = 0;
-
-	// Intialize CurrentBulletSpeed
-	CurrentBulletSpeed = InitialBulletSpeed;
-
-	// Initialize this scans's BulletSteps
-	BulletSteps[CurrentScanIndex].Empty();
-
-
-	NerfCurrentBulletSpeedByDistanceTraveled(FirstTraceHitResults);
-
-	return RetVal;
-}
-bool AGATA_BulletTrace::ShouldContinueTracingAfterPenetrationTrace(TArray<FHitResult>& ScanHitResults, TArray<FHitResult>& PenetrationTraceHitResults, const UWorld* World, const FVector& CurrentTracingDirection, const FCollisionQueryParams& QueryParams)
-{
-	bool RetVal = Super::ShouldContinueTracingAfterPenetrationTrace(ScanHitResults, PenetrationTraceHitResults, World, CurrentTracingDirection, QueryParams);
-
-	const FHitResult& PenetratedThrough = ScanHitResults.Last();
-
-	// Add what we penetrated through as a blocking hit for CurrentTracingDirectionBlockingHits
-	CurrentTracingDirectionBlockingHits.Add(PenetratedThrough);
-
-
-	NerfCurrentBulletSpeedByDistanceTraveled(PenetrationTraceHitResults);
-
-	return RetVal;
-}
-bool AGATA_BulletTrace::ShouldContinueTracingAfterRicochetHit(TArray<FHitResult>& ScanHitResults, TArray<FHitResult>& RicochetTraceHitResults, const UWorld* World, const FVector& CurrentTracingDirection, const FCollisionQueryParams& QueryParams)
-{
-	bool RetVal = Super::ShouldContinueTracingAfterRicochetHit(ScanHitResults, RicochetTraceHitResults, World, CurrentTracingDirection, QueryParams);
-
-
-	// Add what we are ricocheting off of as a blocking hit for CurrentTracingDirectionBlockingHits
-	const FHitResult& RicochetOffOf = ScanHitResults.Last();
-	CurrentTracingDirectionBlockingHits.Add(RicochetOffOf);
-
-
-	TArray<FBulletStep> ThisTracingDirectionBulletSteps;
-
-	// Fill out ThisTracingDirectionBulletSteps
-	{
-		// We are about to change our tracing direction so BuildTraceSegments() for the current tracing direction's blocking hits
-		if (CurrentTracingDirectionBlockingHits.Num() > 0)
-		{
-			// Calculate trace segments for the current tracing direction's blocking hits
-			TArray<FTraceSegment> ThisTracingDirectionTraceSegments;
-			UBFL_CollisionQueryHelpers::BuildTraceSegments(ThisTracingDirectionTraceSegments, CurrentTracingDirectionBlockingHits, RicochetOffOf.Location, World, QueryParams, TraceChannel);
-			
-			// Add these trace segments as bullet steps
-			for (const FTraceSegment& PenetrationSegment : ThisTracingDirectionTraceSegments)
-			{
-				ThisTracingDirectionBulletSteps.Add(FBulletStep(PenetrationSegment));
-			}
-		}
-
-		// Add this ricochet point as a bullet step
-		FTracePoint RicochetPoint = FTracePoint(RicochetOffOf.Location, RicochetOffOf.PhysMaterial.Get());
-		ThisTracingDirectionBulletSteps.Add(FBulletStep(RicochetPoint));
-	}
-
-	// Add the current tracing direction's bullet steps to this scan's list of bullet steps
-	BulletSteps[CurrentScanIndex].Append(ThisTracingDirectionBulletSteps);
-
-
-	FVector StoppedAtPoint;
-	bool bStoppedInSegment = false;
-	if (ApplyBulletStepsToBulletSpeed(ThisTracingDirectionBulletSteps, StoppedAtPoint, bStoppedInSegment))
-	{
-		if (bStoppedInSegment) // only if we stopped inside of a segment
-		{
-			// Loop through this tracing direction's Hit Results until we find the first hit that happened after StoppedAtPoint, then remove it and all of the ones proceeding it
-			for (int32 i = CurrentTracingDirectionStartIndex; i < ScanHitResults.Num(); ++i)
-			{
-				const FHitResult& Hit = ScanHitResults[i];
-
-				const FVector LocationPointToStoppedPoint = (StoppedAtPoint - Hit.Location);
-				const bool bIsAfterStoppedPoint = (FVector::DotProduct(LocationPointToStoppedPoint, CurrentTracingDirection) <= 0); // if this Hit's Location is after StoppedAtLocation
-				if (bIsAfterStoppedPoint)
-				{
-					// Remove the hits that happened after StoppedAtPoint
-					ScanHitResults.RemoveAt(i, ScanHitResults.Num() - i);
-
-					// Add TraceInfo so we have where the Segment ended
-					FHitResult TraceInfo;
-					TraceInfo.TraceStart = Hit.TraceStart;
-					TraceInfo.TraceEnd = StoppedAtPoint;
-					ScanHitResults.Add(TraceInfo);
-
-					break;
-				}
-			}
-		}
-
-		RetVal = false;
-	}
-
-
-	NerfCurrentBulletSpeedByDistanceTraveled(RicochetTraceHitResults);
-
-
-	// Reset the blocking Hit Results for the next group of blocking hits
-	CurrentTracingDirectionBlockingHits.Empty();
-	CurrentTracingDirectionStartIndex = (ScanHitResults.Num() - 1);
-
-	return RetVal;
-}
-void AGATA_BulletTrace::OnFinishedScanWithLineTraces(TArray<FHitResult>& ScanHitResults, const UWorld* World, const FVector& CurrentTracingDirection, const FCollisionQueryParams& QueryParams)
-{
-	Super::OnFinishedScanWithLineTraces(ScanHitResults, World, CurrentTracingDirection, QueryParams);
-
-
-
-	TArray<FBulletStep> ThisTracingDirectionBulletSteps;
-
-	// Fill out ThisTracingDirectionBulletSteps
-	{
-		// Apply any Trace Segments left to our CurrentBulletSpeed
-		if (CurrentTracingDirectionBlockingHits.Num() > 0)
-		{
-			TArray<FTraceSegment> ThisTracingDirectionTraceSegments;
-			UBFL_CollisionQueryHelpers::BuildTraceSegments(ThisTracingDirectionTraceSegments, CurrentTracingDirectionBlockingHits, World, QueryParams, TraceChannel);
-			for (const FTraceSegment& TraceSegment : ThisTracingDirectionTraceSegments)
-			{
-				ThisTracingDirectionBulletSteps.Add(TraceSegment);
-			}
-
-		}
-
-	}
-
-	BulletSteps[CurrentScanIndex].Append(ThisTracingDirectionBulletSteps);
-
-
-	FVector StoppedAtPoint;
-	bool bStoppedInSegment = false;
-	if (ApplyBulletStepsToBulletSpeed(ThisTracingDirectionBulletSteps, StoppedAtPoint, bStoppedInSegment))
-	{
-		if (bStoppedInSegment) // only if we stopped inside of a segment
-		{
-			// Loop through this tracing direction's Hit Results until we find the first hit that happened after StoppedAtPoint, then remove it and all of the ones proceeding it
-			for (int32 i = CurrentTracingDirectionStartIndex; i < ScanHitResults.Num(); ++i)
-			{
-				const FHitResult& Hit = ScanHitResults[i];
-
-				const FVector LocationPointToStoppedPoint = (StoppedAtPoint - Hit.Location);
-				const bool bIsAfterStoppedPoint = (FVector::DotProduct(LocationPointToStoppedPoint, CurrentTracingDirection) <= 0); // if this Hit's Location is after StoppedAtLocation
-				if (bIsAfterStoppedPoint)
-				{
-					// Remove the hits that happened after StoppedAtPoint
-					ScanHitResults.RemoveAt(i, ScanHitResults.Num() - i);
-
-					// Add TraceInfo so we have where the Segment ended
-					FHitResult TraceInfo;
-					TraceInfo.TraceStart = Hit.TraceStart;
-					TraceInfo.TraceEnd = StoppedAtPoint;
-					ScanHitResults.Add(TraceInfo);
-
-					break;
-				}
-			}
-		}
-	}
-
-
-
-
-	CurrentTracingDirectionBlockingHits.Empty();
-	CurrentTracingDirectionStartIndex = 0;
-
-}
-
-
-
-
-/////////////////////////////////////////////////////////////// END ScanWithLineTraces() events /////////////////////
-
-
-
-
-
-
-
-bool AGATA_BulletTrace::ApplyBulletStepsToBulletSpeed(const TArray<FBulletStep>& BulletStepsToApply, FVector& OutStoppedAtPoint, bool& outStoppedInSegment)
-{
-	// Edge case: If we were already out of Bullet Speed TODO: maybe just do nothing and return false in this case
-	if (CurrentBulletSpeed <= 0)
-	{
-		// Try to set a valid OutStoppedAtPoint
-		if (BulletStepsToApply.IsValidIndex(0))
-		{
-			const FBulletStep& FirstStep = BulletStepsToApply[0];
-
-			if (const FTraceSegment* TraceSegment = FirstStep.GetTraceSegment())
-			{
-				// Assume that the first bullet step is where we ran out of speed
-				OutStoppedAtPoint = TraceSegment->GetStartPoint();
-				outStoppedInSegment = true;
-			}
-			else if (const FTracePoint* TracePoint = FirstStep.GetRicochetPoint())
-			{
-				// Assume that the first bullet step is where we ran out of speed
-				OutStoppedAtPoint = TracePoint->Point;
-			}
-		}
-
-		CurrentBulletSpeed = 0.f;
-		return true;
-	}
-
-
-	// Loop through the bullet steps and apply them to our bullet speed
-	for (const FBulletStep& BulletStep : BulletStepsToApply)
-	{
-		// Take away Bullet Speed from this BulletStep
-		CurrentBulletSpeed -= BulletStep.GetBulletSpeedToTakeAway();
-
-		// If we ran out of Bullet Speed
-		if (CurrentBulletSpeed <= 0)
-		{
-			if (const FTraceSegment* TraceSegment = BulletStep.GetTraceSegment())
-			{
-				// The speed we had before we took away
-				const float PreLossBulletSpeed = (CurrentBulletSpeed + BulletStep.GetBulletSpeedToTakeAway());
-
-				// How far we traveled through this Segment
-				const float GotThroughnessRatio = (PreLossBulletSpeed / BulletStep.GetBulletSpeedToTakeAway());
-				const float GotThroughDistance = GotThroughnessRatio * TraceSegment->GetSegmentDistance();
-
-				// The exact point where we ran out of speed
-				OutStoppedAtPoint = TraceSegment->GetStartPoint() + (GotThroughDistance * TraceSegment->GetTraceDir());
-				outStoppedInSegment = true;
-			}
-			else if (const FTracePoint* TracePoint = BulletStep.GetRicochetPoint())
-			{
-				// The exact point where we ran out of speed
-				OutStoppedAtPoint = TracePoint->Point;
-			}
-
-			// We ran out of speed and have a valid OutStoppedAtPoint
-			CurrentBulletSpeed = 0.f;
-			return true;
-		}
-	}
-
-
-
-
-	return false;
-}
-
-float AGATA_BulletTrace::GetBulletSpeedAtPoint(const FVector& Point, const int32 ScanIndex)
-{
-	float RetVal = InitialBulletSpeed;
-
-
-	float DistanceTraveledToPoint = 0.f;
-
-	// Loop through the bullet steps of the given scan
-	for (const FBulletStep& BulletStep : BulletSteps[ScanIndex])
-	{
-		RetVal -= BulletStep.GetBulletSpeedToTakeAway();
-
-		float EqualsTolerance = KINDA_SMALL_NUMBER + TraceStartWallAvoidancePadding;
-		if (const FTraceSegment* TraceSegment = BulletStep.GetTraceSegment()) // if we're a TraceSegment
-		{
-			const float& SegmentDistance = TraceSegment->GetSegmentDistance();
-
-			DistanceTraveledToPoint += SegmentDistance;
-
-			if (Point.Equals(TraceSegment->GetEndPoint(), EqualsTolerance)) // if the given Point is this segment's EndPoint
-			{
-				break;
-			}
-
-			const float TraveledDistance = FVector::Distance(TraceSegment->GetStartPoint(), Point);
-			const float UntraveledDistance = FVector::Distance(Point, TraceSegment->GetEndPoint());
-
-			if (FMath::IsNearlyEqual(TraveledDistance + UntraveledDistance, SegmentDistance)) // if StartPoint, EndPoint, and Point do not form a triangle, then Point is on the segment
-			{
-				// We took away the whole Segment's speed even though this point is within the Segment. So add back the part of the Segment that we didn't travel through
-				const float TraveledThroughnessRatio = (TraveledDistance / SegmentDistance);
-				RetVal += BulletStep.GetBulletSpeedToTakeAway() * (1 - TraveledThroughnessRatio);
-
-
-				DistanceTraveledToPoint -= UntraveledDistance;
-
-				break;
-			}
-
-		}
-		else if (const FTracePoint* RicochetPoint = BulletStep.GetRicochetPoint())	// if we're a RicochetPoint
-		{
-			if (Point.Equals(RicochetPoint->Point, EqualsTolerance))
-			{
-				break;
-			}
-		}
-		else
-		{
-			UE_LOG(LogGameplayAbilityTargetActor, Warning, TEXT("%s() A BulletStep had no RicochetPoint or TraceSegment.... Something's wrong"), ANSI_TO_TCHAR(__FUNCTION__));
-		}
-	}
-	
-
-	// Nerf RetVal by distance traveled
-	const float NerfMultiplier = GetBulletSpeedFalloffNerf(BulletSpeedFalloff, DistanceTraveledToPoint);
-	RetVal *= NerfMultiplier;
-
-
-	return RetVal;
-}
-
-
-
-
-void AGATA_BulletTrace::NerfCurrentBulletSpeedByDistanceTraveled(const TArray<FHitResult>& HitResults)
-{
-	float DistanceTraveled = 0.f;
-	for (const FHitResult& Hit : HitResults)
-	{
-		DistanceTraveled += Hit.Distance; // TODO: will overlaps have duplicate distances and mess this up?
-	}
-
-	const float NerfMultiplier = GetBulletSpeedFalloffNerf(BulletSpeedFalloff, DistanceTraveled);
-	CurrentBulletSpeed *= NerfMultiplier;
-}
-
-float AGATA_BulletTrace::GetBulletSpeedFalloffNerf(const float BulletSpeedFalloffValue, const float TotalDistanceBulletTraveled)
-{
-	// BulletSpeedFalloffValue is the multiplier applied against the bullet's speed every 1000cm (32ft) or 10 blocks of our Proto material
-	return FMath::Pow(BulletSpeedFalloffValue, (TotalDistanceBulletTraveled / 1000));
+	Super::CalculateAimDirection(OutAimStart, OutAimDir); // call Super so we get the PC's view dir, and then we can add bullet spread ontop of that
+
+
+	//// Calculate new OutAimDir with random bullet spread offset if needed
+	//if (CurrentBulletSpread > SMALL_NUMBER)
+	//{
+	//	// Our injected random seed is only unique to each fire. We need a random seed that is also unique to each bullet in the fire, so we will do this by using t
+	//	const int32 FireAndBulletSpecificNetSafeRandomSeed = FireSpecificNetSafeRandomSeed - ((CurrentScanIndex + 2) * FireSpecificNetSafeRandomSeed);	// Here, the 'number' multiplied to t makes the random pattern noticable after firing 'number' of times. I use the prediction key as that 'number' which i think eliminates the threshold for noticeability entirely. - its confusing to think about but i think it works
+	//	FMath::RandInit(FireAndBulletSpecificNetSafeRandomSeed);
+	//	const FRandomStream RandomStream = FRandomStream(FMath::Rand());
+
+	//	// Get and apply random offset to OutAimDir using randomStream
+	//	const float ConeHalfAngleRadius = FMath::DegreesToRadians(CurrentBulletSpread * 0.5f);
+	//	OutAimDir = RandomStream.VRandCone(OutAimDir, ConeHalfAngleRadius);
+	//}
 }

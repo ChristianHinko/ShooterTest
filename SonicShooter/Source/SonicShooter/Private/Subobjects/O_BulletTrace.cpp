@@ -159,6 +159,7 @@ void UO_BulletTrace::ScanWithLineTracesUsingSpeed(FScanResult& OutScanResult, co
 			FBulletHit& AddedBulletHit = OutScanResult.BulletHits.Add_GetRef(TraceHitResults[i]);
 			AddedBulletHit.RicochetNumber = RicochetNumber;
 			AddedBulletHit.bIsRicochet = ShouldRicochetOffOf(AddedBulletHit);
+			AddedBulletHit.Speed = BulletSpeed;
 
 			// Handle ricochet hit
 			if (AddedBulletHit.bIsRicochet)
@@ -237,7 +238,6 @@ void UO_BulletTrace::ScanWithLineTracesUsingSpeed(FScanResult& OutScanResult, co
 					return;
 				}
 			}
-			AddedBulletHit.Speed = BulletSpeed;
 
 			// Check if we ran out of penetrations
 			if (AddedBulletHit.bBlockingHit)

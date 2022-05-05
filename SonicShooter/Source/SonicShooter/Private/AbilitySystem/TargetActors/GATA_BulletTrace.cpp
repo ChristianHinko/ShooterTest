@@ -47,22 +47,51 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 	// Perform scans
 	for (CurrentScanIndex = 0; CurrentScanIndex < NumOfScans; ++CurrentScanIndex)
 	{
-		BulletTraceSubobject->MaxPenetrations = MaxPenetrations;
-		BulletTraceSubobject->MaxRicochets = MaxRicochets;
-		BulletTraceSubobject->InitialBulletSpeed = InitialBulletSpeed;
-		BulletTraceSubobject->SpeedNerfImunity = 1.f;
+		const float RangeFalloffNerf = .02f;
 
 		// Perform line trace
 		FCollisionQueryParams CollisionQueryParams;
+		CollisionQueryParams.bReturnPhysicalMaterial = true; // this is needed for our bullet speed nerf calculations and determining whether to ricochet
 		CollisionQueryParams.AddIgnoredActor(SourceActor);
 		//CollisionQueryParams.bTraceComplex = true;
 		FScanResult ScanResult;
-		BulletTraceSubobject->ScanWithLineTracesUsingSpeed(ScanResult, StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, SourceActor->GetWorld(), TraceChannel, CollisionQueryParams);
+		BulletTraceSubobject->ScanWithLineTracesUsingSpeed(ScanResult, StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, SourceActor->GetWorld(), TraceChannel, CollisionQueryParams, MaxPenetrations, MaxRicochets, InitialBulletSpeed, RangeFalloffNerf,
+			[](const FHitResult& Hit) -> bool // ShouldRicochetOffOf()
+			{
+				const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(Hit.PhysMaterial);
+				if (IsValid(ShooterPhysMat))
+				{
+					return ShooterPhysMat->bRicochets;
+				}
+
+				return false;
+			},
+			[](const FHitResult& Hit) -> float // GetPenetrationSpeedNerf()
+			{
+				const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(Hit.PhysMaterial);
+				if (IsValid(ShooterPhysMat))
+				{
+					return ShooterPhysMat->PenetrationSpeedNerf;
+				}
+
+				return 0.f;
+			},
+			[](const FHitResult& Hit) -> float // GetRicochetSpeedNerf()
+			{
+				const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(Hit.PhysMaterial);
+				if (IsValid(ShooterPhysMat))
+				{
+					return ShooterPhysMat->RicochetSpeedNerf;
+				}
+
+				return 0.f;
+			}
+		);
+
 		if (bDebug)
 		{
 			ScanResult.DebugScan(SourceActor->GetWorld());
 		}
-
 		ScanResults.Add(ScanResult);
 	}
 	CurrentScanIndex = INDEX_NONE;

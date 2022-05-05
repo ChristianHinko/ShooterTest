@@ -4,94 +4,22 @@
 #include "Subobjects/O_BulletTrace.h"
 
 #include "BlueprintFunctionLibraries/BFL_CollisionQueryHelpers.h"
-#include "PhysicalMaterial/PM_Shooter.h"
 
 #include "DrawDebugHelpers.h"
 
 
 
 const float UO_BulletTrace::TraceStartWallAvoidancePadding = .01f;
-const float UO_BulletTrace::RangeFalloffNerf = .02f;
 
-UO_BulletTrace::UO_BulletTrace(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
-	, MaxPenetrations(0)
-	, MaxRicochets(0)
-{
-
-}
-
-void UO_BulletTrace::ScanWithLineTraces(TArray<FHitResult>& OutHitResults, const FVector& InScanStart, const FVector& InScanDirection, const float InDistanceCap, const UWorld* InWorld, const ECollisionChannel InTraceChannel, const FCollisionQueryParams& InCollisionQueryParams, const TFunctionRef<bool(const FHitResult&)>& ShouldRicochetOffOf)
-{
-	FVector TraceStart = InScanStart;
-	FVector TraceDirection = InScanDirection;
-	float RemainingScanDistance = InDistanceCap;
-
-	// The first iteration of this loop is the initial trace and the rest of the iterations are ricochet traces
-	int32 PenetrationNumber = 0;
-	for (int32 RicochetNumber = 0; (RicochetNumber <= MaxRicochets || MaxRicochets == -1); ++RicochetNumber)
-	{
-		TArray<FExitAwareHitResult> TraceHitResults;
-		const FVector TraceEnd = TraceStart + (TraceDirection * RemainingScanDistance);
-
-		// Penetration line trace that stops at a user defined ricochetable surface
-		const bool bHitRicochetableSurface = UBFL_CollisionQueryHelpers::ExitAwareLineTraceMultiByChannelWithPenetrations(InWorld, TraceHitResults, TraceStart, TraceEnd, InTraceChannel, InCollisionQueryParams, ShouldRicochetOffOf, true);
-
-		// Add found hit results to the return value
-		OutHitResults.Reserve(OutHitResults.Num() + TraceHitResults.Num()); // assume that we will add all of the hits but if we run out of speed we will not need this extra space
-		for (const FExitAwareHitResult& Hit : TraceHitResults)
-		{
-			OutHitResults.Add(Hit);
-
-			if (ShouldRicochetOffOf(Hit))
-			{
-				// We are a ricochet hit so make us the last hit (forget about the rest of the hits)
-				break;
-			}
-
-			// Check if we ran out of penetrations
-			if (Hit.bBlockingHit)
-			{
-				if (Hit.bIsExitHit == false) // if we are penetrating through an entrance
-				{
-					++PenetrationNumber;
-					if (PenetrationNumber > MaxPenetrations && MaxPenetrations != -1)
-					{
-						return;
-					}
-				}
-			}
-		}
-
-		if (!bHitRicochetableSurface)
-		{
-			// Nothing to ricochet off of
-			break;
-		}
-
-		// SETUP FOR OUR NEXT TRACE
-
-		// Take away the distance traveled of this trace from our RemainingScanDistance
-		RemainingScanDistance -= OutHitResults.Last().Distance; // since we stopped at a ricochet, the last hit is our ricochet hit
-		if (RemainingScanDistance <= 0.f)
-		{
-			break;
-		}
-
-		// Reflect our TraceDirection off of the ricochetable surface and calculate TraceStart for next ricochet trace
-		TraceDirection = TraceDirection.MirrorByVector(OutHitResults.Last().ImpactNormal);
-		TraceStart = OutHitResults.Last().Location + (TraceDirection * TraceStartWallAvoidancePadding);
-	}
-}
-
-void UO_BulletTrace::ScanWithLineTracesUsingSpeed(FScanResult& OutScanResult, const FVector& InScanStart, const FVector& InScanDirection, const float InDistanceCap, const UWorld* InWorld, const ECollisionChannel InTraceChannel, FCollisionQueryParams CollisionQueryParams)
+void UO_BulletTrace::ScanWithLineTracesUsingSpeed(FScanResult& OutScanResult, const FVector& InScanStart, const FVector& InScanDirection, const float InDistanceCap, const UWorld* InWorld, const ECollisionChannel InTraceChannel, FCollisionQueryParams CollisionQueryParams, const int32 InMaxPenetrations, const int32 InMaxRicochets, const float InInitialBulletSpeed, const float InRangeFalloffNerf,
+	const TFunctionRef<bool(const FHitResult&)>& ShouldRicochetOffOf,
+	const TFunctionRef<float(const FHitResult&)>& GetPenetrationSpeedNerf,
+	const TFunctionRef<float(const FHitResult&)>& GetRicochetSpeedNerf)
 {
 	OutScanResult.BulletStart = InScanStart;
 
-	CollisionQueryParams.bReturnPhysicalMaterial = true; // this is required for bullet speed reduction calculations and determining whether to ricochet
-
-	float BulletSpeed = InitialBulletSpeed;
-	TArray<const UPhysicalMaterial*> PhysMatStack;
+	float BulletSpeed = InInitialBulletSpeed;
+	TArray<float> PenetrationNerfStack;
 
 	FVector TraceStart = InScanStart;
 	FVector TraceDirection = InScanDirection;
@@ -99,7 +27,7 @@ void UO_BulletTrace::ScanWithLineTracesUsingSpeed(FScanResult& OutScanResult, co
 
 	// The first iteration of this loop is the initial trace and the rest of the iterations are ricochet traces
 	int32 PenetrationNumber = 0;
-	for (int32 RicochetNumber = 0; (RicochetNumber <= MaxRicochets || MaxRicochets == -1); ++RicochetNumber)
+	for (int32 RicochetNumber = 0; (RicochetNumber <= InMaxRicochets || InMaxRicochets == -1); ++RicochetNumber)
 	{
 		TArray<FExitAwareHitResult> TraceHitResults;
 		const FVector TraceEnd = TraceStart + (TraceDirection * RemainingScanDistance);
@@ -121,17 +49,13 @@ void UO_BulletTrace::ScanWithLineTracesUsingSpeed(FScanResult& OutScanResult, co
 			}
 
 			// Range falloff nerf
-			float SpeedToTakeAwayPerCm = RangeFalloffNerf;
+			float SpeedToTakeAwayPerCm = InRangeFalloffNerf;
 
-			// Accumulate all of the speed nerfs from the PhysMatStack
-			// This can only have items at this point for ricochet traces because this system allows ricochets traces to start inside of Phys Mats
-			for (const UPhysicalMaterial* PhysMat : PhysMatStack)
+			// Accumulate all of the speed nerfs from the PenetrationNerfStack
+			// This can only have items at this point for ricochet traces because this system allows ricochet traces to start inside of penetrations
+			for (const float& PenetrationNerf : PenetrationNerfStack)
 			{
-				const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(PhysMat);
-				if (IsValid(ShooterPhysMat))
-				{
-					SpeedToTakeAwayPerCm += ShooterPhysMat->PenetrationSpeedNerf;
-				}
+				SpeedToTakeAwayPerCm += PenetrationNerf;
 			}
 
 			// Apply the speed nerf
@@ -150,7 +74,7 @@ void UO_BulletTrace::ScanWithLineTracesUsingSpeed(FScanResult& OutScanResult, co
 		{
 			if (TraceHitResults[i].bStartPenetrating)
 			{
-				// Initial overlaps would mess up our PhysMat stack so skip it
+				// Initial overlaps would mess up our PenetrationNerfStack stack so skip it
 				// Btw this is only a thing for non-bTraceComplex queries
 				continue;
 			}
@@ -165,40 +89,34 @@ void UO_BulletTrace::ScanWithLineTracesUsingSpeed(FScanResult& OutScanResult, co
 			if (AddedBulletHit.bIsRicochet)
 			{
 				// Apply speed nerf and see if we stopped
-				const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(AddedBulletHit.PhysMaterial);
-				if (IsValid(ShooterPhysMat))
+				BulletSpeed -= GetRicochetSpeedNerf(AddedBulletHit);
+				if (BulletSpeed <= 0.f)
 				{
-					float SpeedToTakeAway = ShooterPhysMat->RicochetSpeedNerf;
-
-					BulletSpeed -= SpeedToTakeAway;
-					if (BulletSpeed <= 0.f)
-					{
-						// Ran out of speed. Get the point stopped at
-						OutScanResult.BulletEnd = AddedBulletHit.Location;
-						return;
-					}
+					// Ran out of speed. Get the point stopped at
+					OutScanResult.BulletEnd = AddedBulletHit.Location;
+					return;
 				}
 
 				// We are a ricochet hit so make us the last hit (forget about the rest of the hits)
 				break;
 			}
 
-			// Update our PhysMat stack with this hit's Physical Materials
+			// Update our PenetrationNerfStack stack with this hit
 			if (AddedBulletHit.bIsExitHit == false)
 			{
-				PhysMatStack.Push(AddedBulletHit.PhysMaterial.Get());
+				PenetrationNerfStack.Push(GetPenetrationSpeedNerf(AddedBulletHit));
 			}
 			else
 			{
-				const int32 IndexOfPhysMatThatWeAreExiting = PhysMatStack.FindLast(AddedBulletHit.PhysMaterial.Get());
+				const int32 IndexOfNerfThatWeAreExiting = PenetrationNerfStack.FindLast(GetPenetrationSpeedNerf(AddedBulletHit));
 
-				if (IndexOfPhysMatThatWeAreExiting != INDEX_NONE)
+				if (IndexOfNerfThatWeAreExiting != INDEX_NONE)
 				{
-					PhysMatStack.RemoveAt(IndexOfPhysMatThatWeAreExiting);
+					PenetrationNerfStack.RemoveAt(IndexOfNerfThatWeAreExiting);
 				}
 				else
 				{
-					UE_LOG(LogBulletTrace, Error, TEXT("%s() Bullet exited a Physical Material that was never entered. This means that the bullet started from within a collider. We can't account for that object's phys mat which means our speed values for the bullet scan will be wrong. Make sure to not allow player to start shot from within a colider. Hit Actor: [%s], owner Actor: [%s]"), ANSI_TO_TCHAR(__FUNCTION__), GetData(TraceHitResults[i].GetActor()->GetName()), GetData(GetNameSafe(GetTypedOuter<AActor>())));
+					UE_LOG(LogBulletTrace, Error, TEXT("%s() Bullet exited a penetration nerf that was never entered. This means that the bullet started from within a collider. We can't account for that object's penetration nerf which means our speed values for the bullet scan will be wrong. Make sure to not allow player to start shot from within a colider. Hit Actor: [%s]. ALSO this could've been the callers fault by not having consistent speed nerfs for entrances and exits"), ANSI_TO_TCHAR(__FUNCTION__), GetData(AddedBulletHit.GetActor()->GetName()));
 				}
 			}
 
@@ -217,16 +135,12 @@ void UO_BulletTrace::ScanWithLineTracesUsingSpeed(FScanResult& OutScanResult, co
 				}
 
 				// Range falloff nerf
-				float SpeedToTakeAwayPerCm = RangeFalloffNerf;
+				float SpeedToTakeAwayPerCm = InRangeFalloffNerf;
 
-				// Accumulate all of the speed nerfs from the PhysMatStack
-				for (const UPhysicalMaterial* PhysMat : PhysMatStack)
+				// Accumulate all of the speed nerfs from the PenetrationNerfStack
+				for (const float& PenetrationNerf : PenetrationNerfStack)
 				{
-					const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(PhysMat);
-					if (IsValid(ShooterPhysMat))
-					{
-						SpeedToTakeAwayPerCm += ShooterPhysMat->PenetrationSpeedNerf;
-					}
+					SpeedToTakeAwayPerCm += PenetrationNerf;
 				}
 
 				// Apply the speed nerf
@@ -245,7 +159,7 @@ void UO_BulletTrace::ScanWithLineTracesUsingSpeed(FScanResult& OutScanResult, co
 				if (AddedBulletHit.bIsExitHit == false) // if we are penetrating through an entrance
 				{
 					++PenetrationNumber;
-					if (PenetrationNumber > MaxPenetrations && MaxPenetrations != -1)
+					if (PenetrationNumber > InMaxPenetrations && InMaxPenetrations != -1)
 					{
 						return;
 					}
@@ -272,20 +186,6 @@ void UO_BulletTrace::ScanWithLineTracesUsingSpeed(FScanResult& OutScanResult, co
 		TraceDirection = TraceDirection.MirrorByVector(OutScanResult.BulletHits.Last().ImpactNormal);
 		TraceStart = OutScanResult.BulletHits.Last().Location + (TraceDirection * TraceStartWallAvoidancePadding);
 	}
-}
-
-bool UO_BulletTrace::ShouldRicochetOffOf(const FHitResult& HitResult)
-{
-	if (const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(HitResult.PhysMaterial))
-	{
-		// See if we ricocheted
-		if (ShooterPhysMat->bRicochets)
-		{
-			return true;
-		}
-	}
-
-	return false;
 }
 
 float UO_BulletTrace::NerfSpeedPerCm(float& InOutSpeed, const float InDistanceToTravel, const float InNerfPerCm)

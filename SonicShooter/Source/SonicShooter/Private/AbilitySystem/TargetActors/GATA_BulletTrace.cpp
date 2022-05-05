@@ -180,16 +180,16 @@ void AGATA_BulletTrace::CalculateAimDirection(FVector& OutAimStart, FVector& Out
 	Super::CalculateAimDirection(OutAimStart, OutAimDir); // call Super so we get the PC's view dir, and then we can add bullet spread ontop of that
 
 
-	//// Calculate new OutAimDir with random bullet spread offset if needed
-	//if (CurrentBulletSpread > SMALL_NUMBER)
-	//{
-	//	// Our injected random seed is only unique to each fire. We need a random seed that is also unique to each bullet in the fire, so we will do this by using t
-	//	const int32 FireAndBulletSpecificNetSafeRandomSeed = FireSpecificNetSafeRandomSeed - ((CurrentScanIndex + 2) * FireSpecificNetSafeRandomSeed);	// Here, the 'number' multiplied to t makes the random pattern noticable after firing 'number' of times. I use the prediction key as that 'number' which i think eliminates the threshold for noticeability entirely. - its confusing to think about but i think it works
-	//	FMath::RandInit(FireAndBulletSpecificNetSafeRandomSeed);
-	//	const FRandomStream RandomStream = FRandomStream(FMath::Rand());
+	// Calculate new OutAimDir with random bullet spread offset if needed
+	if (CurrentBulletSpread > SMALL_NUMBER)
+	{
+		// Our injected random seed is only unique to each fire. We need a random seed that is also unique to each bullet in the fire, so we will do this by using t
+		const int32 FireAndBulletSpecificNetSafeRandomSeed = FireSpecificNetSafeRandomSeed - ((CurrentScanIndex + 2) * FireSpecificNetSafeRandomSeed);	// Here, the 'number' multiplied to t makes the random pattern noticable after firing 'number' of times. I use the prediction key as that 'number' which i think eliminates the threshold for noticeability entirely. - its confusing to think about but i think it works
+		FMath::RandInit(FireAndBulletSpecificNetSafeRandomSeed);
+		const FRandomStream RandomStream = FRandomStream(FMath::Rand());
 
-	//	// Get and apply random offset to OutAimDir using randomStream
-	//	const float ConeHalfAngleRadius = FMath::DegreesToRadians(CurrentBulletSpread * 0.5f);
-	//	OutAimDir = RandomStream.VRandCone(OutAimDir, ConeHalfAngleRadius);
-	//}
+		// Get and apply random offset to OutAimDir using randomStream
+		const float ConeHalfAngleRadius = FMath::DegreesToRadians(CurrentBulletSpread * 0.5f);
+		OutAimDir = RandomStream.VRandCone(OutAimDir, ConeHalfAngleRadius);
+	}
 }

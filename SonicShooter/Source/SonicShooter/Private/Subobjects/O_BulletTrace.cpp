@@ -35,7 +35,8 @@ void UO_BulletTrace::ScanWithLineTracesUsingSpeed(FScanResult& OutScanResult, co
 		// Penetration line trace that stops at a user defined ricochetable surface
 		const bool bHitRicochetableSurface = UBFL_CollisionQueryHelpers::ExitAwareLineTraceMultiByChannelWithPenetrations(InWorld, TraceHitResults, TraceStart, TraceEnd, InTraceChannel, CollisionQueryParams, ShouldRicochetOffOf, true);
 
-		// Apply speed nerfs and see if we stopped (from TraceStart to the first hit)
+		// If the caller is using speed, apply speed nerfs and see if we stopped (from TraceStart to the first hit)
+		if (InInitialBulletSpeed != -1)
 		{
 			float DistanceToFirstHit;
 			if (TraceHitResults.Num() > 0)
@@ -69,7 +70,7 @@ void UO_BulletTrace::ScanWithLineTracesUsingSpeed(FScanResult& OutScanResult, co
 		}
 
 		// Add found hit results to the return value
-		OutScanResult.BulletHits.Reserve(OutScanResult.BulletHits.Num() + TraceHitResults.Num()); // assume that we will add all of the hits but if we run out of speed we will not need this extra space
+		OutScanResult.BulletHits.Reserve(OutScanResult.BulletHits.Num() + TraceHitResults.Num()); // assume that we will add all of the hits. But if caller is using speed, there may end up being reserved space that goes unused if we run out of speed
 		for (int32 i = 0; i < TraceHitResults.Num(); ++i)
 		{
 			if (TraceHitResults[i].bStartPenetrating)
@@ -88,39 +89,47 @@ void UO_BulletTrace::ScanWithLineTracesUsingSpeed(FScanResult& OutScanResult, co
 			// Handle ricochet hit
 			if (AddedBulletHit.bIsRicochet)
 			{
-				// Apply speed nerf and see if we stopped
-				BulletSpeed -= GetRicochetSpeedNerf(AddedBulletHit);
-				if (BulletSpeed <= 0.f)
+				// If the caller is using speed
+				if (InInitialBulletSpeed != -1)
 				{
-					// Ran out of speed. Get the point stopped at
-					OutScanResult.BulletEnd = AddedBulletHit.Location;
-					return;
+					// Apply speed nerf and see if we stopped
+					BulletSpeed -= GetRicochetSpeedNerf(AddedBulletHit);
+					if (BulletSpeed <= 0.f)
+					{
+						// Ran out of speed. Get the point stopped at
+						OutScanResult.BulletEnd = AddedBulletHit.Location;
+						return;
+					}
 				}
 
 				// We are a ricochet hit so make us the last hit (forget about the rest of the hits)
 				break;
 			}
 
-			// Update our PenetrationNerfStack stack with this hit
-			if (AddedBulletHit.bIsExitHit == false)
+			// If caller is using speed, update our PenetrationNerfStack with this hit
+			if (InInitialBulletSpeed != -1)
 			{
-				PenetrationNerfStack.Push(GetPenetrationSpeedNerf(AddedBulletHit));
-			}
-			else
-			{
-				const int32 IndexOfNerfThatWeAreExiting = PenetrationNerfStack.FindLast(GetPenetrationSpeedNerf(AddedBulletHit));
-
-				if (IndexOfNerfThatWeAreExiting != INDEX_NONE)
+				if (AddedBulletHit.bIsExitHit == false)
 				{
-					PenetrationNerfStack.RemoveAt(IndexOfNerfThatWeAreExiting);
+					PenetrationNerfStack.Push(GetPenetrationSpeedNerf(AddedBulletHit));
 				}
 				else
 				{
-					UE_LOG(LogBulletTrace, Error, TEXT("%s() Bullet exited a penetration nerf that was never entered. This means that the bullet started from within a collider. We can't account for that object's penetration nerf which means our speed values for the bullet scan will be wrong. Make sure to not allow player to start shot from within a colider. Hit Actor: [%s]. ALSO this could've been the callers fault by not having consistent speed nerfs for entrances and exits"), ANSI_TO_TCHAR(__FUNCTION__), GetData(AddedBulletHit.GetActor()->GetName()));
+					const int32 IndexOfNerfThatWeAreExiting = PenetrationNerfStack.FindLast(GetPenetrationSpeedNerf(AddedBulletHit));
+
+					if (IndexOfNerfThatWeAreExiting != INDEX_NONE)
+					{
+						PenetrationNerfStack.RemoveAt(IndexOfNerfThatWeAreExiting);
+					}
+					else
+					{
+						UE_LOG(LogBulletTrace, Error, TEXT("%s() Bullet exited a penetration nerf that was never entered. This means that the bullet started from within a collider. We can't account for that object's penetration nerf which means our speed values for the bullet scan will be wrong. Make sure to not allow player to start shot from within a colider. Hit Actor: [%s]. ALSO this could've been the callers fault by not having consistent speed nerfs for entrances and exits"), ANSI_TO_TCHAR(__FUNCTION__), GetData(AddedBulletHit.GetActor()->GetName()));
+					}
 				}
 			}
 
-			// Apply speed nerfs and see if we stopped (from this hit to the next hit)
+			// If the caller is using speed, apply speed nerfs and see if we stopped (from this hit to the next hit)
+			if (InInitialBulletSpeed != -1)
 			{
 				float DistanceToNextHit;
 				if (TraceHitResults.IsValidIndex(i + 1))

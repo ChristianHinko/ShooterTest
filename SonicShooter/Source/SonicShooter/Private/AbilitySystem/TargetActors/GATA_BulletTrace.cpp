@@ -3,7 +3,7 @@
 
 #include "AbilitySystem/TargetActors/GATA_BulletTrace.h"
 
-#include "Subobjects/O_BulletTrace.h"
+#include "BlueprintFunctionLibraries/BFL_ShooterHelpers.h"
 #include "Utilities/SSCollisionChannels.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTargetTypes.h"
 #include "PhysicalMaterial/PM_Shooter.h"
@@ -42,7 +42,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 		CollisionQueryParams.AddIgnoredActor(SourceActor);
 		//CollisionQueryParams.bTraceComplex = true;
 		FScanResult ScanResult;
-		UO_BulletTrace::ScanWithLineTracesUsingSpeed(ScanResult, StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, SourceActor->GetWorld(), TraceChannel, CollisionQueryParams, MaxPenetrations, MaxRicochets, InitialBulletSpeed, RangeFalloffNerf,
+		UBFL_ShooterHelpers::ScanWithLineTracesUsingSpeed(ScanResult, StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, SourceActor->GetWorld(), TraceChannel, CollisionQueryParams, MaxPenetrations, MaxRicochets, InitialBulletSpeed, RangeFalloffNerf,
 			[](const FHitResult& Hit) -> bool // ShouldRicochetOffOf()
 			{
 				const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(Hit.PhysMaterial);

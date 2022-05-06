@@ -430,7 +430,7 @@ void UGA_FireGun::Shoot()
 	BulletTraceTargetActor->MaxPenetrations = Penetrations;
 	BulletTraceTargetActor->MaxRicochets = Ricochets;
 	BulletTraceTargetActor->InitialBulletSpeed = InitialBulletSpeed;
-	BulletTraceTargetActor->BulletSpeedFalloff = BulletSpeedFalloff;
+	BulletTraceTargetActor->RangeFalloffNerf = BulletSpeedFalloff;    // TODO: We're not sure we want this value to be gun specific. We want it to be more of a static value for all guns (maybe define it statically in the bullet trace file)
 
 
 
@@ -667,6 +667,6 @@ void UGA_FireGun::OnBulletSpeedFalloffChange(const FOnAttributeChangeData& Data)
 	if (IsValid(BulletTraceTargetActor))
 	{
 		// Update GATA_BulletTrace
-		BulletTraceTargetActor->BulletSpeedFalloff = BulletSpeedFalloff;
+		BulletTraceTargetActor->RangeFalloffNerf = BulletSpeedFalloff;
 	}
 }

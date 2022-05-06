@@ -4,17 +4,9 @@
 #include "AbilitySystem/TargetActors/GATA_BulletTrace.h"
 
 #include "Subobjects/O_BulletTrace.h"
-
-#include "Abilities/GameplayAbility.h"
 #include "Utilities/SSCollisionChannels.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTargetTypes.h"
-#include "AbilitySystemComponent.h"
-#include "BlueprintFunctionLibraries/BFL_CollisionQueryHelpers.h"
 #include "PhysicalMaterial/PM_Shooter.h"
-#include "BlueprintFunctionLibraries/BFL_HitResultHelpers.h"
-#include "BlueprintFunctionLibraries/BFL_MathHelpers.h"
-
-#include "Kismet/KismetSystemLibrary.h"
 
 
 
@@ -25,15 +17,12 @@ AGATA_BulletTrace::AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer
 
 	CurrentScanIndex = INDEX_NONE;
 	bDebug = true;
-
-	BulletTraceSubobject = CreateDefaultSubobject<UO_BulletTrace>(TEXT("BulletTraceSubobject"));
 }
 
 
 void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 {
 	Super::ConfirmTargetingAndContinue();
-
 
 	// Our Target Data to broadcast
 	FGameplayAbilityTargetDataHandle TargetDataHandle;
@@ -47,15 +36,13 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 	// Perform scans
 	for (CurrentScanIndex = 0; CurrentScanIndex < NumOfScans; ++CurrentScanIndex)
 	{
-		const float RangeFalloffNerf = .02f;
-
 		// Perform line trace
 		FCollisionQueryParams CollisionQueryParams;
 		CollisionQueryParams.bReturnPhysicalMaterial = true; // this is needed for our bullet speed nerf calculations and determining whether to ricochet
 		CollisionQueryParams.AddIgnoredActor(SourceActor);
 		//CollisionQueryParams.bTraceComplex = true;
 		FScanResult ScanResult;
-		BulletTraceSubobject->ScanWithLineTracesUsingSpeed(ScanResult, StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, SourceActor->GetWorld(), TraceChannel, CollisionQueryParams, MaxPenetrations, MaxRicochets, InitialBulletSpeed, RangeFalloffNerf,
+		UO_BulletTrace::ScanWithLineTracesUsingSpeed(ScanResult, StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, SourceActor->GetWorld(), TraceChannel, CollisionQueryParams, MaxPenetrations, MaxRicochets, InitialBulletSpeed, RangeFalloffNerf,
 			[](const FHitResult& Hit) -> bool // ShouldRicochetOffOf()
 			{
 				const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(Hit.PhysMaterial);
@@ -97,10 +84,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 	CurrentScanIndex = INDEX_NONE;
 
 
-
-
-
-
+	// Create and add Target Data to our handle
 	for (int32 i = 0; i < ScanResults.Num(); ++i)
 	{
 		FGATD_BulletTraceTargetHit* ThisScanTargetData = new FGATD_BulletTraceTargetHit(); // these are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr)
@@ -159,20 +143,6 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 	}
 
 	TargetDataReadyDelegate.Broadcast(TargetDataHandle);
-}
-
-bool AGATA_BulletTrace::ShouldRicochetOffOf(const FHitResult& Hit) const
-{
-	const UPM_Shooter* ShooterPhysMat = Cast<const UPM_Shooter>(Hit.PhysMaterial.Get());
-	if (IsValid(ShooterPhysMat))
-	{
-		if (ShooterPhysMat->bRicochets)
-		{
-			return true;
-		}
-	}
-
-	return false;
 }
 
 void AGATA_BulletTrace::CalculateAimDirection(FVector& OutAimStart, FVector& OutAimDir) const

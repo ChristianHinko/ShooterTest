@@ -3,13 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "TargetActors/GATA_Trace.h"
-#include "BlueprintFunctionLibraries/BFL_CollisionQueryHelpers.h"
-#include "PhysicalMaterial/PM_Shooter.h"
+#include "AbilitySystem/TargetActor/ASSGameplayAbilityTargetActor.h"
 
 #include "GATA_BulletTrace.generated.h"
 
-class UO_BulletTrace;
 
 
 /**
@@ -20,11 +17,9 @@ class SONICSHOOTER_API AGATA_BulletTrace : public AASSGameplayAbilityTargetActor
 {
 	GENERATED_BODY()
 
-protected:
-	UPROPERTY()
-		UO_BulletTrace* BulletTraceSubobject;
-
 public:
+	AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer);
+
 	/** Number of scans to perform (a shotgun-like feature) */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Scan")
 		int32 NumOfScans;
@@ -34,30 +29,24 @@ public:
 	/** Max times to ricochet (assign a value of -1 for an unbound number of ricochets) */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Scan")
 		int32 MaxRicochets;
+	/** Bullet speed that is slowed down by ricochets and penetrations. Bullet stops when we run out of bullet speed. */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet")
+		float InitialBulletSpeed;
+	/** The falloff of range for this bullet per cm	*/
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet")
+		float RangeFalloffNerf;
 
-	AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer);
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet")
+		float CurrentBulletSpread;
 
 
 	virtual void ConfirmTargetingAndContinue() override;
-
-	/** Injected */
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet")
-		float InitialBulletSpeed;
-
-	/** Injected */
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet")
-		float BulletSpeedFalloff;
-
-	/** Injected */
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet")
-		float CurrentBulletSpread;
 
 	/** This is injected in every fire */
 	UPROPERTY(/*BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet"*/)
 		int16 FireSpecificNetSafeRandomSeed;
 
 protected:
-	bool ShouldRicochetOffOf(const FHitResult& Hit) const;
 	virtual void CalculateAimDirection(FVector& OutAimStart, FVector& OutAimDir) const override;
 
 

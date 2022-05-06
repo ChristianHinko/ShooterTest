@@ -9,6 +9,9 @@
 
 
 
+/**
+ * 
+ */
 struct FBulletHit : public FExitAwareHitResult
 {
 	FBulletHit(const FExitAwareHitResult& HitResult)
@@ -53,7 +56,7 @@ public:
 	 * @param InMaxPenetrations          Max times to penetrate through blocking hits (-1 is unlimited)
 	 * @param InMaxRicochets             Max times to ricochet off of owner defined ricochetable hits (-1 is unlimited)
 	 * @param InInitialBulletSpeed       Bullet speed that is slowed down by ricochets and penetrations. Bullet stops when we run out of bullet speed.
-	 * @param InRangeFalloffNerf         The falloff of range for this bullet PER CENTIMETER
+	 * @param InRangeFalloffNerf         The falloff of range for this bullet per cm
 	 * @param ShouldRicochetOffOf        TFunction where caller tells us if a hit result causes a ricochet
 	 * @param GetPenetrationSpeedNerf    TFunction for caller to specify the speed nerf PER CENTIMETER of a penetration hit
 	 * @param GetRicochetSpeedNerf       TFunction for caller to specify the speed nerf of a ricochet hit

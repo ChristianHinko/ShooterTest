@@ -63,8 +63,8 @@ public:
 	 */
 	static void ScanWithLineTracesUsingSpeed(FScanResult& OutScanResult, const FVector& InScanStart, const FVector& InScanDirection, const float InDistanceCap, const UWorld* InWorld, const ECollisionChannel InTraceChannel, FCollisionQueryParams CollisionQueryParams, const int32 InMaxPenetrations, const int32 InMaxRicochets, const float InInitialBulletSpeed, const float InRangeFalloffNerf,
 		const TFunctionRef<bool(const FHitResult&)>& ShouldRicochetOffOf,
-		const TFunctionRef<float(const FHitResult&)>& GetPenetrationSpeedNerf,
-		const TFunctionRef<float(const FHitResult&)>& GetRicochetSpeedNerf);
+		const TFunctionRef<float(const FHitResult&)>& GetPenetrationSpeedNerf = [](const FHitResult&) { return 0.f; },
+		const TFunctionRef<float(const FHitResult&)>& GetRicochetSpeedNerf = [](const FHitResult&) { return 0.f; });
 
 private:
 	/** Moves our traces' start points in the trace direction by a small amount to ensure we don't get stuck hitting the same object over and over again. This allows us to avoid ignoring the component so that we can hit the same component's geometry again */

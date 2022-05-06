@@ -106,59 +106,62 @@ void UO_BulletTrace::ScanWithLineTracesUsingSpeed(FScanResult& OutScanResult, co
 				break;
 			}
 
-			// If caller is using speed, update our PenetrationNerfStack with this hit
+			// If caller is using speed
 			if (InInitialBulletSpeed != -1)
 			{
-				if (AddedBulletHit.bIsExitHit == false)
+				// Update our PenetrationNerfStack with this hit
 				{
-					PenetrationNerfStack.Push(GetPenetrationSpeedNerf(AddedBulletHit));
-				}
-				else
-				{
-					const int32 IndexOfNerfThatWeAreExiting = PenetrationNerfStack.FindLast(GetPenetrationSpeedNerf(AddedBulletHit));
-
-					if (IndexOfNerfThatWeAreExiting != INDEX_NONE)
+					if (AddedBulletHit.bIsExitHit == false)
 					{
-						PenetrationNerfStack.RemoveAt(IndexOfNerfThatWeAreExiting);
+						PenetrationNerfStack.Push(GetPenetrationSpeedNerf(AddedBulletHit));
 					}
 					else
 					{
-						UE_LOG(LogBulletTrace, Error, TEXT("%s() Bullet exited a penetration nerf that was never entered. This means that the bullet started from within a collider. We can't account for that object's penetration nerf which means our speed values for the bullet scan will be wrong. Make sure to not allow player to start shot from within a colider. Hit Actor: [%s]. ALSO this could've been the callers fault by not having consistent speed nerfs for entrances and exits"), ANSI_TO_TCHAR(__FUNCTION__), GetData(AddedBulletHit.GetActor()->GetName()));
+						const int32 IndexOfNerfThatWeAreExiting = PenetrationNerfStack.FindLast(GetPenetrationSpeedNerf(AddedBulletHit));
+
+						if (IndexOfNerfThatWeAreExiting != INDEX_NONE)
+						{
+							PenetrationNerfStack.RemoveAt(IndexOfNerfThatWeAreExiting);
+						}
+						else
+						{
+							UE_LOG(LogBulletTrace, Error, TEXT("%s() Bullet exited a penetration nerf that was never entered. This means that the bullet started from within a collider. We can't account for that object's penetration nerf which means our speed values for the bullet scan will be wrong. Make sure to not allow player to start shot from within a colider. Hit Actor: [%s]. ALSO this could've been the callers fault by not having consistent speed nerfs for entrances and exits"), ANSI_TO_TCHAR(__FUNCTION__), GetData(AddedBulletHit.GetActor()->GetName()));
+						}
 					}
 				}
-			}
 
-			// If the caller is using speed, apply speed nerfs and see if we stopped (from this hit to the next hit)
-			if (InInitialBulletSpeed != -1)
-			{
-				float DistanceToNextHit;
-				if (TraceHitResults.IsValidIndex(i + 1))
-				{
-					// Get distance from this hit to the next hit
-					DistanceToNextHit = (TraceHitResults[i + 1].Distance - AddedBulletHit.Distance); // distance from [i] to [i + 1]
-				}
-				else
-				{
-					// Get distance from this hit to trace end
-					DistanceToNextHit = (RemainingScanDistance - AddedBulletHit.Distance);
-				}
 
-				// Range falloff nerf
-				float SpeedToTakeAwayPerCm = InRangeFalloffNerf;
-
-				// Accumulate all of the speed nerfs from the PenetrationNerfStack
-				for (const float& PenetrationNerf : PenetrationNerfStack)
+				// Apply speed nerfs and see if we stopped (from this hit to the next hit)
 				{
-					SpeedToTakeAwayPerCm += PenetrationNerf;
-				}
+					float DistanceToNextHit;
+					if (TraceHitResults.IsValidIndex(i + 1))
+					{
+						// Get distance from this hit to the next hit
+						DistanceToNextHit = (TraceHitResults[i + 1].Distance - AddedBulletHit.Distance); // distance from [i] to [i + 1]
+					}
+					else
+					{
+						// Get distance from this hit to trace end
+						DistanceToNextHit = (RemainingScanDistance - AddedBulletHit.Distance);
+					}
 
-				// Apply the speed nerf
-				const float TraveledDistance = NerfSpeedPerCm(BulletSpeed, DistanceToNextHit, SpeedToTakeAwayPerCm);
-				if (BulletSpeed <= 0.f)
-				{
-					// Ran out of speed. Get the point stopped at
-					OutScanResult.BulletEnd = AddedBulletHit.Location + (TraveledDistance * TraceDirection);
-					return;
+					// Range falloff nerf
+					float SpeedToTakeAwayPerCm = InRangeFalloffNerf;
+
+					// Accumulate all of the speed nerfs from the PenetrationNerfStack
+					for (const float& PenetrationNerf : PenetrationNerfStack)
+					{
+						SpeedToTakeAwayPerCm += PenetrationNerf;
+					}
+
+					// Apply the speed nerf
+					const float TraveledDistance = NerfSpeedPerCm(BulletSpeed, DistanceToNextHit, SpeedToTakeAwayPerCm);
+					if (BulletSpeed <= 0.f)
+					{
+						// Ran out of speed. Get the point stopped at
+						OutScanResult.BulletEnd = AddedBulletHit.Location + (TraveledDistance * TraceDirection);
+						return;
+					}
 				}
 			}
 

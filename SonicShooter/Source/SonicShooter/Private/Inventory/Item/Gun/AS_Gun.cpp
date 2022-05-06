@@ -51,7 +51,7 @@ UAS_Gun::UAS_Gun()
 	, Penetrations(-1)
 	, Ricochets(-1)
 	, InitialBulletSpeed(20.f)
-	, BulletSpeedFalloff(.9f)
+	, BulletSpeedFalloff(0.02f)
 
 	, bFullAuto(0)
 	, TimeBetweenShots(0.1f)

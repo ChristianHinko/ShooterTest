@@ -22,9 +22,7 @@ public:
 	UAS_Gun();
 
 
-	// Attributes:
-
-#pragma region BulletSpread
+	//BEGIN  BulletSpread
 	/**
 	 * The minimum bullet spread while staying still in degrees (90 degs would be a right-angled cone)
 	 */
@@ -61,7 +59,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadDecSpeed, Category = "Attributes")
 		FGameplayAttributeData BulletSpreadDecSpeed;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, BulletSpreadDecSpeed)
-#pragma endregion
+	//END BulletSpread
 
 	
 
@@ -105,20 +103,18 @@ public:
 	ATTRIBUTE_ACCESSORS(UAS_Gun, Ricochets)
 
 	/**
-	 * The initial speed of the bullet (bullet speed strongly effects bullet damage and how far it travels)
+	 * The initial speed of the bullet (bullet speed directly affects bullet damage and how far it travels)
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_InitialBulletSpeed, Category = "Attributes")
 		FGameplayAttributeData InitialBulletSpeed;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, InitialBulletSpeed)
 
 	/**
-	 * Multiplier applied against the bullet's speed every 1000cm (32ft) or 10 blocks of our Proto material. Decreases bullet's speed as it travels through the air. (bullet speed strongly effects bullet damage and how far it travels)
+	 * Speed nerf on the bullet every centimeter. Decreases bullet's speed as it travels through the air. (bullet speed directly affects bullet damage and how far it travels)
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpeedFalloff, Category = "Attributes")
 		FGameplayAttributeData BulletSpeedFalloff;
 	ATTRIBUTE_ACCESSORS(UAS_Gun, BulletSpeedFalloff)
-
-
 
 
 

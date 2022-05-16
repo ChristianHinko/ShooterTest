@@ -42,17 +42,8 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 		CollisionQueryParams.AddIgnoredActor(SourceActor);
 		//CollisionQueryParams.bTraceComplex = true;
 		FScanResult ScanResult;
-		UBFL_ShooterHelpers::ScanWithLineTracesUsingSpeed(ScanResult, StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, SourceActor->GetWorld(), TraceChannel, CollisionQueryParams, MaxPenetrations, MaxRicochets, InitialBulletSpeed, RangeFalloffNerf,
-			[](const FHitResult& Hit) -> bool // ShouldRicochetOffOf()
-			{
-				const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(Hit.PhysMaterial);
-				if (IsValid(ShooterPhysMat))
-				{
-					return ShooterPhysMat->bRicochets;
-				}
-
-				return false;
-			},
+		float BulletSpeed = InitialBulletSpeed;
+		UBFL_ShooterHelpers::PenetrationSceneCastWithExitHitsUsingSpeed(BulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), ScanResult, StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, FQuat::Identity, TraceChannel, FCollisionShape(), CollisionQueryParams, MaxRicochets,
 			[](const FHitResult& Hit) -> float // GetPenetrationSpeedNerf()
 			{
 				const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(Hit.PhysMaterial);
@@ -72,6 +63,16 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 				}
 
 				return 0.f;
+			},
+			[](const FHitResult& Hit) -> bool // IsHitRicochetable()
+			{
+				const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(Hit.PhysMaterial);
+				if (IsValid(ShooterPhysMat))
+				{
+					return ShooterPhysMat->bRicochets;
+				}
+
+				return false;
 			}
 		);
 

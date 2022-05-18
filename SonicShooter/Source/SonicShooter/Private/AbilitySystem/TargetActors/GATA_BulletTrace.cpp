@@ -28,10 +28,10 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 	FGameplayAbilityTargetDataHandle TargetDataHandle;
 
 	// Perform our scans
-	TArray<FScanResult> ScanResults;
+	TArray<FShootResult> ShootResults;
 
 	// Reserve the predetermined number of scans
-	ScanResults.Reserve(NumOfScans);
+	ShootResults.Reserve(NumOfScans);
 
 	// Perform scans
 	for (CurrentScanIndex = 0; CurrentScanIndex < NumOfScans; ++CurrentScanIndex)
@@ -41,9 +41,9 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 		CollisionQueryParams.bReturnPhysicalMaterial = true; // this is needed for our bullet speed nerf calculations and determining whether to ricochet
 		CollisionQueryParams.AddIgnoredActor(SourceActor);
 		//CollisionQueryParams.bTraceComplex = true;
-		FScanResult ScanResult;
+		FShootResult ShootResult;
 		float BulletSpeed = InitialBulletSpeed;
-		UBFL_ShooterHelpers::RicochetingPenetrationSceneCastWithExitHitsUsingSpeed(BulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), ScanResult, StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, FQuat::Identity, TraceChannel, FCollisionShape(), CollisionQueryParams, MaxRicochets,
+		UBFL_ShooterHelpers::RicochetingPenetrationSceneCastWithExitHitsUsingSpeed(BulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), ShootResult, StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, FQuat::Identity, TraceChannel, FCollisionShape(), CollisionQueryParams, MaxRicochets,
 			[](const FHitResult& Hit) -> float // GetPenetrationSpeedNerf()
 			{
 				const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(Hit.PhysMaterial);
@@ -78,53 +78,53 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 		if (bDebug)
 		{
-			ScanResult.DebugScan(SourceActor->GetWorld());
+			ShootResult.DebugShot(SourceActor->GetWorld());
 		}
-		ScanResults.Add(ScanResult);
+		ShootResults.Add(ShootResult);
 	}
 	CurrentScanIndex = INDEX_NONE;
 
 
 	// Create and add Target Data to our handle
-	for (int32 i = 0; i < ScanResults.Num(); ++i)
+	for (int32 i = 0; i < ShootResults.Num(); ++i)
 	{
 		FGATD_BulletTraceTargetHit* ThisScanTargetData = new FGATD_BulletTraceTargetHit(); // these are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr)
 
-		const FScanResult& ScanResult = ScanResults[i];
+		const FShootResult& ShootResult = ShootResults[i];
 
 		// Fill target data's BulletTracePoints
 		{
-			ThisScanTargetData->BulletTracePoints.Reserve(ScanResult.BulletHits.Num() + 2);
+			ThisScanTargetData->BulletTracePoints.Reserve(ShootResult.ShooterHits.Num() + 2);
 
-			ThisScanTargetData->BulletTracePoints.Add(ScanResult.BulletStart);
-			for (FHitResult Hit : ScanResult.BulletHits)
+			ThisScanTargetData->BulletTracePoints.Add(ShootResult.StartLocation);
+			for (FHitResult Hit : ShootResult.ShooterHits)
 			{
 				ThisScanTargetData->BulletTracePoints.Add(Hit.Location);
 			}
-			ThisScanTargetData->BulletTracePoints.Add(ScanResult.BulletEnd);
+			ThisScanTargetData->BulletTracePoints.Add(ShootResult.EndLocation);
 		}
 
 		// Add the actor hit infos for this scan. Making a sort of custom filter to not hit the same actor more than once in the same trace
-		for (int32 j = 0; j < ScanResult.BulletHits.Num(); ++j)
+		for (int32 j = 0; j < ShootResult.ShooterHits.Num(); ++j)
 		{
-			const FBulletHit& BulletHit = ScanResult.BulletHits[j];
+			const FShooterHitResult& ShooterHit = ShootResult.ShooterHits[j];
 
-			if (BulletHit.bIsExitHit)
+			if (ShooterHit.bIsExitHit)
 			{
 				continue;
 			}
 
-			if (Filter.FilterPassesForActor(BulletHit.GetActor()))
+			if (Filter.FilterPassesForActor(ShooterHit.GetActor()))
 			{
 				bool bHasAlreadyBeenHitBySameTrace = false;
 				for (int32 k = 0; k < j; ++k)
 				{
-					if (BulletHit.RicochetNumber != ScanResult.BulletHits[k].RicochetNumber) // allow it to be hit again if it's a different trace (e.g. ricochet number 0 vs 1)
+					if (ShooterHit.RicochetNumber != ShootResult.ShooterHits[k].RicochetNumber) // allow it to be hit again if it's a different trace (e.g. ricochet number 0 vs 1)
 					{
 						continue;
 					}
 
-					if (BulletHit.GetActor() == ScanResult.BulletHits[k].GetActor())
+					if (ShooterHit.GetActor() == ShootResult.ShooterHits[k].GetActor())
 					{
 						bHasAlreadyBeenHitBySameTrace = true;
 						break;
@@ -134,7 +134,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 				if (!bHasAlreadyBeenHitBySameTrace)
 				{
 					// This hit won't get filtered, so lets add it to the target data
-					FActorHitInfo ActorHitInfo = FActorHitInfo(BulletHit.GetActor(), BulletHit.Speed);
+					FActorHitInfo ActorHitInfo = FActorHitInfo(ShooterHit.GetActor(), ShooterHit.Speed);
 					ThisScanTargetData->ActorHitInfos.Add(ActorHitInfo);
 				}
 			}

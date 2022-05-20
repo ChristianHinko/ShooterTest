@@ -78,7 +78,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 		if (bDebug)
 		{
-			ShootResult.DebugShot(SourceActor->GetWorld());
+			ShootResult.DebugShot(SourceActor->GetWorld(), 100.f);
 		}
 		ShootResults.Add(ShootResult);
 	}
@@ -97,47 +97,52 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 			ThisScanTargetData->BulletTracePoints.Reserve(ShootResult.ShooterHits.Num() + 2);
 
 			ThisScanTargetData->BulletTracePoints.Add(ShootResult.StartLocation);
-			for (FHitResult Hit : ShootResult.ShooterHits)
+			for (const TArray<FShooterHitResult>& SceneCastHits : ShootResult.ShooterHits)
 			{
-				ThisScanTargetData->BulletTracePoints.Add(Hit.Location);
+				if (SceneCastHits.Num() <= 0)
+				{
+					continue;
+				}
+
+				ThisScanTargetData->BulletTracePoints.Add(SceneCastHits.Last().Location);
 			}
 			ThisScanTargetData->BulletTracePoints.Add(ShootResult.EndLocation);
 		}
 
 		// Add the actor hit infos for this scan. Making a sort of custom filter to not hit the same actor more than once in the same trace
-		for (int32 j = 0; j < ShootResult.ShooterHits.Num(); ++j)
+		for (const TArray<FShooterHitResult>& SceneCastHits : ShootResult.ShooterHits)
 		{
-			const FShooterHitResult& ShooterHit = ShootResult.ShooterHits[j];
-
-			if (ShooterHit.bIsExitHit)
+			for (int32 j = 0; j < SceneCastHits.Num(); ++j)
 			{
-				continue;
-			}
+				const FShooterHitResult& ShooterHit = SceneCastHits[j];
 
-			if (Filter.FilterPassesForActor(ShooterHit.GetActor()))
-			{
-				bool bHasAlreadyBeenHitBySameTrace = false;
-				for (int32 k = 0; k < j; ++k)
+				if (ShooterHit.bIsExitHit)
 				{
-					if (ShooterHit.RicochetNumber != ShootResult.ShooterHits[k].RicochetNumber) // allow it to be hit again if it's a different trace (e.g. ricochet number 0 vs 1)
-					{
-						continue;
-					}
-
-					if (ShooterHit.GetActor() == ShootResult.ShooterHits[k].GetActor())
-					{
-						bHasAlreadyBeenHitBySameTrace = true;
-						break;
-					}
+					continue;
 				}
 
-				if (!bHasAlreadyBeenHitBySameTrace)
+				if (Filter.FilterPassesForActor(ShooterHit.GetActor()))
 				{
-					// This hit won't get filtered, so lets add it to the target data
-					FActorHitInfo ActorHitInfo = FActorHitInfo(ShooterHit.GetActor(), ShooterHit.Speed);
-					ThisScanTargetData->ActorHitInfos.Add(ActorHitInfo);
+					bool bHasAlreadyBeenHitByThisSceneCast = false;
+					for (int32 k = 0; k < j; ++k)
+					{
+						if (ShooterHit.GetActor() == SceneCastHits[k].GetActor())
+						{
+							bHasAlreadyBeenHitByThisSceneCast = true;
+							break;
+						}
+					}
+
+					if (!bHasAlreadyBeenHitByThisSceneCast)
+					{
+						// This hit won't get filtered, so lets add it to the target data
+						FActorHitInfo ActorHitInfo = FActorHitInfo(ShooterHit.GetActor(), ShooterHit.Speed);
+						ThisScanTargetData->ActorHitInfos.Add(ActorHitInfo);
+					}
 				}
 			}
+
+			
 		}
 
 		TargetDataHandle.Add(ThisScanTargetData);

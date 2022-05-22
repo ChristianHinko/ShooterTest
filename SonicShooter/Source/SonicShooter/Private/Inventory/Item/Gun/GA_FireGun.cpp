@@ -96,7 +96,8 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	GunToFire = Cast<UArcItemStack_Gun>(GetCurrentSourceObject());
 	if (!GunToFire.IsValid())
 	{
-		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid Gun when given the fire ability - ensure you are assigning the SourceObject to a GunStack when calling GiveAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() No valid Gun when given the fire ability - ensure you are assigning the SourceObject to a GunStack when calling GiveAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
+		check(0);
 		return;
 	}
 

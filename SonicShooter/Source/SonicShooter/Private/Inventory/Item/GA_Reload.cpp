@@ -45,7 +45,8 @@ void UGA_Reload::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const
 	UArcItemStack_Gun* SourceGun = Cast<UArcItemStack_Gun>(GetCurrentSourceObject());
 	if (!IsValid(SourceGun))
 	{
-		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid Gun when given the reload ability - ensure you are assigning the SourceObject to a GunStack when calling GiveAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() No valid Gun when given the reload ability - ensure you are assigning the SourceObject to a GunStack when calling GiveAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
+		check(0);
 		return;
 	}
 

@@ -64,7 +64,8 @@ TArray<FActiveGameplayEffectHandle> FGATD_BulletTraceTargetHit::ApplyGameplayEff
 
 void FGATD_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray) const
 {
-	UE_LOG(LogGameplayAbilityTargetData, Fatal, TEXT("%s() This should not be called for this specific GATD. Use our custom overload instead (passes in index)"), ANSI_TO_TCHAR(__FUNCTION__));
+	UE_LOG(LogGameplayAbilityTargetData, Error, TEXT("%s() This should not be called for this specific GATD. Use our custom overload instead (passes in index)"), ANSI_TO_TCHAR(__FUNCTION__));
+	check(0);
 }
 
 void FGATD_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray, int32 HitInfosIndex) const

@@ -75,7 +75,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 		if (bDebug)
 		{
-			UBFL_ShooterHelpers::DebugRicochetingPenetrationSceneCastWithExitHitsUsingSpeed(SourceActor->GetWorld(), BulletResults[CurrentScanIndex], InitialBulletSpeed, 1.f);
+			UBFL_ShooterHelpers::DebugRicochetingPenetrationSceneCastWithExitHitsUsingSpeed(SourceActor->GetWorld(), BulletResults[CurrentScanIndex], InitialBulletSpeed, false, 10.f, 1.f);
 		}
 	}
 	CurrentScanIndex = INDEX_NONE;

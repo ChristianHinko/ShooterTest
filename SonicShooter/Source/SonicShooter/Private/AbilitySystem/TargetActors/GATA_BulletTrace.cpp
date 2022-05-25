@@ -28,7 +28,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 	FGameplayAbilityTargetDataHandle TargetDataHandle;
 
 	// Perform our scans
-	TArray<TArray<FSceneCastResult>> BulletResults;
+	TArray<FRicochetingPenetrationSceneCastWithExitHitsUsingSpeedResult> BulletResults;
 	BulletResults.AddDefaulted(NumOfScans); // add the predetermined number of scans
 
 	// Perform scans
@@ -39,8 +39,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 		CollisionQueryParams.bReturnPhysicalMaterial = true; // this is needed for our bullet speed nerf calculations and determining whether to ricochet
 		CollisionQueryParams.AddIgnoredActor(SourceActor);
 		//CollisionQueryParams.bTraceComplex = true;
-		float BulletSpeed = InitialBulletSpeed;
-		UBFL_ShooterHelpers::RicochetingPenetrationSceneCastWithExitHitsUsingSpeed(BulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), BulletResults[CurrentScanIndex], StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, FQuat::Identity, TraceChannel, FCollisionShape(), CollisionQueryParams, MaxRicochets,
+		UBFL_ShooterHelpers::RicochetingPenetrationSceneCastWithExitHitsUsingSpeed(InitialBulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), BulletResults[CurrentScanIndex], StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, FQuat::Identity, TraceChannel, FCollisionShape(), CollisionQueryParams, MaxRicochets,
 			[](const FHitResult& Hit) -> float // GetPenetrationSpeedNerf()
 			{
 				const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(Hit.PhysMaterial);
@@ -75,7 +74,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 		if (bDebug)
 		{
-			UBFL_ShooterHelpers::DebugRicochetingPenetrationSceneCastWithExitHitsUsingSpeed(SourceActor->GetWorld(), BulletResults[CurrentScanIndex], InitialBulletSpeed, false, 10.f, 0.f, 1.f, 1.f);
+			UBFL_ShooterHelpers::DebugRicochetingPenetrationSceneCastWithExitHitsUsingSpeed(SourceActor->GetWorld(), BulletResults[CurrentScanIndex], InitialBulletSpeed, false, 10.f, 0.f, 0.f, 1.f);
 		}
 	}
 	CurrentScanIndex = INDEX_NONE;
@@ -86,28 +85,28 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 	{
 		FGATD_BulletTraceTargetHit* ThisScanTargetData = new FGATD_BulletTraceTargetHit(); // these are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr)
 
-		const TArray<FSceneCastResult>& SceneCastResults = BulletResults[i];
+		const TArray<FPenetrationSceneCastWithExitHitsUsingSpeedResult>& PenetrationSceneCastWithExitHitsUsingSpeedResults = BulletResults[i].PenetrationSceneCastWithExitHitsUsingSpeedResults;
 
 		// Fill target data's BulletTracePoints
 		{
-			ThisScanTargetData->BulletTracePoints.Empty(SceneCastResults.Num() + 1); // reserve number of scene casts plus the end location
-			if (SceneCastResults.Num() > 0)
+			ThisScanTargetData->BulletTracePoints.Empty(PenetrationSceneCastWithExitHitsUsingSpeedResults.Num() + 1); // reserve number of scene casts plus the end location
+			if (PenetrationSceneCastWithExitHitsUsingSpeedResults.Num() > 0)
 			{
 				// Add all of the start locations
-				for (const FSceneCastResult& SceneCastResult : SceneCastResults)
+				for (const FPenetrationSceneCastWithExitHitsUsingSpeedResult& PenetrationSceneCastWithExitHitsUsingSpeedResult : PenetrationSceneCastWithExitHitsUsingSpeedResults)
 				{
-					ThisScanTargetData->BulletTracePoints.Add(SceneCastResult.StartLocation);
+					ThisScanTargetData->BulletTracePoints.Add(PenetrationSceneCastWithExitHitsUsingSpeedResult.StartLocation);
 				}
 				// And the end location
-				ThisScanTargetData->BulletTracePoints.Add(SceneCastResults.Last().EndLocation);
+				ThisScanTargetData->BulletTracePoints.Add(PenetrationSceneCastWithExitHitsUsingSpeedResults.Last().EndLocation);
 			}
 		}
 
 		// Add the actor hit infos for this scan. Making a sort of custom filter to not hit the same actor more than once in the same trace
-		for (int32 j = 0; j < SceneCastResults.Num(); ++j)
+		for (int32 j = 0; j < PenetrationSceneCastWithExitHitsUsingSpeedResults.Num(); ++j)
 		{
-			const FSceneCastResult& SceneCastResult = SceneCastResults[j];
-			const TArray<FShooterHitResult>& HitResults = SceneCastResult.HitResults;
+			const FPenetrationSceneCastWithExitHitsUsingSpeedResult& PenetrationSceneCastWithExitHitsUsingSpeedResult = PenetrationSceneCastWithExitHitsUsingSpeedResults[j];
+			const TArray<FShooterHitResult>& HitResults = PenetrationSceneCastWithExitHitsUsingSpeedResult.HitResults;
 
 			for (int32 k = 0; k < HitResults.Num(); ++k)
 			{

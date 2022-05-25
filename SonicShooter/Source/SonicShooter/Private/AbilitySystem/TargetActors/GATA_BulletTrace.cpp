@@ -98,7 +98,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 					ThisScanTargetData->BulletTracePoints.Add(PenetrationSceneCastWithExitHitsUsingSpeedResult.StartLocation);
 				}
 				// And the end location
-				ThisScanTargetData->BulletTracePoints.Add(PenetrationSceneCastWithExitHitsUsingSpeedResults.Last().EndLocation);
+				ThisScanTargetData->BulletTracePoints.Add(PenetrationSceneCastWithExitHitsUsingSpeedResults.Last().StopLocation);
 			}
 		}
 

@@ -39,8 +39,8 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 		CollisionQueryParams.bReturnPhysicalMaterial = true; // this is needed for our bullet speed nerf calculations and determining whether to ricochet
 		CollisionQueryParams.AddIgnoredActor(SourceActor);
 		//CollisionQueryParams.bTraceComplex = true;
-		FCollisionShape col = FCollisionShape::MakeSphere(30.f);
-		UBFL_ShooterHelpers::RicochetingPenetrationSceneCastWithExitHitsUsingSpeed(InitialBulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, FQuat::Identity, TraceChannel, col, CollisionQueryParams, FCollisionResponseParams::DefaultResponseParam, MaxRicochets,
+		FCollisionShape CollisionShape = FCollisionShape::MakeSphere(30.f);
+		UBFL_ShooterHelpers::RicochetingPenetrationSceneCastWithExitHitsUsingSpeed(InitialBulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, FQuat::Identity, TraceChannel, CollisionShape, CollisionQueryParams, FCollisionResponseParams::DefaultResponseParam, MaxRicochets,
 			[](const FHitResult& Hit) -> float // GetPenetrationSpeedNerf()
 			{
 				const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(Hit.PhysMaterial);

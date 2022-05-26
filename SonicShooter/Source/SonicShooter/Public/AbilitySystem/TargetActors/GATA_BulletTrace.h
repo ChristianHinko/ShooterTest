@@ -20,14 +20,14 @@ class SONICSHOOTER_API AGATA_BulletTrace : public AASSGameplayAbilityTargetActor
 public:
 	AGATA_BulletTrace(const FObjectInitializer& ObjectInitializer);
 
-	/** Number of scans to perform (a shotgun-like feature) */
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Scan")
-		int32 NumOfScans;
+	/** Number of bullets to shoot (a shotgun-like feature) */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet")
+		int32 NumOfBullets;
 	/** Max times to penetrate through blocking hits (assign a value of -1 for an unbound number of penetrations) */
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Scan")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet")
 		int32 MaxPenetrations;
 	/** Max times to ricochet (assign a value of -1 for an unbound number of ricochets) */
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Scan")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet")
 		int32 MaxRicochets;
 	/** Bullet speed that is slowed down by ricochets and penetrations. Bullet stops when we run out of bullet speed. */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet")
@@ -51,6 +51,6 @@ protected:
 
 
 private:
-	/** Indicates which PerformScan() call we are. */
-	int32 CurrentScanIndex;
+	/** Indicates which bullet we are */
+	int32 CurrentBulletIndex;
 };

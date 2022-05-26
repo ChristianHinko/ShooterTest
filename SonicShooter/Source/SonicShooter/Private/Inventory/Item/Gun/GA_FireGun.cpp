@@ -427,7 +427,7 @@ void UGA_FireGun::Shoot()
 
 	// Inject our current Attribute values
 	BulletTraceTargetActor->MaxRange = MaxRange;
-	BulletTraceTargetActor->NumOfScans = NumberOfBulletsPerFire;
+	BulletTraceTargetActor->NumOfBullets = NumberOfBulletsPerFire;
 	BulletTraceTargetActor->MaxPenetrations = Penetrations;
 	BulletTraceTargetActor->MaxRicochets = Ricochets;
 	BulletTraceTargetActor->InitialBulletSpeed = InitialBulletSpeed;
@@ -628,7 +628,7 @@ void UGA_FireGun::OnNumberOfBulletsPerFireChange(const FOnAttributeChangeData& D
 	if (IsValid(BulletTraceTargetActor))
 	{
 		// Update GATA_BulletTrace
-		BulletTraceTargetActor->NumOfScans = NumberOfBulletsPerFire;
+		BulletTraceTargetActor->NumOfBullets = NumberOfBulletsPerFire;
 	}
 }
 void UGA_FireGun::OnPenetrationsChange(const FOnAttributeChangeData& Data)

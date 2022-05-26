@@ -74,7 +74,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 		if (bDebug)
 		{
-			BulletResults[CurrentScanIndex].Debug(SourceActor->GetWorld(), InitialBulletSpeed, false, 10.f, 0.f, 0.f, 1.f);
+			BulletResults[CurrentScanIndex].DrawFullDebug(SourceActor->GetWorld(), InitialBulletSpeed, false, 10.f, 0.f, 0.f, 1.f);
 		}
 	}
 	CurrentScanIndex = INDEX_NONE;

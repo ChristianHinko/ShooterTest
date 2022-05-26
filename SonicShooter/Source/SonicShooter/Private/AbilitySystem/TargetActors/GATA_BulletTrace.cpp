@@ -28,7 +28,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 	FGameplayAbilityTargetDataHandle TargetDataHandle;
 
 	// Do our bullet collision queries
-	TArray<FRicochetingPenetrationSceneCastWithExitHitsUsingSpeedResult> BulletResults;
+	TArray<FRicochetingPenetrationSceneCastWithExitHitsUsingStrengthResult> BulletResults;
 	BulletResults.AddDefaulted(NumOfBullets); // add the predetermined number of bullets
 
 	// Perform each bullet collision query
@@ -40,8 +40,8 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 		CollisionQueryParams.AddIgnoredActor(SourceActor);
 		//CollisionQueryParams.bTraceComplex = true;
 		FCollisionShape CollisionShape = FCollisionShape::MakeSphere(30.f);
-		UBFL_StrengthCollisionQueries::RicochetingPenetrationSceneCastWithExitHitsUsingSpeed(InitialBulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, FQuat::Identity, TraceChannel, CollisionShape, CollisionQueryParams, FCollisionResponseParams::DefaultResponseParam, MaxRicochets,
-			[](const FHitResult& Hit) -> float // GetPenetrationSpeedNerf()
+		UBFL_StrengthCollisionQueries::RicochetingPenetrationSceneCastWithExitHitsUsingStrength(InitialBulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, FQuat::Identity, TraceChannel, CollisionShape, CollisionQueryParams, FCollisionResponseParams::DefaultResponseParam, MaxRicochets,
+			[](const FHitResult& Hit) -> float // GetPenetrationStrengthNerf()
 			{
 				const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(Hit.PhysMaterial);
 				if (IsValid(ShooterPhysMat))
@@ -51,7 +51,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 				return 0.f;
 			},
-			[](const FHitResult& Hit) -> float // GetRicochetSpeedNerf()
+			[](const FHitResult& Hit) -> float // GetRicochetStrengthNerf()
 			{
 				const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(Hit.PhysMaterial);
 				if (IsValid(ShooterPhysMat))
@@ -77,8 +77,8 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 		{
 			const float DebugLifeTime = 10.f;
 
-			BulletResults[CurrentBulletIndex].DrawSpeedDebugLine(SourceActor->GetWorld(), InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f, 1.f);
-			BulletResults[CurrentBulletIndex].DrawSpeedDebugText(SourceActor->GetWorld(), InitialBulletSpeed, DebugLifeTime);
+			BulletResults[CurrentBulletIndex].DrawStrengthDebugLine(SourceActor->GetWorld(), InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f, 1.f);
+			BulletResults[CurrentBulletIndex].DrawStrengthDebugText(SourceActor->GetWorld(), InitialBulletSpeed, DebugLifeTime);
 			BulletResults[CurrentBulletIndex].DrawCollisionShapeDebug(SourceActor->GetWorld(), InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f);
 		}
 	}
@@ -90,34 +90,34 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 	{
 		FGATD_BulletTraceTargetHit* ThisBulletTargetData = new FGATD_BulletTraceTargetHit(); // these are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr)
 
-		const TArray<FPenetrationSceneCastWithExitHitsUsingSpeedResult>& PenetrationSceneCastWithExitHitsUsingSpeedResults = BulletResults[i].PenetrationSceneCastWithExitHitsUsingSpeedResults;
+		const TArray<FPenetrationSceneCastWithExitHitsUsingStrengthResult>& PenetrationSceneCastWithExitHitsUsingStrengthResults = BulletResults[i].PenetrationSceneCastWithExitHitsUsingStrengthResults;
 
 		// Fill target data's BulletTracePoints
 		{
-			const FRicochetingPenetrationSceneCastWithExitHitsUsingSpeedResult& RicochetingPenetrationSceneCastWithExitHitsUsingSpeedResult = BulletResults[i];
+			const FRicochetingPenetrationSceneCastWithExitHitsUsingStrengthResult& RicochetingPenetrationSceneCastWithExitHitsUsingStrengthResult = BulletResults[i];
 
-			ThisBulletTargetData->BulletTracePoints.Empty(PenetrationSceneCastWithExitHitsUsingSpeedResults.Num() + 1); // reserve number of scene casts plus the end location
+			ThisBulletTargetData->BulletTracePoints.Empty(PenetrationSceneCastWithExitHitsUsingStrengthResults.Num() + 1); // reserve number of scene casts plus the end location
 
 			// Add the start location
-			ThisBulletTargetData->BulletTracePoints.Add(RicochetingPenetrationSceneCastWithExitHitsUsingSpeedResult.SpeedSceneCastInfo.StartLocation);
+			ThisBulletTargetData->BulletTracePoints.Add(RicochetingPenetrationSceneCastWithExitHitsUsingStrengthResult.StrengthSceneCastInfo.StartLocation);
 			// Add the rest of the start locations
-			for (int32 j = 1; j < PenetrationSceneCastWithExitHitsUsingSpeedResults.Num(); ++j)
+			for (int32 j = 1; j < PenetrationSceneCastWithExitHitsUsingStrengthResults.Num(); ++j)
 			{
-				ThisBulletTargetData->BulletTracePoints.Add(PenetrationSceneCastWithExitHitsUsingSpeedResults[j].SpeedSceneCastInfo.StartLocation);
+				ThisBulletTargetData->BulletTracePoints.Add(PenetrationSceneCastWithExitHitsUsingStrengthResults[j].StrengthSceneCastInfo.StartLocation);
 			}
 			// And the end location
-			ThisBulletTargetData->BulletTracePoints.Add(RicochetingPenetrationSceneCastWithExitHitsUsingSpeedResult.SpeedSceneCastInfo.StopLocation);
+			ThisBulletTargetData->BulletTracePoints.Add(RicochetingPenetrationSceneCastWithExitHitsUsingStrengthResult.StrengthSceneCastInfo.StopLocation);
 		}
 
 		// Add the actor hit infos for this bullet. Making a sort of custom filter to not hit the same actor more than once in the same trace
-		for (int32 j = 0; j < PenetrationSceneCastWithExitHitsUsingSpeedResults.Num(); ++j)
+		for (int32 j = 0; j < PenetrationSceneCastWithExitHitsUsingStrengthResults.Num(); ++j)
 		{
-			const FPenetrationSceneCastWithExitHitsUsingSpeedResult& PenetrationSceneCastWithExitHitsUsingSpeedResult = PenetrationSceneCastWithExitHitsUsingSpeedResults[j];
-			const TArray<FShooterHitResult>& HitResults = PenetrationSceneCastWithExitHitsUsingSpeedResult.HitResults;
+			const FPenetrationSceneCastWithExitHitsUsingStrengthResult& PenetrationSceneCastWithExitHitsUsingStrengthResult = PenetrationSceneCastWithExitHitsUsingStrengthResults[j];
+			const TArray<FStrengthHitResult>& HitResults = PenetrationSceneCastWithExitHitsUsingStrengthResult.HitResults;
 
 			for (int32 k = 0; k < HitResults.Num(); ++k)
 			{
-				const FShooterHitResult& Hit = HitResults[k];
+				const FStrengthHitResult& Hit = HitResults[k];
 				if (Hit.bIsExitHit)
 				{
 					continue;
@@ -138,7 +138,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 					if (!bHasAlreadyBeenHitByThisSceneCast)
 					{
 						// This hit won't get filtered, so lets add it to the target data
-						FActorHitInfo ActorHitInfo = FActorHitInfo(Hit.GetActor(), Hit.Speed);
+						FActorHitInfo ActorHitInfo = FActorHitInfo(Hit.GetActor(), Hit.Strength);
 						ThisBulletTargetData->ActorHitInfos.Add(ActorHitInfo);
 					}
 				}

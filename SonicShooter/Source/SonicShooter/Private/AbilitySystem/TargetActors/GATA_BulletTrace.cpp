@@ -39,8 +39,8 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 		CollisionQueryParams.bReturnPhysicalMaterial = true; // this is needed for our bullet speed nerf calculations and determining whether to ricochet
 		CollisionQueryParams.AddIgnoredActor(SourceActor);
 		//CollisionQueryParams.bTraceComplex = true;
-
-		UBFL_ShooterHelpers::RicochetingPenetrationSceneCastWithExitHitsUsingSpeed(InitialBulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, FQuat::Identity, TraceChannel, FCollisionShape(), CollisionQueryParams, FCollisionResponseParams::DefaultResponseParam, MaxRicochets,
+		FCollisionShape col = FCollisionShape::MakeSphere(30.f);
+		UBFL_ShooterHelpers::RicochetingPenetrationSceneCastWithExitHitsUsingSpeed(InitialBulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, FQuat::Identity, TraceChannel, col, CollisionQueryParams, FCollisionResponseParams::DefaultResponseParam, MaxRicochets,
 			[](const FHitResult& Hit) -> float // GetPenetrationSpeedNerf()
 			{
 				const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(Hit.PhysMaterial);
@@ -90,17 +90,19 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 		// Fill target data's BulletTracePoints
 		{
+			const FRicochetingPenetrationSceneCastWithExitHitsUsingSpeedResult& RicochetingPenetrationSceneCastWithExitHitsUsingSpeedResult = BulletResults[i];
+
 			ThisBulletTargetData->BulletTracePoints.Empty(PenetrationSceneCastWithExitHitsUsingSpeedResults.Num() + 1); // reserve number of scene casts plus the end location
-			if (PenetrationSceneCastWithExitHitsUsingSpeedResults.Num() > 0)
+
+			// Add the start location
+			ThisBulletTargetData->BulletTracePoints.Add(RicochetingPenetrationSceneCastWithExitHitsUsingSpeedResult.SpeedSceneCastInfo.StartLocation);
+			// Add the rest of the start locations
+			for (int32 j = 1; j < PenetrationSceneCastWithExitHitsUsingSpeedResults.Num(); ++j)
 			{
-				// Add all of the start locations
-				for (const FPenetrationSceneCastWithExitHitsUsingSpeedResult& PenetrationSceneCastWithExitHitsUsingSpeedResult : PenetrationSceneCastWithExitHitsUsingSpeedResults)
-				{
-					ThisBulletTargetData->BulletTracePoints.Add(PenetrationSceneCastWithExitHitsUsingSpeedResult.StartLocation);
-				}
-				// And the end location
-				ThisBulletTargetData->BulletTracePoints.Add(PenetrationSceneCastWithExitHitsUsingSpeedResults.Last().StopLocation);
+				ThisBulletTargetData->BulletTracePoints.Add(PenetrationSceneCastWithExitHitsUsingSpeedResults[j].SpeedSceneCastInfo.StartLocation);
 			}
+			// And the end location
+			ThisBulletTargetData->BulletTracePoints.Add(RicochetingPenetrationSceneCastWithExitHitsUsingSpeedResult.SpeedSceneCastInfo.StopLocation);
 		}
 
 		// Add the actor hit infos for this bullet. Making a sort of custom filter to not hit the same actor more than once in the same trace

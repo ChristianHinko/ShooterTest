@@ -75,7 +75,11 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 		if (bDebug)
 		{
-			BulletResults[CurrentBulletIndex].DrawFullDebug(SourceActor->GetWorld(), InitialBulletSpeed, false, 10.f, 0.f, 0.f, 1.f);
+			const float DebugLifeTime = 10.f;
+
+			BulletResults[CurrentBulletIndex].DrawSpeedDebugLine(SourceActor->GetWorld(), InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f, 1.f);
+			BulletResults[CurrentBulletIndex].DrawSpeedDebugText(SourceActor->GetWorld(), InitialBulletSpeed, DebugLifeTime);
+			BulletResults[CurrentBulletIndex].DrawCollisionShapeDebug(SourceActor->GetWorld(), InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f);
 		}
 	}
 	CurrentBulletIndex = INDEX_NONE;

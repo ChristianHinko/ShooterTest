@@ -3,7 +3,7 @@
 
 #include "AbilitySystem/TargetActors/GATA_BulletTrace.h"
 
-#include "BlueprintFunctionLibraries/BFL_ShooterHelpers.h"
+#include "BlueprintFunctionLibraries/CollisionQuery/BFL_StrengthCollisionQueries.h"
 #include "Utilities/SSCollisionChannels.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTargetTypes.h"
 #include "PhysicalMaterial/PM_Shooter.h"
@@ -40,7 +40,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 		CollisionQueryParams.AddIgnoredActor(SourceActor);
 		//CollisionQueryParams.bTraceComplex = true;
 		FCollisionShape CollisionShape = FCollisionShape::MakeSphere(30.f);
-		UBFL_ShooterHelpers::RicochetingPenetrationSceneCastWithExitHitsUsingSpeed(InitialBulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, FQuat::Identity, TraceChannel, CollisionShape, CollisionQueryParams, FCollisionResponseParams::DefaultResponseParam, MaxRicochets,
+		UBFL_StrengthCollisionQueries::RicochetingPenetrationSceneCastWithExitHitsUsingSpeed(InitialBulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, FQuat::Identity, TraceChannel, CollisionShape, CollisionQueryParams, FCollisionResponseParams::DefaultResponseParam, MaxRicochets,
 			[](const FHitResult& Hit) -> float // GetPenetrationSpeedNerf()
 			{
 				const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(Hit.PhysMaterial);

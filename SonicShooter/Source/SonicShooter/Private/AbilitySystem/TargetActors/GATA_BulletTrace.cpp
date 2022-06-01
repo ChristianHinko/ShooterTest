@@ -4,6 +4,7 @@
 #include "AbilitySystem/TargetActors/GATA_BulletTrace.h"
 
 #include "BlueprintFunctionLibraries/CollisionQuery/BFL_StrengthCollisionQueries.h"
+#include "BlueprintFunctionLibraries/Debugging/BFL_StrengthCollisionQueriesDrawDebugHelpers.h"
 #include "Utilities/SSCollisionChannels.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTargetTypes.h"
 #include "PhysicalMaterial/PM_Shooter.h"
@@ -61,7 +62,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 				return 0.f;
 			},
-			[](const FHitResult& Hit) -> bool // IsHitRicochetable()
+				[](const FHitResult& Hit) -> bool // IsHitRicochetable()
 			{
 				const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(Hit.PhysMaterial);
 				if (IsValid(ShooterPhysMat))
@@ -71,15 +72,15 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 
 				return false;
 			}
-		);
+			);
 
 		if (bDebug)
 		{
 			const float DebugLifeTime = 10.f;
 
-			BulletResults[CurrentBulletIndex].DrawStrengthDebugLine(SourceActor->GetWorld(), InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f, 1.f);
-			BulletResults[CurrentBulletIndex].DrawStrengthDebugText(SourceActor->GetWorld(), InitialBulletSpeed, DebugLifeTime);
-			BulletResults[CurrentBulletIndex].DrawCollisionShapeDebug(SourceActor->GetWorld(), InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f);
+			UBFL_StrengthCollisionQueriesDrawDebugHelpers::DrawStrengthDebugLine(SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f, 1.f);
+			UBFL_StrengthCollisionQueriesDrawDebugHelpers::DrawStrengthDebugText(SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], InitialBulletSpeed, DebugLifeTime);
+			UBFL_StrengthCollisionQueriesDrawDebugHelpers::DrawCollisionShapeDebug(SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f);
 		}
 	}
 	CurrentBulletIndex = INDEX_NONE;

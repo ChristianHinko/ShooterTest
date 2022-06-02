@@ -8,7 +8,7 @@
 #include "Character/AttributeSets/AS_CharacterMovement.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "Subobjects/AbilitySystemSetupComponent.h"
+#include "Subobjects/AC_AbilitySystemSetup.h"
 #include "AbilitySystem/ASSAbilitySystemBlueprintLibrary.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -76,7 +76,7 @@ void USSCharacterMovementComponent::InitializeComponent()
 	// Get reference to our SSCharacter
 	SSCharacterOwner = Cast<ASSCharacter>(PawnOwner);
 
-	UAbilitySystemSetupComponent* AbilitySystemSetupComponent = GetOwner()->FindComponentByClass<UAbilitySystemSetupComponent>();
+	UAC_AbilitySystemSetup* AbilitySystemSetupComponent = GetOwner()->FindComponentByClass<UAC_AbilitySystemSetup>();
 	if (IsValid(AbilitySystemSetupComponent))
 	{
 		AbilitySystemSetupComponent->OnInitializeAbilitySystemComponentDelegate.AddUObject(this, &USSCharacterMovementComponent::OnInitializeAbilitySystemComponent);

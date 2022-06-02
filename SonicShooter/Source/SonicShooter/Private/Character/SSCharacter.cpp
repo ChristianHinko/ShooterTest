@@ -19,7 +19,7 @@
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/Pawn.h"
 #include "Character/AttributeSets/AS_CharacterMovement.h"
-#include "Subobjects/AbilitySystemSetupComponent.h"
+#include "Subobjects/AC_AbilitySystemSetup.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 

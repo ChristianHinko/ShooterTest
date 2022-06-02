@@ -13,7 +13,7 @@
 #include "ArcItemStack.h"
 #include "AttributeSets/AS_Health.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
-#include "Subobjects/AbilitySystemSetupComponent.h"
+#include "Subobjects/AC_AbilitySystemSetup.h"
 #include "ArcInventory.h"
 
 

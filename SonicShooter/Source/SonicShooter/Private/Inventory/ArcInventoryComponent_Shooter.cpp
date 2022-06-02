@@ -10,7 +10,7 @@
 #include "Inventory/Item/Gun/ArcItemStack_Gun.h"
 #include "Subobjects/O_BulletSpread.h"
 #include "BlueprintFunctionLibraries/BFL_InterfaceHelpers.h"
-#include "Subobjects/AbilitySystemSetupComponent.h"
+#include "Subobjects/AC_AbilitySystemSetup.h"
 
 
 
@@ -29,7 +29,7 @@ void UArcInventoryComponent_Shooter::InitializeComponent()
 
 	OnItemInactive.AddDynamic(this, &UArcInventoryComponent_Shooter::OnItemInactiveEvent);
 
-	UAbilitySystemSetupComponent* AbilitySystemSetupComponent = GetOwner()->FindComponentByClass<UAbilitySystemSetupComponent>();
+	UAC_AbilitySystemSetup* AbilitySystemSetupComponent = GetOwner()->FindComponentByClass<UAC_AbilitySystemSetup>();
 	if (IsValid(AbilitySystemSetupComponent))
 	{
 		AbilitySystemSetupComponent->OnInitializeAbilitySystemComponentDelegate.AddUObject(this, &UArcInventoryComponent_Shooter::OnInitializeAbilitySystemComponent);

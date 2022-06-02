@@ -9,7 +9,7 @@
 #include "ArcInventoryComponent.h"
 #include "Generators/ArcItemGenerator.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
-#include "Subobjects/AbilitySystemSetupComponent.h"
+#include "Subobjects/AC_AbilitySystemSetup.h"
 #include "ArcItemBPFunctionLibrary.h"
 
 
@@ -32,7 +32,7 @@ APawn* AGM_Shooter::SpawnDefaultPawnAtTransform_Implementation(AController* NewP
 	UArcInventoryComponent* Inventory = Cast<UArcInventoryComponent>(UArcItemBPFunctionLibrary::GetInventoryComponent(Pawn, true));
 	if (IsValid(Inventory))
 	{
-		UAbilitySystemSetupComponent* AbilitySystemSetupComponent = Pawn->FindComponentByClass<UAbilitySystemSetupComponent>();
+		UAC_AbilitySystemSetup* AbilitySystemSetupComponent = Pawn->FindComponentByClass<UAC_AbilitySystemSetup>();
 		if (IsValid(AbilitySystemSetupComponent))
 		{
 			// Wait until they have they ability system set up

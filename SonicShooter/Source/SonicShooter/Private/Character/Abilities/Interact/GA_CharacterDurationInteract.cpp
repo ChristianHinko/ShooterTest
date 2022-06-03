@@ -15,10 +15,9 @@ UGA_CharacterDurationInteract::UGA_CharacterDurationInteract()
 	AbilityTags.AddTag(NativeGameplayTags::Ability_Interact_DurationInteract);
 }
 
-void UGA_CharacterDurationInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void UGA_CharacterDurationInteract::OnAvatarSetThatWorks(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-	TryCallOnAvatarSetOnPrimaryInstance
-	Super::OnAvatarSet(ActorInfo, Spec);
+	Super::OnAvatarSetThatWorks(ActorInfo, Spec);
 }
 
 bool UGA_CharacterDurationInteract::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const

@@ -10,15 +10,14 @@
 
 UGA_SwapActiveItem::UGA_SwapActiveItem()
 {
-	itemSlotIndexToSwitchTo = -1;
+	ItemSlotIndexToSwitchTo = INDEX_NONE;
 	ItemSlotTagQueryForSwitching = FGameplayTagQuery::EmptyQuery;
 }
 
 
-void UGA_SwapActiveItem::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void UGA_SwapActiveItem::OnAvatarSetThatWorks(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-	TryCallOnAvatarSetOnPrimaryInstance
-	Super::OnAvatarSet(ActorInfo, Spec);
+	Super::OnAvatarSetThatWorks(ActorInfo, Spec);
 
 	// Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times
 	if (!ActorInfo)
@@ -98,12 +97,12 @@ void UGA_SwapActiveItem::PerformSwap()
 	{
 	case ESlotSwapMethod::ByIndex:
 	{
-		if (InventoryComponent->IsActiveItemSlotIndexValid(itemSlotIndexToSwitchTo) == false)
+		if (InventoryComponent->IsActiveItemSlotIndexValid(ItemSlotIndexToSwitchTo) == false)
 		{
 			UE_LOG(LogGameplayAbility, Warning, TEXT("%s() No valid index to switch to"), ANSI_TO_TCHAR(__FUNCTION__));
 			break;
 		}
-		InventoryComponent->SwapActiveItems(itemSlotIndexToSwitchTo);
+		InventoryComponent->SwapActiveItems(ItemSlotIndexToSwitchTo);
 		break;
 	}
 	case ESlotSwapMethod::ByTagQuery:
@@ -140,13 +139,13 @@ void UGA_SwapActiveItem::PerformSwap()
 	}
 	case ESlotSwapMethod::ByItemHistory:
 	{
-		if (InventoryComponent->ActiveItemHistory.IsValidIndex(itemHistoryIndex) == false)
+		if (InventoryComponent->ActiveItemHistory.IsValidIndex(ItemHistoryIndex) == false)
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() No valid index to switch to"), ANSI_TO_TCHAR(__FUNCTION__));
 			break;
 		}
 
-		InventoryComponent->SwapActiveItems(InventoryComponent->ActiveItemHistory[itemHistoryIndex].SlotId);
+		InventoryComponent->SwapActiveItems(InventoryComponent->ActiveItemHistory[ItemHistoryIndex].SlotId);
 		break;
 	}
 	default:

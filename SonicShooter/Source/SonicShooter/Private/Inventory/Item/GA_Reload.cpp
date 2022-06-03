@@ -16,10 +16,9 @@ UGA_Reload::UGA_Reload()
 	AbilityTags.AddTag(NativeGameplayTags::Ability_Reload);
 }
 
-void UGA_Reload::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void UGA_Reload::OnAvatarSetThatWorks(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-	TryCallOnAvatarSetOnPrimaryInstance
-	Super::OnAvatarSet(ActorInfo, Spec);
+	Super::OnAvatarSetThatWorks(ActorInfo, Spec);
 
 	if (!ActorInfo)
 	{

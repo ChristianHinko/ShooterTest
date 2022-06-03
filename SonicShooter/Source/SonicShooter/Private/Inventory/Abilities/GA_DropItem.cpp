@@ -21,9 +21,10 @@ UGA_DropItem::UGA_DropItem()
 	AbilityTags.AddTag(FArcInvDropItemAbilityTag);	// ArcInventory's Tag (maybe we should just make our own so there isn't a gap in tags for our inventory system for our game tags)
 }
 
-void UGA_DropItem::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void UGA_DropItem::OnAvatarSetThatWorks(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-	TryCallOnAvatarSetOnPrimaryInstance
+	Super::OnAvatarSetThatWorks(ActorInfo, Spec);
+
 	// Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times
 	if (!ActorInfo)
 	{

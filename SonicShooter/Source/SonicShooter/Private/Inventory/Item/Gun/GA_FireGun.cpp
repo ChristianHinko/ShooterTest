@@ -36,10 +36,9 @@ UGA_FireGun::UGA_FireGun()
 }
 
 
-void UGA_FireGun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void UGA_FireGun::OnAvatarSetThatWorks(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-	TryCallOnAvatarSetOnPrimaryInstance
-	Super::OnAvatarSet(ActorInfo, Spec);
+	Super::OnAvatarSetThatWorks(ActorInfo, Spec);
 }
 
 // This ability is only given to the player while his Gun is active

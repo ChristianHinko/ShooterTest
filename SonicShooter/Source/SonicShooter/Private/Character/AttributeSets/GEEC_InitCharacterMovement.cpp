@@ -48,7 +48,7 @@ UGEEC_InitCharacterMovement::UGEEC_InitCharacterMovement(const FObjectInitialize
 {
 	const UAS_CharacterMovement* DefaultAttributeSet = GetDefault<UAS_CharacterMovement>(UAS_CharacterMovement::StaticClass());
 
-	// Populate defaults
+	// Populate defaults for easy BP editing
 	WalkSpeed = DefaultAttributeSet->GetWalkSpeed();
 	WalkAcceleration = DefaultAttributeSet->GetWalkAcceleration();
 	RunSpeed = DefaultAttributeSet->GetRunSpeed();

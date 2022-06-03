@@ -6,9 +6,8 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/AbilityTasks/ASSAbilityTask_WaitTargetData.h"
 #include "AbilitySystem/TargetActors/GATA_BulletTrace.h"
-#include "Utilities/LogCategories.h"
-#include "Utilities/SSNativeGameplayTags.h"
-#include "Utilities/CollisionChannels.h"
+#include "AbilitySystem/ASSAbilitySystemBlueprintLibrary.h"
+#include "Utilities/SSCollisionChannels.h"
 #include "Inventory/Item/Gun/AS_Gun.h"
 #include "Subobjects/O_ClipAmmo.h"
 #include "Subobjects/O_BulletSpread.h"
@@ -30,8 +29,7 @@ UGA_FireGun::UGA_FireGun()
 {
 	AbilityInputID = EAbilityInputID::PrimaryFire;
 	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ClientOrServer;
-	AbilityTags.AddTag(Tag_FireAbility);
-	AbilityTags.AddTag(Tag_AbilityInputPrimaryFire);
+	AbilityTags.AddTag(NativeGameplayTags::Ability_Fire);
 
 	ShotNumber = 0;
 	bInputPressed = false;
@@ -98,7 +96,8 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 	GunToFire = Cast<UArcItemStack_Gun>(GetCurrentSourceObject());
 	if (!GunToFire.IsValid())
 	{
-		UE_LOG(LogGameplayAbility, Fatal, TEXT("%s() No valid Gun when given the fire ability - ensure you are assigning the SourceObject to a GunStack when calling GiveAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() No valid Gun when given the fire ability - ensure you are assigning the SourceObject to a GunStack when calling GiveAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
+		check(0);
 		return;
 	}
 
@@ -110,15 +109,20 @@ void UGA_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, cons
 
 
 
-	// Inject the data our target actor needs and spawn it 
+	// Inject the data our Target Actor needs and spawn it 
 	BulletTraceTargetActor = GetWorld()->SpawnActorDeferred<AGATA_BulletTrace>(GunToFire->BulletTargetActorTSub, FTransform());
 	if (!IsValid(BulletTraceTargetActor))
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() No valid BulletTraceTargetActor in the GunStack when giving the fire ability. How the heck we supposed to fire the gun!?!?"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
+
 	BulletTraceTargetActor->OwningAbility = this;
 	BulletTraceTargetActor->bDestroyOnConfirmation = false;
+
+	FGTDF_MultiFilter MultiFilter = FGTDF_MultiFilter();
+	MultiFilter.bOnlyAcceptAbilitySystemInterfaces = true;
+	BulletTraceTargetActor->Filter = UASSAbilitySystemBlueprintLibrary::MakeMultiFilterHandle(MultiFilter, ActorInfo->AvatarActor.Get());
 
 	UGameplayStatics::FinishSpawningActor(BulletTraceTargetActor, FTransform());
 }
@@ -403,10 +407,12 @@ void UGA_FireGun::Shoot()
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 		return;
 	}
+
 	// Bind to wait target data delegates
 	WaitTargetDataActorTask->ValidData.AddDynamic(this, &UGA_FireGun::OnValidData);
 	WaitTargetDataActorTask->Cancelled.AddDynamic(this, &UGA_FireGun::OnCancelled);
 
+	BulletTraceTargetActor->SourceActor = GetAvatarActorFromActorInfo();
 
 	// Update our target actor's start location
 	BulletTraceTargetActor->bUseAimPointAsStartLocation = true; // we just want to use the player camera position directly for our StartLocation
@@ -421,11 +427,11 @@ void UGA_FireGun::Shoot()
 
 	// Inject our current Attribute values
 	BulletTraceTargetActor->MaxRange = MaxRange;
-	BulletTraceTargetActor->NumberOfTraces = NumberOfBulletsPerFire;
-	BulletTraceTargetActor->Penetrations = Penetrations;
-	BulletTraceTargetActor->Ricochets = Ricochets;
+	BulletTraceTargetActor->NumOfBullets = NumberOfBulletsPerFire;
+	BulletTraceTargetActor->MaxPenetrations = Penetrations;
+	BulletTraceTargetActor->MaxRicochets = Ricochets;
 	BulletTraceTargetActor->InitialBulletSpeed = InitialBulletSpeed;
-	BulletTraceTargetActor->BulletSpeedFalloff = BulletSpeedFalloff;
+	BulletTraceTargetActor->RangeFalloffNerf = BulletSpeedFalloff;    // TODO: We're not sure we want this value to be gun specific. We want it to be more of a static value for all guns (maybe define it statically in the bullet trace file)
 
 
 
@@ -474,7 +480,7 @@ void UGA_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 	}
 
 	// Execute cues
-	//GetAbilitySystemComponentFromActorInfo()->AddGameplayCue(Tag_TestGameplayCue);	// Very temp. This is just to see a gc work
+	//GetAbilitySystemComponentFromActorInfo()->AddGameplayCue(GameplayCue_Test);	// Very temp. This is just to see a gc work
 
 
 
@@ -622,7 +628,7 @@ void UGA_FireGun::OnNumberOfBulletsPerFireChange(const FOnAttributeChangeData& D
 	if (IsValid(BulletTraceTargetActor))
 	{
 		// Update GATA_BulletTrace
-		BulletTraceTargetActor->NumberOfTraces = NumberOfBulletsPerFire;
+		BulletTraceTargetActor->NumOfBullets = NumberOfBulletsPerFire;
 	}
 }
 void UGA_FireGun::OnPenetrationsChange(const FOnAttributeChangeData& Data)
@@ -632,7 +638,7 @@ void UGA_FireGun::OnPenetrationsChange(const FOnAttributeChangeData& Data)
 	if (IsValid(BulletTraceTargetActor))
 	{
 		// Update GATA_BulletTrace
-		BulletTraceTargetActor->Penetrations = Penetrations;
+		BulletTraceTargetActor->MaxPenetrations = Penetrations;
 	}
 }
 void UGA_FireGun::OnRicochetsChange(const FOnAttributeChangeData& Data)
@@ -642,7 +648,7 @@ void UGA_FireGun::OnRicochetsChange(const FOnAttributeChangeData& Data)
 	if (IsValid(BulletTraceTargetActor))
 	{
 		// Update GATA_BulletTrace
-		BulletTraceTargetActor->Ricochets = Ricochets;
+		BulletTraceTargetActor->MaxRicochets = Ricochets;
 	}
 }
 void UGA_FireGun::OnInitialBulletSpeedChange(const FOnAttributeChangeData& Data)
@@ -662,6 +668,6 @@ void UGA_FireGun::OnBulletSpeedFalloffChange(const FOnAttributeChangeData& Data)
 	if (IsValid(BulletTraceTargetActor))
 	{
 		// Update GATA_BulletTrace
-		BulletTraceTargetActor->BulletSpeedFalloff = BulletSpeedFalloff;
+		BulletTraceTargetActor->RangeFalloffNerf = BulletSpeedFalloff;
 	}
 }

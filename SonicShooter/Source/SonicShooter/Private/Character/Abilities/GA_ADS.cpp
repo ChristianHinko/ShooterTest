@@ -4,14 +4,12 @@
 #include "Character/Abilities/GA_ADS.h"
 
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
-#include "Utilities/LogCategories.h"
-#include "Utilities/SSNativeGameplayTags.h"
 #include "GameFramework/Character.h"
 
 UGA_ADS::UGA_ADS()
 {
 	AbilityInputID = EAbilityInputID::SecondaryFire;
-	AbilityTags.AddTag(Tag_ADSAbility);
+	AbilityTags.AddTag(NativeGameplayTags::Ability_ADS);
 
 
 }

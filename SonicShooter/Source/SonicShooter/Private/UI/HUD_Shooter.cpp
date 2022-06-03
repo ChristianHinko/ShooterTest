@@ -4,7 +4,6 @@
 #include "UI/HUD_Shooter.h"
 
 #include "Blueprint/WidgetBlueprintLibrary.h"
-#include "Utilities/LogCategories.h"
 #include "UI/UMG/Widgets/UW_Health.h"
 
 

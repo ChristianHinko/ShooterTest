@@ -17,23 +17,23 @@ class USSArcInventoryComponent_Active;
  * How we want to be able to swap item
  */
 UENUM()
-enum class ESwapMethod : uint8
+enum class ESlotSwapMethod : uint8
 {
 	/** Swap to an item slot given an item slot index */
 	ByIndex,
 	/** Find the item slot with a given tag and swap to it */
 	ByTagQuery,
 	/** Go up an index in the inventory */
-	NextItem,
+	Forward,
 	/** Go down an index in the inventory */
-	PreviousItem,
+	Backward,
 	/** Find the item slot of an item that was recently held and swap to it. 0 represents most recent item (your current item) */
 	ByItemHistory
 };
 
 /**
  * Swaps active items on the Inventory Component.
- * Configurable via making BP subclasses.
+ * Must subclass in BP.
  * 
  * NOTE: The BulletSpread subobject looks for numeric Attribute values from the ASC. These Attribute values should be the ones
  * from this newly active item - HOWEVER, on the Client, it has to wait for the Server to replicate the UAbilitySystemComponent::SpawnedAttributes array. So it
@@ -43,7 +43,7 @@ enum class ESwapMethod : uint8
  * I guess this is just a limitation of dynamically adding and removing Attribute Sets during runtime.
  * You can notice this problem by looking at the crosshair. When swapping active weapons, the gun is using the old weapon's bullet spread for a split second.
  */
-UCLASS()
+UCLASS(Abstract)
 class SONICSHOOTER_API UGA_SwapActiveItem : public UASSGameplayAbility
 {
 	GENERATED_BODY()
@@ -61,15 +61,15 @@ protected:
 
 
 
-	UPROPERTY(EditDefaultsOnly, meta = (EditCondition = "SwapMethod == ESwapMethod::ByIndex", EditConditionHides), Category = "Config")
+	UPROPERTY(EditDefaultsOnly, meta = (EditCondition = "SlotSwapMethod == ESlotSwapMethod::ByIndex", EditConditionHides), Category = "Config")
 		int32 itemSlotIndexToSwitchTo;
-	UPROPERTY(EditDefaultsOnly, meta = (EditCondition = "SwapMethod == ESwapMethod::ByItemHistory", EditConditionHides), Category = "Config")
+	UPROPERTY(EditDefaultsOnly, meta = (EditCondition = "SlotSwapMethod == ESlotSwapMethod::ByItemHistory", EditConditionHides), Category = "Config")
 		int32 itemHistoryIndex;
-	UPROPERTY(EditDefaultsOnly, meta = (EditCondition = "SwapMethod == ESwapMethod::ByTagQuery", EditConditionHides), Category = "Config")
+	UPROPERTY(EditDefaultsOnly, meta = (EditCondition = "SlotSwapMethod == ESlotSwapMethod::ByTagQuery", EditConditionHides), Category = "Config")
 		FGameplayTagQuery ItemSlotTagQueryForSwitching;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Config")
-		ESwapMethod SwapMethod;
+		ESlotSwapMethod SlotSwapMethod;
 
 
 	void PerformSwap();

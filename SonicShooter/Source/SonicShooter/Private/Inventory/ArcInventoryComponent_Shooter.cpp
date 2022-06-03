@@ -7,11 +7,10 @@
 #include "UI/HUD_Shooter.h"
 #include "UI/UMG/Widgets/UW_ActiveItem.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
-#include "Utilities/LogCategories.h"
 #include "Inventory/Item/Gun/ArcItemStack_Gun.h"
 #include "Subobjects/O_BulletSpread.h"
 #include "BlueprintFunctionLibraries/BFL_InterfaceHelpers.h"
-#include "Subobjects/AbilitySystemSetupComponent.h"
+#include "Subobjects/AC_AbilitySystemSetup.h"
 
 
 
@@ -30,15 +29,15 @@ void UArcInventoryComponent_Shooter::InitializeComponent()
 
 	OnItemInactive.AddDynamic(this, &UArcInventoryComponent_Shooter::OnItemInactiveEvent);
 
-	UAbilitySystemSetupComponent* AbilitySystemSetupComponent = GetOwner()->FindComponentByClass<UAbilitySystemSetupComponent>();
+	UAC_AbilitySystemSetup* AbilitySystemSetupComponent = GetOwner()->FindComponentByClass<UAC_AbilitySystemSetup>();
 	if (IsValid(AbilitySystemSetupComponent))
 	{
-		AbilitySystemSetupComponent->OnAbilitySystemSetUp.AddUObject(this, &UArcInventoryComponent_Shooter::OnAbilitySystemSetUp);
+		AbilitySystemSetupComponent->OnInitializeAbilitySystemComponentDelegate.AddUObject(this, &UArcInventoryComponent_Shooter::OnInitializeAbilitySystemComponent);
 	}
 }
 
 
-void UArcInventoryComponent_Shooter::OnAbilitySystemSetUp(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC)
+void UArcInventoryComponent_Shooter::OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC)
 {
 	// Re-inject the new Ability System Component into our active gun
 	UArcItemStack_Gun* GunStack = Cast<UArcItemStack_Gun>(GetActiveItemStack());

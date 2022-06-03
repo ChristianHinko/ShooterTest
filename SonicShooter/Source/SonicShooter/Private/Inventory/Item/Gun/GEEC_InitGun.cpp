@@ -72,10 +72,9 @@ static const FGunInitializationStatics& GetGunInitializationStatics()
 UGEEC_InitGun::UGEEC_InitGun(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	// Populate defaults for easy BP editing
 	const UAS_Gun* DefaultAttributeSet = GetDefault<UAS_Gun>(UAS_Gun::StaticClass());
 
-	// Populate defaults
-	
 	MinBulletSpread = DefaultAttributeSet->GetMinBulletSpread();
 	MovingBulletSpread = DefaultAttributeSet->GetMovingBulletSpread();
 	BulletSpreadIncRate = DefaultAttributeSet->GetBulletSpreadIncRate();

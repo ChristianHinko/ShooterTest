@@ -36,29 +36,29 @@ void AC_PushModelDemo::Tick(float DeltaSeconds)
 	UKismetSystemLibrary::PrintString(this, "MyPushModelFloat: " + FString::SanitizeFloat(MyPushModelFloat), true, false);
 }
 
-void AC_PushModelDemo::OnPrimaryFirePressed()
+void AC_PushModelDemo::OnPressedPrimaryFire()
 {
-	ServerPrimaryFirePressed();
+	ServerOnPressedPrimaryFire();
 }
-bool AC_PushModelDemo::ServerPrimaryFirePressed_Validate()
+bool AC_PushModelDemo::ServerOnPressedPrimaryFire_Validate()
 {
 	return true;
 }
-void AC_PushModelDemo::ServerPrimaryFirePressed_Implementation()
+void AC_PushModelDemo::ServerOnPressedPrimaryFire_Implementation()
 {
 	UKismetSystemLibrary::PrintString(this, "SET MARKED DIRTY", true, false, FLinearColor::Green);
 	SetMyPushModelFloat(MyPushModelFloat + 5);
 }
 
-void AC_PushModelDemo::OnSecondaryFirePressed()
+void AC_PushModelDemo::OnPressedSecondaryFire()
 {
-	ServerSecondaryFirePressed();
+	ServerOnPressedSecondaryFire();
 }
-bool AC_PushModelDemo::ServerSecondaryFirePressed_Validate()
+bool AC_PushModelDemo::ServerOnPressedSecondaryFire_Validate()
 {
 	return true;
 }
-void AC_PushModelDemo::ServerSecondaryFirePressed_Implementation()
+void AC_PushModelDemo::ServerOnPressedSecondaryFire_Implementation()
 {
 	UKismetSystemLibrary::PrintString(this, "SET NO DIRTY", true, false, FLinearColor::Red);
 	MyPushModelFloat = MyPushModelFloat + 5;

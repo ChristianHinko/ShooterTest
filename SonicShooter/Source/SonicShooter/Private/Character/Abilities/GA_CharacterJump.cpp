@@ -4,9 +4,8 @@
 #include "Character/Abilities/GA_CharacterJump.h"
 
 #include "Character/SSCharacter.h"
-#include "Utilities/LogCategories.h"
-#include "Utilities/SSNativeGameplayTags.h"
 #include "Character/SSCharacterMovementComponent.h"
+#include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -15,44 +14,25 @@
 UGA_CharacterJump::UGA_CharacterJump()
 {
 	AbilityInputID = EAbilityInputID::Jump;
-	AbilityTags.AddTag(Tag_JumpAbility);
+	AbilityTags.AddTag(NativeGameplayTags::Ability_Movement_Jump);
 
 
-	CancelAbilitiesWithTag.AddTag(Tag_CrouchAbility);
-	CancelAbilitiesWithTag.AddTag(Tag_RunAbility);
+	CancelAbilitiesWithTag.AddTag(NativeGameplayTags::Ability_Movement_Crouch);
+	CancelAbilitiesWithTag.AddTag(NativeGameplayTags::Ability_Movement_Run);
 }
 
 
 void UGA_CharacterJump::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	TryCallOnAvatarSetOnPrimaryInstance
-		Super::OnAvatarSet(ActorInfo, Spec);
+	Super::OnAvatarSet(ActorInfo, Spec);
 
 	// Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times
 	if (!ActorInfo)
 	{
 		return;
 	}
-	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
-	if (!AvatarActor)
-	{
-		return;
-	}
 
-
-	SSCharacter = Cast<ASSCharacter>(AvatarActor);
-	if (SSCharacter.IsValid())
-	{
-		CMC = SSCharacter->GetSSCharacterMovementComponent();
-		if (!CMC.IsValid())
-		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetCharacterMovement was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
-		}
-	}
-	else
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
-	}
 }
 
 bool UGA_CharacterJump::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
@@ -62,20 +42,16 @@ bool UGA_CharacterJump::CanActivateAbility(const FGameplayAbilitySpecHandle Hand
 		return false;
 	}
 
-	if (!SSCharacter.IsValid())
+	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
+	if (!IsValid(Character))
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSCharacter was NULL. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
-		return false;
-	}
-	if (!CMC.IsValid())
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CharacterMovementComponent was NULL when trying to activate ability. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
-	if (CMC->CanAttemptJump() == false)
+	if (Character->CanJump() == false)
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Was not able to jump when trying to activate ability. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Was not able to jump when trying to activate ability. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
@@ -86,7 +62,13 @@ void UGA_CharacterJump::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-
+	UCharacterMovementComponent* CMC = Cast<UCharacterMovementComponent>(ActorInfo->MovementComponent.Get());
+	if (!IsValid(CMC))
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CMC was NULL when trying to activate ability. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		return;
+	}
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
@@ -122,7 +104,22 @@ void UGA_CharacterJump::EndAbility(const FGameplayAbilitySpecHandle Handle, cons
 		return;
 	}
 
-	CMC->UnJump();
+
+	if (const FSSGameplayAbilityActorInfo* SSActorInfo = static_cast<const FSSGameplayAbilityActorInfo*>(ActorInfo))
+	{
+		if (USSCharacterMovementComponent* CMC = SSActorInfo->SSCharacterMovementComponent.Get())
+		{
+			CMC->UnJump();
+		}
+		else
+		{
+			UE_LOG(LogGameplayAbility, Error, TEXT("%s() CMC was NULL when trying to UnJump"), ANSI_TO_TCHAR(__FUNCTION__));
+		}
+	}
+	else
+	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSActorInfo was NULL when trying to UnJump"), ANSI_TO_TCHAR(__FUNCTION__));
+	}
 
 	ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(JumpEffectActiveHandle);
 

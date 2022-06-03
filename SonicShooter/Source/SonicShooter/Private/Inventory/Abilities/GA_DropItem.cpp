@@ -3,7 +3,6 @@
 
 #include "Inventory/Abilities/GA_DropItem.h"
 
-#include "Utilities/LogCategories.h"
 #include "Character/C_Shooter.h"
 #include "ArcInventoryComponent.h"
 #include "Abilities/Tasks/ArcAbilityTask_DropItem.h"
@@ -19,7 +18,7 @@
 UGA_DropItem::UGA_DropItem()
 {
 	AbilityInputID = EAbilityInputID::DropItem;
-	AbilityTags.AddTag(FArcInvDropItemAbilityTag);
+	AbilityTags.AddTag(FArcInvDropItemAbilityTag);	// ArcInventory's Tag (maybe we should just make our own so there isn't a gap in tags for our inventory system for our game tags)
 }
 
 void UGA_DropItem::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -60,14 +59,26 @@ bool UGA_DropItem::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, c
 		return false;
 	}
 
-	if (!ShooterCharacter.IsValid())
+	if (ShooterCharacter.IsValid() == false)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShooterCharacter was NULL. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
-	if (!Inventory.IsValid())
+	if (Inventory.IsValid() == false)
 	{
 		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Inventory was NULL. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+		return false;
+	}
+
+	// This ability doesn't currently support non active items. We can do something similer to what we did in the GA_SwapActiveItem and make this an abstract ability and force BP subclasses and allow them to choose the drop method using an exposed enum or something (e.g. EDropMethod::ActiveItem or EDropMethod::SlotIndex)
+	UArcInventoryComponent_Active* ActiveItemInventory = Cast<UArcInventoryComponent_Active>(Inventory);
+	if (IsValid(ActiveItemInventory) == false)
+	{
+		return false;
+	}
+	FArcInventoryItemSlotReference ActiveItem = ActiveItemInventory->GetActiveItemSlot();
+	if (ActiveItemInventory->IsValidActiveItemSlot(ActiveItem.SlotId) == false)
+	{
 		return false;
 	}
 
@@ -78,14 +89,13 @@ void UGA_DropItem::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	UArcInventoryComponent_Active* ActiveItemInventory = Cast<UArcInventoryComponent_Active>(Inventory);
+	if (IsValid(ActiveItemInventory) == false)
 	{
+		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActiveItemInventory was NULL when activationg drop ability. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
-	/////////////////////////////////////////////    we've passed the checks //////
-
-
 	UArcAbilityTask_DropItem* DropItemTask = UArcAbilityTask_DropItem::DropItemFromInventory(this, Inventory->PendingItemDrop);
 	if (!DropItemTask)
 	{
@@ -94,9 +104,16 @@ void UGA_DropItem::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 		return;
 	}
 
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		return;
+	}
+
 	DropItemTask->OnDataRecieved.AddDynamic(this, &UGA_DropItem::OnDataRecieved);
 	DropItemTask->OnDataCancelled.AddDynamic(this, &UGA_DropItem::OnDataCancelled);
 
+	ActiveItemInventory->PendingItemDrop = ActiveItemInventory->GetActiveItemSlot();
 	DropItemTask->ReadyForActivation();
 }
 

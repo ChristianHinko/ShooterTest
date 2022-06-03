@@ -3,5 +3,6 @@
 #pragma once
 
 #include "EngineSharedPCH.h"
-#include "Utilities/LogCategories.h"
+#include "Utilities/SSLogCategories.h"
 #include "AbilitySystem/AbilityInputID.h"
+#include "Utilities/SSNativeGameplayTags.h"

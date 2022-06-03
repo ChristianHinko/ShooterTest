@@ -51,7 +51,7 @@ UGEEC_InitStamina::UGEEC_InitStamina(const FObjectInitializer& ObjectInitializer
 {
 	const UAS_Stamina* DefaultAttributeSet = GetDefault<UAS_Stamina>(UAS_Stamina::StaticClass());
 
-	// Populate defaults
+	// Populate defaults for easy BP editing
 	MaxStamina = DefaultAttributeSet->GetMaxStamina();
 	StaminaDrain = DefaultAttributeSet->GetStaminaDrain();
 	StaminaGain = DefaultAttributeSet->GetStaminaGain();

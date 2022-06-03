@@ -4,13 +4,11 @@
 #include "Character/SSCharacterMovementComponent.h"
 
 #include "GameFramework/Character.h"
-#include "Utilities/LogCategories.h"
-#include "Utilities/SSNativeGameplayTags.h"
 #include "Character/SSCharacter.h"
 #include "Character/AttributeSets/AS_CharacterMovement.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "Subobjects/AbilitySystemSetupComponent.h"
+#include "Subobjects/AC_AbilitySystemSetup.h"
 #include "AbilitySystem/ASSAbilitySystemBlueprintLibrary.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -78,31 +76,31 @@ void USSCharacterMovementComponent::InitializeComponent()
 	// Get reference to our SSCharacter
 	SSCharacterOwner = Cast<ASSCharacter>(PawnOwner);
 
-	UAbilitySystemSetupComponent* AbilitySystemSetupComponent = GetOwner()->FindComponentByClass<UAbilitySystemSetupComponent>();
+	UAC_AbilitySystemSetup* AbilitySystemSetupComponent = GetOwner()->FindComponentByClass<UAC_AbilitySystemSetup>();
 	if (IsValid(AbilitySystemSetupComponent))
 	{
-		AbilitySystemSetupComponent->OnAbilitySystemSetUpPreInitialized.AddUObject(this, &USSCharacterMovementComponent::OnAbilitySystemSetUpPreInitialized);
-		AbilitySystemSetupComponent->OnAbilitySystemSetUp.AddUObject(this, &USSCharacterMovementComponent::OnAbilitySystemSetUp);
+		AbilitySystemSetupComponent->OnInitializeAbilitySystemComponentDelegate.AddUObject(this, &USSCharacterMovementComponent::OnInitializeAbilitySystemComponent);
 	}
 }
 
 #pragma region Ability System
-void USSCharacterMovementComponent::OnAbilitySystemSetUpPreInitialized(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC)
+void USSCharacterMovementComponent::OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC)
 {
-	OwnerASC = NewASC;
+	OwnerASC = ASC;
 
-	if (UAbilitySystemComponent* ASC = OwnerASC.Get())
-	{
-		ASC->RegisterGameplayTagEvent(Tag_RunDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnRunDisabledTagChanged);
-		ASC->RegisterGameplayTagEvent(Tag_JumpDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnJumpDisabledTagChanged);
-		ASC->RegisterGameplayTagEvent(Tag_CrouchDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCrouchDisabledTagChanged);
-	}
-}
-void USSCharacterMovementComponent::OnAbilitySystemSetUp(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC)
-{
-	OwnerASC = NewASC;
 
-	CharacterMovementAttributeSet = UASSAbilitySystemBlueprintLibrary::GetAttributeSetCasted<UAS_CharacterMovement>(OwnerASC.Get());
+	CharacterMovementAttributeSet = UASSAbilitySystemBlueprintLibrary::GetAttributeSetCasted<UAS_CharacterMovement>(ASC);
+
+	
+	// Bind to Tag change delegates
+	ASC->RegisterGameplayTagEvent(NativeGameplayTags::Character_RunDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnRunDisabledTagChanged);
+	ASC->RegisterGameplayTagEvent(NativeGameplayTags::Character_JumpDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnJumpDisabledTagChanged);
+	ASC->RegisterGameplayTagEvent(NativeGameplayTags::Character_CrouchDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCrouchDisabledTagChanged);
+
+	// Get initial values
+	OnRunDisabledTagChanged(NativeGameplayTags::Character_RunDisabled, ASC->GetTagCount(NativeGameplayTags::Character_RunDisabled));
+	OnJumpDisabledTagChanged(NativeGameplayTags::Character_JumpDisabled, ASC->GetTagCount(NativeGameplayTags::Character_JumpDisabled));
+	OnCrouchDisabledTagChanged(NativeGameplayTags::Character_CrouchDisabled, ASC->GetTagCount(NativeGameplayTags::Character_CrouchDisabled));
 }
 
 void USSCharacterMovementComponent::OnRunDisabledTagChanged(const FGameplayTag Tag, int32 NewCount)
@@ -456,7 +454,7 @@ void USSCharacterMovementComponent::CheckJumpInput(float DeltaTime) // basically
 			{
 				if (CharacterOwner->bClientUpdating == false)
 				{
-					bDidJump = SSCharacterOwner->GetAbilitySystemComponent()->TryActivateAbility(SSCharacterOwner->CharacterJumpAbilitySpecHandle);
+					bDidJump = SSCharacterOwner->GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Movement_Jump.GetTag().GetSingleTagContainer());
 				}
 				else
 				{
@@ -492,7 +490,7 @@ void USSCharacterMovementComponent::ClearJumpInput(float DeltaTime)
 		{
 			if (SSCharacterOwner->bIsJumping)
 			{
-				SSCharacterOwner->GetAbilitySystemComponent()->CancelAbilityHandle(SSCharacterOwner->CharacterJumpAbilitySpecHandle);
+				SSCharacterOwner->GetAbilitySystemComponent()->CancelAbilities(&NativeGameplayTags::Ability_Movement_Jump.GetTag().GetSingleTagContainer());
 			}
 		}
 	}
@@ -502,7 +500,7 @@ void USSCharacterMovementComponent::ClearJumpInput(float DeltaTime)
 		CharacterOwner->bWasJumping = false;
 		if (SSCharacterOwner->bIsJumping)
 		{
-			SSCharacterOwner->GetAbilitySystemComponent()->CancelAbilityHandle(SSCharacterOwner->CharacterJumpAbilitySpecHandle);
+			SSCharacterOwner->GetAbilitySystemComponent()->CancelAbilities(&NativeGameplayTags::Ability_Movement_Jump.GetTag().GetSingleTagContainer());
 		}
 	}
 }
@@ -519,13 +517,13 @@ void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 		const bool willCrouch = bWantsToCrouch && CanCrouchInCurrentState();
 		if (IsCrouching() && !willCrouch)
 		{
-			OwnerASC->CancelAbilityHandle(SSCharacterOwner->CharacterCrouchAbilitySpecHandle);
+			OwnerASC->CancelAbilities(&NativeGameplayTags::Ability_Movement_Crouch.GetTag().GetSingleTagContainer());
 		}
 		else if (!IsCrouching() && willCrouch)
 		{
 			if (TimestampWantsToCrouch > TimestampWantsToRun)
 			{
-				OwnerASC->TryActivateAbility(SSCharacterOwner->CharacterCrouchAbilitySpecHandle);
+				OwnerASC->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Movement_Crouch.GetTag().GetSingleTagContainer());
 			}
 		}
 
@@ -533,13 +531,13 @@ void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 		const bool willRun = bWantsToRun && CanRunInCurrentState() && Acceleration.SizeSquared() > 0;
 		if (IsRunning() && !willRun)
 		{
-			OwnerASC->CancelAbilityHandle(SSCharacterOwner->CharacterRunAbilitySpecHandle);
+			OwnerASC->CancelAbilities(&NativeGameplayTags::Ability_Movement_Run.GetTag().GetSingleTagContainer());
 		}
 		else if (!IsRunning() && willRun)
 		{
 			if (TimestampWantsToRun > TimestampWantsToCrouch)
 			{
-				OwnerASC->TryActivateAbility(SSCharacterOwner->CharacterRunAbilitySpecHandle);
+				OwnerASC->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Movement_Run.GetTag().GetSingleTagContainer());
 			}
 		}
 	}
@@ -556,13 +554,13 @@ void USSCharacterMovementComponent::UpdateCharacterStateAfterMovement(float Delt
 		// Uncrouch if no longer allowed to be crouched
 		if (IsCrouching() && !CanCrouchInCurrentState())
 		{
-			OwnerASC->CancelAbilityHandle(SSCharacterOwner->CharacterCrouchAbilitySpecHandle);
+			OwnerASC->CancelAbilities(&NativeGameplayTags::Ability_Movement_Crouch.GetTag().GetSingleTagContainer());
 		}
 
 
 		if (IsRunning() && !CanRunInCurrentState())
 		{
-			OwnerASC->CancelAbilityHandle(SSCharacterOwner->CharacterRunAbilitySpecHandle);
+			OwnerASC->CancelAbilities(&NativeGameplayTags::Ability_Movement_Run.GetTag().GetSingleTagContainer());
 		}
 	}
 }

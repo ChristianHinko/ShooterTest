@@ -5,8 +5,6 @@
 
 #include "Character/C_Shooter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
-#include "Utilities/LogCategories.h"
-#include "Utilities/SSNativeGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "Character\AbilityTasks\AT_DurationInteractCallbacks.h"
 #include "Subobjects/ActorComponents/AC_Interactor.h"
@@ -14,7 +12,7 @@
 
 UGA_CharacterDurationInteract::UGA_CharacterDurationInteract()
 {
-	AbilityTags.AddTag(Tag_DurationInteractAbility);
+	AbilityTags.AddTag(NativeGameplayTags::Ability_Interact_DurationInteract);
 }
 
 void UGA_CharacterDurationInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)

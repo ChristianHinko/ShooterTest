@@ -49,7 +49,7 @@ UGEEC_InitAmmo::UGEEC_InitAmmo(const FObjectInitializer& ObjectInitializer)
 {
 	const UAS_Ammo* DefaultAttributeSet = GetDefault<UAS_Ammo>();
 
-	// Populate defaults
+	// Populate defaults for easy BP editing
 	MaxAmmo = DefaultAttributeSet->GetMaxAmmo();
 	MaxClipAmmo = DefaultAttributeSet->GetMaxClipAmmo();
 }

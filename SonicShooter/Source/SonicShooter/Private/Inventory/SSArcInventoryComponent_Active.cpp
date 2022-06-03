@@ -8,7 +8,6 @@
 #include "ArcInventory.h" // for Roy's Native Gameplay Tags
 #include "AbilitySystemComponent.h"
 #include "Inventory/Item/SSArcItemDefinition_Active.h"
-#include "Utilities/LogCategories.h"
 #include "Inventory/Item/SSArcItemStack.h"
 
 

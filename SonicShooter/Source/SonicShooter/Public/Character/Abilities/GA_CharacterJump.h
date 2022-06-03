@@ -8,10 +8,6 @@
 #include "GA_CharacterJump.generated.h"
 
 
-class ASSCharacter;
-class USSCharacterMovementComponent;
-
-
 
 /**
  * This is a nice minimal implementation of the CMC jumping into the ability system
@@ -28,11 +24,6 @@ protected:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<UGameplayEffect> JumpEffectTSub;	// asset manager we need you D:
 	FActiveGameplayEffectHandle JumpEffectActiveHandle;
-
-	UPROPERTY()
-		TWeakObjectPtr<ASSCharacter> SSCharacter;
-	UPROPERTY()
-		TWeakObjectPtr<USSCharacterMovementComponent> CMC;
 
 	//BEGIN UGameplayAbility Interface
 	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;

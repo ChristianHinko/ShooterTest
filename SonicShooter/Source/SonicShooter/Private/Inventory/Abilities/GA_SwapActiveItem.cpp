@@ -5,16 +5,11 @@
 
 #include "Character/C_Shooter.h"
 #include "Inventory/SSArcInventoryComponent_Active.h"
-#include "Utilities/LogCategories.h"
-#include "Utilities/SSNativeGameplayTags.h"
 
 
 
 UGA_SwapActiveItem::UGA_SwapActiveItem()
 {
-	//AbilityInputID = EAbilityInputID:: ; Set this in BP!!!!!!!!!!!!!!!!!!!
-	AbilityTags.AddTag(Tag_ItemSwitchAbility);	// Should I have the game at runtime assign a more specific tag for the "AbilityTags"? ie. if developer subclassed and chose for this to be a by index ability. Maybe even go as far as including the item index to swap to in the tag? We could maybe build this tag and assign it when a value is assigned in editor.
-
 	itemSlotIndexToSwitchTo = -1;
 	ItemSlotTagQueryForSwitching = FGameplayTagQuery::EmptyQuery;
 }
@@ -34,7 +29,6 @@ void UGA_SwapActiveItem::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo,
 	{
 		return;
 	}
-
 
 	ShooterCharacter = Cast<AC_Shooter>(ActorInfo->AvatarActor.Get());
 	if (!ShooterCharacter.IsValid())
@@ -100,9 +94,9 @@ void UGA_SwapActiveItem::PerformSwap()
 #endif // !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
 
 
-	switch (SwapMethod)
+	switch (SlotSwapMethod)
 	{
-	case ESwapMethod::ByIndex:
+	case ESlotSwapMethod::ByIndex:
 	{
 		if (InventoryComponent->IsActiveItemSlotIndexValid(itemSlotIndexToSwitchTo) == false)
 		{
@@ -112,7 +106,7 @@ void UGA_SwapActiveItem::PerformSwap()
 		InventoryComponent->SwapActiveItems(itemSlotIndexToSwitchTo);
 		break;
 	}
-	case ESwapMethod::ByTagQuery:
+	case ESlotSwapMethod::ByTagQuery:
 	{
 		if (ItemSlotTagQueryForSwitching.IsEmpty())
 		{
@@ -132,19 +126,19 @@ void UGA_SwapActiveItem::PerformSwap()
 
 		break;
 	}
-	case ESwapMethod::NextItem:
+	case ESlotSwapMethod::Forward:
 	{
 		// We are not totaly sure what is the right way to swap to next and previous item slots for active items, but from what we've been reading, it seams active item slots maintain order so we're going with this until we notice something unexpected happens
 		InventoryComponent->SwapActiveItems(InventoryComponent->GetNextActiveItemSlot());
 		break;
 	}
-	case ESwapMethod::PreviousItem:
+	case ESlotSwapMethod::Backward:
 	{
 		// We are not totaly sure what is the right way to swap to next and previous item slots for active items, but from what we've been reading, it seams active item slots maintain order so we're going with this until we notice something unexpected happens
 		InventoryComponent->SwapActiveItems(InventoryComponent->GetPreviousActiveItemSlot());
 		break;
 	}
-	case ESwapMethod::ByItemHistory:
+	case ESlotSwapMethod::ByItemHistory:
 	{
 		if (InventoryComponent->ActiveItemHistory.IsValidIndex(itemHistoryIndex) == false)
 		{

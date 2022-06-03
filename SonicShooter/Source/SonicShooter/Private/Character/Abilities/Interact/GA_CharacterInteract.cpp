@@ -5,7 +5,6 @@
 
 #include "Character/C_Shooter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
-#include "Utilities/LogCategories.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "Character/AbilityTasks/AT_DurationInteractCallbacks.h"
 #include "Subobjects/ActorComponents/AC_Interactor.h"

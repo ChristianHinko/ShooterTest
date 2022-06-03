@@ -39,8 +39,10 @@ void UAS_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_Gun, AmmoCost, Params);
 }
 
-UAS_Gun::UAS_Gun()
-	: MinBulletSpread(10.f)
+UAS_Gun::UAS_Gun(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+
+	, MinBulletSpread(10.f)
 	, MovingBulletSpread(20.f)
 	, BulletSpreadIncRate(70.f)
 	, FireBulletSpread(50.f)

@@ -20,8 +20,9 @@ void UAS_PlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME_WITH_PARAMS_FAST(UAS_PlayerState, ExampleAttribute, Params);
 }
 
-UAS_PlayerState::UAS_PlayerState()
-	: ExampleAttribute(100)
+UAS_PlayerState::UAS_PlayerState(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+	, ExampleAttribute(100)
 {
 
 }

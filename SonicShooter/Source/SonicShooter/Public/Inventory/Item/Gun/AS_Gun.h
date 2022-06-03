@@ -19,7 +19,7 @@ class SONICSHOOTER_API UAS_Gun : public UASSAttributeSet
 	GENERATED_BODY()
 
 public:
-	UAS_Gun();
+	UAS_Gun(const FObjectInitializer& ObjectInitializer);
 
 
 	//BEGIN  BulletSpread

@@ -24,8 +24,9 @@ void UAS_Ammo::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 
 }
 
-UAS_Ammo::UAS_Ammo()
-	: MaxAmmo(100)
+UAS_Ammo::UAS_Ammo(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+	, MaxAmmo(100)
 	, MaxClipAmmo(10)
 	, BackupAmmo(GetMaxAmmo() - GetMaxClipAmmo())
 {

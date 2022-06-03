@@ -19,7 +19,7 @@ class SONICSHOOTER_API UAS_Ammo : public UASSAttributeSet
 	GENERATED_BODY()
 
 public:
-	UAS_Ammo();
+	UAS_Ammo(const FObjectInitializer& ObjectInitializer);
 
 	// Attributes
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxAmmo, Category = "Attributes")

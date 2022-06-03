@@ -20,7 +20,7 @@ class SONICSHOOTER_API UAS_CharacterMovement : public UASSAttributeSet
 
 public:
 	// Constructor and default values
-	UAS_CharacterMovement();
+	UAS_CharacterMovement(const FObjectInitializer& ObjectInitializer);
 
 
 	// Attributes

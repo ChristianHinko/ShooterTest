@@ -19,7 +19,7 @@ class SONICSHOOTER_API UAS_Stamina : public UASSAttributeSet
 	GENERATED_BODY()
 
 public:
-	UAS_Stamina();
+	UAS_Stamina(const FObjectInitializer& ObjectInitializer);
 
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxStamina, Category = "Attributes")

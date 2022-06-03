@@ -26,11 +26,12 @@ void UAS_CharacterMovement::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 }
 
 //	These are default values BEFORE the default attribute values effect gets applied
-UAS_CharacterMovement::UAS_CharacterMovement()
-	: WalkSpeed(300.f),
-	WalkAcceleration(2048.f),
-	RunSpeed(600.f),
-	RunAccelaration(4096.f)
+UAS_CharacterMovement::UAS_CharacterMovement(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+	, WalkSpeed(300.f)
+	, WalkAcceleration(2048.f)
+	, RunSpeed(600.f)
+	, RunAccelaration(4096.f)
 {
 
 

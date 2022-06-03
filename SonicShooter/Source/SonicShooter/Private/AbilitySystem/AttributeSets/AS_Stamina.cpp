@@ -27,8 +27,9 @@ void UAS_Stamina::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 }
 
 //	These are default values BEFORE the default attribute values effect gets applied
-UAS_Stamina::UAS_Stamina()
-	: MaxStamina(5)
+UAS_Stamina::UAS_Stamina(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+	, MaxStamina(5)
 	, StaminaDrain(1)
 	, StaminaGain(1)
 	, StaminaRegenPause(2)

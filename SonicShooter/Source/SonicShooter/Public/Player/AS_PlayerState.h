@@ -20,7 +20,7 @@ class SONICSHOOTER_API UAS_PlayerState : public UASSAttributeSet
 
 public:
 	// Constructor and default values
-	UAS_PlayerState();
+	UAS_PlayerState(const FObjectInitializer& ObjectInitializer);
 
 	// Attributes
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ExampleAttribute, Category = "Attributes")

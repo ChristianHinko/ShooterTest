@@ -24,30 +24,16 @@ void UGA_CharacterCrouch::OnAvatarSetThatWorks(const FGameplayAbilityActorInfo* 
 {
 	Super::OnAvatarSetThatWorks(ActorInfo, Spec);
 
-	// Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times
+	// Good place to cache references so we don't have to cast every time
 	if (!ActorInfo)
 	{
 		return;
 	}
-	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
-	if (!AvatarActor)
-	{
-		return;
-	}
 
-	
-	Character = Cast<ACharacter>(AvatarActor);
+	Character = Cast<ACharacter>(ActorInfo->AvatarActor);
 	if (Character.IsValid())
 	{
 		CMC = Character->GetCharacterMovement();
-		if (!CMC.IsValid())
-		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetCharacterMovement was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
-		}
-	}
-	else
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 }
 

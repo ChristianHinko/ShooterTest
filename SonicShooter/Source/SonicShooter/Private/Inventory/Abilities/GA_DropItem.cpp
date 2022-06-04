@@ -12,6 +12,7 @@
 #include "ArcItemStack.h"
 #include "Item/ArcItemDefinition_New.h"
 #include "ArcInventory.h"
+#include "ArcItemBPFunctionLibrary.h"
 
 
 
@@ -25,31 +26,14 @@ void UGA_DropItem::OnAvatarSetThatWorks(const FGameplayAbilityActorInfo* ActorIn
 {
 	Super::OnAvatarSetThatWorks(ActorInfo, Spec);
 
-	// Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times
+	// Good place to cache references so we don't have to cast every time
 	if (!ActorInfo)
 	{
 		return;
 	}
-	if (!ActorInfo->AvatarActor.Get())
-	{
-		return;
-	}
 
-
-	ShooterCharacter = Cast<AC_Shooter>(ActorInfo->AvatarActor.Get());
-	if (!ShooterCharacter.IsValid())
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ShooterCharacter was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
-		return;
-	}
-
-	IArcInventoryInterface* InventoryInterface = Cast<IArcInventoryInterface>(ShooterCharacter);
-	if (!InventoryInterface)
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Cast to InventoryInterface failed"), ANSI_TO_TCHAR(__FUNCTION__));
-		return;
-	}
-	Inventory = InventoryInterface->GetInventoryComponent();
+	ShooterCharacter = Cast<AC_Shooter>(ActorInfo->AvatarActor);
+	Inventory = UArcItemBPFunctionLibrary::GetInventoryComponent(ActorInfo->AvatarActor.Get(), true);
 }
 
 bool UGA_DropItem::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const

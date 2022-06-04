@@ -24,15 +24,6 @@ void UGA_Reload::OnAvatarSetThatWorks(const FGameplayAbilityActorInfo* ActorInfo
 	{
 		return;
 	}
-	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
-	if (!AvatarActor)
-	{
-		return;
-	}
-
-
-
-
 
 }
 

@@ -26,12 +26,7 @@ void UGA_CharacterJump::OnAvatarSetThatWorks(const FGameplayAbilityActorInfo* Ac
 {
 	Super::OnAvatarSetThatWorks(ActorInfo, Spec);
 
-	// Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times
-	if (!ActorInfo)
-	{
-		return;
-	}
-
+	// Good place to cache references so we don't have to cast every time
 }
 
 bool UGA_CharacterJump::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const

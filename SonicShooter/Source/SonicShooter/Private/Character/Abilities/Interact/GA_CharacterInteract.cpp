@@ -18,22 +18,13 @@ void UGA_CharacterInteract::OnAvatarSetThatWorks(const FGameplayAbilityActorInfo
 {
 	Super::OnAvatarSetThatWorks(ActorInfo, Spec);
 
-	//	Good place to cache references so we don't have to cast every time. If this event gets called too early from a GiveAbiliy(), AvatarActor will be messed up and some reason and this gets called 3 times
+	// Good place to cache references so we don't have to cast every time
 	if (!ActorInfo)
 	{
 		return;
 	}
-	if (!ActorInfo->AvatarActor.Get())
-	{
-		return;
-	}
 
-	ShooterCharacter = Cast<AC_Shooter>(ActorInfo->AvatarActor.Get());
-	if (!ShooterCharacter.IsValid())
-	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
-		return;
-	}
+	ShooterCharacter = Cast<AC_Shooter>(ActorInfo->AvatarActor);
 }
 
 bool UGA_CharacterInteract::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const

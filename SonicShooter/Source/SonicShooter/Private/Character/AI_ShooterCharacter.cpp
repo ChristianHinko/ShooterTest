@@ -9,6 +9,10 @@
 #include "Character/C_Shooter.h"
 #include "Kismet/KismetMathLibrary.h"
 
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/GameStateBase.h"
+#include "GameFramework/PlayerState.h"
+
 #include "Kismet/KismetSystemLibrary.h"
 
 
@@ -98,7 +102,7 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 
 
 #pragma region Owning ShooterChractor work
-		headLookAtRot = GetHeadLookAtTargetRot(ShooterCharacter->GetNearestPawn(), DeltaTimeX);
+		headLookAtRot = GetHeadLookAtTargetRot(GetNearestPawn(ShooterCharacter), DeltaTimeX);
 #pragma endregion
 	}
 
@@ -254,4 +258,32 @@ FRotator UAI_ShooterCharacter::GetHeadLookAtTargetRot(AActor* Target, float delt
 	}
 
 	return retVal;
+}
+
+APawn* UAI_ShooterCharacter::GetNearestPawn(const AActor* InActor)
+{
+	APawn* RetVal = nullptr;
+	if (UGameplayStatics::GetGameState(InActor))
+	{
+		float closestPawnDistance = MAX_FLT;
+		TArray<APlayerState*> PlayerStates = UGameplayStatics::GetGameState(InActor)->PlayerArray;
+		for (int32 i = 0; i < PlayerStates.Num(); ++i)
+		{
+			if (PlayerStates.IsValidIndex(i) && PlayerStates[i])
+			{
+				APawn* CurrentPawn = PlayerStates[i]->GetPawn();
+				if (CurrentPawn != InActor)
+				{
+					float distanceToCurrentPlayer = InActor->GetDistanceTo(CurrentPawn);
+					if (distanceToCurrentPlayer < closestPawnDistance)
+					{
+						RetVal = CurrentPawn;
+						closestPawnDistance = distanceToCurrentPlayer;
+					}
+				}
+			}
+		}
+	}
+
+	return RetVal;
 }

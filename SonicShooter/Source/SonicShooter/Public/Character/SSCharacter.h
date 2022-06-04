@@ -12,7 +12,6 @@ class USkeletalMeshComponent;
 class UCameraComponent;
 class USpringArmComponent;
 class USSCharacterMovementComponent;
-class ASSGameState;
 
 
 
@@ -148,9 +147,6 @@ public:
 
 
 	void CrouchTick(float DeltaTime);
-
-
-	APawn* GetNearestPawn() const;
 
 protected:
 #if WITH_EDITOR

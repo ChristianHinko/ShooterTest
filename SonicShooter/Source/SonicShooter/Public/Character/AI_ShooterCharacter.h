@@ -155,6 +155,7 @@ protected:
 
 
 	FRotator GetHeadLookAtTargetRot(AActor* Target, float deltaTime);
+	static APawn* GetNearestPawn(const AActor* InActor);
 
 private:
 	FRotator PreviousActorRotation;

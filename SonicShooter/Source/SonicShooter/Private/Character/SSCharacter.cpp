@@ -11,13 +11,6 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Kismet\KismetMathLibrary.h"
-#include "Utilities/SSCollisionChannels.h"
-#include "GameFramework/PlayerController.h"
-#include "Kismet/GameplayStatics.h"
-#include "Game/SSGameState.h"
-#include "GameFramework/PlayerState.h"
-#include "GameFramework/Pawn.h"
 #include "Character/AttributeSets/AS_CharacterMovement.h"
 #include "Subobjects/AC_AbilitySystemSetup.h"
 
@@ -904,38 +897,10 @@ void ASSCharacter::VerticalLook(float Rate)
 }
 //END Input setup
 
-#pragma region Helpers
-APawn* ASSCharacter::GetNearestPawn() const
-{
-	APawn* RetVal = nullptr;
-	if (UGameplayStatics::GetGameState(this))
-	{
-		float closestPawnDistance = MAX_FLT;
-		TArray<APlayerState*> PlayerStates = UGameplayStatics::GetGameState(this)->PlayerArray;
-		for (int32 i = 0; i < PlayerStates.Num(); ++i)
-		{
-			if (PlayerStates.IsValidIndex(i) && PlayerStates[i])
-			{
-				APawn* CurrentPawn = PlayerStates[i]->GetPawn();
-				if (CurrentPawn != this)
-				{
-					float distanceToCurrentPlayer = GetDistanceTo(CurrentPawn);
-					if (distanceToCurrentPlayer < closestPawnDistance)
-					{
-						RetVal = CurrentPawn;
-						closestPawnDistance = distanceToCurrentPlayer;
-					}
-				}
-			}
-		}
-	}
-
-	return RetVal;
-}
-#pragma endregion
-
 void ASSCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	CrouchTickFunction.UnRegisterTickFunction();
 	CrouchTickFunction.Target = nullptr;
+
+	Super::EndPlay(EndPlayReason);
 }

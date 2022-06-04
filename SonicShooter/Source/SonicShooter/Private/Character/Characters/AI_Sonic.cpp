@@ -39,7 +39,7 @@ void UAI_Sonic::NativeUpdateAnimation(float DeltaTimeX)
 	
 	if (OwningShooterCharacter.IsValid())
 	{
-		LookTarget = OwningShooterCharacter->GetNearestPawn();
+		LookTarget = GetNearestPawn(OwningShooterCharacter.Get());
 		if (LookTarget.IsValid())
 		{
 			RightEyelookRot = Look(TEXT("u_Eye_r"), LookTarget.Get(), DeltaTimeX);

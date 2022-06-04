@@ -25,9 +25,7 @@ public class SonicShooter : ModuleRules
 				"HelperLibraries",
 				"PropertyWrapper",
 				"AutoSettings",
-				"ArcInventory",
-				"ArcTeams",
-				"UltimateFPSTemplate"
+				"ArcInventory"
 			}
 		);
 	}

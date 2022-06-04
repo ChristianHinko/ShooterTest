@@ -40,20 +40,6 @@
 		{
 			"Name": "FullBodyIK",
 			"Enabled": true
-		},
-		{
-			"Name": "ArcTeams",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/22b470a547a644dcaf543d7faaa3240a"
-		},
-		{
-			"Name": "UltimateFPSTemplate",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/4986d4f5b73148deb154e1cd31dd9623"
-		},
-		{
-			"Name": "RenderDocPlugin",
-			"Enabled": true
 		}
 	]
 }

@@ -280,15 +280,15 @@ protected:
 #pragma endregion
 
 #pragma region Input CVars
+	uint8 bToggleCrouchEnabled : 1;
 	FBoolCVarChangedSignature CVarToggleCrouchChangeDelegate;
 	UFUNCTION()
 		void CVarToggleCrouchChanged(bool newToggleCrouch);
-	uint8 bToggleCrouchEnabled : 1;
 
+	uint8 bToggleRunEnabled : 1;
 	FBoolCVarChangedSignature CVarToggleRunChangeDelegate;
 	UFUNCTION()
 		void CVarToggleRunChanged(bool newToggleRun);
-	uint8 bToggleRunEnabled : 1;
 #pragma endregion
 
 private:

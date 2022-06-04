@@ -1,6 +1,0 @@
-MOVEMENT PROBLEMS
-
-
-input.ToggleRun 0:
-	- In air and not moving forward but then start moving forward before land should keep you running
-	- Maybe even have not moving forward not let you run but then when you do move forward you do run without re-holding down shift

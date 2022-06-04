@@ -8,17 +8,11 @@
 
 void FSonicShooter::StartupModule()
 {
-	Super::StartupModule();
-
-
 	UE_LOG(LogSonicShooterModule, Log, TEXT("%s primary game module start up!"), *FString(SONICSHOOTER_MODULE_NAME))
 }
 
 void FSonicShooter::ShutdownModule()
 {
-	Super::ShutdownModule();
-
-
 	UE_LOG(LogSonicShooterModule, Log, TEXT("Primary game module %s shutting down."), *FString(SONICSHOOTER_MODULE_NAME))
 }
 

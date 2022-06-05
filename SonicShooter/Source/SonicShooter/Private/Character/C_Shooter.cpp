@@ -11,9 +11,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Inventory/ArcInventoryComponent_Shooter.h"
 #include "ArcItemStack.h"
-#include "AttributeSets/AS_Health.h"
+#include "AttributeSets/ASSEAttributeSet_Health.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
-#include "Subobjects/AC_AbilitySystemSetup.h"
+#include "Subobjects/ASSActorComponent_AbilitySystemSetup.h"
 #include "ArcInventory.h"
 
 
@@ -52,7 +52,7 @@ void AC_Shooter::BeginPlay()
 
 
 #include "Kismet/KismetSystemLibrary.h"
-#include "AttributeSets/AS_Health.h"
+#include "AttributeSets/ASSEAttributeSet_Health.h"
 #include "Inventory/Item/AS_Ammo.h"
 #include "Inventory/Item/Gun/AS_Gun.h"
 #include "Subobjects/O_ClipAmmo.h"
@@ -139,8 +139,8 @@ void AC_Shooter::Tick(float DeltaSeconds)
 
 
 
-		const float MaxHealth = GetAbilitySystemComponent()->GetNumericAttribute(UAS_Health::GetMaxHealthAttribute());
-		const float Health = GetAbilitySystemComponent()->GetNumericAttribute(UAS_Health::GetHealthAttribute());
+		const float MaxHealth = GetAbilitySystemComponent()->GetNumericAttribute(UASSEAttributeSet_Health::GetMaxHealthAttribute());
+		const float Health = GetAbilitySystemComponent()->GetNumericAttribute(UASSEAttributeSet_Health::GetHealthAttribute());
 
 		//UKismetSystemLibrary::PrintString(this, TEXT("MaxHealth: ") + FString::SanitizeFloat(MaxHealth), true, false);
 		//UKismetSystemLibrary::PrintString(this, TEXT("Health: ") + FString::SanitizeFloat(Health), true, false);

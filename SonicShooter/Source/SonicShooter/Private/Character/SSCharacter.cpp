@@ -12,7 +12,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Character/AttributeSets/AS_CharacterMovement.h"
-#include "Subobjects/AC_AbilitySystemSetup.h"
+#include "Subobjects/ASSActorComponent_AbilitySystemSetup.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 

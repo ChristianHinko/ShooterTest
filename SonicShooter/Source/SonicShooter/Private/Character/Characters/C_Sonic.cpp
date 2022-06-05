@@ -11,7 +11,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Character/AttributeSets/AS_CharacterMovement.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
-#include "AttributeSets/AS_Health.h"
+#include "AttributeSets/ASSEAttributeSet_Health.h"
 #include "Character/SSCharacterMovementComponent.h"
 
 

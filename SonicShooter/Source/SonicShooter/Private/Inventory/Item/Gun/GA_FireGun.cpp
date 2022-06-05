@@ -15,10 +15,10 @@
 #include "ArcInventoryItemTypes.h"
 #include "Item\Definitions\ArcItemDefinition_Active.h"
 
-#include "AbilityTasks/AT_Ticker.h"
+#include "AbilityTasks/ASSEAbilityTask_Ticker.h"
 #include "Kismet/GameplayStatics.h"
-#include "AbilityTasks\AT_WaitInputPress.h"
-#include "AbilityTasks\AT_WaitInputRelease.h"
+#include "AbilityTasks\ASSEAbilityTask_WaitInputPress.h"
+#include "AbilityTasks\ASSEAbilityTask_WaitInputRelease.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
@@ -248,7 +248,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 
 	if (IsFullAuto() || IsBurst()) // if full auto or burst mode
 	{
-		TickerTask = UAT_Ticker::Ticker(this, false, -1.f, TimeBetweenShots);
+		TickerTask = UASSEAbilityTask_Ticker::Ticker(this, false, -1.f, TimeBetweenShots);
 		if (!IsValid(TickerTask))
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() TickerTask was NULL when trying to activate fire ability. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
@@ -260,7 +260,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	if (IsFullAuto())
 	{
 		// We only want a release task if we are full auto
-		UAT_WaitInputRelease* WaitInputReleaseTask = UAT_WaitInputRelease::WaitInputRelease(this, false, true);
+		UASSEAbilityTask_WaitInputRelease* WaitInputReleaseTask = UASSEAbilityTask_WaitInputRelease::WaitInputRelease(this, false, true);
 		if (!IsValid(WaitInputReleaseTask))
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputReleaseTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), ANSI_TO_TCHAR(__FUNCTION__));
@@ -272,7 +272,7 @@ void UGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	}
 	if (IsFullAuto() && IsBurst()) // if we are full auto burst
 	{
-		UAT_WaitInputPress* WaitInputPressTask = UAT_WaitInputPress::WaitInputPress(this, false, true);
+		UASSEAbilityTask_WaitInputPress* WaitInputPressTask = UASSEAbilityTask_WaitInputPress::WaitInputPress(this, false, true);
 		if (!IsValid(WaitInputPressTask))
 		{
 			UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputPressTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), ANSI_TO_TCHAR(__FUNCTION__));

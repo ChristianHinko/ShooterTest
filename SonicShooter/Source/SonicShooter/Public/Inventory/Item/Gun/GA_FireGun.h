@@ -15,7 +15,7 @@ class UO_ClipAmmo;
 class UO_BulletSpread;
 class UArcItemStack_Gun;
 class USSAbilityTask_WaitTargetData;
-class UAT_Ticker;
+class UASSEAbilityTask_Ticker;
 struct FOnAttributeChangeData;
 
 
@@ -85,7 +85,7 @@ protected:
 
 
 	UPROPERTY()
-		TObjectPtr<UAT_Ticker> TickerTask;
+		TObjectPtr<UASSEAbilityTask_Ticker> TickerTask;
 
 	UFUNCTION()
 		void OnShootTick(float DeltaTime, float CurrentTime, float TimeRemaining);

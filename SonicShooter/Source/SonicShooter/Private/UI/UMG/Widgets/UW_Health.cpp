@@ -3,7 +3,7 @@
 
 #include "UI/UMG/Widgets/UW_Health.h"
 
-#include "AttributeSets/AS_Health.h"
+#include "AttributeSets/ASSEAttributeSet_Health.h"
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 
@@ -12,8 +12,8 @@
 UUW_Health::UUW_Health(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	AttributesToListenFor.Add(UAS_Health::GetHealthAttribute());
-	AttributesToListenFor.Add(UAS_Health::GetMaxHealthAttribute());
+	AttributesToListenFor.Add(UASSEAttributeSet_Health::GetHealthAttribute());
+	AttributesToListenFor.Add(UASSEAttributeSet_Health::GetMaxHealthAttribute());
 }
 
 
@@ -23,12 +23,12 @@ void UUW_Health::OnAttributeChanged(const FOnAttributeChangeData& Data)
 	const float& NewValue = Data.NewValue;
 
 
-	if (Attribute == UAS_Health::GetHealthAttribute())
+	if (Attribute == UASSEAttributeSet_Health::GetHealthAttribute())
 	{
 		CurrentHealth = NewValue;
 		UpdateHealthStatus();
 	}
-	if (Attribute == UAS_Health::GetMaxHealthAttribute())
+	if (Attribute == UASSEAttributeSet_Health::GetMaxHealthAttribute())
 	{
 		MaxHealth = NewValue;
 		UpdateHealthStatus();

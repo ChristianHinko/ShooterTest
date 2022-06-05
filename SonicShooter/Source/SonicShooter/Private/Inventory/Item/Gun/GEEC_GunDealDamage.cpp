@@ -3,7 +3,7 @@
 
 #include "Inventory/Item/Gun/GEEC_GunDealDamage.h"
 
-#include "AttributeSets/AS_Health.h"
+#include "AttributeSets/ASSEAttributeSet_Health.h"
 #include "AbilitySystem/Types/SSGameplayEffectTypes.h"
 
 
@@ -14,7 +14,7 @@ struct FDamageStatics
 
 	FDamageStatics()
 	{
-		IncomingDamageDef = FGameplayEffectAttributeCaptureDefinition(UAS_Health::GetIncomingDamageAttribute(), EGameplayEffectAttributeCaptureSource::Target, false);
+		IncomingDamageDef = FGameplayEffectAttributeCaptureDefinition(UASSEAttributeSet_Health::GetIncomingDamageAttribute(), EGameplayEffectAttributeCaptureSource::Target, false);
 	}
 };
 

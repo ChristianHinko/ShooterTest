@@ -8,6 +8,7 @@
 #include "Character/SSCharacter.h"
 #include "Character/C_Shooter.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "KismetAnimationLibrary.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/GameStateBase.h"
@@ -59,7 +60,7 @@ void UAI_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 		// TODO: make this more optimized ( "Velocity.ProjectOnToNormal(UpVector).Size()" isn't working some reason )
 		HorizontalSpeed = FMath::Sqrt(FMath::Square(ForwardSpeed) + FMath::Square(RightSpeed));
 
-		Direction = CalculateDirection(Velocity, ShooterCharacter->GetActorRotation()); // TODO: make sure this is relative to the actor's rotation
+		Direction = UKismetAnimationLibrary::CalculateDirection(Velocity, ShooterCharacter->GetActorRotation()); // TODO: make sure this is relative to the actor's rotation
 #pragma endregion
 
 

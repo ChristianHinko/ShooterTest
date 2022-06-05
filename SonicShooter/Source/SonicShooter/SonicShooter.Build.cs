@@ -7,7 +7,7 @@ public class SonicShooter : ModuleRules
 	public SonicShooter(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-		PrivatePCHHeaderFile = "Private/SonicShooterPCH.h";     // Only line needed for custom PCH if your using the default "UseExplicitOrSharedPCHs"
+		PrivatePCHHeaderFile = "Private/SonicShooterPCH.h";
 
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine" });
 		PrivateDependencyModuleNames.AddRange(
@@ -25,7 +25,8 @@ public class SonicShooter : ModuleRules
 				"HelperLibraries",
 				"PropertyWrapper",
 				"AutoSettings",
-				"ArcInventory"
+				"ArcInventory",
+				"AnimGraphRuntime" // for KismetAnimationLibrary
 			}
 		);
 	}

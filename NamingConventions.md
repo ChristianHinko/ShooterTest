@@ -6,14 +6,18 @@ We follow industry-standard naming conventions.
 ## Source Files
 Source files made up of C++ classes and header files.
 
+All source types are prefixed by the module's prefix followed by the base class type.
+ - U[Module Prefix]ActorComponent_[ActorComponent Name]
+ - A[Module Prefix]Character_[Character Name]
+
 ### Base Classes
-Module's base classes of another module's classes.
+Module's base class of another module's class.
 - A[Module Prefix]Character
 - A[Module Prefix]GameMode
 - U[Module Prefix]GameplayAbility
 
 ### Child Classes
-Module's child class variants of its base classes.
+Module's child class variant of a base class.
 - A[Module Prefix]Character_[Character Name]
 - A[Module Prefix]GameMode_[GameMode Name]
 - U[Module Prefix]GameplayAbility_[GameplayAbility Name]

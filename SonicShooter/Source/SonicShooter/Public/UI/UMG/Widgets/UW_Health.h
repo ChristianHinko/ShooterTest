@@ -25,9 +25,9 @@ class SONICSHOOTER_API UUW_Health : public UASSEUserWidget
 
 protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		UTextBlock* HealthTextBlock;
+		TObjectPtr<UTextBlock> HealthTextBlock;
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		UProgressBar* HealthProgressBar;
+		TObjectPtr<UProgressBar> HealthProgressBar;
 
 public:
 	UUW_Health(const FObjectInitializer& ObjectInitializer);

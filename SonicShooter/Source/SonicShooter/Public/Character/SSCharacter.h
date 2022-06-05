@@ -75,14 +75,14 @@ class ASSCharacter : public AC_AbilitySystemSetupCharacter
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Character")
-		USkeletalMeshComponent* POVMesh;
+		TObjectPtr<USkeletalMeshComponent> POVMesh;
 	static const FName POVMeshComponentName;
 
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
-		UCameraComponent* FollowCamera;
+		TObjectPtr<UCameraComponent> FollowCamera;
 
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
-		USpringArmComponent* CameraBoom;
+		TObjectPtr<USpringArmComponent> CameraBoom;
 
 public:
 	ASSCharacter(const FObjectInitializer& ObjectInitializer);

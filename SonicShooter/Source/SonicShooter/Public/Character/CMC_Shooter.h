@@ -42,7 +42,7 @@ public:
 
 protected:
 	UPROPERTY()
-		UO_Stamina* StaminaSubobject;
+		TObjectPtr<UO_Stamina> StaminaSubobject;
 
 public:
 	UCMC_Shooter(const FObjectInitializer& ObjectInitializer);

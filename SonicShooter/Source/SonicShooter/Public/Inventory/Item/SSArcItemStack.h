@@ -29,6 +29,6 @@ public:
 	 * NOTE: Only valid on the Client and Listening Server.
 	 */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "UI")
-		UUW_ActiveItem* ActiveItemWidget;
+		TObjectPtr<UUW_ActiveItem> ActiveItemWidget;
 
 };

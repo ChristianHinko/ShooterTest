@@ -36,8 +36,8 @@ public:
 		FGameplayAttributeData StaminaGain;
 	ATTRIBUTE_ACCESSORS(UAS_Stamina, StaminaGain)
 
-		/** The time it takes for your stamina to start regening again (the pause) */
-		UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_StaminaRegenPause, Category = "Attributes")
+	/** The time it takes for your stamina to start regening again (the pause) */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_StaminaRegenPause, Category = "Attributes")
 		FGameplayAttributeData StaminaRegenPause;
 	ATTRIBUTE_ACCESSORS(UAS_Stamina, StaminaRegenPause)
 

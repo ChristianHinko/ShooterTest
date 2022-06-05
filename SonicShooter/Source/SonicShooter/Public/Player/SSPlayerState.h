@@ -22,7 +22,7 @@ class SONICSHOOTER_API ASSPlayerState : public APS_AbilitySystemPlayerState
 
 protected:
 	UPROPERTY()
-		UAS_PlayerState* PlayerAttributeSet;
+		TObjectPtr<UAS_PlayerState> PlayerAttributeSet;
 
 public:
 	ASSPlayerState(const FObjectInitializer& ObjectInitializer);

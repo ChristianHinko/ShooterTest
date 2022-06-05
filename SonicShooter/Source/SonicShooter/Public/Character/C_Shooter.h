@@ -26,11 +26,11 @@ class SONICSHOOTER_API AC_Shooter : public ASSCharacter, public IArcInventoryInt
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
-		UArcInventoryComponent* InventoryComponent;
+		TObjectPtr<UArcInventoryComponent> InventoryComponent;
 	static const FName InventoryComponentName;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Interactor")
-		UAC_Interactor* Interactor;
+		TObjectPtr<UAC_Interactor> Interactor;
 
 public:
 	AC_Shooter(const FObjectInitializer& ObjectInitializer);

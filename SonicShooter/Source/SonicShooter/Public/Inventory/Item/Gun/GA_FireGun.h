@@ -39,7 +39,7 @@ protected:
 	FActiveGameplayEffectHandle IsFiringGunEffectActiveHandle;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-		UAnimMontage* ShootMontage;
+		TObjectPtr<UAnimMontage> ShootMontage;
 
 	// Used to give each fire a unique random seed since machine guns only have 1 prediction key across fires
 	int32 ShotNumber;
@@ -76,7 +76,7 @@ protected:
 	 * instead we should keep the Actor alive on the GunToFire - but then it is less scalable.
 	 */
 	UPROPERTY()
-		AGATA_BulletTrace* BulletTraceTargetActor;
+		TObjectPtr<AGATA_BulletTrace> BulletTraceTargetActor;
 
 	/**
 	 * Actually shoot a bullet out of our GunToFire
@@ -85,7 +85,7 @@ protected:
 
 
 	UPROPERTY()
-		UAT_Ticker* TickerTask;
+		TObjectPtr<UAT_Ticker> TickerTask;
 
 	UFUNCTION()
 		void OnShootTick(float DeltaTime, float CurrentTime, float TimeRemaining);

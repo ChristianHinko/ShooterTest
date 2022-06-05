@@ -25,9 +25,9 @@ class SONICSHOOTER_API UUW_Ammo : public UASSEUserWidget
 
 protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		UTextBlock* ClipAmmoText;
+		TObjectPtr<UTextBlock> ClipAmmoText;
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		UTextBlock* BackupAmmoText;
+		TObjectPtr<UTextBlock> BackupAmmoText;
 	
 public:
 	UUW_Ammo(const FObjectInitializer& ObjectInitializer);

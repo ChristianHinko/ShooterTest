@@ -28,7 +28,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<UUW_Health> HealthWidgetTSub;
 	UPROPERTY()
-		UUserWidget* HealthWidget;
+		TObjectPtr<UUserWidget> HealthWidget;
 
 	// Weak Object Ptr because this is purely meant to point to Item Stack's widget - we don't want any impact on its existence
 	UPROPERTY()

@@ -27,9 +27,9 @@ public:
 
 protected:
 	UPROPERTY(VisibleInstanceOnly, Category = "Ammo")
-		UO_ClipAmmo* ClipAmmoSubobject;
+		TObjectPtr<UO_ClipAmmo> ClipAmmoSubobject;
 	UPROPERTY(VisibleInstanceOnly, Category = "Gun")
-		UO_BulletSpread* BulletSpreadSubobject;
+		TObjectPtr<UO_BulletSpread> BulletSpreadSubobject;
 	
 public:
 	UArcItemStack_Gun(const FObjectInitializer& ObjectInitializer);

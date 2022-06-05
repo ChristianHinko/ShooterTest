@@ -24,11 +24,11 @@ class SONICSHOOTER_API UUW_ActiveItem : public UASSEUserWidget
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-		UUW_Crosshair* CrosshairWidget;
+		TObjectPtr<UUW_Crosshair> CrosshairWidget;
 	UPROPERTY(meta = (BindWidget))
-		UUW_Ammo* AmmoWidget;
+		TObjectPtr<UUW_Ammo> AmmoWidget;
 	UPROPERTY(meta = (BindWidget))
-		UTextBlock* ItemTextBlock;
+		TObjectPtr<UTextBlock> ItemTextBlock;
 
 public:
 	UUW_ActiveItem(const FObjectInitializer& ObjectInitializer);

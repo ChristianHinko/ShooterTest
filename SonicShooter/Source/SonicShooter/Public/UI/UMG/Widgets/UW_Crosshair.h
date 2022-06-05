@@ -25,22 +25,22 @@ class SONICSHOOTER_API UUW_Crosshair : public UASSEUserWidget
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-		USizeBox* SizeBoxTop;
+		TObjectPtr<USizeBox> SizeBoxTop;
 	UPROPERTY(meta = (BindWidget))
-		USizeBox* SizeBoxBottom;
+		TObjectPtr<USizeBox> SizeBoxBottom;
 	UPROPERTY(meta = (BindWidget))
-		USizeBox* SizeBoxLeft;
+		TObjectPtr<USizeBox> SizeBoxLeft;
 	UPROPERTY(meta = (BindWidget))
-		USizeBox* SizeBoxRight;
+		TObjectPtr<USizeBox> SizeBoxRight;
 
 	UPROPERTY(meta = (BindWidget))
-		UImage* ImageTop;
+		TObjectPtr<UImage> ImageTop;
 	UPROPERTY(meta = (BindWidget))
-		UImage* ImageBottom;
+		TObjectPtr<UImage> ImageBottom;
 	UPROPERTY(meta = (BindWidget))
-		UImage* ImageLeft;
+		TObjectPtr<UImage> ImageLeft;
 	UPROPERTY(meta = (BindWidget))
-		UImage* ImageRight;
+		TObjectPtr<UImage> ImageRight;
 	
 public:
 	UUW_Crosshair(const FObjectInitializer& ObjectInitializer);

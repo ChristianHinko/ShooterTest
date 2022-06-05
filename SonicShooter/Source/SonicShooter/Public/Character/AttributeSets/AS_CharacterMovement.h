@@ -28,15 +28,15 @@ public:
 		FGameplayAttributeData WalkSpeed;
 	ATTRIBUTE_ACCESSORS(UAS_CharacterMovement, WalkSpeed)
 
-		UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_WalkAcceleration, Category = "MovementAttributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_WalkAcceleration, Category = "MovementAttributes")
 		FGameplayAttributeData WalkAcceleration;
 	ATTRIBUTE_ACCESSORS(UAS_CharacterMovement, WalkAcceleration)
 
-		UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_RunSpeed, Category = "MovementAttributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_RunSpeed, Category = "MovementAttributes")
 		FGameplayAttributeData RunSpeed;
 	ATTRIBUTE_ACCESSORS(UAS_CharacterMovement, RunSpeed)
 
-		UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_RunAccelaration, Category = "MovementAttributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_RunAccelaration, Category = "MovementAttributes")
 		FGameplayAttributeData RunAccelaration;
 	ATTRIBUTE_ACCESSORS(UAS_CharacterMovement, RunAccelaration)
 

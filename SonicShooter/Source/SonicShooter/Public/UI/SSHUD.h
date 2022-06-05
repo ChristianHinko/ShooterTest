@@ -27,7 +27,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<UUW_My> MyWidgetTSub;
 	UPROPERTY()
-		UUserWidget* MyWidget;
+		TObjectPtr<UUserWidget> MyWidget;
 
 	// Points to an external MyOther Widget
 	UPROPERTY()

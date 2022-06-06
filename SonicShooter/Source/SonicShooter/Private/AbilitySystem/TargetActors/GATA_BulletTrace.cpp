@@ -3,8 +3,8 @@
 
 #include "AbilitySystem/TargetActors/GATA_BulletTrace.h"
 
-#include "BlueprintFunctionLibraries/CollisionQuery/BFL_StrengthCollisionQueries.h"
-#include "BlueprintFunctionLibraries/Debugging/BFL_StrengthCollisionQueriesDrawDebugHelpers.h"
+#include "BlueprintFunctionLibraries/CollisionQuery/HLBlueprintFunctionLibrary_StrengthCollisionQueries.h"
+#include "BlueprintFunctionLibraries/Debugging/HLBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries.h"
 #include "Utilities/SSCollisionChannels.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTargetTypes.h"
 #include "PhysicalMaterial/PM_Shooter.h"
@@ -41,7 +41,7 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 		CollisionQueryParams.AddIgnoredActor(SourceActor);
 		//CollisionQueryParams.bTraceComplex = true;
 		FCollisionShape CollisionShape = FCollisionShape::MakeSphere(30.f);
-		UBFL_StrengthCollisionQueries::RicochetingPenetrationSceneCastWithExitHitsUsingStrength(InitialBulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, FQuat::Identity, TraceChannel, CollisionShape, CollisionQueryParams, FCollisionResponseParams::DefaultResponseParam, MaxRicochets,
+		UHLBlueprintFunctionLibrary_StrengthCollisionQueries::RicochetingPenetrationSceneCastWithExitHitsUsingStrength(InitialBulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, FQuat::Identity, TraceChannel, CollisionShape, CollisionQueryParams, FCollisionResponseParams::DefaultResponseParam, MaxRicochets,
 			[](const FHitResult& Hit) -> float // GetPenetrationStrengthNerf()
 			{
 				const UPM_Shooter* ShooterPhysMat = Cast<UPM_Shooter>(Hit.PhysMaterial);
@@ -78,9 +78,9 @@ void AGATA_BulletTrace::ConfirmTargetingAndContinue()
 		{
 			const float DebugLifeTime = 10.f;
 
-			UBFL_StrengthCollisionQueriesDrawDebugHelpers::DrawStrengthDebugLine(SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f, 1.f);
-			UBFL_StrengthCollisionQueriesDrawDebugHelpers::DrawStrengthDebugText(SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], InitialBulletSpeed, DebugLifeTime);
-			UBFL_StrengthCollisionQueriesDrawDebugHelpers::DrawCollisionShapeDebug(SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f);
+			UHLBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries::DrawStrengthDebugLine(SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f, 1.f);
+			UHLBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries::DrawStrengthDebugText(SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], InitialBulletSpeed, DebugLifeTime);
+			UHLBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries::DrawCollisionShapeDebug(SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f);
 		}
 	}
 	CurrentBulletIndex = INDEX_NONE;

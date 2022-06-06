@@ -7,7 +7,7 @@
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/AttributeSets/AS_Stamina.h"
-#include "BlueprintFunctionLibraries/BFL_InterfaceHelpers.h"
+#include "BlueprintFunctionLibraries/HLBlueprintFunctionLibrary_InterfaceHelpers.h"
 
 
 

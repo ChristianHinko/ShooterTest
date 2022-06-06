@@ -42,17 +42,17 @@ void ASSGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 		//CollisionQueryParams.bTraceComplex = true;
 		FCollisionShape CollisionShape = FCollisionShape::MakeSphere(30.f);
 		UHLBlueprintFunctionLibrary_StrengthCollisionQueries::RicochetingPenetrationSceneCastWithExitHitsUsingStrength(InitialBulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, FQuat::Identity, TraceChannel, CollisionShape, CollisionQueryParams, FCollisionResponseParams::DefaultResponseParam, MaxRicochets,
-			[](const FHitResult& Hit) -> float // GetPenetrationStrengthNerf()
+			[](const FHitResult& Hit) -> float // GetPerCmPenetrationNerf()
 			{
 				const USSPhysicalMaterial_Shooter* ShooterPhysMat = Cast<USSPhysicalMaterial_Shooter>(Hit.PhysMaterial);
 				if (IsValid(ShooterPhysMat))
 				{
-					return ShooterPhysMat->PenetrationSpeedNerf;
+					return ShooterPhysMat->PerCmPenetrationSpeedNerf;
 				}
 
 				return 0.f;
 			},
-			[](const FHitResult& Hit) -> float // GetRicochetStrengthNerf()
+			[](const FHitResult& Hit) -> float // GetRicochetNerf()
 			{
 				const USSPhysicalMaterial_Shooter* ShooterPhysMat = Cast<USSPhysicalMaterial_Shooter>(Hit.PhysMaterial);
 				if (IsValid(ShooterPhysMat))
@@ -62,7 +62,7 @@ void ASSGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 
 				return 0.f;
 			},
-				[](const FHitResult& Hit) -> bool // IsHitRicochetable()
+			[](const FHitResult& Hit) -> bool // IsHitRicochetable()
 			{
 				const USSPhysicalMaterial_Shooter* ShooterPhysMat = Cast<USSPhysicalMaterial_Shooter>(Hit.PhysMaterial);
 				if (IsValid(ShooterPhysMat))

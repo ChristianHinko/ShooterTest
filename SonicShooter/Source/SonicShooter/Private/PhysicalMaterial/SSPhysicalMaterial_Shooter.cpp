@@ -8,7 +8,7 @@
 USSPhysicalMaterial_Shooter::USSPhysicalMaterial_Shooter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 	, bRicochets(false)
-	, PenetrationSpeedNerf(0.20f)
+	, PerCmPenetrationSpeedNerf(0.20f)
 	, RicochetSpeedNerf(30.f)
 {
 

@@ -26,7 +26,7 @@ public:
 		uint8 bRicochets : 1;
 	/** Slows down bullet speed by this much PER CENTIMETER in penetration */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shooter", meta = (EditCondition = "bRichochetsBullets == false", EditConditionHides))
-		float PenetrationSpeedNerf;
+		float PerCmPenetrationSpeedNerf;
 	/** Slows down bullet speed by subtracting this much on ricochet */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shooter", meta = (EditCondition = "bRichochetsBullets == true", EditConditionHides))
 		float RicochetSpeedNerf;

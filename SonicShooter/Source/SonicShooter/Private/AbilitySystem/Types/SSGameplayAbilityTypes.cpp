@@ -67,36 +67,36 @@ void FSSGameplayAbilityActorInfo::ClearActorInfo()
 
 
 ////////////////////////////////////////////////////////////////
-/// FGAAI_Shooter
+/// FSSGameplayAbilityActorInfo_Shooter
 ////////////////////////////////////////////////////////////////
 
 
-#include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
-#include "Character/C_Shooter.h"
-#include "Inventory/SSArcInventoryComponent_Active.h"
+#include "AbilitySystem/AbilitySystemComponents/SSAbilitySystemComponent_Shooter.h"
+#include "Character/SSCharacter_Shooter.h"
+#include "Inventory/SSInventoryComponent_Active.h"
 
 
 
-FGAAI_Shooter::FGAAI_Shooter()
+FSSGameplayAbilityActorInfo_Shooter::FSSGameplayAbilityActorInfo_Shooter()
 {
 
 }
 
 
-void FGAAI_Shooter::ASSInitFromActor(AActor* InOwnerActor, AActor* InAvatarActor, UAbilitySystemComponent* InAbilitySystemComponent)
+void FSSGameplayAbilityActorInfo_Shooter::ASSInitFromActor(AActor* InOwnerActor, AActor* InAvatarActor, UAbilitySystemComponent* InAbilitySystemComponent)
 {
 	Super::ASSInitFromActor(InOwnerActor, InAvatarActor, InAbilitySystemComponent);
 
 	// Get our Shooter ASC
-	ShooterAbilitySystemComponent = Cast<UASC_Shooter>(ASSAbilitySystemComponent);
+	ShooterAbilitySystemComponent = Cast<USSAbilitySystemComponent_Shooter>(ASSAbilitySystemComponent);
 
 	// Get our Shooter Character
-	ShooterCharacter = Cast<AC_Shooter>(InAvatarActor);
+	ShooterCharacter = Cast<ASSCharacter_Shooter>(InAvatarActor);
 
 	// Get our Inventory
 	if (IsValid(InAvatarActor))
 	{
-		InventoryComponent = Cast<USSArcInventoryComponent_Active>(UArcItemBPFunctionLibrary::GetInventoryComponent(InAvatarActor, true));
+		InventoryComponent = Cast<USSInventoryComponent_Active>(UArcItemBPFunctionLibrary::GetInventoryComponent(InAvatarActor, true));
 	}
 	else
 	{
@@ -104,14 +104,14 @@ void FGAAI_Shooter::ASSInitFromActor(AActor* InOwnerActor, AActor* InAvatarActor
 	}
 }
 
-void FGAAI_Shooter::SetAvatarActor(AActor* InAvatarActor)
+void FSSGameplayAbilityActorInfo_Shooter::SetAvatarActor(AActor* InAvatarActor)
 {
 	Super::SetAvatarActor(InAvatarActor);
 
 
 }
 
-void FGAAI_Shooter::ClearActorInfo()
+void FSSGameplayAbilityActorInfo_Shooter::ClearActorInfo()
 {
 	Super::ClearActorInfo();
 

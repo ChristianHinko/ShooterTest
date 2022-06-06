@@ -29,7 +29,7 @@ struct SONICSHOOTER_API FSSGameplayAbilityTargetData : public FASSGameplayAbilit
 
 
 ////////////////////////////////////////////////////////////////
-/// FGATD_BulletTraceTargetHit
+/// FSSGameplayAbilityTargetData_BulletTraceTargetHit
 ////////////////////////////////////////////////////////////////
 
 
@@ -79,11 +79,11 @@ struct TStructOpsTypeTraits<FActorHitInfo> : public TStructOpsTypeTraitsBase2<FA
  * This is the Target Data struct that represents the targets that were hit by a certain bullet. This is a pretty good GATD code wise :O
  */
 USTRUCT(BlueprintType)
-struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTargetData
+struct SONICSHOOTER_API FSSGameplayAbilityTargetData_BulletTraceTargetHit : public FSSGameplayAbilityTargetData
 {
 	GENERATED_BODY()
 
-	FGATD_BulletTraceTargetHit();
+	FSSGameplayAbilityTargetData_BulletTraceTargetHit();
 
 
 	/** Applies a previously created gameplay effect spec to each target represented */
@@ -170,7 +170,7 @@ struct SONICSHOOTER_API FGATD_BulletTraceTargetHit : public FSSGameplayAbilityTa
 };
 
 template<>
-struct TStructOpsTypeTraits<FGATD_BulletTraceTargetHit> : public TStructOpsTypeTraitsBase2<FGATD_BulletTraceTargetHit>
+struct TStructOpsTypeTraits<FSSGameplayAbilityTargetData_BulletTraceTargetHit> : public TStructOpsTypeTraitsBase2<FSSGameplayAbilityTargetData_BulletTraceTargetHit>
 {
 	enum
 	{

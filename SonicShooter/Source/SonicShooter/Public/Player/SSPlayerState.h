@@ -8,7 +8,7 @@
 #include "SSPlayerState.generated.h"
 
 
-class UAS_PlayerState;
+class USSAttributeSet_PlayerState;
 
 
 
@@ -22,12 +22,12 @@ class SONICSHOOTER_API ASSPlayerState : public AASSEPlayerState_AbilitySystemPla
 
 protected:
 	UPROPERTY()
-		TObjectPtr<UAS_PlayerState> PlayerAttributeSet;
+		TObjectPtr<USSAttributeSet_PlayerState> PlayerAttributeSet;
 
 public:
 	ASSPlayerState(const FObjectInitializer& ObjectInitializer);
 
 
-	UAS_PlayerState* GetAttributeSet() const { return PlayerAttributeSet; }
+	USSAttributeSet_PlayerState* GetAttributeSet() const { return PlayerAttributeSet; }
 
 };

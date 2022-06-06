@@ -17,9 +17,9 @@ USSAbilitySystemGlobals::USSAbilitySystemGlobals(const FObjectInitializer& Objec
 
 FGameplayAbilityActorInfo* USSAbilitySystemGlobals::AllocAbilityActorInfo() const
 {
-	return new FGAAI_Shooter();
+	return new FSSGameplayAbilityActorInfo_Shooter();
 }
 FGameplayEffectContext* USSAbilitySystemGlobals::AllocGameplayEffectContext() const
 {
-	return new FGEC_Shooter();
+	return new FSSGameplayEffectContext_Shooter();
 }

@@ -18,11 +18,11 @@ bool FSSGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bool
 
 
 ////////////////////////////////////////////////////////////////
-/// FGEC_Shooter
+/// FSSGameplayEffectContext_Shooter
 ////////////////////////////////////////////////////////////////
 
 
-bool FGEC_Shooter::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess)
+bool FSSGameplayEffectContext_Shooter::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess)
 {
 	Super::NetSerialize(Ar, Map, bOutSuccess);
 

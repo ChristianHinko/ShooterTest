@@ -11,7 +11,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Character/AttributeSets/AS_CharacterMovement.h"
+#include "Character/AttributeSets/SSAttributeSet_CharacterMovement.h"
 #include "Subobjects/ASSActorComponent_AbilitySystemSetup.h"
 
 #include "Kismet/KismetSystemLibrary.h"

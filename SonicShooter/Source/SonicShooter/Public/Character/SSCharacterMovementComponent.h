@@ -12,7 +12,7 @@
 
 class ASSCharacter;
 class UAbilitySystemComponent;
-class UAS_CharacterMovement;
+class USSAttributeSet_CharacterMovement;
 
 
 
@@ -24,7 +24,7 @@ DECLARE_MULTICAST_DELEGATE(FCharacterMovementStateNotify);
  * Custom movement modes. Used when MovementMode == MOVE_Custom
  */
 UENUM()
-enum class ECustomMovementMode : uint8
+enum class ESSCustomMovementMode : uint8
 {
 	/** None (custom movement is disabled). */
 	MOVE_None						UMETA(DisplayName = "None"),
@@ -221,7 +221,7 @@ protected:
 	UPROPERTY()
 		TWeakObjectPtr<UAbilitySystemComponent> OwnerASC;
 	UPROPERTY()
-		TWeakObjectPtr<UAS_CharacterMovement> CharacterMovementAttributeSet;
+		TWeakObjectPtr<USSAttributeSet_CharacterMovement> CharacterMovementAttributeSet;
 
 	virtual void OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC);
 

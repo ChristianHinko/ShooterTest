@@ -57,7 +57,7 @@ struct TStructOpsTypeTraits<FSSGameplayEffectContext> : public TStructOpsTypeTra
 
 
 ////////////////////////////////////////////////////////////////
-/// FGEC_Shooter
+/// FSSGameplayEffectContext_Shooter
 ////////////////////////////////////////////////////////////////
 
 
@@ -66,7 +66,7 @@ struct TStructOpsTypeTraits<FSSGameplayEffectContext> : public TStructOpsTypeTra
  * 
  */
 USTRUCT()
-struct SONICSHOOTER_API FGEC_Shooter : public FSSGameplayEffectContext
+struct SONICSHOOTER_API FSSGameplayEffectContext_Shooter : public FSSGameplayEffectContext
 {
 	GENERATED_BODY()
 
@@ -97,9 +97,9 @@ public:
 	}
 
 	// Creates a copy of this context, used to duplicate for later modifications
-	virtual FGEC_Shooter* Duplicate() const override
+	virtual FSSGameplayEffectContext_Shooter* Duplicate() const override
 	{
-		FGEC_Shooter* NewContext = new FGEC_Shooter();
+		FSSGameplayEffectContext_Shooter* NewContext = new FSSGameplayEffectContext_Shooter();
 		*NewContext = *this;
 		NewContext->AddActors(Actors);
 		if (GetHitResult())
@@ -114,7 +114,7 @@ public:
 };
 
 template<>
-struct TStructOpsTypeTraits<FGEC_Shooter> : public TStructOpsTypeTraitsBase2<FGEC_Shooter>
+struct TStructOpsTypeTraits<FSSGameplayEffectContext_Shooter> : public TStructOpsTypeTraitsBase2<FSSGameplayEffectContext_Shooter>
 {
 	enum
 	{

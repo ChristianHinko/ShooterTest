@@ -59,41 +59,41 @@ struct SONICSHOOTER_API FSSGameplayAbilityActorInfo : public FASSGameplayAbility
 
 
 ////////////////////////////////////////////////////////////////
-/// FGAAI_Shooter
+/// FSSGameplayAbilityActorInfo_Shooter
 ////////////////////////////////////////////////////////////////
 
 
-class UASC_Shooter;
-class AC_Shooter;
-class USSArcInventoryComponent_Active;
+class USSAbilitySystemComponent_Shooter;
+class ASSCharacter_Shooter;
+class USSInventoryComponent_Active;
 
 
 /**
  * Our custom GameplayAbilityActorInfo
  */
 USTRUCT()
-struct SONICSHOOTER_API FGAAI_Shooter : public FSSGameplayAbilityActorInfo
+struct SONICSHOOTER_API FSSGameplayAbilityActorInfo_Shooter : public FSSGameplayAbilityActorInfo
 {
     GENERATED_BODY()
 
 
-    FGAAI_Shooter();
-    virtual ~FGAAI_Shooter() override
+    FSSGameplayAbilityActorInfo_Shooter();
+    virtual ~FSSGameplayAbilityActorInfo_Shooter() override
     {
 
     }
 
     // Our Shooter specific ASC
     UPROPERTY(BlueprintReadOnly, Category = "Shooter")
-        TWeakObjectPtr<UASC_Shooter> ShooterAbilitySystemComponent;
+        TWeakObjectPtr<USSAbilitySystemComponent_Shooter> ShooterAbilitySystemComponent;
 
     // Our ShooterCharacter
     UPROPERTY(BlueprintReadOnly, Category = "Shooter")
-        TWeakObjectPtr<AC_Shooter> ShooterCharacter;
+        TWeakObjectPtr<ASSCharacter_Shooter> ShooterCharacter;
 
     // Our Inventory Component
     UPROPERTY(BlueprintReadOnly, Category = "Shooter")
-        TWeakObjectPtr<USSArcInventoryComponent_Active> InventoryComponent;
+        TWeakObjectPtr<USSInventoryComponent_Active> InventoryComponent;
 
 
     virtual void ASSInitFromActor(AActor* OwnerActor, AActor* AvatarActor, UAbilitySystemComponent* InAbilitySystemComponent) override;
@@ -101,7 +101,7 @@ struct SONICSHOOTER_API FGAAI_Shooter : public FSSGameplayAbilityActorInfo
     virtual void ClearActorInfo() override;
 
 
-    UASC_Shooter* GetShooterAbilitySystemComponent() const { return ShooterAbilitySystemComponent.Get(); }
-    AC_Shooter* GetShooterCharacter() const { return ShooterCharacter.Get(); }
-    USSArcInventoryComponent_Active* GetInventoryComponent() const { return InventoryComponent.Get(); }
+    USSAbilitySystemComponent_Shooter* GetShooterAbilitySystemComponent() const { return ShooterAbilitySystemComponent.Get(); }
+    ASSCharacter_Shooter* GetShooterCharacter() const { return ShooterCharacter.Get(); }
+    USSInventoryComponent_Active* GetInventoryComponent() const { return InventoryComponent.Get(); }
 };

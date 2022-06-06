@@ -6,5 +6,5 @@
 
 
 
-#define COLLISION_INTERACT					ECollisionChannel::ECC_GameTraceChannel1
-#define COLLISION_BULLET					ECollisionChannel::ECC_GameTraceChannel2
+#define COLLISIONCHANNEL_INTERACT					ECollisionChannel::ECC_GameTraceChannel1
+#define COLLISIONCHANNEL_BULLET						ECollisionChannel::ECC_GameTraceChannel2

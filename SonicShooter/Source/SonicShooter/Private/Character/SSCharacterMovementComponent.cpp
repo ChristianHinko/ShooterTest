@@ -5,7 +5,7 @@
 
 #include "GameFramework/Character.h"
 #include "Character/SSCharacter.h"
-#include "Character/AttributeSets/AS_CharacterMovement.h"
+#include "Character/AttributeSets/SSAttributeSet_CharacterMovement.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "Subobjects/ASSActorComponent_AbilitySystemSetup.h"
@@ -89,7 +89,7 @@ void USSCharacterMovementComponent::OnInitializeAbilitySystemComponent(UAbilityS
 	OwnerASC = ASC;
 
 
-	CharacterMovementAttributeSet = UASSAbilitySystemBlueprintLibrary::GetAttributeSetCasted<UAS_CharacterMovement>(ASC);
+	CharacterMovementAttributeSet = UASSAbilitySystemBlueprintLibrary::GetAttributeSetCasted<USSAttributeSet_CharacterMovement>(ASC);
 
 	
 	// Bind to Tag change delegates
@@ -745,13 +745,13 @@ float USSCharacterMovementComponent::GetMaxSpeed() const
 	}
 	case MOVE_Custom:
 	{
-		switch (static_cast<ECustomMovementMode>(CustomMovementMode))
+		switch (static_cast<ESSCustomMovementMode>(CustomMovementMode))
 		{
-		case ECustomMovementMode::MOVE_None:
+		case ESSCustomMovementMode::MOVE_None:
 		{
 			break;
 		}
-		case ECustomMovementMode::MOVE_InfiniteAngleWalking:
+		case ESSCustomMovementMode::MOVE_InfiniteAngleWalking:
 		{
 			break;
 		}
@@ -809,13 +809,13 @@ float USSCharacterMovementComponent::GetMaxAcceleration() const
 	}
 	case MOVE_Custom:
 	{
-		switch (static_cast<ECustomMovementMode>(CustomMovementMode))
+		switch (static_cast<ESSCustomMovementMode>(CustomMovementMode))
 		{
-		case ECustomMovementMode::MOVE_None:
+		case ESSCustomMovementMode::MOVE_None:
 		{
 			break;
 		}
-		case ECustomMovementMode::MOVE_InfiniteAngleWalking:
+		case ESSCustomMovementMode::MOVE_InfiniteAngleWalking:
 		{
 			break;
 		}
@@ -849,7 +849,7 @@ FString USSCharacterMovementComponent::GetMovementName() const
 {
 	if (MovementMode == MOVE_Custom)
 	{
-		const UEnum* CustomMovementModeEnum = FindObject<const UEnum>(ANY_PACKAGE, TEXT("ECustomMovementMode"));
+		const UEnum* CustomMovementModeEnum = FindObject<const UEnum>(ANY_PACKAGE, TEXT("ESSCustomMovementMode"));
 		if (IsValid(CustomMovementModeEnum))
 		{
 			// If this value is in our custom movement enum
@@ -891,13 +891,13 @@ void USSCharacterMovementComponent::PhysCustom(float deltaTime, int32 Iterations
 	Super::PhysCustom(deltaTime, Iterations);
 
 
-	switch (static_cast<ECustomMovementMode>(CustomMovementMode))
+	switch (static_cast<ESSCustomMovementMode>(CustomMovementMode))
 	{
-	case ECustomMovementMode::MOVE_None:
+	case ESSCustomMovementMode::MOVE_None:
 	{
 		break;
 	}
-	case ECustomMovementMode::MOVE_InfiniteAngleWalking:
+	case ESSCustomMovementMode::MOVE_InfiniteAngleWalking:
 	{
 		PhysInfiniteAngleWalking(deltaTime, Iterations);
 		break;
@@ -905,7 +905,7 @@ void USSCharacterMovementComponent::PhysCustom(float deltaTime, int32 Iterations
 	default:
 	{
 		UE_LOG(LogCharacterMovementSetup, Warning, TEXT("%s has unsupported custom movement mode %d"), *CharacterOwner->GetName(), static_cast<uint8>(CustomMovementMode));
-		SetMovementMode(EMovementMode::MOVE_Custom, static_cast<uint8>(ECustomMovementMode::MOVE_None));
+		SetMovementMode(EMovementMode::MOVE_Custom, static_cast<uint8>(ESSCustomMovementMode::MOVE_None));
 		break;
 	}
 	}

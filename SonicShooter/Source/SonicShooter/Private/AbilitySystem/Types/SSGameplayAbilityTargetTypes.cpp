@@ -13,7 +13,7 @@ FSSGameplayAbilityTargetData::FSSGameplayAbilityTargetData()
 
 
 ////////////////////////////////////////////////////////////////
-/// FGATD_BulletTraceTargetHit
+/// FSSGameplayAbilityTargetData_BulletTraceTargetHit
 ////////////////////////////////////////////////////////////////
 
 
@@ -24,13 +24,13 @@ FSSGameplayAbilityTargetData::FSSGameplayAbilityTargetData()
 
 
 
-FGATD_BulletTraceTargetHit::FGATD_BulletTraceTargetHit()
+FSSGameplayAbilityTargetData_BulletTraceTargetHit::FSSGameplayAbilityTargetData_BulletTraceTargetHit()
 {
 
 }
 
 
-TArray<FActiveGameplayEffectHandle> FGATD_BulletTraceTargetHit::ApplyGameplayEffectSpec(FGameplayEffectSpec& Spec, FPredictionKey PredictionKey)
+TArray<FActiveGameplayEffectHandle> FSSGameplayAbilityTargetData_BulletTraceTargetHit::ApplyGameplayEffectSpec(FGameplayEffectSpec& Spec, FPredictionKey PredictionKey)
 {
 	TArray<FActiveGameplayEffectHandle>	AppliedHandles;
 
@@ -62,15 +62,15 @@ TArray<FActiveGameplayEffectHandle> FGATD_BulletTraceTargetHit::ApplyGameplayEff
 	return AppliedHandles;
 }
 
-void FGATD_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray) const
+void FSSGameplayAbilityTargetData_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray) const
 {
 	UE_LOG(LogGameplayAbilityTargetData, Error, TEXT("%s() This should not be called for this specific GATD. Use our custom overload instead (passes in index)"), ANSI_TO_TCHAR(__FUNCTION__));
 	check(0);
 }
 
-void FGATD_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray, int32 HitInfosIndex) const
+void FSSGameplayAbilityTargetData_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray, int32 HitInfosIndex) const
 {
-	if (FGEC_Shooter* SSContext = static_cast<FGEC_Shooter*>(Context.Get()))
+	if (FSSGameplayEffectContext_Shooter* SSContext = static_cast<FSSGameplayEffectContext_Shooter*>(Context.Get()))
 	{
 		SSContext->SetHitInfo(ActorHitInfos[HitInfosIndex]);
 		SSContext->SetBulletTracePoints(BulletTracePoints);
@@ -82,7 +82,7 @@ void FGATD_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHa
 }
 
 
-bool FGATD_BulletTraceTargetHit::NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
+bool FSSGameplayAbilityTargetData_BulletTraceTargetHit::NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
 {
 	uint8 RepBits;
 	if (Ar.IsSaving())

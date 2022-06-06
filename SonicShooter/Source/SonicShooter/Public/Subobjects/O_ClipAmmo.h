@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PropertyWrappers/FloatPropertyWrapper.h"
+#include "PropertyWrappers/PWFloatPropertyWrapper.h"
 
 #include "O_ClipAmmo.generated.h"
 
@@ -26,7 +26,7 @@ public:
 
 
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Ammo")
-		FFloatPropertyWrapper ClipAmmo;
+		FPWFloatPropertyWrapper ClipAmmo;
 
 
 protected:

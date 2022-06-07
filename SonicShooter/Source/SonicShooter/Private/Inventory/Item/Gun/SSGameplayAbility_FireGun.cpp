@@ -119,7 +119,7 @@ void USSGameplayAbility_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* 
 	BulletTraceTargetActor->OwningAbility = this;
 	BulletTraceTargetActor->bDestroyOnConfirmation = false;
 
-	FGTDF_MultiFilter MultiFilter = FGTDF_MultiFilter();
+	FASSGameplayTargetDataFilter_MultiFilter MultiFilter = FASSGameplayTargetDataFilter_MultiFilter();
 	MultiFilter.bOnlyAcceptAbilitySystemInterfaces = true;
 	BulletTraceTargetActor->Filter = UASSAbilitySystemBlueprintLibrary::MakeMultiFilterHandle(MultiFilter, ActorInfo->AvatarActor.Get());
 

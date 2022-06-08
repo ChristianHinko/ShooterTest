@@ -5,7 +5,7 @@
 
 
 
-namespace NativeGameplayTags
+namespace SSNativeGameplayTags
 {
 	// Ability Tags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Fire,											TEXT("Ability.Fire"))

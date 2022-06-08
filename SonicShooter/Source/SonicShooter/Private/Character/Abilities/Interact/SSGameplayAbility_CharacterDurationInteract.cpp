@@ -12,7 +12,7 @@
 
 USSGameplayAbility_CharacterDurationInteract::USSGameplayAbility_CharacterDurationInteract()
 {
-	AbilityTags.AddTag(NativeGameplayTags::Ability_Interact_DurationInteract);
+	AbilityTags.AddTag(SSNativeGameplayTags::Ability_Interact_DurationInteract);
 }
 
 void USSGameplayAbility_CharacterDurationInteract::OnAvatarSetThatWorks(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)

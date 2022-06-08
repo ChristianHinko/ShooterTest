@@ -14,11 +14,11 @@
 USSGameplayAbility_CharacterJump::USSGameplayAbility_CharacterJump()
 {
 	AbilityInputID = ESSAbilityInputID::Jump;
-	AbilityTags.AddTag(NativeGameplayTags::Ability_Movement_Jump);
+	AbilityTags.AddTag(SSNativeGameplayTags::Ability_Movement_Jump);
 
 
-	CancelAbilitiesWithTag.AddTag(NativeGameplayTags::Ability_Movement_Crouch);
-	CancelAbilitiesWithTag.AddTag(NativeGameplayTags::Ability_Movement_Run);
+	CancelAbilitiesWithTag.AddTag(SSNativeGameplayTags::Ability_Movement_Crouch);
+	CancelAbilitiesWithTag.AddTag(SSNativeGameplayTags::Ability_Movement_Run);
 }
 
 

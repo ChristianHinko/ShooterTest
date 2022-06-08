@@ -13,10 +13,10 @@
 USSGameplayAbility_CharacterCrouch::USSGameplayAbility_CharacterCrouch()
 {
 	AbilityInputID = ESSAbilityInputID::Crouch;
-	AbilityTags.AddTag(NativeGameplayTags::Ability_Movement_Crouch);
+	AbilityTags.AddTag(SSNativeGameplayTags::Ability_Movement_Crouch);
 
 
-	CancelAbilitiesWithTag.AddTag(NativeGameplayTags::Ability_Movement_Run);
+	CancelAbilitiesWithTag.AddTag(SSNativeGameplayTags::Ability_Movement_Run);
 }
 
 

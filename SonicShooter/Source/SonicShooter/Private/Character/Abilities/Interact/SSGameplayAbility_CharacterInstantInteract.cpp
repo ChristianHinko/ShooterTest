@@ -11,7 +11,7 @@
 
 USSGameplayAbility_CharacterInstantInteract::USSGameplayAbility_CharacterInstantInteract()
 {
-	AbilityTags.AddTag(NativeGameplayTags::Ability_Interact_InstantInteract);
+	AbilityTags.AddTag(SSNativeGameplayTags::Ability_Interact_InstantInteract);
 }
 
 void USSGameplayAbility_CharacterInstantInteract::OnAvatarSetThatWorks(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)

@@ -221,7 +221,7 @@ void ASSCharacter_Shooter::OnPressedPrimaryFire()
 {
 	if (GetAbilitySystemComponent())
 	{
-		GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Fire.GetTag().GetSingleTagContainer());
+		GetAbilitySystemComponent()->TryActivateAbilitiesByTag(SSNativeGameplayTags::Ability_Fire.GetTag().GetSingleTagContainer());
 	}
 }
 
@@ -229,41 +229,41 @@ void ASSCharacter_Shooter::OnPressedReload()
 {
 	if (GetAbilitySystemComponent())
 	{
-		GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Reload.GetTag().GetSingleTagContainer());
+		GetAbilitySystemComponent()->TryActivateAbilitiesByTag(SSNativeGameplayTags::Ability_Reload.GetTag().GetSingleTagContainer());
 	}
 }
 
 void ASSCharacter_Shooter::OnPressedSwapToPreviousSlot()
 {
-	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Inventory_SwapItem_ItemHistory_Previous.GetTag().GetSingleTagContainer());
+	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(SSNativeGameplayTags::Ability_Inventory_SwapItem_ItemHistory_Previous.GetTag().GetSingleTagContainer());
 }
 void ASSCharacter_Shooter::OnPressedSwapToLayout1st()
 {
-	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_1st.GetTag().GetSingleTagContainer());
+	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(SSNativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_1st.GetTag().GetSingleTagContainer());
 }
 void ASSCharacter_Shooter::OnPressedSwapToLayout2nd()
 {
-	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_2nd.GetTag().GetSingleTagContainer());
+	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(SSNativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_2nd.GetTag().GetSingleTagContainer());
 }
 void ASSCharacter_Shooter::OnPressedSwapToLayout3rd()
 {
-	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_3rd.GetTag().GetSingleTagContainer());
+	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(SSNativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_3rd.GetTag().GetSingleTagContainer());
 }
 void ASSCharacter_Shooter::OnPressedSwapToLayout4th()
 {
-	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_4th.GetTag().GetSingleTagContainer());
+	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(SSNativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_4th.GetTag().GetSingleTagContainer());
 }
 void ASSCharacter_Shooter::OnPressedSwapToLayout5th()
 {
-	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_5th.GetTag().GetSingleTagContainer());
+	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(SSNativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_5th.GetTag().GetSingleTagContainer());
 }
 void ASSCharacter_Shooter::OnPressedSwapToLayoutForward()
 {
-	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_Forward.GetTag().GetSingleTagContainer());
+	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(SSNativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_Forward.GetTag().GetSingleTagContainer());
 }
 void ASSCharacter_Shooter::OnPressedSwapToLayoutBackward()
 {
-	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_Backward.GetTag().GetSingleTagContainer());
+	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(SSNativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_Backward.GetTag().GetSingleTagContainer());
 }
 
 void ASSCharacter_Shooter::OnPressedPause()

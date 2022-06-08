@@ -9,7 +9,7 @@
 USSGameplayAbility_ADS::USSGameplayAbility_ADS()
 {
 	AbilityInputID = ESSAbilityInputID::SecondaryFire;
-	AbilityTags.AddTag(NativeGameplayTags::Ability_ADS);
+	AbilityTags.AddTag(SSNativeGameplayTags::Ability_ADS);
 
 
 }

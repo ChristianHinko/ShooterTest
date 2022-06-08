@@ -13,7 +13,7 @@
 USSGameplayAbility_Reload::USSGameplayAbility_Reload()
 {
 	AbilityInputID = ESSAbilityInputID::Reload;
-	AbilityTags.AddTag(NativeGameplayTags::Ability_Reload);
+	AbilityTags.AddTag(SSNativeGameplayTags::Ability_Reload);
 }
 
 void USSGameplayAbility_Reload::OnAvatarSetThatWorks(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -126,7 +126,7 @@ void USSGameplayAbility_Reload::ActivateAbility(const FGameplayAbilitySpecHandle
 
 	// Move ammo out of backup
 	FGameplayEffectSpecHandle DepleteBackupAmmoSpecHandle = MakeOutgoingGameplayEffectSpec(Handle, ActorInfo, ActivationInfo, DepleteBackupAmmoEffectTSub, GetAbilityLevel());
-	DepleteBackupAmmoSpecHandle.Data.Get()->SetSetByCallerMagnitude(NativeGameplayTags::SetByCaller_BackupAmmoDepletion, -1 * AmmoToMove);
+	DepleteBackupAmmoSpecHandle.Data.Get()->SetSetByCallerMagnitude(SSNativeGameplayTags::SetByCaller_BackupAmmoDepletion, -1 * AmmoToMove);
 
 	ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, DepleteBackupAmmoSpecHandle);
 

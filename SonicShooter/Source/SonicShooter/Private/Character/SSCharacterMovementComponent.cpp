@@ -93,14 +93,14 @@ void USSCharacterMovementComponent::OnInitializeAbilitySystemComponent(UAbilityS
 
 	
 	// Bind to Tag change delegates
-	ASC->RegisterGameplayTagEvent(NativeGameplayTags::Character_RunDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnRunDisabledTagChanged);
-	ASC->RegisterGameplayTagEvent(NativeGameplayTags::Character_JumpDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnJumpDisabledTagChanged);
-	ASC->RegisterGameplayTagEvent(NativeGameplayTags::Character_CrouchDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCrouchDisabledTagChanged);
+	ASC->RegisterGameplayTagEvent(SSNativeGameplayTags::Character_RunDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnRunDisabledTagChanged);
+	ASC->RegisterGameplayTagEvent(SSNativeGameplayTags::Character_JumpDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnJumpDisabledTagChanged);
+	ASC->RegisterGameplayTagEvent(SSNativeGameplayTags::Character_CrouchDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USSCharacterMovementComponent::OnCrouchDisabledTagChanged);
 
 	// Get initial values
-	OnRunDisabledTagChanged(NativeGameplayTags::Character_RunDisabled, ASC->GetTagCount(NativeGameplayTags::Character_RunDisabled));
-	OnJumpDisabledTagChanged(NativeGameplayTags::Character_JumpDisabled, ASC->GetTagCount(NativeGameplayTags::Character_JumpDisabled));
-	OnCrouchDisabledTagChanged(NativeGameplayTags::Character_CrouchDisabled, ASC->GetTagCount(NativeGameplayTags::Character_CrouchDisabled));
+	OnRunDisabledTagChanged(SSNativeGameplayTags::Character_RunDisabled, ASC->GetTagCount(SSNativeGameplayTags::Character_RunDisabled));
+	OnJumpDisabledTagChanged(SSNativeGameplayTags::Character_JumpDisabled, ASC->GetTagCount(SSNativeGameplayTags::Character_JumpDisabled));
+	OnCrouchDisabledTagChanged(SSNativeGameplayTags::Character_CrouchDisabled, ASC->GetTagCount(SSNativeGameplayTags::Character_CrouchDisabled));
 }
 
 void USSCharacterMovementComponent::OnRunDisabledTagChanged(const FGameplayTag Tag, int32 NewCount)
@@ -454,7 +454,7 @@ void USSCharacterMovementComponent::CheckJumpInput(float DeltaTime) // basically
 			{
 				if (CharacterOwner->bClientUpdating == false)
 				{
-					bDidJump = SSCharacterOwner->GetAbilitySystemComponent()->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Movement_Jump.GetTag().GetSingleTagContainer());
+					bDidJump = SSCharacterOwner->GetAbilitySystemComponent()->TryActivateAbilitiesByTag(SSNativeGameplayTags::Ability_Movement_Jump.GetTag().GetSingleTagContainer());
 				}
 				else
 				{
@@ -490,7 +490,7 @@ void USSCharacterMovementComponent::ClearJumpInput(float DeltaTime)
 		{
 			if (SSCharacterOwner->bIsJumping)
 			{
-				SSCharacterOwner->GetAbilitySystemComponent()->CancelAbilities(&NativeGameplayTags::Ability_Movement_Jump.GetTag().GetSingleTagContainer());
+				SSCharacterOwner->GetAbilitySystemComponent()->CancelAbilities(&SSNativeGameplayTags::Ability_Movement_Jump.GetTag().GetSingleTagContainer());
 			}
 		}
 	}
@@ -500,7 +500,7 @@ void USSCharacterMovementComponent::ClearJumpInput(float DeltaTime)
 		CharacterOwner->bWasJumping = false;
 		if (SSCharacterOwner->bIsJumping)
 		{
-			SSCharacterOwner->GetAbilitySystemComponent()->CancelAbilities(&NativeGameplayTags::Ability_Movement_Jump.GetTag().GetSingleTagContainer());
+			SSCharacterOwner->GetAbilitySystemComponent()->CancelAbilities(&SSNativeGameplayTags::Ability_Movement_Jump.GetTag().GetSingleTagContainer());
 		}
 	}
 }
@@ -517,13 +517,13 @@ void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 		const bool willCrouch = bWantsToCrouch && CanCrouchInCurrentState();
 		if (IsCrouching() && !willCrouch)
 		{
-			OwnerASC->CancelAbilities(&NativeGameplayTags::Ability_Movement_Crouch.GetTag().GetSingleTagContainer());
+			OwnerASC->CancelAbilities(&SSNativeGameplayTags::Ability_Movement_Crouch.GetTag().GetSingleTagContainer());
 		}
 		else if (!IsCrouching() && willCrouch)
 		{
 			if (TimestampWantsToCrouch > TimestampWantsToRun)
 			{
-				OwnerASC->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Movement_Crouch.GetTag().GetSingleTagContainer());
+				OwnerASC->TryActivateAbilitiesByTag(SSNativeGameplayTags::Ability_Movement_Crouch.GetTag().GetSingleTagContainer());
 			}
 		}
 
@@ -531,13 +531,13 @@ void USSCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
 		const bool willRun = bWantsToRun && CanRunInCurrentState() && Acceleration.SizeSquared() > 0;
 		if (IsRunning() && !willRun)
 		{
-			OwnerASC->CancelAbilities(&NativeGameplayTags::Ability_Movement_Run.GetTag().GetSingleTagContainer());
+			OwnerASC->CancelAbilities(&SSNativeGameplayTags::Ability_Movement_Run.GetTag().GetSingleTagContainer());
 		}
 		else if (!IsRunning() && willRun)
 		{
 			if (TimestampWantsToRun > TimestampWantsToCrouch)
 			{
-				OwnerASC->TryActivateAbilitiesByTag(NativeGameplayTags::Ability_Movement_Run.GetTag().GetSingleTagContainer());
+				OwnerASC->TryActivateAbilitiesByTag(SSNativeGameplayTags::Ability_Movement_Run.GetTag().GetSingleTagContainer());
 			}
 		}
 	}
@@ -554,13 +554,13 @@ void USSCharacterMovementComponent::UpdateCharacterStateAfterMovement(float Delt
 		// Uncrouch if no longer allowed to be crouched
 		if (IsCrouching() && !CanCrouchInCurrentState())
 		{
-			OwnerASC->CancelAbilities(&NativeGameplayTags::Ability_Movement_Crouch.GetTag().GetSingleTagContainer());
+			OwnerASC->CancelAbilities(&SSNativeGameplayTags::Ability_Movement_Crouch.GetTag().GetSingleTagContainer());
 		}
 
 
 		if (IsRunning() && !CanRunInCurrentState())
 		{
-			OwnerASC->CancelAbilities(&NativeGameplayTags::Ability_Movement_Run.GetTag().GetSingleTagContainer());
+			OwnerASC->CancelAbilities(&SSNativeGameplayTags::Ability_Movement_Run.GetTag().GetSingleTagContainer());
 		}
 	}
 }

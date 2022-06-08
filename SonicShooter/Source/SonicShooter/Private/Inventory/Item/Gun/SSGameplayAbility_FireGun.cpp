@@ -29,7 +29,7 @@ USSGameplayAbility_FireGun::USSGameplayAbility_FireGun()
 {
 	AbilityInputID = ESSAbilityInputID::PrimaryFire;
 	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ClientOrServer;
-	AbilityTags.AddTag(NativeGameplayTags::Ability_Fire);
+	AbilityTags.AddTag(SSNativeGameplayTags::Ability_Fire);
 
 	ShotNumber = 0;
 	bInputPressed = false;

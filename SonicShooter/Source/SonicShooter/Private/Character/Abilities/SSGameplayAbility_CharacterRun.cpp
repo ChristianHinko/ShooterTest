@@ -13,12 +13,12 @@
 USSGameplayAbility_CharacterRun::USSGameplayAbility_CharacterRun()
 {
 	AbilityInputID = ESSAbilityInputID::Run;
-	AbilityTags.AddTag(NativeGameplayTags::Ability_Movement_Run);
+	AbilityTags.AddTag(SSNativeGameplayTags::Ability_Movement_Run);
 
 
-	ActivationBlockedTags.AddTag(NativeGameplayTags::Character_RunDisabled);	// This isn't the singular thing stopping you from running. The CMC is what listens for the presence of the RunDisabledTag and blocks running. This check just saves an ability activation.
+	ActivationBlockedTags.AddTag(SSNativeGameplayTags::Character_RunDisabled);	// This isn't the singular thing stopping you from running. The CMC is what listens for the presence of the RunDisabledTag and blocks running. This check just saves an ability activation.
 
-	CancelAbilitiesWithTag.AddTag(NativeGameplayTags::Ability_Movement_Crouch);
+	CancelAbilitiesWithTag.AddTag(SSNativeGameplayTags::Ability_Movement_Crouch);
 }
 
 

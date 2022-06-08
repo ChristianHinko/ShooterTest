@@ -81,5 +81,5 @@ namespace SSNativeGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Item_ItemType_Weapon_Rifle,								TEXT("Item.ItemType.Weapon.Rifle"))
 	UE_DEFINE_GAMEPLAY_TAG(Item_ItemType_Weapon_Shotgun,							TEXT("Item.ItemType.Weapon.Shotgun"))
 	UE_DEFINE_GAMEPLAY_TAG(Item_ItemType_Weapon_Pistol,								TEXT("Item.ItemType.Weapon.Pistol"))
-	UE_DEFINE_GAMEPLAY_TAG(Item_ItemType_Weapon_FAMAS,								TEXT("Item.ItemType.Weapon.FAMAS"))
+	UE_DEFINE_GAMEPLAY_TAG(Item_ItemType_Weapon_Famas,								TEXT("Item.ItemType.Weapon.Famas"))
 }

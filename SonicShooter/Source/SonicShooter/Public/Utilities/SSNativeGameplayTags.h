@@ -89,5 +89,5 @@ namespace SSNativeGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_ItemType_Weapon_Rifle)
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_ItemType_Weapon_Shotgun)
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_ItemType_Weapon_Pistol)
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_ItemType_Weapon_FAMAS)
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_ItemType_Weapon_Famas)
 }

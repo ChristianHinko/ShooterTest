@@ -30,16 +30,17 @@
  *						- Also figure out a way to make bCanCurrentlyBeInteractedWith and bDurationInteractOccurring cleaner and more understandable
  */
 
-USSGameplayAbility_CharacterAutoInteract::USSGameplayAbility_CharacterAutoInteract()
+USSGameplayAbility_CharacterAutoInteract::USSGameplayAbility_CharacterAutoInteract(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	AbilityInputID = ESSAbilityInputID::NoInput; // don't use the interact input ID since there is no input needed to activate this ability
 	AbilityTags.AddTag(SSNativeGameplayTags::Ability_Interact_AutoInteract);
 	// Probably make this an InstancedPerActor passive ability to handle all automatic interactions. Since it will be passive the ability will never end than thus we don't need to do Durration End callbacks inside EndAbility(). We can just do them where ever
 }
 
-void USSGameplayAbility_CharacterAutoInteract::OnAvatarSetThatWorks(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void USSGameplayAbility_CharacterAutoInteract::ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-	Super::OnAvatarSetThatWorks(ActorInfo, Spec);
+	Super::ASSOnAvatarSet(ActorInfo, Spec);
 
 	// Good place to cache references so we don't have to cast every time
 	if (!ActorInfo)

@@ -18,7 +18,7 @@ class SONICSHOOTER_API USSGameplayAbility_CharacterAutoInteract : public UASSGam
 	GENERATED_BODY()
 
 public:
-	USSGameplayAbility_CharacterAutoInteract();
+	USSGameplayAbility_CharacterAutoInteract(const FObjectInitializer& ObjectInitializer);
 
 	UPROPERTY()
 		TWeakObjectPtr<ASSCharacter_Shooter> ShooterCharacter;
@@ -26,7 +26,7 @@ public:
 protected:
 
 	//BEGIN UGameplayAbility Interface
-	virtual void OnAvatarSetThatWorks(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
+	virtual void ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 	//virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	//END UGameplayAbility Interface

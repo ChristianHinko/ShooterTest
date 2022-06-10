@@ -9,7 +9,8 @@
 #include "AbilitySystem/Types/SSGameplayAbilityTargetTypes.h"
 #include "PhysicalMaterial/SSPhysicalMaterial_Shooter.h"
 #include "BlueprintFunctionLibraries/HLBlueprintFunctionLibrary_MathHelpers.h"
-#include "GameFramework/PlayerController.h"
+#include "AbilitySystem/Types/ASSGameplayAbilityTypes.h"
+#include "GameFramework/Controller.h"
 #include "Abilities/GameplayAbility.h"
 
 
@@ -17,16 +18,20 @@
 ASSGameplayAbilityTargetActor_BulletTrace::ASSGameplayAbilityTargetActor_BulletTrace(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	TraceChannel = COLLISIONCHANNEL_BULLET;
-
-	CurrentBulletIndex = INDEX_NONE;
 	bDebug = true;
+
+	MaxRange = 100000.f;
+	TraceChannel = COLLISIONCHANNEL_BULLET;
 }
 
 
 void ASSGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 {
-	Super::ConfirmTargetingAndContinue();
+	check(ShouldProduceTargetData());
+	if (!IsConfirmTargetingAllowed())
+	{
+		return;
+	}
 
 	// Our Target Data to broadcast
 	FGameplayAbilityTargetDataHandle TargetDataHandle;
@@ -35,32 +40,36 @@ void ASSGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 	TArray<FRicochetingPenetrationSceneCastWithExitHitsUsingStrengthResult> BulletResults;
 	BulletResults.AddDefaulted(NumOfBullets); // add the predetermined number of bullets
 
+	FCollisionQueryParams CollisionQueryParams;
+	CollisionQueryParams.bReturnPhysicalMaterial = true; // this is needed for our bullet speed nerf calculations and determining whether to ricochet
+	CollisionQueryParams.AddIgnoredActor(SourceActor);
+	CollisionQueryParams.bTraceComplex = true;
+
 	// Perform each bullet collision query
-	for (CurrentBulletIndex = 0; CurrentBulletIndex < NumOfBullets; ++CurrentBulletIndex)
+	for (int32 i = 0; i < NumOfBullets; ++i)
 	{
-		// Calculate the bullet direction
+		// Calculate this bullet direction
 		FVector BulletDirection = FVector::ZeroVector;
 		{
+			// Calculate BulletDirection
 			if (IsValid(OwningAbility)) // server and launching client only
 			{
-				if (const APlayerController* PC = OwningAbility->GetCurrentActorInfo()->PlayerController.Get())
+				if (const FASSGameplayAbilityActorInfo* ASSActorInfo = static_cast<const FASSGameplayAbilityActorInfo*>(OwningAbility->GetCurrentActorInfo()))
 				{
 					FVector ViewStart;
 					FRotator ViewRot;
-					PC->GetPlayerViewPoint(ViewStart, ViewRot);
+					ASSActorInfo->Controller->GetPlayerViewPoint(ViewStart, ViewRot);
 					FVector ViewDir = ViewRot.Vector();
 
-					FCollisionQueryParams CollisionQueryParams;
-					CollisionQueryParams.AddIgnoredActor(SourceActor);
 					BulletDirection = UHLBlueprintFunctionLibrary_MathHelpers::GetLocationAimDirection(GetWorld(), CollisionQueryParams, ViewStart, ViewDir, MaxRange, StartLocation.GetTargetingTransform().GetLocation());
 				}
 			}
 
-			// Calculate new OutAimDir with random bullet spread offset if needed
+			// Calculate new BulletDirection with random bullet spread offset if needed
 			if (CurrentBulletSpread > SMALL_NUMBER)
 			{
 				// Our injected random seed is only unique to each fire. We need a random seed that is also unique to each bullet in the fire, so we will do this by using t
-				const int32 FireAndBulletSpecificNetSafeRandomSeed = FireSpecificNetSafeRandomSeed - ((CurrentBulletIndex + 2) * FireSpecificNetSafeRandomSeed);	// Here, the 'number' multiplied to t makes the random pattern noticable after firing 'number' of times. I use the prediction key as that 'number' which i think eliminates the threshold for noticeability entirely. - its confusing to think about but i think it works
+				const int32 FireAndBulletSpecificNetSafeRandomSeed = FireSpecificNetSafeRandomSeed - ((i + 2) * FireSpecificNetSafeRandomSeed);	// Here, the 'number' multiplied to t makes the random pattern noticable after firing 'number' of times. I use the prediction key as that 'number' which i think eliminates the threshold for noticeability entirely. - its confusing to think about but i think it works
 				FMath::RandInit(FireAndBulletSpecificNetSafeRandomSeed);
 				const FRandomStream RandomStream = FRandomStream(FMath::Rand());
 
@@ -70,13 +79,9 @@ void ASSGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 			}
 		}
 
-		// Perform line trace
-		FCollisionQueryParams CollisionQueryParams;
-		CollisionQueryParams.bReturnPhysicalMaterial = true; // this is needed for our bullet speed nerf calculations and determining whether to ricochet
-		CollisionQueryParams.AddIgnoredActor(SourceActor);
-		//CollisionQueryParams.bTraceComplex = true;
-		FCollisionShape CollisionShape = FCollisionShape::MakeSphere(30.f);
-		UHLBlueprintFunctionLibrary_StrengthCollisionQueries::RicochetingPenetrationSceneCastWithExitHitsUsingStrength(InitialBulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], StartLocation.GetTargetingTransform().GetLocation(), BulletDirection, MaxRange, FQuat::Identity, TraceChannel, CollisionShape, CollisionQueryParams, FCollisionResponseParams::DefaultResponseParam, MaxRicochets,
+		// Perform this bullet's scene query
+		FCollisionShape CollisionShape = FCollisionShape::MakeSphere(1.f);
+		UHLBlueprintFunctionLibrary_StrengthCollisionQueries::RicochetingPenetrationSceneCastWithExitHitsUsingStrength(InitialBulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), BulletResults[i], StartLocation.GetTargetingTransform().GetLocation(), BulletDirection, MaxRange, FQuat::Identity, TraceChannel, CollisionShape, CollisionQueryParams, FCollisionResponseParams::DefaultResponseParam, MaxRicochets,
 			[](const FHitResult& Hit) -> float // GetPerCmPenetrationNerf()
 			{
 				const USSPhysicalMaterial_Shooter* ShooterPhysMat = Cast<USSPhysicalMaterial_Shooter>(Hit.PhysMaterial);
@@ -107,18 +112,17 @@ void ASSGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 
 				return false;
 			}
-			);
+		);
 
 		if (bDebug)
 		{
 			const float DebugLifeTime = 10.f;
 
-			UHLBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries::DrawStrengthDebugLine(SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f, 1.f);
-			UHLBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries::DrawStrengthDebugText(SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], InitialBulletSpeed, DebugLifeTime);
-			UHLBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries::DrawCollisionShapeDebug(SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f);
+			UHLBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries::DrawStrengthDebugLine(SourceActor->GetWorld(), BulletResults[i], InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f, 1.f);
+			UHLBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries::DrawStrengthDebugText(SourceActor->GetWorld(), BulletResults[i], InitialBulletSpeed, DebugLifeTime);
+			UHLBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries::DrawCollisionShapeDebug(SourceActor->GetWorld(), BulletResults[i], InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f);
 		}
 	}
-	CurrentBulletIndex = INDEX_NONE;
 
 
 	// Create and add Target Data to our handle

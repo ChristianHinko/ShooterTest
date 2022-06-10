@@ -9,14 +9,15 @@
 #include "Character\AbilityTasks\SSAbilityTask_DurationInteractCallbacks.h"
 #include "Subobjects/ActorComponents/SSActorComponent_Interactor.h"
 
-USSGameplayAbility_CharacterInstantInteract::USSGameplayAbility_CharacterInstantInteract()
+USSGameplayAbility_CharacterInstantInteract::USSGameplayAbility_CharacterInstantInteract(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	AbilityTags.AddTag(SSNativeGameplayTags::Ability_Interact_InstantInteract);
 }
 
-void USSGameplayAbility_CharacterInstantInteract::OnAvatarSetThatWorks(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void USSGameplayAbility_CharacterInstantInteract::ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-	Super::OnAvatarSetThatWorks(ActorInfo, Spec);
+	Super::ASSOnAvatarSet(ActorInfo, Spec);
 }
 
 bool USSGameplayAbility_CharacterInstantInteract::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
@@ -54,30 +55,8 @@ void USSGameplayAbility_CharacterInstantInteract::ActivateAbility(const FGamepla
 	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
 }
 
-void USSGameplayAbility_CharacterInstantInteract::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void USSGameplayAbility_CharacterInstantInteract::ASSEndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	if (!IsEndAbilityValid(Handle, ActorInfo))
-	{
-		return;
-	}
-	if (ScopeLockCount > 0)
-	{
-		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &USSGameplayAbility_CharacterInstantInteract::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
-		return;
-	}
 
-
-
-
-
-
-
-
-
-
-
-	
-
-
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	Super::ASSEndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

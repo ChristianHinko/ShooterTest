@@ -10,14 +10,15 @@
 #include "Subobjects/ActorComponents/SSActorComponent_Interactor.h"
 
 
-USSGameplayAbility_CharacterDurationInteract::USSGameplayAbility_CharacterDurationInteract()
+USSGameplayAbility_CharacterDurationInteract::USSGameplayAbility_CharacterDurationInteract(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	AbilityTags.AddTag(SSNativeGameplayTags::Ability_Interact_DurationInteract);
 }
 
-void USSGameplayAbility_CharacterDurationInteract::OnAvatarSetThatWorks(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void USSGameplayAbility_CharacterDurationInteract::ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-	Super::OnAvatarSetThatWorks(ActorInfo, Spec);
+	Super::ASSOnAvatarSet(ActorInfo, Spec);
 }
 
 bool USSGameplayAbility_CharacterDurationInteract::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
@@ -153,21 +154,8 @@ void USSGameplayAbility_CharacterDurationInteract::OnSuccessfullInteract(float T
 
 
 
-void USSGameplayAbility_CharacterDurationInteract::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void USSGameplayAbility_CharacterDurationInteract::ASSEndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	if (!IsEndAbilityValid(Handle, ActorInfo))
-	{
-		return;
-	}
-	if (ScopeLockCount > 0)
-	{
-		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &USSGameplayAbility_CharacterDurationInteract::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
-		return;
-	}
-
-
-
-
 	if (ActorInfo->AbilitySystemComponent.Get())
 	{
 		if (InteractEffectActiveHandle.IsValid())
@@ -217,7 +205,7 @@ void USSGameplayAbility_CharacterDurationInteract::EndAbility(const FGameplayAbi
 
 
 
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	Super::ASSEndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 
 
 

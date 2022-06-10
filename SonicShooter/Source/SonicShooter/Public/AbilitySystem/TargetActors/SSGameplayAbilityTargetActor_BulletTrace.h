@@ -20,6 +20,10 @@ class SONICSHOOTER_API ASSGameplayAbilityTargetActor_BulletTrace : public AASSGa
 public:
 	ASSGameplayAbilityTargetActor_BulletTrace(const FObjectInitializer& ObjectInitializer);
 
+
+	/** Max distance to travel */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet")
+		float MaxRange;
 	/** Number of bullets to shoot (a shotgun-like feature) */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet")
 		int32 NumOfBullets;
@@ -35,19 +39,19 @@ public:
 	/** The falloff of range for this bullet per cm	*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet")
 		float RangeFalloffNerf;
-
+	/** The spread of the bullet direction */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet")
 		float CurrentBulletSpread;
 
-
-	virtual void ConfirmTargetingAndContinue() override;
+	/** Trace channel for collision queries */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet")
+		TEnumAsByte<ECollisionChannel> TraceChannel;
 
 	/** This is injected in every fire */
 	UPROPERTY(/*BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet"*/)
 		int16 FireSpecificNetSafeRandomSeed;
 
 
-private:
-	/** Indicates which bullet we are */
-	int32 CurrentBulletIndex;
+	virtual void ConfirmTargetingAndContinue() override;
+
 };

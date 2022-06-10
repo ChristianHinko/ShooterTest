@@ -11,7 +11,8 @@
 
 
 
-USSGameplayAbility_CharacterJump::USSGameplayAbility_CharacterJump()
+USSGameplayAbility_CharacterJump::USSGameplayAbility_CharacterJump(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	AbilityInputID = ESSAbilityInputID::Jump;
 	AbilityTags.AddTag(SSNativeGameplayTags::Ability_Movement_Jump);
@@ -22,9 +23,9 @@ USSGameplayAbility_CharacterJump::USSGameplayAbility_CharacterJump()
 }
 
 
-void USSGameplayAbility_CharacterJump::OnAvatarSetThatWorks(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void USSGameplayAbility_CharacterJump::ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-	Super::OnAvatarSetThatWorks(ActorInfo, Spec);
+	Super::ASSOnAvatarSet(ActorInfo, Spec);
 
 	// Good place to cache references so we don't have to cast every time
 }
@@ -86,19 +87,8 @@ void USSGameplayAbility_CharacterJump::ActivateAbility(const FGameplayAbilitySpe
 
 
 
-void USSGameplayAbility_CharacterJump::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void USSGameplayAbility_CharacterJump::ASSEndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	if (!IsEndAbilityValid(Handle, ActorInfo))
-	{
-		return;
-	}
-	if (ScopeLockCount > 0)
-	{
-		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &USSGameplayAbility_CharacterJump::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
-		return;
-	}
-
-
 	if (const FSSGameplayAbilityActorInfo* SSActorInfo = static_cast<const FSSGameplayAbilityActorInfo*>(ActorInfo))
 	{
 		if (USSCharacterMovementComponent* CMC = SSActorInfo->SSCharacterMovementComponent.Get())
@@ -118,5 +108,5 @@ void USSGameplayAbility_CharacterJump::EndAbility(const FGameplayAbilitySpecHand
 	ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(JumpEffectActiveHandle);
 
 
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	Super::ASSEndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

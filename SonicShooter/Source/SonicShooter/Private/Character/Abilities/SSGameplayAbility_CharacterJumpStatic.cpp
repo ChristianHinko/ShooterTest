@@ -10,7 +10,8 @@
 // IF YOU WANT TO USE THIS FOLLOW THE WAY THE STANDARD SSGameplayAbility_CharacterJump DOES IT!!!!!!!!!
 // WE JUST HAVENT FIXED THIS STATIC VERSION BECAUSE WE AREN'T USING IT!!!!!!!
 
-USSGameplayAbility_CharacterJumpStatic::USSGameplayAbility_CharacterJumpStatic()
+USSGameplayAbility_CharacterJumpStatic::USSGameplayAbility_CharacterJumpStatic(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	AbilityInputID = ESSAbilityInputID::Jump;
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::NonInstanced;
@@ -80,18 +81,8 @@ void USSGameplayAbility_CharacterJumpStatic::InputReleased(const FGameplayAbilit
 	a montage that has callbacks (meaning it's an async task) then make sure your ok with always stopping the montage every time when the ability ends, because I guess rolling
 	back the montage won't work? And also weird that they are talking about doing an async task inside a Non-Instanced ability. Maybe it's not async. Idk
  */
-void USSGameplayAbility_CharacterJumpStatic::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void USSGameplayAbility_CharacterJumpStatic::ASSEndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	if (!IsEndAbilityValid(Handle, ActorInfo))
-	{
-		return;
-	}
-	if (ScopeLockCount > 0)
-	{
-		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &USSGameplayAbility_CharacterJumpStatic::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
-		return;
-	}
-
 	if (ActorInfo)
 	{
 		if (ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get()))
@@ -109,5 +100,5 @@ void USSGameplayAbility_CharacterJumpStatic::EndAbility(const FGameplayAbilitySp
 	}
 
 
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	Super::ASSEndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

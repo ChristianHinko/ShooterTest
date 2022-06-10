@@ -9,14 +9,15 @@
 #include "Character/AbilityTasks/SSAbilityTask_DurationInteractCallbacks.h"
 #include "Subobjects/ActorComponents/SSActorComponent_Interactor.h"
 
-USSGameplayAbility_CharacterInteract::USSGameplayAbility_CharacterInteract()
+USSGameplayAbility_CharacterInteract::USSGameplayAbility_CharacterInteract(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	AbilityInputID = ESSAbilityInputID::Interact;
 }
 
-void USSGameplayAbility_CharacterInteract::OnAvatarSetThatWorks(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void USSGameplayAbility_CharacterInteract::ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-	Super::OnAvatarSetThatWorks(ActorInfo, Spec);
+	Super::ASSOnAvatarSet(ActorInfo, Spec);
 
 	// Good place to cache references so we don't have to cast every time
 	if (!ActorInfo)

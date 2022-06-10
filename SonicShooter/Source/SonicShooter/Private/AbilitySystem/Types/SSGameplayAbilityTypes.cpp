@@ -11,15 +11,9 @@
 
 
 
-FSSGameplayAbilityActorInfo::FSSGameplayAbilityActorInfo()
+void FSSGameplayAbilityActorInfo::InitFromActor(AActor* InOwnerActor, AActor* InAvatarActor, UAbilitySystemComponent* InAbilitySystemComponent)
 {
-
-}
-
-
-void FSSGameplayAbilityActorInfo::ASSInitFromActor(AActor* InOwnerActor, AActor* InAvatarActor, UAbilitySystemComponent* InAbilitySystemComponent)
-{
-	Super::ASSInitFromActor(InOwnerActor, InAvatarActor, InAbilitySystemComponent);
+	Super::InitFromActor(InOwnerActor, InAvatarActor, InAbilitySystemComponent);
 
 	// Get our SSCharacter
 	SSCharacter = Cast<ASSCharacter>(InAvatarActor);
@@ -47,13 +41,6 @@ void FSSGameplayAbilityActorInfo::ASSInitFromActor(AActor* InOwnerActor, AActor*
 	}
 }
 
-void FSSGameplayAbilityActorInfo::SetAvatarActor(AActor* InAvatarActor)
-{
-	Super::SetAvatarActor(InAvatarActor);
-
-
-}
-
 void FSSGameplayAbilityActorInfo::ClearActorInfo()
 {
 	Super::ClearActorInfo();
@@ -77,15 +64,9 @@ void FSSGameplayAbilityActorInfo::ClearActorInfo()
 
 
 
-FSSGameplayAbilityActorInfo_Shooter::FSSGameplayAbilityActorInfo_Shooter()
+void FSSGameplayAbilityActorInfo_Shooter::InitFromActor(AActor* InOwnerActor, AActor* InAvatarActor, UAbilitySystemComponent* InAbilitySystemComponent)
 {
-
-}
-
-
-void FSSGameplayAbilityActorInfo_Shooter::ASSInitFromActor(AActor* InOwnerActor, AActor* InAvatarActor, UAbilitySystemComponent* InAbilitySystemComponent)
-{
-	Super::ASSInitFromActor(InOwnerActor, InAvatarActor, InAbilitySystemComponent);
+	Super::InitFromActor(InOwnerActor, InAvatarActor, InAbilitySystemComponent);
 
 	// Get our Shooter ASC
 	ShooterAbilitySystemComponent = Cast<USSAbilitySystemComponent_Shooter>(ASSAbilitySystemComponent);
@@ -102,13 +83,6 @@ void FSSGameplayAbilityActorInfo_Shooter::ASSInitFromActor(AActor* InOwnerActor,
 	{
 		InventoryComponent = nullptr;
 	}
-}
-
-void FSSGameplayAbilityActorInfo_Shooter::SetAvatarActor(AActor* InAvatarActor)
-{
-	Super::SetAvatarActor(InAvatarActor);
-
-
 }
 
 void FSSGameplayAbilityActorInfo_Shooter::ClearActorInfo()

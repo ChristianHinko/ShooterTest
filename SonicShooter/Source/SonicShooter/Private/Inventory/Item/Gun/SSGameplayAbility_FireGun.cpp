@@ -14,6 +14,7 @@
 #include "Inventory/Item\Gun\SSItemStack_Gun.h"
 #include "ArcInventoryItemTypes.h"
 #include "Item\Definitions\ArcItemDefinition_Active.h"
+#include "AbilitySystem/Types/ASSGameplayAbilityTypes.h"
 
 #include "AbilityTasks/ASSEAbilityTask_Ticker.h"
 #include "Kismet/GameplayStatics.h"
@@ -414,7 +415,14 @@ void USSGameplayAbility_FireGun::Shoot()
 	BulletTraceTargetActor->SourceActor = GetAvatarActorFromActorInfo();
 
 	// Update our target actor's start location
-	BulletTraceTargetActor->bUseAimPointAsStartLocation = true; // we just want to use the player camera position directly for our StartLocation
+	BulletTraceTargetActor->StartLocation.LocationType = EGameplayAbilityTargetingLocationType::LiteralTransform;
+	FVector ViewStart = FVector::ZeroVector;
+	if (const FASSGameplayAbilityActorInfo* ASSActorInfo = static_cast<const FASSGameplayAbilityActorInfo*>(GetCurrentActorInfo()))
+	{
+		FRotator ViewRot;
+		ASSActorInfo->Controller->GetPlayerViewPoint(ViewStart, ViewRot);
+	}
+	BulletTraceTargetActor->StartLocation.LiteralTransform.SetLocation(ViewStart); // we just want to use the player camera position directly for our StartLocation
 	
 	// Inject random seed - btw it's cool that we have a net safe random seed and we have a system for it, but reality is we don't need it now since client will just send its target data to server.
 	const int16 PredictionKey = GetCurrentActivationInfo().GetActivationPredictionKey().Current;	// Use the prediction key as a net safe random seed.

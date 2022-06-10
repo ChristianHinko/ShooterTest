@@ -8,6 +8,9 @@
 #include "Utilities/SSCollisionChannels.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTargetTypes.h"
 #include "PhysicalMaterial/SSPhysicalMaterial_Shooter.h"
+#include "BlueprintFunctionLibraries/HLBlueprintFunctionLibrary_MathHelpers.h"
+#include "GameFramework/PlayerController.h"
+#include "Abilities/GameplayAbility.h"
 
 
 
@@ -35,13 +38,45 @@ void ASSGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 	// Perform each bullet collision query
 	for (CurrentBulletIndex = 0; CurrentBulletIndex < NumOfBullets; ++CurrentBulletIndex)
 	{
+		// Calculate the bullet direction
+		FVector BulletDirection = FVector::ZeroVector;
+		{
+			if (IsValid(OwningAbility)) // server and launching client only
+			{
+				if (const APlayerController* PC = OwningAbility->GetCurrentActorInfo()->PlayerController.Get())
+				{
+					FVector ViewStart;
+					FRotator ViewRot;
+					PC->GetPlayerViewPoint(ViewStart, ViewRot);
+					FVector ViewDir = ViewRot.Vector();
+
+					FCollisionQueryParams CollisionQueryParams;
+					CollisionQueryParams.AddIgnoredActor(SourceActor);
+					BulletDirection = UHLBlueprintFunctionLibrary_MathHelpers::GetLocationAimDirection(GetWorld(), CollisionQueryParams, ViewStart, ViewDir, MaxRange, StartLocation.GetTargetingTransform().GetLocation());
+				}
+			}
+
+			// Calculate new OutAimDir with random bullet spread offset if needed
+			if (CurrentBulletSpread > SMALL_NUMBER)
+			{
+				// Our injected random seed is only unique to each fire. We need a random seed that is also unique to each bullet in the fire, so we will do this by using t
+				const int32 FireAndBulletSpecificNetSafeRandomSeed = FireSpecificNetSafeRandomSeed - ((CurrentBulletIndex + 2) * FireSpecificNetSafeRandomSeed);	// Here, the 'number' multiplied to t makes the random pattern noticable after firing 'number' of times. I use the prediction key as that 'number' which i think eliminates the threshold for noticeability entirely. - its confusing to think about but i think it works
+				FMath::RandInit(FireAndBulletSpecificNetSafeRandomSeed);
+				const FRandomStream RandomStream = FRandomStream(FMath::Rand());
+
+				// Get and apply random offset to OutAimDir using randomStream
+				const float ConeHalfAngleRadius = FMath::DegreesToRadians(CurrentBulletSpread * 0.5f);
+				BulletDirection = RandomStream.VRandCone(BulletDirection, ConeHalfAngleRadius);
+			}
+		}
+
 		// Perform line trace
 		FCollisionQueryParams CollisionQueryParams;
 		CollisionQueryParams.bReturnPhysicalMaterial = true; // this is needed for our bullet speed nerf calculations and determining whether to ricochet
 		CollisionQueryParams.AddIgnoredActor(SourceActor);
 		//CollisionQueryParams.bTraceComplex = true;
 		FCollisionShape CollisionShape = FCollisionShape::MakeSphere(30.f);
-		UHLBlueprintFunctionLibrary_StrengthCollisionQueries::RicochetingPenetrationSceneCastWithExitHitsUsingStrength(InitialBulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], StartLocation.GetTargetingTransform().GetLocation(), GetAimDirectionOfStartLocation(), MaxRange, FQuat::Identity, TraceChannel, CollisionShape, CollisionQueryParams, FCollisionResponseParams::DefaultResponseParam, MaxRicochets,
+		UHLBlueprintFunctionLibrary_StrengthCollisionQueries::RicochetingPenetrationSceneCastWithExitHitsUsingStrength(InitialBulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), BulletResults[CurrentBulletIndex], StartLocation.GetTargetingTransform().GetLocation(), BulletDirection, MaxRange, FQuat::Identity, TraceChannel, CollisionShape, CollisionQueryParams, FCollisionResponseParams::DefaultResponseParam, MaxRicochets,
 			[](const FHitResult& Hit) -> float // GetPerCmPenetrationNerf()
 			{
 				const USSPhysicalMaterial_Shooter* ShooterPhysMat = Cast<USSPhysicalMaterial_Shooter>(Hit.PhysMaterial);
@@ -150,23 +185,4 @@ void ASSGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 	}
 
 	TargetDataReadyDelegate.Broadcast(TargetDataHandle);
-}
-
-void ASSGameplayAbilityTargetActor_BulletTrace::CalculateAimDirection(FVector& OutAimStart, FVector& OutAimDir) const
-{
-	Super::CalculateAimDirection(OutAimStart, OutAimDir); // call Super so we get the PC's view dir, and then we can add bullet spread ontop of that
-
-
-	// Calculate new OutAimDir with random bullet spread offset if needed
-	if (CurrentBulletSpread > SMALL_NUMBER)
-	{
-		// Our injected random seed is only unique to each fire. We need a random seed that is also unique to each bullet in the fire, so we will do this by using t
-		const int32 FireAndBulletSpecificNetSafeRandomSeed = FireSpecificNetSafeRandomSeed - ((CurrentBulletIndex + 2) * FireSpecificNetSafeRandomSeed);	// Here, the 'number' multiplied to t makes the random pattern noticable after firing 'number' of times. I use the prediction key as that 'number' which i think eliminates the threshold for noticeability entirely. - its confusing to think about but i think it works
-		FMath::RandInit(FireAndBulletSpecificNetSafeRandomSeed);
-		const FRandomStream RandomStream = FRandomStream(FMath::Rand());
-
-		// Get and apply random offset to OutAimDir using randomStream
-		const float ConeHalfAngleRadius = FMath::DegreesToRadians(CurrentBulletSpread * 0.5f);
-		OutAimDir = RandomStream.VRandCone(OutAimDir, ConeHalfAngleRadius);
-	}
 }

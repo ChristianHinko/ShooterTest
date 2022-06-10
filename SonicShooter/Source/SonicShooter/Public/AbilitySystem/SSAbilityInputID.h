@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/ASSAbilityInputID.h"
+#include "AbilitySystem/Types/ASSAbilityInputID.h"
 
 
 

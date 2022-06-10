@@ -5,8 +5,10 @@
 
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "GameFramework/Character.h"
+#include "AbilitySystemComponent.h"
 
-USSGameplayAbility_ADS::USSGameplayAbility_ADS()
+USSGameplayAbility_ADS::USSGameplayAbility_ADS(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	AbilityInputID = ESSAbilityInputID::SecondaryFire;
 	AbilityTags.AddTag(SSNativeGameplayTags::Ability_ADS);
@@ -84,18 +86,8 @@ void USSGameplayAbility_ADS::OnRelease(float TimeHeld)
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);	// no need to replicate, server runs this too
 }
 
-void USSGameplayAbility_ADS::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void USSGameplayAbility_ADS::ASSEndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	if (!IsEndAbilityValid(Handle, ActorInfo))
-	{
-		return;
-	}
-	if (ScopeLockCount > 0)
-	{
-		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &USSGameplayAbility_ADS::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
-		return;
-	}
-
 	if (ActorInfo)
 	{
 		ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get());
@@ -115,5 +107,5 @@ void USSGameplayAbility_ADS::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	}
 
 
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	Super::ASSEndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

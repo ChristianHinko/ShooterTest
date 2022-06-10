@@ -26,7 +26,8 @@
 
 
 
-USSGameplayAbility_FireGun::USSGameplayAbility_FireGun()
+USSGameplayAbility_FireGun::USSGameplayAbility_FireGun(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	AbilityInputID = ESSAbilityInputID::PrimaryFire;
 	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ClientOrServer;
@@ -37,9 +38,9 @@ USSGameplayAbility_FireGun::USSGameplayAbility_FireGun()
 }
 
 
-void USSGameplayAbility_FireGun::OnAvatarSetThatWorks(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void USSGameplayAbility_FireGun::ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-	Super::OnAvatarSetThatWorks(ActorInfo, Spec);
+	Super::ASSOnAvatarSet(ActorInfo, Spec);
 }
 
 // This ability is only given to the player while his Gun is active
@@ -528,20 +529,8 @@ void USSGameplayAbility_FireGun::OnCancelled(const FGameplayAbilityTargetDataHan
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }
 
-void USSGameplayAbility_FireGun::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void USSGameplayAbility_FireGun::ASSEndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	// Super wraps the whole EndAbility() in IsEndAbilityValid()
-	if (!IsEndAbilityValid(Handle, ActorInfo))
-	{
-		return;
-	}
-	// Make sure we bind our child class' version of EndAbility() instead of using the Super's version of this part
-	if (ScopeLockCount > 0)
-	{
-		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &USSGameplayAbility_FireGun::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
-		return;
-	}
-
 	// Store when this fire ended so next fire can determine fire rate
 	TimestampPreviousFireEnd = GetWorld()->GetTimeSeconds();
 
@@ -559,8 +548,7 @@ void USSGameplayAbility_FireGun::EndAbility(const FGameplayAbilitySpecHandle Han
 	}
 
 
-
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	Super::ASSEndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 

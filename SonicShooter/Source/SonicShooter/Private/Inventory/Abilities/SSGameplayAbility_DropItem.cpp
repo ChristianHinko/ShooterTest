@@ -16,15 +16,16 @@
 
 
 
-USSGameplayAbility_DropItem::USSGameplayAbility_DropItem()
+USSGameplayAbility_DropItem::USSGameplayAbility_DropItem(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	AbilityInputID = ESSAbilityInputID::DropItem;
 	AbilityTags.AddTag(FArcInvDropItemAbilityTag);	// ArcInventory's Tag (maybe we should just make our own so there isn't a gap in tags for our inventory system for our game tags)
 }
 
-void USSGameplayAbility_DropItem::OnAvatarSetThatWorks(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void USSGameplayAbility_DropItem::ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-	Super::OnAvatarSetThatWorks(ActorInfo, Spec);
+	Super::ASSOnAvatarSet(ActorInfo, Spec);
 
 	// Good place to cache references so we don't have to cast every time
 	if (!ActorInfo)
@@ -130,34 +131,8 @@ void USSGameplayAbility_DropItem::OnDataCancelled()
 
 
 
-void USSGameplayAbility_DropItem::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void USSGameplayAbility_DropItem::ASSEndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	// Super wraps the whole EndAbility() in IsEndAbilityValid()
-	if (!IsEndAbilityValid(Handle, ActorInfo))
-	{
-		return;
-	}
-	// Make sure we bind our child class' version of EndAbility() instead of using the Super's version of this part
-	if (ScopeLockCount > 0)
-	{
-		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &USSGameplayAbility_DropItem::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
-		return;
-	}
 
-
-
-
-
-
-
-
-
-
-	//Now call the Super to finish ending the ability.
-	/*
-		IMPORTANT: If part of your gameplay logic in EndAbility() uses an async task, make sure you wait until the task is completed before you call Super::EndAbility.
-		Otherwise the task may not complete. Call Super::EndAbility inside the task's OnComplete delegate.
-	*/
-	// super end ability loops through all tasks and calls OnDestroy; however, this is a virtual function, some tasks may not be destroyed on end ability (this is probably a super rare case tho) (dan says WaitTargetData doesn't end)
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	Super::ASSEndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

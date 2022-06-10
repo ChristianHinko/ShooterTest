@@ -14,7 +14,7 @@
 /**
  * 
  */
-class FSonicShooter : public IModuleInterface
+class FSonicShooterModule : public IModuleInterface
 {
 public:
 	virtual bool IsGameModule() const override
@@ -22,9 +22,9 @@ public:
 		return true;
 	}
 
-	static inline FSonicShooter& Get()
+	static inline FSonicShooterModule& Get()
 	{
-		return FModuleManager::LoadModuleChecked<FSonicShooter>(SONICSHOOTER_MODULE_NAME);
+		return FModuleManager::LoadModuleChecked<FSonicShooterModule>(SONICSHOOTER_MODULE_NAME);
 	}
 	static inline bool IsAvailable()
 	{

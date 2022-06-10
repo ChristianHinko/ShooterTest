@@ -7,7 +7,7 @@ public class SonicShooter : ModuleRules
 	public SonicShooter(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-		PrivatePCHHeaderFile = "Private/SonicShooterPCH.h";
+		PrivatePCHHeaderFile = "Private/SonicShooterPrivatePCH.h";
 
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine" });
 		PrivateDependencyModuleNames.AddRange(

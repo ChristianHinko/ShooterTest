@@ -46,9 +46,6 @@ public:
 	UPROPERTY(/*BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet"*/)
 		int16 FireSpecificNetSafeRandomSeed;
 
-protected:
-	virtual void CalculateAimDirection(FVector& OutAimStart, FVector& OutAimDir) const override;
-
 
 private:
 	/** Indicates which bullet we are */

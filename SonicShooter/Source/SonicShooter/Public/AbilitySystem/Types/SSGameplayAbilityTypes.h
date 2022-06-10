@@ -24,14 +24,6 @@ struct SONICSHOOTER_API FSSGameplayAbilityActorInfo : public FASSGameplayAbility
 {
     GENERATED_BODY()
 
-
-    FSSGameplayAbilityActorInfo();
-    virtual ~FSSGameplayAbilityActorInfo() override
-    {
-
-    }
-
-
     UPROPERTY(BlueprintReadOnly, Category = "SSActorInfo")
         TWeakObjectPtr<ASSCharacter> SSCharacter;
 
@@ -45,8 +37,7 @@ struct SONICSHOOTER_API FSSGameplayAbilityActorInfo : public FASSGameplayAbility
         TWeakObjectPtr<USSCharacterMovementComponent> SSCharacterMovementComponent;
 
 
-    virtual void ASSInitFromActor(AActor* OwnerActor, AActor* AvatarActor, UAbilitySystemComponent* InAbilitySystemComponent) override;
-    virtual void SetAvatarActor(AActor* AvatarActor) override;
+    virtual void InitFromActor(AActor* OwnerActor, AActor* AvatarActor, UAbilitySystemComponent* InAbilitySystemComponent) override;
     virtual void ClearActorInfo() override;
 
 
@@ -76,28 +67,20 @@ struct SONICSHOOTER_API FSSGameplayAbilityActorInfo_Shooter : public FSSGameplay
 {
     GENERATED_BODY()
 
-
-    FSSGameplayAbilityActorInfo_Shooter();
-    virtual ~FSSGameplayAbilityActorInfo_Shooter() override
-    {
-
-    }
-
     // Our Shooter specific ASC
-    UPROPERTY(BlueprintReadOnly, Category = "Shooter")
+    UPROPERTY(BlueprintReadOnly, Category = "ShooterActorInfo")
         TWeakObjectPtr<USSAbilitySystemComponent_Shooter> ShooterAbilitySystemComponent;
 
     // Our ShooterCharacter
-    UPROPERTY(BlueprintReadOnly, Category = "Shooter")
+    UPROPERTY(BlueprintReadOnly, Category = "ShooterActorInfo")
         TWeakObjectPtr<ASSCharacter_Shooter> ShooterCharacter;
 
     // Our Inventory Component
-    UPROPERTY(BlueprintReadOnly, Category = "Shooter")
+    UPROPERTY(BlueprintReadOnly, Category = "ShooterActorInfo")
         TWeakObjectPtr<USSInventoryComponent_Active> InventoryComponent;
 
 
-    virtual void ASSInitFromActor(AActor* OwnerActor, AActor* AvatarActor, UAbilitySystemComponent* InAbilitySystemComponent) override;
-    virtual void SetAvatarActor(AActor* AvatarActor) override;
+    virtual void InitFromActor(AActor* OwnerActor, AActor* AvatarActor, UAbilitySystemComponent* InAbilitySystemComponent) override;
     virtual void ClearActorInfo() override;
 
 

@@ -18,16 +18,9 @@
 struct FAmmoInitializationStatics
 {
 	// No need to capture these Attributes since we aren't reading from them, but writing to them
-	const FGameplayAttribute MaxAmmoAttribute;
-	const FGameplayAttribute MaxClipAmmoAttribute;
-	const FGameplayAttribute BackupAmmoAttribute;
 	
 	FAmmoInitializationStatics()
-		: MaxAmmoAttribute(USSAttributeSet_Ammo::GetMaxAmmoAttribute())
-		, MaxClipAmmoAttribute(USSAttributeSet_Ammo::GetMaxClipAmmoAttribute())
-		, BackupAmmoAttribute(USSAttributeSet_Ammo::GetBackupAmmoAttribute())
 	{
-
 	}
 };
 
@@ -67,15 +60,15 @@ void USSGameplayEffectExecutionCalculation_InitAmmo::Execute_Implementation(cons
 
 
 	// Set defaults
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetAmmoInitializationStatics().MaxAmmoAttribute,		EGameplayModOp::Override, MaxAmmo));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetAmmoInitializationStatics().MaxClipAmmoAttribute,	EGameplayModOp::Override, MaxClipAmmo));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Ammo::GetMaxAmmoAttribute(), EGameplayModOp::Override, MaxAmmo));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Ammo::GetMaxClipAmmoAttribute(), EGameplayModOp::Override, MaxClipAmmo));
 
 
 	// Calculate defaults
 	float ClipAmmo = MaxClipAmmo;
 	float BackupAmmo = MaxAmmo - MaxClipAmmo;
 
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetAmmoInitializationStatics().BackupAmmoAttribute,		EGameplayModOp::Override, BackupAmmo));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Ammo::GetBackupAmmoAttribute(), EGameplayModOp::Override, BackupAmmo));
 	
 	// Get ClipAmmo subobject and initialize ClipAmmo
 	if (const FSSGameplayAbilityActorInfo_Shooter* ShooterActorInfo = static_cast<const FSSGameplayAbilityActorInfo_Shooter*>(TargetAbilitySystemComponent->AbilityActorInfo.Get()))

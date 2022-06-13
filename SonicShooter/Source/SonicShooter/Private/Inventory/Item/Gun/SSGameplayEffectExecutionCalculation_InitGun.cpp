@@ -14,49 +14,9 @@
 struct FGunInitializationStatics
 {
 	// No need to capture these Attributes since we aren't reading from them, but writing to them
-	const FGameplayAttribute MinBulletSpreadAttribute;
-	const FGameplayAttribute MovingBulletSpreadAttribute;
-	const FGameplayAttribute BulletSpreadIncRateAttribute;
-	const FGameplayAttribute FireBulletSpreadAttribute;
-	const FGameplayAttribute BulletSpreadDecSpeedAttribute;
-
-	const FGameplayAttribute NumberOfBulletsPerFireAttribute;
-	const FGameplayAttribute MaxRangeAttribute;
-	const FGameplayAttribute PenetrationsAttribute;
-	const FGameplayAttribute RicochetsAttribute;
-	const FGameplayAttribute InitialBulletSpeedAttribute;
-	const FGameplayAttribute BulletSpeedFalloffAttribute;
-
-	const FGameplayAttribute bFullAutoAttribute;
-	const FGameplayAttribute TimeBetweenShotsAttribute;
-	const FGameplayAttribute TimeBetweenFiresOverrideAttribute;
-	const FGameplayAttribute TimeBetweenBurstsOverrideAttribute;
-	const FGameplayAttribute NumShotsPerBurstAttribute;
-	const FGameplayAttribute AmmoCostAttribute;
-
 
 	FGunInitializationStatics()
-		: MinBulletSpreadAttribute(USSAttributeSet_Gun::GetMinBulletSpreadAttribute())
-		, MovingBulletSpreadAttribute(USSAttributeSet_Gun::GetMovingBulletSpreadAttribute())
-		, BulletSpreadIncRateAttribute(USSAttributeSet_Gun::GetBulletSpreadIncRateAttribute())
-		, FireBulletSpreadAttribute(USSAttributeSet_Gun::GetFireBulletSpreadAttribute())
-		, BulletSpreadDecSpeedAttribute(USSAttributeSet_Gun::GetBulletSpreadDecSpeedAttribute())
-
-		, NumberOfBulletsPerFireAttribute(USSAttributeSet_Gun::GetNumberOfBulletsPerFireAttribute())
-		, MaxRangeAttribute(USSAttributeSet_Gun::GetMaxRangeAttribute())
-		, PenetrationsAttribute(USSAttributeSet_Gun::GetPenetrationsAttribute())
-		, RicochetsAttribute(USSAttributeSet_Gun::GetRicochetsAttribute())
-		, InitialBulletSpeedAttribute(USSAttributeSet_Gun::GetInitialBulletSpeedAttribute())
-		, BulletSpeedFalloffAttribute(USSAttributeSet_Gun::GetBulletSpeedFalloffAttribute())
-
-		, bFullAutoAttribute(USSAttributeSet_Gun::GetbFullAutoAttribute())
-		, TimeBetweenShotsAttribute(USSAttributeSet_Gun::GetTimeBetweenShotsAttribute())
-		, TimeBetweenFiresOverrideAttribute(USSAttributeSet_Gun::GetTimeBetweenFiresOverrideAttribute())
-		, TimeBetweenBurstsOverrideAttribute(USSAttributeSet_Gun::GetTimeBetweenBurstsOverrideAttribute())
-		, NumShotsPerBurstAttribute(USSAttributeSet_Gun::GetNumShotsPerBurstAttribute())
-		, AmmoCostAttribute(USSAttributeSet_Gun::GetAmmoCostAttribute())
 	{
-
 	}
 };
 
@@ -109,25 +69,25 @@ void USSGameplayEffectExecutionCalculation_InitGun::Execute_Implementation(const
 
 
 	// Set defaults
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetGunInitializationStatics().MinBulletSpreadAttribute,				EGameplayModOp::Override, MinBulletSpread));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetGunInitializationStatics().MovingBulletSpreadAttribute,			EGameplayModOp::Override, MovingBulletSpread));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetGunInitializationStatics().BulletSpreadIncRateAttribute,			EGameplayModOp::Override, BulletSpreadIncRate));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetGunInitializationStatics().FireBulletSpreadAttribute,			EGameplayModOp::Override, FireBulletSpread));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetGunInitializationStatics().BulletSpreadDecSpeedAttribute,		EGameplayModOp::Override, BulletSpreadDecSpeed));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Gun::GetMinBulletSpreadAttribute(),					EGameplayModOp::Override, MinBulletSpread));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Gun::GetMovingBulletSpreadAttribute(),				EGameplayModOp::Override, MovingBulletSpread));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Gun::GetBulletSpreadIncRateAttribute(),				EGameplayModOp::Override, BulletSpreadIncRate));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Gun::GetFireBulletSpreadAttribute(),				EGameplayModOp::Override, FireBulletSpread));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Gun::GetBulletSpreadDecSpeedAttribute(),			EGameplayModOp::Override, BulletSpreadDecSpeed));
 
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetGunInitializationStatics().NumberOfBulletsPerFireAttribute,		EGameplayModOp::Override, NumberOfBulletsPerFire));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetGunInitializationStatics().MaxRangeAttribute,					EGameplayModOp::Override, MaxRange));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetGunInitializationStatics().PenetrationsAttribute,				EGameplayModOp::Override, Penetrations));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetGunInitializationStatics().RicochetsAttribute,					EGameplayModOp::Override, Ricochets));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetGunInitializationStatics().InitialBulletSpeedAttribute,			EGameplayModOp::Override, InitialBulletSpeed));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetGunInitializationStatics().BulletSpeedFalloffAttribute,			EGameplayModOp::Override, BulletSpeedFalloff));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Gun::GetNumberOfBulletsPerFireAttribute(),			EGameplayModOp::Override, NumberOfBulletsPerFire));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Gun::GetMaxRangeAttribute(),						EGameplayModOp::Override, MaxRange));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Gun::GetPenetrationsAttribute(),					EGameplayModOp::Override, Penetrations));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Gun::GetRicochetsAttribute(),						EGameplayModOp::Override, Ricochets));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Gun::GetInitialBulletSpeedAttribute(),				EGameplayModOp::Override, InitialBulletSpeed));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Gun::GetBulletSpeedFalloffAttribute(),				EGameplayModOp::Override, BulletSpeedFalloff));
 
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetGunInitializationStatics().bFullAutoAttribute,					EGameplayModOp::Override, bFullAuto));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetGunInitializationStatics().TimeBetweenShotsAttribute,			EGameplayModOp::Override, TimeBetweenShots));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetGunInitializationStatics().TimeBetweenFiresOverrideAttribute,	EGameplayModOp::Override, TimeBetweenFiresOverride));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetGunInitializationStatics().TimeBetweenBurstsOverrideAttribute,	EGameplayModOp::Override, TimeBetweenBurstsOverride));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetGunInitializationStatics().NumShotsPerBurstAttribute,			EGameplayModOp::Override, NumShotsPerBurst));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetGunInitializationStatics().AmmoCostAttribute,					EGameplayModOp::Override, AmmoCost));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Gun::GetbFullAutoAttribute(),						EGameplayModOp::Override, bFullAuto));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Gun::GetTimeBetweenShotsAttribute(),				EGameplayModOp::Override, TimeBetweenShots));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Gun::GetTimeBetweenFiresOverrideAttribute(),		EGameplayModOp::Override, TimeBetweenFiresOverride));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Gun::GetTimeBetweenBurstsOverrideAttribute(),		EGameplayModOp::Override, TimeBetweenBurstsOverride));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Gun::GetNumShotsPerBurstAttribute(),				EGameplayModOp::Override, NumShotsPerBurst));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Gun::GetAmmoCostAttribute(),						EGameplayModOp::Override, AmmoCost));
 	
 
 	// Calculate defaults

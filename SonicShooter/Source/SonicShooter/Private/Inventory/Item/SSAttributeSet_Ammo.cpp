@@ -30,7 +30,6 @@ USSAttributeSet_Ammo::USSAttributeSet_Ammo(const FObjectInitializer& ObjectIniti
 	, MaxClipAmmo(10)
 	, BackupAmmo(GetMaxAmmo() - GetMaxClipAmmo())
 {
-
 }
 
 
@@ -54,18 +53,19 @@ void USSAttributeSet_Ammo::PostGameplayEffectExecute(const FGameplayEffectModCal
 
 
 
+// OnReps
 
-void USSAttributeSet_Ammo::OnRep_MaxAmmo(const FGameplayAttributeData& ServerBaseValue)
+void USSAttributeSet_Ammo::OnRep_MaxAmmo(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Ammo, MaxAmmo, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Ammo, MaxAmmo, OldValue);
 }
 
-void USSAttributeSet_Ammo::OnRep_BackupAmmo(const FGameplayAttributeData& ServerBaseValue)
+void USSAttributeSet_Ammo::OnRep_BackupAmmo(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Ammo, BackupAmmo, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Ammo, BackupAmmo, OldValue);
 }
 
-void USSAttributeSet_Ammo::OnRep_MaxClipAmmo(const FGameplayAttributeData& ServerBaseValue)
+void USSAttributeSet_Ammo::OnRep_MaxClipAmmo(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Ammo, MaxClipAmmo, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Ammo, MaxClipAmmo, OldValue);
 }

@@ -22,6 +22,7 @@ public:
 	USSAttributeSet_Stamina(const FObjectInitializer& ObjectInitializer);
 
 
+	// Attributes
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxStamina, Category = "Attributes")
 		FGameplayAttributeData MaxStamina;
 	ATTRIBUTE_ACCESSORS(USSAttributeSet_Stamina, MaxStamina)
@@ -42,14 +43,13 @@ public:
 	ATTRIBUTE_ACCESSORS(USSAttributeSet_Stamina, StaminaRegenPause)
 
 protected:
-
-
+	// OnReps
 	UFUNCTION()
-		virtual void OnRep_MaxStamina(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_MaxStamina(const FGameplayAttributeData& OldValue);
 	UFUNCTION()
-		virtual void OnRep_StaminaDrain(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_StaminaDrain(const FGameplayAttributeData& OldValue);
 	UFUNCTION()
-		virtual void OnRep_StaminaGain(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_StaminaGain(const FGameplayAttributeData& OldValue);
 	UFUNCTION()
-		virtual void OnRep_StaminaRegenPause(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_StaminaRegenPause(const FGameplayAttributeData& OldValue);
 };

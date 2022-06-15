@@ -19,7 +19,6 @@ class SONICSHOOTER_API USSAttributeSet_CharacterMovement : public UASSAttributeS
 	GENERATED_BODY()
 
 public:
-	// Constructor and default values
 	USSAttributeSet_CharacterMovement(const FObjectInitializer& ObjectInitializer);
 
 
@@ -42,13 +41,13 @@ public:
 
 
 protected:
-	// These OnReps exist to make sure the GAS internal representations are synchronized properly during replication
+	// OnReps
 	UFUNCTION()
-		virtual void OnRep_WalkSpeed(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_WalkSpeed(const FGameplayAttributeData& OldValue);
 	UFUNCTION()
-		virtual void OnRep_WalkAcceleration(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_WalkAcceleration(const FGameplayAttributeData& OldValue);
 	UFUNCTION()
-		virtual void OnRep_RunSpeed(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_RunSpeed(const FGameplayAttributeData& OldValue);
 	UFUNCTION()
-		virtual void OnRep_RunAccelaration(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_RunAccelaration(const FGameplayAttributeData& OldValue);
 };

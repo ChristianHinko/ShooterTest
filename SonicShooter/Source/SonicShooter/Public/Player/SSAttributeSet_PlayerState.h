@@ -19,8 +19,8 @@ class SONICSHOOTER_API USSAttributeSet_PlayerState : public UASSAttributeSet
 	GENERATED_BODY()
 
 public:
-	// Constructor and default values
 	USSAttributeSet_PlayerState(const FObjectInitializer& ObjectInitializer);
+
 
 	// Attributes
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ExampleAttribute, Category = "Attributes")
@@ -28,7 +28,7 @@ public:
 	ATTRIBUTE_ACCESSORS(USSAttributeSet_PlayerState, ExampleAttribute)
 
 protected:
-	//These OnReps exist to make sure the GAS internal representations are synchronized properly during replication
+	// OnReps
 	UFUNCTION()
-		virtual void OnRep_ExampleAttribute(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_ExampleAttribute(const FGameplayAttributeData& OldValue);
 };

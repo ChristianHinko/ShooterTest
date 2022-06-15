@@ -24,11 +24,12 @@ USSAttributeSet_PlayerState::USSAttributeSet_PlayerState(const FObjectInitialize
 	: Super(ObjectInitializer)
 	, ExampleAttribute(100)
 {
-
 }
 
 
-void USSAttributeSet_PlayerState::OnRep_ExampleAttribute(const FGameplayAttributeData& ServerBaseValue)
+// OnReps
+
+void USSAttributeSet_PlayerState::OnRep_ExampleAttribute(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_PlayerState, ExampleAttribute, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_PlayerState, ExampleAttribute, OldValue);
 }

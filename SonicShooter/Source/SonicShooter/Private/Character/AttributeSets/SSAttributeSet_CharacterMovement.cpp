@@ -33,31 +33,28 @@ USSAttributeSet_CharacterMovement::USSAttributeSet_CharacterMovement(const FObje
 	, RunSpeed(600.f)
 	, RunAccelaration(4096.f)
 {
-
-
 }
 
 
 
-// OnReps:
+// OnReps
 
-
-void USSAttributeSet_CharacterMovement::OnRep_WalkSpeed(const FGameplayAttributeData& ServerBaseValue)
+void USSAttributeSet_CharacterMovement::OnRep_WalkSpeed(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_CharacterMovement, WalkSpeed, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_CharacterMovement, WalkSpeed, OldValue);
 }
 
-void USSAttributeSet_CharacterMovement::OnRep_WalkAcceleration(const FGameplayAttributeData& ServerBaseValue)
+void USSAttributeSet_CharacterMovement::OnRep_WalkAcceleration(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_CharacterMovement, WalkAcceleration, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_CharacterMovement, WalkAcceleration, OldValue);
 }
 
-void USSAttributeSet_CharacterMovement::OnRep_RunSpeed(const FGameplayAttributeData& ServerBaseValue)
+void USSAttributeSet_CharacterMovement::OnRep_RunSpeed(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_CharacterMovement, RunSpeed, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_CharacterMovement, RunSpeed, OldValue);
 }
 
-void USSAttributeSet_CharacterMovement::OnRep_RunAccelaration(const FGameplayAttributeData& ServerBaseValue)
+void USSAttributeSet_CharacterMovement::OnRep_RunAccelaration(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_CharacterMovement, RunAccelaration, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_CharacterMovement, RunAccelaration, OldValue);
 }

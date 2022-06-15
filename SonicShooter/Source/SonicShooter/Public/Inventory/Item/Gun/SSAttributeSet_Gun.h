@@ -186,60 +186,61 @@ public:
 
 
 protected:
+	// OnReps
 	UFUNCTION()
-		virtual void OnRep_MinBulletSpread(const FGameplayAttributeData& ServerBaseValue);
-
-	UFUNCTION()
-		virtual void OnRep_MovingBulletSpread(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_MinBulletSpread(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
-		virtual void OnRep_BulletSpreadIncRate(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_MovingBulletSpread(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
-		virtual void OnRep_FireBulletSpread(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_BulletSpreadIncRate(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
-		virtual void OnRep_BulletSpreadDecSpeed(const FGameplayAttributeData& ServerBaseValue);
-
-
+		virtual void OnRep_FireBulletSpread(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
-		virtual void OnRep_NumberOfBulletsPerFire(const FGameplayAttributeData& ServerBaseValue);
-
-	UFUNCTION()
-		virtual void OnRep_MaxRange(const FGameplayAttributeData& ServerBaseValue);
-
-	UFUNCTION()
-		virtual void OnRep_Ricochets(const FGameplayAttributeData& ServerBaseValue);
-
-	UFUNCTION()
-		virtual void OnRep_Penetrations(const FGameplayAttributeData& ServerBaseValue);
-
-	UFUNCTION()
-		virtual void OnRep_InitialBulletSpeed(const FGameplayAttributeData& ServerBaseValue);
-
-	UFUNCTION()
-		virtual void OnRep_BulletSpeedFalloff(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_BulletSpreadDecSpeed(const FGameplayAttributeData& OldValue);
 
 
 
 	UFUNCTION()
-		virtual void OnRep_bFullAuto(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_NumberOfBulletsPerFire(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
-		virtual void OnRep_TimeBetweenShots(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_MaxRange(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
-		virtual void OnRep_TimeBetweenFiresOverride(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_Ricochets(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
-		virtual void OnRep_TimeBetweenBurstsOverride(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_Penetrations(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+		virtual void OnRep_InitialBulletSpeed(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+		virtual void OnRep_BulletSpeedFalloff(const FGameplayAttributeData& OldValue);
+
 
 
 	UFUNCTION()
-		virtual void OnRep_NumShotsPerBurst(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_bFullAuto(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
-		virtual void OnRep_AmmoCost(const FGameplayAttributeData& ServerBaseValue);
+		virtual void OnRep_TimeBetweenShots(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+		virtual void OnRep_TimeBetweenFiresOverride(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+		virtual void OnRep_TimeBetweenBurstsOverride(const FGameplayAttributeData& OldValue);
+
+
+	UFUNCTION()
+		virtual void OnRep_NumShotsPerBurst(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+		virtual void OnRep_AmmoCost(const FGameplayAttributeData& OldValue);
 
 };

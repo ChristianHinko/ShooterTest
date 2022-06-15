@@ -62,100 +62,99 @@ USSAttributeSet_Gun::USSAttributeSet_Gun(const FObjectInitializer& ObjectInitial
 	, NumShotsPerBurst(1)
 	, AmmoCost(1.f)
 {
-
 }
 
 
 
-// OnReps:
+// OnReps
 
 
-void USSAttributeSet_Gun::OnRep_MinBulletSpread(const FGameplayAttributeData& ServerBaseValue)
+void USSAttributeSet_Gun::OnRep_MinBulletSpread(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, MinBulletSpread, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, MinBulletSpread, OldValue);
 }
 
-void USSAttributeSet_Gun::OnRep_MovingBulletSpread(const FGameplayAttributeData& ServerBaseValue)
+void USSAttributeSet_Gun::OnRep_MovingBulletSpread(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, MovingBulletSpread, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, MovingBulletSpread, OldValue);
 }
 
-void USSAttributeSet_Gun::OnRep_BulletSpreadIncRate(const FGameplayAttributeData& ServerBaseValue)
+void USSAttributeSet_Gun::OnRep_BulletSpreadIncRate(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, BulletSpreadIncRate, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, BulletSpreadIncRate, OldValue);
 }
 
-void USSAttributeSet_Gun::OnRep_FireBulletSpread(const FGameplayAttributeData& ServerBaseValue)
+void USSAttributeSet_Gun::OnRep_FireBulletSpread(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, FireBulletSpread, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, FireBulletSpread, OldValue);
 }
 
-void USSAttributeSet_Gun::OnRep_BulletSpreadDecSpeed(const FGameplayAttributeData& ServerBaseValue)
+void USSAttributeSet_Gun::OnRep_BulletSpreadDecSpeed(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, BulletSpreadDecSpeed, ServerBaseValue);
-}
-
-
-
-void USSAttributeSet_Gun::OnRep_NumberOfBulletsPerFire(const FGameplayAttributeData& ServerBaseValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, NumberOfBulletsPerFire, ServerBaseValue);
-}
-
-void USSAttributeSet_Gun::OnRep_MaxRange(const FGameplayAttributeData& ServerBaseValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, MaxRange, ServerBaseValue);
-}
-
-void USSAttributeSet_Gun::OnRep_Ricochets(const FGameplayAttributeData& ServerBaseValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, Ricochets, ServerBaseValue);
-}
-
-void USSAttributeSet_Gun::OnRep_Penetrations(const FGameplayAttributeData& ServerBaseValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, Penetrations, ServerBaseValue);
-}
-
-void USSAttributeSet_Gun::OnRep_InitialBulletSpeed(const FGameplayAttributeData& ServerBaseValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, InitialBulletSpeed, ServerBaseValue);
-}
-
-void USSAttributeSet_Gun::OnRep_BulletSpeedFalloff(const FGameplayAttributeData& ServerBaseValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, BulletSpeedFalloff, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, BulletSpreadDecSpeed, OldValue);
 }
 
 
 
-void USSAttributeSet_Gun::OnRep_bFullAuto(const FGameplayAttributeData& ServerBaseValue)
+void USSAttributeSet_Gun::OnRep_NumberOfBulletsPerFire(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, bFullAuto, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, NumberOfBulletsPerFire, OldValue);
 }
 
-void USSAttributeSet_Gun::OnRep_TimeBetweenShots(const FGameplayAttributeData& ServerBaseValue)
+void USSAttributeSet_Gun::OnRep_MaxRange(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, TimeBetweenShots, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, MaxRange, OldValue);
 }
 
-void USSAttributeSet_Gun::OnRep_TimeBetweenFiresOverride(const FGameplayAttributeData& ServerBaseValue)
+void USSAttributeSet_Gun::OnRep_Ricochets(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, TimeBetweenFiresOverride, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, Ricochets, OldValue);
 }
 
-void USSAttributeSet_Gun::OnRep_TimeBetweenBurstsOverride(const FGameplayAttributeData& ServerBaseValue)
+void USSAttributeSet_Gun::OnRep_Penetrations(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, TimeBetweenBurstsOverride, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, Penetrations, OldValue);
+}
+
+void USSAttributeSet_Gun::OnRep_InitialBulletSpeed(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, InitialBulletSpeed, OldValue);
+}
+
+void USSAttributeSet_Gun::OnRep_BulletSpeedFalloff(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, BulletSpeedFalloff, OldValue);
 }
 
 
-void USSAttributeSet_Gun::OnRep_NumShotsPerBurst(const FGameplayAttributeData& ServerBaseValue)
+
+void USSAttributeSet_Gun::OnRep_bFullAuto(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, NumShotsPerBurst, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, bFullAuto, OldValue);
 }
 
-void USSAttributeSet_Gun::OnRep_AmmoCost(const FGameplayAttributeData& ServerBaseValue)
+void USSAttributeSet_Gun::OnRep_TimeBetweenShots(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, AmmoCost, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, TimeBetweenShots, OldValue);
+}
+
+void USSAttributeSet_Gun::OnRep_TimeBetweenFiresOverride(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, TimeBetweenFiresOverride, OldValue);
+}
+
+void USSAttributeSet_Gun::OnRep_TimeBetweenBurstsOverride(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, TimeBetweenBurstsOverride, OldValue);
+}
+
+
+void USSAttributeSet_Gun::OnRep_NumShotsPerBurst(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, NumShotsPerBurst, OldValue);
+}
+
+void USSAttributeSet_Gun::OnRep_AmmoCost(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Gun, AmmoCost, OldValue);
 }

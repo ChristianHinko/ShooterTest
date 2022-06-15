@@ -34,29 +34,29 @@ USSAttributeSet_Stamina::USSAttributeSet_Stamina(const FObjectInitializer& Objec
 	, StaminaGain(1)
 	, StaminaRegenPause(2)
 {
-
 }
 
 
 
 
-// OnReps:
-void USSAttributeSet_Stamina::OnRep_MaxStamina(const FGameplayAttributeData& ServerBaseValue)
+// OnReps
+
+void USSAttributeSet_Stamina::OnRep_MaxStamina(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Stamina, MaxStamina, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Stamina, MaxStamina, OldValue);
 }
 
-void USSAttributeSet_Stamina::OnRep_StaminaDrain(const FGameplayAttributeData& ServerBaseValue)
+void USSAttributeSet_Stamina::OnRep_StaminaDrain(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Stamina, StaminaDrain, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Stamina, StaminaDrain, OldValue);
 }
 
-void USSAttributeSet_Stamina::OnRep_StaminaGain(const FGameplayAttributeData& ServerBaseValue)
+void USSAttributeSet_Stamina::OnRep_StaminaGain(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Stamina, StaminaGain, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Stamina, StaminaGain, OldValue);
 }
 
-void USSAttributeSet_Stamina::OnRep_StaminaRegenPause(const FGameplayAttributeData& ServerBaseValue)
+void USSAttributeSet_Stamina::OnRep_StaminaRegenPause(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Stamina, StaminaRegenPause, ServerBaseValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USSAttributeSet_Stamina, StaminaRegenPause, OldValue);
 }

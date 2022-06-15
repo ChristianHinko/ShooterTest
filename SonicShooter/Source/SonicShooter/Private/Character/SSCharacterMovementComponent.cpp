@@ -718,7 +718,6 @@ float USSCharacterMovementComponent::GetMaxSpeed() const
 		{
 			if (!CharacterMovementAttributeSet.IsValid())
 			{
-				UE_LOG(LogCharacterMovement, Error, TEXT("CharacterMovementAttributeSet was NULL when trying to return a speed value"));
 				return 0;
 			}
 

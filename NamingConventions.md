@@ -35,15 +35,16 @@ Blueprint classes based on native C++ classes.
 ### Assets
 General content assets.
 - L_[Level Name]
+- DT_[DataTable Name]
 - M_[Material Name]
 - MI_[MaterialInstance Name]
 - T_[Texture Name]
+- SK_[Skeleton Name]
+- SKM_[SkeletalMesh Name]
+- PA_[PhysicsAsset Name]
 - ABP_[AnimBP Name]
-- SKEL_[Skeleton Name]
-- SK_[SkeletalMesh Name]
 - AM_[AnimMontage Name]
 - BS_[BlendSpace Name]
-- DT_[DataTable Name]
 
 ### Texture Asset Suffixes
 Texture assets use suffixes to specify the kind of texture map.

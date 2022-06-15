@@ -17,19 +17,9 @@
 struct FStaminaInitializationStatics
 {
 	// No need to capture these Attributes since we aren't reading from them, but writing to them
-	const FGameplayAttribute MaxStaminaAttribute;
-	const FGameplayAttribute StaminaDrainAttribute;
-	const FGameplayAttribute StaminaGainAttribute;
-	const FGameplayAttribute StaminaRegenPauseAttribute;
-
 
 	FStaminaInitializationStatics()
-		: MaxStaminaAttribute(USSAttributeSet_Stamina::GetMaxStaminaAttribute())
-		, StaminaDrainAttribute(USSAttributeSet_Stamina::GetStaminaDrainAttribute())
-		, StaminaGainAttribute(USSAttributeSet_Stamina::GetStaminaGainAttribute())
-		, StaminaRegenPauseAttribute(USSAttributeSet_Stamina::GetStaminaRegenPauseAttribute())
 	{
-
 	}
 };
 
@@ -71,10 +61,10 @@ void USSGameplayEffectExecutionCalculation_InitStamina::Execute_Implementation(c
 
 
 	// Set defaults
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetStaminaInitializationStatics().MaxStaminaAttribute,				EGameplayModOp::Override, MaxStamina));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetStaminaInitializationStatics().StaminaDrainAttribute,			EGameplayModOp::Override, StaminaDrain));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetStaminaInitializationStatics().StaminaGainAttribute,				EGameplayModOp::Override, StaminaGain));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetStaminaInitializationStatics().StaminaRegenPauseAttribute,		EGameplayModOp::Override, StaminaRegenPause));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Stamina::GetMaxStaminaAttribute(),				EGameplayModOp::Override, MaxStamina));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Stamina::GetStaminaDrainAttribute(),			EGameplayModOp::Override, StaminaDrain));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Stamina::GetStaminaGainAttribute(),				EGameplayModOp::Override, StaminaGain));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_Stamina::GetStaminaRegenPauseAttribute(),		EGameplayModOp::Override, StaminaRegenPause));
 
 
 

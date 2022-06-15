@@ -14,19 +14,9 @@
 struct FCharacterMovementInitializationStatics
 {
 	// No need to capture these Attributes since we aren't reading from them, but writing to them
-	const FGameplayAttribute WalkSpeedAttribute;
-	const FGameplayAttribute WalkAccelerationAttribute;
-	const FGameplayAttribute RunSpeedAttribute;
-	const FGameplayAttribute RunAccelarationAttribute;
-
 
 	FCharacterMovementInitializationStatics()
-		: WalkSpeedAttribute(USSAttributeSet_CharacterMovement::GetWalkSpeedAttribute())
-		, WalkAccelerationAttribute(USSAttributeSet_CharacterMovement::GetWalkAccelerationAttribute())
-		, RunSpeedAttribute(USSAttributeSet_CharacterMovement::GetRunSpeedAttribute())
-		, RunAccelarationAttribute(USSAttributeSet_CharacterMovement::GetRunAccelarationAttribute())
 	{
-
 	}
 };
 
@@ -68,9 +58,9 @@ void USSGameplayEffectExecutionCalculation_InitCharacterMovement::Execute_Implem
 
 
 	// Set defaults
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetCharacterMovementInitializationStatics().WalkSpeedAttribute,					EGameplayModOp::Override, WalkSpeed));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetCharacterMovementInitializationStatics().WalkAccelerationAttribute,			EGameplayModOp::Override, WalkAcceleration));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetCharacterMovementInitializationStatics().RunSpeedAttribute,					EGameplayModOp::Override, RunSpeed));
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetCharacterMovementInitializationStatics().RunAccelarationAttribute,			EGameplayModOp::Override, RunAccelaration));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_CharacterMovement::GetWalkSpeedAttribute(),				EGameplayModOp::Override, WalkSpeed));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_CharacterMovement::GetWalkAccelerationAttribute(),		EGameplayModOp::Override, WalkAcceleration));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_CharacterMovement::GetRunSpeedAttribute(),				EGameplayModOp::Override, RunSpeed));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USSAttributeSet_CharacterMovement::GetRunAccelarationAttribute(),		EGameplayModOp::Override, RunAccelaration));
 
 }

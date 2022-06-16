@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/C_AbilitySystemSetupCharacter.h"
+#include "Character/ASSECharacter_AbilitySystemSetupCharacter.h"
 
 #include "SSCharacter.generated.h"
 
@@ -12,7 +12,6 @@ class USkeletalMeshComponent;
 class UCameraComponent;
 class USpringArmComponent;
 class USSCharacterMovementComponent;
-class ASSGameState;
 
 
 
@@ -69,21 +68,21 @@ struct TStructOpsTypeTraits<FCrouchTickFunction> : public TStructOpsTypeTraitsBa
  * Base character class
  */
 UCLASS()
-class ASSCharacter : public AC_AbilitySystemSetupCharacter
+class ASSCharacter : public AASSECharacter_AbilitySystemSetupCharacter
 {
 	GENERATED_BODY()
 
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Character")
-		USkeletalMeshComponent* POVMesh;
+		TObjectPtr<USkeletalMeshComponent> POVMesh;
 	static const FName POVMeshComponentName;
 
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
-		UCameraComponent* FollowCamera;
+		TObjectPtr<UCameraComponent> FollowCamera;
 
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
-		USpringArmComponent* CameraBoom;
+		TObjectPtr<USpringArmComponent> CameraBoom;
 
 public:
 	ASSCharacter(const FObjectInitializer& ObjectInitializer);
@@ -93,23 +92,6 @@ public:
 	USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	USSCharacterMovementComponent* GetSSCharacterMovementComponent() const { return SSCharacterMovementComponent.Get(); }
-
-	//BEGIN Character Abilities
-	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
-		TSubclassOf<UGameplayAbility> CharacterJumpAbilityTSub;
-	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle CharacterJumpAbilitySpecHandle;
-
-	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
-		TSubclassOf<UGameplayAbility> CharacterCrouchAbilityTSub;
-	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle CharacterCrouchAbilitySpecHandle;
-
-	UPROPERTY(EditAnywhere, Category = "AbilitySystemSetup|Abilities")
-		TSubclassOf<UGameplayAbility> CharacterRunAbilityTSub;
-	UPROPERTY(Replicated)
-		FGameplayAbilitySpecHandle CharacterRunAbilitySpecHandle;
-	//END Character Abilities
 
 
 	/** Whether we are actually running. Replicated to simulated proxies so that they can simulate server movement */
@@ -166,9 +148,6 @@ public:
 
 	void CrouchTick(float DeltaTime);
 
-
-	APawn* GetNearestPawn() const;
-
 protected:
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
@@ -178,10 +157,6 @@ protected:
 	virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-
-	//BEGIN IAbilitySystemSetupInterface interface
-	virtual void GiveStartingAbilities() override;
-	//END IAbilitySystemSetupInterface interface
 
 
 	/** Whether we are currently in first person. NOTE: ONLY DIRECTLY SET THIS IN THE CONSTRUCTOR OR IN BP otherwise use the setter. */
@@ -204,59 +179,59 @@ protected:
 
 
 	//BEGIN Input actions
-	virtual void OnRunPressed();
-	virtual void OnRunReleased();
+	virtual void OnPressedRun();
+	virtual void OnReleasedRun();
 
-	virtual void OnJumpPressed();
-	virtual void OnJumpReleased();
+	virtual void OnPressedJump();
+	virtual void OnReleasedJump();
 
-	virtual void OnCrouchPressed();
-	virtual void OnCrouchReleased();
+	virtual void OnPressedCrouch();
+	virtual void OnReleasedCrouch();
 
-	virtual void OnInteractPressed();
-	virtual void OnInteractReleased();
+	virtual void OnPressedInteract();
+	virtual void OnReleasedInteract();
 
-	virtual void OnPrimaryFirePressed();
-	virtual void OnPrimaryFireReleased();
+	virtual void OnPressedPrimaryFire();
+	virtual void OnReleasedPrimaryFire();
 
-	virtual void OnSecondaryFirePressed();
-	virtual void OnSecondaryFireReleased();
+	virtual void OnPressedSecondaryFire();
+	virtual void OnReleasedSecondaryFire();
 
-	virtual void OnReloadPressed();
-	virtual void OnReloadReleased();
+	virtual void OnPressedReload();
+	virtual void OnReleasedReload();
 
-	virtual void OnFirstItemPressed();
-	virtual void OnFirstItemReleased();
+	virtual void OnPressedSwapToLayout1st();
+	virtual void OnReleasedSwapToLayout1st();
 
-	virtual void OnSecondItemPressed();
-	virtual void OnSecondItemReleased();
+	virtual void OnPressedSwapToLayout2nd();
+	virtual void OnReleasedSwapToLayout2nd();
 
-	virtual void OnThirdItemPressed();
-	virtual void OnThirdItemReleased();
+	virtual void OnPressedSwapToLayout3rd();
+	virtual void OnReleasedSwapToLayout3rd();
 
-	virtual void OnFourthItemPressed();
-	virtual void OnFourthItemReleased();
+	virtual void OnPressedSwapToLayout4th();
+	virtual void OnReleasedSwapToLayout4th();
 
-	virtual void OnFifthItemPressed();
-	virtual void OnFifthItemReleased();
+	virtual void OnPressedSwapToLayout5th();
+	virtual void OnReleasedSwapToLayout5th();
 
-	virtual void OnSwitchWeaponPressed();
-	virtual void OnSwitchWeaponReleased();
+	virtual void OnPressedSwapToPreviousSlot();
+	virtual void OnReleasedSwapToPreviousSlot();
 
-	virtual void OnNextItemPressed();
-	virtual void OnNextItemReleased();
+	virtual void OnPressedSwapToLayoutForward();
+	virtual void OnReleasedSwapToLayoutForward();
 
-	virtual void OnPreviousItemPressed();
-	virtual void OnPreviousItemReleased();
+	virtual void OnPressedSwapToLayoutBackward();
+	virtual void OnReleasedSwapToLayoutBackward();
 
-	virtual void OnDropItemPressed();
-	virtual void OnDropItemReleased();
+	virtual void OnPressedDropItem();
+	virtual void OnReleasedDropItem();
 
-	virtual void OnPausePressed();
-	virtual void OnPauseReleased();
+	virtual void OnPressedPause();
+	virtual void OnReleasedPause();
 
-	virtual void OnScoreSheetPressed();
-	virtual void OnScoreSheetReleased();
+	virtual void OnPressedScoreSheet();
+	virtual void OnReleasedScoreSheet();
 	//END Input actions
 
 	//BEGIN Input axis

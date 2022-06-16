@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Player/PS_AbilitySystemPlayerState.h"
+#include "Player/ASSEPlayerState_AbilitySystemPlayerState.h"
 
 #include "SSPlayerState.generated.h"
 
 
-class UAS_PlayerState;
+class USSAttributeSet_PlayerState;
 
 
 
@@ -16,18 +16,18 @@ class UAS_PlayerState;
  * Base Player State
  */
 UCLASS()
-class SONICSHOOTER_API ASSPlayerState : public APS_AbilitySystemPlayerState
+class SONICSHOOTER_API ASSPlayerState : public AASSEPlayerState_AbilitySystemPlayerState
 {
 	GENERATED_BODY()
 
 protected:
 	UPROPERTY()
-		UAS_PlayerState* PlayerAttributeSet;
+		TObjectPtr<USSAttributeSet_PlayerState> PlayerAttributeSet;
 
 public:
 	ASSPlayerState(const FObjectInitializer& ObjectInitializer);
 
 
-	UAS_PlayerState* GetAttributeSet() const { return PlayerAttributeSet; }
+	USSAttributeSet_PlayerState* GetAttributeSet() const { return PlayerAttributeSet; }
 
 };

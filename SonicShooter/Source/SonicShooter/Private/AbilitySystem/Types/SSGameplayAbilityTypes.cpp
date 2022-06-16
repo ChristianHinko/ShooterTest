@@ -11,96 +11,85 @@
 
 
 
-FSSGameplayAbilityActorInfo::FSSGameplayAbilityActorInfo()
+void FSSGameplayAbilityActorInfo::InitFromActor(AActor* InOwnerActor, AActor* InAvatarActor, UAbilitySystemComponent* InAbilitySystemComponent)
 {
+	Super::InitFromActor(InOwnerActor, InAvatarActor, InAbilitySystemComponent);
 
-}
+	// Get our SSCharacter
+	SSCharacter = Cast<ASSCharacter>(InAvatarActor);
 
+	// Get our PC and PS
+	if (PlayerController.IsValid())
+	{
+		SSPlayerController = Cast<ASSPlayerController>(PlayerController.Get());
+		SSPlayerState = PlayerController->GetPlayerState<ASSPlayerState>();
+	}
+	else
+	{
+		SSPlayerController = nullptr;
+		SSPlayerState = nullptr;
+	}
 
-void FSSGameplayAbilityActorInfo::ASSInitFromActor(AActor* InOwnerActor, AActor* InAvatarActor, UAbilitySystemComponent* InAbilitySystemComponent)
-{
-    Super::ASSInitFromActor(InOwnerActor, InAvatarActor, InAbilitySystemComponent);
-
-    // Get our SSCharacter
-    SSCharacter = Cast<ASSCharacter>(InAvatarActor);
-
-    // Get our PC and PS
-    if (PlayerController.IsValid())
-    {
-        SSPlayerController = Cast<ASSPlayerController>(PlayerController.Get());
-        SSPlayerState = PlayerController->GetPlayerState<ASSPlayerState>();
-    }
-
-    // Get our CMC
-    if (SSCharacter.IsValid())
-    {
-        SSCharacterMovementComponent = SSCharacter->GetSSCharacterMovementComponent();
-    }
-}
-
-void FSSGameplayAbilityActorInfo::SetAvatarActor(AActor* InAvatarActor)
-{
-    Super::SetAvatarActor(InAvatarActor);
-
-
+	// Get our CMC
+	if (SSCharacter.IsValid())
+	{
+		SSCharacterMovementComponent = SSCharacter->GetSSCharacterMovementComponent();
+	}
+	else
+	{
+		SSCharacterMovementComponent = nullptr;
+	}
 }
 
 void FSSGameplayAbilityActorInfo::ClearActorInfo()
 {
-    Super::ClearActorInfo();
+	Super::ClearActorInfo();
 
-    SSCharacter = nullptr;
-    SSPlayerController = nullptr;
-    SSPlayerState = nullptr;
-    SSCharacterMovementComponent = nullptr;
+	SSCharacter = nullptr;
+	SSPlayerController = nullptr;
+	SSPlayerState = nullptr;
+	SSCharacterMovementComponent = nullptr;
 }
 
 
 
 ////////////////////////////////////////////////////////////////
-/// FGAAI_Shooter
+/// FSSGameplayAbilityActorInfo_Shooter
 ////////////////////////////////////////////////////////////////
 
 
-#include "AbilitySystem/AbilitySystemComponents/ASC_Shooter.h"
-#include "Character/C_Shooter.h"
-#include "Inventory/SSArcInventoryComponent_Active.h"
+#include "AbilitySystem/AbilitySystemComponents/SSAbilitySystemComponent_Shooter.h"
+#include "Character/SSCharacter_Shooter.h"
+#include "Inventory/SSInventoryComponent_Active.h"
 
 
 
-FGAAI_Shooter::FGAAI_Shooter()
+void FSSGameplayAbilityActorInfo_Shooter::InitFromActor(AActor* InOwnerActor, AActor* InAvatarActor, UAbilitySystemComponent* InAbilitySystemComponent)
 {
+	Super::InitFromActor(InOwnerActor, InAvatarActor, InAbilitySystemComponent);
 
+	// Get our Shooter ASC
+	ShooterAbilitySystemComponent = Cast<USSAbilitySystemComponent_Shooter>(ASSAbilitySystemComponent);
+
+	// Get our Shooter Character
+	ShooterCharacter = Cast<ASSCharacter_Shooter>(InAvatarActor);
+
+	// Get our Inventory
+	if (IsValid(InAvatarActor))
+	{
+		InventoryComponent = Cast<USSInventoryComponent_Active>(UArcItemBPFunctionLibrary::GetInventoryComponent(InAvatarActor, true));
+	}
+	else
+	{
+		InventoryComponent = nullptr;
+	}
 }
 
-
-void FGAAI_Shooter::ASSInitFromActor(AActor* InOwnerActor, AActor* InAvatarActor, UAbilitySystemComponent* InAbilitySystemComponent)
+void FSSGameplayAbilityActorInfo_Shooter::ClearActorInfo()
 {
-    Super::ASSInitFromActor(InOwnerActor, InAvatarActor, InAbilitySystemComponent);
+	Super::ClearActorInfo();
 
-    // Get our Shooter ASC
-    ShooterAbilitySystemComponent = Cast<UASC_Shooter>(ASSAbilitySystemComponent);
-
-    // Get our Shooter Character
-    ShooterCharacter = Cast<AC_Shooter>(InAvatarActor);
-
-    // Get our Inventory
-    InventoryComponent = Cast<USSArcInventoryComponent_Active>(UArcItemBPFunctionLibrary::GetInventoryComponent(InAvatarActor, true));
-}
-
-void FGAAI_Shooter::SetAvatarActor(AActor* InAvatarActor)
-{
-    Super::SetAvatarActor(InAvatarActor);
-
-
-}
-
-void FGAAI_Shooter::ClearActorInfo()
-{
-    Super::ClearActorInfo();
-
-
-    ShooterAbilitySystemComponent = nullptr;
-    ShooterCharacter = nullptr;
-    InventoryComponent = nullptr;
+	ShooterAbilitySystemComponent = nullptr;
+	ShooterCharacter = nullptr;
+	InventoryComponent = nullptr;
 }

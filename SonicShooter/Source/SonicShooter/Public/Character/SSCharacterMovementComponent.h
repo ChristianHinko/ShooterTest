@@ -12,7 +12,7 @@
 
 class ASSCharacter;
 class UAbilitySystemComponent;
-class UAS_CharacterMovement;
+class USSAttributeSet_CharacterMovement;
 
 
 
@@ -24,7 +24,7 @@ DECLARE_MULTICAST_DELEGATE(FCharacterMovementStateNotify);
  * Custom movement modes. Used when MovementMode == MOVE_Custom
  */
 UENUM()
-enum class ECustomMovementMode : uint8
+enum class ESSCustomMovementMode : uint8
 {
 	/** None (custom movement is disabled). */
 	MOVE_None						UMETA(DisplayName = "None"),
@@ -221,10 +221,9 @@ protected:
 	UPROPERTY()
 		TWeakObjectPtr<UAbilitySystemComponent> OwnerASC;
 	UPROPERTY()
-		TWeakObjectPtr<UAS_CharacterMovement> CharacterMovementAttributeSet;
+		TWeakObjectPtr<USSAttributeSet_CharacterMovement> CharacterMovementAttributeSet;
 
-	virtual void OnAbilitySystemSetUpPreInitialized(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC);
-	virtual void OnAbilitySystemSetUp(UAbilitySystemComponent* const PreviousASC, UAbilitySystemComponent* const NewASC);
+	virtual void OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC);
 
 	//BEGIN UCharacterMovementComponent Interface
 	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
@@ -281,15 +280,15 @@ protected:
 #pragma endregion
 
 #pragma region Input CVars
+	uint8 bToggleCrouchEnabled : 1;
 	FBoolCVarChangedSignature CVarToggleCrouchChangeDelegate;
 	UFUNCTION()
 		void CVarToggleCrouchChanged(bool newToggleCrouch);
-	uint8 bToggleCrouchEnabled : 1;
 
+	uint8 bToggleRunEnabled : 1;
 	FBoolCVarChangedSignature CVarToggleRunChangeDelegate;
 	UFUNCTION()
 		void CVarToggleRunChanged(bool newToggleRun);
-	uint8 bToggleRunEnabled : 1;
 #pragma endregion
 
 private:

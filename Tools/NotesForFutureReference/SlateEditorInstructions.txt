@@ -1,0 +1,16 @@
+To make this work you have to use the "File > NewFromFolder" way
+1) "File > NewFromFolder"
+2) Select folder with the individual frame files (I used pngs)
+3) Right click on the red folder at the bottom right of the screen and click "Restore To This"
+4) Go to "Texture Layout" tab in the very top left corner and adjust "X" and "Y" options under the "Tiling" section until the frames aren't stretched and they look the correct dimentions.
+5) Select the OpticalFlow tab in the top left and click "Generate All"
+6) Check to see if the optical flow generated correctly by switching the view layer from "Default" to "OpticalFlow" (located at the middle top of the screen)
+7) Now export the OpticalFlow layer by going to the "LayerSettings" tab on the right of the screen and click "Export Layer Tiles" under the OpticalFlow layer section
+
+The optical flow frames should be saved in a new folder called "Frames" that is created inside the folder you selected at the beginning.
+
+
+What we were doing wrong:
+	- The optical flow doesn't generate anything if the "X" and "Y" options under the "Tiling" section don't make a perfect square
+		- Also if it isn't a perfect square the frames get stretched
+		- So if we wanted to upload just a sprite sheet instead of a folder with lots of frames, we would have to make the resolution of that sprite sheet a perfect square too. Only problem with doing the sprite sheet way is it tries to save it in a folder that needs admin rights, so you can't export. And even if you run with admin it doesn't work because then a different problem happens where the optical flow doesn't generate anything (not 100% sure if this is because you are runnig as admin or not but it seems to be that way)

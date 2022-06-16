@@ -190,12 +190,11 @@ FString USSCharacterMovementComponent_Shooter::GetMovementName() const
 			// If this value is in our custom movement enum
 			if (ShooterCustomMovementModeEnum->IsValidEnumValue(CustomMovementMode))
 			{
-				// Return the display name!
+				// Return the display name
 				return ShooterCustomMovementModeEnum->GetDisplayNameTextByValue(CustomMovementMode).ToString();
 			}
 		}
 	}
-
 
 	return Super::GetMovementName();
 }

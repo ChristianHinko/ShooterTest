@@ -20,7 +20,7 @@ UENUM()
 enum class ESSCustomMovementMode_Shooter : uint8
 {
 	/** Shooter custom move */
-	MOVE_Example = static_cast<uint8>(ESSCustomMovementMode::MOVE_MAX) + 1		UMETA(DisplayName = "Example"),
+	MOVE_Rappelling = static_cast<uint8>(ESSCustomMovementMode::MOVE_MAX)		UMETA(DisplayName = "Rappelling"),
 
 
 	MOVE_MAX																	UMETA(Hidden)

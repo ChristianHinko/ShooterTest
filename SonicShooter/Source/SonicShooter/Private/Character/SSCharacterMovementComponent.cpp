@@ -784,7 +784,6 @@ float USSCharacterMovementComponent::GetMaxAcceleration() const
 	{
 		if (!CharacterMovementAttributeSet.IsValid())
 		{
-			UE_LOG(LogCharacterMovement, Error, TEXT("CharacterMovementAttributeSet was NULL when trying to return a acceleration value"));
 			return 0;
 		}
 
@@ -854,12 +853,11 @@ FString USSCharacterMovementComponent::GetMovementName() const
 			// If this value is in our custom movement enum
 			if (CustomMovementModeEnum->IsValidEnumValue(CustomMovementMode))
 			{
-				// Return the display name!
+				// Return the display name
 				return CustomMovementModeEnum->GetDisplayNameTextByValue(CustomMovementMode).ToString();
 			}
 		}
 	}
-
 
 	return Super::GetMovementName();
 }

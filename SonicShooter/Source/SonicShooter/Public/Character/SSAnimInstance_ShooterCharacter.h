@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/SSAnimInstance.h"
+#include "Animation/ASAnimInstance.h"
 
 #include "SSAnimInstance_ShooterCharacter.generated.h"
 
@@ -18,7 +18,7 @@ class ASSCharacter_Shooter;
  * 
  */
 UCLASS()
-class SONICSHOOTER_API USSAnimInstance_ShooterCharacter : public USSAnimInstance
+class SONICSHOOTER_API USSAnimInstance_ShooterCharacter : public UASAnimInstance
 {
 	GENERATED_BODY()
 

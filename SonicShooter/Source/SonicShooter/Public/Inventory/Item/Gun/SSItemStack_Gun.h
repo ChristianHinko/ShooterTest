@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Inventory/Item/SSItemStack.h"
+#include "Inventory/Item/AIEItemStack.h"
 
 #include "SSItemStack_Gun.generated.h"
 
@@ -18,7 +18,7 @@ class USSObject_BulletSpread;
  * 
  */
 UCLASS()
-class SONICSHOOTER_API USSItemStack_Gun : public USSItemStack
+class SONICSHOOTER_API USSItemStack_Gun : public UAIEItemStack
 {
 	GENERATED_BODY()
 

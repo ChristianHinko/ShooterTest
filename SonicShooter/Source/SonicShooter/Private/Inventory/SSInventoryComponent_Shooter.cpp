@@ -3,12 +3,10 @@
 
 #include "Inventory/SSInventoryComponent_Shooter.h"
 
-#include "Inventory/Item/SSItemDefinition_Active.h"
 #include "UI/SSHUD_Shooter.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Inventory/Item/Gun/SSItemStack_Gun.h"
 #include "Subobjects/SSObject_BulletSpread.h"
-#include "BlueprintFunctionLibraries/HLBlueprintFunctionLibrary_InterfaceHelpers.h"
 #include "Subobjects/ASSActorComponent_AbilitySystemSetup.h"
 
 
@@ -23,10 +21,6 @@ void USSInventoryComponent_Shooter::InitializeComponent()
 {
 	Super::InitializeComponent();
 
-
-	OnItemSlotChange.AddDynamic(this, &USSInventoryComponent_Shooter::OnItemSlotChangeEvent);
-
-	OnItemInactive.AddDynamic(this, &USSInventoryComponent_Shooter::OnItemInactiveEvent);
 
 	UASSActorComponent_AbilitySystemSetup* AbilitySystemSetupComponent = GetOwner()->FindComponentByClass<UASSActorComponent_AbilitySystemSetup>();
 	if (IsValid(AbilitySystemSetupComponent))
@@ -48,71 +42,18 @@ void USSInventoryComponent_Shooter::OnInitializeAbilitySystemComponent(UAbilityS
 
 void USSInventoryComponent_Shooter::OnItemSlotChangeEvent(UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack)
 {
+	Super::OnItemSlotChangeEvent(Inventory, ItemSlotRef, ItemStack, PreviousItemStack);
+
 	if (IsValid(ItemStack) && ItemStack != PreviousItemStack) // if we are Equiping
 	{
 		// Inject the Ability System Component into our gun
+		USSItemStack_Gun* GunStack = Cast<USSItemStack_Gun>(ItemStack);
+		if (IsValid(GunStack))
 		{
-			USSItemStack_Gun* GunStack = Cast<USSItemStack_Gun>(ItemStack);
-			if (IsValid(GunStack))
-			{
-				GunStack->GetBulletSpreadSubobject()->SetAbilitySystemComponent(GetOwnerAbilitySystem());
-				GunStack->GetBulletSpreadSubobject()->ResetBulletSpread();
-			}
-		}
-
-		// Create UI Data
-		const APawn* OwningPawn = GetTypedOuter<APawn>();
-		if (IsValid(OwningPawn))
-		{
-			if (OwningPawn->IsLocallyControlled())
-			{
-				// We will create the item's Widget so we can add it when it later becomes "Active"
-				USSItemStack* SSItemStack = Cast<USSItemStack>(ItemStack);
-				if (IsValid(SSItemStack))
-				{
-					if (!IsValid(SSItemStack->ActiveItemWidget)) // only create a new Widget if it doesn't already exist
-					{
-						const USSUIData_ItemDefinition* UIData = Cast<USSUIData_ItemDefinition>(ItemStack->GetUIData());
-						if (IsValid(UIData))
-						{
-							APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController());
-							if (IsValid(OwningPC))
-							{
-								SSItemStack->ActiveItemWidget = UWidgetBlueprintLibrary::Create(this, UIData->ActiveItemWidgetTSub, OwningPC);
-							}
-						}
-					}
-				}
-
-			}
+			GunStack->GetBulletSpreadSubobject()->SetAbilitySystemComponent(GetOwnerAbilitySystem());
+			GunStack->GetBulletSpreadSubobject()->ResetBulletSpread();
 		}
 	}
-	else if (IsValid(PreviousItemStack) && PreviousItemStack != ItemStack) // if we are UnEquiping
-	{
-		// Clear the gun's Ability System Component
-		{
-			USSItemStack_Gun* GunStack = Cast<USSItemStack_Gun>(PreviousItemStack);
-			if (IsValid(GunStack))
-			{
-				GunStack->GetBulletSpreadSubobject()->SetAbilitySystemComponent(nullptr);
-				GunStack->GetBulletSpreadSubobject()->ResetBulletSpread();
-			}
-		}
-
-		// Remove UI Data
-		USSItemStack* SSItemStack = Cast<USSItemStack>(PreviousItemStack);
-		if (IsValid(SSItemStack))
-		{
-			UUserWidget* WidgetToRemove = SSItemStack->ActiveItemWidget;
-			if (IsValid(WidgetToRemove))
-			{
-				// We completely get rid of the widget since the inventory now longer has the item
-				WidgetToRemove->RemoveFromParent();
-				SSItemStack->ActiveItemWidget = nullptr;
-			}
-		}
-	}
-
 }
 
 
@@ -146,60 +87,37 @@ void USSInventoryComponent_Shooter::MakeItemActive(int32 NewActiveItemSlot)
 	}
 
 
-	// Add UIData widget
-	const APawn* OwningPawn = GetTypedOuter<APawn>();
+	// Set the HUD's widget pointer
+	const APawn* OwningPawn = GetTypedOuter<APawn>(); // ArcInventoryExtension TODO: GetTypedOuter() is weird here
 	if (IsValid(OwningPawn))
 	{
 		if (OwningPawn->IsLocallyControlled())
 		{
-			bool bSuccessfullyAdded = true;
-
 			APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController());
 			if (IsValid(OwningPC))
 			{
-				const USSUIData_ItemDefinition* UIData = Cast<USSUIData_ItemDefinition>(ActiveItemStack->GetUIData());
-				if (IsValid(UIData))
+				ASSHUD_Shooter* ShooterHUD = Cast<ASSHUD_Shooter>(OwningPC->GetHUD());
+				if (IsValid(ShooterHUD))
 				{
-					ASSHUD_Shooter* ShooterHUD = Cast<ASSHUD_Shooter>(OwningPC->GetHUD());
-					if (IsValid(ShooterHUD))
+					UAIEItemStack* AIEItemStack = Cast<UAIEItemStack>(ActiveItemStack);
+					if (IsValid(AIEItemStack))
 					{
-						USSItemStack* SSItemStack = Cast<USSItemStack>(ActiveItemStack);
-						if (IsValid(SSItemStack))
+						UUserWidget* ActiveWidget = AIEItemStack->ActiveItemWidget;
+						if (IsValid(ActiveWidget))
 						{
-							if (!IsValid(SSItemStack->ActiveItemWidget))
-							{
-								// No valid Widget! - For some reason the Widget wasn't created successfully in OnItemSlotChangeEvent()!
-								UE_LOG(UISetup, Warning, TEXT("%s() New active Item Stack did not point to a valid item Widget when trying to add it to Viewport. Equipping the item maybe didn't successfully create the Widget so we have nothing. We will create the Widget now but something seams to have messed up at some point"), ANSI_TO_TCHAR(__FUNCTION__));
-								
-								// Create the Widget
-								SSItemStack->ActiveItemWidget = UWidgetBlueprintLibrary::Create(this, UIData->ActiveItemWidgetTSub, OwningPC);
-							}
-							
-							// Add the Widget to Viewport
-							UUserWidget* WidgetToAdd = SSItemStack->ActiveItemWidget;
-							if (IsValid(WidgetToAdd))
-							{
-								WidgetToAdd->AddToPlayerScreen();
-								ShooterHUD->CurrentActiveItemWidget = WidgetToAdd;
-							}
+							ShooterHUD->CurrentActiveItemWidget = ActiveWidget;
 						}
 					}
 				}
 			}
-
-			if (bSuccessfullyAdded == false)
-			{
-				UE_LOG(UISetup, Warning, TEXT("%s() Item's widget was not successfully displayed on item active (a cast must have failed in the process)"), ANSI_TO_TCHAR(__FUNCTION__));
-			}
 		}
 	}
-
-
-
 }
 
 void USSInventoryComponent_Shooter::OnItemInactiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack)
 {
+	Super::OnItemInactiveEvent(InventoryComponent, ItemStack);
+
 	// Reset our gun's CurrentBulletSpread
 	{
 		USSItemStack_Gun* GunStack = Cast<USSItemStack_Gun>(ItemStack);
@@ -210,8 +128,8 @@ void USSInventoryComponent_Shooter::OnItemInactiveEvent(UArcInventoryComponent_A
 	}
 
 
-	// Remove UIData widgets
-	const APawn* OwningPawn = GetTypedOuter<APawn>();
+	// Clear the HUD's widget pointer
+	const APawn* OwningPawn = GetTypedOuter<APawn>(); // ArcInventoryExtension TODO: GetTypedOuter() is weird here
 	if (IsValid(OwningPawn))
 	{
 		if (OwningPawn->IsLocallyControlled())
@@ -219,26 +137,12 @@ void USSInventoryComponent_Shooter::OnItemInactiveEvent(UArcInventoryComponent_A
 			const APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController());
 			if (IsValid(OwningPC))
 			{
-				const USSItemStack* SSItemStack = Cast<USSItemStack>(ItemStack);
-				if (IsValid(SSItemStack))
+				ASSHUD_Shooter* ShooterHUD = Cast<ASSHUD_Shooter>(OwningPC->GetHUD());
+				if (IsValid(ShooterHUD))
 				{
-					UUserWidget* WidgetToRemove = SSItemStack->ActiveItemWidget;
-					if (IsValid(WidgetToRemove))
-					{
-						// Remove ActiveItemWidget from Viewport and clear the pointer from ShooterHUD
-						WidgetToRemove->RemoveFromViewport();
-
-						// And clear the pointer from the HUD
-						ASSHUD_Shooter* ShooterHUD = Cast<ASSHUD_Shooter>(OwningPC->GetHUD());
-						if (IsValid(ShooterHUD))
-						{
-							ShooterHUD->CurrentActiveItemWidget = nullptr;
-						}
-					}
+					ShooterHUD->CurrentActiveItemWidget = nullptr;
 				}
 			}
-
 		}
 	}
-
 }

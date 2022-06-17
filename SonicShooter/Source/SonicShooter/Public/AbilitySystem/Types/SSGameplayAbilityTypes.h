@@ -56,7 +56,7 @@ struct SONICSHOOTER_API FSSGameplayAbilityActorInfo : public FASSGameplayAbility
 
 class USSAbilitySystemComponent_Shooter;
 class ASSCharacter_Shooter;
-class USSInventoryComponent_Active;
+class UArcInventoryComponent;
 
 
 /**
@@ -77,7 +77,7 @@ struct SONICSHOOTER_API FSSGameplayAbilityActorInfo_Shooter : public FSSGameplay
 
     // Our Inventory Component
     UPROPERTY(BlueprintReadOnly, Category = "ShooterActorInfo")
-        TWeakObjectPtr<USSInventoryComponent_Active> InventoryComponent;
+        TWeakObjectPtr<UArcInventoryComponent> InventoryComponent;
 
 
     virtual void InitFromActor(AActor* OwnerActor, AActor* AvatarActor, UAbilitySystemComponent* InAbilitySystemComponent) override;
@@ -86,5 +86,5 @@ struct SONICSHOOTER_API FSSGameplayAbilityActorInfo_Shooter : public FSSGameplay
 
     USSAbilitySystemComponent_Shooter* GetShooterAbilitySystemComponent() const { return ShooterAbilitySystemComponent.Get(); }
     ASSCharacter_Shooter* GetShooterCharacter() const { return ShooterCharacter.Get(); }
-    USSInventoryComponent_Active* GetInventoryComponent() const { return InventoryComponent.Get(); }
+    UArcInventoryComponent* GetInventoryComponent() const { return InventoryComponent.Get(); }
 };

@@ -6,7 +6,7 @@
 #include "Inventory/Item/Gun/SSAttributeSet_Gun.h"
 #include "Subobjects/SSObject_BulletSpread.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
-#include "Inventory/SSInventoryComponent_Active.h"
+#include "Components/ArcInventoryComponent_Active.h"
 #include "Inventory/Item/Gun/SSItemStack_Gun.h"
 
 
@@ -96,20 +96,19 @@ void USSGameplayEffectExecutionCalculation_InitGun::Execute_Implementation(const
 	// Get BulletSpread subobject and initialize CurrentBulletSpread
 	if (const FSSGameplayAbilityActorInfo_Shooter* ShooterActorInfo = static_cast<const FSSGameplayAbilityActorInfo_Shooter*>(TargetAbilitySystemComponent->AbilityActorInfo.Get()))
 	{
-		USSInventoryComponent_Active* InventoryComponent = ShooterActorInfo->GetInventoryComponent();
-		if (IsValid(InventoryComponent))
+		UArcInventoryComponent_Active* InventoryComponentActive = Cast<UArcInventoryComponent_Active>(ShooterActorInfo->GetInventoryComponent());
+		if (IsValid(InventoryComponentActive))
 		{
-			const UArcItemStack* ActiveItemStack = InventoryComponent->GetActiveItemStack();
+			const UArcItemStack* ActiveItemStack = InventoryComponentActive->GetActiveItemStack();
 			if (IsValid(ActiveItemStack))
 			{
 				const USSItemStack_Gun* GunStack = Cast<USSItemStack_Gun>(ActiveItemStack);
 				if (IsValid(GunStack))
 				{
 					GunStack->GetBulletSpreadSubobject()->CurrentBulletSpread = CurrentBulletSpread;
-					GunStack->GetBulletSpreadSubobject()->CurrentBulletSpread.MarkNetDirty(); // we are server-only right now so replicate it
+					GunStack->GetBulletSpreadSubobject()->CurrentBulletSpread.MarkNetDirty(); // we are server-only here so replicate it
 				}
 			}
 		}
 	}
-
 }

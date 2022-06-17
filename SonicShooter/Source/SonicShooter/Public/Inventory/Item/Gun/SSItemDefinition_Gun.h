@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Inventory/Item/SSItemDefinition_Active.h"
+#include "Inventory/Item/AIEItemDefinition_Active.h"
 
 #include "SSItemDefinition_Gun.generated.h"
 
@@ -16,7 +16,7 @@ class AGameplayAbilityTargetActor;
  * 
  */
 UCLASS(Abstract)
-class SONICSHOOTER_API USSItemDefinition_Gun : public USSItemDefinition_Active
+class SONICSHOOTER_API USSItemDefinition_Gun : public UAIEItemDefinition_Active
 {
 	GENERATED_BODY()
 

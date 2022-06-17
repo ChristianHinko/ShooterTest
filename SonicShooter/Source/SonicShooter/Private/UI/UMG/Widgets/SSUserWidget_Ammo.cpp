@@ -6,7 +6,7 @@
 #include "Inventory/Item/SSAttributeSet_Ammo.h"
 #include "Subobjects/SSObject_ClipAmmo.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
-#include "Inventory/SSInventoryComponent_Active.h"
+#include "Components/ArcInventoryComponent_Active.h"
 #include "Inventory/Item/Gun/SSItemStack_Gun.h"
 #include "Components/TextBlock.h"
 
@@ -26,10 +26,10 @@ void USSUserWidget_Ammo::OnPlayerASCValid()
 	// Get ClipAmmo subobject
 	if (const FSSGameplayAbilityActorInfo_Shooter* ShooterActorInfo = static_cast<const FSSGameplayAbilityActorInfo_Shooter*>(PlayerASC->AbilityActorInfo.Get()))
 	{
-		USSInventoryComponent_Active* InventoryComponent = ShooterActorInfo->GetInventoryComponent();
-		if (IsValid(InventoryComponent))
+		UArcInventoryComponent_Active* InventoryComponentActive = Cast<UArcInventoryComponent_Active>(ShooterActorInfo->GetInventoryComponent());
+		if (IsValid(InventoryComponentActive))
 		{
-			const UArcItemStack* ActiveItemStack = InventoryComponent->GetActiveItemStack();
+			const UArcItemStack* ActiveItemStack = InventoryComponentActive->GetActiveItemStack();
 			if (IsValid(ActiveItemStack))
 			{
 				const USSItemStack_Gun* GunStack = Cast<USSItemStack_Gun>(ActiveItemStack);

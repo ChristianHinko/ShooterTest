@@ -60,7 +60,7 @@ void FSSGameplayAbilityActorInfo::ClearActorInfo()
 
 #include "AbilitySystem/AbilitySystemComponents/SSAbilitySystemComponent_Shooter.h"
 #include "Character/SSCharacter_Shooter.h"
-#include "Inventory/SSInventoryComponent_Active.h"
+#include "ArcInventoryComponent.h"
 
 
 
@@ -77,7 +77,7 @@ void FSSGameplayAbilityActorInfo_Shooter::InitFromActor(AActor* InOwnerActor, AA
 	// Get our Inventory
 	if (IsValid(InAvatarActor))
 	{
-		InventoryComponent = Cast<USSInventoryComponent_Active>(UArcItemBPFunctionLibrary::GetInventoryComponent(InAvatarActor, true));
+		InventoryComponent = UArcItemBPFunctionLibrary::GetInventoryComponent(InAvatarActor, true);
 	}
 	else
 	{

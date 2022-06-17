@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Generators/ArcItemGenerator_Unique.h"
+#include "Inventory/Item/AIEItemGenerator_Unique.h"
 
 #include "SSItemGenerator_Gun.generated.h"
 
@@ -13,13 +13,12 @@
  * 
  */
 UCLASS()
-class SONICSHOOTER_API USSItemGenerator_Gun : public UArcItemGenerator_Unique
+class SONICSHOOTER_API USSItemGenerator_Gun : public UAIEItemGenerator_Unique
 {
 	GENERATED_BODY()
-	
+
 public:
 	USSItemGenerator_Gun(const FObjectInitializer& ObjectInitializer);
-
 
 protected:
 	virtual UArcItemStack* GenerateItemStack_Implementation(const FArcItemGeneratorContext& Context) override;

@@ -8,7 +8,7 @@
 #include "Character/SSCharacter_Shooter.h"
 #include "ArcInventoryComponent.h"
 #include "Generators/ArcItemGenerator.h"
-#include "Inventory/SSInventoryComponent_Active.h"
+#include "Inventory/AIEInventoryComponent_Active.h"
 #include "Subobjects/ASSActorComponent_AbilitySystemSetup.h"
 #include "ArcItemBPFunctionLibrary.h"
 
@@ -49,37 +49,36 @@ APawn* ASSGameMode_Shooter::SpawnDefaultPawnAtTransform_Implementation(AControll
 	return Pawn;
 }
 
+void ASSGameMode_Shooter::OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC, UArcInventoryComponent* Inventory)
+{
+	GiveInventoryStartupItems(Inventory);
+}
+
 void ASSGameMode_Shooter::GiveInventoryStartupItems(UArcInventoryComponent* Inventory)
 {
-	USSInventoryComponent_Active* SSArcInventoryCompActive = Cast<USSInventoryComponent_Active>(Inventory);
-	if (IsValid(SSArcInventoryCompActive))
+	UAIEInventoryComponent_Active* AIEInventoryComponentActive = Cast<UAIEInventoryComponent_Active>(Inventory);
+	if (IsValid(AIEInventoryComponentActive))
 	{
 		// Loop through our Starting Items
-		for (const FArcStartingItemEntry& StartingItem : SSArcInventoryCompActive->StartingItems)
+		for (const FArcStartingItemEntry& StartingItem : AIEInventoryComponentActive->StartingItems)
 		{
-			const FArcInventoryItemSlotReference& SlotToPutItemIn = SSArcInventoryCompActive->Query_GetFirstSlot(FArcInventoryQuery::QueryForSlot(StartingItem.SlotQuery));
-			if (SSArcInventoryCompActive->IsValidItemSlot(SlotToPutItemIn))
+			const FArcInventoryItemSlotReference& SlotToPutItemIn = AIEInventoryComponentActive->Query_GetFirstSlot(FArcInventoryQuery::QueryForSlot(StartingItem.SlotQuery));
+			if (AIEInventoryComponentActive->IsValidItemSlot(SlotToPutItemIn))
 			{
 				// Try to generate Item
 				if (IsValid(StartingItem.ItemGenerator))
 				{
 					UArcItemStack* GeneratedItemStack = StartingItem.ItemGenerator->GenerateItemStack(FArcItemGeneratorContext());
-					
+
 					// Try to equip Item
-					const bool bSuccess = SSArcInventoryCompActive->PlaceItemIntoSlot(GeneratedItemStack, SlotToPutItemIn);
+					const bool bSuccess = AIEInventoryComponentActive->PlaceItemIntoSlot(GeneratedItemStack, SlotToPutItemIn);
 					if (!bSuccess)
 					{
-						UE_LOG(LogArcInventorySetup, Warning, TEXT("Failed to place a starting Item into specified slot. We will just call LootItem() to give the Item instead (may be put in wrong slot)"));
-						SSArcInventoryCompActive->LootItem(GeneratedItemStack);
+						UE_LOG(LogSSInventoryComponent, Warning, TEXT("Failed to place a starting Item into specified slot. We will just call LootItem() to give the Item instead (may be put in wrong slot)"));
+						AIEInventoryComponentActive->LootItem(GeneratedItemStack);
 					}
 				}
 			}
 		}
 	}
-
-}
-
-void ASSGameMode_Shooter::OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC, UArcInventoryComponent* Inventory)
-{
-	GiveInventoryStartupItems(Inventory);
 }

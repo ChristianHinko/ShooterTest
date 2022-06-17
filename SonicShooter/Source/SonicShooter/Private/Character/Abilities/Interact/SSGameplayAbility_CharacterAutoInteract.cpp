@@ -66,12 +66,12 @@ bool USSGameplayAbility_CharacterAutoInteract::CanActivateAbility(const FGamepla
 
 //if (!ShooterCharacter->CurrentPrioritizedInteractable->GetIsManualDurationInteract() && !ShooterCharacter->CurrentPrioritizedInteractable->GetIsAutomaticDurationInteract())
 //{
-//	UE_LOG(LogGameplayAbility, Error, TEXT("%s() GetIsManualDurationInteract() returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+//	UE_LOG(LogSSGameplayAbility, Error, TEXT("%s() GetIsManualDurationInteract() returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 //	return false;
 //}
 //if (ShooterCharacter->CurrentPrioritizedInteractable->GetIsAutomaticInstantInteract() && ShooterCharacter->CurrentPrioritizedInteractable->GetIsManualInstantInteract())
 //{
-//	UE_LOG(LogGameplayAbility, Warning, TEXT("%s() Interactable was set to be both automatic and manual which doesn't make sense. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+//	UE_LOG(LogSSGameplayAbility, Warning, TEXT("%s() Interactable was set to be both automatic and manual which doesn't make sense. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 //	return false;
 //}
 
@@ -125,7 +125,7 @@ bool USSGameplayAbility_CharacterAutoInteract::CanActivateAbility(const FGamepla
 //	USSAbilityTask_DurationInteractCallbacks* DurationInteractCallbacks = USSAbilityTask_DurationInteractCallbacks::DurationInteractCallbacks(this, ShooterCharacter, Interactable);
 //	if (!DurationInteractCallbacks)
 //	{
-//		UE_LOG(LogGameplayAbility, Error, TEXT("%s() DurationInteractCallbacks was NULL when trying to activate an automatic duration interact."), ANSI_TO_TCHAR(__FUNCTION__));
+//		UE_LOG(LogSSGameplayAbility, Error, TEXT("%s() DurationInteractCallbacks was NULL when trying to activate an automatic duration interact."), ANSI_TO_TCHAR(__FUNCTION__));
 //      EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 //		return;
 //	}
@@ -228,7 +228,7 @@ bool USSGameplayAbility_CharacterAutoInteract::CanActivateAbility(const FGamepla
 //	}
 //	else
 //	{
-//		UE_LOG(LogGameplayAbility, Error, TEXT("%s() RemoveActiveGameplayEffect(InteractEffectActiveHandle) failed. AbilitySystemComponent was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
+//		UE_LOG(LogSSGameplayAbility, Error, TEXT("%s() RemoveActiveGameplayEffect(InteractEffectActiveHandle) failed. AbilitySystemComponent was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 //	}
 //
 //	if (bWasCancelled)
@@ -301,7 +301,7 @@ bool USSGameplayAbility_CharacterAutoInteract::CanActivateAbility(const FGamepla
 //	}
 //	else
 //	{
-//		UE_LOG(LogGameplayAbility, Error, TEXT("%s() RemoveActiveGameplayEffect(InteractEffectActiveHandle) failed. AbilitySystemComponent was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
+//		UE_LOG(LogSSGameplayAbility, Error, TEXT("%s() RemoveActiveGameplayEffect(InteractEffectActiveHandle) failed. AbilitySystemComponent was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
 //	}
 //
 //	if (bWasCancelled)

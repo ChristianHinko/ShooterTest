@@ -7,19 +7,19 @@
 DEFINE_LOG_CATEGORY(LogSonicShooterModule)
 
 DEFINE_LOG_CATEGORY(LogSSAbilitySystemSetup)
-DEFINE_LOG_CATEGORY(LogGameplayAbility)
-DEFINE_LOG_CATEGORY(LogGameplayAbilityTask)
-DEFINE_LOG_CATEGORY(LogGameplayAbilityTargetActor)
-DEFINE_LOG_CATEGORY(LogGameplayAbilityTargetData)
+DEFINE_LOG_CATEGORY(LogSSGameplayAbility)
+DEFINE_LOG_CATEGORY(LogSSGameplayAbilityTask)
+DEFINE_LOG_CATEGORY(LogSSGameplayAbilityTargetActor)
+DEFINE_LOG_CATEGORY(LogSSGameplayAbilityTargetData)
 
-DEFINE_LOG_CATEGORY(LogPlayerControllerSetup)
-DEFINE_LOG_CATEGORY(LogCharacterSetup)
-DEFINE_LOG_CATEGORY(LogCharacterMovementSetup)
-DEFINE_LOG_CATEGORY(LogCharacterMovement)
+DEFINE_LOG_CATEGORY(LogSSPlayerControllerSetup)
+DEFINE_LOG_CATEGORY(LogSSCharacterSetup)
+DEFINE_LOG_CATEGORY(LogSSCharacterMovementSetup)
+DEFINE_LOG_CATEGORY(LogSSCharacterMovement)
 
-DEFINE_LOG_CATEGORY(LogUISetup)
-DEFINE_LOG_CATEGORY(LogUI)
+DEFINE_LOG_CATEGORY(LogSSUISetup)
+DEFINE_LOG_CATEGORY(LogSSUI)
 
 DEFINE_LOG_CATEGORY(LogSSInventoryComponent)
 
-DEFINE_LOG_CATEGORY(LogWeapon)
+DEFINE_LOG_CATEGORY(LogSSWeapon)

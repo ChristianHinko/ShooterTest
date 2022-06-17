@@ -901,7 +901,7 @@ void USSCharacterMovementComponent::PhysCustom(float deltaTime, int32 Iterations
 	}
 	default:
 	{
-		UE_LOG(LogCharacterMovementSetup, Warning, TEXT("%s has unsupported custom movement mode %d"), *CharacterOwner->GetName(), static_cast<uint8>(CustomMovementMode));
+		UE_LOG(LogSSCharacterMovementSetup, Warning, TEXT("%s has unsupported custom movement mode %d"), *CharacterOwner->GetName(), static_cast<uint8>(CustomMovementMode));
 		SetMovementMode(EMovementMode::MOVE_Custom, static_cast<uint8>(ESSCustomMovementMode::MOVE_None));
 		break;
 	}

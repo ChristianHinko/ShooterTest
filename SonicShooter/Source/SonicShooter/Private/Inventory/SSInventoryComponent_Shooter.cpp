@@ -8,6 +8,7 @@
 #include "Inventory/Item/Gun/SSItemStack_Gun.h"
 #include "Subobjects/SSObject_BulletSpread.h"
 #include "Subobjects/ASSActorComponent_AbilitySystemSetup.h"
+#include "BlueprintFunctionLibraries/HLBlueprintFunctionLibrary_ActorHelpers.h"
 
 
 
@@ -88,25 +89,21 @@ void USSInventoryComponent_Shooter::MakeItemActive(int32 NewActiveItemSlot)
 
 
 	// Set the HUD's widget pointer
-	const APawn* OwningPawn = GetTypedOuter<APawn>(); // ArcInventoryExtension TODO: GetTypedOuter() is weird here
-	if (IsValid(OwningPawn))
+	APlayerController* OwningPlayerController = UHLBlueprintFunctionLibrary_ActorHelpers::GetTypedOwnerOfComponentCasted<APlayerController>(this);
+	if (IsValid(OwningPlayerController))
 	{
-		if (OwningPawn->IsLocallyControlled())
+		if (OwningPlayerController->IsLocalController())
 		{
-			APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController());
-			if (IsValid(OwningPC))
+			ASSHUD_Shooter* ShooterHUD = Cast<ASSHUD_Shooter>(OwningPlayerController->GetHUD());
+			if (IsValid(ShooterHUD))
 			{
-				ASSHUD_Shooter* ShooterHUD = Cast<ASSHUD_Shooter>(OwningPC->GetHUD());
-				if (IsValid(ShooterHUD))
+				UAIEItemStack* AIEItemStack = Cast<UAIEItemStack>(ActiveItemStack);
+				if (IsValid(AIEItemStack))
 				{
-					UAIEItemStack* AIEItemStack = Cast<UAIEItemStack>(ActiveItemStack);
-					if (IsValid(AIEItemStack))
+					UUserWidget* ActiveWidget = AIEItemStack->ActiveItemWidget;
+					if (IsValid(ActiveWidget))
 					{
-						UUserWidget* ActiveWidget = AIEItemStack->ActiveItemWidget;
-						if (IsValid(ActiveWidget))
-						{
-							ShooterHUD->CurrentActiveItemWidget = ActiveWidget;
-						}
+						ShooterHUD->CurrentActiveItemWidget = ActiveWidget;
 					}
 				}
 			}
@@ -129,19 +126,15 @@ void USSInventoryComponent_Shooter::OnItemInactiveEvent(UArcInventoryComponent_A
 
 
 	// Clear the HUD's widget pointer
-	const APawn* OwningPawn = GetTypedOuter<APawn>(); // ArcInventoryExtension TODO: GetTypedOuter() is weird here
-	if (IsValid(OwningPawn))
+	APlayerController* OwningPlayerController = UHLBlueprintFunctionLibrary_ActorHelpers::GetTypedOwnerOfComponentCasted<APlayerController>(this);
+	if (IsValid(OwningPlayerController))
 	{
-		if (OwningPawn->IsLocallyControlled())
+		if (OwningPlayerController->IsLocalController())
 		{
-			const APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController());
-			if (IsValid(OwningPC))
+			ASSHUD_Shooter* ShooterHUD = Cast<ASSHUD_Shooter>(OwningPlayerController->GetHUD());
+			if (IsValid(ShooterHUD))
 			{
-				ASSHUD_Shooter* ShooterHUD = Cast<ASSHUD_Shooter>(OwningPC->GetHUD());
-				if (IsValid(ShooterHUD))
-				{
-					ShooterHUD->CurrentActiveItemWidget = nullptr;
-				}
+				ShooterHUD->CurrentActiveItemWidget = nullptr;
 			}
 		}
 	}

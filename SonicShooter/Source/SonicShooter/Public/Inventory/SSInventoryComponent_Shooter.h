@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Inventory/AIEInventoryComponent_Shooter.h"
+#include "Inventory/AIEInventoryComponent_Active.h"
 
 #include "SSInventoryComponent_Shooter.generated.h"
 
@@ -16,7 +16,7 @@ class UArkItemStack;
  * 
  */
 UCLASS()
-class SONICSHOOTER_API USSInventoryComponent_Shooter : public UAIEInventoryComponent_Shooter
+class SONICSHOOTER_API USSInventoryComponent_Shooter : public UAIEInventoryComponent_Active
 {
 	GENERATED_BODY()
 	

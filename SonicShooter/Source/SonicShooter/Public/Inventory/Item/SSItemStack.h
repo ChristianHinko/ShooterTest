@@ -8,9 +8,6 @@
 #include "SSItemStack.generated.h"
 
 
-class USSUserWidget_ActiveItem;
-
-
 
 /**
  * 
@@ -29,6 +26,6 @@ public:
 	 * NOTE: Only valid on the Client and Listening Server.
 	 */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "UI")
-		TObjectPtr<USSUserWidget_ActiveItem> ActiveItemWidget;
+		TObjectPtr<UUserWidget> ActiveItemWidget;
 
 };

@@ -5,7 +5,6 @@
 
 #include "Inventory/Item/SSItemDefinition_Active.h"
 #include "UI/SSHUD_Shooter.h"
-#include "UI/UMG/Widgets/SSUserWidget_ActiveItem.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Inventory/Item/Gun/SSItemStack_Gun.h"
 #include "Subobjects/SSObject_BulletSpread.h"
@@ -79,8 +78,7 @@ void USSInventoryComponent_Shooter::OnItemSlotChangeEvent(UArcInventoryComponent
 							APlayerController* OwningPC = Cast<APlayerController>(OwningPawn->GetController());
 							if (IsValid(OwningPC))
 							{
-								SSItemStack->ActiveItemWidget = Cast<USSUserWidget_ActiveItem>(UWidgetBlueprintLibrary::Create(this, UIData->ActiveItemWidgetTSub, OwningPC));
-								SSItemStack->ActiveItemWidget->ActiveItemName = ItemStack->ItemName; // inject ItemName
+								SSItemStack->ActiveItemWidget = UWidgetBlueprintLibrary::Create(this, UIData->ActiveItemWidgetTSub, OwningPC);
 							}
 						}
 					}
@@ -105,7 +103,7 @@ void USSInventoryComponent_Shooter::OnItemSlotChangeEvent(UArcInventoryComponent
 		USSItemStack* SSItemStack = Cast<USSItemStack>(PreviousItemStack);
 		if (IsValid(SSItemStack))
 		{
-			USSUserWidget_ActiveItem* WidgetToRemove = SSItemStack->ActiveItemWidget;
+			UUserWidget* WidgetToRemove = SSItemStack->ActiveItemWidget;
 			if (IsValid(WidgetToRemove))
 			{
 				// We completely get rid of the widget since the inventory now longer has the item
@@ -174,12 +172,11 @@ void USSInventoryComponent_Shooter::MakeItemActive(int32 NewActiveItemSlot)
 								UE_LOG(UISetup, Warning, TEXT("%s() New active Item Stack did not point to a valid item Widget when trying to add it to Viewport. Equipping the item maybe didn't successfully create the Widget so we have nothing. We will create the Widget now but something seams to have messed up at some point"), ANSI_TO_TCHAR(__FUNCTION__));
 								
 								// Create the Widget
-								SSItemStack->ActiveItemWidget = Cast<USSUserWidget_ActiveItem>(UWidgetBlueprintLibrary::Create(this, UIData->ActiveItemWidgetTSub, OwningPC));
-								SSItemStack->ActiveItemWidget->ActiveItemName = ActiveItemStack->ItemName; // inject ItemName
+								SSItemStack->ActiveItemWidget = UWidgetBlueprintLibrary::Create(this, UIData->ActiveItemWidgetTSub, OwningPC);
 							}
 							
 							// Add the Widget to Viewport
-							USSUserWidget_ActiveItem* WidgetToAdd = SSItemStack->ActiveItemWidget;
+							UUserWidget* WidgetToAdd = SSItemStack->ActiveItemWidget;
 							if (IsValid(WidgetToAdd))
 							{
 								WidgetToAdd->AddToPlayerScreen();
@@ -225,7 +222,7 @@ void USSInventoryComponent_Shooter::OnItemInactiveEvent(UArcInventoryComponent_A
 				const USSItemStack* SSItemStack = Cast<USSItemStack>(ItemStack);
 				if (IsValid(SSItemStack))
 				{
-					USSUserWidget_ActiveItem* WidgetToRemove = SSItemStack->ActiveItemWidget;
+					UUserWidget* WidgetToRemove = SSItemStack->ActiveItemWidget;
 					if (IsValid(WidgetToRemove))
 					{
 						// Remove ActiveItemWidget from Viewport and clear the pointer from ShooterHUD

@@ -9,7 +9,6 @@
 
 
 class USSUserWidget_Health;
-class USSUserWidget_ActiveItem;
 
 
 
@@ -32,7 +31,7 @@ public:
 
 	// Weak Object Ptr because this is purely meant to point to Item Stack's widget - we don't want any impact on its existence
 	UPROPERTY()
-		TWeakObjectPtr<USSUserWidget_ActiveItem> CurrentActiveItemWidget;
+		TWeakObjectPtr<UUserWidget> CurrentActiveItemWidget;
 
 protected:
 	virtual void PostInitializeComponents() override;

@@ -8,9 +8,6 @@
 #include "SSItemDefinition_Active.generated.h"
 
 
-class USSUserWidget_ActiveItem;
-
-
 
 /**
  * 
@@ -25,7 +22,7 @@ public:
 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<USSUserWidget_ActiveItem> ActiveItemWidgetTSub;
+		TSubclassOf<UUserWidget> ActiveItemWidgetTSub;
 };
 
 

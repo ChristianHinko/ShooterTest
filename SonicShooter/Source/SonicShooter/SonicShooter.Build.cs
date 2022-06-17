@@ -24,6 +24,7 @@ public class SonicShooter : ModuleRules
 				"AbilitySystemSetupExtras",
 				"HelperLibraries",
 				"PropertyWrapper",
+				"AnimationSetup",
 				"AutoSettings",
 				"ArcInventory",
 				"AnimGraphRuntime" // for KismetAnimationLibrary

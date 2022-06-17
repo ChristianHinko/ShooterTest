@@ -16,9 +16,6 @@
 [submodule "SonicShooter/Plugins/MaterialFunctionLibrary"]
 	path = SonicShooter/Plugins/MaterialFunctionLibrary
 	url = https://github.com/brian2524/MaterialFunctionLibrary.git
-[submodule "SonicShooter/Plugins/AnimationSetup"]
-	path = SonicShooter/Plugins/AnimationSetup
-	url = https://github.com/ChristianHinko/AnimationSetup.git
 [submodule "SonicShooter/Plugins/AutoSettings"]
 	path = SonicShooter/Plugins/AutoSettings
 	url = https://github.com/brian2524/AutoSettings.git

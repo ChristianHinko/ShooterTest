@@ -23,30 +23,34 @@ ASSGameMode_Shooter::ASSGameMode_Shooter(const FObjectInitializer& ObjectInitial
 }
 
 
-APawn* ASSGameMode_Shooter::SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform)
+void ASSGameMode_Shooter::SetPlayerDefaults(APawn* PlayerPawn)
 {
-	APawn* Pawn = Super::SpawnDefaultPawnAtTransform_Implementation(NewPlayer, SpawnTransform);
+	Super::SetPlayerDefaults(PlayerPawn);
 
-
-	// Does this new Pawn have an Inventory Component?
-	UArcInventoryComponent* Inventory = Cast<UArcInventoryComponent>(UArcItemBPFunctionLibrary::GetInventoryComponent(Pawn, true));
+	// Try to give startup items
+	UArcInventoryComponent* Inventory = UArcItemBPFunctionLibrary::GetInventoryComponent(PlayerPawn, true);
 	if (IsValid(Inventory))
 	{
-		UASSActorComponent_AbilitySystemSetup* AbilitySystemSetupComponent = Pawn->FindComponentByClass<UASSActorComponent_AbilitySystemSetup>();
+		UASSActorComponent_AbilitySystemSetup* AbilitySystemSetupComponent = PlayerPawn->FindComponentByClass<UASSActorComponent_AbilitySystemSetup>();
 		if (IsValid(AbilitySystemSetupComponent))
 		{
-			// Wait until they have they ability system set up
-			AbilitySystemSetupComponent->OnInitializeAbilitySystemComponentDelegate.AddUObject(this, &ASSGameMode_Shooter::OnInitializeAbilitySystemComponent, Inventory);
+			if (AbilitySystemSetupComponent->IsInitializedWithASC())
+			{
+				// The Pawn is ready to recieve the startup items
+				GiveInventoryStartupItems(Inventory);
+			}
+			else
+			{
+				// Wait for his ASC to be initialized
+				AbilitySystemSetupComponent->OnInitializeAbilitySystemComponentDelegate.AddUObject(this, &ASSGameMode_Shooter::OnInitializeAbilitySystemComponent, Inventory);
+			}
 		}
 		else
 		{
-			// Unlikely that it would reach here
+			// Edge case: No setup component - just assume he is ready to recieve the startup items
 			GiveInventoryStartupItems(Inventory);
 		}
 	}
-
-
-	return Pawn;
 }
 
 void ASSGameMode_Shooter::OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC, UArcInventoryComponent* Inventory)

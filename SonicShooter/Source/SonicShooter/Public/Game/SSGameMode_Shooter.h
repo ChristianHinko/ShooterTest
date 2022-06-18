@@ -25,9 +25,9 @@ public:
 	ASSGameMode_Shooter(const FObjectInitializer& ObjectInitializer);
 
 
-protected:
-	virtual APawn* SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform) override;
+	virtual void SetPlayerDefaults(APawn* PlayerPawn) override;
 
+protected:
 	/** Override this event if you want to customize how this Game Mode gives you your startup items */
 	virtual void GiveInventoryStartupItems(UArcInventoryComponent* Inventory);
 

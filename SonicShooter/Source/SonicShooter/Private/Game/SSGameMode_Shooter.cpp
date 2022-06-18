@@ -6,7 +6,6 @@
 #include "Player/SSPlayerState_Shooter.h"
 #include "UI/SSHUD_Shooter.h"
 #include "Character/SSCharacter_Shooter.h"
-#include "ArcInventoryComponent.h"
 #include "Generators/ArcItemGenerator.h"
 #include "Inventory/AIEInventoryComponent_Active.h"
 #include "Subobjects/ASSActorComponent_AbilitySystemSetup.h"

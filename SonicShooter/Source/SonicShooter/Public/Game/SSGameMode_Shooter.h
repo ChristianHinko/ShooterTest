@@ -8,7 +8,7 @@
 #include "SSGameMode_Shooter.generated.h"
 
 
-class UArcInventoryComponent;
+class UAIEInventoryComponent_Active;
 class UAbilitySystemComponent;
 
 
@@ -27,10 +27,6 @@ public:
 
 	virtual void SetPlayerDefaults(APawn* PlayerPawn) override;
 
-protected:
-	/** Override this event if you want to customize how this Game Mode gives you your startup items */
-	virtual void GiveInventoryStartupItems(UArcInventoryComponent* Inventory);
-
 private:
-	void OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC, UArcInventoryComponent* Inventory);
+	void OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC, UAIEInventoryComponent_Active* const AIEInventoryComponentActive);
 };

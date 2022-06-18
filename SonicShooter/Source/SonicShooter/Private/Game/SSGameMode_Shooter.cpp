@@ -28,8 +28,8 @@ void ASSGameMode_Shooter::SetPlayerDefaults(APawn* PlayerPawn)
 	Super::SetPlayerDefaults(PlayerPawn);
 
 	// Try to give startup items
-	UArcInventoryComponent* Inventory = UArcItemBPFunctionLibrary::GetInventoryComponent(PlayerPawn, true);
-	if (IsValid(Inventory))
+	UAIEInventoryComponent_Active* AIEInventoryComponentActive = Cast<UAIEInventoryComponent_Active>(UArcItemBPFunctionLibrary::GetInventoryComponent(PlayerPawn, true));
+	if (IsValid(AIEInventoryComponentActive))
 	{
 		UASSActorComponent_AbilitySystemSetup* AbilitySystemSetupComponent = PlayerPawn->FindComponentByClass<UASSActorComponent_AbilitySystemSetup>();
 		if (IsValid(AbilitySystemSetupComponent))
@@ -37,52 +37,23 @@ void ASSGameMode_Shooter::SetPlayerDefaults(APawn* PlayerPawn)
 			if (AbilitySystemSetupComponent->IsInitializedWithASC())
 			{
 				// The Pawn is ready to recieve the startup items
-				GiveInventoryStartupItems(Inventory);
+				AIEInventoryComponentActive->GiveInventoryStartupItems();
 			}
 			else
 			{
 				// Wait for his ASC to be initialized
-				AbilitySystemSetupComponent->OnInitializeAbilitySystemComponentDelegate.AddUObject(this, &ASSGameMode_Shooter::OnInitializeAbilitySystemComponent, Inventory);
+				AbilitySystemSetupComponent->OnInitializeAbilitySystemComponentDelegate.AddUObject(this, &ASSGameMode_Shooter::OnInitializeAbilitySystemComponent, AIEInventoryComponentActive);
 			}
 		}
 		else
 		{
 			// Edge case: No setup component - just assume he is ready to recieve the startup items
-			GiveInventoryStartupItems(Inventory);
+			AIEInventoryComponentActive->GiveInventoryStartupItems();
 		}
 	}
 }
 
-void ASSGameMode_Shooter::OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC, UArcInventoryComponent* Inventory)
+void ASSGameMode_Shooter::OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC, UAIEInventoryComponent_Active* const AIEInventoryComponentActive)
 {
-	GiveInventoryStartupItems(Inventory);
-}
-
-void ASSGameMode_Shooter::GiveInventoryStartupItems(UArcInventoryComponent* Inventory)
-{
-	UAIEInventoryComponent_Active* AIEInventoryComponentActive = Cast<UAIEInventoryComponent_Active>(Inventory);
-	if (IsValid(AIEInventoryComponentActive))
-	{
-		// Loop through our Starting Items
-		for (const FArcStartingItemEntry& StartingItem : AIEInventoryComponentActive->StartingItems)
-		{
-			const FArcInventoryItemSlotReference& SlotToPutItemIn = AIEInventoryComponentActive->Query_GetFirstSlot(FArcInventoryQuery::QueryForSlot(StartingItem.SlotQuery));
-			if (AIEInventoryComponentActive->IsValidItemSlot(SlotToPutItemIn))
-			{
-				// Try to generate Item
-				if (IsValid(StartingItem.ItemGenerator))
-				{
-					UArcItemStack* GeneratedItemStack = StartingItem.ItemGenerator->GenerateItemStack(FArcItemGeneratorContext());
-
-					// Try to equip Item
-					const bool bSuccess = AIEInventoryComponentActive->PlaceItemIntoSlot(GeneratedItemStack, SlotToPutItemIn);
-					if (!bSuccess)
-					{
-						UE_LOG(LogSSInventoryComponent, Warning, TEXT("Failed to place a starting Item into specified slot. We will just call LootItem() to give the Item instead (may be put in wrong slot)"));
-						AIEInventoryComponentActive->LootItem(GeneratedItemStack);
-					}
-				}
-			}
-		}
-	}
+	AIEInventoryComponentActive->GiveInventoryStartupItems();
 }

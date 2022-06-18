@@ -26,7 +26,7 @@ void USSUserWidget_Ammo::OnPlayerASCValid()
 	// Get ClipAmmo subobject
 	if (const FSSGameplayAbilityActorInfo_Shooter* ShooterActorInfo = static_cast<const FSSGameplayAbilityActorInfo_Shooter*>(PlayerASC->AbilityActorInfo.Get()))
 	{
-		UArcInventoryComponent_Active* InventoryComponentActive = Cast<UArcInventoryComponent_Active>(ShooterActorInfo->GetInventoryComponent());
+		UArcInventoryComponent_Active* InventoryComponentActive = Cast<UArcInventoryComponent_Active>(ShooterActorInfo->InventoryComponent);
 		if (IsValid(InventoryComponentActive))
 		{
 			const UArcItemStack* ActiveItemStack = InventoryComponentActive->GetActiveItemStack();

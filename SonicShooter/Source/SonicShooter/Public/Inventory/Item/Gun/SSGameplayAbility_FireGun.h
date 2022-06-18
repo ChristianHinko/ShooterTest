@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/ASSGameplayAbility.h"
 
-
 #include "SSGameplayAbility_FireGun.generated.h"
 
 

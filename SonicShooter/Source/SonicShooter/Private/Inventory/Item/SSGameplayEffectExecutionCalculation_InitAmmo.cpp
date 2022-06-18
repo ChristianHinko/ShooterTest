@@ -73,7 +73,7 @@ void USSGameplayEffectExecutionCalculation_InitAmmo::Execute_Implementation(cons
 	// Get ClipAmmo subobject and initialize ClipAmmo
 	if (const FSSGameplayAbilityActorInfo_Shooter* ShooterActorInfo = static_cast<const FSSGameplayAbilityActorInfo_Shooter*>(TargetAbilitySystemComponent->AbilityActorInfo.Get()))
 	{
-		UArcInventoryComponent_Active* InventoryComponentActive = Cast<UArcInventoryComponent_Active>(ShooterActorInfo->GetInventoryComponent());
+		UArcInventoryComponent_Active* InventoryComponentActive = Cast<UArcInventoryComponent_Active>(ShooterActorInfo->InventoryComponent);
 		if (IsValid(InventoryComponentActive))
 		{
 			const UArcItemStack* ActiveItemStack = InventoryComponentActive->GetActiveItemStack();

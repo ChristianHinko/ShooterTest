@@ -20,7 +20,7 @@ UCLASS()
 class SONICSHOOTER_API ASSGameMode_Shooter : public ASSGameMode
 {
 	GENERATED_BODY()
-	
+
 public:
 	ASSGameMode_Shooter(const FObjectInitializer& ObjectInitializer);
 

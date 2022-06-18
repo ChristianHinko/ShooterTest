@@ -12,27 +12,30 @@
 USSUserWidget_Health::USSUserWidget_Health(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	AttributesToListenFor.Add(UASSEAttributeSet_Health::GetHealthAttribute());
-	AttributesToListenFor.Add(UASSEAttributeSet_Health::GetMaxHealthAttribute());
 }
 
 
-void USSUserWidget_Health::OnAttributeChanged(const FOnAttributeChangeData& Data)
+void USSUserWidget_Health::OnPlayerASCValid()
 {
-	const FGameplayAttribute& Attribute = Data.Attribute;
-	const float& NewValue = Data.NewValue;
+	// Get and bind to updates for Health
+	CurrentHealth = PlayerASC->GetNumericAttribute(UASSEAttributeSet_Health::GetHealthAttribute());
+	UpdateHealthStatus();
+	PlayerASC->GetGameplayAttributeValueChangeDelegate(UASSEAttributeSet_Health::GetHealthAttribute()).AddWeakLambda(this, [&](const FOnAttributeChangeData& Data)
+		{
+			CurrentHealth = Data.NewValue;
+			UpdateHealthStatus();
+		}
+	);
 
-
-	if (Attribute == UASSEAttributeSet_Health::GetHealthAttribute())
-	{
-		CurrentHealth = NewValue;
-		UpdateHealthStatus();
-	}
-	if (Attribute == UASSEAttributeSet_Health::GetMaxHealthAttribute())
-	{
-		MaxHealth = NewValue;
-		UpdateHealthStatus();
-	}
+	// Get and bind to updates for MaxHealth
+	MaxHealth = PlayerASC->GetNumericAttribute(UASSEAttributeSet_Health::GetMaxHealthAttribute());
+	UpdateHealthStatus();
+	PlayerASC->GetGameplayAttributeValueChangeDelegate(UASSEAttributeSet_Health::GetMaxHealthAttribute()).AddWeakLambda(this, [&](const FOnAttributeChangeData& Data)
+		{
+			MaxHealth = Data.NewValue;
+			UpdateHealthStatus();
+		}
+	);
 }
 
 void USSUserWidget_Health::UpdateHealthStatus()

@@ -47,11 +47,11 @@ struct FCrouchTickFunction : public FTickFunction
 
 	virtual FString DiagnosticMessage() override
 	{
-		return FString(TEXT("FCrouchTickFunction"));
+		return TNameOf<FCrouchTickFunction>::GetName();
 	}
 	virtual FName DiagnosticContext(bool bDetailed) override
 	{
-		return FName(TEXT("ASSCharacter"));
+		return TNameOf<ASSCharacter>::GetName();
 	}
 };
 

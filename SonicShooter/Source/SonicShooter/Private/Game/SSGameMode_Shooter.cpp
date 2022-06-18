@@ -41,8 +41,7 @@ void ASSGameMode_Shooter::SetPlayerDefaults(APawn* PlayerPawn)
 			}
 			else
 			{
-				// Wait for his ASC to be initialized
-				AbilitySystemSetupComponent->OnInitializeAbilitySystemComponentDelegate.AddUObject(this, &ASSGameMode_Shooter::OnInitializeAbilitySystemComponent, AIEInventoryComponentActive);
+				UE_LOG(LogSSShooterGamemode, Error, TEXT("%s() failed to call GiveInventoryStartupItems() because Pawn's ability system setup component hasn't yet been initialized"), ANSI_TO_TCHAR(__FUNCTION__));
 			}
 		}
 		else
@@ -51,9 +50,4 @@ void ASSGameMode_Shooter::SetPlayerDefaults(APawn* PlayerPawn)
 			AIEInventoryComponentActive->GiveInventoryStartupItems();
 		}
 	}
-}
-
-void ASSGameMode_Shooter::OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC, UAIEInventoryComponent_Active* const AIEInventoryComponentActive)
-{
-	AIEInventoryComponentActive->GiveInventoryStartupItems();
 }

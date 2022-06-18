@@ -7,12 +7,6 @@
 
 #include "SSGameMode_Shooter.generated.h"
 
-
-class UAIEInventoryComponent_Active;
-class UAbilitySystemComponent;
-
-
-
 /**
  * 
  */
@@ -26,7 +20,4 @@ public:
 
 
 	virtual void SetPlayerDefaults(APawn* PlayerPawn) override;
-
-private:
-	void OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC, UAIEInventoryComponent_Active* const AIEInventoryComponentActive);
 };

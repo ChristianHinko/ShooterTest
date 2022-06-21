@@ -23,6 +23,7 @@ public class SonicShooter : ModuleRules
 				"AbilitySystemSetup",
 				"AbilitySystemSetupExtras",
 				"HelperLibraries",
+				"PlayerSetup",
 				"PropertyWrapper",
 				"AutoSettings",
 				"ArcInventory",

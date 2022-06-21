@@ -8,7 +8,6 @@
 #include "SSUserWidget_Health.generated.h"
 
 
-struct FOnAttributeChangeData;
 class UTextBlock;
 class UProgressBar;
 
@@ -41,7 +40,7 @@ public:
 		float MaxHealth;
 
 protected:
-	virtual void OnAttributeChanged(const FOnAttributeChangeData& Data) override;
+	virtual void OnPlayerASCValid() override;
 
 	/** Called on Health changed. Use this to update Health based UI */
 	void UpdateHealthStatus();

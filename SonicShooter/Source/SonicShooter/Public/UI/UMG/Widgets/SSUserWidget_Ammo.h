@@ -8,7 +8,6 @@
 #include "SSUserWidget_Ammo.generated.h"
 
 
-struct FOnAttributeChangeData;
 class USSObject_ClipAmmo;
 class UTextBlock;
 
@@ -45,9 +44,7 @@ public:
 protected:
 	virtual void NativeDestruct() override;
 
-
 	virtual void OnPlayerASCValid() override;
-	virtual void OnAttributeChanged(const FOnAttributeChangeData& Data) override;
 
 	UPROPERTY()
 		TWeakObjectPtr<USSObject_ClipAmmo> ClipAmmoSubobject;

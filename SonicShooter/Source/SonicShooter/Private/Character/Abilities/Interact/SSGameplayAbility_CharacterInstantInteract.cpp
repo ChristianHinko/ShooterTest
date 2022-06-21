@@ -30,7 +30,7 @@ bool USSGameplayAbility_CharacterInstantInteract::CanActivateAbility(const FGame
 	////////////// Allow the implementer to create custom conditions before we activate (may make this specific to the type of interact) ////////////
 	if (ShooterCharacter->GetInteractorComponent()->CurrentPrioritizedInteractable->CanActivateInteractAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() A custom condition returned false from ISSInteractableInterface's implementor"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSGameplayAbility, Error, TEXT("%s() A custom condition returned false from ISSInteractableInterface's implementor"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 	return true;

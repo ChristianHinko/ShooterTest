@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Inventory/SSInventoryComponent_Active.h"
+#include "Inventory/AIEInventoryComponent_Active.h"
 
 #include "SSInventoryComponent_Shooter.generated.h"
 
@@ -16,7 +16,7 @@ class UArkItemStack;
  * 
  */
 UCLASS()
-class SONICSHOOTER_API USSInventoryComponent_Shooter : public USSInventoryComponent_Active
+class SONICSHOOTER_API USSInventoryComponent_Shooter : public UAIEInventoryComponent_Active
 {
 	GENERATED_BODY()
 	
@@ -27,15 +27,14 @@ public:
 protected:
 	virtual void InitializeComponent() override;
 
-
-	UFUNCTION()
-		void OnItemSlotChangeEvent(UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack);
+	// Overiding already bound event to OnItemSlotChange delegate
+	virtual void OnItemSlotChangeEvent(UArcInventoryComponent* Inventory, const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStack* ItemStack, UArcItemStack* PreviousItemStack) override;
 
 	// We use this rather than the OnItemActive delegate because that one is unsafe
 	virtual void MakeItemActive(int32 NewActiveItemSlot) override;
 
-	UFUNCTION()
-		void OnItemInactiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack);
+	// Overiding already bound event to OnItemInactive delegate
+	virtual void OnItemInactiveEvent(UArcInventoryComponent_Active* InventoryComponent, UArcItemStack* ItemStack) override;
 
 private:
 	void OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC);

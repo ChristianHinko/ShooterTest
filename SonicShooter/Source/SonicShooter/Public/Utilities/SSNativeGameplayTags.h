@@ -29,19 +29,6 @@ namespace SSNativeGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Interact_DurationInteract)
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Interact_AutoInteract)
 
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Inventory_SwapItem_ItemHistory_Previous)
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Inventory_SwapItem_LayoutIndex_Forward)
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Inventory_SwapItem_LayoutIndex_Backward)
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Inventory_SwapItem_LayoutIndex_1st)
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Inventory_SwapItem_LayoutIndex_2nd)
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Inventory_SwapItem_LayoutIndex_3rd)
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Inventory_SwapItem_LayoutIndex_4th)
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Inventory_SwapItem_LayoutIndex_5th)
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Inventory_SwapItem_LayoutIndex_6th)
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Inventory_SwapItem_LayoutIndex_7th)
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Inventory_SwapItem_LayoutIndex_8th)
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Inventory_SwapItem_LayoutIndex_9th)
-
 
 	// Gameplay Cue Tags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Test)
@@ -71,18 +58,6 @@ namespace SSNativeGameplayTags
 	// Player Tags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_State_IsInFirstPerson)
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_State_IsInThirdPerson)
-
-
-	// Inventory Tags
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Inventory_Layout_1st)
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Inventory_Layout_2nd)
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Inventory_Layout_3rd)
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Inventory_Layout_4th)
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Inventory_Layout_5th)
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Inventory_Layout_6th)
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Inventory_Layout_7th)
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Inventory_Layout_8th)
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Inventory_Layout_9th)
 
 
 	// Item Tags

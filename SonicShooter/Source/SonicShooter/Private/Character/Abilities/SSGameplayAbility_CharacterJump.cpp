@@ -40,13 +40,13 @@ bool USSGameplayAbility_CharacterJump::CanActivateAbility(const FGameplayAbility
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	if (!IsValid(Character))
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() Character was NULL. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSGameplayAbility, Error, TEXT("%s() Character was NULL. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
 	if (Character->CanJump() == false)
 	{
-		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Was not able to jump when trying to activate ability. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSGameplayAbility, Verbose, TEXT("%s() Was not able to jump when trying to activate ability. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
@@ -60,7 +60,7 @@ void USSGameplayAbility_CharacterJump::ActivateAbility(const FGameplayAbilitySpe
 	UCharacterMovementComponent* CMC = Cast<UCharacterMovementComponent>(ActorInfo->MovementComponent.Get());
 	if (!IsValid(CMC))
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() CMC was NULL when trying to activate ability. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSGameplayAbility, Error, TEXT("%s() CMC was NULL when trying to activate ability. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
@@ -79,7 +79,7 @@ void USSGameplayAbility_CharacterJump::ActivateAbility(const FGameplayAbilitySpe
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("JumpEffectTSub empty in %s - please fill out Character Jump ability blueprint"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSGameplayAbility, Warning, TEXT("JumpEffectTSub empty in %s - please fill out Character Jump ability blueprint"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 	CMC->DoJump(false);
@@ -97,12 +97,12 @@ void USSGameplayAbility_CharacterJump::ASSEndAbility(const FGameplayAbilitySpecH
 		}
 		else
 		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() CMC was NULL when trying to UnJump"), ANSI_TO_TCHAR(__FUNCTION__));
+			UE_LOG(LogSSGameplayAbility, Error, TEXT("%s() CMC was NULL when trying to UnJump"), ANSI_TO_TCHAR(__FUNCTION__));
 		}
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() SSActorInfo was NULL when trying to UnJump"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSGameplayAbility, Error, TEXT("%s() SSActorInfo was NULL when trying to UnJump"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 	ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(JumpEffectActiveHandle);

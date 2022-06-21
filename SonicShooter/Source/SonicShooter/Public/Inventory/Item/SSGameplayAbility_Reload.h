@@ -13,7 +13,7 @@ class USSObject_ClipAmmo;
 
 
 /**
- *
+ * 
  */
 UCLASS()
 class SONICSHOOTER_API USSGameplayAbility_Reload : public UASSGameplayAbility

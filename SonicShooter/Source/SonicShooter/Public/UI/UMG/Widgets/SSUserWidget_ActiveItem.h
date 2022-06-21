@@ -37,9 +37,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Crosshair")
 		FSlateBrush CrosshairBrush;
 
-	/** Inject item name here immediately after Widget creation */
-	FText ActiveItemName;
-
 protected:
 	virtual void NativeOnInitialized() override;
 	virtual void AddToScreen(ULocalPlayer* LocalPlayer, int32 ZOrder) override;

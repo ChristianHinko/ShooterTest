@@ -29,7 +29,7 @@ void ASSHUD::PostInitializeComponents()
 	}
 	else
 	{
-		UE_LOG(LogUI, Error, TEXT("%s(): Failed to create MyWidget. Ensure to fill out TSubs in BP"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSUI, Error, TEXT("%s(): Failed to create MyWidget. Ensure to fill out TSubs in BP"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 #endif
 }

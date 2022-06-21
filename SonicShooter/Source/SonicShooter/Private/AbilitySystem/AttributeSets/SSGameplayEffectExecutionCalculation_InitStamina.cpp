@@ -75,7 +75,7 @@ void USSGameplayEffectExecutionCalculation_InitStamina::Execute_Implementation(c
 	// Get stamina subobject and initialize Stamina
 	if (const FSSGameplayAbilityActorInfo_Shooter* ShooterActorInfo = static_cast<const FSSGameplayAbilityActorInfo_Shooter*>(TargetAbilitySystemComponent->AbilityActorInfo.Get()))
 	{
-		USSCharacterMovementComponent_Shooter* CMC = Cast<USSCharacterMovementComponent_Shooter>(ShooterActorInfo->GetSSCharacterMovementComponent());
+		USSCharacterMovementComponent_Shooter* CMC = Cast<USSCharacterMovementComponent_Shooter>(ShooterActorInfo->SSCharacterMovementComponent);
 		if (IsValid(CMC))
 		{
 			CMC->GetStaminaSubobject()->Stamina = Stamina;

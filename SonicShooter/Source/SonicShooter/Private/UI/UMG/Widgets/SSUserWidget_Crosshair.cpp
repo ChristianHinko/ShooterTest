@@ -8,7 +8,7 @@
 #include "Components/SizeBox.h"
 #include "Subobjects/SSObject_BulletSpread.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
-#include "Inventory/SSInventoryComponent_Active.h"
+#include "Components/ArcInventoryComponent_Active.h"
 #include "Inventory/Item/Gun/SSItemStack_Gun.h"
 
 
@@ -49,10 +49,10 @@ void USSUserWidget_Crosshair::OnPlayerASCValid()
 	// Get BulletSpread subobject
 	if (const FSSGameplayAbilityActorInfo_Shooter* ShooterActorInfo = static_cast<const FSSGameplayAbilityActorInfo_Shooter*>(PlayerASC->AbilityActorInfo.Get()))
 	{
-		USSInventoryComponent_Active* InventoryComponent = ShooterActorInfo->GetInventoryComponent();
-		if (IsValid(InventoryComponent))
+		UArcInventoryComponent_Active* InventoryComponentActive = Cast<UArcInventoryComponent_Active>(ShooterActorInfo->InventoryComponent);
+		if (IsValid(InventoryComponentActive))
 		{
-			const USSItemStack_Gun* GunStack = Cast<USSItemStack_Gun>(InventoryComponent->GetActiveItemStack());
+			const USSItemStack_Gun* GunStack = Cast<USSItemStack_Gun>(InventoryComponentActive->GetActiveItemStack());
 			if (IsValid(GunStack))
 			{
 				BulletSpreadSubobject = GunStack->GetBulletSpreadSubobject();

@@ -6,7 +6,7 @@
 #include "Inventory/Item/SSAttributeSet_Ammo.h"
 #include "Subobjects/SSObject_ClipAmmo.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTypes.h"
-#include "Inventory/SSInventoryComponent_Active.h"
+#include "Components/ArcInventoryComponent_Active.h"
 #include "Inventory/Item/Gun/SSItemStack_Gun.h"
 #include "Components/TextBlock.h"
 
@@ -15,8 +15,8 @@
 USSUserWidget_Ammo::USSUserWidget_Ammo(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	AttributesToListenFor.Add(USSAttributeSet_Ammo::GetBackupAmmoAttribute());
 }
+
 
 void USSUserWidget_Ammo::OnPlayerASCValid()
 {
@@ -26,10 +26,10 @@ void USSUserWidget_Ammo::OnPlayerASCValid()
 	// Get ClipAmmo subobject
 	if (const FSSGameplayAbilityActorInfo_Shooter* ShooterActorInfo = static_cast<const FSSGameplayAbilityActorInfo_Shooter*>(PlayerASC->AbilityActorInfo.Get()))
 	{
-		USSInventoryComponent_Active* InventoryComponent = ShooterActorInfo->GetInventoryComponent();
-		if (IsValid(InventoryComponent))
+		UArcInventoryComponent_Active* InventoryComponentActive = Cast<UArcInventoryComponent_Active>(ShooterActorInfo->InventoryComponent);
+		if (IsValid(InventoryComponentActive))
 		{
-			const UArcItemStack* ActiveItemStack = InventoryComponent->GetActiveItemStack();
+			const UArcItemStack* ActiveItemStack = InventoryComponentActive->GetActiveItemStack();
 			if (IsValid(ActiveItemStack))
 			{
 				const USSItemStack_Gun* GunStack = Cast<USSItemStack_Gun>(ActiveItemStack);
@@ -41,27 +41,24 @@ void USSUserWidget_Ammo::OnPlayerASCValid()
 		}
 	}
 
+	// Get and bind to updates for ClipAmmo
 	if (ClipAmmoSubobject.IsValid())
 	{
-		ClipAmmoSubobject->ClipAmmo.ValueChangeDelegate.AddDynamic(this, &USSUserWidget_Ammo::OnClipAmmoChange);
-
 		const float& ClipAmmo = ClipAmmoSubobject->ClipAmmo;
 		OnClipAmmoChange(ClipAmmo, ClipAmmo);
+
+		ClipAmmoSubobject->ClipAmmo.ValueChangeDelegate.AddDynamic(this, &USSUserWidget_Ammo::OnClipAmmoChange);
 	}
 
-}
-
-void USSUserWidget_Ammo::OnAttributeChanged(const FOnAttributeChangeData& Data)
-{
-	const FGameplayAttribute& Attribute = Data.Attribute;
-	const float& NewValue = Data.NewValue;
-
-
-	if (Attribute == USSAttributeSet_Ammo::GetBackupAmmoAttribute())
-	{
-		CurrentBackupAmmo = NewValue;
-		UpdateAmmoStatus();
-	}
+	// Get and bind to updates for BackupAmmo
+	CurrentBackupAmmo = PlayerASC->GetNumericAttribute(USSAttributeSet_Ammo::GetBackupAmmoAttribute());
+	UpdateAmmoStatus();
+	PlayerASC->GetGameplayAttributeValueChangeDelegate(USSAttributeSet_Ammo::GetBackupAmmoAttribute()).AddWeakLambda(this, [&](const FOnAttributeChangeData& Data)
+		{
+			CurrentBackupAmmo = Data.NewValue;
+			UpdateAmmoStatus();
+		}
+	);
 }
 
 void USSUserWidget_Ammo::OnClipAmmoChange(const float& OldValue, const float& NewValue)
@@ -69,7 +66,6 @@ void USSUserWidget_Ammo::OnClipAmmoChange(const float& OldValue, const float& Ne
 	CurrentClipAmmo = NewValue;
 	UpdateAmmoStatus();
 }
-
 
 void USSUserWidget_Ammo::UpdateAmmoStatus()
 {

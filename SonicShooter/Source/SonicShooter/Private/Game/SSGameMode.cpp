@@ -14,12 +14,12 @@
 ASSGameMode::ASSGameMode(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	bUseSeamlessTravel = true; // multiplayer Seamless Travel
-
 	GameStateClass = ASSGameState::StaticClass();
 	PlayerControllerClass = ASSPlayerController::StaticClass();
 	PlayerStateClass = ASSPlayerState::StaticClass();
 	HUDClass = ASSHUD::StaticClass();
 	DefaultPawnClass = ASSCharacter::StaticClass();
 	ReplaySpectatorPlayerControllerClass = ASSPlayerController::StaticClass();
+
+	bUseSeamlessTravel = true; // multiplayer Seamless Travel
 }

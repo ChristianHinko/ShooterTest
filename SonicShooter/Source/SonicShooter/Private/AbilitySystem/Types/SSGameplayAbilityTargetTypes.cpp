@@ -64,7 +64,7 @@ TArray<FActiveGameplayEffectHandle> FSSGameplayAbilityTargetData_BulletTraceTarg
 
 void FSSGameplayAbilityTargetData_BulletTraceTargetHit::AddTargetDataToContext(FGameplayEffectContextHandle& Context, bool bIncludeActorArray) const
 {
-	UE_LOG(LogGameplayAbilityTargetData, Error, TEXT("%s() This should not be called for this specific GATD. Use our custom overload instead (passes in index)"), ANSI_TO_TCHAR(__FUNCTION__));
+	UE_LOG(LogSSGameplayAbilityTargetData, Error, TEXT("%s() This should not be called for this specific GATD. Use our custom overload instead (passes in index)"), ANSI_TO_TCHAR(__FUNCTION__));
 	check(0);
 }
 
@@ -77,7 +77,7 @@ void FSSGameplayAbilityTargetData_BulletTraceTargetHit::AddTargetDataToContext(F
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbilityTargetData, Warning, TEXT("%s() Cast to FSSGameplayEffectContext failed. Bullet specific target data info will not be in our GEEC"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSGameplayAbilityTargetData, Warning, TEXT("%s() Cast to FSSGameplayEffectContext failed. Bullet specific target data info will not be in our GEEC"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 }
 

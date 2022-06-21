@@ -6,9 +6,8 @@
 #include "Player/SSPlayerState_Shooter.h"
 #include "UI/SSHUD_Shooter.h"
 #include "Character/SSCharacter_Shooter.h"
-#include "ArcInventoryComponent.h"
 #include "Generators/ArcItemGenerator.h"
-#include "Inventory/SSInventoryComponent_Active.h"
+#include "Inventory/AIEInventoryComponent_Active.h"
 #include "Subobjects/ASSActorComponent_AbilitySystemSetup.h"
 #include "ArcItemBPFunctionLibrary.h"
 
@@ -23,63 +22,31 @@ ASSGameMode_Shooter::ASSGameMode_Shooter(const FObjectInitializer& ObjectInitial
 }
 
 
-APawn* ASSGameMode_Shooter::SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform)
+void ASSGameMode_Shooter::SetPlayerDefaults(APawn* PlayerPawn)
 {
-	APawn* Pawn = Super::SpawnDefaultPawnAtTransform_Implementation(NewPlayer, SpawnTransform);
+	Super::SetPlayerDefaults(PlayerPawn);
 
-
-	// Does this new Pawn have an Inventory Component?
-	UArcInventoryComponent* Inventory = Cast<UArcInventoryComponent>(UArcItemBPFunctionLibrary::GetInventoryComponent(Pawn, true));
-	if (IsValid(Inventory))
+	// Try to give startup items
+	UAIEInventoryComponent_Active* AIEInventoryComponentActive = Cast<UAIEInventoryComponent_Active>(UArcItemBPFunctionLibrary::GetInventoryComponent(PlayerPawn, true));
+	if (IsValid(AIEInventoryComponentActive))
 	{
-		UASSActorComponent_AbilitySystemSetup* AbilitySystemSetupComponent = Pawn->FindComponentByClass<UASSActorComponent_AbilitySystemSetup>();
+		UASSActorComponent_AbilitySystemSetup* AbilitySystemSetupComponent = PlayerPawn->FindComponentByClass<UASSActorComponent_AbilitySystemSetup>();
 		if (IsValid(AbilitySystemSetupComponent))
 		{
-			// Wait until they have they ability system set up
-			AbilitySystemSetupComponent->OnInitializeAbilitySystemComponentDelegate.AddUObject(this, &ASSGameMode_Shooter::OnInitializeAbilitySystemComponent, Inventory);
+			if (AbilitySystemSetupComponent->IsInitializedWithASC())
+			{
+				// The Pawn is ready to recieve the startup items
+				AIEInventoryComponentActive->GiveInventoryStartupItems();
+			}
+			else
+			{
+				UE_LOG(LogSSShooterGameMode, Error, TEXT("%s() failed to call GiveInventoryStartupItems() because Pawn's ability system setup component hasn't yet been initialized"), ANSI_TO_TCHAR(__FUNCTION__));
+			}
 		}
 		else
 		{
-			// Unlikely that it would reach here
-			GiveInventoryStartupItems(Inventory);
+			// Edge case: No setup component - just assume he is ready to recieve the startup items
+			AIEInventoryComponentActive->GiveInventoryStartupItems();
 		}
 	}
-
-
-	return Pawn;
-}
-
-void ASSGameMode_Shooter::GiveInventoryStartupItems(UArcInventoryComponent* Inventory)
-{
-	USSInventoryComponent_Active* SSArcInventoryCompActive = Cast<USSInventoryComponent_Active>(Inventory);
-	if (IsValid(SSArcInventoryCompActive))
-	{
-		// Loop through our Starting Items
-		for (const FArcStartingItemEntry& StartingItem : SSArcInventoryCompActive->StartingItems)
-		{
-			const FArcInventoryItemSlotReference& SlotToPutItemIn = SSArcInventoryCompActive->Query_GetFirstSlot(FArcInventoryQuery::QueryForSlot(StartingItem.SlotQuery));
-			if (SSArcInventoryCompActive->IsValidItemSlot(SlotToPutItemIn))
-			{
-				// Try to generate Item
-				if (IsValid(StartingItem.ItemGenerator))
-				{
-					UArcItemStack* GeneratedItemStack = StartingItem.ItemGenerator->GenerateItemStack(FArcItemGeneratorContext());
-					
-					// Try to equip Item
-					const bool bSuccess = SSArcInventoryCompActive->PlaceItemIntoSlot(GeneratedItemStack, SlotToPutItemIn);
-					if (!bSuccess)
-					{
-						UE_LOG(LogArcInventorySetup, Warning, TEXT("Failed to place a starting Item into specified slot. We will just call LootItem() to give the Item instead (may be put in wrong slot)"));
-						SSArcInventoryCompActive->LootItem(GeneratedItemStack);
-					}
-				}
-			}
-		}
-	}
-
-}
-
-void ASSGameMode_Shooter::OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC, UArcInventoryComponent* Inventory)
-{
-	GiveInventoryStartupItems(Inventory);
 }

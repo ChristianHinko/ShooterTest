@@ -26,6 +26,7 @@ public class SonicShooter : ModuleRules
 				"PropertyWrapper",
 				"AutoSettings",
 				"ArcInventory",
+				"ArcInventoryExtension",
 				"AnimGraphRuntime" // for KismetAnimationLibrary
 			}
 		);

@@ -98,7 +98,7 @@ void USSCharacterMovementComponent_Shooter::OnMaxStaminaAttributeChange(const FO
 {
 	if (!IsValid(StaminaSubobject))
 	{
-		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's MaxStamina value - StaminaSubobject was not valid"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's MaxStamina value - StaminaSubobject was not valid"), ANSI_TO_TCHAR(__FUNCTION__));
 		check(0);
 		return;
 	}
@@ -109,7 +109,7 @@ void USSCharacterMovementComponent_Shooter::OnStaminaDrainAttributeChange(const 
 {
 	if (!IsValid(StaminaSubobject))
 	{
-		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaDrain value - StaminaSubobject was not valid"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaDrain value - StaminaSubobject was not valid"), ANSI_TO_TCHAR(__FUNCTION__));
 		check(0);
 		return;
 	}
@@ -120,7 +120,7 @@ void USSCharacterMovementComponent_Shooter::OnStaminaGainAttributeChange(const F
 {
 	if (!IsValid(StaminaSubobject))
 	{
-		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaGain value - StaminaSubobject was not valid"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaGain value - StaminaSubobject was not valid"), ANSI_TO_TCHAR(__FUNCTION__));
 		check(0);
 		return;
 	}
@@ -131,7 +131,7 @@ void USSCharacterMovementComponent_Shooter::OnStaminaRegenPauseAttributeChange(c
 {
 	if (!IsValid(StaminaSubobject))
 	{
-		UE_LOG(LogCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaRegenPause value - StaminaSubobject was not valid"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSCharacterMovement, Warning, TEXT("%s() Couldn't update StaminaSubobject's StaminaRegenPause value - StaminaSubobject was not valid"), ANSI_TO_TCHAR(__FUNCTION__));
 		check(0);
 		return;
 	}

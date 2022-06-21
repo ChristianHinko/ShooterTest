@@ -97,7 +97,7 @@ void USSGameplayAbility_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* 
 	GunToFire = Cast<USSItemStack_Gun>(GetCurrentSourceObject());
 	if (!GunToFire.IsValid())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() No valid Gun when given the fire ability - ensure you are assigning the SourceObject to a GunStack when calling GiveAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSGameplayAbility, Error, TEXT("%s() No valid Gun when given the fire ability - ensure you are assigning the SourceObject to a GunStack when calling GiveAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
 		check(0);
 		return;
 	}
@@ -114,7 +114,7 @@ void USSGameplayAbility_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* 
 	BulletTraceTargetActor = GetWorld()->SpawnActorDeferred<ASSGameplayAbilityTargetActor_BulletTrace>(GunToFire->BulletTargetActorTSub, FTransform());
 	if (!IsValid(BulletTraceTargetActor))
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() No valid BulletTraceTargetActor in the GunStack when giving the fire ability. How the heck we supposed to fire the gun!?!?"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSGameplayAbility, Error, TEXT("%s() No valid BulletTraceTargetActor in the GunStack when giving the fire ability. How the heck we supposed to fire the gun!?!?"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
 
@@ -180,24 +180,24 @@ bool USSGameplayAbility_FireGun::CanActivateAbility(const FGameplayAbilitySpecHa
 
 	if (!GunToFire.IsValid())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() GunToFire was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSGameplayAbility, Error, TEXT("%s() GunToFire was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
 	if (!IsValid(BulletTraceTargetActor))
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() BulletTraceTargetActor was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSGameplayAbility, Error, TEXT("%s() BulletTraceTargetActor was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
 	if (!ClipAmmoSubobject.IsValid())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ClipAmmoSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSGameplayAbility, Error, TEXT("%s() ClipAmmoSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 	if (!BulletSpreadSubobject.IsValid())
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() BulletSpreadSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSGameplayAbility, Error, TEXT("%s() BulletSpreadSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
@@ -216,7 +216,7 @@ bool USSGameplayAbility_FireGun::CheckCooldown(const FGameplayAbilitySpecHandle 
 	const float TimePassed = GetWorld()->GetTimeSeconds() - TimestampPreviousFireEnd;
 	if (TimePassed < GetTimeBetweenFires())
 	{
-		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Tried firing gun faster than the gun's FireRate allowed. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSGameplayAbility, Verbose, TEXT("%s() Tried firing gun faster than the gun's FireRate allowed. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
@@ -234,7 +234,7 @@ bool USSGameplayAbility_FireGun::CheckCost(const FGameplayAbilitySpecHandle Hand
 	const float ClipAmmoAfterNextShot = ClipAmmoSubobject->ClipAmmo - AmmoCost;
 	if (ClipAmmoAfterNextShot < 0)
 	{
-		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Not enough ammo to perform a fire. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSGameplayAbility, Verbose, TEXT("%s() Not enough ammo to perform a fire. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
@@ -253,7 +253,7 @@ void USSGameplayAbility_FireGun::ActivateAbility(const FGameplayAbilitySpecHandl
 		TickerTask = UASSEAbilityTask_Ticker::Ticker(this, false, -1.f, TimeBetweenShots);
 		if (!IsValid(TickerTask))
 		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() TickerTask was NULL when trying to activate fire ability. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
+			UE_LOG(LogSSGameplayAbility, Error, TEXT("%s() TickerTask was NULL when trying to activate fire ability. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 			return;
 		}
@@ -265,7 +265,7 @@ void USSGameplayAbility_FireGun::ActivateAbility(const FGameplayAbilitySpecHandl
 		UASSEAbilityTask_WaitInputRelease* WaitInputReleaseTask = UASSEAbilityTask_WaitInputRelease::WaitInputRelease(this, false, true);
 		if (!IsValid(WaitInputReleaseTask))
 		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputReleaseTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), ANSI_TO_TCHAR(__FUNCTION__));
+			UE_LOG(LogSSGameplayAbility, Error, TEXT("%s() WaitInputReleaseTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), ANSI_TO_TCHAR(__FUNCTION__));
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 			return;
 		}
@@ -277,7 +277,7 @@ void USSGameplayAbility_FireGun::ActivateAbility(const FGameplayAbilitySpecHandl
 		UASSEAbilityTask_WaitInputPress* WaitInputPressTask = UASSEAbilityTask_WaitInputPress::WaitInputPress(this, false, true);
 		if (!IsValid(WaitInputPressTask))
 		{
-			UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitInputPressTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), ANSI_TO_TCHAR(__FUNCTION__));
+			UE_LOG(LogSSGameplayAbility, Error, TEXT("%s() WaitInputPressTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), ANSI_TO_TCHAR(__FUNCTION__));
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 			return;
 		}
@@ -298,7 +298,7 @@ void USSGameplayAbility_FireGun::ActivateAbility(const FGameplayAbilitySpecHandl
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("IsFiringGunEffectTSub TSubclassOf empty in %s"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSGameplayAbility, Warning, TEXT("IsFiringGunEffectTSub TSubclassOf empty in %s"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 
@@ -385,7 +385,7 @@ void USSGameplayAbility_FireGun::Shoot()
 		// The reason you may want to do this is so that you could do some kind of thing in response to a shot not having ammo (ie. play clicking sound or animation idk)
 		// Not saying this is where it should be done, but thought it might be useful to keep for now if we ever end up liking the idea.
 		// Another suggestion of where to do these kind of things would maybe to do it in the OnShootTick(), so we don't have to call this function and we could do these effects in there.
-		UE_LOG(LogGameplayAbility, Verbose, TEXT("%s() Not enough ammo to shoot"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSGameplayAbility, Verbose, TEXT("%s() Not enough ammo to shoot"), ANSI_TO_TCHAR(__FUNCTION__));
 
 		return;
 	}
@@ -394,7 +394,7 @@ void USSGameplayAbility_FireGun::Shoot()
 	UAbilityTask_PlayMontageAndWait* PlayMontageAndWaitTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("ShootMontage"), ShootMontage, 1.f, NAME_None, false);
 	if (!IsValid(PlayMontageAndWaitTask))
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() PlayMontageAndWaitTask was NULL when trying to shoot. Called EndAbility() so shot doesn't happen to keep things consistant"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSGameplayAbility, Error, TEXT("%s() PlayMontageAndWaitTask was NULL when trying to shoot. Called EndAbility() so shot doesn't happen to keep things consistant"), ANSI_TO_TCHAR(__FUNCTION__));
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 		return;
 	}
@@ -404,7 +404,7 @@ void USSGameplayAbility_FireGun::Shoot()
 	UASSAbilityTask_WaitTargetData* WaitTargetDataActorTask = UASSAbilityTask_WaitTargetData::ASSWaitTargetDataUsingActor(this, TEXT("WaitTargetDataActorTask"), EGameplayTargetingConfirmation::Instant, BulletTraceTargetActor);
 	if (!IsValid(WaitTargetDataActorTask))
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() WaitTargetDataActorTask was NULL when trying to shoot. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSGameplayAbility, Error, TEXT("%s() WaitTargetDataActorTask was NULL when trying to shoot. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
 		EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 		return;
 	}
@@ -484,7 +484,7 @@ void USSGameplayAbility_FireGun::OnValidData(const FGameplayAbilityTargetDataHan
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Warning, TEXT("%s(): GunToFire gave us an empty BulletInflictEffectTSub. Make sure to fill out DefaultBulletInflictEffectTSub in the Item Generator"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSGameplayAbility, Warning, TEXT("%s(): GunToFire gave us an empty BulletInflictEffectTSub. Make sure to fill out DefaultBulletInflictEffectTSub in the Item Generator"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 	// Execute cues
@@ -525,7 +525,7 @@ void USSGameplayAbility_FireGun::OnValidData(const FGameplayAbilityTargetDataHan
 }
 void USSGameplayAbility_FireGun::OnCancelled(const FGameplayAbilityTargetDataHandle& Data)
 {
-	UE_LOG(LogGameplayAbility, Warning, TEXT("%s(): Not sure how this got hit :/ Something unexpected happened"), ANSI_TO_TCHAR(__FUNCTION__));
+	UE_LOG(LogSSGameplayAbility, Warning, TEXT("%s(): Not sure how this got hit :/ Something unexpected happened"), ANSI_TO_TCHAR(__FUNCTION__));
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }
 
@@ -544,7 +544,7 @@ void USSGameplayAbility_FireGun::ASSEndAbility(const FGameplayAbilitySpecHandle 
 	}
 	else
 	{
-		UE_LOG(LogGameplayAbility, Error, TEXT("%s() ActorInfo->AbilitySystemComponent.Get() was NULL when trying to remove IsFiringGunEffectActiveHandle"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSSGameplayAbility, Error, TEXT("%s() ActorInfo->AbilitySystemComponent.Get() was NULL when trying to remove IsFiringGunEffectActiveHandle"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 

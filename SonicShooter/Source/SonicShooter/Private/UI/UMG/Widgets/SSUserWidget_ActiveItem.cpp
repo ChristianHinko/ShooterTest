@@ -5,6 +5,8 @@
 
 #include "UI/UMG/Widgets/SSUserWidget_Crosshair.h"
 #include "Components/TextBlock.h"
+#include "ArcItemBPFunctionLibrary.h"
+#include "Components/ArcInventoryComponent_Active.h"
 
 
 
@@ -29,13 +31,24 @@ void USSUserWidget_ActiveItem::NativeOnInitialized()
 
 void USSUserWidget_ActiveItem::AddToScreen(ULocalPlayer* LocalPlayer, int32 ZOrder)
 {
-	// Hacky way of allowing injection of ActiveItemName. Until this point, ItemTextBlock's text was
-	// empty - so we update it right before adding to player screen
-	if (ItemTextBlock)
+	// ActiveItem widgets get added to player screen as soon as the item is made active, so search for the active item's name at this moment
+	if (ItemTextBlock && ItemTextBlock->GetText().IsEmpty())
 	{
-		ItemTextBlock->SetText(ActiveItemName);
+		// Search for the active item and use its name
+		const APlayerController* PlayerController = LocalPlayer->GetPlayerController(LocalPlayer->GetWorld());
+		if (IsValid(PlayerController))
+		{
+			UArcInventoryComponent_Active* InventoryComponent = Cast<UArcInventoryComponent_Active>(UArcItemBPFunctionLibrary::GetInventoryComponent(PlayerController->GetPawn(), true));
+			if (IsValid(InventoryComponent))
+			{
+				const UArcItemStack* ActiveItemStack = InventoryComponent->GetActiveItemStack();
+				if (IsValid(ActiveItemStack))
+				{
+					ItemTextBlock->SetText(ActiveItemStack->ItemName);
+				}
+			}
+		}
 	}
-
 
 	Super::AddToScreen(LocalPlayer, ZOrder);
 }

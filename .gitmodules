@@ -22,3 +22,6 @@
 [submodule "SonicShooter/Plugins/ArcInventory"]
 	path = SonicShooter/Plugins/ArcInventory
 	url = https://github.com/ChristianHinko/ArcInventory.git
+[submodule "SonicShooter/Plugins/ArcInventoryExtension"]
+	path = SonicShooter/Plugins/ArcInventoryExtension
+	url = https://github.com/brian2524/ArcInventoryExtension.git

@@ -13,9 +13,6 @@
 [submodule "SonicShooter/Plugins/AbilitySystemSetupExtras"]
 	path = SonicShooter/Plugins/AbilitySystemSetupExtras
 	url = https://github.com/brian2524/AbilitySystemSetupExtras.git
-[submodule "SonicShooter/Plugins/PlayerSetup"]
-	path = SonicShooter/Plugins/PlayerSetup
-	url = https://github.com/ChristianHinko/PlayerSetup.git
 [submodule "SonicShooter/Plugins/MaterialFunctionLibrary"]
 	path = SonicShooter/Plugins/MaterialFunctionLibrary
 	url = https://github.com/brian2524/MaterialFunctionLibrary.git

@@ -40,7 +40,7 @@ void ASSGameMode_Shooter::SetPlayerDefaults(APawn* PlayerPawn)
 			}
 			else
 			{
-				UE_LOG(LogSSShooterGamemode, Error, TEXT("%s() failed to call GiveInventoryStartupItems() because Pawn's ability system setup component hasn't yet been initialized"), ANSI_TO_TCHAR(__FUNCTION__));
+				UE_LOG(LogSSShooterGameMode, Error, TEXT("%s() failed to call GiveInventoryStartupItems() because Pawn's ability system setup component hasn't yet been initialized"), ANSI_TO_TCHAR(__FUNCTION__));
 			}
 		}
 		else

@@ -3,7 +3,7 @@
 
 #include "Game/SSGameInstance.h"
 
-#include "AutoSettings/Public/SettingsManager.h"
+#include "SettingsManager.h"
 
 
 

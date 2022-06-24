@@ -11,6 +11,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Subobjects/ActorComponents/GSActorComponent_PawnExtension.h"
 #include "Character/AttributeSets/SSAttributeSet_CharacterMovement.h"
 #include "Subobjects/ASSActorComponent_AbilitySystemSetup.h"
 
@@ -36,6 +37,8 @@ const FName ASSCharacter::POVMeshComponentName = TEXT("POVMesh");
 ASSCharacter::ASSCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<USSCharacterMovementComponent>(CharacterMovementComponentName))
 {
+	GSPawnExtensionComponent = CreateDefaultSubobject<UGSActorComponent_PawnExtension>(TEXT("GSPawnExtensionComponent"));
+
 	SSCharacterMovementComponent = Cast<USSCharacterMovementComponent>(GetMovementComponent());
 
 	// Set size for collision capsule

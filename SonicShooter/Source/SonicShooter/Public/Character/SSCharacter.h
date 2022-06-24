@@ -11,6 +11,7 @@
 class USkeletalMeshComponent;
 class UCameraComponent;
 class USpringArmComponent;
+class UGSActorComponent_PawnExtension;
 class USSCharacterMovementComponent;
 
 
@@ -83,6 +84,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 		TObjectPtr<USpringArmComponent> CameraBoom;
+
+	UPROPERTY(VisibleAnywhere, Category = "GameSetup")
+		TObjectPtr<UGSActorComponent_PawnExtension> GSPawnExtensionComponent;
 
 public:
 	ASSCharacter(const FObjectInitializer& ObjectInitializer);

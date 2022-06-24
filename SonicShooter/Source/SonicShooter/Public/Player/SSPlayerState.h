@@ -8,6 +8,7 @@
 #include "SSPlayerState.generated.h"
 
 
+class UGSActorComponent_PlayerStateExtension;
 class USSAttributeSet_PlayerState;
 
 
@@ -21,6 +22,8 @@ class SONICSHOOTER_API ASSPlayerState : public AASSEPlayerState_AbilitySystemPla
 	GENERATED_BODY()
 
 protected:
+	UPROPERTY()
+		TObjectPtr<UGSActorComponent_PlayerStateExtension> GSPlayerStateExtensionComponent;
 	UPROPERTY()
 		TObjectPtr<USSAttributeSet_PlayerState> PlayerAttributeSet;
 

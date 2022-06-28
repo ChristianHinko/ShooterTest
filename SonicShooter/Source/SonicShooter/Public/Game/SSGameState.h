@@ -3,17 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameState.h"
+#include "Game/GSGameState.h"
 
 #include "SSGameState.generated.h"
 
 
 
 /**
- * Base Game State
+ * 
  */
 UCLASS()
-class SONICSHOOTER_API ASSGameState : public AGameState
+class SONICSHOOTER_API ASSGameState : public AGSGameState
 {
 	GENERATED_BODY()
 

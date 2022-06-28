@@ -3,18 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/GameInstance.h"
-#include "Console\CVarChangeListenerManager.h"
+#include "Game/GSGameInstance.h"
 
 #include "SSGameInstance.generated.h"
 
 
 
 /**
- * Base Game Instance
+ * 
  */
 UCLASS()
-class SONICSHOOTER_API USSGameInstance : public UGameInstance
+class SONICSHOOTER_API USSGameInstance : public UGSGameInstance
 {
 	GENERATED_BODY()
 

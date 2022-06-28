@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/ASSECharacter_AbilitySystemSetupCharacter.h"
+#include "Examples/ASSCharacter_Example.h"
 
 #include "SSCharacter.generated.h"
 
@@ -11,6 +11,7 @@
 class USkeletalMeshComponent;
 class UCameraComponent;
 class USpringArmComponent;
+class UGSActorComponent_PawnExtension;
 class USSCharacterMovementComponent;
 
 
@@ -68,7 +69,7 @@ struct TStructOpsTypeTraits<FCrouchTickFunction> : public TStructOpsTypeTraitsBa
  * Base character class
  */
 UCLASS()
-class ASSCharacter : public AASSECharacter_AbilitySystemSetupCharacter
+class ASSCharacter : public AASSCharacter_Example
 {
 	GENERATED_BODY()
 
@@ -83,6 +84,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 		TObjectPtr<USpringArmComponent> CameraBoom;
+
+	UPROPERTY(VisibleAnywhere, Category = "GameSetup")
+		TObjectPtr<UGSActorComponent_PawnExtension> GSPawnExtensionComponent;
 
 public:
 	ASSCharacter(const FObjectInitializer& ObjectInitializer);

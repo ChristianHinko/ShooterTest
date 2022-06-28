@@ -20,6 +20,4 @@ ASSGameMode::ASSGameMode(const FObjectInitializer& ObjectInitializer)
 	HUDClass = ASSHUD::StaticClass();
 	DefaultPawnClass = ASSCharacter::StaticClass();
 	ReplaySpectatorPlayerControllerClass = ASSPlayerController::StaticClass();
-
-	bUseSeamlessTravel = true; // multiplayer Seamless Travel
 }

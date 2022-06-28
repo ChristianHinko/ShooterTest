@@ -3,25 +3,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameMode.h"
+#include "Game/GSGameMode.h"
 
 #include "SSGameMode.generated.h"
 
 
 
 /**
- * Base Game Mode
+ * 
  */
 UCLASS()
-class SONICSHOOTER_API ASSGameMode : public AGameMode
+class SONICSHOOTER_API ASSGameMode : public AGSGameMode
 {
 	GENERATED_BODY()
 
 public:
 	ASSGameMode(const FObjectInitializer& ObjectInitializer);
 
-
 protected:
-
 
 };

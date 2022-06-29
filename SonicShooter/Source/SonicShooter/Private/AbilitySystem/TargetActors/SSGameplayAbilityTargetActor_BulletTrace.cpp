@@ -3,12 +3,12 @@
 
 #include "AbilitySystem/TargetActors/SSGameplayAbilityTargetActor_BulletTrace.h"
 
-#include "BlueprintFunctionLibraries/CollisionQuery/HLBlueprintFunctionLibrary_StrengthCollisionQueries.h"
-#include "BlueprintFunctionLibraries/Debugging/HLBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries.h"
+#include "BlueprintFunctionLibraries/CollisionQuery/GCBlueprintFunctionLibrary_StrengthCollisionQueries.h"
+#include "BlueprintFunctionLibraries/Debugging/GCBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries.h"
 #include "Utilities/SSCollisionChannels.h"
 #include "AbilitySystem/Types/SSGameplayAbilityTargetTypes.h"
 #include "PhysicalMaterial/SSPhysicalMaterial_Shooter.h"
-#include "BlueprintFunctionLibraries/HLBlueprintFunctionLibrary_MathHelpers.h"
+#include "BlueprintFunctionLibraries/GCBlueprintFunctionLibrary_MathHelpers.h"
 #include "AbilitySystem/Types/ASSGameplayAbilityTypes.h"
 #include "GameFramework/Controller.h"
 #include "Abilities/GameplayAbility.h"
@@ -61,7 +61,7 @@ void ASSGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 					ASSActorInfo->Controller->GetPlayerViewPoint(ViewStart, ViewRot);
 					FVector ViewDir = ViewRot.Vector();
 
-					BulletDirection = UHLBlueprintFunctionLibrary_MathHelpers::GetLocationAimDirection(GetWorld(), CollisionQueryParams, ViewStart, ViewDir, MaxRange, StartLocation.GetTargetingTransform().GetLocation());
+					BulletDirection = UGCBlueprintFunctionLibrary_MathHelpers::GetLocationAimDirection(GetWorld(), CollisionQueryParams, ViewStart, ViewDir, MaxRange, StartLocation.GetTargetingTransform().GetLocation());
 				}
 			}
 
@@ -81,7 +81,7 @@ void ASSGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 
 		// Perform this bullet's scene query
 		FCollisionShape CollisionShape = FCollisionShape::MakeSphere(1.f);
-		UHLBlueprintFunctionLibrary_StrengthCollisionQueries::RicochetingPenetrationSceneCastWithExitHitsUsingStrength(InitialBulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), BulletResults[i], StartLocation.GetTargetingTransform().GetLocation(), BulletDirection, MaxRange, FQuat::Identity, TraceChannel, CollisionShape, CollisionQueryParams, FCollisionResponseParams::DefaultResponseParam, MaxRicochets,
+		UGCBlueprintFunctionLibrary_StrengthCollisionQueries::RicochetingPenetrationSceneCastWithExitHitsUsingStrength(InitialBulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), BulletResults[i], StartLocation.GetTargetingTransform().GetLocation(), BulletDirection, MaxRange, FQuat::Identity, TraceChannel, CollisionShape, CollisionQueryParams, FCollisionResponseParams::DefaultResponseParam, MaxRicochets,
 			[](const FHitResult& Hit) -> float // GetPerCmPenetrationNerf()
 			{
 				const USSPhysicalMaterial_Shooter* ShooterPhysMat = Cast<USSPhysicalMaterial_Shooter>(Hit.PhysMaterial);
@@ -118,9 +118,9 @@ void ASSGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 		{
 			const float DebugLifeTime = 10.f;
 
-			UHLBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries::DrawStrengthDebugLine(SourceActor->GetWorld(), BulletResults[i], InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f, 1.f);
-			UHLBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries::DrawStrengthDebugText(SourceActor->GetWorld(), BulletResults[i], InitialBulletSpeed, DebugLifeTime);
-			UHLBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries::DrawCollisionShapeDebug(SourceActor->GetWorld(), BulletResults[i], InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f);
+			UGCBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries::DrawStrengthDebugLine(SourceActor->GetWorld(), BulletResults[i], InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f, 1.f);
+			UGCBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries::DrawStrengthDebugText(SourceActor->GetWorld(), BulletResults[i], InitialBulletSpeed, DebugLifeTime);
+			UGCBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries::DrawCollisionShapeDebug(SourceActor->GetWorld(), BulletResults[i], InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f);
 		}
 	}
 

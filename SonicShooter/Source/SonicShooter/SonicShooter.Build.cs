@@ -22,7 +22,7 @@ public class SonicShooter : ModuleRules
 				"UMG",
 				"AbilitySystemSetup",
 				"AbilitySystemSetupExtras",
-				"HelperLibraries",
+				"GameCore",
 				"PropertyWrapper",
 				"GameSetup",
 				"AutoSettings",

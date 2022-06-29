@@ -8,7 +8,7 @@
 #include "Inventory/Item/Gun/SSItemStack_Gun.h"
 #include "Subobjects/SSObject_BulletSpread.h"
 #include "Subobjects/ASSActorComponent_AbilitySystemSetup.h"
-#include "BlueprintFunctionLibraries/HLBlueprintFunctionLibrary_ActorHelpers.h"
+#include "BlueprintFunctionLibraries/GCBlueprintFunctionLibrary_ActorHelpers.h"
 
 
 
@@ -89,7 +89,7 @@ void USSInventoryComponent_Shooter::MakeItemActive(int32 NewActiveItemSlot)
 
 
 	// Set the HUD's widget pointer
-	APlayerController* OwningPlayerController = UHLBlueprintFunctionLibrary_ActorHelpers::GetTypedOwnerOfComponentCasted<APlayerController>(this);
+	APlayerController* OwningPlayerController = UGCBlueprintFunctionLibrary_ActorHelpers::GetTypedOwnerOfComponentCasted<APlayerController>(this);
 	if (IsValid(OwningPlayerController))
 	{
 		if (OwningPlayerController->IsLocalController())
@@ -126,7 +126,7 @@ void USSInventoryComponent_Shooter::OnItemInactiveEvent(UArcInventoryComponent_A
 
 
 	// Clear the HUD's widget pointer
-	APlayerController* OwningPlayerController = UHLBlueprintFunctionLibrary_ActorHelpers::GetTypedOwnerOfComponentCasted<APlayerController>(this);
+	APlayerController* OwningPlayerController = UGCBlueprintFunctionLibrary_ActorHelpers::GetTypedOwnerOfComponentCasted<APlayerController>(this);
 	if (IsValid(OwningPlayerController))
 	{
 		if (OwningPlayerController->IsLocalController())

@@ -7,9 +7,6 @@
 [submodule "SonicShooter/Plugins/AbilitySystemSetupExtras"]
 	path = SonicShooter/Plugins/AbilitySystemSetupExtras
 	url = https://github.com/brian2524/AbilitySystemSetupExtras.git
-[submodule "SonicShooter/Plugins/HelperLibraries"]
-	path = SonicShooter/Plugins/HelperLibraries
-	url = https://github.com/brian2524/HelperLibraries.git
 [submodule "SonicShooter/Plugins/PropertyWrapper"]
 	path = SonicShooter/Plugins/PropertyWrapper
 	url = https://github.com/brian2524/PropertyWrapper.git
@@ -28,3 +25,6 @@
 [submodule "SonicShooter/Plugins/ArcInventoryExtension"]
 	path = SonicShooter/Plugins/ArcInventoryExtension
 	url = https://github.com/brian2524/ArcInventoryExtension.git
+[submodule "SonicShooter/Plugins/GameCore"]
+	path = SonicShooter/Plugins/GameCore
+	url = https://github.com/brian2524/GameCore.git

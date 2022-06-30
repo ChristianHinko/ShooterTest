@@ -1,0 +1,26 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#include "STLogCategories.h"
+
+
+
+DEFINE_LOG_CATEGORY(LogShooterTestModule)
+
+DEFINE_LOG_CATEGORY(LogSTAbilitySystemSetup)
+DEFINE_LOG_CATEGORY(LogSTGameplayAbility)
+DEFINE_LOG_CATEGORY(LogSTGameplayAbilityTask)
+DEFINE_LOG_CATEGORY(LogSTGameplayAbilityTargetActor)
+DEFINE_LOG_CATEGORY(LogSTGameplayAbilityTargetData)
+
+DEFINE_LOG_CATEGORY(LogSTPlayerControllerSetup)
+DEFINE_LOG_CATEGORY(LogSTCharacterSetup)
+DEFINE_LOG_CATEGORY(LogSTCharacterMovementSetup)
+DEFINE_LOG_CATEGORY(LogSTCharacterMovement)
+DEFINE_LOG_CATEGORY(LogSTShooterGameMode)
+
+DEFINE_LOG_CATEGORY(LogSTUISetup)
+DEFINE_LOG_CATEGORY(LogSTUI)
+
+DEFINE_LOG_CATEGORY(LogSTInventoryComponent)
+
+DEFINE_LOG_CATEGORY(LogSTWeapon)

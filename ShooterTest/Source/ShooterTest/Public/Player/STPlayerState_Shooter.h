@@ -8,9 +8,6 @@
 #include "STPlayerState_Shooter.generated.h"
 
 
-class USTAbilitySystemComponent_Shooter;
-
-
 
 /**
  * 
@@ -25,7 +22,5 @@ public:
 
 
 protected:
-	UPROPERTY()
-		TWeakObjectPtr<USTAbilitySystemComponent_Shooter> ShooterAbilitySystemComponent;
 
 };

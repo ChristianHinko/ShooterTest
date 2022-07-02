@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/STAnimInstance.h"
+#include "Animation/STAnimInstance.h"
 
 #include "STAnimInstance_ShooterCharacter.generated.h"
 

@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleInterface.h"
 
-//#include "ShooterTest.generated.h" // if we ever need reflection in here
+//#include "ShooterTestModule.generated.h" // if we ever need reflection in here
 
 
 

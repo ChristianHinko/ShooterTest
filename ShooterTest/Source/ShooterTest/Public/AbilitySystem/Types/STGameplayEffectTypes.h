@@ -71,7 +71,7 @@ struct SHOOTERTEST_API FSTGameplayEffectContext_Shooter : public FSTGameplayEffe
 	GENERATED_BODY()
 
 public:
-	FActorHitInfo GetHitInfo() const { return HitInfo; }
+	FSTActorHitInfo GetHitInfo() const { return HitInfo; }
 	TArray<FVector_NetQuantize> GetBulletTracePoints() const { return BulletTracePoints; }
 	int32 GetNumRicochetsBeforeHit() const
 	{
@@ -79,12 +79,12 @@ public:
 		return FMath::Max((BulletTracePoints.Num() - 2), 0);
 	}
 
-	void SetHitInfo(const FActorHitInfo& inHitInfo) { HitInfo = inHitInfo; }
+	void SetHitInfo(const FSTActorHitInfo& InHitInfo) { HitInfo = InHitInfo; }
 	void SetBulletTracePoints(const TArray<FVector_NetQuantize>& InBulletTracePoints) { BulletTracePoints = InBulletTracePoints; }
 
 protected:
 	UPROPERTY()
-		FActorHitInfo HitInfo;
+		FSTActorHitInfo HitInfo;
 
 	UPROPERTY()
 		TArray<FVector_NetQuantize> BulletTracePoints;

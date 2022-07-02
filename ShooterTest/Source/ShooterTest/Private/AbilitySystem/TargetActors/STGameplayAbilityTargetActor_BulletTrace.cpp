@@ -178,7 +178,7 @@ void ASTGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 					if (!bHasAlreadyBeenHitByThisSceneCast)
 					{
 						// This hit won't get filtered, so lets add it to the target data
-						FActorHitInfo ActorHitInfo = FActorHitInfo(Hit.GetActor(), Hit.Strength);
+						FSTActorHitInfo ActorHitInfo = FSTActorHitInfo(Hit.GetActor(), Hit.Strength);
 						ThisBulletTargetData->ActorHitInfos.Add(ActorHitInfo);
 					}
 				}

@@ -37,20 +37,27 @@ struct SHOOTERTEST_API FSTGameplayAbilityTargetData : public FASSGameplayAbility
  * 
  */
 USTRUCT()
-struct FActorHitInfo
+struct FSTActorHitInfo
 {
 	GENERATED_BODY()
 
-	FActorHitInfo()
+	FSTActorHitInfo()
+		: HitActor(nullptr)
+		, BulletSpeedAtImpact(0.f)
 	{
-
 	}
-	FActorHitInfo(AActor* InHitActor, const float InBulletSpeedAtImpact)
-		: FActorHitInfo()
+	FSTActorHitInfo(AActor* InHitActor, const float InBulletSpeedAtImpact)
+		: FSTActorHitInfo()
 	{
 		HitActor = TWeakObjectPtr<AActor>(InHitActor);
 		BulletSpeedAtImpact = InBulletSpeedAtImpact;
 	}
+
+	UPROPERTY()
+		TWeakObjectPtr<AActor> HitActor;
+	UPROPERTY()
+		float BulletSpeedAtImpact;
+
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
 	{
 		Ar << HitActor;
@@ -59,15 +66,10 @@ struct FActorHitInfo
 		bOutSuccess = true;
 		return true;
 	}
-
-	UPROPERTY()
-		TWeakObjectPtr<AActor> HitActor;
-	UPROPERTY()
-		float BulletSpeedAtImpact;
 };
 
 template<>
-struct TStructOpsTypeTraits<FActorHitInfo> : public TStructOpsTypeTraitsBase2<FActorHitInfo>
+struct TStructOpsTypeTraits<FSTActorHitInfo> : public TStructOpsTypeTraitsBase2<FSTActorHitInfo>
 {
 	enum
 	{
@@ -96,7 +98,7 @@ struct SHOOTERTEST_API FSTGameplayAbilityTargetData_BulletTraceTargetHit : publi
 	virtual TArray<TWeakObjectPtr<AActor>> GetActors() const override
 	{
 		TArray<TWeakObjectPtr<AActor>> RetVal;
-		for (const FActorHitInfo& ActorHitInfo : ActorHitInfos)
+		for (const FSTActorHitInfo& ActorHitInfo : ActorHitInfos)
 		{
 			RetVal.Emplace(ActorHitInfo.HitActor);
 		}
@@ -151,7 +153,7 @@ struct SHOOTERTEST_API FSTGameplayAbilityTargetData_BulletTraceTargetHit : publi
 	UPROPERTY()
 		TArray<FVector_NetQuantize> BulletTracePoints;
 	UPROPERTY()
-		TArray<FActorHitInfo> ActorHitInfos;
+		TArray<FSTActorHitInfo> ActorHitInfos;
 
 	int32 GetNumRicochetsBeforeHit() const
 	{

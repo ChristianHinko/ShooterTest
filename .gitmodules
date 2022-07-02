@@ -13,9 +13,6 @@
 [submodule "ShooterTest/Plugins/GameSetup"]
 	path = ShooterTest/Plugins/GameSetup
 	url = https://github.com/ChristianHinko/GameSetup.git
-[submodule "ShooterTest/Plugins/MaterialFunctionLibrary"]
-	path = ShooterTest/Plugins/MaterialFunctionLibrary
-	url = https://github.com/brian2524/MaterialFunctionLibrary.git
 [submodule "ShooterTest/Plugins/AutoSettings"]
 	path = ShooterTest/Plugins/AutoSettings
 	url = https://github.com/brian2524/AutoSettings.git

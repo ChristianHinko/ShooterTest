@@ -1,9 +1,6 @@
 [submodule "ShooterTest/Plugins/AbilitySystemSetup"]
 	path = ShooterTest/Plugins/AbilitySystemSetup
 	url = https://github.com/ChristianHinko/AbilitySystemSetup.git
-[submodule "ShooterTest/Plugins/PrototypeAssets"]
-	path = ShooterTest/Plugins/PrototypeAssets
-	url = https://github.com/ChristianHinko/PrototypeAssets.git
 [submodule "ShooterTest/Plugins/AbilitySystemSetupExtras"]
 	path = ShooterTest/Plugins/AbilitySystemSetupExtras
 	url = https://github.com/brian2524/AbilitySystemSetupExtras.git

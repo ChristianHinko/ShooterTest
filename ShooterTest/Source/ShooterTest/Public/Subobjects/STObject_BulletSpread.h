@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PropertyWrappers/PWFloatPropertyWrapper.h"
+#include "Types\PropertyWrappers\GCFloatPropertyWrapper.h"
 #include "AttributeSet.h"
 #include "GameplayEffectTypes.h"
 
@@ -37,7 +37,7 @@ public:
 
 	/** Current bullet spread. Non-replicated because set every frame */
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "BulletSpread")
-		mutable FPWFloatPropertyWrapper CurrentBulletSpread;
+		mutable FGCFloatPropertyWrapper CurrentBulletSpread;
 
 
 	float GetRestBulletSpread() const;

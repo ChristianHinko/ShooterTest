@@ -23,7 +23,6 @@ public class ShooterTest : ModuleRules
 				"AbilitySystemSetup",
 				"AbilitySystemSetupExtras",
 				"GameCore",
-				"PropertyWrapper",
 				"GameSetup",
 				"AutoSettings",
 				"ArcInventory",

@@ -95,10 +95,10 @@ void ASTCharacter_Shooter::Tick(float DeltaSeconds)
 			const USTItemStack_Gun* GunStack = Cast<USTItemStack_Gun>(ActiveItemStack);
 			if (IsValid(GunStack))
 			{
-				const FPWFloatPropertyWrapper& ClipAmmo = GunStack->GetClipAmmoSubobject()->ClipAmmo;
+				const FGCFloatPropertyWrapper& ClipAmmo = GunStack->GetClipAmmoSubobject()->ClipAmmo;
 				//UKismetSystemLibrary::PrintString(this, ClipAmmo.GetDebugString(), true, false);
 
-				const FPWFloatPropertyWrapper& CurrentBulletSpread = GunStack->GetBulletSpreadSubobject()->CurrentBulletSpread;
+				const FGCFloatPropertyWrapper& CurrentBulletSpread = GunStack->GetBulletSpreadSubobject()->CurrentBulletSpread;
 				//UKismetSystemLibrary::PrintString(this, CurrentBulletSpread.GetDebugString(), true, false);
 			}
 		}
@@ -110,7 +110,7 @@ void ASTCharacter_Shooter::Tick(float DeltaSeconds)
 	{
 		//if (IsValid(GetSTCharacterMovementComponent()->StaminaSubobject))
 		//{
-		//	const FPWFloatPropertyWrapper& Stamina = GetSTCharacterMovementComponent()->StaminaSubobject->Stamina;
+		//	const FGCFloatPropertyWrapper& Stamina = GetSTCharacterMovementComponent()->StaminaSubobject->Stamina;
 			//UKismetSystemLibrary::PrintString(this, Stamina.GetDebugString(), true, false);
 
 		//}

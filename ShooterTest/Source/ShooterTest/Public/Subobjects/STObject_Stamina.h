@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PropertyWrappers/PWFloatPropertyWrapper.h"
+#include "Types\PropertyWrappers\GCFloatPropertyWrapper.h"
 
 #include "STObject_Stamina.generated.h"
 
@@ -32,7 +32,7 @@ public:
 
 
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Stamina")
-		FPWFloatPropertyWrapper Stamina;
+		FGCFloatPropertyWrapper Stamina;
 
 
 	void SetMaxStamina(float NewMaxStamina);

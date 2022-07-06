@@ -10,7 +10,7 @@
 USTGameplayAbility_ADS::USTGameplayAbility_ADS(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	AbilityInputID = ESTAbilityInputID::SecondaryFire;
+	AbilityInputID = static_cast<uint8>(ESTAbilityInputID::SecondaryFire);
 	AbilityTags.AddTag(STNativeGameplayTags::Ability_ADS);
 
 

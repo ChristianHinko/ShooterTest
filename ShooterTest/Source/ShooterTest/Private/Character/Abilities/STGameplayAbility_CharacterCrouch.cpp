@@ -14,7 +14,7 @@
 USTGameplayAbility_CharacterCrouch::USTGameplayAbility_CharacterCrouch(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	AbilityInputID = ESTAbilityInputID::Crouch;
+	AbilityInputID = static_cast<uint8>(ESTAbilityInputID::Crouch);
 	AbilityTags.AddTag(STNativeGameplayTags::Ability_Movement_Crouch);
 
 

@@ -13,7 +13,7 @@
 USTGameplayAbility_CharacterRun::USTGameplayAbility_CharacterRun(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	AbilityInputID = ESTAbilityInputID::Run;
+	AbilityInputID = static_cast<uint8>(ESTAbilityInputID::Run);
 	AbilityTags.AddTag(STNativeGameplayTags::Ability_Movement_Run);
 
 

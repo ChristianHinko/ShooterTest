@@ -14,7 +14,7 @@
 USTGameplayAbility_CharacterJump::USTGameplayAbility_CharacterJump(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	AbilityInputID = ESTAbilityInputID::Jump;
+	AbilityInputID = static_cast<uint8>(ESTAbilityInputID::Jump);
 	AbilityTags.AddTag(STNativeGameplayTags::Ability_Movement_Jump);
 
 

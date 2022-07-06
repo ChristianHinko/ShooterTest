@@ -184,15 +184,11 @@ FString USTCharacterMovementComponent_Shooter::GetMovementName() const
 {
 	if (MovementMode == MOVE_Custom)
 	{
-		const UEnum* ShooterCustomMovementModeEnum = FindObject<const UEnum>(ANY_PACKAGE, TEXT("ESTCustomMovementMode_Shooter"));
-		if (IsValid(ShooterCustomMovementModeEnum))
+		// If this value is in our custom movement enum
+		if (StaticEnum<ESTCustomMovementMode_Shooter>()->IsValidEnumValue(CustomMovementMode))
 		{
-			// If this value is in our custom movement enum
-			if (ShooterCustomMovementModeEnum->IsValidEnumValue(CustomMovementMode))
-			{
-				// Return the display name
-				return ShooterCustomMovementModeEnum->GetDisplayNameTextByValue(CustomMovementMode).ToString();
-			}
+			// Return the display name
+			return StaticEnum<ESTCustomMovementMode_Shooter>()->GetDisplayNameTextByValue(CustomMovementMode).ToString();
 		}
 	}
 

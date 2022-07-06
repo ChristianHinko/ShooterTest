@@ -11,15 +11,9 @@
  * AbilityInputID enum for ShooterTest
  */
 UENUM()
-enum ESTAbilityInputID
+enum class ESTAbilityInputID : uint8
 {
-	/** This means the Ability implementor forgot to set an AbilityInputID in their Ability's constructor (``Unset`` is every Ability's default value) */
-	Unset,
-	/** This means the Ability is triggered without input (probably gameplay code) */
-	NoInput,
-
-
-	Run,
+	Run = static_cast<uint8>(EASSAbilityInputID::MAX),
 	Jump,
 	Crouch,
 

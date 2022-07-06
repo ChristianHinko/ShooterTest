@@ -12,7 +12,7 @@
 USTGameplayAbility_CharacterInteract::USTGameplayAbility_CharacterInteract(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	AbilityInputID = ESTAbilityInputID::Interact;
+	AbilityInputID = static_cast<uint8>(ESTAbilityInputID::Interact);
 }
 
 void USTGameplayAbility_CharacterInteract::ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)

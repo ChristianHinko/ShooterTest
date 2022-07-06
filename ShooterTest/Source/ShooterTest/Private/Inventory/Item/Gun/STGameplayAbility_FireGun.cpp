@@ -29,7 +29,7 @@
 USTGameplayAbility_FireGun::USTGameplayAbility_FireGun(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	AbilityInputID = ESTAbilityInputID::PrimaryFire;
+	AbilityInputID = static_cast<uint8>(ESTAbilityInputID::PrimaryFire);
 	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ClientOrServer;
 	AbilityTags.AddTag(STNativeGameplayTags::Ability_Fire);
 

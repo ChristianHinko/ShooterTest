@@ -847,15 +847,11 @@ FString USTCharacterMovementComponent::GetMovementName() const
 {
 	if (MovementMode == MOVE_Custom)
 	{
-		const UEnum* CustomMovementModeEnum = FindObject<const UEnum>(ANY_PACKAGE, TEXT("ESTCustomMovementMode"));
-		if (IsValid(CustomMovementModeEnum))
+		// If this value is in our custom movement enum
+		if (StaticEnum<ESTCustomMovementMode>()->IsValidEnumValue(CustomMovementMode))
 		{
-			// If this value is in our custom movement enum
-			if (CustomMovementModeEnum->IsValidEnumValue(CustomMovementMode))
-			{
-				// Return the display name
-				return CustomMovementModeEnum->GetDisplayNameTextByValue(CustomMovementMode).ToString();
-			}
+			// Return the display name
+			return StaticEnum<ESTCustomMovementMode>()->GetDisplayNameTextByValue(CustomMovementMode).ToString();
 		}
 	}
 

@@ -206,12 +206,12 @@ public:
 	FCharacterMovementStateNotify OnStoppedFalling;
 
 
-	//BEGIN UCharacterMovementComponent Interface
+	//  BEGIN UCharacterMovementComponent Interface
 	virtual FString GetMovementName() const override;
 	virtual float GetMaxSpeed() const override;
 	virtual float GetMaxAcceleration() const override;
 	virtual float GetMaxBrakingDeceleration() const override;
-	//END UCharacterMovementComponent Interface
+	//  END UCharacterMovementComponent Interface
 
 protected:
 	virtual void InitializeComponent() override;
@@ -225,7 +225,7 @@ protected:
 
 	virtual void OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC);
 
-	//BEGIN UCharacterMovementComponent Interface
+	//  BEGIN UCharacterMovementComponent Interface
 	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
 	virtual void UpdateFromCompressedFlags(uint8 Flags) override;
 	virtual void UpdateCharacterStateBeforeMovement(float DeltaSeconds) override;
@@ -234,15 +234,15 @@ protected:
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 	virtual void PhysCustom(float deltaTime, int32 Iterations) override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override; // DO NOT UTILIZE THIS EVENT FOR MOVEMENT
-	//END UCharacterMovementComponent Interface
+	//  END UCharacterMovementComponent Interface
 
 	// A new thing added to the engine NOTE: look into this and see if we need to fix anything because of this
 	virtual void ServerMove_PerformMovement(const FCharacterNetworkMoveData& MoveData) override;
 
 
-#pragma region Compressed Flags
+	//  BEGIN Compressed Flags
 	uint8 bWantsToRun : 1;
-#pragma endregion
+	//  END Compressed Flags
 
 	/** WARNING: This check does not work on dedicated server */
 	bool IsMovingForward(/*float degreeTolerance = 45.f*/) const;
@@ -263,7 +263,7 @@ protected:
 	//	virtual void STClientAdjustPosition();
 	//virtual void STClientAdjustPosition_Implementation();
 
-#pragma region Movement Restrictions
+	//  BEGIN Movement Restrictions
 	void OnRunDisabledTagChanged(const FGameplayTag Tag, int32 NewCount);
 	/** This bool is only and optimization layer. We dont want to be checking HasMatchingTag all of the time */
 	uint8 bRunDisabled : 1;
@@ -273,13 +273,13 @@ protected:
 
 	void OnCrouchDisabledTagChanged(const FGameplayTag Tag, int32 NewCount);
 	uint8 bCrouchDisabled : 1;
-#pragma endregion
+	//  END Movement Restrictions
 
-#pragma region Custom Movement Physics
+	//  BEGIN Custom Movement Physics
 	virtual void PhysInfiniteAngleWalking(float deltaTime, int32 Iterations);
-#pragma endregion
+	//  END Custom Movement Physics
 
-#pragma region Input CVars
+	//  BEGIN Input CVars
 	uint8 bToggleCrouchEnabled : 1;
 	FBoolCVarChangedSignature CVarToggleCrouchChangeDelegate;
 	UFUNCTION()
@@ -289,7 +289,7 @@ protected:
 	FBoolCVarChangedSignature CVarToggleRunChangeDelegate;
 	UFUNCTION()
 		void CVarToggleRunChanged(bool newToggleRun);
-#pragma endregion
+	//  END Input CVars
 
 private:
 	FRotator PreviousRotation;

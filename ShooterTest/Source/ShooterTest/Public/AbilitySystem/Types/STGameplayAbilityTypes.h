@@ -16,7 +16,7 @@ class USTCharacterMovementComponent;
 
 
 /**
- * Our custom GameplayAbilityActorInfo.
+ * Game's base GameplayAbilityActorInfo.
  * Put non-game-specific data in here - like base classes and stuff
  */
 USTRUCT()
@@ -54,7 +54,7 @@ class UArcInventoryComponent;
 
 
 /**
- * Our custom GameplayAbilityActorInfo
+ * 
  */
 USTRUCT()
 struct SHOOTERTEST_API FSTGameplayAbilityActorInfo_Shooter : public FSTGameplayAbilityActorInfo

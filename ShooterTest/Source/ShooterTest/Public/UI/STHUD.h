@@ -35,8 +35,8 @@ public:
 #endif
 
 protected:
-	//BEGIN AActor interface
+	//  BEGIN AActor interface
 	virtual void PostInitializeComponents() override;
-	//END AActor interface
+	//  END AActor interface
 
 };

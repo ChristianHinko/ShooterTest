@@ -49,14 +49,14 @@ public:
 protected:
 	virtual void SetShouldTick(bool newShouldTick);
 
-	// BEGIN FTickableObjectBase interface
+	//  BEGIN FTickableObjectBase interface
 	virtual bool IsTickable() const override { return bShouldTick; }	// IsTickable() gets ignored if ETickableTickType is set to "Always" or "Never". If you don't want this. If you want it to always be checked you would instead use IsAllowedToTick() ( in most cases just use IsTickable() )
 	virtual void Tick(float DeltaTime) override;
 	virtual TStatId GetStatId() const override { return TStatId(); }
-	// END FTickableObjectBase interface
-	// BEGIN FTickableGameObject interface
+	//  END FTickableObjectBase interface
+	//  BEGIN FTickableGameObject interface
 	virtual bool IsTickableWhenPaused() const override { return false; }
-	// END FTickableGameObject interface
+	//  END FTickableGameObject interface
 
 private:
 	bool bShouldTick;

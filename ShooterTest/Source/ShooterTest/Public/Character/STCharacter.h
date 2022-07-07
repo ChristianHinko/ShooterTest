@@ -66,7 +66,7 @@ struct TStructOpsTypeTraits<FCrouchTickFunction> : public TStructOpsTypeTraitsBa
 };
 
 /**
- * Base character class
+ * Game's base Character class
  */
 UCLASS()
 class ASTCharacter : public AASSCharacter_Example
@@ -182,7 +182,7 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 
-	//BEGIN Input actions
+	//  BEGIN Input actions
 	virtual void OnPressedRun();
 	virtual void OnReleasedRun();
 
@@ -236,15 +236,15 @@ protected:
 
 	virtual void OnPressedScoreSheet();
 	virtual void OnReleasedScoreSheet();
-	//END Input actions
+	//  END Input actions
 
-	//BEGIN Input axis
+	//  BEGIN Input axis
 	virtual void MoveForward(float Value);
 	virtual void MoveRight(float Value);
 
 	virtual void HorizontalLook(float Rate);
 	virtual void VerticalLook(float Rate);
-	//END Input axis
+	//  END Input axis
 
 
 	float ForwardInputAxis;

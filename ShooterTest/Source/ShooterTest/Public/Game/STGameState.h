@@ -10,7 +10,7 @@
 
 
 /**
- * 
+ * Game's base GameState class
  */
 UCLASS()
 class SHOOTERTEST_API ASTGameState : public AGSGameState

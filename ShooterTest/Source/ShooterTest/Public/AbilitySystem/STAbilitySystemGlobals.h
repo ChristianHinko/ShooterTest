@@ -10,7 +10,7 @@
 
 
 /**
- * Our custom AbilitySystemGlobals
+ * Game's base AbilitySystemGlobals
  */
 UCLASS()
 class SHOOTERTEST_API USTAbilitySystemGlobals : public UASSAbilitySystemGlobals
@@ -23,5 +23,4 @@ public:
 
 	virtual FGameplayAbilityActorInfo* AllocAbilityActorInfo() const override;
 	virtual FGameplayEffectContext* AllocGameplayEffectContext() const override;
-
 };

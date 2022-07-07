@@ -72,7 +72,7 @@ void USTGameplayAbility_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* 
 	BulletSpeedFalloff = ASC->GetNumericAttribute(USTAttributeSet_Gun::GetBulletSpeedFalloffAttribute());
 
 
-	//BEGIN Attribute value change binding
+	//  BEGIN Attribute value change binding
 	ASC->GetGameplayAttributeValueChangeDelegate(USTAttributeSet_Gun::GetAmmoCostAttribute()).AddUObject(this, &USTGameplayAbility_FireGun::OnAmmoCostChange);
 	ASC->GetGameplayAttributeValueChangeDelegate(USTAttributeSet_Gun::GetNumShotsPerBurstAttribute()).AddUObject(this, &USTGameplayAbility_FireGun::OnNumShotsPerBurstChange);
 	ASC->GetGameplayAttributeValueChangeDelegate(USTAttributeSet_Gun::GetbFullAutoAttribute()).AddUObject(this, &USTGameplayAbility_FireGun::OnbFullAutoChange);
@@ -86,7 +86,7 @@ void USTGameplayAbility_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* 
 	ASC->GetGameplayAttributeValueChangeDelegate(USTAttributeSet_Gun::GetRicochetsAttribute()).AddUObject(this, &USTGameplayAbility_FireGun::OnRicochetsChange);
 	ASC->GetGameplayAttributeValueChangeDelegate(USTAttributeSet_Gun::GetInitialBulletSpeedAttribute()).AddUObject(this, &USTGameplayAbility_FireGun::OnInitialBulletSpeedChange);
 	ASC->GetGameplayAttributeValueChangeDelegate(USTAttributeSet_Gun::GetBulletSpeedFalloffAttribute()).AddUObject(this, &USTGameplayAbility_FireGun::OnBulletSpeedFalloffChange);
-	//END Attribute value change binding
+	//  END Attribute value change binding
 
 
 
@@ -140,7 +140,7 @@ void USTGameplayAbility_FireGun::OnRemoveAbility(const FGameplayAbilityActorInfo
 		return;
 	}
 
-	//BEGIN Unbind from Attribute value change delegates
+	//  BEGIN Unbind from Attribute value change delegates
 	ASC->GetGameplayAttributeValueChangeDelegate(USTAttributeSet_Gun::GetAmmoCostAttribute()).RemoveAll(this);
 	ASC->GetGameplayAttributeValueChangeDelegate(USTAttributeSet_Gun::GetNumShotsPerBurstAttribute()).RemoveAll(this);
 	ASC->GetGameplayAttributeValueChangeDelegate(USTAttributeSet_Gun::GetbFullAutoAttribute()).RemoveAll(this);
@@ -154,7 +154,7 @@ void USTGameplayAbility_FireGun::OnRemoveAbility(const FGameplayAbilityActorInfo
 	ASC->GetGameplayAttributeValueChangeDelegate(USTAttributeSet_Gun::GetRicochetsAttribute()).RemoveAll(this);
 	ASC->GetGameplayAttributeValueChangeDelegate(USTAttributeSet_Gun::GetInitialBulletSpeedAttribute()).RemoveAll(this);
 	ASC->GetGameplayAttributeValueChangeDelegate(USTAttributeSet_Gun::GetBulletSpeedFalloffAttribute()).RemoveAll(this);
-	//END Unbind from Attribute value change delegates
+	//  END Unbind from Attribute value change delegates
 
 
 
@@ -555,7 +555,7 @@ void USTGameplayAbility_FireGun::ASSEndAbility(const FGameplayAbilitySpecHandle 
 
 
 
-//BEGIN Attribute Set helpers
+//  BEGIN Attribute Set helpers
 bool USTGameplayAbility_FireGun::IsFullAuto() const
 {
 	return static_cast<bool>(bFullAuto);
@@ -589,7 +589,7 @@ bool USTGameplayAbility_FireGun::CurrentlyBursting() const
 	const bool bHasBurstsLeft = (TimesBursted > 0 && TimesBursted < ShotsPerBurst);
 	return bHasBurstsLeft;
 }
-//END Attribute Set helpers
+//  END Attribute Set helpers
 
 
 

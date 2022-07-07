@@ -51,15 +51,15 @@ public:
 	void SetAbilitySystemComponent(const UAbilitySystemComponent* NewASC);
 
 protected:
-	//BEGIN FTickableObjectBase interface
+	//  BEGIN FTickableObjectBase interface
 	virtual bool IsTickable() const override;
 	virtual void Tick(float DeltaTime) override;
 	virtual TStatId GetStatId() const override { return TStatId(); }
-	//END FTickableObjectBase interface
+	//  END FTickableObjectBase interface
 
-	//BEGIN FTickableGameObject interface
+	//  BEGIN FTickableGameObject interface
 	virtual bool IsTickableWhenPaused() const override { return false; };
-	//END FTickableGameObject interface
+	//  END FTickableGameObject interface
 
 
 	UPROPERTY()

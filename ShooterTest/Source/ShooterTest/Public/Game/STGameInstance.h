@@ -10,7 +10,7 @@
 
 
 /**
- * 
+ * Game's base GameInstance class
  */
 UCLASS()
 class SHOOTERTEST_API USTGameInstance : public UGSGameInstance

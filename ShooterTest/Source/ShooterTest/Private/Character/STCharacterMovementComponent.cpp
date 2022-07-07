@@ -28,7 +28,7 @@ USTCharacterMovementComponent::USTCharacterMovementComponent(const FObjectInitia
 	bCanWalkOffLedgesWhenCrouching = true;
 }
 
-#pragma region Prediciton Data Client
+//  BEGIN Prediciton Data Client
 FNetworkPredictionData_Client* USTCharacterMovementComponent::GetPredictionData_Client() const
 {
 	if (ClientPredictionData == nullptr)
@@ -51,7 +51,7 @@ FSavedMovePtr FSTNetworkPredictionData_Client_Character::AllocateNewMove()
 	// Return our custom move struct instead
 	return FSavedMovePtr(new FSTSavedMove_Character());
 }
-#pragma endregion
+//  END Prediciton Data Client
 
 void USTCharacterMovementComponent::CVarToggleCrouchChanged(bool newToggleCrouch)
 {
@@ -83,7 +83,7 @@ void USTCharacterMovementComponent::InitializeComponent()
 	}
 }
 
-#pragma region Ability System
+//  BEGIN Ability System
 void USTCharacterMovementComponent::OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC)
 {
 	OwnerASC = ASC;
@@ -136,9 +136,9 @@ void USTCharacterMovementComponent::OnCrouchDisabledTagChanged(const FGameplayTa
 		bCrouchDisabled = false;
 	}
 }
-#pragma endregion
+//  END Ability System
 
-#pragma region Move Requests
+//  BEGIN Move Requests
 void USTCharacterMovementComponent::SetWantsToRun(bool newWantsToRun)
 {
 	if (bWantsToRun != newWantsToRun)
@@ -155,9 +155,9 @@ void USTCharacterMovementComponent::SetWantsToRun(bool newWantsToRun)
 		}
 	}
 }
-#pragma endregion
+//  END Move Requests
 
-#pragma region WantsTo Configuration
+//  BEGIN WantsTo Configuration
 void USTCharacterMovementComponent::TweakCompressedFlagsBeforeTick()
 {
 	// Call SetWantsToRun() using our tweaked value
@@ -265,9 +265,9 @@ void USTCharacterMovementComponent::BroadcastMovementDelegates()
 		OnWantsToRunChanged.Broadcast(false);
 	}
 }
-#pragma endregion
+//  END WantsTo Configuration
 
-#pragma region Saved Move
+//  BEGIN Saved Move
 void FSTSavedMove_Character::Clear()
 {
 	Super::Clear();
@@ -394,7 +394,7 @@ void USTCharacterMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
 		BroadcastMovementDelegates();
 	}
 }
-#pragma endregion
+//  END Saved Move
 
 void USTCharacterMovementComponent::ServerMove_PerformMovement(const FCharacterNetworkMoveData& MoveData)
 {
@@ -416,7 +416,7 @@ void USTCharacterMovementComponent::ServerMove_PerformMovement(const FCharacterN
 	}
 }
 
-#pragma region Client Adjust
+//  BEGIN Client Adjust
 //void USTCharacterMovementComponent::ClientAdjustPosition(float TimeStamp, FVector NewLoc, FVector NewVel, UPrimitiveComponent* NewBase, FName NewBaseBoneName, bool bHasBase, bool bBaseRelativePosition, uint8 ServerMovementMode)
 //{
 //	Super::ClientAdjustPosition(TimeStamp, NewLoc, NewVel, NewBase, NewBaseBoneName, bHasBase, bBaseRelativePosition, ServerMovementMode);
@@ -429,9 +429,9 @@ void USTCharacterMovementComponent::ServerMove_PerformMovement(const FCharacterN
 //{
 //	
 //}
-#pragma endregion
+//  END Client Adjust
 
-#pragma region Moves
+//  BEGIN Moves
 void USTCharacterMovementComponent::CheckJumpInput(float DeltaTime) // basically a UpdateCharacterStateBeforeMovement() for the jump
 {
 	CharacterOwner->JumpCurrentCountPreJump = CharacterOwner->JumpCurrentCount;
@@ -687,7 +687,7 @@ void USTCharacterMovementComponent::UnRun()
 {
 	STCharacterOwner->bIsRunning = false;
 }
-#pragma endregion
+//  END Moves
 
 void USTCharacterMovementComponent::OnMovementUpdated(float deltaTime, const FVector& OldLocation, const FVector& OldVelocity)
 {
@@ -696,7 +696,7 @@ void USTCharacterMovementComponent::OnMovementUpdated(float deltaTime, const FVe
 
 }
 
-#pragma region Custom Getters
+//  BEGIN Custom Getters
 float USTCharacterMovementComponent::GetMaxSpeed() const
 {
 	// The super already switches through MovementMode. We do it before they do to implement our custom values for specific movement modes.
@@ -840,9 +840,9 @@ float USTCharacterMovementComponent::GetMaxBrakingDeceleration() const
 {
 	return Super::GetMaxBrakingDeceleration();
 }
-#pragma endregion
+//  BEGIN Custom Getters
 
-#pragma region Movement Mode and Physics
+//  BEGIN Movement Mode and Physics
 FString USTCharacterMovementComponent::GetMovementName() const
 {
 	if (MovementMode == MOVE_Custom)
@@ -904,13 +904,13 @@ void USTCharacterMovementComponent::PhysCustom(float deltaTime, int32 Iterations
 	}
 }
 
-#pragma region Custom Physics
+//  BEGIN Custom Physics
 void USTCharacterMovementComponent::PhysInfiniteAngleWalking(float deltaTime, int32 Iterations)
 {
 
 }
-#pragma endregion
-#pragma endregion
+//  END Custom Physics
+//  END Movement Mode and Physics
 
 
 void USTCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) // DO NOT UTILIZE THIS EVENT FOR MOVEMENT
@@ -952,7 +952,7 @@ void USTCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 	PreviousRotation = PawnOwner->GetActorRotation();
 }
 
-#pragma region MovementHelpers
+//  BEGIN MovementHelpers
 bool USTCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/) const // THIS CHECK DOES NOT WORK ON DEDICATED SERVER
 {
 	// At dot product 0.7 you are looking at a 45 degrees angle
@@ -977,4 +977,4 @@ bool USTCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/) c
 
 	return true;
 }
-#pragma endregion
+//  END MovementHelpers

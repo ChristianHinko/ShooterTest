@@ -7,7 +7,6 @@
 #include "Player/STPlayerController.h"
 #include "Player/STPlayerState.h"
 #include "Character/STCharacterMovementComponent.h"
-#include "ArcItemBPFunctionLibrary.h"
 
 
 
@@ -61,6 +60,7 @@ void FSTGameplayAbilityActorInfo::ClearActorInfo()
 #include "AbilitySystem/AbilitySystemComponents/STAbilitySystemComponent_Shooter.h"
 #include "Character/STCharacter_Shooter.h"
 #include "ArcInventoryComponent.h"
+#include "ArcItemBPFunctionLibrary.h"
 
 
 

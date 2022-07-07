@@ -10,7 +10,7 @@
 
 
 /**
- * Base PlayerController class.
+ * Game's base PlayerController class
  */
 UCLASS()
 class SHOOTERTEST_API ASTPlayerController : public APlayerController
@@ -21,10 +21,10 @@ public:
 	ASTPlayerController(const FObjectInitializer& ObjectInitializer);
 
 protected:
-	//BEGIN AController Interface
+	//  BEGIN AController Interface
 	virtual void InitPlayerState() override;
 	virtual void OnRep_PlayerState() override;
-	//END AController Interface
+	//  END AController Interface
 
 	virtual void EndPlayingState() override;
 };

@@ -48,7 +48,7 @@ USTCharacterMovementComponent_Shooter::USTCharacterMovementComponent_Shooter(con
 	}
 }
 
-//BEGIN Prediciton Data Client
+//  BEGIN Prediciton Data Client
 FNetworkPredictionData_Client* USTCharacterMovementComponent_Shooter::GetPredictionData_Client() const
 {
 	if (ClientPredictionData == nullptr)
@@ -71,7 +71,7 @@ FSavedMovePtr FSTNetworkPredictionData_Client_ShooterCharacter::AllocateNewMove(
 	// Return our custom move struct instead
 	return FSavedMovePtr(new FSTSavedMove_ShooterCharacter());
 }
-//END Prediciton Data Client
+//  END Prediciton Data Client
 
 void USTCharacterMovementComponent_Shooter::OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC)
 {
@@ -93,7 +93,7 @@ void USTCharacterMovementComponent_Shooter::OnInitializeAbilitySystemComponent(U
 	}
 }
 
-//BEGIN Attribute value change delegates
+//  BEGIN Attribute value change delegates
 void USTCharacterMovementComponent_Shooter::OnMaxStaminaAttributeChange(const FOnAttributeChangeData& Data)
 {
 	if (!IsValid(StaminaSubobject))
@@ -138,7 +138,7 @@ void USTCharacterMovementComponent_Shooter::OnStaminaRegenPauseAttributeChange(c
 
 	StaminaSubobject->SetStaminaRegenPause(Data.NewValue);
 }
-//END Attribute value change delegates
+//  END Attribute value change delegates
 
 
 void USTCharacterMovementComponent_Shooter::OnStaminaFullyDrained()
@@ -211,7 +211,7 @@ void USTCharacterMovementComponent_Shooter::TweakWantsToRunBeforeTick(bool& outT
 
 void USTCharacterMovementComponent_Shooter::BeginDestroy()
 {
-	//BEGIN Attribute value change delegates
+	//  BEGIN Attribute value change delegates
 	if (UAbilitySystemComponent* ASC = OwnerASC.Get())
 	{
 		ASC->GetGameplayAttributeValueChangeDelegate(USTAttributeSet_Stamina::GetMaxStaminaAttribute()).RemoveAll(this);
@@ -219,7 +219,7 @@ void USTCharacterMovementComponent_Shooter::BeginDestroy()
 		ASC->GetGameplayAttributeValueChangeDelegate(USTAttributeSet_Stamina::GetStaminaGainAttribute()).RemoveAll(this);
 		ASC->GetGameplayAttributeValueChangeDelegate(USTAttributeSet_Stamina::GetStaminaRegenPauseAttribute()).RemoveAll(this);
 	}
-	//END Attribute value change delegates
+	//  END Attribute value change delegates
 
 
 	Super::BeginDestroy();

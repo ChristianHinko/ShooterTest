@@ -138,7 +138,7 @@ protected:
 
 
 
-#pragma region HeadTurning
+	//  BEGIN HeadTurning
 	UPROPERTY(BlueprintReadOnly)
 		FRotator headLookAtRot;
 	UPROPERTY(BlueprintReadWrite)
@@ -151,7 +151,7 @@ protected:
 		float headMaxPitchRot;
 	UPROPERTY(BlueprintReadWrite)
 		float headMaxYawRot;
-#pragma endregion
+	//  END HeadTurning
 
 
 	FRotator GetHeadLookAtTargetRot(AActor* Target, float deltaTime);

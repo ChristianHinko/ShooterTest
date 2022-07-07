@@ -22,7 +22,7 @@ public:
 	USTAttributeSet_Gun(const FObjectInitializer& ObjectInitializer);
 
 
-	//BEGIN  BulletSpread
+	//  BEGIN  BulletSpread
 	/**
 	 * The minimum bullet spread while staying still in degrees (90 degs would be a right-angled cone)
 	 */
@@ -59,7 +59,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BulletSpreadDecSpeed, Category = "Attributes")
 		FGameplayAttributeData BulletSpreadDecSpeed;
 	ATTRIBUTE_ACCESSORS(USTAttributeSet_Gun, BulletSpreadDecSpeed)
-	//END BulletSpread
+	//  END BulletSpread
 
 	
 

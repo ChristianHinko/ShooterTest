@@ -10,7 +10,7 @@
 
 
 /**
- * 
+ * Game's base GameMode class
  */
 UCLASS()
 class SHOOTERTEST_API ASTGameMode : public AGSGameMode

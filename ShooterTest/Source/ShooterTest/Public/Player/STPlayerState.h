@@ -14,7 +14,7 @@ class USTAttributeSet_PlayerState;
 
 
 /**
- * Base Player State
+ * Game's base PlayerState class
  */
 UCLASS()
 class SHOOTERTEST_API ASTPlayerState : public AASSEPlayerState_AbilitySystemPlayerState

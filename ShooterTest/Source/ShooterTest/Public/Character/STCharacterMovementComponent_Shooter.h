@@ -56,9 +56,9 @@ public:
 	virtual void UnRun() override;
 
 
-	//BEGIN UCharacterMovementComponent Interface
+	//  BEGIN UCharacterMovementComponent Interface
 	virtual FString GetMovementName() const override;
-	//END UCharacterMovementComponent Interface
+	//  END UCharacterMovementComponent Interface
 
 protected:
 	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
@@ -71,12 +71,12 @@ protected:
 	virtual void OnStaminaFullyDrained();
 
 private:
-	//BEGIN Attribute value change
+	//  BEGIN Attribute value change
 	void OnMaxStaminaAttributeChange(const FOnAttributeChangeData& Data);
 	void OnStaminaDrainAttributeChange(const FOnAttributeChangeData& Data);
 	void OnStaminaGainAttributeChange(const FOnAttributeChangeData& Data);
 	void OnStaminaRegenPauseAttributeChange(const FOnAttributeChangeData& Data);
-	//END Attribute value change
+	//  END Attribute value change
 };
 
 

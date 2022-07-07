@@ -32,9 +32,9 @@ public:
 	}
 
 protected:
-	//BEGIN IModuleInterface Interface
+	//  BEGIN IModuleInterface Interface
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
-	//END IModuleInterface Interface
+	//  END IModuleInterface Interface
 
 };

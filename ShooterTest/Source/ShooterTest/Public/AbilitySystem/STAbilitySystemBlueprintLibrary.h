@@ -10,7 +10,7 @@
 
 
 /**
- * Our custom AbilitySystemBlueprintLibrary
+ * Game's base AbilitySystemBlueprintLibrary
  */
 UCLASS()
 class SHOOTERTEST_API USTAbilitySystemBlueprintLibrary : public UASSAbilitySystemBlueprintLibrary

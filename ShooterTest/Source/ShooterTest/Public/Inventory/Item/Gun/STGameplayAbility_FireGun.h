@@ -44,7 +44,7 @@ protected:
 	int32 ShotNumber;
 
 
-	//BEGIN UGameplayAbility Interface
+	//  BEGIN UGameplayAbility Interface
 	virtual void ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 
 	virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
@@ -56,7 +56,7 @@ protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	
 	virtual void ASSEndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
-	//END UGameplayAbility Interface
+	//  END UGameplayAbility Interface
 
 
 	/**
@@ -95,7 +95,7 @@ protected:
 		void OnCancelled(const FGameplayAbilityTargetDataHandle& Data);
 
 
-	//BEGIN Attribute Set helpers
+	//  BEGIN Attribute Set helpers
 	bool IsFullAuto() const;
 	bool IsBurst() const;
 
@@ -103,7 +103,7 @@ protected:
 	float GetTimeBetweenBursts() const;
 
 	bool CurrentlyBursting() const;
-	//END Attribute Set helpers
+	//  END Attribute Set helpers
 
 
 
@@ -121,7 +121,7 @@ private:
 
 
 
-	// BEGIN Attribute value change
+	//  BEGIN Attribute value change
 	
 	// For attributes used in the STGameplayAbility_FireGun
 	float AmmoCost;
@@ -160,5 +160,5 @@ private:
 
 	float BulletSpeedFalloff;
 	void OnBulletSpeedFalloffChange(const FOnAttributeChangeData& Data);
-	// END Attribute value change
+	//  END Attribute value change
 };

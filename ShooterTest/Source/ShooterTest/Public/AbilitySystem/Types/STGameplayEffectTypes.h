@@ -11,7 +11,7 @@
 
 
 /**
- * Our custom Gameplay Effect Context
+ * Game's base GameplayEffectContext
  */
 USTRUCT()
 struct SHOOTERTEST_API FSTGameplayEffectContext : public FASSGameplayEffectContext
@@ -21,18 +21,12 @@ struct SHOOTERTEST_API FSTGameplayEffectContext : public FASSGameplayEffectConte
 public:
 	FSTGameplayEffectContext();
 
-	// Returns the actual struct used for serialization, subclasses must override this!
-	virtual UScriptStruct* GetScriptStruct() const override
-	{
-		return StaticStruct();
-	}
+	virtual UScriptStruct* GetScriptStruct() const override { return StaticStruct(); }
 
-	// Creates a copy of this context, used to duplicate for later modifications
 	virtual FSTGameplayEffectContext* Duplicate() const override
 	{
-		FSTGameplayEffectContext* NewContext = new FSTGameplayEffectContext();
+		FSTGameplayEffectContext* NewContext = new FSTGameplayEffectContext(); // allocate our version
 		*NewContext = *this;
-		NewContext->AddActors(Actors);
 		if (GetHitResult())
 		{
 			// Does a deep copy of the hit result
@@ -90,18 +84,12 @@ protected:
 		TArray<FVector_NetQuantize> BulletTracePoints;
 
 public:
-	// Returns the actual struct used for serialization, subclasses must override this!
-	virtual UScriptStruct* GetScriptStruct() const override
-	{
-		return StaticStruct();
-	}
+	virtual UScriptStruct* GetScriptStruct() const override { return StaticStruct(); }
 
-	// Creates a copy of this context, used to duplicate for later modifications
 	virtual FSTGameplayEffectContext_Shooter* Duplicate() const override
 	{
-		FSTGameplayEffectContext_Shooter* NewContext = new FSTGameplayEffectContext_Shooter();
+		FSTGameplayEffectContext_Shooter* NewContext = new FSTGameplayEffectContext_Shooter(); // allocate our version
 		*NewContext = *this;
-		NewContext->AddActors(Actors);
 		if (GetHitResult())
 		{
 			// Does a deep copy of the hit result

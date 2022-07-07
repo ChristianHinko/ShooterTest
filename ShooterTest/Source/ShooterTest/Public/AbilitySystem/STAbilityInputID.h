@@ -8,7 +8,7 @@
 
 
 /**
- * AbilityInputID enum for ShooterTest
+ * Our AbilityInputID enum
  */
 UENUM()
 enum class ESTAbilityInputID : uint8
@@ -37,6 +37,5 @@ enum class ESTAbilityInputID : uint8
 	ScoreSheet,
 
 
-	// MAX
 	MAX					UMETA(Hidden)
 };

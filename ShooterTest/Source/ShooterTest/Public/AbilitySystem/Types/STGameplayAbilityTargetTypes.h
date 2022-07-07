@@ -10,20 +10,16 @@
 
 
 /**
- * Our custom Target Data struct
+ * Game's base GameplayAbilityTargetData
  */
 USTRUCT()
 struct SHOOTERTEST_API FSTGameplayAbilityTargetData : public FASSGameplayAbilityTargetData
 {
 	GENERATED_BODY()
 
-
 	FSTGameplayAbilityTargetData();
 
-	virtual UScriptStruct* GetScriptStruct() const override
-	{
-		return StaticStruct();
-	}
+	virtual UScriptStruct* GetScriptStruct() const override { return StaticStruct(); }
 };
 
 
@@ -165,10 +161,7 @@ struct SHOOTERTEST_API FSTGameplayAbilityTargetData_BulletTraceTargetHit : publi
 
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
 
-	virtual UScriptStruct* GetScriptStruct() const override
-	{
-		return StaticStruct();
-	}
+	virtual UScriptStruct* GetScriptStruct() const override { return StaticStruct(); }
 };
 
 template<>

@@ -47,7 +47,7 @@ void USTAnimInstance_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 
 	if (const ASTCharacter_Shooter* ShooterCharacter = OwningShooterCharacter.Get())
 	{
-#pragma region Owning Actor work
+		//  BEGIN Owning Actor work
 		ActorRotation = ShooterCharacter->GetActorRotation();
 
 		Velocity = ShooterCharacter->GetVelocity();
@@ -61,13 +61,13 @@ void USTAnimInstance_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 		HorizontalSpeed = FMath::Sqrt(FMath::Square(ForwardSpeed) + FMath::Square(RightSpeed));
 
 		Direction = UKismetAnimationLibrary::CalculateDirection(Velocity, ShooterCharacter->GetActorRotation()); // TODO: make sure this is relative to the actor's rotation
-#pragma endregion
+		//  END Owning Actor work
 
 
 
 
 
-#pragma region Owning Pawn work
+		//  BEGIN Owning Pawn work
 		AimRotation = ShooterCharacter->GetBaseAimRotation();	// this will be choppy when replicated but we won't automatically smooth it here
 
 		TurnInPlace(DeltaTimeX);
@@ -76,14 +76,14 @@ void USTAnimInstance_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 		const FRotator AimOffset = UKismetMathLibrary::NormalizedDeltaRotator(AimRotation, MeshRotation); // the normalized direction from ActorRotation to ControlRotation
 		AimOffsetPitch = AimOffset.Pitch;
 		AimOffsetYaw = AimOffset.Yaw;
-#pragma endregion
+		//  END Owning Pawn work
 
 
 
 
 
 
-#pragma region Owning Charcter work
+		//  BEGIN Owning Charcter work
 		// Update movement variables
 		if (UCharacterMovementComponent* CMC = ShooterCharacter->GetCharacterMovement())
 		{
@@ -96,15 +96,15 @@ void USTAnimInstance_ShooterCharacter::NativeUpdateAnimation(float DeltaTimeX)
 		}
 
 
-#pragma endregion
+		//  END Owning Charcter work
 
 
 
 
 
-#pragma region Owning ShooterChractor work
+		//  BEGIN Owning ShooterChractor work
 		headLookAtRot = GetHeadLookAtTargetRot(GetNearestPawn(ShooterCharacter), DeltaTimeX);
-#pragma endregion
+		//  END Owning ShooterChractor work
 	}
 
 

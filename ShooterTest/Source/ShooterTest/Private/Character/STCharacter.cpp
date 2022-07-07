@@ -259,7 +259,7 @@ FRotator ASTCharacter::GetBaseAimRotation() const
 	return POVRot;
 }
 
-//BEGIN Jump overriding
+//  BEGIN Jump overriding
 void ASTCharacter::Jump()
 {
 	if (STCharacterMovementComponent.IsValid())
@@ -335,7 +335,7 @@ void ASTCharacter::ClearJumpInput(float DeltaTime)
 {
 	STCharacterMovementComponent->ClearJumpInput(DeltaTime);
 }
-//END Jump overriding
+//  END Jump overriding
 
 
 void ASTCharacter::OnRep_IsRunning()
@@ -356,7 +356,7 @@ void ASTCharacter::OnRep_IsRunning()
 	}
 }
 
-//BEGIN Crouch overriding
+//  BEGIN Crouch overriding
 void ASTCharacter::Crouch(bool bClientSimulation)
 {
 	//Super::Crouch(bClientSimulation);
@@ -563,7 +563,7 @@ void ASTCharacter::CrouchTick(float DeltaTime)
 
 	//UKismetSystemLibrary::PrintString(this, "crouch ticking;                      " + CameraBoom->GetRelativeLocation().ToString(), true, false);
 }
-//END Crouch overriding
+//  END Crouch overriding
 
 //void ASTCharacter::Tick(float DeltaTime)
 //{
@@ -596,7 +596,7 @@ void ASTCharacter::CrouchTick(float DeltaTime)
 //	}
 //}
 
-//BEGIN Input setup
+//  BEGIN Input setup
 void ASTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -898,7 +898,7 @@ void ASTCharacter::VerticalLook(float Rate)
 		AddControllerPitchInput(Rate * VerticalSensitivity * 0.5f);
 	}
 }
-//END Input setup
+//  END Input setup
 
 void ASTCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {

@@ -41,10 +41,10 @@ public:
 	USTActorComponent_Interactor* GetInteractorComponent() const { return Interactor; }
 
 protected:
-	//BEGIN AActor Interface
+	//  BEGIN AActor Interface
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
-	//END AActor Interface
+	//  END AActor Interface
 
 
 	UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
@@ -53,7 +53,7 @@ protected:
 		FVector AddedCameraSwayDuringADS;
 
 
-	//BEGIN Input actions
+	//  BEGIN Input actions
 	virtual void OnPressedInteract() override;
 
 	virtual void OnPressedPrimaryFire() override;
@@ -73,7 +73,7 @@ protected:
 	virtual void OnPressedScoreSheet() override;
 
 	virtual void OnPressedDropItem() override;
-	//END Input actions
+	//  END Input actions
 
 private:
 	// Cached Inventory

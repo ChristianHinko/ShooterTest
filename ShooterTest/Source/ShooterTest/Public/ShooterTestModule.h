@@ -3,38 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Modules/ModuleInterface.h"
+#include "Modules/ModuleManager.h"
 
-//#include "ShooterTestModule.generated.h" // if we ever need reflection in here
+//#include "ShooterTestModule.generated.h" // uncomment if we need reflection in here
 
 
-
-#define SHOOTERTEST_MODULE_NAME TEXT("ShooterTest")
 
 /**
- * 
+ * Shooter Test module
  */
-class FShooterTestModule : public IModuleInterface
+class FShooterTestModule : public FDefaultGameModuleImpl
 {
 public:
-	virtual bool IsGameModule() const override
-	{
-		return true;
-	}
-
-	static inline FShooterTestModule& Get()
-	{
-		return FModuleManager::LoadModuleChecked<FShooterTestModule>(SHOOTERTEST_MODULE_NAME);
-	}
-	static inline bool IsAvailable()
-	{
-		return FModuleManager::Get().IsModuleLoaded(SHOOTERTEST_MODULE_NAME);
-	}
-
-protected:
-	//  BEGIN IModuleInterface Interface
+	//  BEGIN IModuleInterface interface
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
-	//  END IModuleInterface Interface
-
+	//  END IModuleInterface interface
 };

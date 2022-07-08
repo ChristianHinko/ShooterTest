@@ -1,30 +1,24 @@
-[submodule "SonicShooter/Plugins/AbilitySystemSetup"]
-	path = SonicShooter/Plugins/AbilitySystemSetup
+[submodule "ShooterTest/Plugins/AbilitySystemSetup"]
+	path = ShooterTest/Plugins/AbilitySystemSetup
 	url = https://github.com/ChristianHinko/AbilitySystemSetup.git
-[submodule "SonicShooter/Plugins/PrototypeAssets"]
-	path = SonicShooter/Plugins/PrototypeAssets
-	url = https://github.com/ChristianHinko/PrototypeAssets.git
-[submodule "SonicShooter/Plugins/AbilitySystemSetupExtras"]
-	path = SonicShooter/Plugins/AbilitySystemSetupExtras
+[submodule "ShooterTest/Plugins/AbilitySystemSetupExtras"]
+	path = ShooterTest/Plugins/AbilitySystemSetupExtras
 	url = https://github.com/brian2524/AbilitySystemSetupExtras.git
-[submodule "SonicShooter/Plugins/HelperLibraries"]
-	path = SonicShooter/Plugins/HelperLibraries
-	url = https://github.com/brian2524/HelperLibraries.git
-[submodule "SonicShooter/Plugins/PropertyWrapper"]
-	path = SonicShooter/Plugins/PropertyWrapper
+[submodule "ShooterTest/Plugins/PropertyWrapper"]
+	path = ShooterTest/Plugins/PropertyWrapper
 	url = https://github.com/brian2524/PropertyWrapper.git
-[submodule "SonicShooter/Plugins/GameSetup"]
-	path = SonicShooter/Plugins/GameSetup
+[submodule "ShooterTest/Plugins/GameSetup"]
+	path = ShooterTest/Plugins/GameSetup
 	url = https://github.com/ChristianHinko/GameSetup.git
-[submodule "SonicShooter/Plugins/MaterialFunctionLibrary"]
-	path = SonicShooter/Plugins/MaterialFunctionLibrary
-	url = https://github.com/brian2524/MaterialFunctionLibrary.git
-[submodule "SonicShooter/Plugins/AutoSettings"]
-	path = SonicShooter/Plugins/AutoSettings
+[submodule "ShooterTest/Plugins/AutoSettings"]
+	path = ShooterTest/Plugins/AutoSettings
 	url = https://github.com/brian2524/AutoSettings.git
-[submodule "SonicShooter/Plugins/ArcInventory"]
-	path = SonicShooter/Plugins/ArcInventory
+[submodule "ShooterTest/Plugins/ArcInventory"]
+	path = ShooterTest/Plugins/ArcInventory
 	url = https://github.com/ChristianHinko/ArcInventory.git
-[submodule "SonicShooter/Plugins/ArcInventoryExtension"]
-	path = SonicShooter/Plugins/ArcInventoryExtension
+[submodule "ShooterTest/Plugins/ArcInventoryExtension"]
+	path = ShooterTest/Plugins/ArcInventoryExtension
 	url = https://github.com/brian2524/ArcInventoryExtension.git
+[submodule "ShooterTest/Plugins/GameCore"]
+	path = ShooterTest/Plugins/GameCore
+	url = https://github.com/brian2524/GameCore.git

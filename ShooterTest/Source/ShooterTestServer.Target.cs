@@ -3,9 +3,9 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
+[SupportedPlatforms(UnrealPlatformClass.Server)]
 public class ShooterTestServerTarget : TargetRules
 {
-	[SupportedPlatforms(UnrealPlatformClass.Server)]
 	public ShooterTestServerTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Server;

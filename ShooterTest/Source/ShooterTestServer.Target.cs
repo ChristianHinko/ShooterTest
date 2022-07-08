@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 public class ShooterTestServerTarget : TargetRules
 {
-	//[SupportedPlatforms(UnrealPlatformClass.Server)]
+	[SupportedPlatforms(UnrealPlatformClass.Server)]
 	public ShooterTestServerTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Server;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
-		ExtraModuleNames.Add("ShooterTest");
+		ExtraModuleNames.AddRange(new string[] { "ShooterTest" });
 	}
 }

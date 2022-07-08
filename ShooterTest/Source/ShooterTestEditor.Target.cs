@@ -9,6 +9,6 @@ public class ShooterTestEditorTarget : TargetRules
 	{
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
-		ExtraModuleNames.Add("ShooterTest");
+		ExtraModuleNames.AddRange(new string[] { "ShooterTest" });
 	}
 }

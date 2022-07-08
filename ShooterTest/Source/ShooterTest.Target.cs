@@ -9,6 +9,6 @@ public class ShooterTestTarget : TargetRules
 	{
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
-		ExtraModuleNames.Add("ShooterTest");
+		ExtraModuleNames.AddRange(new string[] { "ShooterTest" });
 	}
 }

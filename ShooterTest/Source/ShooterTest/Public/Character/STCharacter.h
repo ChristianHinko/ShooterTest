@@ -15,6 +15,7 @@ class UGSActorComponent_PawnExtension;
 class USTCharacterMovementComponent;
 class UPlayerMappableInputConfig;
 class UInputAction;
+class UISActorComponent_PawnExtension;
 struct FInputActionValue;
 
 
@@ -90,6 +91,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "GameSetup")
 		TObjectPtr<UGSActorComponent_PawnExtension> GSPawnExtensionComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = "InputSetup")
+		TObjectPtr<UISActorComponent_PawnExtension> ISPawnExtensionComponent;
 
 public:
 	ASTCharacter(const FObjectInitializer& ObjectInitializer);
@@ -184,10 +188,6 @@ protected:
 
 
 	//  BEGIN Input setup
-	UPROPERTY(EditAnywhere, Category = "Input|Config")
-		TArray<TObjectPtr<UPlayerMappableInputConfig>> PlayerMappableInputConfigs;
-
-
 	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
 		TObjectPtr<const UInputAction> InputActionRun;
 	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
@@ -229,8 +229,6 @@ protected:
 		TObjectPtr<const UInputAction> InputActionMove;
 	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
 		TObjectPtr<const UInputAction> InputActionLook;
-
-
 
 
 

@@ -20,6 +20,7 @@
 #include "EnhancedInputSubsystems.h"
 
 #include "Kismet/KismetSystemLibrary.h"
+#include "ActorComponents/ISActorComponent_PawnExtension.h"
 
 
 
@@ -42,6 +43,7 @@ ASTCharacter::ASTCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<USTCharacterMovementComponent>(CharacterMovementComponentName))
 {
 	GSPawnExtensionComponent = CreateDefaultSubobject<UGSActorComponent_PawnExtension>(TEXT("GSPawnExtensionComponent"));
+	ISPawnExtensionComponent = CreateDefaultSubobject<UISActorComponent_PawnExtension>(TEXT("ISPawnExtensionComponent"));
 
 	STCharacterMovementComponent = Cast<USTCharacterMovementComponent>(GetMovementComponent());
 
@@ -602,29 +604,13 @@ void ASTCharacter::PawnClientRestart()
 	Super::PawnClientRestart();
 
 	// Clear and add input configs
-	const APlayerController* PlayerController = Cast<APlayerController>(GetController());
-	if (IsValid(PlayerController))
-	{
-		const ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer();
-		if (IsValid(LocalPlayer))
-		{
-			UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-			if (IsValid(EnhancedInputLocalPlayerSubsystem))
-			{
-				EnhancedInputLocalPlayerSubsystem->ClearAllMappings();
-
-				for (UPlayerMappableInputConfig* PlayerMappableInputConfig : PlayerMappableInputConfigs)
-				{
-					EnhancedInputLocalPlayerSubsystem->AddPlayerMappableConfig(PlayerMappableInputConfig);
-				}
-			}
-		}
-	}
+	ISPawnExtensionComponent->PawnClientRestart();
 }
 
 void ASTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
 
 	UEnhancedInputComponent* PlayerEnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (IsValid(PlayerEnhancedInputComponent))

@@ -13,6 +13,9 @@ class UCameraComponent;
 class USpringArmComponent;
 class UGSActorComponent_PawnExtension;
 class USTCharacterMovementComponent;
+class UPlayerMappableInputConfig;
+class UInputAction;
+struct FInputActionValue;
 
 
 
@@ -134,9 +137,6 @@ public:
 	void SetRemoteViewYaw(float NewRemoteViewYaw);
 	virtual FRotator GetBaseAimRotation() const override;
 
-	float GetForwardInputAxis() const { return ForwardInputAxis; }
-	float GetRightInputAxis() const { return RightInputAxis; }
-
 	virtual void Jump() override;
 	virtual void StopJumping() override;
 
@@ -160,6 +160,7 @@ protected:
 	virtual void PostInitializeComponents() override;
 	virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
 
+	virtual void PawnClientRestart() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 
@@ -182,7 +183,58 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 
-	//  BEGIN Input actions
+	//  BEGIN Input setup
+	UPROPERTY(EditAnywhere, Category = "Input|Config")
+		TArray<TObjectPtr<UPlayerMappableInputConfig>> PlayerMappableInputConfigs;
+
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
+		TObjectPtr<const UInputAction> InputActionRun;
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
+		TObjectPtr<const UInputAction> InputActionJump;
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
+		TObjectPtr<const UInputAction> InputActionCrouch;
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
+		TObjectPtr<const UInputAction> InputActionInteract;
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
+		TObjectPtr<const UInputAction> InputActionPrimaryFire;
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
+		TObjectPtr<const UInputAction> InputActionSecondaryFire;
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
+		TObjectPtr<const UInputAction> InputActionReload;
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
+		TObjectPtr<const UInputAction> InputActionSwapToLayout1st;
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
+		TObjectPtr<const UInputAction> InputActionSwapToLayout2nd;
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
+		TObjectPtr<const UInputAction> InputActionSwapToLayout3rd;
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
+		TObjectPtr<const UInputAction> InputActionSwapToLayout4th;
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
+		TObjectPtr<const UInputAction> InputActionSwapToLayout5th;
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
+		TObjectPtr<const UInputAction> InputActionSwapToPreviousSlot;
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
+		TObjectPtr<const UInputAction> InputActionSwapToLayoutForward;
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
+		TObjectPtr<const UInputAction> InputActionSwapToLayoutBackward;
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
+		TObjectPtr<const UInputAction> InputActionDropItem;
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
+		TObjectPtr<const UInputAction> InputActionPause;
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
+		TObjectPtr<const UInputAction> InputActionScoreSheet;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
+		TObjectPtr<const UInputAction> InputActionMove;
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
+		TObjectPtr<const UInputAction> InputActionLook;
+
+
+
+
+
+
 	virtual void OnPressedRun();
 	virtual void OnReleasedRun();
 
@@ -236,24 +288,10 @@ protected:
 
 	virtual void OnPressedScoreSheet();
 	virtual void OnReleasedScoreSheet();
-	//  END Input actions
 
-	//  BEGIN Input axis
-	virtual void MoveForward(float Value);
-	virtual void MoveRight(float Value);
-
-	virtual void HorizontalLook(float Rate);
-	virtual void VerticalLook(float Rate);
-	//  END Input axis
-
-
-	float ForwardInputAxis;
-	float RightInputAxis;
-
-	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
-	float HorizontalSensitivity;
-	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
-	float VerticalSensitivity;
+	virtual void OnMove(const FInputActionValue& InputActionValue);
+	virtual void OnLook(const FInputActionValue& InputActionValue);
+	//  END Input setup
 
 
 private:

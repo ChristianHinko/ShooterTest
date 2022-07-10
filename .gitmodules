@@ -22,3 +22,6 @@
 [submodule "ShooterTest/Plugins/GameCore"]
 	path = ShooterTest/Plugins/GameCore
 	url = https://github.com/brian2524/GameCore.git
+[submodule "ShooterTest/Plugins/InputSetup"]
+	path = ShooterTest/Plugins/InputSetup
+	url = https://github.com/ChristianHinko/InputSetup.git

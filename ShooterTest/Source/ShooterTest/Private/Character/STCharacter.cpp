@@ -16,8 +16,7 @@
 #include "Subobjects/ASSActorComponent_AbilitySystemSetup.h"
 #include "EnhancedInputComponent.h"
 #include "InputTriggers.h"
-#include "PlayerMappableInputConfig.h"
-#include "EnhancedInputSubsystems.h"
+#include "ISDeveloperSettings_InputSetup.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 #include "ActorComponents/ISActorComponent_PawnExtension.h"
@@ -615,123 +614,146 @@ void ASTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	UEnhancedInputComponent* PlayerEnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (IsValid(PlayerEnhancedInputComponent))
 	{
-		if (IsValid(InputActionRun))
+		const UISDeveloperSettings_InputSetup* InputSetupDeveloperSettings = GetDefault<UISDeveloperSettings_InputSetup>();
+		if (IsValid(InputSetupDeveloperSettings))
 		{
-			PlayerEnhancedInputComponent->BindAction(InputActionRun, ETriggerEvent::Started, this, &ThisClass::OnPressedRun);
-			PlayerEnhancedInputComponent->BindAction(InputActionRun, ETriggerEvent::Completed, this, &ThisClass::OnReleasedRun);
-		}
+			const UInputAction* InputActionRun = InputSetupDeveloperSettings->GetInputActionByTag(STNativeGameplayTags::InputAction_Run);
+			if (IsValid(InputActionRun))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionRun, ETriggerEvent::Started, this, &ThisClass::OnPressedRun);
+				PlayerEnhancedInputComponent->BindAction(InputActionRun, ETriggerEvent::Completed, this, &ThisClass::OnReleasedRun);
+			}
 
-		if (IsValid(InputActionJump))
-		{
-			PlayerEnhancedInputComponent->BindAction(InputActionJump, ETriggerEvent::Started, this, &ThisClass::OnPressedJump);
-			PlayerEnhancedInputComponent->BindAction(InputActionJump, ETriggerEvent::Completed, this, &ThisClass::OnReleasedJump);
-		}
+			const UInputAction* InputActionJump = InputSetupDeveloperSettings->GetInputActionByTag(STNativeGameplayTags::InputAction_Jump);
+			if (IsValid(InputActionJump))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionJump, ETriggerEvent::Started, this, &ThisClass::OnPressedJump);
+				PlayerEnhancedInputComponent->BindAction(InputActionJump, ETriggerEvent::Completed, this, &ThisClass::OnReleasedJump);
+			}
 
-		if (IsValid(InputActionCrouch))
-		{
-			PlayerEnhancedInputComponent->BindAction(InputActionCrouch, ETriggerEvent::Started, this, &ThisClass::OnPressedCrouch);
-			PlayerEnhancedInputComponent->BindAction(InputActionCrouch, ETriggerEvent::Completed, this, &ThisClass::OnReleasedCrouch);
-		}
+			const UInputAction* InputActionCrouch = InputSetupDeveloperSettings->GetInputActionByTag(STNativeGameplayTags::InputAction_Crouch);
+			if (IsValid(InputActionCrouch))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionCrouch, ETriggerEvent::Started, this, &ThisClass::OnPressedCrouch);
+				PlayerEnhancedInputComponent->BindAction(InputActionCrouch, ETriggerEvent::Completed, this, &ThisClass::OnReleasedCrouch);
+			}
 
-		if (IsValid(InputActionInteract))
-		{
-			PlayerEnhancedInputComponent->BindAction(InputActionInteract, ETriggerEvent::Started, this, &ThisClass::OnPressedInteract);
-			PlayerEnhancedInputComponent->BindAction(InputActionInteract, ETriggerEvent::Completed, this, &ThisClass::OnReleasedInteract);
-		}
+			const UInputAction* InputActionInteract = InputSetupDeveloperSettings->GetInputActionByTag(STNativeGameplayTags::InputAction_Interact);
+			if (IsValid(InputActionInteract))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionInteract, ETriggerEvent::Started, this, &ThisClass::OnPressedInteract);
+				PlayerEnhancedInputComponent->BindAction(InputActionInteract, ETriggerEvent::Completed, this, &ThisClass::OnReleasedInteract);
+			}
 
-		if (IsValid(InputActionPrimaryFire))
-		{
-			PlayerEnhancedInputComponent->BindAction(InputActionPrimaryFire, ETriggerEvent::Started, this, &ThisClass::OnPressedPrimaryFire);
-			PlayerEnhancedInputComponent->BindAction(InputActionPrimaryFire, ETriggerEvent::Completed, this, &ThisClass::OnReleasedPrimaryFire);
-		}
+			const UInputAction* InputActionPrimaryFire = InputSetupDeveloperSettings->GetInputActionByTag(STNativeGameplayTags::InputAction_PrimaryFire);
+			if (IsValid(InputActionPrimaryFire))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionPrimaryFire, ETriggerEvent::Started, this, &ThisClass::OnPressedPrimaryFire);
+				PlayerEnhancedInputComponent->BindAction(InputActionPrimaryFire, ETriggerEvent::Completed, this, &ThisClass::OnReleasedPrimaryFire);
+			}
 
-		if (IsValid(InputActionSecondaryFire))
-		{
-			PlayerEnhancedInputComponent->BindAction(InputActionSecondaryFire, ETriggerEvent::Started, this, &ThisClass::OnPressedSecondaryFire);
-			PlayerEnhancedInputComponent->BindAction(InputActionSecondaryFire, ETriggerEvent::Completed, this, &ThisClass::OnReleasedSecondaryFire);
-		}
+			const UInputAction* InputActionSecondaryFire = InputSetupDeveloperSettings->GetInputActionByTag(STNativeGameplayTags::InputAction_SecondaryFire);
+			if (IsValid(InputActionSecondaryFire))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionSecondaryFire, ETriggerEvent::Started, this, &ThisClass::OnPressedSecondaryFire);
+				PlayerEnhancedInputComponent->BindAction(InputActionSecondaryFire, ETriggerEvent::Completed, this, &ThisClass::OnReleasedSecondaryFire);
+			}
 
-		if (IsValid(InputActionReload))
-		{
-			PlayerEnhancedInputComponent->BindAction(InputActionReload, ETriggerEvent::Started, this, &ThisClass::OnPressedReload);
-			PlayerEnhancedInputComponent->BindAction(InputActionReload, ETriggerEvent::Completed, this, &ThisClass::OnReleasedReload);
-		}
+			const UInputAction* InputActionReload = InputSetupDeveloperSettings->GetInputActionByTag(STNativeGameplayTags::InputAction_Reload);
+			if (IsValid(InputActionReload))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionReload, ETriggerEvent::Started, this, &ThisClass::OnPressedReload);
+				PlayerEnhancedInputComponent->BindAction(InputActionReload, ETriggerEvent::Completed, this, &ThisClass::OnReleasedReload);
+			}
 
-		if (IsValid(InputActionSwapToLayout1st))
-		{
-			PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayout1st, ETriggerEvent::Started, this, &ThisClass::OnPressedSwapToLayout1st);
-			PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayout1st, ETriggerEvent::Completed, this, &ThisClass::OnReleasedSwapToLayout1st);
-		}
+			const UInputAction* InputActionSwapToLayout1st = InputSetupDeveloperSettings->GetInputActionByTag(STNativeGameplayTags::InputAction_SwapToLayout1st);
+			if (IsValid(InputActionSwapToLayout1st))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayout1st, ETriggerEvent::Started, this, &ThisClass::OnPressedSwapToLayout1st);
+				PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayout1st, ETriggerEvent::Completed, this, &ThisClass::OnReleasedSwapToLayout1st);
+			}
 
-		if (IsValid(InputActionSwapToLayout2nd))
-		{
-			PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayout2nd, ETriggerEvent::Started, this, &ThisClass::OnPressedSwapToLayout2nd);
-			PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayout2nd, ETriggerEvent::Completed, this, &ThisClass::OnReleasedSwapToLayout2nd);
-		}
+			const UInputAction* InputActionSwapToLayout2nd = InputSetupDeveloperSettings->GetInputActionByTag(STNativeGameplayTags::InputAction_SwapToLayout2nd);
+			if (IsValid(InputActionSwapToLayout2nd))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayout2nd, ETriggerEvent::Started, this, &ThisClass::OnPressedSwapToLayout2nd);
+				PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayout2nd, ETriggerEvent::Completed, this, &ThisClass::OnReleasedSwapToLayout2nd);
+			}
 
-		if (IsValid(InputActionSwapToLayout3rd))
-		{
-			PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayout3rd, ETriggerEvent::Started, this, &ThisClass::OnPressedSwapToLayout3rd);
-			PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayout3rd, ETriggerEvent::Completed, this, &ThisClass::OnReleasedSwapToLayout3rd);
-		}
+			const UInputAction* InputActionSwapToLayout3rd = InputSetupDeveloperSettings->GetInputActionByTag(STNativeGameplayTags::InputAction_SwapToLayout3rd);
+			if (IsValid(InputActionSwapToLayout3rd))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayout3rd, ETriggerEvent::Started, this, &ThisClass::OnPressedSwapToLayout3rd);
+				PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayout3rd, ETriggerEvent::Completed, this, &ThisClass::OnReleasedSwapToLayout3rd);
+			}
 
-		if (IsValid(InputActionSwapToLayout4th))
-		{
-			PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayout4th, ETriggerEvent::Started, this, &ThisClass::OnPressedSwapToLayout4th);
-			PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayout4th, ETriggerEvent::Completed, this, &ThisClass::OnReleasedSwapToLayout4th);
-		}
+			const UInputAction* InputActionSwapToLayout4th = InputSetupDeveloperSettings->GetInputActionByTag(STNativeGameplayTags::InputAction_SwapToLayout4th);
+			if (IsValid(InputActionSwapToLayout4th))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayout4th, ETriggerEvent::Started, this, &ThisClass::OnPressedSwapToLayout4th);
+				PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayout4th, ETriggerEvent::Completed, this, &ThisClass::OnReleasedSwapToLayout4th);
+			}
 
-		if (IsValid(InputActionSwapToLayout5th))
-		{
-			PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayout5th, ETriggerEvent::Started, this, &ThisClass::OnPressedSwapToLayout5th);
-			PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayout5th, ETriggerEvent::Completed, this, &ThisClass::OnReleasedSwapToLayout5th);
-		}
+			const UInputAction* InputActionSwapToLayout5th = InputSetupDeveloperSettings->GetInputActionByTag(STNativeGameplayTags::InputAction_SwapToLayout5th);
+			if (IsValid(InputActionSwapToLayout5th))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayout5th, ETriggerEvent::Started, this, &ThisClass::OnPressedSwapToLayout5th);
+				PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayout5th, ETriggerEvent::Completed, this, &ThisClass::OnReleasedSwapToLayout5th);
+			}
 
-		if (IsValid(InputActionSwapToPreviousSlot))
-		{
-			PlayerEnhancedInputComponent->BindAction(InputActionSwapToPreviousSlot, ETriggerEvent::Started, this, &ThisClass::OnPressedSwapToPreviousSlot);
-			PlayerEnhancedInputComponent->BindAction(InputActionSwapToPreviousSlot, ETriggerEvent::Completed, this, &ThisClass::OnReleasedSwapToPreviousSlot);
-		}
+			const UInputAction* InputActionSwapToPreviousSlot = InputSetupDeveloperSettings->GetInputActionByTag(STNativeGameplayTags::InputAction_SwapToPreviousSlot);
+			if (IsValid(InputActionSwapToPreviousSlot))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionSwapToPreviousSlot, ETriggerEvent::Started, this, &ThisClass::OnPressedSwapToPreviousSlot);
+				PlayerEnhancedInputComponent->BindAction(InputActionSwapToPreviousSlot, ETriggerEvent::Completed, this, &ThisClass::OnReleasedSwapToPreviousSlot);
+			}
 
-		if (IsValid(InputActionSwapToLayoutForward))
-		{
-			PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayoutForward, ETriggerEvent::Started, this, &ThisClass::OnPressedSwapToLayoutForward);
-			PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayoutForward, ETriggerEvent::Completed, this, &ThisClass::OnReleasedSwapToLayoutForward);
-		}
+			const UInputAction* InputActionSwapToLayoutForward = InputSetupDeveloperSettings->GetInputActionByTag(STNativeGameplayTags::InputAction_SwapToLayoutForward);
+			if (IsValid(InputActionSwapToLayoutForward))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayoutForward, ETriggerEvent::Started, this, &ThisClass::OnPressedSwapToLayoutForward);
+				PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayoutForward, ETriggerEvent::Completed, this, &ThisClass::OnReleasedSwapToLayoutForward);
+			}
 
-		if (IsValid(InputActionSwapToLayoutBackward))
-		{
-			PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayoutBackward, ETriggerEvent::Started, this, &ThisClass::OnPressedSwapToLayoutBackward);
-			PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayoutBackward, ETriggerEvent::Completed, this, &ThisClass::OnReleasedSwapToLayoutBackward);
-		}
+			const UInputAction* InputActionSwapToLayoutBackward = InputSetupDeveloperSettings->GetInputActionByTag(STNativeGameplayTags::InputAction_SwapToLayoutBackward);
+			if (IsValid(InputActionSwapToLayoutBackward))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayoutBackward, ETriggerEvent::Started, this, &ThisClass::OnPressedSwapToLayoutBackward);
+				PlayerEnhancedInputComponent->BindAction(InputActionSwapToLayoutBackward, ETriggerEvent::Completed, this, &ThisClass::OnReleasedSwapToLayoutBackward);
+			}
 
-		if (IsValid(InputActionDropItem))
-		{
-			PlayerEnhancedInputComponent->BindAction(InputActionDropItem, ETriggerEvent::Started, this, &ThisClass::OnPressedDropItem);
-			PlayerEnhancedInputComponent->BindAction(InputActionDropItem, ETriggerEvent::Completed, this, &ThisClass::OnReleasedDropItem);
-		}
+			const UInputAction* InputActionDropItem = InputSetupDeveloperSettings->GetInputActionByTag(STNativeGameplayTags::InputAction_DropItem);
+			if (IsValid(InputActionDropItem))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionDropItem, ETriggerEvent::Started, this, &ThisClass::OnPressedDropItem);
+				PlayerEnhancedInputComponent->BindAction(InputActionDropItem, ETriggerEvent::Completed, this, &ThisClass::OnReleasedDropItem);
+			}
 
-		if (IsValid(InputActionPause))
-		{
-			PlayerEnhancedInputComponent->BindAction(InputActionPause, ETriggerEvent::Started, this, &ThisClass::OnPressedPause);
-			PlayerEnhancedInputComponent->BindAction(InputActionPause, ETriggerEvent::Completed, this, &ThisClass::OnReleasedPause);
-		}
+			const UInputAction* InputActionPause = InputSetupDeveloperSettings->GetInputActionByTag(STNativeGameplayTags::InputAction_Pause);
+			if (IsValid(InputActionPause))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionPause, ETriggerEvent::Started, this, &ThisClass::OnPressedPause);
+				PlayerEnhancedInputComponent->BindAction(InputActionPause, ETriggerEvent::Completed, this, &ThisClass::OnReleasedPause);
+			}
 
-		if (IsValid(InputActionScoreSheet))
-		{
-			PlayerEnhancedInputComponent->BindAction(InputActionScoreSheet, ETriggerEvent::Started, this, &ThisClass::OnPressedScoreSheet);
-			PlayerEnhancedInputComponent->BindAction(InputActionScoreSheet, ETriggerEvent::Completed, this, &ThisClass::OnReleasedScoreSheet);
-		}
+			const UInputAction* InputActionScoreSheet = InputSetupDeveloperSettings->GetInputActionByTag(STNativeGameplayTags::InputAction_ScoreSheet);
+			if (IsValid(InputActionScoreSheet))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionScoreSheet, ETriggerEvent::Started, this, &ThisClass::OnPressedScoreSheet);
+				PlayerEnhancedInputComponent->BindAction(InputActionScoreSheet, ETriggerEvent::Completed, this, &ThisClass::OnReleasedScoreSheet);
+			}
 
+			const UInputAction* InputActionMove = InputSetupDeveloperSettings->GetInputActionByTag(STNativeGameplayTags::InputAction_Move);
+			if (IsValid(InputActionMove))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionMove, ETriggerEvent::Triggered, this, &ThisClass::OnMove);
+			}
 
-		if (IsValid(InputActionMove))
-		{
-			PlayerEnhancedInputComponent->BindAction(InputActionMove, ETriggerEvent::Triggered, this, &ThisClass::OnMove);
-		}
-
-		if (IsValid(InputActionLook))
-		{
-			PlayerEnhancedInputComponent->BindAction(InputActionLook, ETriggerEvent::Triggered, this, &ThisClass::OnLook);
+			const UInputAction* InputActionLook = InputSetupDeveloperSettings->GetInputActionByTag(STNativeGameplayTags::InputAction_Look);
+			if (IsValid(InputActionLook))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionLook, ETriggerEvent::Triggered, this, &ThisClass::OnLook);
+			}
 		}
 	}
 }

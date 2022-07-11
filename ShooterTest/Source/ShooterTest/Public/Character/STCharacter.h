@@ -187,52 +187,7 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 
-	//  BEGIN Input setup
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
-		TObjectPtr<const UInputAction> InputActionRun;
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
-		TObjectPtr<const UInputAction> InputActionJump;
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
-		TObjectPtr<const UInputAction> InputActionCrouch;
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
-		TObjectPtr<const UInputAction> InputActionInteract;
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
-		TObjectPtr<const UInputAction> InputActionPrimaryFire;
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
-		TObjectPtr<const UInputAction> InputActionSecondaryFire;
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
-		TObjectPtr<const UInputAction> InputActionReload;
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
-		TObjectPtr<const UInputAction> InputActionSwapToLayout1st;
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
-		TObjectPtr<const UInputAction> InputActionSwapToLayout2nd;
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
-		TObjectPtr<const UInputAction> InputActionSwapToLayout3rd;
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
-		TObjectPtr<const UInputAction> InputActionSwapToLayout4th;
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
-		TObjectPtr<const UInputAction> InputActionSwapToLayout5th;
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
-		TObjectPtr<const UInputAction> InputActionSwapToPreviousSlot;
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
-		TObjectPtr<const UInputAction> InputActionSwapToLayoutForward;
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
-		TObjectPtr<const UInputAction> InputActionSwapToLayoutBackward;
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
-		TObjectPtr<const UInputAction> InputActionDropItem;
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
-		TObjectPtr<const UInputAction> InputActionPause;
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
-		TObjectPtr<const UInputAction> InputActionScoreSheet;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
-		TObjectPtr<const UInputAction> InputActionMove;
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Actions")
-		TObjectPtr<const UInputAction> InputActionLook;
-
-
-
-
+	//  BEGIN Input binding
 	virtual void OnPressedRun();
 	virtual void OnReleasedRun();
 
@@ -289,7 +244,7 @@ protected:
 
 	virtual void OnMove(const FInputActionValue& InputActionValue);
 	virtual void OnLook(const FInputActionValue& InputActionValue);
-	//  END Input setup
+	//  END Input bindings
 
 
 private:

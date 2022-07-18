@@ -15,7 +15,7 @@
  */
 namespace STNativeGameplayTags
 {
-	// Input Tags
+	// Input Actions
 	SHOOTERTEST_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputAction_Run)
 	SHOOTERTEST_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputAction_Jump)
 	SHOOTERTEST_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputAction_Crouch)

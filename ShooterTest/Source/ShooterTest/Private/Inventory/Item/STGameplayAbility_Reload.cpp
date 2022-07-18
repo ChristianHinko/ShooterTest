@@ -13,7 +13,7 @@
 USTGameplayAbility_Reload::USTGameplayAbility_Reload(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	AbilityInputID = static_cast<uint8>(ESTAbilityInputID::Reload);
+	AbilityTags.AddTag(STNativeGameplayTags::InputAction_Reload);
 	AbilityTags.AddTag(STNativeGameplayTags::Ability_Reload);
 }
 

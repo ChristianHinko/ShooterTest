@@ -4,5 +4,4 @@
 
 #include "EngineSharedPCH.h"
 #include "Utilities/STLogCategories.h"
-#include "AbilitySystem/STAbilityInputID.h"
 #include "Utilities/STNativeGameplayTags.h"

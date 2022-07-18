@@ -7,7 +7,7 @@
 
 namespace STNativeGameplayTags
 {
-	// Input Tags
+	// Input Actions
 	UE_DEFINE_GAMEPLAY_TAG(InputAction_Run,											TEXT("InputAction.Run"))
 	UE_DEFINE_GAMEPLAY_TAG(InputAction_Jump,										TEXT("InputAction.Jump"))
 	UE_DEFINE_GAMEPLAY_TAG(InputAction_Crouch,										TEXT("InputAction.Crouch"))

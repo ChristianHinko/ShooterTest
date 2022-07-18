@@ -6,6 +6,7 @@
 #include "Character/STCharacter.h"
 #include "Character/STCharacterMovementComponent.h"
 #include "AbilitySystem/Types/STGameplayAbilityTypes.h"
+#include "Utilities/ASSNativeGameplayTags.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -14,8 +15,9 @@
 USTGameplayAbility_CharacterJump::USTGameplayAbility_CharacterJump(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	AbilityInputID = static_cast<uint8>(ESTAbilityInputID::Jump);
 	AbilityTags.AddTag(STNativeGameplayTags::Ability_Movement_Jump);
+	AbilityTags.AddTag(ASSNativeGameplayTags::Ability_Type_DisableAutoActivationFromInput);
+	AbilityTags.AddTag(STNativeGameplayTags::InputAction_Jump);
 
 
 	CancelAbilitiesWithTag.AddTag(STNativeGameplayTags::Ability_Movement_Crouch);

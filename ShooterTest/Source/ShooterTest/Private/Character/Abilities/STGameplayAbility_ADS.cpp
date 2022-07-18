@@ -7,13 +7,13 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemComponent.h"
 
+
+
 USTGameplayAbility_ADS::USTGameplayAbility_ADS(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	AbilityInputID = static_cast<uint8>(ESTAbilityInputID::SecondaryFire);
+	AbilityTags.AddTag(STNativeGameplayTags::InputAction_SecondaryFire);
 	AbilityTags.AddTag(STNativeGameplayTags::Ability_ADS);
-
-
 }
 
 

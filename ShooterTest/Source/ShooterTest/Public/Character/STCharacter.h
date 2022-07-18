@@ -188,6 +188,9 @@ protected:
 
 
 	//  BEGIN Input binding
+	virtual void OnMove(const FInputActionValue& InputActionValue);
+	virtual void OnLook(const FInputActionValue& InputActionValue);
+
 	virtual void OnPressedRun();
 	virtual void OnReleasedRun();
 
@@ -196,54 +199,6 @@ protected:
 
 	virtual void OnPressedCrouch();
 	virtual void OnReleasedCrouch();
-
-	virtual void OnPressedInteract();
-	virtual void OnReleasedInteract();
-
-	virtual void OnPressedPrimaryFire();
-	virtual void OnReleasedPrimaryFire();
-
-	virtual void OnPressedSecondaryFire();
-	virtual void OnReleasedSecondaryFire();
-
-	virtual void OnPressedReload();
-	virtual void OnReleasedReload();
-
-	virtual void OnPressedSwapToLayout1st();
-	virtual void OnReleasedSwapToLayout1st();
-
-	virtual void OnPressedSwapToLayout2nd();
-	virtual void OnReleasedSwapToLayout2nd();
-
-	virtual void OnPressedSwapToLayout3rd();
-	virtual void OnReleasedSwapToLayout3rd();
-
-	virtual void OnPressedSwapToLayout4th();
-	virtual void OnReleasedSwapToLayout4th();
-
-	virtual void OnPressedSwapToLayout5th();
-	virtual void OnReleasedSwapToLayout5th();
-
-	virtual void OnPressedSwapToPreviousSlot();
-	virtual void OnReleasedSwapToPreviousSlot();
-
-	virtual void OnPressedSwapToLayoutForward();
-	virtual void OnReleasedSwapToLayoutForward();
-
-	virtual void OnPressedSwapToLayoutBackward();
-	virtual void OnReleasedSwapToLayoutBackward();
-
-	virtual void OnPressedDropItem();
-	virtual void OnReleasedDropItem();
-
-	virtual void OnPressedPause();
-	virtual void OnReleasedPause();
-
-	virtual void OnPressedScoreSheet();
-	virtual void OnReleasedScoreSheet();
-
-	virtual void OnMove(const FInputActionValue& InputActionValue);
-	virtual void OnLook(const FInputActionValue& InputActionValue);
 	//  END Input bindings
 
 

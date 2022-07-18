@@ -1,10 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character\Characters\Examples\STCharacter_PushModelDemo.h"
+#include "Character/Characters/Examples/STCharacter_PushModelDemo.h"
 
 #include "Net/UnrealNetwork.h"
 #include "Net/Core/PushModel/PushModel.h"
+
+#include "EnhancedInputComponent.h"
+#include "InputAction.h"
+#include "InputTriggers.h"
+#include "ISDeveloperSettings_InputSetup.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -34,6 +39,31 @@ void ASTCharacter_PushModelDemo::Tick(float DeltaSeconds)
 
 
 	UKismetSystemLibrary::PrintString(this, "MyPushModelFloat: " + FString::SanitizeFloat(MyPushModelFloat), true, false);
+}
+
+void ASTCharacter_PushModelDemo::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	UEnhancedInputComponent* PlayerEnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	if (IsValid(PlayerEnhancedInputComponent))
+	{
+		const UISDeveloperSettings_InputSetup* InputSetupDeveloperSettings = GetDefault<UISDeveloperSettings_InputSetup>();
+		if (IsValid(InputSetupDeveloperSettings))
+		{
+			const UInputAction* InputActionPrimaryFire = InputSetupDeveloperSettings->GetInputAction(STNativeGameplayTags::InputAction_PrimaryFire);
+			if (IsValid(InputActionPrimaryFire))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionPrimaryFire, ETriggerEvent::Started, this, &ThisClass::OnPressedPrimaryFire);
+			}
+
+			const UInputAction* InputActionSecondaryFire = InputSetupDeveloperSettings->GetInputAction(STNativeGameplayTags::InputAction_SecondaryFire);
+			if (IsValid(InputActionSecondaryFire))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionSecondaryFire, ETriggerEvent::Started, this, &ThisClass::OnPressedSecondaryFire);
+			}
+		}
+	}
 }
 
 void ASTCharacter_PushModelDemo::OnPressedPrimaryFire()

@@ -13,9 +13,11 @@
 #include "ArcItemStack.h"
 #include "AttributeSets/ASSEAttributeSet_Health.h"
 #include "AbilitySystem/AttributeSets/STAttributeSet_Stamina.h"
-#include "Subobjects/ASSActorComponent_AbilitySystemSetup.h"
-#include "Utilities/AIENativeGameplayTags.h"
-#include "ArcInventory.h" // for Roy's Native Gameplay Tags
+
+#include "EnhancedInputComponent.h"
+#include "InputAction.h"
+#include "InputTriggers.h"
+#include "ISDeveloperSettings_InputSetup.h"
 
 
 
@@ -212,72 +214,26 @@ void ASTCharacter_Shooter::Tick(float DeltaSeconds)
 	//}
 }
 
+void ASTCharacter_Shooter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	UEnhancedInputComponent* PlayerEnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	if (IsValid(PlayerEnhancedInputComponent))
+	{
+		const UISDeveloperSettings_InputSetup* InputSetupDeveloperSettings = GetDefault<UISDeveloperSettings_InputSetup>();
+		if (IsValid(InputSetupDeveloperSettings))
+		{
+			const UInputAction* InputActionInteract = InputSetupDeveloperSettings->GetInputAction(STNativeGameplayTags::InputAction_Interact);
+			if (IsValid(InputActionInteract))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionInteract, ETriggerEvent::Started, this, &ThisClass::OnPressedInteract);
+			}
+		}
+	}
+}
 
 void ASTCharacter_Shooter::OnPressedInteract()
 {
 	Interactor->TryInteract();
-}
-
-void ASTCharacter_Shooter::OnPressedPrimaryFire()
-{
-	if (GetAbilitySystemComponent())
-	{
-		GetAbilitySystemComponent()->TryActivateAbilitiesByTag(STNativeGameplayTags::Ability_Fire.GetTag().GetSingleTagContainer());
-	}
-}
-
-void ASTCharacter_Shooter::OnPressedReload()
-{
-	if (GetAbilitySystemComponent())
-	{
-		GetAbilitySystemComponent()->TryActivateAbilitiesByTag(STNativeGameplayTags::Ability_Reload.GetTag().GetSingleTagContainer());
-	}
-}
-
-void ASTCharacter_Shooter::OnPressedSwapToPreviousSlot()
-{
-	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(AIENativeGameplayTags::Ability_Inventory_SwapItem_ItemHistory_Previous.GetTag().GetSingleTagContainer());
-}
-void ASTCharacter_Shooter::OnPressedSwapToLayout1st()
-{
-	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(AIENativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_1st.GetTag().GetSingleTagContainer());
-}
-void ASTCharacter_Shooter::OnPressedSwapToLayout2nd()
-{
-	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(AIENativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_2nd.GetTag().GetSingleTagContainer());
-}
-void ASTCharacter_Shooter::OnPressedSwapToLayout3rd()
-{
-	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(AIENativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_3rd.GetTag().GetSingleTagContainer());
-}
-void ASTCharacter_Shooter::OnPressedSwapToLayout4th()
-{
-	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(AIENativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_4th.GetTag().GetSingleTagContainer());
-}
-void ASTCharacter_Shooter::OnPressedSwapToLayout5th()
-{
-	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(AIENativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_5th.GetTag().GetSingleTagContainer());
-}
-void ASTCharacter_Shooter::OnPressedSwapToLayoutForward()
-{
-	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(AIENativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_Forward.GetTag().GetSingleTagContainer());
-}
-void ASTCharacter_Shooter::OnPressedSwapToLayoutBackward()
-{
-	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(AIENativeGameplayTags::Ability_Inventory_SwapItem_LayoutIndex_Backward.GetTag().GetSingleTagContainer());
-}
-
-void ASTCharacter_Shooter::OnPressedPause()
-{
-	Super::OnPressedPause();
-}
-
-void ASTCharacter_Shooter::OnPressedScoreSheet()
-{
-	Super::OnPressedScoreSheet();
-}
-
-void ASTCharacter_Shooter::OnPressedDropItem()
-{
-	GetAbilitySystemComponent()->TryActivateAbilitiesByTag(FArcInvDropItemAbilityTag.GetTag().GetSingleTagContainer(), true);
 }

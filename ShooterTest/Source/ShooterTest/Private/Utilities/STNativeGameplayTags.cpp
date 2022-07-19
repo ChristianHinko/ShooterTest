@@ -7,6 +7,28 @@
 
 namespace STNativeGameplayTags
 {
+	// Input Actions
+	UE_DEFINE_GAMEPLAY_TAG(InputAction_Run,											TEXT("InputAction.Run"))
+	UE_DEFINE_GAMEPLAY_TAG(InputAction_Jump,										TEXT("InputAction.Jump"))
+	UE_DEFINE_GAMEPLAY_TAG(InputAction_Crouch,										TEXT("InputAction.Crouch"))
+	UE_DEFINE_GAMEPLAY_TAG(InputAction_Interact,									TEXT("InputAction.Interact"))
+	UE_DEFINE_GAMEPLAY_TAG(InputAction_PrimaryFire,									TEXT("InputAction.PrimaryFire"))
+	UE_DEFINE_GAMEPLAY_TAG(InputAction_SecondaryFire,								TEXT("InputAction.SecondaryFire"))
+	UE_DEFINE_GAMEPLAY_TAG(InputAction_Reload,										TEXT("InputAction.Reload"))
+	UE_DEFINE_GAMEPLAY_TAG(InputAction_SwapToLayout1st,								TEXT("InputAction.SwapToLayout1st"))
+	UE_DEFINE_GAMEPLAY_TAG(InputAction_SwapToLayout2nd,								TEXT("InputAction.SwapToLayout2nd"))
+	UE_DEFINE_GAMEPLAY_TAG(InputAction_SwapToLayout3rd,								TEXT("InputAction.SwapToLayout3rd"))
+	UE_DEFINE_GAMEPLAY_TAG(InputAction_SwapToLayout4th,								TEXT("InputAction.SwapToLayout4th"))
+	UE_DEFINE_GAMEPLAY_TAG(InputAction_SwapToLayout5th,								TEXT("InputAction.SwapToLayout5th"))
+	UE_DEFINE_GAMEPLAY_TAG(InputAction_SwapToPreviousSlot,							TEXT("InputAction.SwapToPreviousSlot"))
+	UE_DEFINE_GAMEPLAY_TAG(InputAction_SwapToLayoutForward,							TEXT("InputAction.SwapToLayoutForward"))
+	UE_DEFINE_GAMEPLAY_TAG(InputAction_SwapToLayoutBackward,						TEXT("InputAction.SwapToLayoutBackward"))
+	UE_DEFINE_GAMEPLAY_TAG(InputAction_DropItem,									TEXT("InputAction.DropItem"))
+	UE_DEFINE_GAMEPLAY_TAG(InputAction_Pause,										TEXT("InputAction.Pause"))
+	UE_DEFINE_GAMEPLAY_TAG(InputAction_ScoreSheet,									TEXT("InputAction.ScoreSheet"))
+	UE_DEFINE_GAMEPLAY_TAG(InputAction_Move,										TEXT("InputAction.Move"))
+	UE_DEFINE_GAMEPLAY_TAG(InputAction_Look,										TEXT("InputAction.Look"))
+
 	// Ability Tags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Fire,											TEXT("Ability.Fire"))
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Reload,											TEXT("Ability.Reload"))

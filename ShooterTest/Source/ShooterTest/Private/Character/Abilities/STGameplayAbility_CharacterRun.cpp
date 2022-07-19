@@ -5,6 +5,7 @@
 
 #include "Character/STCharacter.h"
 #include "Character/STCharacterMovementComponent.h"
+#include "Utilities/ASSNativeGameplayTags.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -13,8 +14,9 @@
 USTGameplayAbility_CharacterRun::USTGameplayAbility_CharacterRun(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	AbilityInputID = static_cast<uint8>(ESTAbilityInputID::Run);
 	AbilityTags.AddTag(STNativeGameplayTags::Ability_Movement_Run);
+	AbilityTags.AddTag(ASSNativeGameplayTags::Ability_Type_DisableAutoActivationFromInput);
+	AbilityTags.AddTag(STNativeGameplayTags::InputAction_Run);
 
 
 	ActivationBlockedTags.AddTag(STNativeGameplayTags::Character_RunDisabled);	// This isn't the singular thing stopping you from running. The CMC is what listens for the presence of the RunDisabledTag and blocks running. This check just saves an ability activation.

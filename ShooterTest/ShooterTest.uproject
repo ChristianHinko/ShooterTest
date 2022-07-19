@@ -49,6 +49,14 @@
 				"Mac",
 				"Linux"
 			]
+		},
+		{
+			"Name": "EnhancedInput",
+			"Enabled": true
+		},
+		{
+			"Name": "InputSetup",
+			"Enabled": true
 		}
 	]
 }

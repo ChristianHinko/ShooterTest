@@ -27,13 +27,19 @@ public:
 	void SetMyPushModelFloat(const float NewPushModelFloat);
 
 protected:
+	//  BEGIN AActor Interface
 	virtual void Tick(float DeltaSeconds) override;
+	//  END AActor Interface
 
-	virtual void OnPressedPrimaryFire() override;
+	//  BEGIN APawn Interface
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+	//  END APawn Interface
+
+	virtual void OnPressedPrimaryFire();
 	UFUNCTION(Server, WithValidation, Reliable)
 		void ServerOnPressedPrimaryFire();
 
-	virtual void OnPressedSecondaryFire() override;
+	virtual void OnPressedSecondaryFire();
 	UFUNCTION(Server, WithValidation, Reliable)
 		void ServerOnPressedSecondaryFire();
 

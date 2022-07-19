@@ -13,6 +13,10 @@ class UCameraComponent;
 class USpringArmComponent;
 class UGSActorComponent_PawnExtension;
 class USTCharacterMovementComponent;
+class UPlayerMappableInputConfig;
+class UInputAction;
+class UISActorComponent_PawnExtension;
+struct FInputActionValue;
 
 
 
@@ -88,6 +92,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "GameSetup")
 		TObjectPtr<UGSActorComponent_PawnExtension> GSPawnExtensionComponent;
 
+	UPROPERTY(VisibleAnywhere, Category = "InputSetup")
+		TObjectPtr<UISActorComponent_PawnExtension> ISPawnExtensionComponent;
+
 public:
 	ASTCharacter(const FObjectInitializer& ObjectInitializer);
 
@@ -134,9 +141,6 @@ public:
 	void SetRemoteViewYaw(float NewRemoteViewYaw);
 	virtual FRotator GetBaseAimRotation() const override;
 
-	float GetForwardInputAxis() const { return ForwardInputAxis; }
-	float GetRightInputAxis() const { return RightInputAxis; }
-
 	virtual void Jump() override;
 	virtual void StopJumping() override;
 
@@ -160,6 +164,7 @@ protected:
 	virtual void PostInitializeComponents() override;
 	virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
 
+	virtual void PawnClientRestart() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 
@@ -182,7 +187,10 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 
-	//  BEGIN Input actions
+	//  BEGIN Input binding
+	virtual void OnMove(const FInputActionValue& InputActionValue);
+	virtual void OnLook(const FInputActionValue& InputActionValue);
+
 	virtual void OnPressedRun();
 	virtual void OnReleasedRun();
 
@@ -191,69 +199,7 @@ protected:
 
 	virtual void OnPressedCrouch();
 	virtual void OnReleasedCrouch();
-
-	virtual void OnPressedInteract();
-	virtual void OnReleasedInteract();
-
-	virtual void OnPressedPrimaryFire();
-	virtual void OnReleasedPrimaryFire();
-
-	virtual void OnPressedSecondaryFire();
-	virtual void OnReleasedSecondaryFire();
-
-	virtual void OnPressedReload();
-	virtual void OnReleasedReload();
-
-	virtual void OnPressedSwapToLayout1st();
-	virtual void OnReleasedSwapToLayout1st();
-
-	virtual void OnPressedSwapToLayout2nd();
-	virtual void OnReleasedSwapToLayout2nd();
-
-	virtual void OnPressedSwapToLayout3rd();
-	virtual void OnReleasedSwapToLayout3rd();
-
-	virtual void OnPressedSwapToLayout4th();
-	virtual void OnReleasedSwapToLayout4th();
-
-	virtual void OnPressedSwapToLayout5th();
-	virtual void OnReleasedSwapToLayout5th();
-
-	virtual void OnPressedSwapToPreviousSlot();
-	virtual void OnReleasedSwapToPreviousSlot();
-
-	virtual void OnPressedSwapToLayoutForward();
-	virtual void OnReleasedSwapToLayoutForward();
-
-	virtual void OnPressedSwapToLayoutBackward();
-	virtual void OnReleasedSwapToLayoutBackward();
-
-	virtual void OnPressedDropItem();
-	virtual void OnReleasedDropItem();
-
-	virtual void OnPressedPause();
-	virtual void OnReleasedPause();
-
-	virtual void OnPressedScoreSheet();
-	virtual void OnReleasedScoreSheet();
-	//  END Input actions
-
-	//  BEGIN Input axis
-	virtual void MoveForward(float Value);
-	virtual void MoveRight(float Value);
-
-	virtual void HorizontalLook(float Rate);
-	virtual void VerticalLook(float Rate);
-	//  END Input axis
-
-
-	float ForwardInputAxis;
-	float RightInputAxis;
-
-	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
-	float HorizontalSensitivity;
-	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
-	float VerticalSensitivity;
+	//  END Input bindings
 
 
 private:

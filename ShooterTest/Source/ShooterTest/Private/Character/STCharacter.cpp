@@ -15,6 +15,12 @@
 #include "Character/AttributeSets/STAttributeSet_CharacterMovement.h"
 #include "Subobjects/ASSActorComponent_AbilitySystemSetup.h"
 
+#include "ActorComponents/ISActorComponent_PawnExtension.h"
+#include "EnhancedInputComponent.h"
+#include "InputAction.h"
+#include "InputTriggers.h"
+#include "ISDeveloperSettings_InputSetup.h"
+
 #include "Kismet/KismetSystemLibrary.h"
 
 
@@ -38,15 +44,12 @@ ASTCharacter::ASTCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<USTCharacterMovementComponent>(CharacterMovementComponentName))
 {
 	GSPawnExtensionComponent = CreateDefaultSubobject<UGSActorComponent_PawnExtension>(TEXT("GSPawnExtensionComponent"));
+	ISPawnExtensionComponent = CreateDefaultSubobject<UISActorComponent_PawnExtension>(TEXT("ISPawnExtensionComponent"));
 
 	STCharacterMovementComponent = Cast<USTCharacterMovementComponent>(GetMovementComponent());
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.f);
-
-	// Set our turn rates for input
-	HorizontalSensitivity = 1.f;
-	VerticalSensitivity = 1.f;
 
 	// Configure character movement
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 600.f, 0.f);
@@ -597,76 +600,96 @@ void ASTCharacter::CrouchTick(float DeltaTime)
 //}
 
 //  BEGIN Input setup
+void ASTCharacter::PawnClientRestart()
+{
+	Super::PawnClientRestart();
+
+	// Clear and add input configs
+	ISPawnExtensionComponent->PawnClientRestart();
+}
+
 void ASTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// Action
-	PlayerInputComponent->BindAction(FName(TEXT("Run")), IE_Pressed, this, &ThisClass::OnPressedRun);
-	PlayerInputComponent->BindAction(FName(TEXT("Run")), IE_Released, this, &ThisClass::OnReleasedRun);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Jump")), IE_Pressed, this, &ThisClass::OnPressedJump);
-	PlayerInputComponent->BindAction(FName(TEXT("Jump")), IE_Released, this, &ThisClass::OnReleasedJump);
+	ISPawnExtensionComponent->SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAction(FName(TEXT("Crouch")), IE_Pressed, this, &ThisClass::OnPressedCrouch);
-	PlayerInputComponent->BindAction(FName(TEXT("Crouch")), IE_Released, this, &ThisClass::OnReleasedCrouch);
+	UEnhancedInputComponent* PlayerEnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	if (IsValid(PlayerEnhancedInputComponent))
+	{
+		const UISDeveloperSettings_InputSetup* InputSetupDeveloperSettings = GetDefault<UISDeveloperSettings_InputSetup>();
+		if (IsValid(InputSetupDeveloperSettings))
+		{
+			const UInputAction* InputActionMove = InputSetupDeveloperSettings->GetInputAction(STNativeGameplayTags::InputAction_Move);
+			if (IsValid(InputActionMove))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionMove, ETriggerEvent::Triggered, this, &ThisClass::OnMove);
+			}
 
-	PlayerInputComponent->BindAction(FName(TEXT("Interact")), IE_Pressed, this, &ThisClass::OnPressedInteract);
-	PlayerInputComponent->BindAction(FName(TEXT("Interact")), IE_Released, this, &ThisClass::OnReleasedInteract);
+			const UInputAction* InputActionLook = InputSetupDeveloperSettings->GetInputAction(STNativeGameplayTags::InputAction_Look);
+			if (IsValid(InputActionLook))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionLook, ETriggerEvent::Triggered, this, &ThisClass::OnLook);
+			}
 
-	PlayerInputComponent->BindAction(FName(TEXT("PrimaryFire")), IE_Pressed, this, &ThisClass::OnPressedPrimaryFire);
-	PlayerInputComponent->BindAction(FName(TEXT("PrimaryFire")), IE_Released, this, &ThisClass::OnReleasedPrimaryFire);
+			const UInputAction* InputActionRun = InputSetupDeveloperSettings->GetInputAction(STNativeGameplayTags::InputAction_Run);
+			if (IsValid(InputActionRun))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionRun, ETriggerEvent::Started, this, &ThisClass::OnPressedRun);
+				PlayerEnhancedInputComponent->BindAction(InputActionRun, ETriggerEvent::Completed, this, &ThisClass::OnReleasedRun);
+			}
 
-	PlayerInputComponent->BindAction(FName(TEXT("SecondaryFire")), IE_Pressed, this, &ThisClass::OnPressedSecondaryFire);
-	PlayerInputComponent->BindAction(FName(TEXT("SecondaryFire")), IE_Released, this, &ThisClass::OnReleasedSecondaryFire);
+			const UInputAction* InputActionJump = InputSetupDeveloperSettings->GetInputAction(STNativeGameplayTags::InputAction_Jump);
+			if (IsValid(InputActionJump))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionJump, ETriggerEvent::Started, this, &ThisClass::OnPressedJump);
+				PlayerEnhancedInputComponent->BindAction(InputActionJump, ETriggerEvent::Completed, this, &ThisClass::OnReleasedJump);
+			}
 
-	PlayerInputComponent->BindAction(FName(TEXT("Reload")), IE_Pressed, this, &ThisClass::OnPressedReload);
-	PlayerInputComponent->BindAction(FName(TEXT("Reload")), IE_Released, this, &ThisClass::OnReleasedReload);
-
-	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayout1st")), IE_Pressed, this, &ThisClass::OnPressedSwapToLayout1st);
-	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayout1st")), IE_Released, this, &ThisClass::OnReleasedSwapToLayout1st);
-
-	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayout2nd")), IE_Pressed, this, &ThisClass::OnPressedSwapToLayout2nd);
-	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayout2nd")), IE_Released, this, &ThisClass::OnReleasedSwapToLayout2nd);
-
-	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayout3rd")), IE_Pressed, this, &ThisClass::OnPressedSwapToLayout3rd);
-	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayout3rd")), IE_Released, this, &ThisClass::OnReleasedSwapToLayout3rd);
-
-	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayout4th")), IE_Pressed, this, &ThisClass::OnPressedSwapToLayout4th);
-	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayout4th")), IE_Released, this, &ThisClass::OnReleasedSwapToLayout4th);
-
-	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayout5th")), IE_Pressed, this, &ThisClass::OnPressedSwapToLayout5th);
-	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayout5th")), IE_Released, this, &ThisClass::OnReleasedSwapToLayout5th);
-
-	PlayerInputComponent->BindAction(FName(TEXT("SwapToPreviousSlot")), IE_Pressed, this, &ThisClass::OnPressedSwapToPreviousSlot);
-	PlayerInputComponent->BindAction(FName(TEXT("SwapToPreviousSlot")), IE_Released, this, &ThisClass::OnReleasedSwapToPreviousSlot);
-
-	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayoutForward")), IE_Pressed, this, &ThisClass::OnPressedSwapToLayoutForward);
-	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayoutForward")), IE_Released, this, &ThisClass::OnReleasedSwapToLayoutForward);
-
-	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayoutBackward")), IE_Pressed, this, &ThisClass::OnPressedSwapToLayoutBackward);
-	PlayerInputComponent->BindAction(FName(TEXT("SwapToLayoutBackward")), IE_Released, this, &ThisClass::OnReleasedSwapToLayoutBackward);
-
-	PlayerInputComponent->BindAction(FName(TEXT("DropItem")), IE_Pressed, this, &ThisClass::OnPressedDropItem);
-	PlayerInputComponent->BindAction(FName(TEXT("DropItem")), IE_Released, this, &ThisClass::OnReleasedDropItem);
-
-	PlayerInputComponent->BindAction(FName(TEXT("Pause")), IE_Pressed, this, &ThisClass::OnPressedPause);
-	PlayerInputComponent->BindAction(FName(TEXT("Pause")), IE_Released, this, &ThisClass::OnReleasedPause);
-
-	PlayerInputComponent->BindAction(FName(TEXT("ScoreSheet")), IE_Pressed, this, &ThisClass::OnPressedScoreSheet);
-	PlayerInputComponent->BindAction(FName(TEXT("ScoreSheet")), IE_Released, this, &ThisClass::OnReleasedScoreSheet);
-
-
-	// Axis
-	PlayerInputComponent->BindAxis(FName(TEXT("MoveForward")), this, &ThisClass::MoveForward);
-	PlayerInputComponent->BindAxis(FName(TEXT("MoveRight")), this, &ThisClass::MoveRight);
-
-	PlayerInputComponent->BindAxis(FName(TEXT("TurnRightRate")), this, &ThisClass::HorizontalLook);
-	PlayerInputComponent->BindAxis(FName(TEXT("LookUpRate")), this, &ThisClass::VerticalLook);
+			const UInputAction* InputActionCrouch = InputSetupDeveloperSettings->GetInputAction(STNativeGameplayTags::InputAction_Crouch);
+			if (IsValid(InputActionCrouch))
+			{
+				PlayerEnhancedInputComponent->BindAction(InputActionCrouch, ETriggerEvent::Started, this, &ThisClass::OnPressedCrouch);
+				PlayerEnhancedInputComponent->BindAction(InputActionCrouch, ETriggerEvent::Completed, this, &ThisClass::OnReleasedCrouch);
+			}
+		}
+	}
 }
 
 
-// Actions
+void ASTCharacter::OnMove(const FInputActionValue& InputActionValue)
+{
+	if (IsValid(Controller) && InputActionValue.GetMagnitudeSq() > 0.f)
+	{
+		const FVector2D Value = InputActionValue.Get<FVector2D>();
+
+
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+
+		// get forward vector
+		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		AddMovementInput(ForwardDirection, Value.Y);
+
+		// get right vector 
+		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		AddMovementInput(RightDirection, Value.X);
+	}
+}
+
+void ASTCharacter::OnLook(const FInputActionValue& InputActionValue)
+{
+	if (InputActionValue.GetMagnitudeSq() > 0.f)
+	{
+		const FVector2D Value = InputActionValue.Get<FVector2D>();
+
+		AddControllerYawInput(Value.X * 0.5f);
+		AddControllerPitchInput(Value.Y * 0.5f);
+	}
+}
+
 void ASTCharacter::OnPressedRun()
 {
 	if (STCharacterMovementComponent->GetToggleRunEnabled())
@@ -728,174 +751,6 @@ void ASTCharacter::OnReleasedCrouch()
 	if (STCharacterMovementComponent->GetToggleCrouchEnabled() == false)
 	{
 		UnCrouch();
-	}
-}
-
-void ASTCharacter::OnPressedInteract()
-{
-
-}
-void ASTCharacter::OnReleasedInteract()
-{
-}
-
-void ASTCharacter::OnPressedPrimaryFire()
-{
-
-}
-void ASTCharacter::OnReleasedPrimaryFire()
-{
-}
-
-void ASTCharacter::OnPressedSecondaryFire()
-{
-
-}
-void ASTCharacter::OnReleasedSecondaryFire()
-{
-}
-
-void ASTCharacter::OnPressedReload()
-{
-
-}
-void ASTCharacter::OnReleasedReload()
-{
-}
-
-void ASTCharacter::OnPressedSwapToLayout1st()
-{
-
-}
-void ASTCharacter::OnReleasedSwapToLayout1st()
-{
-}
-
-void ASTCharacter::OnPressedSwapToLayout2nd()
-{
-
-}
-void ASTCharacter::OnReleasedSwapToLayout2nd()
-{
-}
-
-void ASTCharacter::OnPressedSwapToLayout3rd()
-{
-
-}
-void ASTCharacter::OnReleasedSwapToLayout3rd()
-{
-}
-
-void ASTCharacter::OnPressedSwapToLayout4th()
-{
-
-}
-void ASTCharacter::OnReleasedSwapToLayout4th()
-{
-}
-
-void ASTCharacter::OnPressedSwapToLayout5th()
-{
-
-}
-void ASTCharacter::OnReleasedSwapToLayout5th()
-{
-}
-
-void ASTCharacter::OnPressedSwapToPreviousSlot()
-{
-
-}
-void ASTCharacter::OnReleasedSwapToPreviousSlot()
-{
-}
-
-void ASTCharacter::OnPressedSwapToLayoutForward()
-{
-
-}
-void ASTCharacter::OnReleasedSwapToLayoutForward()
-{
-}
-
-void ASTCharacter::OnPressedSwapToLayoutBackward()
-{
-
-}
-void ASTCharacter::OnReleasedSwapToLayoutBackward()
-{
-}
-
-void ASTCharacter::OnPressedDropItem()
-{
-
-}
-void ASTCharacter::OnReleasedDropItem()
-{
-}
-
-void ASTCharacter::OnPressedPause()
-{
-
-}
-void ASTCharacter::OnReleasedPause()
-{
-}
-
-void ASTCharacter::OnPressedScoreSheet()
-{
-
-}
-void ASTCharacter::OnReleasedScoreSheet()
-{
-}
-
-
-
-// Axis
-void ASTCharacter::MoveForward(float Value)
-{
-	ForwardInputAxis = Value;
-	if ((Controller != NULL) && (Value != 0.0f))
-	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get forward vector
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
-	}
-}
-void ASTCharacter::MoveRight(float Value)
-{
-	RightInputAxis = Value;
-	if ((Controller != NULL) && (Value != 0.0f))
-	{
-		// find out which way is right
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get right vector 
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		// add movement in that direction
-		AddMovementInput(Direction, Value);
-	}
-}
-
-void ASTCharacter::HorizontalLook(float Rate)
-{
-	if (Rate != 0)
-	{
-		AddControllerYawInput(Rate * HorizontalSensitivity * 0.5f);
-	}
-}
-void ASTCharacter::VerticalLook(float Rate)
-{
-	if (Rate != 0)
-	{
-		AddControllerPitchInput(Rate * VerticalSensitivity * 0.5f);
 	}
 }
 //  END Input setup

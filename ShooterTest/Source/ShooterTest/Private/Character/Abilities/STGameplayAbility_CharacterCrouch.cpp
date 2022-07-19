@@ -6,6 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemComponent.h"
+#include "Utilities/ASSNativeGameplayTags.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -14,9 +15,9 @@
 USTGameplayAbility_CharacterCrouch::USTGameplayAbility_CharacterCrouch(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	AbilityInputID = static_cast<uint8>(ESTAbilityInputID::Crouch);
 	AbilityTags.AddTag(STNativeGameplayTags::Ability_Movement_Crouch);
-
+	AbilityTags.AddTag(ASSNativeGameplayTags::Ability_Type_DisableAutoActivationFromInput);
+	AbilityTags.AddTag(STNativeGameplayTags::InputAction_Crouch);
 
 	CancelAbilitiesWithTag.AddTag(STNativeGameplayTags::Ability_Movement_Run);
 }

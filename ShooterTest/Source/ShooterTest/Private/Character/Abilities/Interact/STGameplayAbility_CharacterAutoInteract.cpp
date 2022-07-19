@@ -33,7 +33,6 @@
 USTGameplayAbility_CharacterAutoInteract::USTGameplayAbility_CharacterAutoInteract(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	AbilityInputID = static_cast<uint8>(EASSAbilityInputID::NoInput); // don't use the interact input ID since there is no input needed to activate this ability
 	AbilityTags.AddTag(STNativeGameplayTags::Ability_Interact_AutoInteract);
 	// Probably make this an InstancedPerActor passive ability to handle all automatic interactions. Since it will be passive the ability will never end than thus we don't need to do Durration End callbacks inside EndAbility(). We can just do them where ever
 }

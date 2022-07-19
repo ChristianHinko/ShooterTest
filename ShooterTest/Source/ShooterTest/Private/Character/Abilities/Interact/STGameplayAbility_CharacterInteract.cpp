@@ -8,11 +8,13 @@
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "Character/AbilityTasks/STAbilityTask_DurationInteractCallbacks.h"
 #include "Subobjects/ActorComponents/STActorComponent_Interactor.h"
+#include "Utilities/ASSNativeGameplayTags.h"
 
 USTGameplayAbility_CharacterInteract::USTGameplayAbility_CharacterInteract(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	AbilityInputID = static_cast<uint8>(ESTAbilityInputID::Interact);
+	AbilityTags.AddTag(ASSNativeGameplayTags::Ability_Type_DisableAutoActivationFromInput);
+	AbilityTags.AddTag(STNativeGameplayTags::InputAction_Interact);
 }
 
 void USTGameplayAbility_CharacterInteract::ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)

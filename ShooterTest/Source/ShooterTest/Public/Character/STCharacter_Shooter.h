@@ -13,6 +13,7 @@ class ISTInteractableInterface;
 class USTActorComponent_Interactor;
 class UArcInventoryComponent;
 class USTInventoryComponent_Shooter;
+class UInputComponent;
 
 
 
@@ -46,6 +47,10 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 	//  END AActor Interface
 
+	//  BEGIN APawn Interface
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+	//  END APawn Interface
+
 
 	UPROPERTY(EditAnywhere, Category = "Config|WeaponSway")
 		FVector CameraSwayAmount;
@@ -54,25 +59,7 @@ protected:
 
 
 	//  BEGIN Input actions
-	virtual void OnPressedInteract() override;
-
-	virtual void OnPressedPrimaryFire() override;
-
-	virtual void OnPressedReload() override;
-
-	virtual void OnPressedSwapToPreviousSlot() override;
-	virtual void OnPressedSwapToLayout1st() override;
-	virtual void OnPressedSwapToLayout2nd() override;
-	virtual void OnPressedSwapToLayout3rd() override;
-	virtual void OnPressedSwapToLayout4th() override;
-	virtual void OnPressedSwapToLayout5th() override;
-	virtual void OnPressedSwapToLayoutForward() override;
-	virtual void OnPressedSwapToLayoutBackward() override;
-
-	virtual void OnPressedPause() override;
-	virtual void OnPressedScoreSheet() override;
-
-	virtual void OnPressedDropItem() override;
+	virtual void OnPressedInteract();
 	//  END Input actions
 
 private:

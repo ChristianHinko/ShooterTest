@@ -17,7 +17,7 @@
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
 #include "InputTriggers.h"
-#include "ISDeveloperSettings_InputSetup.h"
+#include "ISEngineSubsystem_InputActions.h"
 
 
 
@@ -221,10 +221,10 @@ void ASTCharacter_Shooter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	UEnhancedInputComponent* PlayerEnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (IsValid(PlayerEnhancedInputComponent))
 	{
-		const UISDeveloperSettings_InputSetup* InputSetupDeveloperSettings = GetDefault<UISDeveloperSettings_InputSetup>();
-		if (IsValid(InputSetupDeveloperSettings))
+		const UISEngineSubsystem_InputActions* InputActionsSubsystem = GEngine->GetEngineSubsystem<UISEngineSubsystem_InputActions>();
+		if (IsValid(InputActionsSubsystem))
 		{
-			const UInputAction* InputActionInteract = InputSetupDeveloperSettings->GetInputAction(STNativeGameplayTags::InputAction_Interact);
+			const UInputAction* InputActionInteract = InputActionsSubsystem->GetInputAction(STNativeGameplayTags::InputAction_Interact);
 			if (IsValid(InputActionInteract))
 			{
 				PlayerEnhancedInputComponent->BindAction(InputActionInteract, ETriggerEvent::Started, this, &ThisClass::OnPressedInteract);

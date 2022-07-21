@@ -21,6 +21,7 @@ public:
 	USTAnimInstance(const FObjectInitializer& ObjectInitializer);
 
 protected:
+#if WITH_EDITORONLY_DATA // ANIMINST_PostCompileValidation
 	virtual bool PCV_ShouldWarnAboutNodesNotUsingFastPath() const override
 	{
 		return true;
@@ -29,5 +30,6 @@ protected:
 	{
 		return true;
 	}
+#endif // WITH_EDITORONLY_DATA
 
 };

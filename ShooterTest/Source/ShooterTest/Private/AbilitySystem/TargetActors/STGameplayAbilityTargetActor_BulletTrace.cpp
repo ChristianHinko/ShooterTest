@@ -183,13 +183,14 @@ void ASTGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 
 						if (bDebug)
 						{
-							// Since we know this hit actor has an ASC, we will display dmg text over its head
+							// Since we know this hit actor has an ASC, we will display dmg text over the top of it
 #if ENABLE_DRAW_DEBUG
 							const float ZOffset = 10.f;
 
 							const FBox ActorBoundingBox = Hit.GetActor()->CalculateComponentsBoundingBoxInLocalSpace(false, true);
 							FVector ActorCenter;
 							FVector ActorExtents;
+
 							ActorBoundingBox.GetCenterAndExtents(ActorCenter, ActorExtents);
 							ActorCenter = ActorCenter + Hit.GetActor()->GetActorLocation(); // since it is relative, add the world position so we get the world location
 

@@ -13,7 +13,6 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Subobjects/ActorComponents/GSActorComponent_PawnExtension.h"
 #include "Character/AttributeSets/STAttributeSet_CharacterMovement.h"
-#include "Subobjects/ASSActorComponent_AbilitySystemSetup.h"
 
 #include "ActorComponents/ISActorComponent_PawnExtension.h"
 #include "EnhancedInputComponent.h"

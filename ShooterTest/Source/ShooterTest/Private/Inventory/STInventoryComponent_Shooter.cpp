@@ -7,7 +7,7 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Inventory/Item/Gun/STItemStack_Gun.h"
 #include "Subobjects/STObject_BulletSpread.h"
-#include "Subobjects/ASSActorComponent_AbilitySystemSetup.h"
+#include "Subobjects/ASSActorComponent_AvatarActorExtension.h"
 #include "BlueprintFunctionLibraries/GCBlueprintFunctionLibrary_ActorHelpers.h"
 
 
@@ -23,10 +23,10 @@ void USTInventoryComponent_Shooter::InitializeComponent()
 	Super::InitializeComponent();
 
 
-	UASSActorComponent_AbilitySystemSetup* AbilitySystemSetupComponent = GetOwner()->FindComponentByClass<UASSActorComponent_AbilitySystemSetup>();
-	if (IsValid(AbilitySystemSetupComponent))
+	UASSActorComponent_AvatarActorExtension* AvatarActorExtensionComponent = GetOwner()->FindComponentByClass<UASSActorComponent_AvatarActorExtension>();
+	if (IsValid(AvatarActorExtensionComponent))
 	{
-		AbilitySystemSetupComponent->OnInitializeAbilitySystemComponentDelegate.AddUObject(this, &USTInventoryComponent_Shooter::OnInitializeAbilitySystemComponent);
+		AvatarActorExtensionComponent->OnInitializeAbilitySystemComponentDelegate.AddUObject(this, &USTInventoryComponent_Shooter::OnInitializeAbilitySystemComponent);
 	}
 }
 

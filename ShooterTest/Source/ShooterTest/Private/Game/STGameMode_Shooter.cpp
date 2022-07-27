@@ -8,7 +8,7 @@
 #include "Character/STCharacter_Shooter.h"
 #include "Generators/ArcItemGenerator.h"
 #include "Inventory/AIEInventoryComponent_Active.h"
-#include "Subobjects/ASSActorComponent_AbilitySystemSetup.h"
+#include "Subobjects/ASSActorComponent_AvatarActorExtension.h"
 #include "ArcItemBPFunctionLibrary.h"
 
 
@@ -30,22 +30,22 @@ void ASTGameMode_Shooter::SetPlayerDefaults(APawn* PlayerPawn)
 	UAIEInventoryComponent_Active* AIEInventoryComponentActive = Cast<UAIEInventoryComponent_Active>(UArcItemBPFunctionLibrary::GetInventoryComponent(PlayerPawn, true));
 	if (IsValid(AIEInventoryComponentActive))
 	{
-		UASSActorComponent_AbilitySystemSetup* AbilitySystemSetupComponent = PlayerPawn->FindComponentByClass<UASSActorComponent_AbilitySystemSetup>();
-		if (IsValid(AbilitySystemSetupComponent))
+		UASSActorComponent_AvatarActorExtension* AvatarActorExtensionComponent = PlayerPawn->FindComponentByClass<UASSActorComponent_AvatarActorExtension>();
+		if (IsValid(AvatarActorExtensionComponent))
 		{
-			if (AbilitySystemSetupComponent->IsInitializedWithASC())
+			if (AvatarActorExtensionComponent->IsInitializedWithASC())
 			{
 				// The Pawn is ready to recieve the startup items
 				AIEInventoryComponentActive->GiveInventoryStartupItems();
 			}
 			else
 			{
-				UE_LOG(LogSTShooterGameMode, Error, TEXT("%s() failed to call GiveInventoryStartupItems() because Pawn's ability system setup component hasn't yet been initialized"), ANSI_TO_TCHAR(__FUNCTION__));
+				UE_LOG(LogSTShooterGameMode, Error, TEXT("%s() failed to call GiveInventoryStartupItems() because the pawn's avatar actor extension component hasn't yet been initialized"), ANSI_TO_TCHAR(__FUNCTION__));
 			}
 		}
 		else
 		{
-			// Edge case: No setup component - just assume he is ready to recieve the startup items
+			// Edge case: No avatar actor extension component - just assume he is ready to recieve the startup items
 			AIEInventoryComponentActive->GiveInventoryStartupItems();
 		}
 	}

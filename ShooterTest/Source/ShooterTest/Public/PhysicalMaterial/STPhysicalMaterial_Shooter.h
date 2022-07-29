@@ -24,7 +24,7 @@ public:
 	/** Bullet can ricochet off of this physical material if there is enough speed. If not enough speed, it will stop */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shooter")
 		uint8 bRicochets : 1;
-	/** Slows down bullet speed by this much PER CENTIMETER in penetration */
+	/** Slows down bullet speed by subtracting this much PER CENTIMETER of penetration */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shooter", meta = (EditCondition = "bRichochetsBullets == false", EditConditionHides))
 		float PerCmPenetrationSpeedNerf;
 	/** Slows down bullet speed by subtracting this much on ricochet */

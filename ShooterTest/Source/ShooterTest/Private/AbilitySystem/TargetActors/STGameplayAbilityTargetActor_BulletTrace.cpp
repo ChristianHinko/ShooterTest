@@ -17,7 +17,7 @@
 #include "Character/STCharacter_Shooter.h"
 #include "D:\Program Files\UE_5.0\Engine\Source\Runtime\Engine\Classes\Kismet\GameplayStatics.h"
 
-const float ASTGameplayAbilityTargetActor_BulletTrace::DebugLifeTime = 10.f;
+const float ASTGameplayAbilityTargetActor_BulletTrace::DebugLifeTime = 20.f;
 
 ASTGameplayAbilityTargetActor_BulletTrace::ASTGameplayAbilityTargetActor_BulletTrace(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -127,6 +127,7 @@ void ASTGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 	}
 
 	FSTGameplayAbilityTargetData_BulletTraceTargetHit* s = nullptr;
+
 	// Create and add Target Data to our handle
 	for (int32 i = 0; i < BulletResults.Num(); ++i)
 	{
@@ -212,8 +213,9 @@ void ASTGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 		TargetDataHandle.Add(ThisBulletTargetData);
 	}
 
-	Cast<ASTCharacter_Shooter>(UGameplayStatics::GetPlayerCharacter(this, 0))->BulletTraceLocations = s->BulletTracePoints;
-	Cast<ASTCharacter_Shooter>(UGameplayStatics::GetPlayerCharacter(this, 0))->CurrentTime = 0;
+	ASTCharacter_Shooter* STCharacter_Shooter = Cast<ASTCharacter_Shooter>(UGameplayStatics::GetPlayerCharacter(this, 0));
+	STCharacter_Shooter->BulletTraceLocations = s->BulletTracePoints;
+	STCharacter_Shooter->CurrentTime = 0;
 
 	TargetDataReadyDelegate.Broadcast(TargetDataHandle);
 }

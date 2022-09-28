@@ -15,8 +15,6 @@ class UArcInventoryComponent;
 class USTInventoryComponent_Shooter;
 class UInputComponent;
 
-
-
 /**
  * Base Shooter Character
  */
@@ -36,10 +34,17 @@ private:
 public:
 	ASTCharacter_Shooter(const FObjectInitializer& ObjectInitializer);
 
+	FVector CurrentCameraLoc;
 	TArray<FVector_NetQuantize> BulletTraceLocations;
 	float CurrentTime;
-	float AnimationTime;
+	UPROPERTY(Category="BulletSpeedDemo", EditDefaultsOnly)
+		float CammeraMoveAlongSpeed;
+	UPROPERTY(Category = "BulletSpeedDemo", EditDefaultsOnly)
+		float TargetArmLengthDuringAnimation;
 	FVector CameraBoomStartingLoc;
+	int32 currentTraceStartIndex;
+	int32 currentTraceEndIndex;
+
 	// Subobject getters
 	UArcInventoryComponent* GetInventoryComponent() const override { return InventoryComponent; }
 	USTActorComponent_Interactor* GetInteractorComponent() const { return Interactor; }

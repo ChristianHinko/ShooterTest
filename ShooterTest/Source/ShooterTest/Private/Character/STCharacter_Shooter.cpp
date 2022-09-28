@@ -50,7 +50,8 @@ ASTCharacter_Shooter::ASTCharacter_Shooter(const FObjectInitializer& ObjectIniti
 
 	POVMesh->SetVisibility(false, false); // in the demo it looks bad to show the character since it blocks the screen a lot
 	CurrentTime = 0.f;
-	AnimationTime = ASTGameplayAbilityTargetActor_BulletTrace::DebugLifeTime;;
+	CammeraMoveAlongSpeed = 2;
+	TargetArmLengthDuringAnimation = 100;
 }
 
 void ASTCharacter_Shooter::BeginPlay()
@@ -85,6 +86,8 @@ void ASTCharacter_Shooter::BeginPlay()
 #include "UI\STHUD_Shooter.h"
 #include "Blueprint/UserWidget.h"
 
+#include "BlueprintFunctionLibraries\CollisionQuery\GCBlueprintFunctionLibrary_StrengthCollisionQueries.h"
+
 void ASTCharacter_Shooter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -96,42 +99,59 @@ void ASTCharacter_Shooter::Tick(float DeltaSeconds)
 			POVMesh->SetVisibility(true, true);
 			Cast<ASTHUD_Shooter>((Cast<APlayerController>(GetController())->GetHUD()))->HealthWidget->SetVisibility(ESlateVisibility::Hidden);
 			Cast<ASTHUD_Shooter>((Cast<APlayerController>(GetController())->GetHUD()))->CurrentActiveItemWidget->SetVisibility(ESlateVisibility::Hidden);
+			GetCameraBoom()->TargetArmLength = TargetArmLengthDuringAnimation;
 
-#if 0
-			// This here was part of an attempt to give a constant speed across traces. fullTravelLength should help with that (also would probably need a currentTraveledLength)
-			for (int32 i = 0; i < BulletTraceLocations.Num(); i++)
+			currentTraceStartIndex = 0;
+			currentTraceEndIndex = 1;
+			CurrentCameraLoc = BulletTraceLocations[currentTraceStartIndex];
+			GetCameraBoom()->SetWorldLocation(CurrentCameraLoc);
+
+			CurrentTime = CurrentTime + DeltaSeconds;
+			return;
+		}
+		const float ErrorTollerance = 1;
+
+		FVector CurrentTraceStart = BulletTraceLocations[currentTraceStartIndex];
+		FVector CurrentTraceEnd = BulletTraceLocations[currentTraceEndIndex];
+		if (UGCBlueprintFunctionLibrary_MathHelpers::PointLiesOnSegment(CurrentTraceStart, CurrentTraceEnd, CurrentCameraLoc, ErrorTollerance))
+		{
+			const FVector TraceDir = (CurrentTraceEnd - CurrentTraceStart).GetSafeNormal();
+
+			CurrentCameraLoc = CurrentCameraLoc + (TraceDir * CammeraMoveAlongSpeed);
+
+			GetCameraBoom()->SetWorldLocation(CurrentCameraLoc);
+		}
+		else
+		{
+			++currentTraceStartIndex;
+			++currentTraceEndIndex;
+
+			if (BulletTraceLocations.IsValidIndex(currentTraceEndIndex) == false)
 			{
-				if (i-1 == -1)
-				{
-					continue;
-				}
+				// We are past the last segment so reset stuff we changed
 
-				fullTravelLength += FVector::Distance(BulletTraceLocations[i - 1], BulletTraceLocations[i]);
+				Cast<ASTHUD_Shooter>((Cast<APlayerController>(GetController())->GetHUD()))->HealthWidget->SetVisibility(ESlateVisibility::Visible);
+				Cast<ASTHUD_Shooter>((Cast<APlayerController>(GetController())->GetHUD()))->CurrentActiveItemWidget->SetVisibility(ESlateVisibility::Visible);
+				GetCameraBoom()->SetRelativeLocation(CameraBoomStartingLoc);
+				GetCameraBoom()->TargetArmLength = 0;
+				BulletTraceLocations.Empty(); // stops playing the animation
+				CurrentTime = 0;
+				POVMesh->SetVisibility(false, false);
 			}
-#endif
+			else
+			{
+				CurrentTraceStart = BulletTraceLocations[currentTraceStartIndex];
+				CurrentTraceEnd = BulletTraceLocations[currentTraceStartIndex];
+				CurrentCameraLoc = CurrentTraceStart;
+
+				GetCameraBoom()->SetWorldLocation(CurrentCameraLoc);
+			}
 		}
 
-		float Progress = CurrentTime / AnimationTime;
-		FVector CameraLoc = UGCBlueprintFunctionLibrary_MathHelpers::LerpMultiple<FVector_NetQuantize>(BulletTraceLocations, Progress);
-
-		GetCameraBoom()->SetWorldLocation(CameraLoc);
-		GetCameraBoom()->TargetArmLength = 100;
-		
-		//DrawDebugPoint(GetWorld(), CameraLoc, 20, FColor::Purple); // might as well be the bullet
 
 
 
 		CurrentTime = CurrentTime + DeltaSeconds;
-		if (Progress > 1)	// stops the animation when finished
-		{
-			Cast<ASTHUD_Shooter>((Cast<APlayerController>(GetController())->GetHUD()))->HealthWidget->SetVisibility(ESlateVisibility::Visible);
-			Cast<ASTHUD_Shooter>((Cast<APlayerController>(GetController())->GetHUD()))->CurrentActiveItemWidget->SetVisibility(ESlateVisibility::Visible);
-			GetCameraBoom()->SetRelativeLocation(CameraBoomStartingLoc);
-			GetCameraBoom()->TargetArmLength = 0;
-			BulletTraceLocations.Empty();
-			CurrentTime = 0;
-			POVMesh->SetVisibility(false, false);
-		}
 	}
 
 

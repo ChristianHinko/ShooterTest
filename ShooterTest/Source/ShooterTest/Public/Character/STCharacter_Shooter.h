@@ -36,7 +36,10 @@ private:
 public:
 	ASTCharacter_Shooter(const FObjectInitializer& ObjectInitializer);
 
-
+	TArray<FVector_NetQuantize> BulletTraceLocations;
+	float CurrentTime;
+	float AnimationTime;
+	FVector CameraBoomStartingLoc;
 	// Subobject getters
 	UArcInventoryComponent* GetInventoryComponent() const override { return InventoryComponent; }
 	USTActorComponent_Interactor* GetInteractorComponent() const { return Interactor; }

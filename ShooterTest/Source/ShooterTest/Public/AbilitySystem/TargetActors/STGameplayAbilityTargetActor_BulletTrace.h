@@ -20,6 +20,7 @@ class SHOOTERTEST_API ASTGameplayAbilityTargetActor_BulletTrace : public AASSGam
 public:
 	ASTGameplayAbilityTargetActor_BulletTrace(const FObjectInitializer& ObjectInitializer);
 
+	static const float DebugLifeTime;
 
 	/** Max distance to travel */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet")

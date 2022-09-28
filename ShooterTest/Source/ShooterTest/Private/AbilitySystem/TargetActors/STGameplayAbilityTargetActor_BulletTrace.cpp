@@ -14,7 +14,10 @@
 #include "GameFramework/Controller.h"
 #include "Abilities/GameplayAbility.h"
 
+#include "Character/STCharacter_Shooter.h"
+#include "D:\Program Files\UE_5.0\Engine\Source\Runtime\Engine\Classes\Kismet\GameplayStatics.h"
 
+const float ASTGameplayAbilityTargetActor_BulletTrace::DebugLifeTime = 10.f;
 
 ASTGameplayAbilityTargetActor_BulletTrace::ASTGameplayAbilityTargetActor_BulletTrace(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -116,7 +119,6 @@ void ASTGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 
 		if (bDebug)
 		{
-			const float DebugLifeTime = 10.f;
 
 			UGCBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries::DrawStrengthDebugLine(SourceActor->GetWorld(), BulletResults[i], InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f, 1.f);
 			UGCBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries::DrawStrengthDebugText(SourceActor->GetWorld(), BulletResults[i], InitialBulletSpeed, DebugLifeTime);
@@ -124,12 +126,12 @@ void ASTGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 		}
 	}
 
-
+	FSTGameplayAbilityTargetData_BulletTraceTargetHit* s = nullptr;
 	// Create and add Target Data to our handle
 	for (int32 i = 0; i < BulletResults.Num(); ++i)
 	{
 		FSTGameplayAbilityTargetData_BulletTraceTargetHit* ThisBulletTargetData = new FSTGameplayAbilityTargetData_BulletTraceTargetHit(); // these are cleaned up by the FGameplayAbilityTargetDataHandle (via an internal TSharedPtr)
-
+		s = ThisBulletTargetData;
 		const TArray<FPenetrationSceneCastWithExitHitsUsingStrengthResult>& PenetrationSceneCastWithExitHitsUsingStrengthResults = BulletResults[i].PenetrationSceneCastWithExitHitsUsingStrengthResults;
 
 		// Fill target data's BulletTracePoints
@@ -209,6 +211,9 @@ void ASTGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 
 		TargetDataHandle.Add(ThisBulletTargetData);
 	}
+
+	Cast<ASTCharacter_Shooter>(UGameplayStatics::GetPlayerCharacter(this, 0))->BulletTraceLocations = s->BulletTracePoints;
+	Cast<ASTCharacter_Shooter>(UGameplayStatics::GetPlayerCharacter(this, 0))->CurrentTime = 0;
 
 	TargetDataReadyDelegate.Broadcast(TargetDataHandle);
 }

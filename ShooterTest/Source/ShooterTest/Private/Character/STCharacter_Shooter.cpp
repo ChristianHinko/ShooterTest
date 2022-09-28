@@ -19,7 +19,9 @@
 #include "InputTriggers.h"
 #include "ISEngineSubsystem_InputActions.h"
 
+#include "AbilitySystem/TargetActors/STGameplayAbilityTargetActor_BulletTrace.h"
 
+#include "D:\Program Files\UE_5.0\Engine\Source\Runtime\Engine\Classes\GameFramework\SpringArmComponent.h"
 
 
 const FName ASTCharacter_Shooter::InventoryComponentName = TEXT("InventoryComponent");
@@ -45,12 +47,16 @@ ASTCharacter_Shooter::ASTCharacter_Shooter(const FObjectInitializer& ObjectIniti
 	// Configure camera sway
 	CameraSwayAmount = FVector(0.f, 1.3f, 0.4f);
 	AddedCameraSwayDuringADS = FVector(0.f, -1.1f, -0.1f);
+
+	POVMesh->SetVisibility(false, false); // in the demo it looks bad to show the character since it blocks the screen a lot
+	CurrentTime = 0.f;
+	AnimationTime = ASTGameplayAbilityTargetActor_BulletTrace::DebugLifeTime;;
 }
 
 void ASTCharacter_Shooter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	CameraBoomStartingLoc = GetCameraBoom()->GetRelativeLocation();
 }
 
 
@@ -71,9 +77,72 @@ void ASTCharacter_Shooter::BeginPlay()
 #include "AbilitySystem/AttributeSets/STAttributeSet_Stamina.h"
 //#include "Kismet/KismetMathLibrary.h"
 //#include "GameFramework/SpringArmComponent.h"
+#include "BlueprintFunctionLibraries\GCBlueprintFunctionLibrary_MathHelpers.h"
+#include "Camera\PlayerCameraManager.h"
+#include "Kismet\GameplayStatics.h"
+#include "Camera\CameraActor.h"
+#include "GameFramework/HUD.h"
+#include "UI\STHUD_Shooter.h"
+#include "Blueprint/UserWidget.h"
+
 void ASTCharacter_Shooter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	if (BulletTraceLocations.Num() > 0)
+	{
+		if (CurrentTime == 0)
+		{
+			POVMesh->SetVisibility(true, true);
+			Cast<ASTHUD_Shooter>((Cast<APlayerController>(GetController())->GetHUD()))->HealthWidget->SetVisibility(ESlateVisibility::Hidden);
+			Cast<ASTHUD_Shooter>((Cast<APlayerController>(GetController())->GetHUD()))->CurrentActiveItemWidget->SetVisibility(ESlateVisibility::Hidden);
+
+#if 0
+			// This here was part of an attempt to give a constant speed across traces. fullTravelLength should help with that (also would probably need a currentTraveledLength)
+			for (int32 i = 0; i < BulletTraceLocations.Num(); i++)
+			{
+				if (i-1 == -1)
+				{
+					continue;
+				}
+
+				fullTravelLength += FVector::Distance(BulletTraceLocations[i - 1], BulletTraceLocations[i]);
+			}
+#endif
+		}
+
+		float Progress = CurrentTime / AnimationTime;
+		FVector CameraLoc = UGCBlueprintFunctionLibrary_MathHelpers::LerpMultiple<FVector_NetQuantize>(BulletTraceLocations, Progress);
+
+		GetCameraBoom()->SetWorldLocation(CameraLoc);
+		GetCameraBoom()->TargetArmLength = 100;
+		
+		//DrawDebugPoint(GetWorld(), CameraLoc, 20, FColor::Purple); // might as well be the bullet
+
+
+
+		CurrentTime = CurrentTime + DeltaSeconds;
+		if (Progress > 1)	// stops the animation when finished
+		{
+			Cast<ASTHUD_Shooter>((Cast<APlayerController>(GetController())->GetHUD()))->HealthWidget->SetVisibility(ESlateVisibility::Visible);
+			Cast<ASTHUD_Shooter>((Cast<APlayerController>(GetController())->GetHUD()))->CurrentActiveItemWidget->SetVisibility(ESlateVisibility::Visible);
+			GetCameraBoom()->SetRelativeLocation(CameraBoomStartingLoc);
+			GetCameraBoom()->TargetArmLength = 0;
+			BulletTraceLocations.Empty();
+			CurrentTime = 0;
+			POVMesh->SetVisibility(false, false);
+		}
+	}
+
+
+
+
+
+
+
+
+
+
 
 
 	//for (int32 i = 0; i < ShooterInventoryComponent->ActiveItemHistory.Num(); ++i)

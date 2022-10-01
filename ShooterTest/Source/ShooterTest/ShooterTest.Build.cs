@@ -29,7 +29,8 @@ public class ShooterTest : ModuleRules
 				"ArcInventoryExtension",
 				"AnimGraphRuntime", // for KismetAnimationLibrary
 				"EnhancedInput",
-				"InputSetup"
+				"InputSetup",
+				"PawnSetup"
 			}
 		);
 	}

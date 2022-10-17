@@ -52,12 +52,14 @@ ASTCharacter_Shooter::ASTCharacter_Shooter(const FObjectInitializer& ObjectIniti
 	CurrentTime = 0.f;
 	CammeraMoveAlongSpeed = 2;
 	TargetArmLengthDuringAnimation = 100;
+	CameraMoveAlongRotSpeed = 1;
 }
 
 void ASTCharacter_Shooter::BeginPlay()
 {
 	Super::BeginPlay();
 	CameraBoomStartingLoc = GetCameraBoom()->GetRelativeLocation();
+	AddControllerPitchInput(-1);
 }
 
 
@@ -96,6 +98,7 @@ void ASTCharacter_Shooter::Tick(float DeltaSeconds)
 	{
 		if (CurrentTime == 0)
 		{
+			AddControllerYawInput(-12);
 			POVMesh->SetVisibility(true, true);
 			Cast<ASTHUD_Shooter>((Cast<APlayerController>(GetController())->GetHUD()))->HealthWidget->SetVisibility(ESlateVisibility::Hidden);
 			Cast<ASTHUD_Shooter>((Cast<APlayerController>(GetController())->GetHUD()))->CurrentActiveItemWidget->SetVisibility(ESlateVisibility::Hidden);
@@ -115,11 +118,14 @@ void ASTCharacter_Shooter::Tick(float DeltaSeconds)
 		FVector CurrentTraceEnd = BulletTraceLocations[currentTraceEndIndex];
 		if (UGCBlueprintFunctionLibrary_MathHelpers::PointLiesOnSegment(CurrentTraceStart, CurrentTraceEnd, CurrentCameraLoc, ErrorTollerance))
 		{
+
 			const FVector TraceDir = (CurrentTraceEnd - CurrentTraceStart).GetSafeNormal();
 
-			CurrentCameraLoc = CurrentCameraLoc + (TraceDir * CammeraMoveAlongSpeed);
-
+			CurrentCameraLoc = CurrentCameraLoc + (TraceDir * CammeraMoveAlongSpeed * DeltaSeconds);
 			GetCameraBoom()->SetWorldLocation(CurrentCameraLoc);
+
+
+			AddControllerYawInput(-CameraMoveAlongRotSpeed * DeltaSeconds);
 		}
 		else
 		{

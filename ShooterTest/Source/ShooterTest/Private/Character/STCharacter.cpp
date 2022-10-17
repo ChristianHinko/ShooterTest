@@ -684,7 +684,7 @@ void ASTCharacter::OnLook(const FInputActionValue& InputActionValue)
 	{
 		const FVector2D Value = InputActionValue.Get<FVector2D>();
 
-		AddControllerYawInput(Value.X * 0.5f);
+		//AddControllerYawInput(Value.X * 0.5f);
 		AddControllerPitchInput(Value.Y * 0.5f);
 	}
 }

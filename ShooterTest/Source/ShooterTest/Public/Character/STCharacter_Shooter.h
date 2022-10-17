@@ -39,6 +39,8 @@ public:
 	float CurrentTime;
 	UPROPERTY(Category="BulletSpeedDemo", EditDefaultsOnly)
 		float CammeraMoveAlongSpeed;
+	UPROPERTY(Category="BulletSpeedDemo", EditDefaultsOnly)
+		float CameraMoveAlongRotSpeed;
 	UPROPERTY(Category = "BulletSpeedDemo", EditDefaultsOnly)
 		float TargetArmLengthDuringAnimation;
 	FVector CameraBoomStartingLoc;

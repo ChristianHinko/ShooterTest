@@ -17,7 +17,7 @@
 #include "Character/STCharacter_Shooter.h"
 #include "D:\Program Files\UE_5.0\Engine\Source\Runtime\Engine\Classes\Kismet\GameplayStatics.h"
 
-const float ASTGameplayAbilityTargetActor_BulletTrace::DebugLifeTime = 20.f;
+const float ASTGameplayAbilityTargetActor_BulletTrace::DebugLifeTime = 45.f;
 
 ASTGameplayAbilityTargetActor_BulletTrace::ASTGameplayAbilityTargetActor_BulletTrace(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

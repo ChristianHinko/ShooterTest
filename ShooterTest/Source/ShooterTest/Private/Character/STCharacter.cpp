@@ -604,7 +604,7 @@ void ASTCharacter::PawnClientRestart()
 	Super::PawnClientRestart();
 
 	// Clear and add input configs
-	ISPawnExtensionComponent->PawnClientRestart();
+	ISPawnExtensionComponent->OnOwnerPawnClientRestart();
 }
 
 void ASTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -612,7 +612,7 @@ void ASTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 
-	ISPawnExtensionComponent->SetupPlayerInputComponent(PlayerInputComponent);
+	ISPawnExtensionComponent->OnOwnerSetupPlayerInputComponent(PlayerInputComponent);
 
 	UEnhancedInputComponent* PlayerEnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (IsValid(PlayerEnhancedInputComponent))

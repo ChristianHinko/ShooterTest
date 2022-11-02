@@ -20,6 +20,7 @@ ASTGameplayAbilityTargetActor_BulletTrace::ASTGameplayAbilityTargetActor_BulletT
 	: Super(ObjectInitializer)
 {
 	bDebug = true;
+	bDebugHitTargetDataDmg = false;
 
 	MaxRange = 100000.f;
 	TraceChannel = COLLISIONCHANNEL_BULLET;
@@ -181,7 +182,7 @@ void ASTGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 						FSTActorHitInfo ActorHitInfo = FSTActorHitInfo(Hit.GetActor(), Hit.Strength);
 						ThisBulletTargetData->ActorHitInfos.Add(ActorHitInfo);
 
-						if (bDebug)
+						if (bDebug && bDebugHitTargetDataDmg)
 						{
 							// Since we know this hit actor has an ASC, we will display dmg text over the top of it
 #if ENABLE_DRAW_DEBUG

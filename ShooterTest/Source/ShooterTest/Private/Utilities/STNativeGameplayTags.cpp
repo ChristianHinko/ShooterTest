@@ -26,8 +26,6 @@ namespace STNativeGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(InputAction_DropItem,									TEXT("InputAction.DropItem"))
 	UE_DEFINE_GAMEPLAY_TAG(InputAction_Pause,										TEXT("InputAction.Pause"))
 	UE_DEFINE_GAMEPLAY_TAG(InputAction_ScoreSheet,									TEXT("InputAction.ScoreSheet"))
-	UE_DEFINE_GAMEPLAY_TAG(InputAction_Move,										TEXT("InputAction.Move"))
-	UE_DEFINE_GAMEPLAY_TAG(InputAction_Look,										TEXT("InputAction.Look"))
 
 	// Ability Tags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Fire,											TEXT("Ability.Fire"))

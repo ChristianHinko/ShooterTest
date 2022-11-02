@@ -5,6 +5,7 @@
 
 #include "BlueprintFunctionLibraries/CollisionQuery/GCBlueprintFunctionLibrary_StrengthCollisionQueries.h"
 #include "BlueprintFunctionLibraries/Debugging/GCBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries.h"
+#include "DrawDebugHelpers.h"
 #include "Utilities/STCollisionChannels.h"
 #include "AbilitySystem/Types/STGameplayAbilityTargetTypes.h"
 #include "PhysicalMaterial/STPhysicalMaterial_Shooter.h"
@@ -19,11 +20,11 @@ ASTGameplayAbilityTargetActor_BulletTrace::ASTGameplayAbilityTargetActor_BulletT
 	: Super(ObjectInitializer)
 {
 	bDebug = true;
+	bDebugHitTargetDataDmg = false;
 
 	MaxRange = 100000.f;
 	TraceChannel = COLLISIONCHANNEL_BULLET;
 }
-
 
 void ASTGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 {
@@ -180,6 +181,28 @@ void ASTGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 						// This hit won't get filtered, so lets add it to the target data
 						FSTActorHitInfo ActorHitInfo = FSTActorHitInfo(Hit.GetActor(), Hit.Strength);
 						ThisBulletTargetData->ActorHitInfos.Add(ActorHitInfo);
+
+						if (bDebug && bDebugHitTargetDataDmg)
+						{
+							// Since we know this hit actor has an ASC, we will display dmg text over the top of it
+#if ENABLE_DRAW_DEBUG
+							const float ZOffset = 10.f;
+
+							const FBox ActorBoundingBox = Hit.GetActor()->CalculateComponentsBoundingBoxInLocalSpace(false, true);
+							FVector ActorCenter;
+							FVector ActorExtents;
+
+							ActorBoundingBox.GetCenterAndExtents(ActorCenter, ActorExtents);
+							ActorCenter = ActorCenter + Hit.GetActor()->GetActorLocation(); // since it is relative, add the world position so we get the world location
+
+							FVector StringLocation = ActorCenter;
+							StringLocation = StringLocation + FVector(0, 0, ActorExtents.Z + ZOffset);
+
+							const FString DebugString = FString::Printf(TEXT("%.2f dmg"), Hit.Strength);
+							DrawDebugString(GetWorld(), StringLocation, DebugString, nullptr, FColor::Red, 5.f, true, 2.f);
+#endif // ENABLE_DRAW_DEBUG
+							
+						}
 					}
 				}
 			}

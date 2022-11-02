@@ -20,6 +20,7 @@ class SHOOTERTEST_API ASTGameplayAbilityTargetActor_BulletTrace : public AASSGam
 public:
 	ASTGameplayAbilityTargetActor_BulletTrace(const FObjectInitializer& ObjectInitializer);
 
+	bool bDebugHitTargetDataDmg; // An extra debug of dmg done on target hits
 
 	/** Max distance to travel */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true), Category = "Bullet")

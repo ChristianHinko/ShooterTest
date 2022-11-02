@@ -25,3 +25,6 @@
 [submodule "ShooterTest/Plugins/InputSetup"]
 	path = ShooterTest/Plugins/InputSetup
 	url = https://github.com/ChristianHinko/InputSetup.git
+[submodule "ShooterTest/Plugins/PawnSetup"]
+	path = ShooterTest/Plugins/PawnSetup
+	url = https://github.com/brian2524/PawnSetup.git

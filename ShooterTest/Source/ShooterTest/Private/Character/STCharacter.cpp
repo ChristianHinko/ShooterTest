@@ -13,13 +13,13 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Subobjects/ActorComponents/GSActorComponent_PawnExtension.h"
 #include "Character/AttributeSets/STAttributeSet_CharacterMovement.h"
-#include "Subobjects/ASSActorComponent_AbilitySystemSetup.h"
+#include "ActorComponents/PSActorComponent_PawnExtension.h"
 
 #include "ActorComponents/ISActorComponent_PawnExtension.h"
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
 #include "InputTriggers.h"
-#include "ISDeveloperSettings_InputSetup.h"
+#include "ISEngineSubsystem_InputActions.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -45,6 +45,7 @@ ASTCharacter::ASTCharacter(const FObjectInitializer& ObjectInitializer)
 {
 	GSPawnExtensionComponent = CreateDefaultSubobject<UGSActorComponent_PawnExtension>(TEXT("GSPawnExtensionComponent"));
 	ISPawnExtensionComponent = CreateDefaultSubobject<UISActorComponent_PawnExtension>(TEXT("ISPawnExtensionComponent"));
+	PSPawnExtensionComponent = CreateDefaultSubobject<UPSActorComponent_PawnExtension>(TEXT("PSPawnExtensionComponent"));
 
 	STCharacterMovementComponent = Cast<USTCharacterMovementComponent>(GetMovementComponent());
 
@@ -605,88 +606,43 @@ void ASTCharacter::PawnClientRestart()
 	Super::PawnClientRestart();
 
 	// Clear and add input configs
-	ISPawnExtensionComponent->PawnClientRestart();
+	ISPawnExtensionComponent->OnOwnerPawnClientRestart();
 }
 
 void ASTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-
-	ISPawnExtensionComponent->SetupPlayerInputComponent(PlayerInputComponent);
+	ISPawnExtensionComponent->OnOwnerSetupPlayerInputComponent(PlayerInputComponent);
+	PSPawnExtensionComponent->OnOwnerSetupPlayerInputComponent(PlayerInputComponent);
 
 	UEnhancedInputComponent* PlayerEnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (IsValid(PlayerEnhancedInputComponent))
 	{
-		const UISDeveloperSettings_InputSetup* InputSetupDeveloperSettings = GetDefault<UISDeveloperSettings_InputSetup>();
-		if (IsValid(InputSetupDeveloperSettings))
+		const UISEngineSubsystem_InputActions* InputActionsSubsystem = GEngine->GetEngineSubsystem<UISEngineSubsystem_InputActions>();
+		if (IsValid(InputActionsSubsystem))
 		{
-			const UInputAction* InputActionMove = InputSetupDeveloperSettings->GetInputAction(STNativeGameplayTags::InputAction_Move);
-			if (IsValid(InputActionMove))
-			{
-				PlayerEnhancedInputComponent->BindAction(InputActionMove, ETriggerEvent::Triggered, this, &ThisClass::OnMove);
-			}
-
-			const UInputAction* InputActionLook = InputSetupDeveloperSettings->GetInputAction(STNativeGameplayTags::InputAction_Look);
-			if (IsValid(InputActionLook))
-			{
-				PlayerEnhancedInputComponent->BindAction(InputActionLook, ETriggerEvent::Triggered, this, &ThisClass::OnLook);
-			}
-
-			const UInputAction* InputActionRun = InputSetupDeveloperSettings->GetInputAction(STNativeGameplayTags::InputAction_Run);
+			const UInputAction* InputActionRun = InputActionsSubsystem->GetInputAction(STNativeGameplayTags::InputAction_Run);
 			if (IsValid(InputActionRun))
 			{
 				PlayerEnhancedInputComponent->BindAction(InputActionRun, ETriggerEvent::Started, this, &ThisClass::OnPressedRun);
 				PlayerEnhancedInputComponent->BindAction(InputActionRun, ETriggerEvent::Completed, this, &ThisClass::OnReleasedRun);
 			}
 
-			const UInputAction* InputActionJump = InputSetupDeveloperSettings->GetInputAction(STNativeGameplayTags::InputAction_Jump);
+			const UInputAction* InputActionJump = InputActionsSubsystem->GetInputAction(STNativeGameplayTags::InputAction_Jump);
 			if (IsValid(InputActionJump))
 			{
 				PlayerEnhancedInputComponent->BindAction(InputActionJump, ETriggerEvent::Started, this, &ThisClass::OnPressedJump);
 				PlayerEnhancedInputComponent->BindAction(InputActionJump, ETriggerEvent::Completed, this, &ThisClass::OnReleasedJump);
 			}
 
-			const UInputAction* InputActionCrouch = InputSetupDeveloperSettings->GetInputAction(STNativeGameplayTags::InputAction_Crouch);
+			const UInputAction* InputActionCrouch = InputActionsSubsystem->GetInputAction(STNativeGameplayTags::InputAction_Crouch);
 			if (IsValid(InputActionCrouch))
 			{
 				PlayerEnhancedInputComponent->BindAction(InputActionCrouch, ETriggerEvent::Started, this, &ThisClass::OnPressedCrouch);
 				PlayerEnhancedInputComponent->BindAction(InputActionCrouch, ETriggerEvent::Completed, this, &ThisClass::OnReleasedCrouch);
 			}
 		}
-	}
-}
-
-
-void ASTCharacter::OnMove(const FInputActionValue& InputActionValue)
-{
-	if (IsValid(Controller) && InputActionValue.GetMagnitudeSq() > 0.f)
-	{
-		const FVector2D Value = InputActionValue.Get<FVector2D>();
-
-
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-
-		// get forward vector
-		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(ForwardDirection, Value.Y);
-
-		// get right vector 
-		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		AddMovementInput(RightDirection, Value.X);
-	}
-}
-
-void ASTCharacter::OnLook(const FInputActionValue& InputActionValue)
-{
-	if (InputActionValue.GetMagnitudeSq() > 0.f)
-	{
-		const FVector2D Value = InputActionValue.Get<FVector2D>();
-
-		AddControllerYawInput(Value.X * 0.5f);
-		AddControllerPitchInput(Value.Y * 0.5f);
 	}
 }
 

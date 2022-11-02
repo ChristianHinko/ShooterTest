@@ -17,6 +17,7 @@ class UPlayerMappableInputConfig;
 class UInputAction;
 class UISActorComponent_PawnExtension;
 struct FInputActionValue;
+class UPSActorComponent_PawnExtension;
 
 
 
@@ -94,6 +95,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "InputSetup")
 		TObjectPtr<UISActorComponent_PawnExtension> ISPawnExtensionComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = "PawnSetup")
+		TObjectPtr<UPSActorComponent_PawnExtension> PSPawnExtensionComponent;
 
 public:
 	ASTCharacter(const FObjectInitializer& ObjectInitializer);
@@ -188,9 +192,6 @@ protected:
 
 
 	//  BEGIN Input binding
-	virtual void OnMove(const FInputActionValue& InputActionValue);
-	virtual void OnLook(const FInputActionValue& InputActionValue);
-
 	virtual void OnPressedRun();
 	virtual void OnReleasedRun();
 

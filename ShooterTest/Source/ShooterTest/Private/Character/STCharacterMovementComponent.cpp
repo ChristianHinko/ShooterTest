@@ -8,7 +8,7 @@
 #include "Character/AttributeSets/STAttributeSet_CharacterMovement.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "Subobjects/ASSActorComponent_AbilitySystemSetup.h"
+#include "Subobjects/ASSActorComponent_AvatarActorExtension.h"
 #include "AbilitySystem/ASSAbilitySystemBlueprintLibrary.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -76,10 +76,10 @@ void USTCharacterMovementComponent::InitializeComponent()
 	// Get reference to our STCharacter
 	STCharacterOwner = Cast<ASTCharacter>(PawnOwner);
 
-	UASSActorComponent_AbilitySystemSetup* AbilitySystemSetupComponent = GetOwner()->FindComponentByClass<UASSActorComponent_AbilitySystemSetup>();
-	if (IsValid(AbilitySystemSetupComponent))
+	UASSActorComponent_AvatarActorExtension* AvatarActorExtensionComponent = GetOwner()->FindComponentByClass<UASSActorComponent_AvatarActorExtension>();
+	if (IsValid(AvatarActorExtensionComponent))
 	{
-		AbilitySystemSetupComponent->OnInitializeAbilitySystemComponentDelegate.AddUObject(this, &USTCharacterMovementComponent::OnInitializeAbilitySystemComponent);
+		AvatarActorExtensionComponent->OnInitializeAbilitySystemComponentDelegate.AddUObject(this, &USTCharacterMovementComponent::OnInitializeAbilitySystemComponent);
 	}
 }
 

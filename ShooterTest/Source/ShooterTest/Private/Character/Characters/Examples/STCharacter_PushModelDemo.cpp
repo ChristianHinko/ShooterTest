@@ -9,7 +9,7 @@
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
 #include "InputTriggers.h"
-#include "ISDeveloperSettings_InputSetup.h"
+#include "ISEngineSubsystem_InputActions.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -48,16 +48,16 @@ void ASTCharacter_PushModelDemo::SetupPlayerInputComponent(UInputComponent* Play
 	UEnhancedInputComponent* PlayerEnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (IsValid(PlayerEnhancedInputComponent))
 	{
-		const UISDeveloperSettings_InputSetup* InputSetupDeveloperSettings = GetDefault<UISDeveloperSettings_InputSetup>();
-		if (IsValid(InputSetupDeveloperSettings))
+		const UISEngineSubsystem_InputActions* InputActionsSubsystem = GEngine->GetEngineSubsystem<UISEngineSubsystem_InputActions>();
+		if (IsValid(InputActionsSubsystem))
 		{
-			const UInputAction* InputActionPrimaryFire = InputSetupDeveloperSettings->GetInputAction(STNativeGameplayTags::InputAction_PrimaryFire);
+			const UInputAction* InputActionPrimaryFire = InputActionsSubsystem->GetInputAction(STNativeGameplayTags::InputAction_PrimaryFire);
 			if (IsValid(InputActionPrimaryFire))
 			{
 				PlayerEnhancedInputComponent->BindAction(InputActionPrimaryFire, ETriggerEvent::Started, this, &ThisClass::OnPressedPrimaryFire);
 			}
 
-			const UInputAction* InputActionSecondaryFire = InputSetupDeveloperSettings->GetInputAction(STNativeGameplayTags::InputAction_SecondaryFire);
+			const UInputAction* InputActionSecondaryFire = InputActionsSubsystem->GetInputAction(STNativeGameplayTags::InputAction_SecondaryFire);
 			if (IsValid(InputActionSecondaryFire))
 			{
 				PlayerEnhancedInputComponent->BindAction(InputActionSecondaryFire, ETriggerEvent::Started, this, &ThisClass::OnPressedSecondaryFire);

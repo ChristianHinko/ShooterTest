@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Types\PropertyWrappers\GCFloatPropertyWrapper.h"
+#include "Types\PropertyWrappers\GCPropertyWrappers.h"
 #include "AttributeSet.h"
 #include "GameplayEffectTypes.h"
 

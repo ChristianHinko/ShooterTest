@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Types\PropertyWrappers\GCFloatPropertyWrapper.h"
+#include "Types\PropertyWrappers\GCPropertyWrappers.h"
 
 #include "STObject_Stamina.generated.h"
 

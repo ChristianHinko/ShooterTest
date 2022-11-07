@@ -36,7 +36,7 @@ public:
 		FText ActiveItemName;
 	/** The current clip ammo value of the attribute */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ammo")
-		float CurrentClipAmmo;
+		int32 CurrentClipAmmo;
 	/** The current backup ammo value of the attribute */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ammo")
 		float CurrentBackupAmmo;
@@ -49,7 +49,7 @@ protected:
 	UPROPERTY()
 		TWeakObjectPtr<USTObject_ClipAmmo> ClipAmmoSubobject;
 	UFUNCTION()
-		void OnClipAmmoChange(const float& OldValue, const float& NewValue);
+		void OnClipAmmoChange(const int32& OldValue, const int32& NewValue);
 
 	/** Called on ammo values changed. Use this to update UI */
 	UFUNCTION()

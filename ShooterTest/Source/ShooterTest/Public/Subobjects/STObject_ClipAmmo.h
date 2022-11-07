@@ -26,7 +26,7 @@ public:
 
 
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Ammo")
-		FGCFloatPropertyWrapper ClipAmmo;
+		FGCInt32PropertyWrapper ClipAmmo;
 
 protected:
 

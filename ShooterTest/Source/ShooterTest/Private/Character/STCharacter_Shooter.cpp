@@ -97,7 +97,7 @@ void ASTCharacter_Shooter::Tick(float DeltaSeconds)
 			const USTItemStack_Gun* GunStack = Cast<USTItemStack_Gun>(ActiveItemStack);
 			if (IsValid(GunStack))
 			{
-				const FGCFloatPropertyWrapper& ClipAmmo = GunStack->GetClipAmmoSubobject()->ClipAmmo;
+				const FGCInt32PropertyWrapper& ClipAmmo = GunStack->GetClipAmmoSubobject()->ClipAmmo;
 				//UKismetSystemLibrary::PrintString(this, ClipAmmo.GetDebugString(), true, false);
 
 				const FGCFloatPropertyWrapper& CurrentBulletSpread = GunStack->GetBulletSpreadSubobject()->CurrentBulletSpread;

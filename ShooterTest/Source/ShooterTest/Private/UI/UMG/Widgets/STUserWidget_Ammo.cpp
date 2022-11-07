@@ -44,7 +44,7 @@ void USTUserWidget_Ammo::OnPlayerASCValid()
 	// Get and bind to updates for ClipAmmo
 	if (ClipAmmoSubobject.IsValid())
 	{
-		const float& ClipAmmo = ClipAmmoSubobject->ClipAmmo;
+		const int32& ClipAmmo = ClipAmmoSubobject->ClipAmmo;
 		OnClipAmmoChange(ClipAmmo, ClipAmmo);
 
 		ClipAmmoSubobject->ClipAmmo.ValueChangeDelegate.AddDynamic(this, &USTUserWidget_Ammo::OnClipAmmoChange);
@@ -61,7 +61,7 @@ void USTUserWidget_Ammo::OnPlayerASCValid()
 	);
 }
 
-void USTUserWidget_Ammo::OnClipAmmoChange(const float& OldValue, const float& NewValue)
+void USTUserWidget_Ammo::OnClipAmmoChange(const int32& OldValue, const int32& NewValue)
 {
 	CurrentClipAmmo = NewValue;
 	UpdateAmmoStatus();
@@ -69,7 +69,7 @@ void USTUserWidget_Ammo::OnClipAmmoChange(const float& OldValue, const float& Ne
 
 void USTUserWidget_Ammo::UpdateAmmoStatus()
 {
-	FString ClipAmmoString = FString::FromInt(FMath::TruncToInt(CurrentClipAmmo)) + TEXT("/");
+	FString ClipAmmoString = FString::FromInt(CurrentClipAmmo) + TEXT("/");
 	ClipAmmoText->SetText(FText::FromString(ClipAmmoString));
 
 	BackupAmmoText->SetText(FText::AsNumber(FMath::TruncToInt(CurrentBackupAmmo)));

@@ -33,7 +33,6 @@ bool USTObject_ClipAmmo::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* 
 
 USTObject_ClipAmmo::USTObject_ClipAmmo(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	, ClipAmmo(this, TEXT("ClipAmmo"), 0.f)
+	, ClipAmmo(this, TEXT("ClipAmmo"), 0)
 {
-
 }

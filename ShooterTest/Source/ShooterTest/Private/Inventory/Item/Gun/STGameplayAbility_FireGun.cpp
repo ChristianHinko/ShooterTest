@@ -232,7 +232,7 @@ bool USTGameplayAbility_FireGun::CheckCost(const FGameplayAbilitySpecHandle Hand
 	}
 
 	// If we don't have enough ammo
-	const float ClipAmmoAfterNextShot = ClipAmmoSubobject->ClipAmmo - AmmoCost;
+	const int32 ClipAmmoAfterNextShot = ClipAmmoSubobject->ClipAmmo - AmmoCost;
 	if (ClipAmmoAfterNextShot < 0)
 	{
 		UE_LOG(LogSTGameplayAbility, Verbose, TEXT("%s() Not enough ammo to perform a fire. returned false"), ANSI_TO_TCHAR(__FUNCTION__));

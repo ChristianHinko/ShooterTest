@@ -62,7 +62,7 @@ void USTUserWidget_Crosshair::OnPlayerASCValid()
 
 	if (BulletSpreadSubobject.IsValid())
 	{
-		BulletSpreadSubobject->CurrentBulletSpread.ValueChangeDelegate.AddDynamic(this, &USTUserWidget_Crosshair::OnCurrentBulletSpreadChange);
+		BulletSpreadSubobject->CurrentBulletSpread.ValueChangeDelegate.AddUObject(this, &USTUserWidget_Crosshair::OnCurrentBulletSpreadChange);
 
 		const float& CurrentBulletSpread = BulletSpreadSubobject->CurrentBulletSpread;
 		OnCurrentBulletSpreadChange(CurrentBulletSpread, CurrentBulletSpread);

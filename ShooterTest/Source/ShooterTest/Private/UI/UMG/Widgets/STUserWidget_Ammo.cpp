@@ -47,7 +47,7 @@ void USTUserWidget_Ammo::OnPlayerASCValid()
 		const int32& ClipAmmo = ClipAmmoSubobject->ClipAmmo;
 		OnClipAmmoChange(ClipAmmo, ClipAmmo);
 
-		ClipAmmoSubobject->ClipAmmo.ValueChangeDelegate.AddDynamic(this, &USTUserWidget_Ammo::OnClipAmmoChange);
+		ClipAmmoSubobject->ClipAmmo.ValueChangeDelegate.AddUObject(this, &USTUserWidget_Ammo::OnClipAmmoChange);
 	}
 
 	// Get and bind to updates for BackupAmmo

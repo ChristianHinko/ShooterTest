@@ -82,7 +82,7 @@ void FSTGameplayAbilityTargetData_BulletTraceTargetHit::AddTargetDataToContext(F
 }
 
 
-bool FSTGameplayAbilityTargetData_BulletTraceTargetHit::NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
+bool FSTGameplayAbilityTargetData_BulletTraceTargetHit::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess)
 {
 	uint8 RepBits;
 	if (Ar.IsSaving())

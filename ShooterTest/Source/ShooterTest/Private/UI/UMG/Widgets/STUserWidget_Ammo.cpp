@@ -45,7 +45,7 @@ void USTUserWidget_Ammo::OnPlayerASCValid()
 	if (ClipAmmoSubobject.IsValid())
 	{
 		const int32& ClipAmmo = ClipAmmoSubobject->ClipAmmo;
-		OnClipAmmoChange(ClipAmmo, ClipAmmo);
+		OnClipAmmoChange(ClipAmmoSubobject->ClipAmmo, ClipAmmo, ClipAmmo);
 
 		ClipAmmoSubobject->ClipAmmo.ValueChangeDelegate.AddUObject(this, &USTUserWidget_Ammo::OnClipAmmoChange);
 	}
@@ -61,9 +61,9 @@ void USTUserWidget_Ammo::OnPlayerASCValid()
 	);
 }
 
-void USTUserWidget_Ammo::OnClipAmmoChange(const int32& OldValue, const int32& NewValue)
+void USTUserWidget_Ammo::OnClipAmmoChange(FGCInt32PropertyWrapper& PropertyWrapper, const int32& InOldValue, const int32& InNewValue)
 {
-	CurrentClipAmmo = NewValue;
+	CurrentClipAmmo = InNewValue;
 	UpdateAmmoStatus();
 }
 

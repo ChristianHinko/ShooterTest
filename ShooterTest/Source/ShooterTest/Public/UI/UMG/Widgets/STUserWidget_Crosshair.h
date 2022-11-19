@@ -60,7 +60,7 @@ protected:
 	UPROPERTY()
 		TWeakObjectPtr<USTObject_BulletSpread> BulletSpreadSubobject;
 	UFUNCTION()
-		void OnCurrentBulletSpreadChange(const float& OldValue, const float& NewValue);
+		void OnCurrentBulletSpreadChange(FGCFloatPropertyWrapper& PropertyWrapper, const float& InOldValue, const float& InNewValue);
 
 	/** The current spread value of the Attribute */
 	float CurrentSpread;

@@ -49,7 +49,7 @@ protected:
 	UPROPERTY()
 		TWeakObjectPtr<USTObject_ClipAmmo> ClipAmmoSubobject;
 	UFUNCTION()
-		void OnClipAmmoChange(const int32& OldValue, const int32& NewValue);
+		void OnClipAmmoChange(FGCInt32PropertyWrapper& PropertyWrapper, const int32& InOldValue, const int32& InNewValue);
 
 	/** Called on ammo values changed. Use this to update UI */
 	UFUNCTION()

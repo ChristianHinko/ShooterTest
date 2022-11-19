@@ -64,15 +64,15 @@ void USTUserWidget_Crosshair::OnPlayerASCValid()
 	{
 		BulletSpreadSubobject->CurrentBulletSpread.ValueChangeDelegate.AddUObject(this, &USTUserWidget_Crosshair::OnCurrentBulletSpreadChange);
 
+		// Update for initial value
 		const float& CurrentBulletSpread = BulletSpreadSubobject->CurrentBulletSpread;
-		OnCurrentBulletSpreadChange(CurrentBulletSpread, CurrentBulletSpread);
+		OnCurrentBulletSpreadChange(BulletSpreadSubobject->CurrentBulletSpread, CurrentBulletSpread, CurrentBulletSpread);
 	}
-
 }
 
-void USTUserWidget_Crosshair::OnCurrentBulletSpreadChange(const float& OldValue, const float& NewValue)
+void USTUserWidget_Crosshair::OnCurrentBulletSpreadChange(FGCFloatPropertyWrapper& PropertyWrapper, const float& InOldValue, const float& InNewValue)
 {
-	CurrentSpread = NewValue;
+	CurrentSpread = InNewValue;
 	UpdateCrosshair();
 }
 

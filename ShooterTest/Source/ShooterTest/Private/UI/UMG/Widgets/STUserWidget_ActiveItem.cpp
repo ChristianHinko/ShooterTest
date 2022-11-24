@@ -26,16 +26,11 @@ void USTUserWidget_ActiveItem::NativeOnInitialized()
 	}
 
 
-	Super::NativeOnInitialized();
-}
-
-void USTUserWidget_ActiveItem::AddToScreen(ULocalPlayer* LocalPlayer, int32 ZOrder)
-{
 	// ActiveItem widgets get added to player screen as soon as the item is made active, so search for the active item's name at this moment
 	if (ItemTextBlock && ItemTextBlock->GetText().IsEmpty())
 	{
 		// Search for the active item and use its name
-		const APlayerController* PlayerController = LocalPlayer->GetPlayerController(LocalPlayer->GetWorld());
+		const APlayerController* PlayerController = GetOwningPlayer();
 		if (IsValid(PlayerController))
 		{
 			UArcInventoryComponent_Active* InventoryComponent = Cast<UArcInventoryComponent_Active>(UArcItemBPFunctionLibrary::GetInventoryComponent(PlayerController->GetPawn(), true));
@@ -50,5 +45,5 @@ void USTUserWidget_ActiveItem::AddToScreen(ULocalPlayer* LocalPlayer, int32 ZOrd
 		}
 	}
 
-	Super::AddToScreen(LocalPlayer, ZOrder);
+	Super::NativeOnInitialized();
 }

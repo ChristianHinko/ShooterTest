@@ -1,6 +1,8 @@
-# Visual Studio debugging sometimes makes this folder
-enc_temp_folder/*
+# Visual Studio
+.vsconfig
+enc_temp_folder/* # Visual Studio debugging sometimes makes this folder
 
+##############################################################################
 
 # Visual Studio 2015 user specific files
 .vs/

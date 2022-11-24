@@ -35,5 +35,5 @@ USTObject_ClipAmmo::USTObject_ClipAmmo(const FObjectInitializer& ObjectInitializ
 	: Super(ObjectInitializer)
 	, ClipAmmo(this, TEXT("ClipAmmo"), 0)
 {
-	ClipAmmo.ValueChangeDelegate.AddStatic(&GCPropertyWrapperOnChangePrintString<FGCInt32PropertyWrapper, int32>);
+
 }

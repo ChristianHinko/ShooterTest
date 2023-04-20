@@ -32,28 +32,6 @@ static const FGunInitializationStatics& GetGunInitializationStatics()
 USTGameplayEffectExecutionCalculation_InitGun::USTGameplayEffectExecutionCalculation_InitGun(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	// Populate defaults for easy BP editing
-	const USTAttributeSet_Gun* DefaultAttributeSet = GetDefault<USTAttributeSet_Gun>(USTAttributeSet_Gun::StaticClass());
-
-	MinBulletSpread = DefaultAttributeSet->GetMinBulletSpread();
-	MovingBulletSpread = DefaultAttributeSet->GetMovingBulletSpread();
-	BulletSpreadIncRate = DefaultAttributeSet->GetBulletSpreadIncRate();
-	FireBulletSpread = DefaultAttributeSet->GetFireBulletSpread();
-	BulletSpreadDecSpeed = DefaultAttributeSet->GetBulletSpreadDecSpeed();
-
-	NumberOfBulletsPerFire = DefaultAttributeSet->GetNumberOfBulletsPerFire();
-	MaxRange = DefaultAttributeSet->GetMaxRange();
-	Penetrations = DefaultAttributeSet->GetPenetrations();
-	Ricochets = DefaultAttributeSet->GetRicochets();
-	InitialBulletSpeed = DefaultAttributeSet->GetInitialBulletSpeed();
-	BulletSpeedFalloff = DefaultAttributeSet->GetBulletSpeedFalloff();
-
-	bFullAuto = DefaultAttributeSet->GetbFullAuto();
-	TimeBetweenShots = DefaultAttributeSet->GetTimeBetweenShots();
-	TimeBetweenFiresOverride = DefaultAttributeSet->GetTimeBetweenFiresOverride();
-	TimeBetweenBurstsOverride = DefaultAttributeSet->GetTimeBetweenBurstsOverride();
-	NumShotsPerBurst = DefaultAttributeSet->GetNumShotsPerBurst();
-	AmmoCost = DefaultAttributeSet->GetAmmoCost();
 }
 
 void USTGameplayEffectExecutionCalculation_InitGun::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const

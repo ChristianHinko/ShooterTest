@@ -19,10 +19,6 @@ class SHOOTERTEST_API USTAttributeSet_Stamina : public UASSAttributeSet
 	GENERATED_BODY()
 
 public:
-	USTAttributeSet_Stamina(const FObjectInitializer& ObjectInitializer);
-
-
-	// Attributes
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxStamina, Category = "Attributes")
 		FGameplayAttributeData MaxStamina;
 	ATTRIBUTE_ACCESSORS(USTAttributeSet_Stamina, MaxStamina)
@@ -43,7 +39,6 @@ public:
 	ATTRIBUTE_ACCESSORS(USTAttributeSet_Stamina, StaminaRegenPause)
 
 protected:
-	// OnReps
 	UFUNCTION()
 		virtual void OnRep_MaxStamina(const FGameplayAttributeData& OldValue);
 	UFUNCTION()

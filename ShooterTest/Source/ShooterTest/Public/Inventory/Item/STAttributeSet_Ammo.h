@@ -19,10 +19,6 @@ class SHOOTERTEST_API USTAttributeSet_Ammo : public UASSAttributeSet
 	GENERATED_BODY()
 
 public:
-	USTAttributeSet_Ammo(const FObjectInitializer& ObjectInitializer);
-
-
-	// Attributes
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxAmmo, Category = "Attributes")
 		FGameplayAttributeData MaxAmmo;
 	ATTRIBUTE_ACCESSORS(USTAttributeSet_Ammo, MaxAmmo)
@@ -43,7 +39,6 @@ protected:
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 
 
-	// OnReps
 	UFUNCTION()
 		virtual void OnRep_MaxAmmo(const FGameplayAttributeData& OldValue);
 
@@ -52,5 +47,4 @@ protected:
 
 	UFUNCTION()
 		virtual void OnRep_MaxClipAmmo(const FGameplayAttributeData& OldValue);
-
 };

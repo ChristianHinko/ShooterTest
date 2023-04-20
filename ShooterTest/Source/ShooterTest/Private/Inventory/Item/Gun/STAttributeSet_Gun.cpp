@@ -39,35 +39,6 @@ void USTAttributeSet_Gun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME_WITH_PARAMS_FAST(USTAttributeSet_Gun, AmmoCost, Params);
 }
 
-USTAttributeSet_Gun::USTAttributeSet_Gun(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
-
-	, MinBulletSpread(10.f)
-	, MovingBulletSpread(20.f)
-	, BulletSpreadIncRate(70.f)
-	, FireBulletSpread(50.f)
-	, BulletSpreadDecSpeed(15.f)
-
-	, NumberOfBulletsPerFire(1.f)
-	, MaxRange(100000.f)
-	, Penetrations(-1)
-	, Ricochets(-1)
-	, InitialBulletSpeed(20.f)
-	, BulletSpeedFalloff(0.02f)
-
-	, bFullAuto(0)
-	, TimeBetweenShots(0.1f)
-	, TimeBetweenFiresOverride(-1.f)
-	, TimeBetweenBurstsOverride(-1.f)
-	, NumShotsPerBurst(1)
-	, AmmoCost(1.f)
-{
-}
-
-
-
-// OnReps
-
 
 void USTAttributeSet_Gun::OnRep_MinBulletSpread(const FGameplayAttributeData& OldValue)
 {

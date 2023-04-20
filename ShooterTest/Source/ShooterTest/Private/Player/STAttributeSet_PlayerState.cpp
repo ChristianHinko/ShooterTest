@@ -20,14 +20,6 @@ void USTAttributeSet_PlayerState::GetLifetimeReplicatedProps(TArray<FLifetimePro
 	DOREPLIFETIME_WITH_PARAMS_FAST(USTAttributeSet_PlayerState, ExampleAttribute, Params);
 }
 
-USTAttributeSet_PlayerState::USTAttributeSet_PlayerState(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
-	, ExampleAttribute(100)
-{
-}
-
-
-// OnReps
 
 void USTAttributeSet_PlayerState::OnRep_ExampleAttribute(const FGameplayAttributeData& OldValue)
 {

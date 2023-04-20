@@ -19,10 +19,6 @@ class SHOOTERTEST_API USTAttributeSet_CharacterMovement : public UASSAttributeSe
 	GENERATED_BODY()
 
 public:
-	USTAttributeSet_CharacterMovement(const FObjectInitializer& ObjectInitializer);
-
-
-	// Attributes
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_WalkSpeed, Category = "MovementAttributes")
 		FGameplayAttributeData WalkSpeed;
 	ATTRIBUTE_ACCESSORS(USTAttributeSet_CharacterMovement, WalkSpeed)
@@ -39,9 +35,7 @@ public:
 		FGameplayAttributeData RunAccelaration;
 	ATTRIBUTE_ACCESSORS(USTAttributeSet_CharacterMovement, RunAccelaration)
 
-
 protected:
-	// OnReps
 	UFUNCTION()
 		virtual void OnRep_WalkSpeed(const FGameplayAttributeData& OldValue);
 	UFUNCTION()

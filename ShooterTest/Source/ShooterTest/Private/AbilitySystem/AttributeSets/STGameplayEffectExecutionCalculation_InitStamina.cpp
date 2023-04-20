@@ -39,13 +39,6 @@ static const FStaminaInitializationStatics& GetStaminaInitializationStatics()
 USTGameplayEffectExecutionCalculation_InitStamina::USTGameplayEffectExecutionCalculation_InitStamina(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	const USTAttributeSet_Stamina* DefaultAttributeSet = GetDefault<USTAttributeSet_Stamina>(USTAttributeSet_Stamina::StaticClass());
-
-	// Populate defaults for easy BP editing
-	MaxStamina = DefaultAttributeSet->GetMaxStamina();
-	StaminaDrain = DefaultAttributeSet->GetStaminaDrain();
-	StaminaGain = DefaultAttributeSet->GetStaminaGain();
-	StaminaRegenPause = DefaultAttributeSet->GetStaminaRegenPause();
 }
 
 void USTGameplayEffectExecutionCalculation_InitStamina::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const

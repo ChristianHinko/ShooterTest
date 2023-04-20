@@ -40,11 +40,6 @@ static const FAmmoInitializationStatics& GetAmmoInitializationStatics()
 USTGameplayEffectExecutionCalculation_InitAmmo::USTGameplayEffectExecutionCalculation_InitAmmo(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	const USTAttributeSet_Ammo* DefaultAttributeSet = GetDefault<USTAttributeSet_Ammo>();
-
-	// Populate defaults for easy BP editing
-	MaxAmmo = DefaultAttributeSet->GetMaxAmmo();
-	MaxClipAmmo = DefaultAttributeSet->GetMaxClipAmmo();
 }
 
 void USTGameplayEffectExecutionCalculation_InitAmmo::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const

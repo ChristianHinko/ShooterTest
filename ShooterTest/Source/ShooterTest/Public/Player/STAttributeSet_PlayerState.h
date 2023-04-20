@@ -19,16 +19,11 @@ class SHOOTERTEST_API USTAttributeSet_PlayerState : public UASSAttributeSet
 	GENERATED_BODY()
 
 public:
-	USTAttributeSet_PlayerState(const FObjectInitializer& ObjectInitializer);
-
-
-	// Attributes
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ExampleAttribute, Category = "Attributes")
 		FGameplayAttributeData ExampleAttribute;
 	ATTRIBUTE_ACCESSORS(USTAttributeSet_PlayerState, ExampleAttribute)
 
 protected:
-	// OnReps
 	UFUNCTION()
 		virtual void OnRep_ExampleAttribute(const FGameplayAttributeData& OldValue);
 };

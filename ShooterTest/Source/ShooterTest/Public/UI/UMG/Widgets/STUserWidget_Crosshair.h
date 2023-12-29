@@ -10,7 +10,7 @@
 
 class USizeBox;
 class UImage;
-class USTObject_BulletSpread;
+class USTItemFragment_BulletSpread;
 
 
 
@@ -58,7 +58,7 @@ protected:
 	virtual void OnPlayerASCValid() override;
 
 	UPROPERTY()
-		TWeakObjectPtr<USTObject_BulletSpread> BulletSpreadSubobject;
+		TWeakObjectPtr<USTItemFragment_BulletSpread> BulletSpreadItemFragment;
 	UFUNCTION()
 		void OnCurrentBulletSpreadChange(FGCFloatPropertyWrapper& PropertyWrapper, const float& InOldValue, const float& InNewValue);
 

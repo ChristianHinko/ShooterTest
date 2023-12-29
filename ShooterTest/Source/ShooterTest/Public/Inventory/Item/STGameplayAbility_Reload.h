@@ -8,7 +8,7 @@
 #include "STGameplayAbility_Reload.generated.h"
 
 
-class USTObject_ClipAmmo;
+class USTItemFragment_ClipAmmo;
 
 
 
@@ -44,5 +44,5 @@ protected:
 	//  END UGameplayAbility Interface
 
 	UPROPERTY()
-		TWeakObjectPtr<USTObject_ClipAmmo> ClipAmmoSubobject;
+		TWeakObjectPtr<USTItemFragment_ClipAmmo> ClipAmmoItemFragment;
 };

@@ -8,7 +8,7 @@
 #include "STUserWidget_Ammo.generated.h"
 
 
-class USTObject_ClipAmmo;
+class USTItemFragment_ClipAmmo;
 class UTextBlock;
 
 
@@ -47,7 +47,7 @@ protected:
 	virtual void OnPlayerASCValid() override;
 
 	UPROPERTY()
-		TWeakObjectPtr<USTObject_ClipAmmo> ClipAmmoSubobject;
+		TWeakObjectPtr<USTItemFragment_ClipAmmo> ClipAmmoItemFragment;
 	UFUNCTION()
 		void OnClipAmmoChange(FGCInt32PropertyWrapper& PropertyWrapper, const int32& InOldValue, const int32& InNewValue);
 

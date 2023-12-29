@@ -61,6 +61,7 @@ void FSTGameplayAbilityActorInfo::ClearActorInfo()
 #include "Character/STCharacter_Shooter.h"
 #include "ArcInventoryComponent.h"
 #include "ArcItemBPFunctionLibrary.h"
+#include "Modular/ArcInventoryComponent_Modular.h"
 
 
 
@@ -77,7 +78,7 @@ void FSTGameplayAbilityActorInfo_Shooter::InitFromActor(AActor* InOwnerActor, AA
 	// Get our Inventory
 	if (IsValid(InAvatarActor))
 	{
-		InventoryComponent = UArcItemBPFunctionLibrary::GetInventoryComponent(InAvatarActor, true);
+		InventoryComponent = Cast<UArcInventoryComponent_Modular>(UArcItemBPFunctionLibrary::GetInventoryComponent(InAvatarActor, true));
 	}
 	else
 	{

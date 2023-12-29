@@ -4,30 +4,26 @@
 
 #include "CoreMinimal.h"
 #include "Types\PropertyWrappers\GCPropertyWrappers.h"
+#include "Modular/ArcItemFragment.h"
 
-#include "STObject_ClipAmmo.generated.h"
-
+#include "STItemFragment_ClipAmmo.generated.h"
 
 
 /**
- * Has ammo float
+ * 
  */
 UCLASS()
-class SHOOTERTEST_API USTObject_ClipAmmo : public UObject
+class SHOOTERTEST_API USTItemFragment_ClipAmmo : public UArcItemFragment
 {
 	GENERATED_BODY()
 
 public:
-	virtual bool IsSupportedForNetworking() const override;
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags);
-	
+
 public:
-	USTObject_ClipAmmo(const FObjectInitializer& ObjectInitializer);
+	USTItemFragment_ClipAmmo();
 
 
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Ammo")
 		FGCInt32PropertyWrapper ClipAmmo;
-
-protected:
-
 };

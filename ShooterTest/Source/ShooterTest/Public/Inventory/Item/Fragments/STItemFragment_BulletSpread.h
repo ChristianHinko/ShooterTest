@@ -3,36 +3,29 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Types\PropertyWrappers\GCPropertyWrappers.h"
-#include "AttributeSet.h"
-#include "GameplayEffectTypes.h"
+#include "Modular/ArcItemFragment.h"
+#include "Types/PropertyWrappers/GCPropertyWrappers.h"
 
-#include "STObject_BulletSpread.generated.h"
-
+#include "STItemFragment_BulletSpread.generated.h"
 
 class UAbilitySystemComponent;
 class UCharacterMovementComponent;
-class UArcInventoryComponent_Active;
-class UArcItemStack;
-
-
 
 /**
  * Has CurrentBulletSpread float.
- * 
+ *
  * NOTE: Searches externally for Stamina-related Attributes
  */
 UCLASS()
-class SHOOTERTEST_API USTObject_BulletSpread : public UObject, public FTickableGameObject
+class SHOOTERTEST_API USTItemFragment_BulletSpread : public UArcItemFragment, public FTickableGameObject
 {
 	GENERATED_BODY()
-
 public:
 	virtual bool IsSupportedForNetworking() const override;
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags);
 
 public:
-	USTObject_BulletSpread(const FObjectInitializer& ObjectInitializer);
+	USTItemFragment_BulletSpread();
 
 
 	/** Current bullet spread. Non-replicated because set every frame */
@@ -72,5 +65,4 @@ protected:
 	mutable float BulletSpreadIncRate;
 	mutable float FireBulletSpread;
 	mutable float BulletSpreadDecSpeed;
-
 };

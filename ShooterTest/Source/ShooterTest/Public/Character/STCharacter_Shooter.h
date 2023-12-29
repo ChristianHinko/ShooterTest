@@ -12,7 +12,8 @@
 class ISTInteractableInterface;
 class USTActorComponent_Interactor;
 class UArcInventoryComponent;
-class USTInventoryComponent_Shooter;
+class UArcInventoryComponent_Modular;
+class USTInventoryProcessor_Shooter;
 class UInputComponent;
 
 
@@ -27,7 +28,7 @@ class SHOOTERTEST_API ASTCharacter_Shooter : public ASTCharacter, public IArcInv
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Inventory")
-		TObjectPtr<UArcInventoryComponent> InventoryComponent;
+		TObjectPtr<UArcInventoryComponent_Modular> InventoryComponent;
 	static const FName InventoryComponentName;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Interactor")
@@ -38,7 +39,7 @@ public:
 
 
 	// Subobject getters
-	UArcInventoryComponent* GetInventoryComponent() const override { return InventoryComponent; }
+	UArcInventoryComponent* GetInventoryComponent() const override { return static_cast<UArcInventoryComponent*>(InventoryComponent); }
 	USTActorComponent_Interactor* GetInteractorComponent() const { return Interactor; }
 
 protected:
@@ -65,6 +66,6 @@ protected:
 private:
 	// Cached Inventory
 	UPROPERTY()
-		TWeakObjectPtr<USTInventoryComponent_Shooter> ShooterInventoryComponent;
+		TWeakObjectPtr<USTInventoryProcessor_Shooter> ShooterInventoryProcessor;
 
 };

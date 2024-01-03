@@ -213,7 +213,11 @@ bool USTGameplayAbility_FireGun::CheckCooldown(const FGameplayAbilitySpecHandle 
 	}
 
 	// If we're firing too fast
-	const float TimePassed = GetWorld()->GetTimeSeconds() - TimestampPreviousFireEnd;
+	check(ActorInfo)
+	check(ActorInfo->OwnerActor.IsValid())
+	check(ActorInfo->OwnerActor->GetWorld())
+	const float WorldTimeSeconds = ActorInfo->OwnerActor->GetWorld()->GetTimeSeconds();
+	const float TimePassed = WorldTimeSeconds - TimestampPreviousFireEnd;
 	if (TimePassed < GetTimeBetweenFires())
 	{
 		UE_LOG(LogSTGameplayAbility, Verbose, TEXT("%s() Tried firing gun faster than the gun's FireRate allowed. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
@@ -231,6 +235,7 @@ bool USTGameplayAbility_FireGun::CheckCost(const FGameplayAbilitySpecHandle Hand
 	}
 
 	// If we don't have enough ammo
+	check(ClipAmmoItemFragment.IsValid())
 	const int32 ClipAmmoAfterNextShot = ClipAmmoItemFragment->ClipAmmo - AmmoCost;
 	if (ClipAmmoAfterNextShot < 0)
 	{

@@ -18,7 +18,7 @@
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
 #include "InputTriggers.h"
-#include "ISEngineSubsystem_InputActions.h"
+#include "Subsystems/ISEngineSubsystem_ObjectReferenceLibrary.h"
 
 
 
@@ -222,10 +222,10 @@ void ASTCharacter_Shooter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	UEnhancedInputComponent* PlayerEnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (IsValid(PlayerEnhancedInputComponent))
 	{
-		const UISEngineSubsystem_InputActions* InputActionsSubsystem = GEngine->GetEngineSubsystem<UISEngineSubsystem_InputActions>();
-		if (IsValid(InputActionsSubsystem))
+		const UISEngineSubsystem_ObjectReferenceLibrary* InputSetupObjectReferenceLibrary = GEngine->GetEngineSubsystem<UISEngineSubsystem_ObjectReferenceLibrary>();
+		if (IsValid(InputSetupObjectReferenceLibrary))
 		{
-			const UInputAction* InputActionInteract = InputActionsSubsystem->GetInputAction(STNativeGameplayTags::InputAction_Interact);
+			const UInputAction* InputActionInteract = InputSetupObjectReferenceLibrary->GetInputAction(STNativeGameplayTags::InputAction_Interact);
 			if (IsValid(InputActionInteract))
 			{
 				PlayerEnhancedInputComponent->BindAction(InputActionInteract, ETriggerEvent::Started, this, &ThisClass::OnPressedInteract);

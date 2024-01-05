@@ -19,7 +19,7 @@
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
 #include "InputTriggers.h"
-#include "ISEngineSubsystem_InputActions.h"
+#include "Subsystems/ISEngineSubsystem_ObjectReferenceLibrary.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -613,30 +613,29 @@ void ASTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	ISPawnExtensionComponent->OnOwnerSetupPlayerInputComponent(PlayerInputComponent);
 	PSPawnExtensionComponent->OnOwnerSetupPlayerInputComponent(PlayerInputComponent);
 
 	UEnhancedInputComponent* PlayerEnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (IsValid(PlayerEnhancedInputComponent))
 	{
-		const UISEngineSubsystem_InputActions* InputActionsSubsystem = GEngine->GetEngineSubsystem<UISEngineSubsystem_InputActions>();
-		if (IsValid(InputActionsSubsystem))
+		const UISEngineSubsystem_ObjectReferenceLibrary* InputSetupObjectReferenceLibrary = GEngine->GetEngineSubsystem<UISEngineSubsystem_ObjectReferenceLibrary>();
+		if (IsValid(InputSetupObjectReferenceLibrary))
 		{
-			const UInputAction* InputActionRun = InputActionsSubsystem->GetInputAction(STNativeGameplayTags::InputAction_Run);
+			const UInputAction* InputActionRun = InputSetupObjectReferenceLibrary->GetInputAction(STNativeGameplayTags::InputAction_Run);
 			if (IsValid(InputActionRun))
 			{
 				PlayerEnhancedInputComponent->BindAction(InputActionRun, ETriggerEvent::Started, this, &ThisClass::OnPressedRun);
 				PlayerEnhancedInputComponent->BindAction(InputActionRun, ETriggerEvent::Completed, this, &ThisClass::OnReleasedRun);
 			}
 
-			const UInputAction* InputActionJump = InputActionsSubsystem->GetInputAction(STNativeGameplayTags::InputAction_Jump);
+			const UInputAction* InputActionJump = InputSetupObjectReferenceLibrary->GetInputAction(STNativeGameplayTags::InputAction_Jump);
 			if (IsValid(InputActionJump))
 			{
 				PlayerEnhancedInputComponent->BindAction(InputActionJump, ETriggerEvent::Started, this, &ThisClass::OnPressedJump);
 				PlayerEnhancedInputComponent->BindAction(InputActionJump, ETriggerEvent::Completed, this, &ThisClass::OnReleasedJump);
 			}
 
-			const UInputAction* InputActionCrouch = InputActionsSubsystem->GetInputAction(STNativeGameplayTags::InputAction_Crouch);
+			const UInputAction* InputActionCrouch = InputSetupObjectReferenceLibrary->GetInputAction(STNativeGameplayTags::InputAction_Crouch);
 			if (IsValid(InputActionCrouch))
 			{
 				PlayerEnhancedInputComponent->BindAction(InputActionCrouch, ETriggerEvent::Started, this, &ThisClass::OnPressedCrouch);

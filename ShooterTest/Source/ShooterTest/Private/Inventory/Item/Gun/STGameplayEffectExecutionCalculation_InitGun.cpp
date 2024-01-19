@@ -84,7 +84,7 @@ void USTGameplayEffectExecutionCalculation_InitGun::Execute_Implementation(const
 				UArcItemStackModular* ActiveItemStack = InventoryProcessor_Active->GetActiveItemStack();
 				if (IsValid(ActiveItemStack))
 				{
-					USTItemFragment_BulletSpread* BulletSpreadItemFragment = ActiveItemStack->FindFirstFragment<USTItemFragment_BulletSpread>();
+					USTItemFragment_BulletSpreadInstanced* BulletSpreadItemFragment = ActiveItemStack->FindFirstFragment<USTItemFragment_BulletSpreadInstanced>();
 
 					if (IsValid(BulletSpreadItemFragment))
 					{

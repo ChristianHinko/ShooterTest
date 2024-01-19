@@ -97,7 +97,7 @@ void ASTCharacter_Shooter::Tick(float DeltaSeconds)
 				const FGCInt32PropertyWrapper& ClipAmmo = ClipAmmoItemFragment->ClipAmmo;
 				//UKismetSystemLibrary::PrintString(this, ClipAmmo.GetDebugString(), true, false);
 
-				USTItemFragment_BulletSpread* BulletSpreadItemFragment = ActiveItemStack->FindFirstFragment<USTItemFragment_BulletSpread>();
+				USTItemFragment_BulletSpreadInstanced* BulletSpreadItemFragment = ActiveItemStack->FindFirstFragment<USTItemFragment_BulletSpreadInstanced>();
 				const FGCFloatPropertyWrapper& CurrentBulletSpread = BulletSpreadItemFragment->CurrentBulletSpread;
 				//UKismetSystemLibrary::PrintString(this, CurrentBulletSpread.GetDebugString(), true, false);
 			}

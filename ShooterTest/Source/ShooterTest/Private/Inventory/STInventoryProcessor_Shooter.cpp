@@ -4,6 +4,7 @@
 #include "Inventory/STInventoryProcessor_Shooter.h"
 
 #include "Modular/ArcItemStackModular.h"
+#include "Inventory/AIEBlueprintFunctionLibrary_Inventory.h"
 #include "UI/STHUD_Shooter.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Modular/ArcItemStackModular.h"
@@ -39,7 +40,7 @@ void USTInventoryProcessor_Shooter::OnInitializeAbilitySystemComponent(UAbilityS
 	UArcItemStackModular* ItemStack = Cast<UArcItemStackModular>(GetActiveItemStack());
 	if (IsValid(ItemStack))
 	{
-		USTItemFragment_BulletSpread* BulletSpreadItemFragment = ItemStack->FindFirstFragment<USTItemFragment_BulletSpread>();
+		USTItemFragment_BulletSpreadInstanced* BulletSpreadItemFragment = ItemStack->FindFirstFragment<USTItemFragment_BulletSpreadInstanced>();
 		if (IsValid(BulletSpreadItemFragment))
 		{
 			BulletSpreadItemFragment->SetAbilitySystemComponent(GetOwningAbilitySystemComponent());
@@ -60,10 +61,12 @@ void USTInventoryProcessor_Shooter::OnItemSlotChange_Implementation(const FArcIn
 			{
 				clipAmmoFragment->GetOrCreateInstancedClipAmmoFragment(ItemStack);
 			}
+			
+			UAIEBlueprintFunctionLibrary_Inventory::CreateInstancedVersionOfItemFragmentIfNeeded<USTItemFragment_BulletSpread, USTItemFragment_BulletSpreadInstanced>(ItemStack);
 		}
 
-		// Inject the Ability System Component into our gu
-		USTItemFragment_BulletSpread* BulletSpreadItemFragment = ItemStack->FindFirstFragment<USTItemFragment_BulletSpread>();
+		// Inject the Ability System Component into our bullet spread fragment
+		USTItemFragment_BulletSpreadInstanced* BulletSpreadItemFragment = ItemStack->FindFirstFragment<USTItemFragment_BulletSpreadInstanced>();
 		if (IsValid(BulletSpreadItemFragment))
 		{
 			BulletSpreadItemFragment->SetAbilitySystemComponent(GetOwningAbilitySystemComponent());
@@ -90,7 +93,7 @@ void USTInventoryProcessor_Shooter::MakeItemActive(int32 NewActiveItemSlot)
 		UArcItemStackModular* ItemStack = Cast<UArcItemStackModular>(ActiveItemStack);
 		if (IsValid(ItemStack))
 		{
-			USTItemFragment_BulletSpread* BulletSpreadItemFragment = ItemStack->FindFirstFragment<USTItemFragment_BulletSpread>();
+			USTItemFragment_BulletSpreadInstanced* BulletSpreadItemFragment = ItemStack->FindFirstFragment<USTItemFragment_BulletSpreadInstanced>();
 			if (IsValid(BulletSpreadItemFragment))
 			{
 				// NOTE: The BulletSpread subobject looks for numeric Attribute values from the ASC. These Attribute values should be the ones
@@ -137,7 +140,7 @@ void USTInventoryProcessor_Shooter::MakeItemInactive()
 	// Reset our gun's CurrentBulletSpread
 	if (IsValid(ItemStack))
 	{
-		USTItemFragment_BulletSpread* BulletSpreadItemFragment = ItemStack->FindFirstFragment<USTItemFragment_BulletSpread>();
+		USTItemFragment_BulletSpreadInstanced* BulletSpreadItemFragment = ItemStack->FindFirstFragment<USTItemFragment_BulletSpreadInstanced>();
 		if (IsValid(BulletSpreadItemFragment))
 		{
 			BulletSpreadItemFragment->ResetBulletSpread();

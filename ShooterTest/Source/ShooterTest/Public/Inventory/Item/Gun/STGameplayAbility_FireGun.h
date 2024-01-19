@@ -13,7 +13,7 @@ class USTAttributeSet_Gun;
 class UArcItemStackModular;
 class USTItemFragment_ClipAmmoInstanced;
 class USTItemFragment_BulletBehavior;
-class USTItemFragment_BulletSpread;
+class USTItemFragment_BulletSpreadInstanced;
 class USTAbilityTask_WaitTargetData;
 class UASSEAbilityTask_Ticker;
 struct FOnAttributeChangeData;
@@ -70,7 +70,7 @@ protected:
 	UPROPERTY()
 		TWeakObjectPtr<USTItemFragment_BulletBehavior> BulletBehaviorItemFragment;
 	UPROPERTY()
-		TWeakObjectPtr<USTItemFragment_BulletSpread> BulletSpreadItemFragment;
+		TWeakObjectPtr<USTItemFragment_BulletSpreadInstanced> BulletSpreadItemFragment;
 
 	/**
 	 * Our spawned Target Actor from the GunToFire.

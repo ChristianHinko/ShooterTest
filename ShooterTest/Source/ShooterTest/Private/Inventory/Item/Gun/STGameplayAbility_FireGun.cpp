@@ -102,7 +102,7 @@ void USTGameplayAbility_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* 
 	}
 
 	ClipAmmoItemFragment = ItemStack->FindFirstFragment<USTItemFragment_ClipAmmoInstanced>();
-	BulletSpreadItemFragment = ItemStack->FindFirstFragment<USTItemFragment_BulletSpread>();
+	BulletSpreadItemFragment = ItemStack->FindFirstFragment<USTItemFragment_BulletSpreadInstanced>();
 
 
 

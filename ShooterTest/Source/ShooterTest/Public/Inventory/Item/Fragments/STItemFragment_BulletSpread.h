@@ -12,25 +12,35 @@ class UAbilitySystemComponent;
 class UCharacterMovementComponent;
 
 /**
+ * 
+ */
+UCLASS()
+class SHOOTERTEST_API USTItemFragment_BulletSpread : public UArcItemFragment
+{
+	GENERATED_BODY()
+
+public:
+
+	USTItemFragment_BulletSpread();
+};
+
+/**
  * Has CurrentBulletSpread float.
  *
  * NOTE: Searches externally for Stamina-related Attributes
  */
 UCLASS()
-class SHOOTERTEST_API USTItemFragment_BulletSpread : public UArcItemFragment, public FTickableGameObject
+class SHOOTERTEST_API USTItemFragment_BulletSpreadInstanced : public UArcItemFragment, public FTickableGameObject
 {
 	GENERATED_BODY()
-public:
-	virtual bool IsSupportedForNetworking() const override;
-	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags);
 
 public:
-	USTItemFragment_BulletSpread();
+	USTItemFragment_BulletSpreadInstanced();
 
 
 	/** Current bullet spread. Non-replicated because set every frame */
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "BulletSpread")
-		mutable FGCFloatPropertyWrapper CurrentBulletSpread;
+	mutable FGCFloatPropertyWrapper CurrentBulletSpread;
 
 
 	float GetRestBulletSpread() const;
@@ -54,11 +64,10 @@ protected:
 	virtual bool IsTickableWhenPaused() const override { return false; };
 	//  END FTickableGameObject interface
 
-
-	UPROPERTY()
-		TWeakObjectPtr<const UAbilitySystemComponent> OwnerASC;
-	UPROPERTY()
-		TWeakObjectPtr<const UCharacterMovementComponent> CMC;
+	UPROPERTY(Transient)
+	TObjectPtr<const UAbilitySystemComponent> OwnerASC;
+	UPROPERTY(Transient)
+	TObjectPtr<const UCharacterMovementComponent> CMC;
 
 	mutable float MinBulletSpread;
 	mutable float MovingBulletSpread;

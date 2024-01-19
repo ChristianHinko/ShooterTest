@@ -10,7 +10,7 @@
 
 class USizeBox;
 class UImage;
-class USTItemFragment_BulletSpread;
+class USTItemFragment_BulletSpreadInstanced;
 
 
 
@@ -25,29 +25,29 @@ class SHOOTERTEST_API USTUserWidget_Crosshair : public UASSEUserWidget
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-		TObjectPtr<USizeBox> SizeBoxTop;
+	TObjectPtr<USizeBox> SizeBoxTop;
 	UPROPERTY(meta = (BindWidget))
-		TObjectPtr<USizeBox> SizeBoxBottom;
+	TObjectPtr<USizeBox> SizeBoxBottom;
 	UPROPERTY(meta = (BindWidget))
-		TObjectPtr<USizeBox> SizeBoxLeft;
+	TObjectPtr<USizeBox> SizeBoxLeft;
 	UPROPERTY(meta = (BindWidget))
-		TObjectPtr<USizeBox> SizeBoxRight;
+	TObjectPtr<USizeBox> SizeBoxRight;
 
 	UPROPERTY(meta = (BindWidget))
-		TObjectPtr<UImage> ImageTop;
+	TObjectPtr<UImage> ImageTop;
 	UPROPERTY(meta = (BindWidget))
-		TObjectPtr<UImage> ImageBottom;
+	TObjectPtr<UImage> ImageBottom;
 	UPROPERTY(meta = (BindWidget))
-		TObjectPtr<UImage> ImageLeft;
+	TObjectPtr<UImage> ImageLeft;
 	UPROPERTY(meta = (BindWidget))
-		TObjectPtr<UImage> ImageRight;
-	
+	TObjectPtr<UImage> ImageRight;
+
 public:
 	USTUserWidget_Crosshair(const FObjectInitializer& ObjectInitializer);
 
 
 	UPROPERTY(EditAnywhere, Category = "Crosshair")
-		FSlateBrush CrosshairBrush;
+	FSlateBrush CrosshairBrush;
 
 protected:
 	virtual void NativePreConstruct() override;
@@ -58,7 +58,7 @@ protected:
 	virtual void OnPlayerASCValid() override;
 
 	UPROPERTY()
-		TWeakObjectPtr<USTItemFragment_BulletSpread> BulletSpreadItemFragment;
+	TWeakObjectPtr<USTItemFragment_BulletSpreadInstanced> BulletSpreadItemFragment;
 	UFUNCTION()
 		void OnCurrentBulletSpreadChange(FGCFloatPropertyWrapper& PropertyWrapper, const float& InOldValue, const float& InNewValue);
 

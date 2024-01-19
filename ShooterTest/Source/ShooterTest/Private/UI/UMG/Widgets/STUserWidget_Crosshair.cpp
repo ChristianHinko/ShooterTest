@@ -60,7 +60,7 @@ void USTUserWidget_Crosshair::OnPlayerASCValid()
 				UArcItemStackModular* ActiveItemStack = InventoryProcessorActive->GetActiveItemStack();
 				if (IsValid(ActiveItemStack))
 				{
-					BulletSpreadItemFragment = ActiveItemStack->FindFirstFragment<USTItemFragment_BulletSpread>();
+					BulletSpreadItemFragment = ActiveItemStack->FindFirstFragment<USTItemFragment_BulletSpreadInstanced>();
 				}
 			}
 		}

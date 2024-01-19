@@ -108,20 +108,20 @@ void USTInventoryProcessor_Shooter::MakeItemActive(int32 NewActiveItemSlot)
 
 
 	// Set the HUD's widget pointer
-	APlayerController* OwningPlayerController = UGCBlueprintFunctionLibrary_ActorHelpers::GetTypedOwnerIncludingSelfCasted<APlayerController>(GetOwningActor());
-	if (IsValid(OwningPlayerController))
+	APlayerController* owningPlayerController = UGCBlueprintFunctionLibrary_ActorHelpers::GetTypedOwnerIncludingSelfCasted<APlayerController>(GetOwningActor());
+	if (IsValid(owningPlayerController))
 	{
-		if (OwningPlayerController->IsLocalController())
+		if (owningPlayerController->IsLocalController())
 		{
-			ASTHUD_Shooter* ShooterHUD = Cast<ASTHUD_Shooter>(OwningPlayerController->GetHUD());
-			if (IsValid(ShooterHUD))
+			ASTHUD_Shooter* shooterHUD = Cast<ASTHUD_Shooter>(owningPlayerController->GetHUD());
+			if (IsValid(shooterHUD))
 			{
-				UAIEItemFragment_UIData* UIDataItemFragment = ActiveItemStack->FindFirstFragment<UAIEItemFragment_UIData>();
-				if (IsValid(UIDataItemFragment))
+				UAIEItemFragment_UIDataInstanced* uIDataItemFragment = ActiveItemStack->FindFirstFragment<UAIEItemFragment_UIDataInstanced>();
+				if (IsValid(uIDataItemFragment))
 				{
-					if (IsValid(UIDataItemFragment->ActiveItemWidget))
+					if (IsValid(uIDataItemFragment->ItemWidget))
 					{
-						ShooterHUD->CurrentActiveItemWidget = UIDataItemFragment->ActiveItemWidget;
+						shooterHUD->CurrentActiveItemWidget = uIDataItemFragment->ItemWidget;
 					}
 				}
 			}

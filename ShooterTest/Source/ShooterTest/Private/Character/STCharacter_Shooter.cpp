@@ -26,10 +26,7 @@
 const FName ASTCharacter_Shooter::InventoryComponentName = TEXT("InventoryComponent");
 
 ASTCharacter_Shooter::ASTCharacter_Shooter(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer
-		.SetDefaultSubobjectClass<USTCharacterMovementComponent_Shooter>(CharacterMovementComponentName)
-		.SetDefaultSubobjectClass<UArcInventoryComponent_Modular>(InventoryComponentName)
-	)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<USTCharacterMovementComponent_Shooter>(CharacterMovementComponentName))
 {
 	// Create Inventory
 	InventoryComponent = CreateDefaultSubobject<UArcInventoryComponent_Modular>(InventoryComponentName);

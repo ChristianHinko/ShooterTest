@@ -8,8 +8,9 @@
 #include "STUserWidget_Ammo.generated.h"
 
 
-class USTItemFragment_ClipAmmo;
+class USTItemFragment_ClipAmmoInstanced;
 class UTextBlock;
+struct FGCInt32PropertyWrapper;
 
 
 
@@ -24,22 +25,22 @@ class SHOOTERTEST_API USTUserWidget_Ammo : public UASSEUserWidget
 
 protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		TObjectPtr<UTextBlock> ClipAmmoText;
+	TObjectPtr<UTextBlock> ClipAmmoText;
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		TObjectPtr<UTextBlock> BackupAmmoText;
-	
+	TObjectPtr<UTextBlock> BackupAmmoText;
+
 public:
 	USTUserWidget_Ammo(const FObjectInitializer& ObjectInitializer);
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
-		FText ActiveItemName;
+	FText ActiveItemName;
 	/** The current clip ammo value of the attribute */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ammo")
-		int32 CurrentClipAmmo;
+	int32 CurrentClipAmmo;
 	/** The current backup ammo value of the attribute */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ammo")
-		float CurrentBackupAmmo;
+	float CurrentBackupAmmo;
 
 protected:
 	virtual void NativeDestruct() override;
@@ -47,12 +48,12 @@ protected:
 	virtual void OnPlayerASCValid() override;
 
 	UPROPERTY()
-		TWeakObjectPtr<USTItemFragment_ClipAmmo> ClipAmmoItemFragment;
+	TWeakObjectPtr<USTItemFragment_ClipAmmoInstanced> ClipAmmoItemFragment;
 	UFUNCTION()
-		void OnClipAmmoChange(FGCInt32PropertyWrapper& PropertyWrapper, const int32& InOldValue, const int32& InNewValue);
+	void OnClipAmmoChange(FGCInt32PropertyWrapper& PropertyWrapper, const int32& InOldValue, const int32& InNewValue);
 
 	/** Called on ammo values changed. Use this to update UI */
 	UFUNCTION()
-		void UpdateAmmoStatus();
+	void UpdateAmmoStatus();
 
 };

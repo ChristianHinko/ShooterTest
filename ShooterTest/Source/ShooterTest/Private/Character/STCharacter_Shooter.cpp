@@ -67,7 +67,7 @@ void ASTCharacter_Shooter::BeginPlay()
 #include "AbilitySystem/ASSAbilitySystemComponent.h"
 #include "AbilitySystem/AttributeSets/STAttributeSet_Stamina.h"
 #include "Modular/ArcItemStackModular.h"
-#include "Inventory\Item\Fragments\STItemFragment_BulletSpread.h"
+#include "Inventory/Item/Fragments/STItemFragment_BulletSpread.h"
 #include "Inventory/Item/Fragments/STItemFragment_ClipAmmo.h"
 //#include "Kismet/KismetMathLibrary.h"
 //#include "GameFramework/SpringArmComponent.h"
@@ -94,7 +94,7 @@ void ASTCharacter_Shooter::Tick(float DeltaSeconds)
 		UArcItemStackModular* ActiveItemStack = ShooterInventoryProcessor->GetActiveItemStack();
 		if (IsValid(ActiveItemStack))
 		{
-			USTItemFragment_ClipAmmo* ClipAmmoItemFragment = ActiveItemStack->FindFirstFragment<USTItemFragment_ClipAmmo>();
+			USTItemFragment_ClipAmmoInstanced* ClipAmmoItemFragment = ActiveItemStack->FindFirstFragment<USTItemFragment_ClipAmmoInstanced>();
 			if (IsValid(ClipAmmoItemFragment))
 			{
 				const FGCInt32PropertyWrapper& ClipAmmo = ClipAmmoItemFragment->ClipAmmo;

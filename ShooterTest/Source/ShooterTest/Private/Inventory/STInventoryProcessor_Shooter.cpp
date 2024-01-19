@@ -7,10 +7,11 @@
 #include "UI/STHUD_Shooter.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Modular/ArcItemStackModular.h"
-#include "Inventory\Item\Fragments\STItemFragment_BulletSpread.h"
+#include "Inventory/Item/Fragments/STItemFragment_BulletSpread.h"
 #include "Subobjects/ASSActorComponent_AvatarActorExtension.h"
 #include "BlueprintFunctionLibraries/GCBlueprintFunctionLibrary_ActorHelpers.h"
 #include "Inventory/Item/Fragments/AIEItemFragment_UIData.h"
+#include "Inventory/Item/Fragments/STItemFragment_ClipAmmo.h"
 
 
 
@@ -52,6 +53,15 @@ void USTInventoryProcessor_Shooter::OnItemSlotChange_Implementation(const FArcIn
 
 	if (IsValid(ItemStack) && ItemStack != PreviousItemStack) // if we are Equiping
 	{
+		// Item fragment initialization
+		{
+			USTItemFragment_ClipAmmo* clipAmmoFragment = ItemStack->FindFirstFragment<USTItemFragment_ClipAmmo>();
+			if (IsValid(clipAmmoFragment))
+			{
+				clipAmmoFragment->GetOrCreateInstancedClipAmmoFragment(ItemStack);
+			}
+		}
+
 		// Inject the Ability System Component into our gu
 		USTItemFragment_BulletSpread* BulletSpreadItemFragment = ItemStack->FindFirstFragment<USTItemFragment_BulletSpread>();
 		if (IsValid(BulletSpreadItemFragment))

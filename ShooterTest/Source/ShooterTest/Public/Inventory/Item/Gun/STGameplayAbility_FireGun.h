@@ -11,7 +11,7 @@
 class ASTGameplayAbilityTargetActor_BulletTrace;
 class USTAttributeSet_Gun;
 class UArcItemStackModular;
-class USTItemFragment_ClipAmmo;
+class USTItemFragment_ClipAmmoInstanced;
 class USTItemFragment_BulletBehavior;
 class USTItemFragment_BulletSpread;
 class USTAbilityTask_WaitTargetData;
@@ -66,7 +66,7 @@ protected:
 	UPROPERTY()
 		TWeakObjectPtr<UArcItemStackModular> ItemStack;
 	UPROPERTY()
-		TWeakObjectPtr<USTItemFragment_ClipAmmo> ClipAmmoItemFragment;
+		TWeakObjectPtr<USTItemFragment_ClipAmmoInstanced> ClipAmmoItemFragment;
 	UPROPERTY()
 		TWeakObjectPtr<USTItemFragment_BulletBehavior> BulletBehaviorItemFragment;
 	UPROPERTY()

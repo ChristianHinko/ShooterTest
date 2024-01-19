@@ -41,7 +41,7 @@ void USTGameplayAbility_Reload::OnGiveAbility(const FGameplayAbilityActorInfo* A
 		return;
 	}
 
-	ClipAmmoItemFragment = SourceGun->FindFirstFragment<USTItemFragment_ClipAmmo>();
+	ClipAmmoItemFragment = SourceGun->FindFirstFragment<USTItemFragment_ClipAmmoInstanced>();
 }
 void USTGameplayAbility_Reload::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {

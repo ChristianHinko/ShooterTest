@@ -36,7 +36,7 @@ void USTUserWidget_Ammo::OnPlayerASCValid()
 				UArcItemStackModular* ActiveItemStack = InventoryProcessorActive->GetActiveItemStack();
 				if (IsValid(ActiveItemStack))
 				{
-				 	ClipAmmoItemFragment = ActiveItemStack->FindFirstFragment<USTItemFragment_ClipAmmo>();
+					ClipAmmoItemFragment = ActiveItemStack->FindFirstFragment<USTItemFragment_ClipAmmoInstanced>();
 					if (ClipAmmoItemFragment.IsValid())
 					{
 						ClipAmmoItemFragment = ClipAmmoItemFragment;

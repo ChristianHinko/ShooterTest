@@ -83,7 +83,7 @@ void USTGameplayEffectExecutionCalculation_InitAmmo::Execute_Implementation(cons
 					UArcItemStackModular* ItemStack = SourceAttributeSetInitializerFragment->ItemStack.Get();
 					if (IsValid(ItemStack))
 					{
-						USTItemFragment_ClipAmmo* ClipAmmoItemFragment = ItemStack->FindFirstFragment<USTItemFragment_ClipAmmo>();
+						USTItemFragment_ClipAmmoInstanced* ClipAmmoItemFragment = ItemStack->FindFirstFragment<USTItemFragment_ClipAmmoInstanced>();
 						if (IsValid(ClipAmmoItemFragment))
 						{
 							ClipAmmoItemFragment->ClipAmmo = ClipAmmo;

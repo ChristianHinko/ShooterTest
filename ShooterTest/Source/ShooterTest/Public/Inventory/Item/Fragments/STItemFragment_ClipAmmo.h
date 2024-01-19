@@ -3,32 +3,24 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Types/PropertyWrappers/GCPropertyWrappers.h"
 #include "Modular/ArcItemFragment.h"
+#include "Types/PropertyWrappers/GCPropertyWrappers.h"
 
 #include "STItemFragment_ClipAmmo.generated.h"
 
-class UArcItemStackModular;
-class USTItemFragment_ClipAmmoInstanced;
-
 /**
+ * This fragment only exists so that item definitions can indicate that a
+ * fragment should be created for item stacks.
  *
+ * TODO @techdebt: How should item stack clip ammo fragments be added? Feels like they
+ * should be added automatically instead of being exposed to designers like this. E.g., maybe
+ * the initialization effect execution calculation adds the fragment for us - since it already
+ * initializes the clip ammo value.
  */
 UCLASS()
 class SHOOTERTEST_API USTItemFragment_ClipAmmo : public UArcItemFragment
 {
 	GENERATED_BODY()
-
-public:
-
-	USTItemFragment_ClipAmmo();
-
-public:
-
-	UPROPERTY(BlueprintReadOnly, Category = "Ammo")
-	FGCInt32PropertyWrapper ClipAmmo;
-
-	USTItemFragment_ClipAmmoInstanced& GetOrCreateInstancedClipAmmoFragment(UArcItemStackModular* itemStack) const;
 };
 
 /**

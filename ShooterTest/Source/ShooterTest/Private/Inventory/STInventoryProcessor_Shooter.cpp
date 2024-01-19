@@ -12,6 +12,7 @@
 #include "BlueprintFunctionLibraries/GCBlueprintFunctionLibrary_ActorHelpers.h"
 #include "Inventory/Item/Fragments/AIEItemFragment_UIData.h"
 #include "Inventory/Item/Fragments/STItemFragment_ClipAmmo.h"
+#include "Inventory/AIEBlueprintFunctionLibrary_Inventory.h"
 
 
 
@@ -55,11 +56,9 @@ void USTInventoryProcessor_Shooter::OnItemSlotChange_Implementation(const FArcIn
 	{
 		// Item fragment initialization
 		{
-			USTItemFragment_ClipAmmo* clipAmmoFragment = ItemStack->FindFirstFragment<USTItemFragment_ClipAmmo>();
-			if (IsValid(clipAmmoFragment))
-			{
-				clipAmmoFragment->GetOrCreateInstancedClipAmmoFragment(ItemStack);
-			}
+			UAIEBlueprintFunctionLibrary_Inventory::CreateInstancedVersionOfItemFragmentIfNeeded<
+				USTItemFragment_ClipAmmo,
+				USTItemFragment_ClipAmmoInstanced>(ItemStack);
 		}
 
 		// Inject the Ability System Component into our gu

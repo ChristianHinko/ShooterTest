@@ -39,6 +39,4 @@ public:
 
 protected:
 	virtual void NativeOnInitialized() override;
-	virtual void AddToScreen(ULocalPlayer* LocalPlayer, int32 ZOrder) override;
-
 };

@@ -50,19 +50,19 @@ struct SHOOTERTEST_API FSTGameplayAbilityActorInfo : public FASSGameplayAbilityA
 
 class USTAbilitySystemComponent_Shooter;
 class ASTCharacter_Shooter;
-class UArcInventoryComponent;
+class UArcInventoryComponent_Modular;
 
 
 /**
- * 
+ *
  */
 USTRUCT()
 struct SHOOTERTEST_API FSTGameplayAbilityActorInfo_Shooter : public FSTGameplayAbilityActorInfo
 {
     GENERATED_BODY()
 
-    // Our Shooter specific ASC
-    UPROPERTY(BlueprintReadOnly, Category = "ShooterActorInfo")
+        // Our Shooter specific ASC
+        UPROPERTY(BlueprintReadOnly, Category = "ShooterActorInfo")
         TWeakObjectPtr<USTAbilitySystemComponent_Shooter> ShooterAbilitySystemComponent;
 
     // Our ShooterCharacter
@@ -71,7 +71,7 @@ struct SHOOTERTEST_API FSTGameplayAbilityActorInfo_Shooter : public FSTGameplayA
 
     // Our Inventory Component
     UPROPERTY(BlueprintReadOnly, Category = "ShooterActorInfo")
-        TWeakObjectPtr<UArcInventoryComponent> InventoryComponent;
+        TWeakObjectPtr<UArcInventoryComponent_Modular> InventoryComponent;
 
 
     virtual void InitFromActor(AActor* OwnerActor, AActor* AvatarActor, UAbilitySystemComponent* InAbilitySystemComponent) override;

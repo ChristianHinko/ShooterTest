@@ -4,10 +4,13 @@
 #include "Inventory/Item/STGameplayEffectExecutionCalculation_InitAmmo.h"
 
 #include "Inventory/Item/STAttributeSet_Ammo.h"
-#include "Subobjects/STObject_ClipAmmo.h"
 #include "AbilitySystem/Types/STGameplayAbilityTypes.h"
 #include "Components/ArcInventoryComponent_Active.h"
-#include "Inventory/Item/Gun/STItemStack_Gun.h"
+#include "Inventory/AIEInventoryProcessor_Active.h"
+#include "Modular/ArcInventoryComponent_Modular.h"
+#include "Modular/ArcItemStackModular.h"
+#include "Inventory/Item/Fragments/STItemFragment_ClipAmmo.h"
+#include "Inventory/Item/Fragments/AIEItemFragment_AttributeSetInitializer.h"
 
 
 
@@ -40,11 +43,6 @@ static const FAmmoInitializationStatics& GetAmmoInitializationStatics()
 USTGameplayEffectExecutionCalculation_InitAmmo::USTGameplayEffectExecutionCalculation_InitAmmo(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	const USTAttributeSet_Ammo* DefaultAttributeSet = GetDefault<USTAttributeSet_Ammo>();
-
-	// Populate defaults for easy BP editing
-	MaxAmmo = DefaultAttributeSet->GetMaxAmmo();
-	MaxClipAmmo = DefaultAttributeSet->GetMaxClipAmmo();
 }
 
 void USTGameplayEffectExecutionCalculation_InitAmmo::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
@@ -73,17 +71,25 @@ void USTGameplayEffectExecutionCalculation_InitAmmo::Execute_Implementation(cons
 	// Get ClipAmmo subobject and initialize ClipAmmo
 	if (const FSTGameplayAbilityActorInfo_Shooter* ShooterActorInfo = static_cast<const FSTGameplayAbilityActorInfo_Shooter*>(TargetAbilitySystemComponent->AbilityActorInfo.Get()))
 	{
-		UArcInventoryComponent_Active* InventoryComponentActive = Cast<UArcInventoryComponent_Active>(ShooterActorInfo->InventoryComponent);
-		if (IsValid(InventoryComponentActive))
+		const UArcInventoryComponent_Modular* InventoryComponentModular = Cast<const UArcInventoryComponent_Modular>(ShooterActorInfo->InventoryComponent);
+		if (IsValid(InventoryComponentModular))
 		{
-			const UArcItemStack* ActiveItemStack = InventoryComponentActive->GetActiveItemStack();
-			if (IsValid(ActiveItemStack))
+			const UArcInventoryProcessor_Active* InventoryProcessor_Active = InventoryComponentModular->FindFirstProcessor<UArcInventoryProcessor_Active>();
+			if (IsValid(InventoryProcessor_Active))
 			{
-				const USTItemStack_Gun* GunStack = Cast<USTItemStack_Gun>(ActiveItemStack);
-				if (IsValid(GunStack))
+				const UAIEItemFragment_InstancedAttributeSetInitializer* SourceAttributeSetInitializerFragment = Cast<UAIEItemFragment_InstancedAttributeSetInitializer>(ExecutionParams.GetOwningSpec().GetContext().GetSourceObject());
+				if (IsValid(SourceAttributeSetInitializerFragment))
 				{
-					GunStack->GetClipAmmoSubobject()->ClipAmmo = ClipAmmo;
-					GunStack->GetClipAmmoSubobject()->ClipAmmo.MarkNetDirty(); // we are server-only here so replicate it
+					UArcItemStackModular* ItemStack = SourceAttributeSetInitializerFragment->ItemStack.Get();
+					if (IsValid(ItemStack))
+					{
+						USTItemFragment_ClipAmmoInstanced* ClipAmmoItemFragment = ItemStack->FindFirstFragment<USTItemFragment_ClipAmmoInstanced>();
+						if (IsValid(ClipAmmoItemFragment))
+						{
+							ClipAmmoItemFragment->ClipAmmo = ClipAmmo;
+							ClipAmmoItemFragment->ClipAmmo.MarkNetDirty(); // we are server-only here so replicate it
+						}
+					}
 				}
 			}
 		}

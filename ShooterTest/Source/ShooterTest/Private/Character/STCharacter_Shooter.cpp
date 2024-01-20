@@ -9,7 +9,8 @@
 #include "AbilitySystemComponent.h"
 #include "Subobjects/ActorComponents/STActorComponent_Interactor.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Inventory/STInventoryComponent_Shooter.h"
+#include "Inventory/STInventoryProcessor_Shooter.h"
+#include "Modular/ArcInventoryComponent_Modular.h"
 #include "ArcItemStack.h"
 #include "AttributeSets/ASSEAttributeSet_Health.h"
 #include "AbilitySystem/AttributeSets/STAttributeSet_Stamina.h"
@@ -17,7 +18,7 @@
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
 #include "InputTriggers.h"
-#include "ISEngineSubsystem_InputActions.h"
+#include "Subsystems/ISEngineSubsystem_ObjectReferenceLibrary.h"
 
 
 
@@ -25,14 +26,10 @@
 const FName ASTCharacter_Shooter::InventoryComponentName = TEXT("InventoryComponent");
 
 ASTCharacter_Shooter::ASTCharacter_Shooter(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer
-		.SetDefaultSubobjectClass<USTCharacterMovementComponent_Shooter>(CharacterMovementComponentName)
-		.SetDefaultSubobjectClass<USTInventoryComponent_Shooter>(InventoryComponentName)
-	)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<USTCharacterMovementComponent_Shooter>(CharacterMovementComponentName))
 {
 	// Create Inventory
-	InventoryComponent = CreateDefaultSubobject<UArcInventoryComponent>(InventoryComponentName);
-	ShooterInventoryComponent = Cast<USTInventoryComponent_Shooter>(InventoryComponent);
+	InventoryComponent = CreateDefaultSubobject<UArcInventoryComponent_Modular>(InventoryComponentName);
 
 	// Create Interactor
 	Interactor = CreateDefaultSubobject<USTActorComponent_Interactor>(TEXT("Interactor"));
@@ -51,6 +48,7 @@ void ASTCharacter_Shooter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	ShooterInventoryProcessor = InventoryComponent->FindFirstProcessor<USTInventoryProcessor_Shooter>();
 }
 
 
@@ -58,17 +56,16 @@ void ASTCharacter_Shooter::BeginPlay()
 #include "AttributeSets/ASSEAttributeSet_Health.h"
 #include "Inventory/Item/STAttributeSet_Ammo.h"
 #include "Inventory/Item/Gun/STAttributeSet_Gun.h"
-#include "Subobjects/STObject_ClipAmmo.h"
-#include "Subobjects/STObject_BulletSpread.h"
 #include "Subobjects/STObject_Stamina.h"
 #include "AbilitySystem/AttributeSets/STAttributeSet_Stamina.h"
 #include "ArcItemBPFunctionLibrary.h"
-#include "Item\ArcItemDefinition_New.h"
-#include "Inventory/Item/Gun/STItemStack_Gun.h"
 #include "Character/STCharacterMovementComponent.h"
 #include "AbilitySystem/AbilitySystemComponents/STAbilitySystemComponent_Shooter.h"
 #include "AbilitySystem/ASSAbilitySystemComponent.h"
 #include "AbilitySystem/AttributeSets/STAttributeSet_Stamina.h"
+#include "Modular/ArcItemStackModular.h"
+#include "Inventory/Item/Fragments/STItemFragment_BulletSpread.h"
+#include "Inventory/Item/Fragments/STItemFragment_ClipAmmo.h"
 //#include "Kismet/KismetMathLibrary.h"
 //#include "GameFramework/SpringArmComponent.h"
 void ASTCharacter_Shooter::Tick(float DeltaSeconds)
@@ -76,31 +73,32 @@ void ASTCharacter_Shooter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 
-	//for (int32 i = 0; i < ShooterInventoryComponent->ActiveItemHistory.Num(); ++i)
+	//for (int32 i = 0; i < ShooterInventoryProcessor->ActiveItemHistory.Num(); ++i)
 	//{
-	//	FArcInventoryItemSlotReference current = ShooterInventoryComponent->ActiveItemHistory[i];
+	//	FArcInventoryItemSlotReference current = ShooterInventoryProcessor->ActiveItemHistory[i];
 
 	//	UKismetSystemLibrary::PrintString(this, "["+FString::FromInt(current.SlotId)+"] " + current.SlotTags.GetByIndex(1).ToString(), true, false, FLinearColor::Green);
 	//}
 
-	if (ShooterInventoryComponent.IsValid())
+	if (ShooterInventoryProcessor.IsValid())
 	{
-		//UKismetSystemLibrary::PrintString(this, "Current Item Slot: " + FString::FromInt(ShooterInventoryComponent->GetActiveItemSlot().SlotId), true, false);
-		//UKismetSystemLibrary::PrintString(this, "Pending Item Slot: " + FString::FromInt(ShooterInventoryComponent->PendingItemSlot), true, false);
+		//UKismetSystemLibrary::PrintString(this, "Current Item Slot: " + FString::FromInt(ShooterInventoryProcessor->GetActiveItemSlot().SlotId), true, false);
+		//UKismetSystemLibrary::PrintString(this, "Pending Item Slot: " + FString::FromInt(ShooterInventoryProcessor->PendingItemSlot), true, false);
 	}
 
-	if (ShooterInventoryComponent.IsValid())
+	if (ShooterInventoryProcessor.IsValid())
 	{
-		const UArcItemStack* ActiveItemStack = ShooterInventoryComponent->GetActiveItemStack();
+		UArcItemStackModular* ActiveItemStack = ShooterInventoryProcessor->GetActiveItemStack();
 		if (IsValid(ActiveItemStack))
 		{
-			const USTItemStack_Gun* GunStack = Cast<USTItemStack_Gun>(ActiveItemStack);
-			if (IsValid(GunStack))
+			USTItemFragment_ClipAmmoInstanced* ClipAmmoItemFragment = ActiveItemStack->FindFirstFragment<USTItemFragment_ClipAmmoInstanced>();
+			if (IsValid(ClipAmmoItemFragment))
 			{
-				const FGCFloatPropertyWrapper& ClipAmmo = GunStack->GetClipAmmoSubobject()->ClipAmmo;
+				const FGCInt32PropertyWrapper& ClipAmmo = ClipAmmoItemFragment->ClipAmmo;
 				//UKismetSystemLibrary::PrintString(this, ClipAmmo.GetDebugString(), true, false);
 
-				const FGCFloatPropertyWrapper& CurrentBulletSpread = GunStack->GetBulletSpreadSubobject()->CurrentBulletSpread;
+				USTItemFragment_BulletSpreadInstanced* BulletSpreadItemFragment = ActiveItemStack->FindFirstFragment<USTItemFragment_BulletSpreadInstanced>();
+				const FGCFloatPropertyWrapper& CurrentBulletSpread = BulletSpreadItemFragment->CurrentBulletSpread;
 				//UKismetSystemLibrary::PrintString(this, CurrentBulletSpread.GetDebugString(), true, false);
 			}
 		}
@@ -151,11 +149,11 @@ void ASTCharacter_Shooter::Tick(float DeltaSeconds)
 
 	//}
 
-	//	Item history debug
+	//	Item history debug OUTDATED (ArcInventory 1.0)
 	//UKismetSystemLibrary::PrintString(this, "------------", true, false);
-	//if (ShooterInventoryComponent)
+	//if (ShooterInventoryProcessor)
 	//{
-	//	for (FArcInventoryItemSlotReference slotRef : ShooterInventoryComponent->ActiveItemHistory)
+	//	for (FArcInventoryItemSlotReference slotRef : ShooterInventoryProcessor->ActiveItemHistory)
 	//	{
 	//		UKismetSystemLibrary::PrintString(this, UArcItemBPFunctionLibrary::GetItemFromSlot(slotRef)->GetItemDefinition().GetDefaultObject()->GetFName().ToString(), true, false);
 
@@ -221,10 +219,10 @@ void ASTCharacter_Shooter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	UEnhancedInputComponent* PlayerEnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (IsValid(PlayerEnhancedInputComponent))
 	{
-		const UISEngineSubsystem_InputActions* InputActionsSubsystem = GEngine->GetEngineSubsystem<UISEngineSubsystem_InputActions>();
-		if (IsValid(InputActionsSubsystem))
+		const UISEngineSubsystem_ObjectReferenceLibrary* InputSetupObjectReferenceLibrary = GEngine->GetEngineSubsystem<UISEngineSubsystem_ObjectReferenceLibrary>();
+		if (IsValid(InputSetupObjectReferenceLibrary))
 		{
-			const UInputAction* InputActionInteract = InputActionsSubsystem->GetInputAction(STNativeGameplayTags::InputAction_Interact);
+			const UInputAction* InputActionInteract = InputSetupObjectReferenceLibrary->GetInputAction(STNativeGameplayTags::InputAction_Interact);
 			if (IsValid(InputActionInteract))
 			{
 				PlayerEnhancedInputComponent->BindAction(InputActionInteract, ETriggerEvent::Started, this, &ThisClass::OnPressedInteract);

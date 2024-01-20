@@ -4,11 +4,12 @@
 #include "UI/UMG/Widgets/STUserWidget_Ammo.h"
 
 #include "Inventory/Item/STAttributeSet_Ammo.h"
-#include "Subobjects/STObject_ClipAmmo.h"
+#include "Inventory\Item\Fragments\STItemFragment_ClipAmmo.h"
 #include "AbilitySystem/Types/STGameplayAbilityTypes.h"
-#include "Components/ArcInventoryComponent_Active.h"
-#include "Inventory/Item/Gun/STItemStack_Gun.h"
 #include "Components/TextBlock.h"
+#include "Modular/ArcInventoryComponent_Modular.h"
+#include "Inventory/AIEInventoryProcessor_Active.h"
+#include "Modular/ArcItemStackModular.h"
 
 
 
@@ -26,28 +27,32 @@ void USTUserWidget_Ammo::OnPlayerASCValid()
 	// Get ClipAmmo subobject
 	if (const FSTGameplayAbilityActorInfo_Shooter* ShooterActorInfo = static_cast<const FSTGameplayAbilityActorInfo_Shooter*>(PlayerASC->AbilityActorInfo.Get()))
 	{
-		UArcInventoryComponent_Active* InventoryComponentActive = Cast<UArcInventoryComponent_Active>(ShooterActorInfo->InventoryComponent);
-		if (IsValid(InventoryComponentActive))
+		UArcInventoryComponent_Modular* InventoryComponentModular = Cast<UArcInventoryComponent_Modular>(ShooterActorInfo->InventoryComponent);
+		if (IsValid(InventoryComponentModular))
 		{
-			const UArcItemStack* ActiveItemStack = InventoryComponentActive->GetActiveItemStack();
-			if (IsValid(ActiveItemStack))
+			const UArcInventoryProcessor_Active* InventoryProcessorActive = InventoryComponentModular->FindFirstProcessor<UArcInventoryProcessor_Active>();
+			if (IsValid(InventoryProcessorActive))
 			{
-				const USTItemStack_Gun* GunStack = Cast<USTItemStack_Gun>(ActiveItemStack);
-				if (IsValid(GunStack))
+				UArcItemStackModular* ActiveItemStack = InventoryProcessorActive->GetActiveItemStack();
+				if (IsValid(ActiveItemStack))
 				{
-					ClipAmmoSubobject = GunStack->GetClipAmmoSubobject();
+					ClipAmmoItemFragment = ActiveItemStack->FindFirstFragment<USTItemFragment_ClipAmmoInstanced>();
+					if (ClipAmmoItemFragment.IsValid())
+					{
+						ClipAmmoItemFragment = ClipAmmoItemFragment;
+					}
 				}
 			}
 		}
 	}
 
 	// Get and bind to updates for ClipAmmo
-	if (ClipAmmoSubobject.IsValid())
+	if (ClipAmmoItemFragment.IsValid())
 	{
-		const float& ClipAmmo = ClipAmmoSubobject->ClipAmmo;
-		OnClipAmmoChange(ClipAmmo, ClipAmmo);
+		const int32& ClipAmmo = ClipAmmoItemFragment->ClipAmmo;
+		OnClipAmmoChange(ClipAmmoItemFragment->ClipAmmo, ClipAmmo, ClipAmmo);
 
-		ClipAmmoSubobject->ClipAmmo.ValueChangeDelegate.AddDynamic(this, &USTUserWidget_Ammo::OnClipAmmoChange);
+		ClipAmmoItemFragment->ClipAmmo.ValueChangeDelegate.AddUObject(this, &USTUserWidget_Ammo::OnClipAmmoChange);
 	}
 
 	// Get and bind to updates for BackupAmmo
@@ -61,15 +66,15 @@ void USTUserWidget_Ammo::OnPlayerASCValid()
 	);
 }
 
-void USTUserWidget_Ammo::OnClipAmmoChange(const float& OldValue, const float& NewValue)
+void USTUserWidget_Ammo::OnClipAmmoChange(FGCInt32PropertyWrapper& PropertyWrapper, const int32& InOldValue, const int32& InNewValue)
 {
-	CurrentClipAmmo = NewValue;
+	CurrentClipAmmo = InNewValue;
 	UpdateAmmoStatus();
 }
 
 void USTUserWidget_Ammo::UpdateAmmoStatus()
 {
-	FString ClipAmmoString = FString::FromInt(FMath::TruncToInt(CurrentClipAmmo)) + TEXT("/");
+	FString ClipAmmoString = FString::FromInt(CurrentClipAmmo) + TEXT("/");
 	ClipAmmoText->SetText(FText::FromString(ClipAmmoString));
 
 	BackupAmmoText->SetText(FText::AsNumber(FMath::TruncToInt(CurrentBackupAmmo)));
@@ -78,9 +83,9 @@ void USTUserWidget_Ammo::UpdateAmmoStatus()
 
 void USTUserWidget_Ammo::NativeDestruct()
 {
-	if (ClipAmmoSubobject.IsValid())
+	if (ClipAmmoItemFragment.IsValid())
 	{
-		ClipAmmoSubobject->ClipAmmo.ValueChangeDelegate.RemoveAll(this);
+		ClipAmmoItemFragment->ClipAmmo.ValueChangeDelegate.RemoveAll(this);
 	}
 
 

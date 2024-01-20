@@ -6,10 +6,12 @@
 #include "Inventory/Item/Gun/STAttributeSet_Gun.h"
 #include "Components/Image.h"
 #include "Components/SizeBox.h"
-#include "Subobjects/STObject_BulletSpread.h"
 #include "AbilitySystem/Types/STGameplayAbilityTypes.h"
-#include "Components/ArcInventoryComponent_Active.h"
-#include "Inventory/Item/Gun/STItemStack_Gun.h"
+#include "Modular/ArcInventoryComponent_Modular.h"
+#include "Modular/Processors/ArcInventoryProcessor_Active.h"
+#include "Modular/ArcItemFragment.h"
+#include "Inventory\Item\Fragments\STItemFragment_BulletSpread.h"
+#include "Modular/ArcItemStackModular.h"
 
 
 
@@ -49,30 +51,35 @@ void USTUserWidget_Crosshair::OnPlayerASCValid()
 	// Get BulletSpread subobject
 	if (const FSTGameplayAbilityActorInfo_Shooter* ShooterActorInfo = static_cast<const FSTGameplayAbilityActorInfo_Shooter*>(PlayerASC->AbilityActorInfo.Get()))
 	{
-		UArcInventoryComponent_Active* InventoryComponentActive = Cast<UArcInventoryComponent_Active>(ShooterActorInfo->InventoryComponent);
-		if (IsValid(InventoryComponentActive))
+		UArcInventoryComponent_Modular* InventoryComponentModular = Cast<UArcInventoryComponent_Modular>(ShooterActorInfo->InventoryComponent);
+		if (IsValid(InventoryComponentModular))
 		{
-			const USTItemStack_Gun* GunStack = Cast<USTItemStack_Gun>(InventoryComponentActive->GetActiveItemStack());
-			if (IsValid(GunStack))
+			UArcInventoryProcessor_Active* InventoryProcessorActive = InventoryComponentModular->FindFirstProcessor<UArcInventoryProcessor_Active>();
+			if (IsValid(InventoryProcessorActive))
 			{
-				BulletSpreadSubobject = GunStack->GetBulletSpreadSubobject();
+				UArcItemStackModular* ActiveItemStack = InventoryProcessorActive->GetActiveItemStack();
+				if (IsValid(ActiveItemStack))
+				{
+					BulletSpreadItemFragment = ActiveItemStack->FindFirstFragment<USTItemFragment_BulletSpreadInstanced>();
+				}
 			}
 		}
+		
 	}
 
-	if (BulletSpreadSubobject.IsValid())
+	if (BulletSpreadItemFragment.IsValid())
 	{
-		BulletSpreadSubobject->CurrentBulletSpread.ValueChangeDelegate.AddDynamic(this, &USTUserWidget_Crosshair::OnCurrentBulletSpreadChange);
+		BulletSpreadItemFragment->CurrentBulletSpread.ValueChangeDelegate.AddUObject(this, &USTUserWidget_Crosshair::OnCurrentBulletSpreadChange);
 
-		const float& CurrentBulletSpread = BulletSpreadSubobject->CurrentBulletSpread;
-		OnCurrentBulletSpreadChange(CurrentBulletSpread, CurrentBulletSpread);
+		// Update for initial value
+		const float& CurrentBulletSpread = BulletSpreadItemFragment->CurrentBulletSpread;
+		OnCurrentBulletSpreadChange(BulletSpreadItemFragment->CurrentBulletSpread, CurrentBulletSpread, CurrentBulletSpread);
 	}
-
 }
 
-void USTUserWidget_Crosshair::OnCurrentBulletSpreadChange(const float& OldValue, const float& NewValue)
+void USTUserWidget_Crosshair::OnCurrentBulletSpreadChange(FGCFloatPropertyWrapper& PropertyWrapper, const float& InOldValue, const float& InNewValue)
 {
-	CurrentSpread = NewValue;
+	CurrentSpread = InNewValue;
 	UpdateCrosshair();
 }
 
@@ -99,9 +106,9 @@ void USTUserWidget_Crosshair::UpdateCrosshair()
 
 void USTUserWidget_Crosshair::NativeDestruct()
 {
-	if (BulletSpreadSubobject.IsValid())
+	if (BulletSpreadItemFragment.IsValid())
 	{
-		BulletSpreadSubobject->CurrentBulletSpread.ValueChangeDelegate.RemoveAll(this);
+		BulletSpreadItemFragment->CurrentBulletSpread.ValueChangeDelegate.RemoveAll(this);
 	}
 
 

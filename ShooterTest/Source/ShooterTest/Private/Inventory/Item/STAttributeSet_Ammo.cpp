@@ -24,14 +24,6 @@ void USTAttributeSet_Ammo::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 
 }
 
-USTAttributeSet_Ammo::USTAttributeSet_Ammo(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
-	, MaxAmmo(100)
-	, MaxClipAmmo(10)
-	, BackupAmmo(GetMaxAmmo() - GetMaxClipAmmo())
-{
-}
-
 
 void USTAttributeSet_Ammo::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
@@ -52,8 +44,6 @@ void USTAttributeSet_Ammo::PostGameplayEffectExecute(const FGameplayEffectModCal
 }
 
 
-
-// OnReps
 
 void USTAttributeSet_Ammo::OnRep_MaxAmmo(const FGameplayAttributeData& OldValue)
 {

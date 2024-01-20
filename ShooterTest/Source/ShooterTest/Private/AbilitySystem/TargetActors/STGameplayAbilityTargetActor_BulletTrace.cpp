@@ -81,39 +81,57 @@ void ASTGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 		}
 
 		// Perform this bullet's scene query
-		FCollisionShape CollisionShape = FCollisionShape::MakeSphere(1.f);
-		UGCBlueprintFunctionLibrary_StrengthCollisionQueries::RicochetingPenetrationSceneCastWithExitHitsUsingStrength(InitialBulletSpeed, RangeFalloffNerf, SourceActor->GetWorld(), BulletResults[i], StartLocation.GetTargetingTransform().GetLocation(), BulletDirection, MaxRange, FQuat::Identity, TraceChannel, CollisionShape, CollisionQueryParams, FCollisionResponseParams::DefaultResponseParam, MaxRicochets,
-			[](const FHitResult& Hit) -> float // GetPerCmPenetrationNerf()
-			{
-				const USTPhysicalMaterial_Shooter* ShooterPhysMat = Cast<USTPhysicalMaterial_Shooter>(Hit.PhysMaterial);
-				if (IsValid(ShooterPhysMat))
+		UGCBlueprintFunctionLibrary_StrengthCollisionQueries::RicochetingPenetrationSceneCastWithExitHitsUsingStrength(
+			InitialBulletSpeed,
+			RangeFalloffNerf,
+			SourceActor->GetWorld(),
+			BulletResults[i],
+			StartLocation.GetTargetingTransform().GetLocation(),
+			BulletDirection,
+			MaxRange,
+			FQuat::Identity,
+			TraceChannel,
+			FCollisionShape::MakeSphere(1.f),
+			CollisionQueryParams,
+			FCollisionResponseParams::DefaultResponseParam,
+			MaxRicochets,
+			FGetPerCmPenetrationNerfDelegate::CreateStatic(
+				[](const FHitResult& Hit) -> float
 				{
-					return ShooterPhysMat->PerCmPenetrationSpeedNerf;
-				}
+					const USTPhysicalMaterial_Shooter* ShooterPhysMat = Cast<USTPhysicalMaterial_Shooter>(Hit.PhysMaterial);
+					if (IsValid(ShooterPhysMat))
+					{
+						return ShooterPhysMat->PerCmPenetrationSpeedNerf;
+					}
 
-				return 0.f;
-			},
-			[](const FHitResult& Hit) -> float // GetRicochetNerf()
-			{
-				const USTPhysicalMaterial_Shooter* ShooterPhysMat = Cast<USTPhysicalMaterial_Shooter>(Hit.PhysMaterial);
-				if (IsValid(ShooterPhysMat))
+					return 0.f;
+				}
+				),
+			FGetRicochetNerfDelegate::CreateStatic(
+				[](const FHitResult& Hit) -> float
 				{
-					return ShooterPhysMat->RicochetSpeedNerf;
-				}
+					const USTPhysicalMaterial_Shooter* ShooterPhysMat = Cast<USTPhysicalMaterial_Shooter>(Hit.PhysMaterial);
+					if (IsValid(ShooterPhysMat))
+					{
+						return ShooterPhysMat->RicochetSpeedNerf;
+					}
 
-				return 0.f;
-			},
-			[](const FHitResult& Hit) -> bool // IsHitRicochetable()
-			{
-				const USTPhysicalMaterial_Shooter* ShooterPhysMat = Cast<USTPhysicalMaterial_Shooter>(Hit.PhysMaterial);
-				if (IsValid(ShooterPhysMat))
+					return 0.f;
+				}
+				),
+			FIsHitRicochetableDelegate::CreateStatic(
+				[](const FHitResult& Hit) -> bool
 				{
-					return ShooterPhysMat->bRicochets;
-				}
+					const USTPhysicalMaterial_Shooter* ShooterPhysMat = Cast<USTPhysicalMaterial_Shooter>(Hit.PhysMaterial);
+					if (IsValid(ShooterPhysMat))
+					{
+						return ShooterPhysMat->bRicochets;
+					}
 
-				return false;
-			}
-		);
+					return false;
+				}
+				)
+			);
 
 		if (bDebug)
 		{

@@ -1,16 +1,28 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Subobjects/STObject_BulletSpread.h"
+#include "Inventory\Item\Fragments\STItemFragment_BulletSpread.h"
+
 
 #include "Net/UnrealNetwork.h"
 #include "AbilitySystemComponent.h"
 #include "Inventory/Item/Gun/STAttributeSet_Gun.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+USTItemFragment_BulletSpread::USTItemFragment_BulletSpread()
+{
+
+}
 
 
-void USTObject_BulletSpread::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+
+USTItemFragment_BulletSpreadInstanced::USTItemFragment_BulletSpreadInstanced()
+	: CurrentBulletSpread(this, TEXT("CurrentBulletSpread"), 0.f)
+{
+
+}
+
+void USTItemFragment_BulletSpreadInstanced::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
@@ -20,39 +32,11 @@ void USTObject_BulletSpread::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 	Params.RepNotifyCondition = REPNOTIFY_OnChanged;
 	Params.bIsPushBased = true;
 
-	DOREPLIFETIME_WITH_PARAMS_FAST(USTObject_BulletSpread, CurrentBulletSpread, Params);
-
-}
-bool USTObject_BulletSpread::IsSupportedForNetworking() const
-{
-	return true;
-}
-bool USTObject_BulletSpread::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
-{
-	bool bWroteSomething = false;
-
-	return bWroteSomething;
-}
-
-USTObject_BulletSpread::USTObject_BulletSpread(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
-
-	, CurrentBulletSpread(this, TEXT("CurrentBulletSpread"), 0.f)
-
-	, OwnerASC(nullptr)
-	, CMC(nullptr)
-
-	, MinBulletSpread(0.f)
-	, MovingBulletSpread(0.f)
-	, BulletSpreadIncRate(0.f)
-	, FireBulletSpread(0.f)
-	, BulletSpreadDecSpeed(0.f)
-{
+	DOREPLIFETIME_WITH_PARAMS_FAST(USTItemFragment_BulletSpreadInstanced, CurrentBulletSpread, Params);
 
 }
 
-
-void USTObject_BulletSpread::SetAbilitySystemComponent(const UAbilitySystemComponent* NewASC)
+void USTItemFragment_BulletSpreadInstanced::SetAbilitySystemComponent(const UAbilitySystemComponent* NewASC)
 {
 	// Set the ASC
 	OwnerASC = NewASC;
@@ -87,7 +71,7 @@ void USTObject_BulletSpread::SetAbilitySystemComponent(const UAbilitySystemCompo
 }
 
 
-float USTObject_BulletSpread::GetRestBulletSpread() const
+float USTItemFragment_BulletSpreadInstanced::GetRestBulletSpread() const
 {
 	float RetVal = MinBulletSpread;
 	if (IsMovingToIncBulletSpread())
@@ -98,23 +82,23 @@ float USTObject_BulletSpread::GetRestBulletSpread() const
 	return RetVal;
 }
 
-void USTObject_BulletSpread::ApplyFireBulletSpread()
+void USTItemFragment_BulletSpreadInstanced::ApplyFireBulletSpread()
 {
 	CurrentBulletSpread = CurrentBulletSpread + FireBulletSpread;
 }
 
-void USTObject_BulletSpread::ResetBulletSpread()
+void USTItemFragment_BulletSpreadInstanced::ResetBulletSpread()
 {
 	CurrentBulletSpread = MinBulletSpread;
 }
 
-bool USTObject_BulletSpread::IsMovingToIncBulletSpread() const
+bool USTItemFragment_BulletSpreadInstanced::IsMovingToIncBulletSpread() const
 {
 	if (BulletSpreadIncRate <= 0)
 	{
 		return false;
 	}
-	if (!CMC.IsValid())
+	if (!CMC)
 	{
 		return false;
 	}
@@ -130,7 +114,7 @@ bool USTObject_BulletSpread::IsMovingToIncBulletSpread() const
 	return false;
 }
 
-void USTObject_BulletSpread::Tick(float DeltaTime)
+void USTItemFragment_BulletSpreadInstanced::Tick(float DeltaTime)
 {
 	//UKismetSystemLibrary::PrintString(this, "USTAttributeSet_Gun::Tick()", true, false);
 	if (IsMovingToIncBulletSpread())
@@ -153,7 +137,7 @@ void USTObject_BulletSpread::Tick(float DeltaTime)
 		CurrentBulletSpread = GetRestBulletSpread();
 	}
 }
-bool USTObject_BulletSpread::IsTickable() const
+bool USTItemFragment_BulletSpreadInstanced::IsTickable() const
 {
 	// Refresh attribute values
 	if (const UAbilitySystemComponent* ASC = OwnerASC.Get())

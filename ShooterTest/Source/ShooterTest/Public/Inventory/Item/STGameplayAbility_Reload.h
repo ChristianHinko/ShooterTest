@@ -8,12 +8,12 @@
 #include "STGameplayAbility_Reload.generated.h"
 
 
-class USTObject_ClipAmmo;
+class USTItemFragment_ClipAmmoInstanced;
 
 
 
 /**
- * 
+ *
  */
 UCLASS()
 class SHOOTERTEST_API USTGameplayAbility_Reload : public UASSGameplayAbility
@@ -26,10 +26,10 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere)
-		TSubclassOf<UGameplayEffect> ReloadingEffectTSub;	// asset manager we need you D:
+	TSubclassOf<UGameplayEffect> ReloadingEffectTSub;	// asset manager we need you D:
 	FActiveGameplayEffectHandle ReloadingEffectActiveHandle;
 	UPROPERTY(EditAnywhere)
-		TSubclassOf<UGameplayEffect> DepleteBackupAmmoEffectTSub;	// asset manager we need you D:
+	TSubclassOf<UGameplayEffect> DepleteBackupAmmoEffectTSub;	// asset manager we need you D:
 
 
 	//  BEGIN UGameplayAbility Interface
@@ -44,5 +44,5 @@ protected:
 	//  END UGameplayAbility Interface
 
 	UPROPERTY()
-		TWeakObjectPtr<USTObject_ClipAmmo> ClipAmmoSubobject;
+	TWeakObjectPtr<USTItemFragment_ClipAmmoInstanced> ClipAmmoItemFragment;
 };

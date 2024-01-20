@@ -36,13 +36,6 @@ static const FCharacterMovementInitializationStatics& GetCharacterMovementInitia
 USTGameplayEffectExecutionCalculation_InitCharacterMovement::USTGameplayEffectExecutionCalculation_InitCharacterMovement(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	const USTAttributeSet_CharacterMovement* DefaultAttributeSet = GetDefault<USTAttributeSet_CharacterMovement>(USTAttributeSet_CharacterMovement::StaticClass());
-
-	// Populate defaults for easy BP editing
-	WalkSpeed = DefaultAttributeSet->GetWalkSpeed();
-	WalkAcceleration = DefaultAttributeSet->GetWalkAcceleration();
-	RunSpeed = DefaultAttributeSet->GetRunSpeed();
-	RunAccelaration = DefaultAttributeSet->GetRunAccelaration();
 }
 
 void USTGameplayEffectExecutionCalculation_InitCharacterMovement::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const

@@ -25,19 +25,6 @@ void USTAttributeSet_CharacterMovement::GetLifetimeReplicatedProps(TArray<FLifet
 	DOREPLIFETIME_WITH_PARAMS_FAST(USTAttributeSet_CharacterMovement, RunAccelaration, Params);
 }
 
-//	These are default values BEFORE the default attribute values effect gets applied
-USTAttributeSet_CharacterMovement::USTAttributeSet_CharacterMovement(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
-	, WalkSpeed(300.f)
-	, WalkAcceleration(2048.f)
-	, RunSpeed(600.f)
-	, RunAccelaration(4096.f)
-{
-}
-
-
-
-// OnReps
 
 void USTAttributeSet_CharacterMovement::OnRep_WalkSpeed(const FGameplayAttributeData& OldValue)
 {

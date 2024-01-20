@@ -9,11 +9,11 @@
 #include "AbilitySystem/ASSAbilitySystemBlueprintLibrary.h"
 #include "Utilities/STCollisionChannels.h"
 #include "Inventory/Item/Gun/STAttributeSet_Gun.h"
-#include "Subobjects/STObject_ClipAmmo.h"
-#include "Subobjects/STObject_BulletSpread.h"
-#include "Inventory/Item\Gun\STItemStack_Gun.h"
+#include "Inventory\Item\Fragments\STItemFragment_BulletSpread.h"
+#include "Inventory\Item\Fragments\STItemFragment_ClipAmmo.h"
+#include "Inventory\Item\Fragments\STItemFragment_BulletBehavior.h"
+#include "Modular/ArcItemStackModular.h"
 #include "ArcInventoryItemTypes.h"
-#include "Item\Definitions\ArcItemDefinition_Active.h"
 #include "AbilitySystem/Types/ASSGameplayAbilityTypes.h"
 
 #include "AbilityTasks/ASSEAbilityTask_Ticker.h"
@@ -93,18 +93,16 @@ void USTGameplayAbility_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* 
 
 
 
-	// Need to make the item generators use the GunStack now
-	// instead of it using item stack so this cast works.
-	GunToFire = Cast<USTItemStack_Gun>(GetCurrentSourceObject());
-	if (!GunToFire.IsValid())
+	ItemStack = Cast<UArcItemStackModular>(GetCurrentSourceObject());
+	if (!ItemStack.IsValid())
 	{
 		UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() No valid Gun when given the fire ability - ensure you are assigning the SourceObject to a GunStack when calling GiveAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
 		check(0);
 		return;
 	}
 
-	ClipAmmoSubobject = GunToFire->GetClipAmmoSubobject();
-	BulletSpreadSubobject = GunToFire->GetBulletSpreadSubobject();
+	ClipAmmoItemFragment = ItemStack->FindFirstFragment<USTItemFragment_ClipAmmoInstanced>();
+	BulletSpreadItemFragment = ItemStack->FindFirstFragment<USTItemFragment_BulletSpreadInstanced>();
 
 
 
@@ -112,10 +110,11 @@ void USTGameplayAbility_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* 
 
 
 	// Inject the data our Target Actor needs and spawn it 
-	BulletTraceTargetActor = GetWorld()->SpawnActorDeferred<ASTGameplayAbilityTargetActor_BulletTrace>(GunToFire->BulletTargetActorTSub, FTransform());
+	BulletBehaviorItemFragment = ItemStack->FindFirstFragment<USTItemFragment_BulletBehavior>();
+	BulletTraceTargetActor = GetWorld()->SpawnActorDeferred<ASTGameplayAbilityTargetActor_BulletTrace>(BulletBehaviorItemFragment->BulletTargetActorTSub, FTransform());
 	if (!IsValid(BulletTraceTargetActor))
 	{
-		UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() No valid BulletTraceTargetActor in the GunStack when giving the fire ability. How the heck we supposed to fire the gun!?!?"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() Couldn't spawn BulletTraceTargetActor when trying to fire gun. BulletTargetActorTSub in the USTItemFragment_BulletBehavior in BP might have been unset. How the heck we supposed to fire the gun!?!?"), ANSI_TO_TCHAR(__FUNCTION__));
 		return;
 	}
 
@@ -161,14 +160,14 @@ void USTGameplayAbility_FireGun::OnRemoveAbility(const FGameplayAbilityActorInfo
 
 
 
-	GunToFire = nullptr;
+	ItemStack = nullptr;
 	if (IsValid(BulletTraceTargetActor) && BulletTraceTargetActor->Destroy())
 	{
 		BulletTraceTargetActor = nullptr;
 	}
 
-	ClipAmmoSubobject = nullptr;
-	BulletSpreadSubobject = nullptr;
+	ClipAmmoItemFragment = nullptr;
+	BulletSpreadItemFragment = nullptr;
 }
 
 bool USTGameplayAbility_FireGun::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
@@ -179,9 +178,9 @@ bool USTGameplayAbility_FireGun::CanActivateAbility(const FGameplayAbilitySpecHa
 	}
 
 
-	if (!GunToFire.IsValid())
+	if (!ItemStack.IsValid())
 	{
-		UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() GunToFire was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() ItemStack was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
@@ -191,14 +190,14 @@ bool USTGameplayAbility_FireGun::CanActivateAbility(const FGameplayAbilitySpecHa
 		return false;
 	}
 
-	if (!ClipAmmoSubobject.IsValid())
+	if (!ClipAmmoItemFragment.IsValid())
 	{
-		UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() ClipAmmoSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() ClipAmmoItemFragment was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
-	if (!BulletSpreadSubobject.IsValid())
+	if (!BulletSpreadItemFragment.IsValid())
 	{
-		UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() BulletSpreadSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() BulletSpreadItemFragment was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 
@@ -214,7 +213,11 @@ bool USTGameplayAbility_FireGun::CheckCooldown(const FGameplayAbilitySpecHandle 
 	}
 
 	// If we're firing too fast
-	const float TimePassed = GetWorld()->GetTimeSeconds() - TimestampPreviousFireEnd;
+	check(ActorInfo)
+	check(ActorInfo->OwnerActor.IsValid())
+	check(ActorInfo->OwnerActor->GetWorld())
+	const float WorldTimeSeconds = ActorInfo->OwnerActor->GetWorld()->GetTimeSeconds();
+	const float TimePassed = WorldTimeSeconds - TimestampPreviousFireEnd;
 	if (TimePassed < GetTimeBetweenFires())
 	{
 		UE_LOG(LogSTGameplayAbility, Verbose, TEXT("%s() Tried firing gun faster than the gun's FireRate allowed. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
@@ -232,7 +235,8 @@ bool USTGameplayAbility_FireGun::CheckCost(const FGameplayAbilitySpecHandle Hand
 	}
 
 	// If we don't have enough ammo
-	const float ClipAmmoAfterNextShot = ClipAmmoSubobject->ClipAmmo - AmmoCost;
+	check(ClipAmmoItemFragment.IsValid())
+	const int32 ClipAmmoAfterNextShot = ClipAmmoItemFragment->ClipAmmo - AmmoCost;
 	if (ClipAmmoAfterNextShot < 0)
 	{
 		UE_LOG(LogSTGameplayAbility, Verbose, TEXT("%s() Not enough ammo to perform a fire. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
@@ -432,7 +436,7 @@ void USTGameplayAbility_FireGun::Shoot()
 	BulletTraceTargetActor->FireSpecificNetSafeRandomSeed = FireRandomSeed;					// Inject this random seed into our target actor (target actor will make random seed unique to each bullet in the fire if there are multible bullets in the fire)
 
 	// Inject our CurrentBulletSpread
-	BulletTraceTargetActor->CurrentBulletSpread = BulletSpreadSubobject->CurrentBulletSpread;
+	BulletTraceTargetActor->CurrentBulletSpread = BulletSpreadItemFragment->CurrentBulletSpread;
 
 	// Inject our current Attribute values
 	BulletTraceTargetActor->MaxRange = MaxRange;
@@ -445,9 +449,9 @@ void USTGameplayAbility_FireGun::Shoot()
 
 
 	// Lets finally fire
-	ClipAmmoSubobject->ClipAmmo = ClipAmmoSubobject->ClipAmmo - AmmoCost;
+	ClipAmmoItemFragment->ClipAmmo = ClipAmmoItemFragment->ClipAmmo - AmmoCost;
 	WaitTargetDataActorTask->ReadyForActivation();
-	BulletSpreadSubobject->ApplyFireBulletSpread();
+	BulletSpreadItemFragment->ApplyFireBulletSpread();
 }
 
 
@@ -476,16 +480,16 @@ void USTGameplayAbility_FireGun::OnRelease(float TimeHeld)
 void USTGameplayAbility_FireGun::OnValidData(const FGameplayAbilityTargetDataHandle& Data)
 {
 	// Apply effects
-	if (GunToFire->BulletInflictEffectTSub)
+	if (BulletBehaviorItemFragment->BulletInflictEffectTSub)
 	{
 		if (Data.Num() > 0)	// No need to call if we have no targets
 		{
-			ApplyGameplayEffectToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), Data, GunToFire->BulletInflictEffectTSub, GetAbilityLevel());
+			ApplyGameplayEffectToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), Data, BulletBehaviorItemFragment->BulletInflictEffectTSub, GetAbilityLevel());
 		}
 	}
 	else
 	{
-		UE_LOG(LogSTGameplayAbility, Warning, TEXT("%s(): GunToFire gave us an empty BulletInflictEffectTSub. Make sure to fill out DefaultBulletInflictEffectTSub in the Item Generator"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSTGameplayAbility, Warning, TEXT("%s(): ItemStack gave us an empty BulletInflictEffectTSub. Make sure to fill out DefaultBulletInflictEffectTSub in the Item Generator"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 
 	// Execute cues

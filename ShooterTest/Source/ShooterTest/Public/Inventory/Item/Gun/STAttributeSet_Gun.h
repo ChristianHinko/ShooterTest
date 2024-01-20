@@ -19,9 +19,6 @@ class SHOOTERTEST_API USTAttributeSet_Gun : public UASSAttributeSet
 	GENERATED_BODY()
 
 public:
-	USTAttributeSet_Gun(const FObjectInitializer& ObjectInitializer);
-
-
 	//  BEGIN  BulletSpread
 	/**
 	 * The minimum bullet spread while staying still in degrees (90 degs would be a right-angled cone)
@@ -186,7 +183,6 @@ public:
 
 
 protected:
-	// OnReps
 	UFUNCTION()
 		virtual void OnRep_MinBulletSpread(const FGameplayAttributeData& OldValue);
 

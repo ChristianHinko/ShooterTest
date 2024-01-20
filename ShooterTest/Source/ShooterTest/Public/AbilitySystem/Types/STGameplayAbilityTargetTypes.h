@@ -54,7 +54,7 @@ struct FSTActorHitInfo
 	UPROPERTY()
 		float BulletSpeedAtImpact;
 
-	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
+	bool NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess)
 	{
 		Ar << HitActor;
 		Ar << BulletSpeedAtImpact;
@@ -159,7 +159,7 @@ struct SHOOTERTEST_API FSTGameplayAbilityTargetData_BulletTraceTargetHit : publi
 
 
 
-	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
+	bool NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess);
 
 	virtual UScriptStruct* GetScriptStruct() const override { return StaticStruct(); }
 };

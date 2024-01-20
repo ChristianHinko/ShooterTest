@@ -4,10 +4,11 @@
 #include "Inventory/Item/Gun/STGameplayEffectExecutionCalculation_InitGun.h"
 
 #include "Inventory/Item/Gun/STAttributeSet_Gun.h"
-#include "Subobjects/STObject_BulletSpread.h"
+#include "Inventory\Item\Fragments\STItemFragment_BulletSpread.h"
 #include "AbilitySystem/Types/STGameplayAbilityTypes.h"
-#include "Components/ArcInventoryComponent_Active.h"
-#include "Inventory/Item/Gun/STItemStack_Gun.h"
+#include "Modular/ArcItemStackModular.h"
+#include "Inventory/AIEInventoryProcessor_Active.h"
+#include "Modular/ArcInventoryComponent_Modular.h"
 
 
 
@@ -32,28 +33,6 @@ static const FGunInitializationStatics& GetGunInitializationStatics()
 USTGameplayEffectExecutionCalculation_InitGun::USTGameplayEffectExecutionCalculation_InitGun(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	// Populate defaults for easy BP editing
-	const USTAttributeSet_Gun* DefaultAttributeSet = GetDefault<USTAttributeSet_Gun>(USTAttributeSet_Gun::StaticClass());
-
-	MinBulletSpread = DefaultAttributeSet->GetMinBulletSpread();
-	MovingBulletSpread = DefaultAttributeSet->GetMovingBulletSpread();
-	BulletSpreadIncRate = DefaultAttributeSet->GetBulletSpreadIncRate();
-	FireBulletSpread = DefaultAttributeSet->GetFireBulletSpread();
-	BulletSpreadDecSpeed = DefaultAttributeSet->GetBulletSpreadDecSpeed();
-
-	NumberOfBulletsPerFire = DefaultAttributeSet->GetNumberOfBulletsPerFire();
-	MaxRange = DefaultAttributeSet->GetMaxRange();
-	Penetrations = DefaultAttributeSet->GetPenetrations();
-	Ricochets = DefaultAttributeSet->GetRicochets();
-	InitialBulletSpeed = DefaultAttributeSet->GetInitialBulletSpeed();
-	BulletSpeedFalloff = DefaultAttributeSet->GetBulletSpeedFalloff();
-
-	bFullAuto = DefaultAttributeSet->GetbFullAuto();
-	TimeBetweenShots = DefaultAttributeSet->GetTimeBetweenShots();
-	TimeBetweenFiresOverride = DefaultAttributeSet->GetTimeBetweenFiresOverride();
-	TimeBetweenBurstsOverride = DefaultAttributeSet->GetTimeBetweenBurstsOverride();
-	NumShotsPerBurst = DefaultAttributeSet->GetNumShotsPerBurst();
-	AmmoCost = DefaultAttributeSet->GetAmmoCost();
 }
 
 void USTGameplayEffectExecutionCalculation_InitGun::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
@@ -96,17 +75,22 @@ void USTGameplayEffectExecutionCalculation_InitGun::Execute_Implementation(const
 	// Get BulletSpread subobject and initialize CurrentBulletSpread
 	if (const FSTGameplayAbilityActorInfo_Shooter* ShooterActorInfo = static_cast<const FSTGameplayAbilityActorInfo_Shooter*>(TargetAbilitySystemComponent->AbilityActorInfo.Get()))
 	{
-		UArcInventoryComponent_Active* InventoryComponentActive = Cast<UArcInventoryComponent_Active>(ShooterActorInfo->InventoryComponent);
-		if (IsValid(InventoryComponentActive))
+		const UArcInventoryComponent_Modular* InventoryComponentModular = Cast<const UArcInventoryComponent_Modular>(ShooterActorInfo->InventoryComponent);
+		if (IsValid(InventoryComponentModular))
 		{
-			const UArcItemStack* ActiveItemStack = InventoryComponentActive->GetActiveItemStack();
-			if (IsValid(ActiveItemStack))
+			const UArcInventoryProcessor_Active* InventoryProcessor_Active = InventoryComponentModular->FindFirstProcessor<UArcInventoryProcessor_Active>();
+			if (IsValid(InventoryProcessor_Active))
 			{
-				const USTItemStack_Gun* GunStack = Cast<USTItemStack_Gun>(ActiveItemStack);
-				if (IsValid(GunStack))
+				UArcItemStackModular* ActiveItemStack = InventoryProcessor_Active->GetActiveItemStack();
+				if (IsValid(ActiveItemStack))
 				{
-					GunStack->GetBulletSpreadSubobject()->CurrentBulletSpread = CurrentBulletSpread;
-					GunStack->GetBulletSpreadSubobject()->CurrentBulletSpread.MarkNetDirty(); // we are server-only here so replicate it
+					USTItemFragment_BulletSpreadInstanced* BulletSpreadItemFragment = ActiveItemStack->FindFirstFragment<USTItemFragment_BulletSpreadInstanced>();
+
+					if (IsValid(BulletSpreadItemFragment))
+					{
+						BulletSpreadItemFragment->CurrentBulletSpread = CurrentBulletSpread;
+						BulletSpreadItemFragment->CurrentBulletSpread.MarkNetDirty(); // we are server-only here so replicate it
+					}
 				}
 			}
 		}

@@ -3,41 +3,44 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Types\PropertyWrappers\GCFloatPropertyWrapper.h"
-#include "AttributeSet.h"
-#include "GameplayEffectTypes.h"
+#include "Modular/ArcItemFragment.h"
+#include "Types/PropertyWrappers/GCPropertyWrappers.h"
 
-#include "STObject_BulletSpread.generated.h"
-
+#include "STItemFragment_BulletSpread.generated.h"
 
 class UAbilitySystemComponent;
 class UCharacterMovementComponent;
-class UArcInventoryComponent_Active;
-class UArcItemStack;
-
-
 
 /**
- * Has CurrentBulletSpread float.
  * 
- * NOTE: Searches externally for Stamina-related Attributes
  */
 UCLASS()
-class SHOOTERTEST_API USTObject_BulletSpread : public UObject, public FTickableGameObject
+class SHOOTERTEST_API USTItemFragment_BulletSpread : public UArcItemFragment
 {
 	GENERATED_BODY()
 
 public:
-	virtual bool IsSupportedForNetworking() const override;
-	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags);
+
+	USTItemFragment_BulletSpread();
+};
+
+/**
+ * Has CurrentBulletSpread float.
+ *
+ * NOTE: Searches externally for Stamina-related Attributes
+ */
+UCLASS()
+class SHOOTERTEST_API USTItemFragment_BulletSpreadInstanced : public UArcItemFragment, public FTickableGameObject
+{
+	GENERATED_BODY()
 
 public:
-	USTObject_BulletSpread(const FObjectInitializer& ObjectInitializer);
+	USTItemFragment_BulletSpreadInstanced();
 
 
 	/** Current bullet spread. Non-replicated because set every frame */
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "BulletSpread")
-		mutable FGCFloatPropertyWrapper CurrentBulletSpread;
+	mutable FGCFloatPropertyWrapper CurrentBulletSpread;
 
 
 	float GetRestBulletSpread() const;
@@ -61,16 +64,14 @@ protected:
 	virtual bool IsTickableWhenPaused() const override { return false; };
 	//  END FTickableGameObject interface
 
-
-	UPROPERTY()
-		TWeakObjectPtr<const UAbilitySystemComponent> OwnerASC;
-	UPROPERTY()
-		TWeakObjectPtr<const UCharacterMovementComponent> CMC;
+	UPROPERTY(Transient)
+	TObjectPtr<const UAbilitySystemComponent> OwnerASC;
+	UPROPERTY(Transient)
+	TObjectPtr<const UCharacterMovementComponent> CMC;
 
 	mutable float MinBulletSpread;
 	mutable float MovingBulletSpread;
 	mutable float BulletSpreadIncRate;
 	mutable float FireBulletSpread;
 	mutable float BulletSpreadDecSpeed;
-
 };

@@ -26,20 +26,6 @@ void USTAttributeSet_Stamina::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	DOREPLIFETIME_WITH_PARAMS_FAST(USTAttributeSet_Stamina, StaminaRegenPause, Params);
 }
 
-//	These are default values BEFORE the default attribute values effect gets applied
-USTAttributeSet_Stamina::USTAttributeSet_Stamina(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
-	, MaxStamina(5)
-	, StaminaDrain(1)
-	, StaminaGain(1)
-	, StaminaRegenPause(2)
-{
-}
-
-
-
-
-// OnReps
 
 void USTAttributeSet_Stamina::OnRep_MaxStamina(const FGameplayAttributeData& OldValue)
 {

@@ -10,9 +10,10 @@
 
 class ASTGameplayAbilityTargetActor_BulletTrace;
 class USTAttributeSet_Gun;
-class USTObject_ClipAmmo;
-class USTObject_BulletSpread;
-class USTItemStack_Gun;
+class UArcItemStackModular;
+class USTItemFragment_ClipAmmoInstanced;
+class USTItemFragment_BulletBehavior;
+class USTItemFragment_BulletSpreadInstanced;
 class USTAbilityTask_WaitTargetData;
 class UASSEAbilityTask_Ticker;
 struct FOnAttributeChangeData;
@@ -63,11 +64,13 @@ protected:
 	 * Our gun source object
 	 */
 	UPROPERTY()
-		TWeakObjectPtr<USTItemStack_Gun> GunToFire;
+		TWeakObjectPtr<UArcItemStackModular> ItemStack;
 	UPROPERTY()
-		TWeakObjectPtr<USTObject_ClipAmmo> ClipAmmoSubobject;
+		TWeakObjectPtr<USTItemFragment_ClipAmmoInstanced> ClipAmmoItemFragment;
 	UPROPERTY()
-		TWeakObjectPtr<USTObject_BulletSpread> BulletSpreadSubobject;
+		TWeakObjectPtr<USTItemFragment_BulletBehavior> BulletBehaviorItemFragment;
+	UPROPERTY()
+		TWeakObjectPtr<USTItemFragment_BulletSpreadInstanced> BulletSpreadItemFragment;
 
 	/**
 	 * Our spawned Target Actor from the GunToFire.

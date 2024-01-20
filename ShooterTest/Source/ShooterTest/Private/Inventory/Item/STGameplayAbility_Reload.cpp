@@ -5,8 +5,8 @@
 
 #include "Inventory/Item/STAttributeSet_Ammo.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "Inventory/Item/Gun/STItemStack_Gun.h"
-#include "Subobjects/STObject_ClipAmmo.h"
+#include "Modular/ArcItemStackModular.h"
+#include "Inventory/Item/Fragments/STItemFragment_ClipAmmo.h"
 
 
 
@@ -33,7 +33,7 @@ void USTGameplayAbility_Reload::OnGiveAbility(const FGameplayAbilityActorInfo* A
 	Super::OnGiveAbility(ActorInfo, Spec);
 
 
-	USTItemStack_Gun* SourceGun = Cast<USTItemStack_Gun>(GetCurrentSourceObject());
+	UArcItemStackModular* SourceGun = Cast<UArcItemStackModular>(GetCurrentSourceObject());
 	if (!IsValid(SourceGun))
 	{
 		UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() No valid Gun when given the reload ability - ensure you are assigning the SourceObject to a GunStack when calling GiveAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
@@ -41,14 +41,14 @@ void USTGameplayAbility_Reload::OnGiveAbility(const FGameplayAbilityActorInfo* A
 		return;
 	}
 
-	ClipAmmoSubobject = SourceGun->GetClipAmmoSubobject();
+	ClipAmmoItemFragment = SourceGun->FindFirstFragment<USTItemFragment_ClipAmmoInstanced>();
 }
 void USTGameplayAbility_Reload::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnRemoveAbility(ActorInfo, Spec);
 
 
-	ClipAmmoSubobject = nullptr;
+	ClipAmmoItemFragment = nullptr;
 }
 
 bool USTGameplayAbility_Reload::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
@@ -65,14 +65,14 @@ bool USTGameplayAbility_Reload::CanActivateAbility(const FGameplayAbilitySpecHan
 		return false;
 	}
 
-	if (!ClipAmmoSubobject.IsValid())
+	if (!ClipAmmoItemFragment.IsValid())
 	{
-		UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() ClipAmmoSubobject was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
+		UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() ClipAmmoItemFragment was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
 	}
 	
 	const float MaxClipAmmo = ActorInfo->AbilitySystemComponent->GetNumericAttribute(USTAttributeSet_Ammo::GetMaxClipAmmoAttribute());
-	if (ClipAmmoSubobject->ClipAmmo >= MaxClipAmmo)
+	if (ClipAmmoItemFragment->ClipAmmo >= MaxClipAmmo)
 	{
 		UE_LOG(LogSTGameplayAbility, Log, TEXT("%s() Already have full ammo. Returned false"), ANSI_TO_TCHAR(__FUNCTION__));
 		return false;
@@ -112,7 +112,7 @@ void USTGameplayAbility_Reload::ActivateAbility(const FGameplayAbilitySpecHandle
 
 	// Amount to move out of BackupAmmo, and into ClipAmmo
 	const float MaxClipAmmo = ActorInfo->AbilitySystemComponent->GetNumericAttribute(USTAttributeSet_Ammo::GetMaxClipAmmoAttribute());
-	float AmmoToMove = MaxClipAmmo - ClipAmmoSubobject->ClipAmmo;
+	float AmmoToMove = MaxClipAmmo - ClipAmmoItemFragment->ClipAmmo;
 
 	// Check if BackupAmmo went negative
 	{
@@ -133,7 +133,7 @@ void USTGameplayAbility_Reload::ActivateAbility(const FGameplayAbilitySpecHandle
 
 
 	// Move ammo into clip
-	ClipAmmoSubobject->ClipAmmo = ClipAmmoSubobject->ClipAmmo + AmmoToMove;
+	ClipAmmoItemFragment->ClipAmmo = ClipAmmoItemFragment->ClipAmmo + AmmoToMove;
 
 
 

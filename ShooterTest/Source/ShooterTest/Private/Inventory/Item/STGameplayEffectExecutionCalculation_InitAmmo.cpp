@@ -5,7 +5,6 @@
 
 #include "Inventory/Item/STAttributeSet_Ammo.h"
 #include "AbilitySystem/Types/STGameplayAbilityTypes.h"
-#include "Components/ArcInventoryComponent_Active.h"
 #include "Inventory/AIEInventoryProcessor_Active.h"
 #include "Modular/ArcInventoryComponent_Modular.h"
 #include "Modular/ArcItemStackModular.h"

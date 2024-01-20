@@ -14,6 +14,7 @@
 #include "Inventory/Item/Fragments/AIEItemFragment_UIData.h"
 #include "Inventory/Item/Fragments/STItemFragment_ClipAmmo.h"
 #include "Inventory/AIEBlueprintFunctionLibrary_Inventory.h"
+#include "Blueprint/UserWidget.h"
 
 
 
@@ -49,9 +50,9 @@ void USTInventoryProcessor_Shooter::OnInitializeAbilitySystemComponent(UAbilityS
 	}
 }
 
-void USTInventoryProcessor_Shooter::OnItemSlotChange_Implementation(const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStackModular* ItemStack, UArcItemStackModular* PreviousItemStack)
+void USTInventoryProcessor_Shooter::OnItemSlotChange_Implementation(const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStackModular* ItemStack, UArcItemStackModular* PreviousItemStack, FGameplayTag Context)
 {
-	Super::OnItemSlotChange_Implementation(ItemSlotRef, ItemStack, PreviousItemStack);
+	Super::OnItemSlotChange_Implementation(ItemSlotRef, ItemStack, PreviousItemStack, Context);
 
 	if (IsValid(ItemStack) && ItemStack != PreviousItemStack) // if we are Equiping
 	{

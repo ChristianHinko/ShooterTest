@@ -11,7 +11,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Inventory/STInventoryProcessor_Shooter.h"
 #include "Modular/ArcInventoryComponent_Modular.h"
-#include "ArcItemStack.h"
 #include "AttributeSets/ASSEAttributeSet_Health.h"
 #include "AbilitySystem/AttributeSets/STAttributeSet_Stamina.h"
 

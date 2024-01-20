@@ -27,7 +27,7 @@ public:
 protected:
 	virtual void OnInventoryInit_Implementation() override;
 
-	virtual void OnItemSlotChange_Implementation(const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStackModular* ItemStack, UArcItemStackModular* PreviousItemStack) override;
+	virtual void OnItemSlotChange_Implementation(const FArcInventoryItemSlotReference& ItemSlotRef, UArcItemStackModular* ItemStack, UArcItemStackModular* PreviousItemStack, FGameplayTag Context) override;
 
 	// We use this rather than the OnItemActive delegate because that one is unsafe
 	virtual void MakeItemActive(int32 NewActiveItemSlot) override;

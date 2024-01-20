@@ -10,12 +10,8 @@
 
 /**
  * This fragment only exists so that item definitions can indicate that a
- * fragment should be created for item stacks.
- *
- * TODO @techdebt: How should item stack clip ammo fragments be added? Feels like they
- * should be added automatically instead of being exposed to designers like this. E.g., maybe
- * the initialization effect execution calculation adds the fragment for us - since it already
- * initializes the clip ammo value.
+ * fragment should be created for item stacks. TODO @techdebt: This is unecessarily
+ * heavy for an item definition fragment with no data on it.
  */
 UCLASS()
 class SHOOTERTEST_API USTItemFragment_ClipAmmo : public UArcItemFragment

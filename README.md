@@ -3,4 +3,3 @@ Test game with shooter mechanics. Experiments with gun firing, character movemen
 
 Collaborators: brian2524, ChristianHinko
 
-Current engine version: 5.0.3

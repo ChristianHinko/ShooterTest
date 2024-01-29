@@ -10,7 +10,7 @@
 #include "Modular/ArcItemStackModular.h"
 #include "Inventory/Item/Fragments/STItemFragment_BulletSpread.h"
 #include "Subobjects/ASSActorComponent_AvatarActorExtension.h"
-#include "BlueprintFunctionLibraries/GCBlueprintFunctionLibrary_ActorHelpers.h"
+#include "GCUtils_ObjectTraversal.h"
 #include "Inventory/Item/Fragments/AIEItemFragment_UIData.h"
 #include "Inventory/Item/Fragments/STItemFragment_ClipAmmo.h"
 #include "Inventory/AIEBlueprintFunctionLibrary_Inventory.h"
@@ -113,7 +113,7 @@ void USTInventoryProcessor_Shooter::MakeItemActive(int32 NewActiveItemSlot)
 
 
 	// Set the HUD's widget pointer
-	APlayerController* owningPlayerController = UGCBlueprintFunctionLibrary_ActorHelpers::GetTypedOwnerIncludingSelfCasted<APlayerController>(GetOwningActor());
+	APlayerController* owningPlayerController = GCUtils::ObjectTraversal::GetTypedSelfOrOwnerActor<APlayerController>(GetOwningActor());
 	if (IsValid(owningPlayerController))
 	{
 		if (owningPlayerController->IsLocalController())
@@ -151,7 +151,7 @@ void USTInventoryProcessor_Shooter::MakeItemInactive()
 
 
 	// Clear the HUD's widget pointer
-	APlayerController* OwningPlayerController = UGCBlueprintFunctionLibrary_ActorHelpers::GetTypedOwnerIncludingSelfCasted<APlayerController>(GetOwningActor());
+	APlayerController* OwningPlayerController = GCUtils::ObjectTraversal::GetTypedSelfOrOwnerActor<APlayerController>(GetOwningActor());
 	if (IsValid(OwningPlayerController))
 	{
 		if (OwningPlayerController->IsLocalController())

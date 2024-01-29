@@ -7,7 +7,6 @@
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/AttributeSets/STAttributeSet_Stamina.h"
-#include "BlueprintFunctionLibraries/GCBlueprintFunctionLibrary_InterfaceHelpers.h"
 
 
 

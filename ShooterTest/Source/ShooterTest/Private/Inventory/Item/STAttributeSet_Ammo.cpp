@@ -4,7 +4,7 @@
 #include "Inventory/Item/STAttributeSet_Ammo.h"
 
 #include "Net/UnrealNetwork.h"
-#include "GameplayAbilities/Public/GameplayEffectExtension.h"
+#include "GameplayEffectExtension.h"
 
 
 

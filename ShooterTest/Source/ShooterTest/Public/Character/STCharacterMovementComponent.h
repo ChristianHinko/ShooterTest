@@ -223,7 +223,7 @@ protected:
     UPROPERTY()
         TWeakObjectPtr<USTAttributeSet_CharacterMovement> CharacterMovementAttributeSet;
 
-    virtual void OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC);
+    virtual void OnInitializeAbilitySystemComponent(UAbilitySystemComponent& ASC);
 
     //  BEGIN UCharacterMovementComponent Interface
     virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;

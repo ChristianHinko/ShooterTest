@@ -84,23 +84,21 @@ void USTCharacterMovementComponent::InitializeComponent()
 }
 
 //  BEGIN Ability System
-void USTCharacterMovementComponent::OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC)
+void USTCharacterMovementComponent::OnInitializeAbilitySystemComponent(UAbilitySystemComponent& asc)
 {
-    OwnerASC = ASC;
+    OwnerASC = &asc;
 
-
-    CharacterMovementAttributeSet = UASSAbilitySystemBlueprintLibrary::GetAttributeSetCasted<USTAttributeSet_CharacterMovement>(ASC);
-
+    CharacterMovementAttributeSet = UASSAbilitySystemBlueprintLibrary::GetAttributeSetCasted<USTAttributeSet_CharacterMovement>(&asc);
 
     // Bind to Tag change delegates
-    ASC->RegisterGameplayTagEvent(STNativeGameplayTags::Character_RunDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USTCharacterMovementComponent::OnRunDisabledTagChanged);
-    ASC->RegisterGameplayTagEvent(STNativeGameplayTags::Character_JumpDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USTCharacterMovementComponent::OnJumpDisabledTagChanged);
-    ASC->RegisterGameplayTagEvent(STNativeGameplayTags::Character_CrouchDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USTCharacterMovementComponent::OnCrouchDisabledTagChanged);
+    asc.RegisterGameplayTagEvent(STNativeGameplayTags::Character_RunDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USTCharacterMovementComponent::OnRunDisabledTagChanged);
+    asc.RegisterGameplayTagEvent(STNativeGameplayTags::Character_JumpDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USTCharacterMovementComponent::OnJumpDisabledTagChanged);
+    asc.RegisterGameplayTagEvent(STNativeGameplayTags::Character_CrouchDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USTCharacterMovementComponent::OnCrouchDisabledTagChanged);
 
     // Get initial values
-    OnRunDisabledTagChanged(STNativeGameplayTags::Character_RunDisabled, ASC->GetTagCount(STNativeGameplayTags::Character_RunDisabled));
-    OnJumpDisabledTagChanged(STNativeGameplayTags::Character_JumpDisabled, ASC->GetTagCount(STNativeGameplayTags::Character_JumpDisabled));
-    OnCrouchDisabledTagChanged(STNativeGameplayTags::Character_CrouchDisabled, ASC->GetTagCount(STNativeGameplayTags::Character_CrouchDisabled));
+    OnRunDisabledTagChanged(STNativeGameplayTags::Character_RunDisabled, asc.GetTagCount(STNativeGameplayTags::Character_RunDisabled));
+    OnJumpDisabledTagChanged(STNativeGameplayTags::Character_JumpDisabled, asc.GetTagCount(STNativeGameplayTags::Character_JumpDisabled));
+    OnCrouchDisabledTagChanged(STNativeGameplayTags::Character_CrouchDisabled, asc.GetTagCount(STNativeGameplayTags::Character_CrouchDisabled));
 }
 
 void USTCharacterMovementComponent::OnRunDisabledTagChanged(const FGameplayTag Tag, int32 NewCount)

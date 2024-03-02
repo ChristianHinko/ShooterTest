@@ -15,42 +15,42 @@
 UCLASS()
 class SHOOTERTEST_API USTAnimInstance_Sonic : public USTAnimInstance_ShooterCharacter
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	USTAnimInstance_Sonic(const FObjectInitializer& ObjectInitializer);
+    USTAnimInstance_Sonic(const FObjectInitializer& ObjectInitializer);
 
-	UMaterialInstanceDynamic* REyeDynamicMat;
-	UMaterialInstanceDynamic* LEyeDynamicMat;
+    UMaterialInstanceDynamic* REyeDynamicMat;
+    UMaterialInstanceDynamic* LEyeDynamicMat;
 
 protected:
-	virtual void NativeInitializeAnimation() override;
-	virtual void NativeUpdateAnimation(float DeltaTimeX) override;
+    virtual void NativeInitializeAnimation() override;
+    virtual void NativeUpdateAnimation(float DeltaTimeX) override;
 
 
-	UPROPERTY()
-		TWeakObjectPtr<AActor> LookTarget;
+    UPROPERTY()
+        TWeakObjectPtr<AActor> LookTarget;
 
-	UPROPERTY(BlueprintReadOnly)
-		FRotator RightEyelookRot;
-	UPROPERTY(BlueprintReadOnly)
-		FRotator LeftEyelookRot;
-
-
-	UPROPERTY(BlueprintReadWrite)
-		float eyeMaxPitchRot;
-	UPROPERTY(BlueprintReadWrite)
-		float eyeMaxYawRot;
-	
-	UPROPERTY(BlueprintReadWrite)
-		float rEyeLookAtAlpha;
-	UPROPERTY(BlueprintReadWrite)
-		float eyeLookSpeed;
-
-	UPROPERTY(BlueprintReadWrite)
-		float lEyeLookAtAlpha;
+    UPROPERTY(BlueprintReadOnly)
+        FRotator RightEyelookRot;
+    UPROPERTY(BlueprintReadOnly)
+        FRotator LeftEyelookRot;
 
 
-	FRotator Look(FName boneName, AActor* lookTarget, float deltaTime);
+    UPROPERTY(BlueprintReadWrite)
+        float eyeMaxPitchRot;
+    UPROPERTY(BlueprintReadWrite)
+        float eyeMaxYawRot;
+    
+    UPROPERTY(BlueprintReadWrite)
+        float rEyeLookAtAlpha;
+    UPROPERTY(BlueprintReadWrite)
+        float eyeLookSpeed;
+
+    UPROPERTY(BlueprintReadWrite)
+        float lEyeLookAtAlpha;
+
+
+    FRotator Look(FName boneName, AActor* lookTarget, float deltaTime);
 
 };

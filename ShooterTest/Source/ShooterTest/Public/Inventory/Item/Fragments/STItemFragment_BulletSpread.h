@@ -17,11 +17,11 @@ class UCharacterMovementComponent;
 UCLASS()
 class SHOOTERTEST_API USTItemFragment_BulletSpread : public UArcItemFragment
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
 
-	USTItemFragment_BulletSpread();
+    USTItemFragment_BulletSpread();
 };
 
 /**
@@ -32,46 +32,46 @@ public:
 UCLASS()
 class SHOOTERTEST_API USTItemFragment_BulletSpreadInstanced : public UArcItemFragment, public FTickableGameObject
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	USTItemFragment_BulletSpreadInstanced();
+    USTItemFragment_BulletSpreadInstanced();
 
 
-	/** Current bullet spread. Non-replicated because set every frame */
-	UPROPERTY(BlueprintReadOnly, Replicated, Category = "BulletSpread")
-	mutable FGCFloatPropertyWrapper CurrentBulletSpread;
+    /** Current bullet spread. Non-replicated because set every frame */
+    UPROPERTY(BlueprintReadOnly, Replicated, Category = "BulletSpread")
+    mutable FGCFloatPropertyWrapper CurrentBulletSpread;
 
 
-	float GetRestBulletSpread() const;
+    float GetRestBulletSpread() const;
 
-	void ApplyFireBulletSpread();
-	void ResetBulletSpread();
+    void ApplyFireBulletSpread();
+    void ResetBulletSpread();
 
-	bool IsMovingToIncBulletSpread() const;
+    bool IsMovingToIncBulletSpread() const;
 
 
-	void SetAbilitySystemComponent(const UAbilitySystemComponent* NewASC);
+    void SetAbilitySystemComponent(const UAbilitySystemComponent* NewASC);
 
 protected:
-	//  BEGIN FTickableObjectBase interface
-	virtual bool IsTickable() const override;
-	virtual void Tick(float DeltaTime) override;
-	virtual TStatId GetStatId() const override { return TStatId(); }
-	//  END FTickableObjectBase interface
+    //  BEGIN FTickableObjectBase interface
+    virtual bool IsTickable() const override;
+    virtual void Tick(float DeltaTime) override;
+    virtual TStatId GetStatId() const override { return TStatId(); }
+    //  END FTickableObjectBase interface
 
-	//  BEGIN FTickableGameObject interface
-	virtual bool IsTickableWhenPaused() const override { return false; };
-	//  END FTickableGameObject interface
+    //  BEGIN FTickableGameObject interface
+    virtual bool IsTickableWhenPaused() const override { return false; };
+    //  END FTickableGameObject interface
 
-	UPROPERTY(Transient)
-	TObjectPtr<const UAbilitySystemComponent> OwnerASC;
-	UPROPERTY(Transient)
-	TObjectPtr<const UCharacterMovementComponent> CMC;
+    UPROPERTY(Transient)
+    TObjectPtr<const UAbilitySystemComponent> OwnerASC;
+    UPROPERTY(Transient)
+    TObjectPtr<const UCharacterMovementComponent> CMC;
 
-	mutable float MinBulletSpread;
-	mutable float MovingBulletSpread;
-	mutable float BulletSpreadIncRate;
-	mutable float FireBulletSpread;
-	mutable float BulletSpreadDecSpeed;
+    mutable float MinBulletSpread;
+    mutable float MovingBulletSpread;
+    mutable float BulletSpreadIncRate;
+    mutable float FireBulletSpread;
+    mutable float BulletSpreadDecSpeed;
 };

@@ -17,26 +17,26 @@
 UCLASS()
 class SHOOTERTEST_API ASTHUD : public AHUD
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	ASTHUD(const FObjectInitializer& ObjectInitializer);
+    ASTHUD(const FObjectInitializer& ObjectInitializer);
 
 
 #if 0
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<UUW_My> MyWidgetTSub;
-	UPROPERTY()
-		TObjectPtr<UUserWidget> MyWidget;
+    UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+        TSubclassOf<UUW_My> MyWidgetTSub;
+    UPROPERTY()
+        TObjectPtr<UUserWidget> MyWidget;
 
-	// Points to an external MyOther Widget
-	UPROPERTY()
-		TWeakObjectPtr<UUW_MyOther> CurrentMyOtherWidget;
+    // Points to an external MyOther Widget
+    UPROPERTY()
+        TWeakObjectPtr<UUW_MyOther> CurrentMyOtherWidget;
 #endif
 
 protected:
-	//  BEGIN AActor interface
-	virtual void PostInitializeComponents() override;
-	//  END AActor interface
+    //  BEGIN AActor interface
+    virtual void PostInitializeComponents() override;
+    //  END AActor interface
 
 };

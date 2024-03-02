@@ -16,14 +16,14 @@
 UCLASS()
 class SHOOTERTEST_API USTAttributeSet_PlayerState : public UASSAttributeSet
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ExampleAttribute, Category = "Attributes")
-		FGameplayAttributeData ExampleAttribute;
-	ATTRIBUTE_ACCESSORS(USTAttributeSet_PlayerState, ExampleAttribute)
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ExampleAttribute, Category = "Attributes")
+        FGameplayAttributeData ExampleAttribute;
+    ATTRIBUTE_ACCESSORS(USTAttributeSet_PlayerState, ExampleAttribute)
 
 protected:
-	UFUNCTION()
-		virtual void OnRep_ExampleAttribute(const FGameplayAttributeData& OldValue);
+    UFUNCTION()
+        virtual void OnRep_ExampleAttribute(const FGameplayAttributeData& OldValue);
 };

@@ -15,8 +15,8 @@
 class FShooterTestModule : public FDefaultGameModuleImpl
 {
 public:
-	//  BEGIN IModuleInterface interface
-	virtual void StartupModule() override;
-	virtual void ShutdownModule() override;
-	//  END IModuleInterface interface
+    //  BEGIN IModuleInterface interface
+    virtual void StartupModule() override;
+    virtual void ShutdownModule() override;
+    //  END IModuleInterface interface
 };

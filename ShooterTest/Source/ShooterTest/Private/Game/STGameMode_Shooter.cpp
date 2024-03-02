@@ -15,43 +15,43 @@
 
 
 ASTGameMode_Shooter::ASTGameMode_Shooter(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+    : Super(ObjectInitializer)
 {
-	PlayerStateClass = ASTPlayerState_Shooter::StaticClass();
-	HUDClass = ASTHUD_Shooter::StaticClass();
-	DefaultPawnClass = ASTCharacter_Shooter::StaticClass();
+    PlayerStateClass = ASTPlayerState_Shooter::StaticClass();
+    HUDClass = ASTHUD_Shooter::StaticClass();
+    DefaultPawnClass = ASTCharacter_Shooter::StaticClass();
 }
 
 
 void ASTGameMode_Shooter::SetPlayerDefaults(APawn* PlayerPawn)
 {
-	Super::SetPlayerDefaults(PlayerPawn);
+    Super::SetPlayerDefaults(PlayerPawn);
 
-	// Try to give startup items
-	const UArcInventoryComponent_Modular* AIEInventoryComponentModular = Cast<UArcInventoryComponent_Modular>(UArcItemBPFunctionLibrary::GetInventoryComponent(PlayerPawn, true));
-	if (IsValid(AIEInventoryComponentModular))
-	{
-		UAIEInventoryProcessor_Active* AIEInventoryProcessorActive = AIEInventoryComponentModular->FindFirstProcessor<UAIEInventoryProcessor_Active>();
-		if (IsValid(AIEInventoryProcessorActive))
-		{
-			UASSActorComponent_AvatarActorExtension* AvatarActorExtensionComponent = PlayerPawn->FindComponentByClass<UASSActorComponent_AvatarActorExtension>();
-			if (IsValid(AvatarActorExtensionComponent))
-			{
-				if (AvatarActorExtensionComponent->IsInitializedWithASC())
-				{
-					// The Pawn is ready to recieve the startup items
-					AIEInventoryProcessorActive->GiveInventoryStartupItems();
-				}
-				else
-				{
-					UE_LOG(LogSTShooterGameMode, Error, TEXT("%s() failed to call GiveInventoryStartupItems() because the pawn's avatar actor extension component hasn't yet been initialized"), ANSI_TO_TCHAR(__FUNCTION__));
-				}
-			}
-			else
-			{
-				// Edge case: No avatar actor extension component - just assume he is ready to recieve the startup items
-				AIEInventoryProcessorActive->GiveInventoryStartupItems();
-			}
-		}
-	}
+    // Try to give startup items
+    const UArcInventoryComponent_Modular* AIEInventoryComponentModular = Cast<UArcInventoryComponent_Modular>(UArcItemBPFunctionLibrary::GetInventoryComponent(PlayerPawn, true));
+    if (IsValid(AIEInventoryComponentModular))
+    {
+        UAIEInventoryProcessor_Active* AIEInventoryProcessorActive = AIEInventoryComponentModular->FindFirstProcessor<UAIEInventoryProcessor_Active>();
+        if (IsValid(AIEInventoryProcessorActive))
+        {
+            UASSActorComponent_AvatarActorExtension* AvatarActorExtensionComponent = PlayerPawn->FindComponentByClass<UASSActorComponent_AvatarActorExtension>();
+            if (IsValid(AvatarActorExtensionComponent))
+            {
+                if (AvatarActorExtensionComponent->IsInitializedWithASC())
+                {
+                    // The Pawn is ready to recieve the startup items
+                    AIEInventoryProcessorActive->GiveInventoryStartupItems();
+                }
+                else
+                {
+                    UE_LOG(LogSTShooterGameMode, Error, TEXT("%s() failed to call GiveInventoryStartupItems() because the pawn's avatar actor extension component hasn't yet been initialized"), ANSI_TO_TCHAR(__FUNCTION__));
+                }
+            }
+            else
+            {
+                // Edge case: No avatar actor extension component - just assume he is ready to recieve the startup items
+                AIEInventoryProcessorActive->GiveInventoryStartupItems();
+            }
+        }
+    }
 }

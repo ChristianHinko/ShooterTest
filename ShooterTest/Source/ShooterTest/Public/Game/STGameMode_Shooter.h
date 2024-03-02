@@ -15,11 +15,11 @@
 UCLASS()
 class SHOOTERTEST_API ASTGameMode_Shooter : public ASTGameMode
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	ASTGameMode_Shooter(const FObjectInitializer& ObjectInitializer);
+    ASTGameMode_Shooter(const FObjectInitializer& ObjectInitializer);
 
 
-	virtual void SetPlayerDefaults(APawn* PlayerPawn) override;
+    virtual void SetPlayerDefaults(APawn* PlayerPawn) override;
 };

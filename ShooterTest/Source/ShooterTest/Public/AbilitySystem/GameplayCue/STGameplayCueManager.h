@@ -15,9 +15,9 @@
 UCLASS()
 class SHOOTERTEST_API USTGameplayCueManager : public UASSGameplayCueManager
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	virtual void FlushPendingCues() override;
+    virtual void FlushPendingCues() override;
 
 };

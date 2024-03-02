@@ -21,52 +21,52 @@ class USTItemFragment_BulletSpreadInstanced;
 UCLASS()
 class SHOOTERTEST_API USTUserWidget_Crosshair : public UASSEUserWidget
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 protected:
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<USizeBox> SizeBoxTop;
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<USizeBox> SizeBoxBottom;
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<USizeBox> SizeBoxLeft;
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<USizeBox> SizeBoxRight;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<USizeBox> SizeBoxTop;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<USizeBox> SizeBoxBottom;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<USizeBox> SizeBoxLeft;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<USizeBox> SizeBoxRight;
 
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UImage> ImageTop;
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UImage> ImageBottom;
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UImage> ImageLeft;
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UImage> ImageRight;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UImage> ImageTop;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UImage> ImageBottom;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UImage> ImageLeft;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UImage> ImageRight;
 
 public:
-	USTUserWidget_Crosshair(const FObjectInitializer& ObjectInitializer);
+    USTUserWidget_Crosshair(const FObjectInitializer& ObjectInitializer);
 
 
-	UPROPERTY(EditAnywhere, Category = "Crosshair")
-	FSlateBrush CrosshairBrush;
+    UPROPERTY(EditAnywhere, Category = "Crosshair")
+    FSlateBrush CrosshairBrush;
 
 protected:
-	virtual void NativePreConstruct() override;
-	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
+    virtual void NativePreConstruct() override;
+    virtual void NativeConstruct() override;
+    virtual void NativeDestruct() override;
 
 
-	virtual void OnPlayerASCValid() override;
+    virtual void OnPlayerASCValid() override;
 
-	UPROPERTY()
-	TWeakObjectPtr<USTItemFragment_BulletSpreadInstanced> BulletSpreadItemFragment;
-	UFUNCTION()
-		void OnCurrentBulletSpreadChange(FGCFloatPropertyWrapper& PropertyWrapper, const float& InOldValue, const float& InNewValue);
+    UPROPERTY()
+    TWeakObjectPtr<USTItemFragment_BulletSpreadInstanced> BulletSpreadItemFragment;
+    UFUNCTION()
+        void OnCurrentBulletSpreadChange(FGCFloatPropertyWrapper& PropertyWrapper, const float& InOldValue, const float& InNewValue);
 
-	/** The current spread value of the Attribute */
-	float CurrentSpread;
+    /** The current spread value of the Attribute */
+    float CurrentSpread;
 
-	/** Called on CurrentSpread changed. Use this to update CurrentSpread based UI */
-	void UpdateCrosshair();
+    /** Called on CurrentSpread changed. Use this to update CurrentSpread based UI */
+    void UpdateCrosshair();
 
 
 };

@@ -8,7 +8,7 @@
 
 
 ASTPlayerState_Shooter::ASTPlayerState_Shooter(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer.SetDefaultSubobjectClass<USTAbilitySystemComponent_Shooter>(AbilitySystemComponentName))
+    : Super(ObjectInitializer.SetDefaultSubobjectClass<USTAbilitySystemComponent_Shooter>(AbilitySystemComponentName))
 {
 
 }

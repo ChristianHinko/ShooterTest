@@ -18,32 +18,32 @@
 UCLASS()
 class SHOOTERTEST_API ASTCharacter_PushModelDemo : public ASTCharacter
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	ASTCharacter_PushModelDemo(const FObjectInitializer& ObjectInitializer);
+    ASTCharacter_PushModelDemo(const FObjectInitializer& ObjectInitializer);
 
 
-	void SetMyPushModelFloat(const float NewPushModelFloat);
+    void SetMyPushModelFloat(const float NewPushModelFloat);
 
 protected:
-	//  BEGIN AActor Interface
-	virtual void Tick(float DeltaSeconds) override;
-	//  END AActor Interface
+    //  BEGIN AActor Interface
+    virtual void Tick(float DeltaSeconds) override;
+    //  END AActor Interface
 
-	//  BEGIN APawn Interface
-	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-	//  END APawn Interface
+    //  BEGIN APawn Interface
+    virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+    //  END APawn Interface
 
-	virtual void OnPressedPrimaryFire();
-	UFUNCTION(Server, WithValidation, Reliable)
-		void ServerOnPressedPrimaryFire();
+    virtual void OnPressedPrimaryFire();
+    UFUNCTION(Server, WithValidation, Reliable)
+        void ServerOnPressedPrimaryFire();
 
-	virtual void OnPressedSecondaryFire();
-	UFUNCTION(Server, WithValidation, Reliable)
-		void ServerOnPressedSecondaryFire();
+    virtual void OnPressedSecondaryFire();
+    UFUNCTION(Server, WithValidation, Reliable)
+        void ServerOnPressedSecondaryFire();
 
 private:
-	UPROPERTY(Replicated)
-		float MyPushModelFloat;
+    UPROPERTY(Replicated)
+        float MyPushModelFloat;
 };

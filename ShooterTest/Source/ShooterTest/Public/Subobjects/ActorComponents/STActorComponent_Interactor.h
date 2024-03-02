@@ -14,40 +14,40 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnFrameOverlapStackChangeDelegate, ISTInter
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SHOOTERTEST_API USTActorComponent_Interactor : public UActorComponent
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-public:	
-	// Sets default values for this component's properties
-	USTActorComponent_Interactor();
+public:    
+    // Sets default values for this component's properties
+    USTActorComponent_Interactor();
 
-	virtual void InitializeComponent() override;
+    virtual void InitializeComponent() override;
 
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+    virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	// Treated as a stack. Not fully a stack because OnEndOverlap of an interactable we allow removing the element from whatever position it may be
-	TArray<ISTInteractableInterface*> CurrentOverlapInteractablesStack;
-	FOnFrameOverlapStackChangeDelegate OnElementRemovedFromFrameOverlapInteractablesStack;
+    // Treated as a stack. Not fully a stack because OnEndOverlap of an interactable we allow removing the element from whatever position it may be
+    TArray<ISTInteractableInterface*> CurrentOverlapInteractablesStack;
+    FOnFrameOverlapStackChangeDelegate OnElementRemovedFromFrameOverlapInteractablesStack;
 
-	ISTInteractableInterface* CurrentPrioritizedInteractable;
-	ISTInteractableInterface* LastPrioritizedInteractable;
+    ISTInteractableInterface* CurrentPrioritizedInteractable;
+    ISTInteractableInterface* LastPrioritizedInteractable;
 
-	void TryInteract();
+    void TryInteract();
 
 protected:
-	UPROPERTY(EditAnywhere)
-		float InteractSweepDistance;
-	UPROPERTY(EditAnywhere)
-		float InteractSweepRadius;
-	FHitResult InteractSweepHitResult;
+    UPROPERTY(EditAnywhere)
+        float InteractSweepDistance;
+    UPROPERTY(EditAnywhere)
+        float InteractSweepRadius;
+    FHitResult InteractSweepHitResult;
 
-	UFUNCTION()
-		void OnComponentBeginOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	UFUNCTION()
-		void OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+    UFUNCTION()
+        void OnComponentBeginOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+    UFUNCTION()
+        void OnComponentEndOverlapCharacterCapsule(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	ISTInteractableInterface* ScanForCurrentPrioritizedInteractable(FHitResult& OutHit);
+    ISTInteractableInterface* ScanForCurrentPrioritizedInteractable(FHitResult& OutHit);
 
 private:
-	UPROPERTY()
-		TWeakObjectPtr<ASTCharacter_Shooter> OwningShooterCharacter;
+    UPROPERTY()
+        TWeakObjectPtr<ASTCharacter_Shooter> OwningShooterCharacter;
 };

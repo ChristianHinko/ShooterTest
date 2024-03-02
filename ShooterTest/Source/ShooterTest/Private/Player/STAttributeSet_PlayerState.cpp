@@ -9,19 +9,19 @@
 
 void USTAttributeSet_PlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 
-	FDoRepLifetimeParams Params;
-	Params.Condition = COND_None;
-	Params.RepNotifyCondition = REPNOTIFY_Always;
+    FDoRepLifetimeParams Params;
+    Params.Condition = COND_None;
+    Params.RepNotifyCondition = REPNOTIFY_Always;
 
-	Params.bIsPushBased = true;
-	DOREPLIFETIME_WITH_PARAMS_FAST(USTAttributeSet_PlayerState, ExampleAttribute, Params);
+    Params.bIsPushBased = true;
+    DOREPLIFETIME_WITH_PARAMS_FAST(USTAttributeSet_PlayerState, ExampleAttribute, Params);
 }
 
 
 void USTAttributeSet_PlayerState::OnRep_ExampleAttribute(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USTAttributeSet_PlayerState, ExampleAttribute, OldValue);
+    GAMEPLAYATTRIBUTE_REPNOTIFY(USTAttributeSet_PlayerState, ExampleAttribute, OldValue);
 }

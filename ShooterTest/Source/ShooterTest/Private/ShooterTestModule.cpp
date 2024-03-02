@@ -9,12 +9,12 @@
 
 void FShooterTestModule::StartupModule()
 {
-	UE_LOG(LogShooterTestModule, Log, TEXT("%s() Primary game module startup."), ANSI_TO_TCHAR(__FUNCTION__))
+    UE_LOG(LogShooterTestModule, Log, TEXT("%s() Primary game module startup."), ANSI_TO_TCHAR(__FUNCTION__))
 }
 
 void FShooterTestModule::ShutdownModule()
 {
-	UE_LOG(LogShooterTestModule, Log, TEXT("%s() Primary game module shutdown."), ANSI_TO_TCHAR(__FUNCTION__))
+    UE_LOG(LogShooterTestModule, Log, TEXT("%s() Primary game module shutdown."), ANSI_TO_TCHAR(__FUNCTION__))
 }
 
 

@@ -20,19 +20,19 @@
 UCLASS()
 class SHOOTERTEST_API USTGameplayEffectExecutionCalculation_InitAmmo : public UGameplayEffectExecutionCalculation
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	USTGameplayEffectExecutionCalculation_InitAmmo(const FObjectInitializer& ObjectInitializer);
+    USTGameplayEffectExecutionCalculation_InitAmmo(const FObjectInitializer& ObjectInitializer);
 
 protected:
-	virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
+    virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
 
 
-	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
-		float MaxAmmo;
+    UPROPERTY(EditDefaultsOnly, Category = "Defaults")
+        float MaxAmmo;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
-		float MaxClipAmmo;
+    UPROPERTY(EditDefaultsOnly, Category = "Defaults")
+        float MaxClipAmmo;
 
 };

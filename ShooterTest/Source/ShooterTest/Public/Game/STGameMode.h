@@ -15,10 +15,10 @@
 UCLASS()
 class SHOOTERTEST_API ASTGameMode : public AGSGameMode
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	ASTGameMode(const FObjectInitializer& ObjectInitializer);
+    ASTGameMode(const FObjectInitializer& ObjectInitializer);
 
 protected:
 

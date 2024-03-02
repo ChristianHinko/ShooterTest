@@ -9,25 +9,25 @@
 
 
 ASTHUD_Shooter::ASTHUD_Shooter(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+    : Super(ObjectInitializer)
 {
 
 }
 
 void ASTHUD_Shooter::PostInitializeComponents()
 {
-	Super::PostInitializeComponents();
+    Super::PostInitializeComponents();
 
 
-	// NOTE: player state isnt valid right away (but we have event for when it is now in base ASSEUserWidget)
+    // NOTE: player state isnt valid right away (but we have event for when it is now in base ASSEUserWidget)
 
-	HealthWidget = UWidgetBlueprintLibrary::Create(this, HealthWidgetTSub, GetOwningPlayerController());
-	if (IsValid(HealthWidget))
-	{
-		HealthWidget->AddToPlayerScreen();
-	}
-	else
-	{
-		UE_LOG(LogSTUI, Error, TEXT("%s(): Failed to create HealthWidget. Ensure to fill out TSubs in BP"), ANSI_TO_TCHAR(__FUNCTION__));
-	}
+    HealthWidget = UWidgetBlueprintLibrary::Create(this, HealthWidgetTSub, GetOwningPlayerController());
+    if (IsValid(HealthWidget))
+    {
+        HealthWidget->AddToPlayerScreen();
+    }
+    else
+    {
+        UE_LOG(LogSTUI, Error, TEXT("%s(): Failed to create HealthWidget. Ensure to fill out TSubs in BP"), ANSI_TO_TCHAR(__FUNCTION__));
+    }
 }

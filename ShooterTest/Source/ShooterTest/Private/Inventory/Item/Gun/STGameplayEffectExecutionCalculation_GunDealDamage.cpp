@@ -10,18 +10,18 @@
 
 struct FDamageStatics
 {
-	FGameplayEffectAttributeCaptureDefinition IncomingDamageDef;
+    FGameplayEffectAttributeCaptureDefinition IncomingDamageDef;
 
-	FDamageStatics()
-	{
-		IncomingDamageDef = FGameplayEffectAttributeCaptureDefinition(UASSEAttributeSet_Health::GetIncomingDamageAttribute(), EGameplayEffectAttributeCaptureSource::Target, false);
-	}
+    FDamageStatics()
+    {
+        IncomingDamageDef = FGameplayEffectAttributeCaptureDefinition(UASSEAttributeSet_Health::GetIncomingDamageAttribute(), EGameplayEffectAttributeCaptureSource::Target, false);
+    }
 };
 
 static const FDamageStatics& GetDamageStatics()
 {
-	static FDamageStatics Statics;
-	return Statics;
+    static FDamageStatics Statics;
+    return Statics;
 }
 
 
@@ -34,65 +34,63 @@ static const FDamageStatics& GetDamageStatics()
 
 USTGameplayEffectExecutionCalculation_GunDealDamage::USTGameplayEffectExecutionCalculation_GunDealDamage()
 {
-	RelevantAttributesToCapture.Add(GetDamageStatics().IncomingDamageDef);
+    RelevantAttributesToCapture.Add(GetDamageStatics().IncomingDamageDef);
 }
 
 void USTGameplayEffectExecutionCalculation_GunDealDamage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
-	UAbilitySystemComponent* SourceAbilitySystemComponent = ExecutionParams.GetSourceAbilitySystemComponent();
-	UAbilitySystemComponent* TargetAbilitySystemComponent = ExecutionParams.GetTargetAbilitySystemComponent();
+    UAbilitySystemComponent* SourceAbilitySystemComponent = ExecutionParams.GetSourceAbilitySystemComponent();
+    UAbilitySystemComponent* TargetAbilitySystemComponent = ExecutionParams.GetTargetAbilitySystemComponent();
 
-	if (!IsValid(SourceAbilitySystemComponent) || !IsValid(TargetAbilitySystemComponent))
-	{
-		return;
-	}
-
-
-	AActor* SourceActor = SourceAbilitySystemComponent->GetAvatarActor();
-	AActor* TargetActor = TargetAbilitySystemComponent->GetAvatarActor();
-
-	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
-	FGameplayTagContainer AssetTags;
-	Spec.GetAllAssetTags(AssetTags);
-
-	// Gather the tags from the source and target as that can affect how the damage might be calulated
-	const FGameplayTagContainer* SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
-	const FGameplayTagContainer* TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
+    if (!IsValid(SourceAbilitySystemComponent) || !IsValid(TargetAbilitySystemComponent))
+    {
+        return;
+    }
 
 
-	FGameplayEffectSpec* MutableSpec = ExecutionParams.GetOwningSpecForPreExecuteMod();
-	FSTGameplayEffectContext_Shooter* Context = static_cast<FSTGameplayEffectContext_Shooter*>(MutableSpec->GetContext().Get());
+    AActor* SourceActor = SourceAbilitySystemComponent->GetAvatarActor();
+    AActor* TargetActor = TargetAbilitySystemComponent->GetAvatarActor();
+
+    const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
+    FGameplayTagContainer AssetTags;
+    Spec.GetAllAssetTags(AssetTags);
+
+    // Gather the tags from the source and target as that can affect how the damage might be calulated
+    const FGameplayTagContainer* SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
+    const FGameplayTagContainer* TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
+
+
+    FGameplayEffectSpec* MutableSpec = ExecutionParams.GetOwningSpecForPreExecuteMod();
+    FSTGameplayEffectContext_Shooter* Context = static_cast<FSTGameplayEffectContext_Shooter*>(MutableSpec->GetContext().Get());
 
 
 
-	// Needed parameter for AttemptCalculateCapturedAttributeMagnitude()
-	FAggregatorEvaluateParameters EvaluationParameters;
-	EvaluationParameters.SourceTags = SourceTags;
-	EvaluationParameters.TargetTags = TargetTags;
-
-
+    // Needed parameter for AttemptCalculateCapturedAttributeMagnitude()
+    FAggregatorEvaluateParameters EvaluationParameters;
+    EvaluationParameters.SourceTags = SourceTags;
+    EvaluationParameters.TargetTags = TargetTags;
 
 
 
 
 
 
-	//// Lets get the values we need for our damage calculation (ie. source/target attributes, passed in values)
-	//float RawDamage = 0.0f;
-	//ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(GetDamageStatics().OutgoingDamageDef, EvaluationParameters, RawDamage);
-
-	//// Example for if you want to get a SetByCaller
-	//const float totalDistanceBulletTraveled = Spec.GetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("SetByCaller.RicochetsBeforeHit"), true, 0);		// This is not an actual SetByCaller, just an example
-
-	// Lets get our effect context's data
-	const float BulletSpeedAtImpact = Context->GetHitInfo().BulletSpeedAtImpact;
-
-	// Lets start calculating
-	float DamageToApply = BulletSpeedAtImpact;
-
-	
 
 
+    //// Lets get the values we need for our damage calculation (ie. source/target attributes, passed in values)
+    //float RawDamage = 0.0f;
+    //ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(GetDamageStatics().OutgoingDamageDef, EvaluationParameters, RawDamage);
+
+    //// Example for if you want to get a SetByCaller
+    //const float totalDistanceBulletTraveled = Spec.GetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("SetByCaller.RicochetsBeforeHit"), true, 0);        // This is not an actual SetByCaller, just an example
+
+    // Lets get our effect context's data
+    const float BulletSpeedAtImpact = Context->GetHitInfo().BulletSpeedAtImpact;
+
+    // Lets start calculating
+    float DamageToApply = BulletSpeedAtImpact;
+
+    
 
 
 
@@ -106,6 +104,8 @@ void USTGameplayEffectExecutionCalculation_GunDealDamage::Execute_Implementation
 
 
 
-	// Set the Target's IncomingDamage meta attribute
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetDamageStatics().IncomingDamageDef.AttributeToCapture, EGameplayModOp::Additive, DamageToApply));
+
+
+    // Set the Target's IncomingDamage meta attribute
+    OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetDamageStatics().IncomingDamageDef.AttributeToCapture, EGameplayModOp::Additive, DamageToApply));
 }

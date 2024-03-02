@@ -12,12 +12,12 @@
 
 
 ASTGameMode::ASTGameMode(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+    : Super(ObjectInitializer)
 {
-	GameStateClass = ASTGameState::StaticClass();
-	PlayerControllerClass = ASTPlayerController::StaticClass();
-	PlayerStateClass = ASTPlayerState::StaticClass();
-	HUDClass = ASTHUD::StaticClass();
-	DefaultPawnClass = ASTCharacter::StaticClass();
-	ReplaySpectatorPlayerControllerClass = ASTPlayerController::StaticClass();
+    GameStateClass = ASTGameState::StaticClass();
+    PlayerControllerClass = ASTPlayerController::StaticClass();
+    PlayerStateClass = ASTPlayerState::StaticClass();
+    HUDClass = ASTHUD::StaticClass();
+    DefaultPawnClass = ASTCharacter::StaticClass();
+    ReplaySpectatorPlayerControllerClass = ASTPlayerController::StaticClass();
 }

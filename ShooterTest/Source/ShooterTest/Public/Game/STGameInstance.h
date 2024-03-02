@@ -15,9 +15,9 @@
 UCLASS()
 class SHOOTERTEST_API USTGameInstance : public UGSGameInstance
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	virtual void Init() override;
+    virtual void Init() override;
 
 };

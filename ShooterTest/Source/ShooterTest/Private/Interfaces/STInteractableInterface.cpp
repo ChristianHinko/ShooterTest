@@ -6,17 +6,17 @@
 // Add default functionality here for any ISTInteractableInterface functions that are not pure virtual.
 ISTInteractableInterface::ISTInteractableInterface()
 {
-	bDurationInteractOccurring = false;
+    bDurationInteractOccurring = false;
 }
 
 void ISTInteractableInterface::InjectDurationInteractOccurring(bool newDurationInteractOccurring)
 {
-	bDurationInteractOccurring = newDurationInteractOccurring;
+    bDurationInteractOccurring = newDurationInteractOccurring;
 }
 
 void ISTInteractableInterface::InjectDetectType(ESTDetectType newDetectType)
 {
-	DetectType = newDetectType;
+    DetectType = newDetectType;
 }
 
 
@@ -25,11 +25,11 @@ void ISTInteractableInterface::InjectDetectType(ESTDetectType newDetectType)
 
 bool ISTInteractableInterface::GetDurationInteractOccurring()
 {
-	return bDurationInteractOccurring;
+    return bDurationInteractOccurring;
 }
 ESTDetectType ISTInteractableInterface::GetDetectType()
 {
-	return DetectType;
+    return DetectType;
 }
 
 

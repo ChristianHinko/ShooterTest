@@ -15,10 +15,10 @@
 UCLASS()
 class SHOOTERTEST_API USTAbilitySystemComponent_Shooter : public UASSAbilitySystemComponent
 {
-	GENERATED_BODY()
-	
+    GENERATED_BODY()
+    
 public:
-	USTAbilitySystemComponent_Shooter(const FObjectInitializer& ObjectInitializer);
+    USTAbilitySystemComponent_Shooter(const FObjectInitializer& ObjectInitializer);
 
 
 protected:

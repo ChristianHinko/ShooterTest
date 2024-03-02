@@ -16,31 +16,31 @@ class ASTCharacter_Shooter;
 UCLASS(Abstract)
 class SHOOTERTEST_API USTGameplayAbility_CharacterInteract : public UASSGameplayAbility
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	USTGameplayAbility_CharacterInteract(const FObjectInitializer& ObjectInitializer);
+    USTGameplayAbility_CharacterInteract(const FObjectInitializer& ObjectInitializer);
 
-	ISTInteractableInterface* Interactable;
+    ISTInteractableInterface* Interactable;
 protected:
-	UPROPERTY()
-		TSubclassOf<UGameplayEffect> InteractEffectTSub;	// Implementor assigns this so we don't need "EditAnywhere"
-	FActiveGameplayEffectHandle InteractEffectActiveHandle;
+    UPROPERTY()
+        TSubclassOf<UGameplayEffect> InteractEffectTSub;    // Implementor assigns this so we don't need "EditAnywhere"
+    FActiveGameplayEffectHandle InteractEffectActiveHandle;
 
-	UPROPERTY()
-		TWeakObjectPtr<ASTCharacter_Shooter> ShooterCharacter;
+    UPROPERTY()
+        TWeakObjectPtr<ASTCharacter_Shooter> ShooterCharacter;
 
-	ESTDurationInteractEndReason InteractEndReason;
-	float timeHeld;
+    ESTDurationInteractEndReason InteractEndReason;
+    float timeHeld;
 
 #pragma region Tags
-	
+    
 #pragma endregion
 
 
-	//  BEGIN UGameplayAbility Interface
-	virtual void ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
-	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
-	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
-	//  END UGameplayAbility Interface
+    //  BEGIN UGameplayAbility Interface
+    virtual void ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
+    virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+    virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+    //  END UGameplayAbility Interface
 };

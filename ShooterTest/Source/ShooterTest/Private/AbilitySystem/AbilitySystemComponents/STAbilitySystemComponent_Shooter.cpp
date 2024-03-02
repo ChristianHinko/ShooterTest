@@ -6,7 +6,7 @@
 
 
 USTAbilitySystemComponent_Shooter::USTAbilitySystemComponent_Shooter(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+    : Super(ObjectInitializer)
 {
 
 }

@@ -15,13 +15,13 @@
 UCLASS()
 class SHOOTERTEST_API USTGameplayEffectExecutionCalculation_GunDealDamage : public UGameplayEffectExecutionCalculation
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	USTGameplayEffectExecutionCalculation_GunDealDamage();
+    USTGameplayEffectExecutionCalculation_GunDealDamage();
 
 
 protected:
-	virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
+    virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
 
 };

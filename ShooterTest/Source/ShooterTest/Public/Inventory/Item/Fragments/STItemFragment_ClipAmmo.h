@@ -16,7 +16,7 @@
 UCLASS()
 class SHOOTERTEST_API USTItemFragment_ClipAmmo : public UArcItemFragment
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 };
 
 /**
@@ -25,14 +25,14 @@ class SHOOTERTEST_API USTItemFragment_ClipAmmo : public UArcItemFragment
 UCLASS()
 class SHOOTERTEST_API USTItemFragment_ClipAmmoInstanced : public UArcItemFragment
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
 
-	USTItemFragment_ClipAmmoInstanced();
+    USTItemFragment_ClipAmmoInstanced();
 
 public:
 
-	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Ammo")
-	FGCInt32PropertyWrapper ClipAmmo;
+    UPROPERTY(BlueprintReadOnly, Replicated, Category = "Ammo")
+    FGCInt32PropertyWrapper ClipAmmo;
 };

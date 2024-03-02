@@ -15,20 +15,20 @@
 UCLASS()
 class SHOOTERTEST_API USTPhysicalMaterial_Shooter : public UPhysicalMaterial
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	USTPhysicalMaterial_Shooter(const FObjectInitializer& ObjectInitializer);
+    USTPhysicalMaterial_Shooter(const FObjectInitializer& ObjectInitializer);
 
 
-	/** Bullet can ricochet off of this physical material if there is enough speed. If not enough speed, it will stop */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shooter")
-		uint8 bRicochets : 1;
-	/** Slows down bullet speed by subtracting this much PER CENTIMETER of penetration */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shooter", meta = (EditCondition = "bRicochets == false", EditConditionHides))
-		float PerCmPenetrationSpeedNerf;
-	/** Slows down bullet speed by subtracting this much on ricochet */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shooter", meta = (EditCondition = "bRicochets == true", EditConditionHides))
-		float RicochetSpeedNerf;
+    /** Bullet can ricochet off of this physical material if there is enough speed. If not enough speed, it will stop */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shooter")
+        uint8 bRicochets : 1;
+    /** Slows down bullet speed by subtracting this much PER CENTIMETER of penetration */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shooter", meta = (EditCondition = "bRicochets == false", EditConditionHides))
+        float PerCmPenetrationSpeedNerf;
+    /** Slows down bullet speed by subtracting this much on ricochet */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shooter", meta = (EditCondition = "bRicochets == true", EditConditionHides))
+        float RicochetSpeedNerf;
 
 };

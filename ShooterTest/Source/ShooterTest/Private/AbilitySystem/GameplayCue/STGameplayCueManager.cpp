@@ -7,7 +7,7 @@
 
 void USTGameplayCueManager::FlushPendingCues()
 {
-	Super::FlushPendingCues();
+    Super::FlushPendingCues();
 
 
 }

@@ -16,7 +16,7 @@
 
 
 USTUserWidget_Crosshair::USTUserWidget_Crosshair(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+    : Super(ObjectInitializer)
 {
 
 }
@@ -24,93 +24,93 @@ USTUserWidget_Crosshair::USTUserWidget_Crosshair(const FObjectInitializer& Objec
 
 void USTUserWidget_Crosshair::NativePreConstruct()
 {
-	Super::NativePreConstruct();
+    Super::NativePreConstruct();
 
 
-	//ImageTop->SetRenderTransformAngle(0.f);
-	//ImageBottom->SetRenderTransformAngle(180.f);
-	//ImageLeft->SetRenderTransformAngle(-90.f);
-	//ImageRight->SetRenderTransformAngle(90.f);
+    //ImageTop->SetRenderTransformAngle(0.f);
+    //ImageBottom->SetRenderTransformAngle(180.f);
+    //ImageLeft->SetRenderTransformAngle(-90.f);
+    //ImageRight->SetRenderTransformAngle(90.f);
 }
 
 void USTUserWidget_Crosshair::NativeConstruct()
 {
-	Super::NativeConstruct();
+    Super::NativeConstruct();
 
-	ImageTop->SetBrush(CrosshairBrush);
-	ImageBottom->SetBrush(CrosshairBrush);
-	ImageLeft->SetBrush(CrosshairBrush);
-	ImageRight->SetBrush(CrosshairBrush);
+    ImageTop->SetBrush(CrosshairBrush);
+    ImageBottom->SetBrush(CrosshairBrush);
+    ImageLeft->SetBrush(CrosshairBrush);
+    ImageRight->SetBrush(CrosshairBrush);
 }
 
 void USTUserWidget_Crosshair::OnPlayerASCValid()
 {
-	Super::OnPlayerASCValid();
+    Super::OnPlayerASCValid();
 
 
-	// Get BulletSpread subobject
-	if (const FSTGameplayAbilityActorInfo_Shooter* ShooterActorInfo = static_cast<const FSTGameplayAbilityActorInfo_Shooter*>(PlayerASC->AbilityActorInfo.Get()))
-	{
-		UArcInventoryComponent_Modular* InventoryComponentModular = Cast<UArcInventoryComponent_Modular>(ShooterActorInfo->InventoryComponent);
-		if (IsValid(InventoryComponentModular))
-		{
-			UArcInventoryProcessor_Active* InventoryProcessorActive = InventoryComponentModular->FindFirstProcessor<UArcInventoryProcessor_Active>();
-			if (IsValid(InventoryProcessorActive))
-			{
-				UArcItemStackModular* ActiveItemStack = InventoryProcessorActive->GetActiveItemStack();
-				if (IsValid(ActiveItemStack))
-				{
-					BulletSpreadItemFragment = ActiveItemStack->FindFirstFragment<USTItemFragment_BulletSpreadInstanced>();
-				}
-			}
-		}
-		
-	}
+    // Get BulletSpread subobject
+    if (const FSTGameplayAbilityActorInfo_Shooter* ShooterActorInfo = static_cast<const FSTGameplayAbilityActorInfo_Shooter*>(PlayerASC->AbilityActorInfo.Get()))
+    {
+        UArcInventoryComponent_Modular* InventoryComponentModular = Cast<UArcInventoryComponent_Modular>(ShooterActorInfo->InventoryComponent);
+        if (IsValid(InventoryComponentModular))
+        {
+            UArcInventoryProcessor_Active* InventoryProcessorActive = InventoryComponentModular->FindFirstProcessor<UArcInventoryProcessor_Active>();
+            if (IsValid(InventoryProcessorActive))
+            {
+                UArcItemStackModular* ActiveItemStack = InventoryProcessorActive->GetActiveItemStack();
+                if (IsValid(ActiveItemStack))
+                {
+                    BulletSpreadItemFragment = ActiveItemStack->FindFirstFragment<USTItemFragment_BulletSpreadInstanced>();
+                }
+            }
+        }
+        
+    }
 
-	if (BulletSpreadItemFragment.IsValid())
-	{
-		BulletSpreadItemFragment->CurrentBulletSpread.ValueChangeDelegate.AddUObject(this, &USTUserWidget_Crosshair::OnCurrentBulletSpreadChange);
+    if (BulletSpreadItemFragment.IsValid())
+    {
+        BulletSpreadItemFragment->CurrentBulletSpread.ValueChangeDelegate.AddUObject(this, &USTUserWidget_Crosshair::OnCurrentBulletSpreadChange);
 
-		// Update for initial value
-		const float& CurrentBulletSpread = BulletSpreadItemFragment->CurrentBulletSpread;
-		OnCurrentBulletSpreadChange(BulletSpreadItemFragment->CurrentBulletSpread, CurrentBulletSpread, CurrentBulletSpread);
-	}
+        // Update for initial value
+        const float& CurrentBulletSpread = BulletSpreadItemFragment->CurrentBulletSpread;
+        OnCurrentBulletSpreadChange(BulletSpreadItemFragment->CurrentBulletSpread, CurrentBulletSpread, CurrentBulletSpread);
+    }
 }
 
 void USTUserWidget_Crosshair::OnCurrentBulletSpreadChange(FGCFloatPropertyWrapper& PropertyWrapper, const float& InOldValue, const float& InNewValue)
 {
-	CurrentSpread = InNewValue;
-	UpdateCrosshair();
+    CurrentSpread = InNewValue;
+    UpdateCrosshair();
 }
 
 
 void USTUserWidget_Crosshair::UpdateCrosshair()
 {
-	if (CurrentSpread <= 0)
-	{
-		SizeBoxTop->SetRenderTranslation(FVector2D::ZeroVector);
-		SizeBoxBottom->SetRenderTranslation(FVector2D::ZeroVector);
-		SizeBoxLeft->SetRenderTranslation(FVector2D::ZeroVector);
-		SizeBoxRight->SetRenderTranslation(FVector2D::ZeroVector);
-		return;
-	}
+    if (CurrentSpread <= 0)
+    {
+        SizeBoxTop->SetRenderTranslation(FVector2D::ZeroVector);
+        SizeBoxBottom->SetRenderTranslation(FVector2D::ZeroVector);
+        SizeBoxLeft->SetRenderTranslation(FVector2D::ZeroVector);
+        SizeBoxRight->SetRenderTranslation(FVector2D::ZeroVector);
+        return;
+    }
 
-	const float Number = 5.f; // arbitrary multiplier
+    const float Number = 5.f; // arbitrary multiplier
 
-	SizeBoxTop->SetRenderTranslation(CurrentSpread * Number * FVector2D(0, -1));
-	SizeBoxBottom->SetRenderTranslation(CurrentSpread * Number * FVector2D(0, 1));
-	SizeBoxLeft->SetRenderTranslation(CurrentSpread * Number * FVector2D(-1, 0));
-	SizeBoxRight->SetRenderTranslation(CurrentSpread * Number * FVector2D(1, 0));
+    SizeBoxTop->SetRenderTranslation(CurrentSpread * Number * FVector2D(0, -1));
+    SizeBoxBottom->SetRenderTranslation(CurrentSpread * Number * FVector2D(0, 1));
+    SizeBoxLeft->SetRenderTranslation(CurrentSpread * Number * FVector2D(-1, 0));
+    SizeBoxRight->SetRenderTranslation(CurrentSpread * Number * FVector2D(1, 0));
 }
 
 
 void USTUserWidget_Crosshair::NativeDestruct()
 {
-	if (BulletSpreadItemFragment.IsValid())
-	{
-		BulletSpreadItemFragment->CurrentBulletSpread.ValueChangeDelegate.RemoveAll(this);
-	}
+    if (BulletSpreadItemFragment.IsValid())
+    {
+        BulletSpreadItemFragment->CurrentBulletSpread.ValueChangeDelegate.RemoveAll(this);
+    }
 
 
-	Super::NativeDestruct();
+    Super::NativeDestruct();
 }

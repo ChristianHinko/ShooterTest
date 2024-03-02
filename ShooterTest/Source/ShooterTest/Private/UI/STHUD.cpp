@@ -6,7 +6,7 @@
 
 
 ASTHUD::ASTHUD(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+    : Super(ObjectInitializer)
 {
 
 }
@@ -16,20 +16,20 @@ ASTHUD::ASTHUD(const FObjectInitializer& ObjectInitializer)
 // This is the best event to add widgets!
 void ASTHUD::PostInitializeComponents()
 {
-	Super::PostInitializeComponents();
+    Super::PostInitializeComponents();
 
 
-	// NOTE: player state isnt valid right away (but we have event for when it is now in base ASSEUserWidget)
+    // NOTE: player state isnt valid right away (but we have event for when it is now in base ASSEUserWidget)
 
 #if 0
-	MyWidget = UWidgetBlueprintLibrary::Create(this, MyWidgetTSub, GetOwningPlayerController());
-	if (IsValid(MyWidget))
-	{
-		MyWidget->AddToPlayerScreen();
-	}
-	else
-	{
-		UE_LOG(LogSTUI, Error, TEXT("%s(): Failed to create MyWidget. Ensure to fill out TSubs in BP"), ANSI_TO_TCHAR(__FUNCTION__));
-	}
+    MyWidget = UWidgetBlueprintLibrary::Create(this, MyWidgetTSub, GetOwningPlayerController());
+    if (IsValid(MyWidget))
+    {
+        MyWidget->AddToPlayerScreen();
+    }
+    else
+    {
+        UE_LOG(LogSTUI, Error, TEXT("%s(): Failed to create MyWidget. Ensure to fill out TSubs in BP"), ANSI_TO_TCHAR(__FUNCTION__));
+    }
 #endif
 }

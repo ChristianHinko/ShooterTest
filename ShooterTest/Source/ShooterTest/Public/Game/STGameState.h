@@ -15,6 +15,6 @@
 UCLASS()
 class SHOOTERTEST_API ASTGameState : public AGSGameState
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 };

@@ -19,18 +19,18 @@ class USTAttributeSet_PlayerState;
 UCLASS()
 class SHOOTERTEST_API ASTPlayerState : public AASSEPlayerState_AbilitySystemPlayerState
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 protected:
-	UPROPERTY()
-		TObjectPtr<UGSActorComponent_PlayerStateExtension> GSPlayerStateExtensionComponent;
-	UPROPERTY()
-		TObjectPtr<USTAttributeSet_PlayerState> PlayerAttributeSet;
+    UPROPERTY()
+        TObjectPtr<UGSActorComponent_PlayerStateExtension> GSPlayerStateExtensionComponent;
+    UPROPERTY()
+        TObjectPtr<USTAttributeSet_PlayerState> PlayerAttributeSet;
 
 public:
-	ASTPlayerState(const FObjectInitializer& ObjectInitializer);
+    ASTPlayerState(const FObjectInitializer& ObjectInitializer);
 
 
-	USTAttributeSet_PlayerState* GetAttributeSet() const { return PlayerAttributeSet; }
+    USTAttributeSet_PlayerState* GetAttributeSet() const { return PlayerAttributeSet; }
 
 };

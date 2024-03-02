@@ -6,7 +6,7 @@
 
 
 ASTPlayerController::ASTPlayerController(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+    : Super(ObjectInitializer)
 {
 
 }
@@ -14,21 +14,21 @@ ASTPlayerController::ASTPlayerController(const FObjectInitializer& ObjectInitial
 
 void ASTPlayerController::InitPlayerState()
 {
-	Super::InitPlayerState();
-	// Right after Player State gets created
+    Super::InitPlayerState();
+    // Right after Player State gets created
 }
 void ASTPlayerController::OnRep_PlayerState()
 {
-	Super::OnRep_PlayerState();
-	// Right after Player State gets repped
+    Super::OnRep_PlayerState();
+    // Right after Player State gets repped
 }
 
 void ASTPlayerController::EndPlayingState()
 {
-	Super::EndPlayingState();
+    Super::EndPlayingState();
 
-	//if (ASTCharacter* STCharacter = Cast<ASTCharacter>(GetPawn()))
-	//{
-	//	STCharacter->SetRemoteViewYaw(0.f);
-	//}
+    //if (ASTCharacter* STCharacter = Cast<ASTCharacter>(GetPawn()))
+    //{
+    //    STCharacter->SetRemoteViewYaw(0.f);
+    //}
 }

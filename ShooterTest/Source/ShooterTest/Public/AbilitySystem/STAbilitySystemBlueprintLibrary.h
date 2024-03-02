@@ -15,7 +15,7 @@
 UCLASS()
 class SHOOTERTEST_API USTAbilitySystemBlueprintLibrary : public UASSAbilitySystemBlueprintLibrary
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
 

@@ -15,12 +15,12 @@
 UCLASS()
 class SHOOTERTEST_API USTAbilitySystemGlobals : public UASSAbilitySystemGlobals
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	USTAbilitySystemGlobals(const FObjectInitializer& ObjectInitializer);
+    USTAbilitySystemGlobals(const FObjectInitializer& ObjectInitializer);
 
 
-	virtual FGameplayAbilityActorInfo* AllocAbilityActorInfo() const override;
-	virtual FGameplayEffectContext* AllocGameplayEffectContext() const override;
+    virtual FGameplayAbilityActorInfo* AllocAbilityActorInfo() const override;
+    virtual FGameplayEffectContext* AllocGameplayEffectContext() const override;
 };

@@ -16,32 +16,32 @@
 UCLASS()
 class SHOOTERTEST_API USTAttributeSet_CharacterMovement : public UASSAttributeSet
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_WalkSpeed, Category = "MovementAttributes")
-		FGameplayAttributeData WalkSpeed;
-	ATTRIBUTE_ACCESSORS(USTAttributeSet_CharacterMovement, WalkSpeed)
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_WalkSpeed, Category = "MovementAttributes")
+        FGameplayAttributeData WalkSpeed;
+    ATTRIBUTE_ACCESSORS(USTAttributeSet_CharacterMovement, WalkSpeed)
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_WalkAcceleration, Category = "MovementAttributes")
-		FGameplayAttributeData WalkAcceleration;
-	ATTRIBUTE_ACCESSORS(USTAttributeSet_CharacterMovement, WalkAcceleration)
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_WalkAcceleration, Category = "MovementAttributes")
+        FGameplayAttributeData WalkAcceleration;
+    ATTRIBUTE_ACCESSORS(USTAttributeSet_CharacterMovement, WalkAcceleration)
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_RunSpeed, Category = "MovementAttributes")
-		FGameplayAttributeData RunSpeed;
-	ATTRIBUTE_ACCESSORS(USTAttributeSet_CharacterMovement, RunSpeed)
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_RunSpeed, Category = "MovementAttributes")
+        FGameplayAttributeData RunSpeed;
+    ATTRIBUTE_ACCESSORS(USTAttributeSet_CharacterMovement, RunSpeed)
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_RunAccelaration, Category = "MovementAttributes")
-		FGameplayAttributeData RunAccelaration;
-	ATTRIBUTE_ACCESSORS(USTAttributeSet_CharacterMovement, RunAccelaration)
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_RunAccelaration, Category = "MovementAttributes")
+        FGameplayAttributeData RunAccelaration;
+    ATTRIBUTE_ACCESSORS(USTAttributeSet_CharacterMovement, RunAccelaration)
 
 protected:
-	UFUNCTION()
-		virtual void OnRep_WalkSpeed(const FGameplayAttributeData& OldValue);
-	UFUNCTION()
-		virtual void OnRep_WalkAcceleration(const FGameplayAttributeData& OldValue);
-	UFUNCTION()
-		virtual void OnRep_RunSpeed(const FGameplayAttributeData& OldValue);
-	UFUNCTION()
-		virtual void OnRep_RunAccelaration(const FGameplayAttributeData& OldValue);
+    UFUNCTION()
+        virtual void OnRep_WalkSpeed(const FGameplayAttributeData& OldValue);
+    UFUNCTION()
+        virtual void OnRep_WalkAcceleration(const FGameplayAttributeData& OldValue);
+    UFUNCTION()
+        virtual void OnRep_RunSpeed(const FGameplayAttributeData& OldValue);
+    UFUNCTION()
+        virtual void OnRep_RunAccelaration(const FGameplayAttributeData& OldValue);
 };

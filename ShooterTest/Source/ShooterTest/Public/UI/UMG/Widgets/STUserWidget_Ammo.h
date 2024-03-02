@@ -21,39 +21,39 @@ struct FGCInt32PropertyWrapper;
 UCLASS()
 class SHOOTERTEST_API USTUserWidget_Ammo : public UASSEUserWidget
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 protected:
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	TObjectPtr<UTextBlock> ClipAmmoText;
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	TObjectPtr<UTextBlock> BackupAmmoText;
+    UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+    TObjectPtr<UTextBlock> ClipAmmoText;
+    UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+    TObjectPtr<UTextBlock> BackupAmmoText;
 
 public:
-	USTUserWidget_Ammo(const FObjectInitializer& ObjectInitializer);
+    USTUserWidget_Ammo(const FObjectInitializer& ObjectInitializer);
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
-	FText ActiveItemName;
-	/** The current clip ammo value of the attribute */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ammo")
-	int32 CurrentClipAmmo;
-	/** The current backup ammo value of the attribute */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ammo")
-	float CurrentBackupAmmo;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+    FText ActiveItemName;
+    /** The current clip ammo value of the attribute */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ammo")
+    int32 CurrentClipAmmo;
+    /** The current backup ammo value of the attribute */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ammo")
+    float CurrentBackupAmmo;
 
 protected:
-	virtual void NativeDestruct() override;
+    virtual void NativeDestruct() override;
 
-	virtual void OnPlayerASCValid() override;
+    virtual void OnPlayerASCValid() override;
 
-	UPROPERTY()
-	TWeakObjectPtr<USTItemFragment_ClipAmmoInstanced> ClipAmmoItemFragment;
-	UFUNCTION()
-	void OnClipAmmoChange(FGCInt32PropertyWrapper& PropertyWrapper, const int32& InOldValue, const int32& InNewValue);
+    UPROPERTY()
+    TWeakObjectPtr<USTItemFragment_ClipAmmoInstanced> ClipAmmoItemFragment;
+    UFUNCTION()
+    void OnClipAmmoChange(FGCInt32PropertyWrapper& PropertyWrapper, const int32& InOldValue, const int32& InNewValue);
 
-	/** Called on ammo values changed. Use this to update UI */
-	UFUNCTION()
-	void UpdateAmmoStatus();
+    /** Called on ammo values changed. Use this to update UI */
+    UFUNCTION()
+    void UpdateAmmoStatus();
 
 };

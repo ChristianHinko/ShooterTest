@@ -20,23 +20,23 @@ class UTextBlock;
 UCLASS()
 class SHOOTERTEST_API USTUserWidget_ActiveItem : public UASSEUserWidget
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 protected:
-	UPROPERTY(meta = (BindWidget))
-		TObjectPtr<USTUserWidget_Crosshair> CrosshairWidget;
-	UPROPERTY(meta = (BindWidget))
-		TObjectPtr<USTUserWidget_Ammo> AmmoWidget;
-	UPROPERTY(meta = (BindWidget))
-		TObjectPtr<UTextBlock> ItemTextBlock;
+    UPROPERTY(meta = (BindWidget))
+        TObjectPtr<USTUserWidget_Crosshair> CrosshairWidget;
+    UPROPERTY(meta = (BindWidget))
+        TObjectPtr<USTUserWidget_Ammo> AmmoWidget;
+    UPROPERTY(meta = (BindWidget))
+        TObjectPtr<UTextBlock> ItemTextBlock;
 
 public:
-	USTUserWidget_ActiveItem(const FObjectInitializer& ObjectInitializer);
+    USTUserWidget_ActiveItem(const FObjectInitializer& ObjectInitializer);
 
 
-	UPROPERTY(EditAnywhere, Category = "Crosshair")
-		FSlateBrush CrosshairBrush;
+    UPROPERTY(EditAnywhere, Category = "Crosshair")
+        FSlateBrush CrosshairBrush;
 
 protected:
-	virtual void NativeOnInitialized() override;
+    virtual void NativeOnInitialized() override;
 };

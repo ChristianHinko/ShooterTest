@@ -15,16 +15,16 @@
 UCLASS()
 class SHOOTERTEST_API ASTPlayerController : public APlayerController
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	ASTPlayerController(const FObjectInitializer& ObjectInitializer);
+    ASTPlayerController(const FObjectInitializer& ObjectInitializer);
 
 protected:
-	//  BEGIN AController Interface
-	virtual void InitPlayerState() override;
-	virtual void OnRep_PlayerState() override;
-	//  END AController Interface
+    //  BEGIN AController Interface
+    virtual void InitPlayerState() override;
+    virtual void OnRep_PlayerState() override;
+    //  END AController Interface
 
-	virtual void EndPlayingState() override;
+    virtual void EndPlayingState() override;
 };

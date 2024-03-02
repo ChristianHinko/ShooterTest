@@ -20,28 +20,28 @@ class UProgressBar;
 UCLASS()
 class SHOOTERTEST_API USTUserWidget_Health : public UASSEUserWidget
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 protected:
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		TObjectPtr<UTextBlock> HealthTextBlock;
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		TObjectPtr<UProgressBar> HealthProgressBar;
+    UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+        TObjectPtr<UTextBlock> HealthTextBlock;
+    UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+        TObjectPtr<UProgressBar> HealthProgressBar;
 
 public:
-	USTUserWidget_Health(const FObjectInitializer& ObjectInitializer);
+    USTUserWidget_Health(const FObjectInitializer& ObjectInitializer);
 
 
-	/** The current health value of the attribute */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
-		float CurrentHealth;
-	/** The current max health value of the attribute */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
-		float MaxHealth;
+    /** The current health value of the attribute */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
+        float CurrentHealth;
+    /** The current max health value of the attribute */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
+        float MaxHealth;
 
 protected:
-	virtual void OnPlayerASCValid() override;
+    virtual void OnPlayerASCValid() override;
 
-	/** Called on Health changed. Use this to update Health based UI */
-	void UpdateHealthStatus();
+    /** Called on Health changed. Use this to update Health based UI */
+    void UpdateHealthStatus();
 };

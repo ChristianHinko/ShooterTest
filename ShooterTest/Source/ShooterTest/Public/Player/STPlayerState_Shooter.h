@@ -15,10 +15,10 @@
 UCLASS()
 class SHOOTERTEST_API ASTPlayerState_Shooter : public ASTPlayerState
 {
-	GENERATED_BODY()
-	
+    GENERATED_BODY()
+    
 public:
-	ASTPlayerState_Shooter(const FObjectInitializer& ObjectInitializer);
+    ASTPlayerState_Shooter(const FObjectInitializer& ObjectInitializer);
 
 
 protected:

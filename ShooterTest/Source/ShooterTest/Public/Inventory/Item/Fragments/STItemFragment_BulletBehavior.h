@@ -15,17 +15,17 @@ class UGameplayEffect;
 UCLASS()
 class SHOOTERTEST_API USTItemFragment_BulletBehavior : public UArcItemFragment
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 public:
-	/**
-	 * This gun's Target Actor (what it will shoot)
-	 */
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Gun Firing")
-		TSubclassOf<AGameplayAbilityTargetActor> BulletTargetActorTSub;
+    /**
+     * This gun's Target Actor (what it will shoot)
+     */
+    UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Gun Firing")
+        TSubclassOf<AGameplayAbilityTargetActor> BulletTargetActorTSub;
 
-	/**
-	 * The Effect that will be applied to the target that this bullet hits
-	 */
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Gun Firing")
-		TSubclassOf<UGameplayEffect> BulletInflictEffectTSub;
+    /**
+     * The Effect that will be applied to the target that this bullet hits
+     */
+    UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Gun Firing")
+        TSubclassOf<UGameplayEffect> BulletInflictEffectTSub;
 };

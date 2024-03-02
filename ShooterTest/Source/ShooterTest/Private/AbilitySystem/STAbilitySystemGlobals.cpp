@@ -9,7 +9,7 @@
 
 
 USTAbilitySystemGlobals::USTAbilitySystemGlobals(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+    : Super(ObjectInitializer)
 {
 
 }
@@ -17,9 +17,9 @@ USTAbilitySystemGlobals::USTAbilitySystemGlobals(const FObjectInitializer& Objec
 
 FGameplayAbilityActorInfo* USTAbilitySystemGlobals::AllocAbilityActorInfo() const
 {
-	return new FSTGameplayAbilityActorInfo_Shooter();
+    return new FSTGameplayAbilityActorInfo_Shooter();
 }
 FGameplayEffectContext* USTAbilitySystemGlobals::AllocGameplayEffectContext() const
 {
-	return new FSTGameplayEffectContext_Shooter();
+    return new FSTGameplayEffectContext_Shooter();
 }

@@ -18,22 +18,22 @@ class USTUserWidget_Health;
 UCLASS()
 class SHOOTERTEST_API ASTHUD_Shooter : public ASTHUD
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	ASTHUD_Shooter(const FObjectInitializer& ObjectInitializer);
+    ASTHUD_Shooter(const FObjectInitializer& ObjectInitializer);
 
 
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<USTUserWidget_Health> HealthWidgetTSub;
-	UPROPERTY()
-		TObjectPtr<UUserWidget> HealthWidget;
+    UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+        TSubclassOf<USTUserWidget_Health> HealthWidgetTSub;
+    UPROPERTY()
+        TObjectPtr<UUserWidget> HealthWidget;
 
-	// Weak Object Ptr because this is purely meant to point to Item Stack's widget - we don't want any impact on its existence
-	UPROPERTY()
-		TWeakObjectPtr<UUserWidget> CurrentActiveItemWidget;
+    // Weak Object Ptr because this is purely meant to point to Item Stack's widget - we don't want any impact on its existence
+    UPROPERTY()
+        TWeakObjectPtr<UUserWidget> CurrentActiveItemWidget;
 
 protected:
-	virtual void PostInitializeComponents() override;
+    virtual void PostInitializeComponents() override;
 
 };

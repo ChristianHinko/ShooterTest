@@ -6,28 +6,28 @@
 
 USTActorComponent_Interactable::USTActorComponent_Interactable()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+    PrimaryComponentTick.bCanEverTick = false;
 
-	bIsAutomaticInstantInteract = false;
-	bIsAutomaticDurationInteract = false;
-	bIsManualInstantInteract = false;
-	bIsManualDurationInteract = false;
-	bCanCurrentlyBeInteractedWith = true;
-	bShouldFireDetectionEvents = true;
-	interactDuration = 5.f;
-	tickInterval = 0;
-	bShouldDurationInteractableTick = true;
-	bShouldSkipFirstTick = false;
+    bIsAutomaticInstantInteract = false;
+    bIsAutomaticDurationInteract = false;
+    bIsManualInstantInteract = false;
+    bIsManualDurationInteract = false;
+    bCanCurrentlyBeInteractedWith = true;
+    bShouldFireDetectionEvents = true;
+    interactDuration = 5.f;
+    tickInterval = 0;
+    bShouldDurationInteractableTick = true;
+    bShouldSkipFirstTick = false;
 }
 
 bool USTActorComponent_Interactable::CanActivateInteractAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
-	return false;
+    return false;
 }
 
 TSubclassOf<UGameplayEffect> USTActorComponent_Interactable::GetInteractableEffectTSub()
 {
-	return TSubclassOf<UGameplayEffect>();
+    return TSubclassOf<UGameplayEffect>();
 }
 
 void USTActorComponent_Interactable::OnInstantInteract(ASTCharacter_Shooter* InteractingCharacter)
@@ -65,50 +65,50 @@ void USTActorComponent_Interactable::OnEndDetect(ASTCharacter_Shooter* Interacti
 
 bool USTActorComponent_Interactable::GetCanCurrentlyBeInteractedWith()
 {
-	return bCanCurrentlyBeInteractedWith;
+    return bCanCurrentlyBeInteractedWith;
 }
 
 bool USTActorComponent_Interactable::GetIsManualInstantInteract()
 {
-	return bIsManualInstantInteract;
+    return bIsManualInstantInteract;
 }
 
 bool USTActorComponent_Interactable::GetIsAutomaticInstantInteract()
 {
-	return bIsAutomaticInstantInteract;
+    return bIsAutomaticInstantInteract;
 }
 
 bool USTActorComponent_Interactable::GetIsManualDurationInteract()
 {
-	return bIsManualDurationInteract;
+    return bIsManualDurationInteract;
 }
 
 bool USTActorComponent_Interactable::GetIsAutomaticDurationInteract()
 {
-	return bIsAutomaticDurationInteract;
+    return bIsAutomaticDurationInteract;
 }
 
 float USTActorComponent_Interactable::GetInteractDuration()
 {
-	return interactDuration;
+    return interactDuration;
 }
 
 float USTActorComponent_Interactable::GetTickInterval()
 {
-	return tickInterval;
+    return tickInterval;
 }
 
 bool USTActorComponent_Interactable::GetShouldDurationInteractableTick()
 {
-	return bShouldDurationInteractableTick;
+    return bShouldDurationInteractableTick;
 }
 
 bool USTActorComponent_Interactable::GetShouldSkipFirstTick()
 {
-	return bShouldSkipFirstTick;
+    return bShouldSkipFirstTick;
 }
 
 bool USTActorComponent_Interactable::GetShouldFireDetectionEvents()
 {
-	return bShouldFireDetectionEvents;
+    return bShouldFireDetectionEvents;
 }

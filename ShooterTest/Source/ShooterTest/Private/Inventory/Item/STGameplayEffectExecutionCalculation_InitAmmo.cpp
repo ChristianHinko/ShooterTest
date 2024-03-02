@@ -20,7 +20,7 @@
 struct FAmmoInitializationStatics
 {
     // No need to capture these Attributes since we aren't reading from them, but writing to them
-    
+
     FAmmoInitializationStatics()
     {
     }
@@ -66,7 +66,7 @@ void USTGameplayEffectExecutionCalculation_InitAmmo::Execute_Implementation(cons
     float BackupAmmo = MaxAmmo - MaxClipAmmo;
 
     OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USTAttributeSet_Ammo::GetBackupAmmoAttribute(), EGameplayModOp::Override, BackupAmmo));
-    
+
     // Get ClipAmmo subobject and initialize ClipAmmo
     if (const FSTGameplayAbilityActorInfo_Shooter* ShooterActorInfo = static_cast<const FSTGameplayAbilityActorInfo_Shooter*>(TargetAbilitySystemComponent->AbilityActorInfo.Get()))
     {

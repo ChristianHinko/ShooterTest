@@ -161,7 +161,7 @@ void ASTCharacter_Shooter::Tick(float DeltaSeconds)
     //UKismetSystemLibrary::PrintString(this, "-----------", true, false);
 
 
-    
+
 
     //float frameHorizontalMouseRate = 0;
     //float frameVerticalMouseRate = 0;
@@ -181,7 +181,7 @@ void ASTCharacter_Shooter::Tick(float DeltaSeconds)
     //        GetCameraBoom()->SetRelativeLocation(UKismetMathLibrary::VInterpTo(CurrentCameraLocation, NewCameraLocation, DeltaSeconds, 10));
     //    }
 
-    //    
+    //
     //}
     //else
     //{

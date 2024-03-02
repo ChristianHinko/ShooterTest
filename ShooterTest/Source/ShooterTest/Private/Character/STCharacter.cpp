@@ -158,7 +158,7 @@ void ASTCharacter::PostInitializeComponents()
 {
     Super::PostInitializeComponents();
 
-    
+
     CrouchTickFunction.Target = this;
     CrouchTickFunction.RegisterTickFunction(GetLevel());
 }
@@ -239,14 +239,14 @@ void ASTCharacter::SetRemoteViewYaw(float NewRemoteViewYaw)
 FRotator ASTCharacter::GetBaseAimRotation() const
 {
     FRotator POVRot = Super::GetBaseAimRotation();
-    
+
 
     if (Controller != nullptr && !InFreeCam())
     {
         return POVRot;
     }
 
-    
+
     if (bUseControllerRotationYaw)
     {
         // Our capsule rotation's Yaw perfectly represents our aim rotation's Yaw so just use that because it is more smoothly replicated (and RemoteViewYaw doesn't replicate if this is the case)

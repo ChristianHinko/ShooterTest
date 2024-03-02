@@ -91,7 +91,7 @@ void USTCharacterMovementComponent::OnInitializeAbilitySystemComponent(UAbilityS
 
     CharacterMovementAttributeSet = UASSAbilitySystemBlueprintLibrary::GetAttributeSetCasted<USTAttributeSet_CharacterMovement>(ASC);
 
-    
+
     // Bind to Tag change delegates
     ASC->RegisterGameplayTagEvent(STNativeGameplayTags::Character_RunDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USTCharacterMovementComponent::OnRunDisabledTagChanged);
     ASC->RegisterGameplayTagEvent(STNativeGameplayTags::Character_JumpDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USTCharacterMovementComponent::OnJumpDisabledTagChanged);
@@ -427,7 +427,7 @@ void USTCharacterMovementComponent::ServerMove_PerformMovement(const FCharacterN
 
 //void USTCharacterMovementComponent::STClientAdjustPosition_Implementation()
 //{
-//    
+//
 //}
 //  END Client Adjust
 
@@ -958,7 +958,7 @@ bool USTCharacterMovementComponent::IsMovingForward(/*float degreeTolerance*/) c
     // At dot product 0.7 you are looking at a 45 degrees angle
     // For 25 degrees tolerance use > 0.9
     // 0.99 gives you 8 degrees of tolerance
-    // 
+    //
     // ACOS(dot product) is the formula. Incidentally, it's the formula to find the angle between two vectors
 
     const FVector ForwardDir = PawnOwner->GetActorForwardVector();

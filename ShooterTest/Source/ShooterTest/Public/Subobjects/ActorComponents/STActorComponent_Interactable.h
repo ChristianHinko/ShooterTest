@@ -16,7 +16,7 @@ class SHOOTERTEST_API USTActorComponent_Interactable : public UActorComponent, p
 {
     GENERATED_BODY()
 
-public:    
+public:
     // Sets default values for this component's properties
     USTActorComponent_Interactable();
 
@@ -89,6 +89,6 @@ protected:
     UPROPERTY(EditAnywhere, Category = "InteractableConfig")
         bool bShouldFireDetectionEvents;
 
-#pragma endregion            
+#pragma endregion
 
 };

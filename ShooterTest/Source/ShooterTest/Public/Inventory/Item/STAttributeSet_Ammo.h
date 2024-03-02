@@ -11,7 +11,7 @@
 
 
 /**
- * 
+ *
  */
 UCLASS()
 class SHOOTERTEST_API USTAttributeSet_Ammo : public UASSAttributeSet

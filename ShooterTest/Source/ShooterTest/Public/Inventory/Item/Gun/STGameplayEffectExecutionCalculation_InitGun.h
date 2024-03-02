@@ -11,7 +11,7 @@
 
 /**
  * Attribute Set default values for USTAttributeSet_Gun.
- * 
+ *
  * Children can subclass this (in BP or CPP) and fill out default values.
  * Initialization Gameplay Effects should use these for initializing Attributes values.
  * - Useful for initializing Attributes that require complex default value calculations.

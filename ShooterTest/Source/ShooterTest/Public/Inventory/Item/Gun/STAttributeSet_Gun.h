@@ -11,7 +11,7 @@
 
 
 /**
- * 
+ *
  */
 UCLASS()
 class SHOOTERTEST_API USTAttributeSet_Gun : public UASSAttributeSet
@@ -58,7 +58,7 @@ public:
     ATTRIBUTE_ACCESSORS(USTAttributeSet_Gun, BulletSpreadDecSpeed)
     //  END BulletSpread
 
-    
+
 
 
 
@@ -130,7 +130,7 @@ public:
 
     /**
      * (For semi-auto, full-auto, and burst)
-     * 
+     *
      * Time between firing/shooting.
      * Minimum time that must pass between each fires or shots. (Fires if semi-auto, Shots if full-auto)
      */
@@ -140,10 +140,10 @@ public:
 
     /**
      * (For full-auto)
-     * 
+     *
      * Override time between fires for full-auto. NOT the time between shots! This allows full-auto guns to have a delay
      * between fires that differ from their time between shots.
-     * 
+     *
      * Leave at -1 to not override (not overriding uses TimeBetweenShots as the time between fires)
      */
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_TimeBetweenFiresOverride, Category = "Attributes")
@@ -152,9 +152,9 @@ public:
 
     /**
      * (For burst)
-     * 
+     *
      * Time between each burst (a burst is a collection of shots)
-     * 
+     *
      * Leave at -1 to not override (not overriding uses TimeBetweenShots as the time between each burst)
      */
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_TimeBetweenBurstsOverride, Category = "Attributes")

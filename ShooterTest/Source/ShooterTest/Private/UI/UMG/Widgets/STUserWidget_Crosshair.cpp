@@ -64,7 +64,7 @@ void USTUserWidget_Crosshair::OnPlayerASCValid()
                 }
             }
         }
-        
+
     }
 
     if (BulletSpreadItemFragment.IsValid())

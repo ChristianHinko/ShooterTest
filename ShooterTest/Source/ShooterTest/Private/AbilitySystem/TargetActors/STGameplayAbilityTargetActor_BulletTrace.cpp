@@ -219,7 +219,7 @@ void ASTGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
                             const FString DebugString = FString::Printf(TEXT("%.2f dmg"), Hit.Strength);
                             DrawDebugString(GetWorld(), StringLocation, DebugString, nullptr, FColor::Red, 5.f, true, 2.f);
 #endif // ENABLE_DRAW_DEBUG
-                            
+
                         }
                     }
                 }

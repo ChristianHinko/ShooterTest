@@ -10,7 +10,7 @@
 
 
 /**
- * 
+ *
  */
 UCLASS()
 class SHOOTERTEST_API ASTGameplayAbilityTargetActor_BulletTrace : public AASSGameplayAbilityTargetActor

@@ -10,7 +10,7 @@
 
 
 /**
- * 
+ *
  */
 UCLASS()
 class SHOOTERTEST_API ASTGameMode_Shooter : public ASTGameMode

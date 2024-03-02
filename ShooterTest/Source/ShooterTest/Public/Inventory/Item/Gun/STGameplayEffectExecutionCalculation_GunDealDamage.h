@@ -10,7 +10,7 @@
 
 
 /**
- * 
+ *
  */
 UCLASS()
 class SHOOTERTEST_API USTGameplayEffectExecutionCalculation_GunDealDamage : public UGameplayEffectExecutionCalculation

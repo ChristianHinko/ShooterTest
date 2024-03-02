@@ -13,7 +13,7 @@ class UCharacterMovementComponent;
 
 
 /**
- * 
+ *
  */
 UCLASS()
 class SHOOTERTEST_API USTGameplayAbility_CharacterCrouch : public UASSGameplayAbility

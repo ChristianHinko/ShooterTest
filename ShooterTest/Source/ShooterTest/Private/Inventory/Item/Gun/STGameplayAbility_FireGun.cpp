@@ -109,7 +109,7 @@ void USTGameplayAbility_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* 
 
 
 
-    // Inject the data our Target Actor needs and spawn it 
+    // Inject the data our Target Actor needs and spawn it
     BulletBehaviorItemFragment = ItemStack->FindFirstFragment<USTItemFragment_BulletBehavior>();
     BulletTraceTargetActor = GetWorld()->SpawnActorDeferred<ASTGameplayAbilityTargetActor_BulletTrace>(BulletBehaviorItemFragment->BulletTargetActorTSub, FTransform());
     if (!IsValid(BulletTraceTargetActor))
@@ -429,7 +429,7 @@ void USTGameplayAbility_FireGun::Shoot()
         ASSActorInfo->Controller->GetPlayerViewPoint(ViewStart, ViewRot);
     }
     BulletTraceTargetActor->StartLocation.LiteralTransform.SetLocation(ViewStart); // we just want to use the player camera position directly for our StartLocation
-    
+
     // Inject random seed - btw it's cool that we have a net safe random seed and we have a system for it, but reality is we don't need it now since client will just send its target data to server.
     const int16 PredictionKey = GetCurrentActivationInfo().GetActivationPredictionKey().Current;    // Use the prediction key as a net safe random seed.
     const int32 FireRandomSeed = PredictionKey + ShotNumber;                                        // Make the random seed unique to this particular fire

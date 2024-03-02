@@ -57,7 +57,7 @@ struct TStructOpsTypeTraits<FSTGameplayEffectContext> : public TStructOpsTypeTra
 
 
 /**
- * 
+ *
  */
 USTRUCT()
 struct SHOOTERTEST_API FSTGameplayEffectContext_Shooter : public FSTGameplayEffectContext

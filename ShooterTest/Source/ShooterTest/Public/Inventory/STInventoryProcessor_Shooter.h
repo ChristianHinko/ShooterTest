@@ -13,13 +13,13 @@ class UArcItemStackModular;
 
 
 /**
- * 
+ *
  */
 UCLASS()
 class SHOOTERTEST_API USTInventoryProcessor_Shooter : public UAIEInventoryProcessor_Active
 {
     GENERATED_BODY()
-    
+
 public:
     USTInventoryProcessor_Shooter();
 

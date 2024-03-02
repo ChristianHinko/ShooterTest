@@ -28,7 +28,7 @@ enum class ESTCustomMovementMode_Shooter : uint8
 
 
 /**
- * 
+ *
  */
 UCLASS()
 class SHOOTERTEST_API USTCharacterMovementComponent_Shooter : public USTCharacterMovementComponent

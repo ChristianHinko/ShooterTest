@@ -10,7 +10,7 @@
 
 
 /**
- * 
+ *
  */
 UCLASS()
 class SHOOTERTEST_API USTPhysicalMaterial_Shooter : public UPhysicalMaterial

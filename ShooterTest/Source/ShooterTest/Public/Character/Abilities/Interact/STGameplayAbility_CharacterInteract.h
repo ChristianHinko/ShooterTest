@@ -11,7 +11,7 @@
 class ASTCharacter_Shooter;
 
 /**
- * 
+ *
  */
 UCLASS(Abstract)
 class SHOOTERTEST_API USTGameplayAbility_CharacterInteract : public UASSGameplayAbility
@@ -34,7 +34,7 @@ protected:
     float timeHeld;
 
 #pragma region Tags
-    
+
 #pragma endregion
 
 

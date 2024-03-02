@@ -7,13 +7,13 @@
 #include "STGameplayAbility_ADS.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class SHOOTERTEST_API USTGameplayAbility_ADS : public UASSGameplayAbility
 {
     GENERATED_BODY()
-    
+
 public:
     USTGameplayAbility_ADS(const FObjectInitializer& ObjectInitializer);
 

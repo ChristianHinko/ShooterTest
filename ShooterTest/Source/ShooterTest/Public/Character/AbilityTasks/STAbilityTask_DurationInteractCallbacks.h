@@ -17,7 +17,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnInteractionEndDelegate, float);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnNewInteractionPriorityDelegate, float);
 //DECLARE_MULTICAST_DELEGATE(FOnInteractionBeginDelegate);
 /**
- * 
+ *
  */
 UCLASS()
 class SHOOTERTEST_API USTAbilityTask_DurationInteractCallbacks : public UASSAbilityTask

@@ -8,7 +8,7 @@
 #include "STGameplayAbility_CharacterInstantInteract.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class SHOOTERTEST_API USTGameplayAbility_CharacterInstantInteract : public USTGameplayAbility_CharacterInteract

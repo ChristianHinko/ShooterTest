@@ -12,7 +12,7 @@ class UAbilitySystemComponent;
 class UCharacterMovementComponent;
 
 /**
- * 
+ *
  */
 UCLASS()
 class SHOOTERTEST_API USTItemFragment_BulletSpread : public UArcItemFragment

@@ -29,7 +29,7 @@ UCLASS()
 class SHOOTERTEST_API USTGameplayAbility_FireGun : public UASSGameplayAbility
 {
     GENERATED_BODY()
-    
+
 public:
     USTGameplayAbility_FireGun(const FObjectInitializer& ObjectInitializer);
 
@@ -55,7 +55,7 @@ protected:
     virtual bool CheckCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
     virtual bool CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
     virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
-    
+
     virtual void ASSEndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
     //  END UGameplayAbility Interface
 
@@ -125,7 +125,7 @@ private:
 
 
     //  BEGIN Attribute value change
-    
+
     // For attributes used in the STGameplayAbility_FireGun
     float AmmoCost;
     void OnAmmoCostChange(const FOnAttributeChangeData& Data) { AmmoCost = Data.NewValue; }

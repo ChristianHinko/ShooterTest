@@ -10,7 +10,7 @@
 class ASTCharacter_Shooter;
 
 /**
- * 
+ *
  */
 UCLASS()
 class SHOOTERTEST_API USTGameplayAbility_CharacterAutoInteract : public UASSGameplayAbility

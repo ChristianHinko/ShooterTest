@@ -14,7 +14,7 @@ class USTCharacterMovementComponent;
 
 
 /**
- * 
+ *
  */
 UCLASS()
 class SHOOTERTEST_API USTGameplayAbility_CharacterRun : public UASSGameplayAbility

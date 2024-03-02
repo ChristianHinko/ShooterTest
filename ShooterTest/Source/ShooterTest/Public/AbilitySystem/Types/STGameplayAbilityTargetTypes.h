@@ -30,7 +30,7 @@ struct SHOOTERTEST_API FSTGameplayAbilityTargetData : public FASSGameplayAbility
 
 
 /**
- * 
+ *
  */
 USTRUCT()
 struct FSTActorHitInfo

@@ -22,7 +22,7 @@ void USTGameplayAbility_CharacterDurationInteract::ASSOnAvatarSet(const FGamepla
 }
 
 bool USTGameplayAbility_CharacterDurationInteract::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
-{    
+{
     if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
     {
         return false;
@@ -43,7 +43,7 @@ void USTGameplayAbility_CharacterDurationInteract::ActivateAbility(const FGamepl
     // Valid ShooterCharacter and Interactable at this point
 
     Interactable->InjectDurationInteractOccurring(true);
-    
+
     USTAbilityTask_DurationInteractCallbacks* DurationInteractCallbacks = USTAbilityTask_DurationInteractCallbacks::DurationInteractCallbacks(this, ShooterCharacter.Get(), Interactable);
     if (!DurationInteractCallbacks)
     {
@@ -63,7 +63,7 @@ void USTGameplayAbility_CharacterDurationInteract::ActivateAbility(const FGamepl
     }
     InputReleasedTask->OnRelease.AddDynamic(this, &USTGameplayAbility_CharacterDurationInteract::OnRelease);
     InputReleasedTask->ReadyForActivation();
-    
+
     DurationInteractCallbacks->OnInteractTickDelegate.AddUObject(this, &USTGameplayAbility_CharacterDurationInteract::OnInteractTick);
     DurationInteractCallbacks->OnInteractionSweepMissDelegate.AddUObject(this, &USTGameplayAbility_CharacterDurationInteract::OnInteractionSweepMiss);
     DurationInteractCallbacks->OnSuccessfulInteractDelegate.AddUObject(this, &USTGameplayAbility_CharacterDurationInteract::OnSuccessfullInteract);
@@ -121,9 +121,9 @@ void USTGameplayAbility_CharacterDurationInteract::OnCharacterLeftInteractionOve
 
 void USTGameplayAbility_CharacterDurationInteract::OnNewInteractionPriority(float TimeHeld)
 {
-    
-    
-    
+
+
+
 }
 
 
@@ -168,7 +168,7 @@ void USTGameplayAbility_CharacterDurationInteract::ASSEndAbility(const FGameplay
         UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() RemoveActiveGameplayEffect(InteractEffectActiveHandle) failed. AbilitySystemComponent was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
     }
 
-    
+
     if (Interactable)
     {
         // Commented out because right now we don't have a way of knowing if the server rejected the activation
@@ -201,7 +201,7 @@ void USTGameplayAbility_CharacterDurationInteract::ASSEndAbility(const FGameplay
             Interactable->OnDurationInteractEnd(ShooterCharacter.Get(), ESTDurationInteractEndReason::REASON_Unknown, timeHeld);
         }
     }
-        
+
 
 
 

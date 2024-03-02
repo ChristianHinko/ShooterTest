@@ -50,7 +50,7 @@ void USTGameplayAbility_CharacterInstantInteract::ActivateAbility(const FGamepla
 
     Interactable->OnInstantInteract(ShooterCharacter.Get());
 
-    
+
 
     EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
 }

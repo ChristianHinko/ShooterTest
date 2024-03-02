@@ -16,7 +16,7 @@ class SHOOTERTEST_API USTActorComponent_Interactor : public UActorComponent
 {
     GENERATED_BODY()
 
-public:    
+public:
     // Sets default values for this component's properties
     USTActorComponent_Interactor();
 

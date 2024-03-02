@@ -70,7 +70,7 @@ bool USTGameplayAbility_Reload::CanActivateAbility(const FGameplayAbilitySpecHan
         UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() ClipAmmoItemFragment was NULL. returned false"), ANSI_TO_TCHAR(__FUNCTION__));
         return false;
     }
-    
+
     const float MaxClipAmmo = ActorInfo->AbilitySystemComponent->GetNumericAttribute(USTAttributeSet_Ammo::GetMaxClipAmmoAttribute());
     if (ClipAmmoItemFragment->ClipAmmo >= MaxClipAmmo)
     {

@@ -15,7 +15,7 @@ class ASTCharacter_Shooter;
 
 
 /**
- * 
+ *
  */
 UCLASS()
 class SHOOTERTEST_API USTAnimInstance_ShooterCharacter : public USTAnimInstance

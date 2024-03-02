@@ -37,7 +37,7 @@ void USTActorComponent_Interactor::InitializeComponent()
 void USTActorComponent_Interactor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    
+
     if (!OwningShooterCharacter.IsValid())
     {
         return;
@@ -139,7 +139,7 @@ ISTInteractableInterface* USTActorComponent_Interactor::ScanForCurrentPrioritize
     }
 
 
-    // Try to return an interactable that is overlapping with the capsule component. It chooses the most recent one you overlap with (top of the stack). 
+    // Try to return an interactable that is overlapping with the capsule component. It chooses the most recent one you overlap with (top of the stack).
     if (CurrentOverlapInteractablesStack.Num() > 0)
     {
         for (int32 i = CurrentOverlapInteractablesStack.Num() - 1; i >= 0; --i)

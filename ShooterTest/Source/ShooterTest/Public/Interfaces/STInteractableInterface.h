@@ -44,7 +44,7 @@ class USTInteractableInterface : public UInterface
  *    Might seem kind of unclear how to make an actor interactable but that is because the character is what finds interactables and assignes the it an ESTDetectType. You don't set the ESTDetectType, it gets set by the character who detected the interactable.
  *    Basicly you need to make the actor findable to the character (can be done with a Block or Overlap). For blocks, the interaction sweep will hit it and then interaction can happen. For overlaps, the actor will be added to a stack of current interactable overlaps
  *    and will be prioritized over the previous overlaps since this is the most recent.
- * 
+ *
  *  All events are ran from within the interact abilities, besides detection events. This Interface allows a fast implementation of custom logic for interaction, while still getting the benefits of abilities.
  *    You can treat these implementations the same way you would do logic in abilities. For instant interactions effects, montages, etc can be rolled back since InstantInteract ability is instant.
  *  Since DurationInteract is latent you only get rollback in OnDurationInteractBegin().

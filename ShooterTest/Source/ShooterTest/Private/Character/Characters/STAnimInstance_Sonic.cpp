@@ -36,7 +36,7 @@ void USTAnimInstance_Sonic::NativeInitializeAnimation()
 void USTAnimInstance_Sonic::NativeUpdateAnimation(float DeltaTimeX)
 {
     Super::NativeUpdateAnimation(DeltaTimeX);
-    
+
     if (OwningShooterCharacter.IsValid())
     {
         LookTarget = GetNearestPawn(OwningShooterCharacter.Get());

@@ -90,7 +90,7 @@ void USTGameplayEffectExecutionCalculation_GunDealDamage::Execute_Implementation
     // Lets start calculating
     float DamageToApply = BulletSpeedAtImpact;
 
-    
+
 
 
 

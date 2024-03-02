@@ -43,7 +43,7 @@ void USTAbilityTask_DurationInteractCallbacks::Activate()
     {
         OnPawnLeftOverlapInteractableDelegateHandle = ShooterCharacter->GetInteractorComponent()->OnElementRemovedFromFrameOverlapInteractablesStack.AddUObject(this, &USTAbilityTask_DurationInteractCallbacks::OnPawnLeftOverlapInteractable);
     }
-    
+
 }
 
 void USTAbilityTask_DurationInteractCallbacks::TickTask(float DeltaTime)

@@ -56,7 +56,7 @@ bool USTGameplayAbility_CharacterInteract::CanActivateAbility(const FGameplayAbi
         UE_LOG(LogSTGameplayAbility, Log, TEXT("%s() Couldn't interact because bCanCurrentlyBeInteractedWith was false"), ANSI_TO_TCHAR(__FUNCTION__));
         return false;
     }
-    
+
     return true;
 }
 
@@ -89,13 +89,13 @@ void USTGameplayAbility_CharacterInteract::ActivateAbility(const FGameplayAbilit
     ///////////////////////////////////// we are safe to proceed /////////
 
     /*Your logic here... ie.
-    
+
         //InteractEffectTSub = Interactable->GetInteractableEffectTSub();
         //if (InteractEffectTSub)
         //{
         //    InteractEffectActiveHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, InteractEffectTSub.GetDefaultObject(), GetAbilityLevel());
         //}
-    
+
         //Interactable->OnDurationInteractBegin(ShooterCharacter);
     */
 }

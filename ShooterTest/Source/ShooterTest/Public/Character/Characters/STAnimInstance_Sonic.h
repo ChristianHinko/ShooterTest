@@ -10,7 +10,7 @@
 
 
 /**
- * 
+ *
  */
 UCLASS()
 class SHOOTERTEST_API USTAnimInstance_Sonic : public USTAnimInstance_ShooterCharacter
@@ -41,7 +41,7 @@ protected:
         float eyeMaxPitchRot;
     UPROPERTY(BlueprintReadWrite)
         float eyeMaxYawRot;
-    
+
     UPROPERTY(BlueprintReadWrite)
         float rEyeLookAtAlpha;
     UPROPERTY(BlueprintReadWrite)

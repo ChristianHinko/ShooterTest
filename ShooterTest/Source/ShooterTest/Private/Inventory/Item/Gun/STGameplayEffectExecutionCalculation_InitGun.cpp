@@ -67,7 +67,7 @@ void USTGameplayEffectExecutionCalculation_InitGun::Execute_Implementation(const
     OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USTAttributeSet_Gun::GetTimeBetweenBurstsOverrideAttribute(),        EGameplayModOp::Override, TimeBetweenBurstsOverride));
     OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USTAttributeSet_Gun::GetNumShotsPerBurstAttribute(),                EGameplayModOp::Override, NumShotsPerBurst));
     OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(USTAttributeSet_Gun::GetAmmoCostAttribute(),                        EGameplayModOp::Override, AmmoCost));
-    
+
 
     // Calculate defaults
     float CurrentBulletSpread = MinBulletSpread;

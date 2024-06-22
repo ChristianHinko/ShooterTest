@@ -65,7 +65,7 @@ protected:
     virtual void BeginDestroy() override;
 
 
-    virtual void OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC) override;
+    virtual void OnInitializeAbilitySystemComponent(UAbilitySystemComponent& asc) override;
     void TweakWantsToRunBeforeTick(bool& outTweakedWantsToRun) const override;
 
     virtual void OnStaminaFullyDrained();

@@ -35,5 +35,5 @@ protected:
     virtual void MakeItemInactive() override;
 
 private:
-    void OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC);
+    void OnInitializeAbilitySystemComponent(UAbilitySystemComponent& ASC);
 };

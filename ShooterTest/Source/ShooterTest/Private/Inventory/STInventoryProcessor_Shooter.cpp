@@ -36,7 +36,7 @@ void USTInventoryProcessor_Shooter::OnInventoryInit_Implementation()
 }
 
 
-void USTInventoryProcessor_Shooter::OnInitializeAbilitySystemComponent(UAbilitySystemComponent* const ASC)
+void USTInventoryProcessor_Shooter::OnInitializeAbilitySystemComponent(UAbilitySystemComponent& ASC)
 {
     // Re-inject the new Ability System Component into our active gun
     UArcItemStackModular* ItemStack = Cast<UArcItemStackModular>(GetActiveItemStack());

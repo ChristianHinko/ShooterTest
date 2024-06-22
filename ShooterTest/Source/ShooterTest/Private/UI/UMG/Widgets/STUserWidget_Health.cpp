@@ -15,12 +15,14 @@ USTUserWidget_Health::USTUserWidget_Health(const FObjectInitializer& ObjectIniti
 }
 
 
-void USTUserWidget_Health::OnPlayerASCValid()
+void USTUserWidget_Health::OnPlayerASCValid(UAbilitySystemComponent& inAbilitySystemComponent)
 {
+    Super::OnPlayerASCValid(inAbilitySystemComponent);
+
     // Get and bind to updates for Health
-    CurrentHealth = PlayerASC->GetNumericAttribute(UASSEAttributeSet_Health::GetHealthAttribute());
+    CurrentHealth = inAbilitySystemComponent.GetNumericAttribute(UASSEAttributeSet_Health::GetHealthAttribute());
     UpdateHealthStatus();
-    PlayerASC->GetGameplayAttributeValueChangeDelegate(UASSEAttributeSet_Health::GetHealthAttribute()).AddWeakLambda(this, [&](const FOnAttributeChangeData& Data)
+    inAbilitySystemComponent.GetGameplayAttributeValueChangeDelegate(UASSEAttributeSet_Health::GetHealthAttribute()).AddWeakLambda(this, [&](const FOnAttributeChangeData& Data)
         {
             CurrentHealth = Data.NewValue;
             UpdateHealthStatus();
@@ -28,9 +30,9 @@ void USTUserWidget_Health::OnPlayerASCValid()
     );
 
     // Get and bind to updates for MaxHealth
-    MaxHealth = PlayerASC->GetNumericAttribute(UASSEAttributeSet_Health::GetMaxHealthAttribute());
+    MaxHealth = inAbilitySystemComponent.GetNumericAttribute(UASSEAttributeSet_Health::GetMaxHealthAttribute());
     UpdateHealthStatus();
-    PlayerASC->GetGameplayAttributeValueChangeDelegate(UASSEAttributeSet_Health::GetMaxHealthAttribute()).AddWeakLambda(this, [&](const FOnAttributeChangeData& Data)
+    inAbilitySystemComponent.GetGameplayAttributeValueChangeDelegate(UASSEAttributeSet_Health::GetMaxHealthAttribute()).AddWeakLambda(this, [&](const FOnAttributeChangeData& Data)
         {
             MaxHealth = Data.NewValue;
             UpdateHealthStatus();

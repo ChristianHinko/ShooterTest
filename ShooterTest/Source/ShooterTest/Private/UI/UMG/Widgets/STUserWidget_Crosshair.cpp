@@ -43,13 +43,13 @@ void USTUserWidget_Crosshair::NativeConstruct()
     ImageRight->SetBrush(CrosshairBrush);
 }
 
-void USTUserWidget_Crosshair::OnPlayerASCValid()
+void USTUserWidget_Crosshair::OnPlayerASCValid(UAbilitySystemComponent& inAbilitySystemComponent)
 {
-    Super::OnPlayerASCValid();
+    Super::OnPlayerASCValid(inAbilitySystemComponent);
 
 
     // Get BulletSpread subobject
-    if (const FSTGameplayAbilityActorInfo_Shooter* ShooterActorInfo = static_cast<const FSTGameplayAbilityActorInfo_Shooter*>(PlayerASC->AbilityActorInfo.Get()))
+    if (const FSTGameplayAbilityActorInfo_Shooter* ShooterActorInfo = static_cast<const FSTGameplayAbilityActorInfo_Shooter*>(inAbilitySystemComponent.AbilityActorInfo.Get()))
     {
         UArcInventoryComponent_Modular* InventoryComponentModular = Cast<UArcInventoryComponent_Modular>(ShooterActorInfo->InventoryComponent);
         if (IsValid(InventoryComponentModular))

@@ -40,7 +40,7 @@ public:
         float MaxHealth;
 
 protected:
-    virtual void OnPlayerASCValid() override;
+    virtual void OnPlayerASCValid(UAbilitySystemComponent& inAbilitySystemComponent) override;
 
     /** Called on Health changed. Use this to update Health based UI */
     void UpdateHealthStatus();

@@ -253,41 +253,38 @@ void USTGameplayAbility_FireGun::ActivateAbility(const FGameplayAbilitySpecHandl
     bInputPressed = true;
 
 
-    if (IsFullAuto() || IsBurst()) // if full auto or burst mode
+    if (IsFullAuto() || IsBurst()) // If full auto or burst mode.
     {
-        TickerTask = UASSEAbilityTask_Ticker::Ticker(this, false, -1.f, TimeBetweenShots);
-        if (!IsValid(TickerTask))
-        {
-            UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() TickerTask was NULL when trying to activate fire ability. Called EndAbility()"), ANSI_TO_TCHAR(__FUNCTION__));
-            EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-            return;
-        }
+        constexpr bool shouldSkipFirstTick = false;
+        constexpr float duration = -1.f;
+        const float tickInterval = TimeBetweenShots;
+
+        TickerTask = &UASSEAbilityTask_Ticker::CreateTask(*this, shouldSkipFirstTick, duration, tickInterval);
     }
 
     if (IsFullAuto())
     {
-        // We only want a release task if we are full auto
-        UASSEAbilityTask_WaitInputRelease* WaitInputReleaseTask = UASSEAbilityTask_WaitInputRelease::WaitInputRelease(this, false, true);
-        if (!IsValid(WaitInputReleaseTask))
-        {
-            UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() WaitInputReleaseTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), ANSI_TO_TCHAR(__FUNCTION__));
-            EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-            return;
-        }
-        WaitInputReleaseTask->OnRelease.AddDynamic(this, &USTGameplayAbility_FireGun::OnRelease);
-        WaitInputReleaseTask->ReadyForActivation();
+        // We only want a release task if we are full auto.
+        constexpr bool shouldTestInitialState = false;
+        constexpr bool canBroadcastMultibleTimes = true;
+
+        UASSEAbilityTask_WaitInputRelease& task =
+            UASSEAbilityTask_WaitInputRelease::CreateTask(*this, shouldTestInitialState, canBroadcastMultibleTimes);
+
+        task.OnReleaseNativeDelegate.AddUObject(this, &ThisClass::OnRelease);
+        task.ReadyForActivation();
     }
-    if (IsFullAuto() && IsBurst()) // if we are full auto burst
+
+    if (IsFullAuto() && IsBurst()) // If we are full auto burst.
     {
-        UASSEAbilityTask_WaitInputPress* WaitInputPressTask = UASSEAbilityTask_WaitInputPress::WaitInputPress(this, false, true);
-        if (!IsValid(WaitInputPressTask))
-        {
-            UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() WaitInputPressTask was NULL when trying to activate a fire. Called EndAbility() to prevent further weirdness"), ANSI_TO_TCHAR(__FUNCTION__));
-            EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-            return;
-        }
-        WaitInputPressTask->OnPress.AddDynamic(this, &USTGameplayAbility_FireGun::OnPress);
-        WaitInputPressTask->ReadyForActivation();
+        constexpr bool shouldTestInitialState = false;
+        constexpr bool canBroadcastMultibleTimes = true;
+
+        UASSEAbilityTask_WaitInputPress& task =
+            UASSEAbilityTask_WaitInputPress::CreateTask(*this, shouldTestInitialState, canBroadcastMultibleTimes);
+
+        task.OnPressNativeDelegate.AddUObject(this, &ThisClass::OnPress);
+        task.ReadyForActivation();
     }
 
     if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
@@ -313,7 +310,8 @@ void USTGameplayAbility_FireGun::ActivateAbility(const FGameplayAbilitySpecHandl
         return;
     }
 
-    TickerTask->OnTick.AddDynamic(this, &USTGameplayAbility_FireGun::OnShootTick);
+    check(TickerTask);
+    TickerTask->OnTickNativeDelegate.AddUObject(this, &USTGameplayAbility_FireGun::OnShootTick);
     TickerTask->ReadyForActivation();
 
     // If we ended ability within the above functions, return here (this is important for if we want to do further logic after)
@@ -328,7 +326,7 @@ void USTGameplayAbility_FireGun::ActivateAbility(const FGameplayAbilitySpecHandl
 }
 
 
-void USTGameplayAbility_FireGun::OnShootTick(float DeltaTime, float CurrentTime, float TimeRemaining)
+void USTGameplayAbility_FireGun::OnShootTick(float inDeltaTime, float inCurrentTime, float inTimeRemaining)
 {
     // No burst
     if (IsBurst() == false)
@@ -455,12 +453,12 @@ void USTGameplayAbility_FireGun::Shoot()
 }
 
 
-void USTGameplayAbility_FireGun::OnPress(float TimeWaited)
+void USTGameplayAbility_FireGun::OnPress(float inTimeWaited)
 {
     bInputPressed = true;
 }
 
-void USTGameplayAbility_FireGun::OnRelease(float TimeHeld)
+void USTGameplayAbility_FireGun::OnRelease(float inTimeHeld)
 {
     bInputPressed = false;
 

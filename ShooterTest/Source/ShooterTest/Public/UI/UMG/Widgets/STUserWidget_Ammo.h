@@ -45,7 +45,7 @@ public:
 protected:
     virtual void NativeDestruct() override;
 
-    virtual void OnPlayerASCValid() override;
+    virtual void OnPlayerASCValid(UAbilitySystemComponent& inAbilitySystemComponent) override;
 
     UPROPERTY()
     TWeakObjectPtr<USTItemFragment_ClipAmmoInstanced> ClipAmmoItemFragment;

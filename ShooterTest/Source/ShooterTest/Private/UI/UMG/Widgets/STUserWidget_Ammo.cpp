@@ -19,13 +19,13 @@ USTUserWidget_Ammo::USTUserWidget_Ammo(const FObjectInitializer& ObjectInitializ
 }
 
 
-void USTUserWidget_Ammo::OnPlayerASCValid()
+void USTUserWidget_Ammo::OnPlayerASCValid(UAbilitySystemComponent& inAbilitySystemComponent)
 {
-    Super::OnPlayerASCValid();
+    Super::OnPlayerASCValid(inAbilitySystemComponent);
 
 
     // Get ClipAmmo subobject
-    if (const FSTGameplayAbilityActorInfo_Shooter* ShooterActorInfo = static_cast<const FSTGameplayAbilityActorInfo_Shooter*>(PlayerASC->AbilityActorInfo.Get()))
+    if (const FSTGameplayAbilityActorInfo_Shooter* ShooterActorInfo = static_cast<const FSTGameplayAbilityActorInfo_Shooter*>(inAbilitySystemComponent.AbilityActorInfo.Get()))
     {
         UArcInventoryComponent_Modular* InventoryComponentModular = Cast<UArcInventoryComponent_Modular>(ShooterActorInfo->InventoryComponent);
         if (IsValid(InventoryComponentModular))
@@ -56,9 +56,9 @@ void USTUserWidget_Ammo::OnPlayerASCValid()
     }
 
     // Get and bind to updates for BackupAmmo
-    CurrentBackupAmmo = PlayerASC->GetNumericAttribute(USTAttributeSet_Ammo::GetBackupAmmoAttribute());
+    CurrentBackupAmmo = inAbilitySystemComponent.GetNumericAttribute(USTAttributeSet_Ammo::GetBackupAmmoAttribute());
     UpdateAmmoStatus();
-    PlayerASC->GetGameplayAttributeValueChangeDelegate(USTAttributeSet_Ammo::GetBackupAmmoAttribute()).AddWeakLambda(this, [&](const FOnAttributeChangeData& Data)
+    inAbilitySystemComponent.GetGameplayAttributeValueChangeDelegate(USTAttributeSet_Ammo::GetBackupAmmoAttribute()).AddWeakLambda(this, [&](const FOnAttributeChangeData& Data)
         {
             CurrentBackupAmmo = Data.NewValue;
             UpdateAmmoStatus();

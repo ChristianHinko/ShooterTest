@@ -89,8 +89,7 @@ protected:
     UPROPERTY()
         TObjectPtr<UASSEAbilityTask_Ticker> TickerTask;
 
-    UFUNCTION()
-        void OnShootTick(float DeltaTime, float CurrentTime, float TimeRemaining);
+    void OnShootTick(float inDeltaTime, float inCurrentTime, float inTimeRemaining);
 
     UFUNCTION()
         void OnValidData(const FGameplayAbilityTargetDataHandle& Data);
@@ -110,10 +109,8 @@ protected:
 
 
 
-    UFUNCTION()
-        void OnPress(float TimeWaited);
-    UFUNCTION()
-        void OnRelease(float TimeHeld);
+    void OnPress(float inTimeWaited);
+    void OnRelease(float inTimeHeld);
 
 private:
     int32 TimesBursted; // we could get the current burst by % modding shotNumber by NumShotsPerBurst but i think this would be less reliable: what if they cancel a burst and don't shoot all of the burst. Or what if NumShotsPerBurst changes while shooting

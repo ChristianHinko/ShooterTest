@@ -3,13 +3,13 @@
 
 #include "AbilitySystem/TargetActors/STGameplayAbilityTargetActor_BulletTrace.h"
 
-#include "BlueprintFunctionLibraries/CollisionQuery/GCBlueprintFunctionLibrary_StrengthCollisionQueries.h"
-#include "BlueprintFunctionLibraries/Debugging/GCBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries.h"
+#include "BlueprintFunctionLibraries/CollisionQuery/GCUtils_CollisionQuery_Strength.h"
+#include "BlueprintFunctionLibraries/Debugging/GCUtils_CollisionQuery_Strength_Debug.h"
 #include "DrawDebugHelpers.h"
 #include "Utilities/STCollisionChannels.h"
 #include "AbilitySystem/Types/STGameplayAbilityTargetTypes.h"
 #include "PhysicalMaterial/STPhysicalMaterial_Shooter.h"
-#include "BlueprintFunctionLibraries/GCBlueprintFunctionLibrary_MathHelpers.h"
+#include "GCUtils_Math.h"
 #include "AbilitySystem/Types/ASSGameplayAbilityTypes.h"
 #include "GameFramework/Controller.h"
 #include "Abilities/GameplayAbility.h"
@@ -62,7 +62,7 @@ void ASTGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
                     ASSActorInfo->Controller->GetPlayerViewPoint(ViewStart, ViewRot);
                     FVector ViewDir = ViewRot.Vector();
 
-                    BulletDirection = UGCBlueprintFunctionLibrary_MathHelpers::GetLocationAimDirection(GetWorld(), CollisionQueryParams, ViewStart, ViewDir, MaxRange, StartLocation.GetTargetingTransform().GetLocation());
+                    BulletDirection = GCUtils::Math::GetLocationAimDirection(GetWorld(), CollisionQueryParams, ViewStart, ViewDir, MaxRange, StartLocation.GetTargetingTransform().GetLocation());
                 }
             }
 
@@ -81,7 +81,7 @@ void ASTGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
         }
 
         // Perform this bullet's scene query
-        UGCBlueprintFunctionLibrary_StrengthCollisionQueries::RicochetingPenetrationSceneCastWithExitHitsUsingStrength(
+        GCUtils::CollisionQuery::Strength::RicochetingPenetrationSceneCastWithExitHitsUsingStrength(
             InitialBulletSpeed,
             RangeFalloffNerf,
             SourceActor->GetWorld(),
@@ -137,9 +137,9 @@ void ASTGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
         {
             const float DebugLifeTime = 10.f;
 
-            UGCBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries::DrawStrengthDebugLine(SourceActor->GetWorld(), BulletResults[i], InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f, 1.f);
-            UGCBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries::DrawStrengthDebugText(SourceActor->GetWorld(), BulletResults[i], InitialBulletSpeed, DebugLifeTime);
-            UGCBlueprintFunctionLibrary_DrawDebugHelpersStrengthCollisionQueries::DrawCollisionShapeDebug(SourceActor->GetWorld(), BulletResults[i], InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f);
+            GCUtils::CollisionQuery::Strength::Debug::DrawStrengthDebugLine(SourceActor->GetWorld(), BulletResults[i], InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f, 1.f);
+            GCUtils::CollisionQuery::Strength::Debug::DrawStrengthDebugText(SourceActor->GetWorld(), BulletResults[i], InitialBulletSpeed, DebugLifeTime);
+            GCUtils::CollisionQuery::Strength::Debug::DrawCollisionShapeDebug(SourceActor->GetWorld(), BulletResults[i], InitialBulletSpeed, false, DebugLifeTime, 0.f, 0.f);
         }
     }
 

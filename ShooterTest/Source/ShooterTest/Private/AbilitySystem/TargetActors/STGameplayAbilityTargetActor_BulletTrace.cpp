@@ -62,7 +62,15 @@ void ASTGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
                     ASSActorInfo->Controller->GetPlayerViewPoint(ViewStart, ViewRot);
                     FVector ViewDir = ViewRot.Vector();
 
-                    BulletDirection = GCUtils::Math::GetLocationAimDirection(GetWorld(), CollisionQueryParams, ViewStart, ViewDir, MaxRange, StartLocation.GetTargetingTransform().GetLocation());
+                    check(GetWorld());
+                    BulletDirection = GCUtils::Math::GetLocationAimDirection(
+                        *GetWorld(),
+                        CollisionQueryParams,
+                        ViewStart,
+                        ViewDir,
+                        MaxRange,
+                        StartLocation.GetTargetingTransform().GetLocation()
+                        );
                 }
             }
 

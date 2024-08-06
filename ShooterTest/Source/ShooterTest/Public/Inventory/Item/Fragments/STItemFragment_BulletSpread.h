@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Modular/ArcItemFragment.h"
-#include "Types/PropertyWrappers/GCPropertyWrappers.h"
+#include "Types/GCPropertyWrappers.h"
 
 #include "STItemFragment_BulletSpread.generated.h"
 

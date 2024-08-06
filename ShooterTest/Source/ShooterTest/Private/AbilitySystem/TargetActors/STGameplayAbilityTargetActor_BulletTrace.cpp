@@ -3,8 +3,8 @@
 
 #include "AbilitySystem/TargetActors/STGameplayAbilityTargetActor_BulletTrace.h"
 
-#include "BlueprintFunctionLibraries/CollisionQuery/GCUtils_CollisionQuery_Strength.h"
-#include "BlueprintFunctionLibraries/Debugging/GCUtils_CollisionQuery_Strength_Debug.h"
+#include "GCUtils_CollisionQuery_Strength.h"
+#include "GCUtils_CollisionQuery_Strength_Debug.h"
 #include "DrawDebugHelpers.h"
 #include "Utilities/STCollisionChannels.h"
 #include "AbilitySystem/Types/STGameplayAbilityTargetTypes.h"

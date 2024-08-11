@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Inventory\Item\Fragments\STItemFragment_BulletSpread.h"
+#include "Inventory/Item/Fragments/STItemFragment_BulletSpread.h"
 
 
 #include "Net/UnrealNetwork.h"

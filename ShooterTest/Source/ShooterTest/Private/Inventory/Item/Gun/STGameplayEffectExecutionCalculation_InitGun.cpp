@@ -4,7 +4,7 @@
 #include "Inventory/Item/Gun/STGameplayEffectExecutionCalculation_InitGun.h"
 
 #include "Inventory/Item/Gun/STAttributeSet_Gun.h"
-#include "Inventory\Item\Fragments\STItemFragment_BulletSpread.h"
+#include "Inventory/Item/Fragments/STItemFragment_BulletSpread.h"
 #include "AbilitySystem/Types/STGameplayAbilityTypes.h"
 #include "Modular/ArcItemStackModular.h"
 #include "Inventory/AIEInventoryProcessor_Active.h"

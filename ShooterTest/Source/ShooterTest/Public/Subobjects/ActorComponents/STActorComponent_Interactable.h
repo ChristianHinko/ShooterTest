@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Interfaces\STInteractableInterface.h"
+#include "Interfaces/STInteractableInterface.h"
 #include "GameplayAbilitySpec.h"
 #include "AbilitySystem/ASSGameplayAbility.h"
 

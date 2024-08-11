@@ -4,7 +4,7 @@
 #include "UI/UMG/Widgets/STUserWidget_Ammo.h"
 
 #include "Inventory/Item/STAttributeSet_Ammo.h"
-#include "Inventory\Item\Fragments\STItemFragment_ClipAmmo.h"
+#include "Inventory/Item/Fragments/STItemFragment_ClipAmmo.h"
 #include "AbilitySystem/Types/STGameplayAbilityTypes.h"
 #include "Components/TextBlock.h"
 #include "Modular/ArcInventoryComponent_Modular.h"

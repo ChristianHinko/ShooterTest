@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character\Abilities\Interact\STGameplayAbility_CharacterInteract.h"
+#include "Character/Abilities/Interact/STGameplayAbility_CharacterInteract.h"
 
 #include "STGameplayAbility_CharacterInstantInteract.generated.h"
 

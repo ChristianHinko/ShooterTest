@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem\ASSGameplayAbility.h"
+#include "AbilitySystem/ASSGameplayAbility.h"
 #include "Interfaces/STInteractableInterface.h"
 #include "STGameplayAbility_CharacterAutoInteract.generated.h"
 

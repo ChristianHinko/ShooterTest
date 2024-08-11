@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character\Abilities\Interact\STGameplayAbility_CharacterAutoInteract.h"
+#include "Character/Abilities/Interact/STGameplayAbility_CharacterAutoInteract.h"
 
 #include "Character/STCharacter_Shooter.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
-#include "Character\AbilityTasks\STAbilityTask_DurationInteractCallbacks.h"
+#include "Character/AbilityTasks/STAbilityTask_DurationInteractCallbacks.h"
 
 /**
  * To keep all my thoughts in one place.

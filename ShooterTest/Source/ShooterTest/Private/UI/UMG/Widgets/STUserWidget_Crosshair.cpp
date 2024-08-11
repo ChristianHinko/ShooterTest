@@ -10,7 +10,7 @@
 #include "Modular/ArcInventoryComponent_Modular.h"
 #include "Modular/Processors/ArcInventoryProcessor_Active.h"
 #include "Modular/ArcItemFragment.h"
-#include "Inventory\Item\Fragments\STItemFragment_BulletSpread.h"
+#include "Inventory/Item/Fragments/STItemFragment_BulletSpread.h"
 #include "Modular/ArcItemStackModular.h"
 
 

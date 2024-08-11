@@ -103,42 +103,36 @@ void ASTGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
             CollisionQueryParams,
             FCollisionResponseParams::DefaultResponseParam,
             MaxRicochets,
-            FGetPerCmPenetrationNerfDelegate::CreateStatic(
-                [](const FHitResult& Hit) -> float
+            [](const FHitResult& Hit) -> float
+            {
+                const USTPhysicalMaterial_Shooter* ShooterPhysMat = Cast<USTPhysicalMaterial_Shooter>(Hit.PhysMaterial);
+                if (IsValid(ShooterPhysMat))
                 {
-                    const USTPhysicalMaterial_Shooter* ShooterPhysMat = Cast<USTPhysicalMaterial_Shooter>(Hit.PhysMaterial);
-                    if (IsValid(ShooterPhysMat))
-                    {
-                        return ShooterPhysMat->PerCmPenetrationSpeedNerf;
-                    }
-
-                    return 0.f;
+                    return ShooterPhysMat->PerCmPenetrationSpeedNerf;
                 }
-                ),
-            FGetRicochetNerfDelegate::CreateStatic(
-                [](const FHitResult& Hit) -> float
+
+                return 0.f;
+            },
+            [](const FHitResult& Hit) -> float
+            {
+                const USTPhysicalMaterial_Shooter* ShooterPhysMat = Cast<USTPhysicalMaterial_Shooter>(Hit.PhysMaterial);
+                if (IsValid(ShooterPhysMat))
                 {
-                    const USTPhysicalMaterial_Shooter* ShooterPhysMat = Cast<USTPhysicalMaterial_Shooter>(Hit.PhysMaterial);
-                    if (IsValid(ShooterPhysMat))
-                    {
-                        return ShooterPhysMat->RicochetSpeedNerf;
-                    }
-
-                    return 0.f;
+                    return ShooterPhysMat->RicochetSpeedNerf;
                 }
-                ),
-            FIsHitRicochetableDelegate::CreateStatic(
-                [](const FHitResult& Hit) -> bool
+
+                return 0.f;
+            },
+            [](const FHitResult& Hit) -> bool
+            {
+                const USTPhysicalMaterial_Shooter* ShooterPhysMat = Cast<USTPhysicalMaterial_Shooter>(Hit.PhysMaterial);
+                if (IsValid(ShooterPhysMat))
                 {
-                    const USTPhysicalMaterial_Shooter* ShooterPhysMat = Cast<USTPhysicalMaterial_Shooter>(Hit.PhysMaterial);
-                    if (IsValid(ShooterPhysMat))
-                    {
-                        return ShooterPhysMat->bRicochets;
-                    }
-
-                    return false;
+                    return ShooterPhysMat->bRicochets;
                 }
-                )
+
+                return false;
+            }
             );
 
         if (bDebug)

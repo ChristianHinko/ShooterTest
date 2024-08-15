@@ -205,7 +205,7 @@ void ASTGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
                         if (bDebug && bDebugHitTargetDataDmg)
                         {
                             // Since we know this hit actor has an ASC, we will display dmg text over the top of it
-#if ENABLE_DRAW_DEBUG
+#if UE_ENABLE_DEBUG_DRAWING
                             const float ZOffset = 10.f;
 
                             const FBox ActorBoundingBox = Hit.GetActor()->CalculateComponentsBoundingBoxInLocalSpace(false, true);
@@ -220,7 +220,7 @@ void ASTGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
 
                             const FString DebugString = FString::Printf(TEXT("%.2f dmg"), Hit.Strength);
                             DrawDebugString(GetWorld(), StringLocation, DebugString, nullptr, FColor::Red, 5.f, true, 2.f);
-#endif // ENABLE_DRAW_DEBUG
+#endif // UE_ENABLE_DEBUG_DRAWING
 
                         }
                     }

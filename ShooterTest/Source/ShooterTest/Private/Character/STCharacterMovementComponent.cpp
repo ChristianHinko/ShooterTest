@@ -10,6 +10,7 @@
 #include "AbilitySystemComponent.h"
 #include "Subobjects/ASSActorComponent_AvatarActorExtension.h"
 #include "AbilitySystem/ASSAbilitySystemBlueprintLibrary.h"
+#include "GCUtils.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -488,7 +489,8 @@ void USTCharacterMovementComponent::ClearJumpInput(float DeltaTime)
         {
             if (STCharacterOwner->bIsJumping)
             {
-                STCharacterOwner->GetAbilitySystemComponent()->CancelAbilities(&STNativeGameplayTags::Ability_Movement_Jump.GetTag().GetSingleTagContainer());
+                STCharacterOwner->GetAbilitySystemComponent()->CancelAbilities(&GCUtils::Materialize(
+                    STNativeGameplayTags::Ability_Movement_Jump.GetTag().GetSingleTagContainer()));
             }
         }
     }
@@ -498,7 +500,8 @@ void USTCharacterMovementComponent::ClearJumpInput(float DeltaTime)
         CharacterOwner->bWasJumping = false;
         if (STCharacterOwner->bIsJumping)
         {
-            STCharacterOwner->GetAbilitySystemComponent()->CancelAbilities(&STNativeGameplayTags::Ability_Movement_Jump.GetTag().GetSingleTagContainer());
+            STCharacterOwner->GetAbilitySystemComponent()->CancelAbilities(&GCUtils::Materialize(
+                STNativeGameplayTags::Ability_Movement_Jump.GetTag().GetSingleTagContainer()));
         }
     }
 }
@@ -515,7 +518,8 @@ void USTCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
         const bool willCrouch = bWantsToCrouch && CanCrouchInCurrentState();
         if (IsCrouching() && !willCrouch)
         {
-            OwnerASC->CancelAbilities(&STNativeGameplayTags::Ability_Movement_Crouch.GetTag().GetSingleTagContainer());
+            OwnerASC->CancelAbilities(&GCUtils::Materialize(
+                STNativeGameplayTags::Ability_Movement_Crouch.GetTag().GetSingleTagContainer()));
         }
         else if (!IsCrouching() && willCrouch)
         {
@@ -529,7 +533,8 @@ void USTCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float Del
         const bool willRun = bWantsToRun && CanRunInCurrentState() && Acceleration.SizeSquared() > 0;
         if (IsRunning() && !willRun)
         {
-            OwnerASC->CancelAbilities(&STNativeGameplayTags::Ability_Movement_Run.GetTag().GetSingleTagContainer());
+            OwnerASC->CancelAbilities(&GCUtils::Materialize(
+                STNativeGameplayTags::Ability_Movement_Run.GetTag().GetSingleTagContainer()));
         }
         else if (!IsRunning() && willRun)
         {
@@ -552,13 +557,15 @@ void USTCharacterMovementComponent::UpdateCharacterStateAfterMovement(float Delt
         // Uncrouch if no longer allowed to be crouched
         if (IsCrouching() && !CanCrouchInCurrentState())
         {
-            OwnerASC->CancelAbilities(&STNativeGameplayTags::Ability_Movement_Crouch.GetTag().GetSingleTagContainer());
+            OwnerASC->CancelAbilities(&GCUtils::Materialize(
+                STNativeGameplayTags::Ability_Movement_Crouch.GetTag().GetSingleTagContainer()));
         }
 
 
         if (IsRunning() && !CanRunInCurrentState())
         {
-            OwnerASC->CancelAbilities(&STNativeGameplayTags::Ability_Movement_Run.GetTag().GetSingleTagContainer());
+            OwnerASC->CancelAbilities(&GCUtils::Materialize(
+                STNativeGameplayTags::Ability_Movement_Run.GetTag().GetSingleTagContainer()));
         }
     }
 }

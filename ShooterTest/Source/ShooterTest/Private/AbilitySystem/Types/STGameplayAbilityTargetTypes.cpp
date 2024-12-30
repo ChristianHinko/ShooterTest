@@ -1,34 +1,23 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "AbilitySystem/Types/STGameplayAbilityTargetTypes.h"
-
-
 
 FSTGameplayAbilityTargetData::FSTGameplayAbilityTargetData()
 {
-
 }
-
-
 
 ////////////////////////////////////////////////////////////////
 /// FSTGameplayAbilityTargetData_BulletTraceTargetHit
 ////////////////////////////////////////////////////////////////
-
 
 #include "AbilitySystem/Types/STGameplayEffectTypes.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffect.h"
 #include "AbilitySystemComponent.h"
 
-
-
 FSTGameplayAbilityTargetData_BulletTraceTargetHit::FSTGameplayAbilityTargetData_BulletTraceTargetHit()
 {
-
 }
-
 
 TArray<FActiveGameplayEffectHandle> FSTGameplayAbilityTargetData_BulletTraceTargetHit::ApplyGameplayEffectSpec(FGameplayEffectSpec& Spec, FPredictionKey PredictionKey)
 {
@@ -73,7 +62,7 @@ void FSTGameplayAbilityTargetData_BulletTraceTargetHit::AddTargetDataToContext(F
     if (FSTGameplayEffectContext_Shooter* STContext = static_cast<FSTGameplayEffectContext_Shooter*>(Context.Get()))
     {
         STContext->SetHitInfo(ActorHitInfos[HitInfosIndex]);
-        STContext->SetBulletTracePoints(BulletTracePoints);
+        STContext->SetBulletTracePoints(TArray<FVector_NetQuantize, TInlineAllocator<8>>(BulletTracePoints));
     }
     else
     {

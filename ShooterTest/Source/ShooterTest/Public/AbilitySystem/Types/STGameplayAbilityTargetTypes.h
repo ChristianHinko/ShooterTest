@@ -7,27 +7,28 @@
 
 #include "STGameplayAbilityTargetTypes.generated.h"
 
-
-
 /**
- * Game's base GameplayAbilityTargetData
+ * @brief Game's base gameplay ability target data class.
  */
 USTRUCT()
 struct SHOOTERTEST_API FSTGameplayAbilityTargetData : public FASSGameplayAbilityTargetData
 {
     GENERATED_BODY()
 
+public:
+
     FSTGameplayAbilityTargetData();
 
+public:
+
+    // ~ FGameplayAbilityTargetData overrides.
     virtual UScriptStruct* GetScriptStruct() const override { return StaticStruct(); }
+    // ~ FGameplayAbilityTargetData overrides.
 };
-
-
 
 ////////////////////////////////////////////////////////////////
 /// FSTGameplayAbilityTargetData_BulletTraceTargetHit
 ////////////////////////////////////////////////////////////////
-
 
 /**
  *
@@ -75,6 +76,9 @@ struct TStructOpsTypeTraits<FSTActorHitInfo> : public TStructOpsTypeTraitsBase2<
 
 /**
  * This is the Target Data struct that represents the targets that were hit by a certain bullet. This is a pretty good GATD code wise :O
+ *
+ * TODO: This class could use a lot of cleanup. Notably, change the array to a `TArray<FVector_NetQuantize, TInlineAllocator<8>>` just
+ * like the effect context class uses.
  */
 USTRUCT(BlueprintType)
 struct SHOOTERTEST_API FSTGameplayAbilityTargetData_BulletTraceTargetHit : public FSTGameplayAbilityTargetData

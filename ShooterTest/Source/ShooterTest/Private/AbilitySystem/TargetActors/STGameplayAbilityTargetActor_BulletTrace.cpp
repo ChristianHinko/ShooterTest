@@ -10,7 +10,7 @@
 #include "AbilitySystem/Types/STGameplayAbilityTargetTypes.h"
 #include "PhysicalMaterial/STPhysicalMaterial_Shooter.h"
 #include "GCUtils_Math.h"
-#include "AbilitySystem/Types/ASSGameplayAbilityTypes.h"
+#include "Abilities/GameplayAbilityTypes.h"
 #include "GameFramework/Controller.h"
 #include "Abilities/GameplayAbility.h"
 
@@ -55,19 +55,19 @@ void ASTGameplayAbilityTargetActor_BulletTrace::ConfirmTargetingAndContinue()
             // Calculate BulletDirection
             if (IsValid(OwningAbility)) // server and launching client only
             {
-                if (const FASSGameplayAbilityActorInfo* ASSActorInfo = static_cast<const FASSGameplayAbilityActorInfo*>(OwningAbility->GetCurrentActorInfo()))
+                if (const FGameplayAbilityActorInfo* actorInfo = OwningAbility->GetCurrentActorInfo())
                 {
-                    FVector ViewStart;
-                    FRotator ViewRot;
-                    ASSActorInfo->Controller->GetPlayerViewPoint(ViewStart, ViewRot);
-                    FVector ViewDir = ViewRot.Vector();
+                    FVector viewStart;
+                    FRotator viewRot;
+                    actorInfo->PlayerController->GetPlayerViewPoint(viewStart, viewRot); // TODO @techdebt: Make this non-player-controller specific. Ideally, we use the base `AController` class instead.
+                    FVector viewDir = viewRot.Vector();
 
                     check(GetWorld());
                     BulletDirection = GCUtils::Math::GetLocationAimDirection(
                         *GetWorld(),
                         CollisionQueryParams,
-                        ViewStart,
-                        ViewDir,
+                        viewStart,
+                        viewDir,
                         MaxRange,
                         StartLocation.GetTargetingTransform().GetLocation()
                         );

@@ -3,24 +3,29 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/ASSAbilitySystemGlobals.h"
+#include "AbilitySystemGlobals.h"
 
 #include "STAbilitySystemGlobals.generated.h"
 
-
+struct FGameplayAbilityActorInfo;
+struct FGameplayEffectContext;
 
 /**
- * Game's base AbilitySystemGlobals
+ * @brief Game's ability system globals class.
  */
 UCLASS()
-class SHOOTERTEST_API USTAbilitySystemGlobals : public UASSAbilitySystemGlobals
+class SHOOTERTEST_API USTAbilitySystemGlobals : public UAbilitySystemGlobals
 {
     GENERATED_BODY()
 
 public:
-    USTAbilitySystemGlobals(const FObjectInitializer& ObjectInitializer);
 
+    USTAbilitySystemGlobals(const FObjectInitializer& objectInitializer);
 
+public:
+
+    // ~ UAbilitySystemGlobals overrides.
     virtual FGameplayAbilityActorInfo* AllocAbilityActorInfo() const override;
     virtual FGameplayEffectContext* AllocGameplayEffectContext() const override;
+    // ~ UAbilitySystemGlobals overrides.
 };

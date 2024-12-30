@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "AbilitySystem/Types/STGameplayAbilityTypes.h"
 
 #include "Character/STCharacter.h"
@@ -8,20 +7,19 @@
 #include "Player/STPlayerState.h"
 #include "Character/STCharacterMovementComponent.h"
 
-
-
-void FSTGameplayAbilityActorInfo::InitFromActor(AActor* InOwnerActor, AActor* InAvatarActor, UAbilitySystemComponent* InAbilitySystemComponent)
+void FSTGameplayAbilityActorInfo::InitFromActor(
+    AActor* inOwnerActor,
+    AActor* inAvatarActor,
+    UAbilitySystemComponent* inAbilitySystemComponent)
 {
-    Super::InitFromActor(InOwnerActor, InAvatarActor, InAbilitySystemComponent);
+    Super::InitFromActor(inOwnerActor, inAvatarActor, inAbilitySystemComponent);
 
-    // Get our STCharacter
-    STCharacter = Cast<ASTCharacter>(InAvatarActor);
+    STCharacter = Cast<ASTCharacter>(inAvatarActor);
 
-    // Get our PC and PS
-    if (PlayerController.IsValid())
+    if (APlayerController* playerController = PlayerController.Get())
     {
-        STPlayerController = Cast<ASTPlayerController>(PlayerController.Get());
-        STPlayerState = PlayerController->GetPlayerState<ASTPlayerState>();
+        STPlayerController = Cast<ASTPlayerController>(playerController);
+        STPlayerState = playerController->GetPlayerState<ASTPlayerState>();
     }
     else
     {
@@ -29,10 +27,9 @@ void FSTGameplayAbilityActorInfo::InitFromActor(AActor* InOwnerActor, AActor* In
         STPlayerState = nullptr;
     }
 
-    // Get our CMC
-    if (STCharacter.IsValid())
+    if (inAvatarActor)
     {
-        STCharacterMovementComponent = STCharacter->GetSTCharacterMovementComponent();
+        STCharacterMovementComponent = inAvatarActor->FindComponentByClass<USTCharacterMovementComponent>();
     }
     else
     {
@@ -50,12 +47,9 @@ void FSTGameplayAbilityActorInfo::ClearActorInfo()
     STCharacterMovementComponent = nullptr;
 }
 
-
-
 ////////////////////////////////////////////////////////////////
 /// FSTGameplayAbilityActorInfo_Shooter
 ////////////////////////////////////////////////////////////////
-
 
 #include "AbilitySystem/AbilitySystemComponents/STAbilitySystemComponent_Shooter.h"
 #include "Character/STCharacter_Shooter.h"
@@ -63,22 +57,26 @@ void FSTGameplayAbilityActorInfo::ClearActorInfo()
 #include "ArcItemBPFunctionLibrary.h"
 #include "Modular/ArcInventoryComponent_Modular.h"
 
-
-
-void FSTGameplayAbilityActorInfo_Shooter::InitFromActor(AActor* InOwnerActor, AActor* InAvatarActor, UAbilitySystemComponent* InAbilitySystemComponent)
+void FSTGameplayAbilityActorInfo_Shooter::InitFromActor(
+    AActor* inOwnerActor,
+    AActor* inAvatarActor,
+    UAbilitySystemComponent* inAbilitySystemComponent)
 {
-    Super::InitFromActor(InOwnerActor, InAvatarActor, InAbilitySystemComponent);
+    Super::InitFromActor(inOwnerActor, inAvatarActor, inAbilitySystemComponent);
 
     // Get our Shooter ASC
-    ShooterAbilitySystemComponent = Cast<USTAbilitySystemComponent_Shooter>(ASSAbilitySystemComponent);
+    ShooterAbilitySystemComponent = Cast<USTAbilitySystemComponent_Shooter>(inAbilitySystemComponent);
 
     // Get our Shooter Character
-    ShooterCharacter = Cast<ASTCharacter_Shooter>(InAvatarActor);
+    ShooterCharacter = Cast<ASTCharacter_Shooter>(inAvatarActor);
 
     // Get our Inventory
-    if (IsValid(InAvatarActor))
+    if (inAvatarActor)
     {
-        InventoryComponent = Cast<UArcInventoryComponent_Modular>(UArcItemBPFunctionLibrary::GetInventoryComponent(InAvatarActor, true));
+        constexpr bool shouldAllowSearchComponents = true;
+        InventoryComponent =
+            Cast<UArcInventoryComponent_Modular>(
+                UArcItemBPFunctionLibrary::GetInventoryComponent(inAvatarActor, shouldAllowSearchComponents));
     }
     else
     {

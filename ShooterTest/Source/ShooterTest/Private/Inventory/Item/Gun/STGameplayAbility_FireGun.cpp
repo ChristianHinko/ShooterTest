@@ -14,7 +14,6 @@
 #include "Inventory/Item/Fragments/STItemFragment_BulletBehavior.h"
 #include "Modular/ArcItemStackModular.h"
 #include "ArcInventoryItemTypes.h"
-#include "AbilitySystem/Types/ASSGameplayAbilityTypes.h"
 
 #include "AbilityTasks/ASSEAbilityTask_Ticker.h"
 #include "Kismet/GameplayStatics.h"
@@ -421,10 +420,10 @@ void USTGameplayAbility_FireGun::Shoot()
     // Update our target actor's start location
     BulletTraceTargetActor->StartLocation.LocationType = EGameplayAbilityTargetingLocationType::LiteralTransform;
     FVector ViewStart = FVector::ZeroVector;
-    if (const FASSGameplayAbilityActorInfo* ASSActorInfo = static_cast<const FASSGameplayAbilityActorInfo*>(GetCurrentActorInfo()))
+    if (const FGameplayAbilityActorInfo* actorInfo = GetCurrentActorInfo())
     {
-        FRotator ViewRot;
-        ASSActorInfo->Controller->GetPlayerViewPoint(ViewStart, ViewRot);
+        FRotator viewRot;
+        actorInfo->PlayerController->GetPlayerViewPoint(ViewStart, viewRot); // TODO @techdebt: Make this non-player-controller-specific. Ideally, we use the base `AController` class instead.
     }
     BulletTraceTargetActor->StartLocation.LiteralTransform.SetLocation(ViewStart); // we just want to use the player camera position directly for our StartLocation
 

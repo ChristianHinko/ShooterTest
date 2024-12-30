@@ -3,58 +3,45 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Types/ASSGameplayEffectTypes.h"
+#include "GameplayEffectTypes.h"
 #include "AbilitySystem/Types/STGameplayAbilityTargetTypes.h"
 
 #include "STGameplayEffectTypes.generated.h"
 
-
-
 /**
- * Game's base GameplayEffectContext
+ * @brief Game's gameplay effect context class.
  */
 USTRUCT()
-struct SHOOTERTEST_API FSTGameplayEffectContext : public FASSGameplayEffectContext
+struct SHOOTERTEST_API FSTGameplayEffectContext : public FGameplayEffectContext
 {
     GENERATED_BODY()
 
 public:
+
     FSTGameplayEffectContext();
 
+public:
+
+    // ~ FGameplayEffectContext overrides.
     virtual UScriptStruct* GetScriptStruct() const override { return StaticStruct(); }
-
-    virtual FSTGameplayEffectContext* Duplicate() const override
-    {
-        FSTGameplayEffectContext* NewContext = new FSTGameplayEffectContext(); // allocate our version
-        *NewContext = *this;
-        if (GetHitResult())
-        {
-            // Does a deep copy of the hit result
-            NewContext->AddHitResult(*GetHitResult(), true);
-        }
-        return NewContext;
-    }
-
-    virtual bool NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess) override;
+    virtual FSTGameplayEffectContext* Duplicate() const override;
+    virtual bool NetSerialize(FArchive& archive, UPackageMap* packageMap, bool& outIsSuccess) override;
+    // ~ FGameplayEffectContext overrides.
 };
 
-template<>
+template <>
 struct TStructOpsTypeTraits<FSTGameplayEffectContext> : public TStructOpsTypeTraitsBase2<FSTGameplayEffectContext>
 {
     enum
     {
         WithNetSerializer = true,
-        WithCopy = true // necessary so that TSharedPtr<FHitResult> Data is copied around
+        WithCopy = true
     };
 };
-
-
 
 ////////////////////////////////////////////////////////////////
 /// FSTGameplayEffectContext_Shooter
 ////////////////////////////////////////////////////////////////
-
-
 
 /**
  *
@@ -65,48 +52,57 @@ struct SHOOTERTEST_API FSTGameplayEffectContext_Shooter : public FSTGameplayEffe
     GENERATED_BODY()
 
 public:
-    FSTActorHitInfo GetHitInfo() const { return HitInfo; }
-    TArray<FVector_NetQuantize> GetBulletTracePoints() const { return BulletTracePoints; }
-    int32 GetNumRicochetsBeforeHit() const
+
+    FORCEINLINE const FSTActorHitInfo& GetHitInfo() const
     {
-        // This adds up all of the ricochet points (if any) disregarding the start and end location
-        return FMath::Max((BulletTracePoints.Num() - 2), 0);
+        return HitInfo;
     }
 
-    void SetHitInfo(const FSTActorHitInfo& InHitInfo) { HitInfo = InHitInfo; }
-    void SetBulletTracePoints(const TArray<FVector_NetQuantize>& InBulletTracePoints) { BulletTracePoints = InBulletTracePoints; }
+    FORCEINLINE const TArray<FVector_NetQuantize, TInlineAllocator<8>>& GetBulletTracePoints() const
+    {
+        return BulletTracePoints;
+    }
 
-protected:
-    UPROPERTY()
-        FSTActorHitInfo HitInfo;
+    FORCEINLINE_DEBUGGABLE int32 GetNumRicochetsBeforeHit() const
+    {
+        // This adds up all of the ricochet points (if any) disregarding the start and end location.
+        constexpr int32 minNumRicochetsPoints = 0;
+        return FMath::Max((BulletTracePoints.Num() - 2), minNumRicochetsPoints);
+    }
 
-    UPROPERTY()
-        TArray<FVector_NetQuantize> BulletTracePoints;
+    FORCEINLINE void SetHitInfo(const FSTActorHitInfo& inHitInfo)
+    {
+        HitInfo = inHitInfo;
+    }
+
+    FORCEINLINE void SetBulletTracePoints(
+        TArray<FVector_NetQuantize, TInlineAllocator<8>>&& inBulletTracePoints)
+    {
+        BulletTracePoints = MoveTemp(inBulletTracePoints);
+    }
 
 public:
+
+    // ~ FGameplayEffectContext overrides.
     virtual UScriptStruct* GetScriptStruct() const override { return StaticStruct(); }
+    virtual FSTGameplayEffectContext_Shooter* Duplicate() const override;
+    virtual bool NetSerialize(FArchive& archive, UPackageMap* packageMap, bool& outIsSuccess) override;
+    // ~ FGameplayEffectContext overrides.
 
-    virtual FSTGameplayEffectContext_Shooter* Duplicate() const override
-    {
-        FSTGameplayEffectContext_Shooter* NewContext = new FSTGameplayEffectContext_Shooter(); // allocate our version
-        *NewContext = *this;
-        if (GetHitResult())
-        {
-            // Does a deep copy of the hit result
-            NewContext->AddHitResult(*GetHitResult(), true);
-        }
-        return NewContext;
-    }
+protected:
 
-    virtual bool NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess) override;
+    TArray<FVector_NetQuantize, TInlineAllocator<8>> BulletTracePoints;
+
+    UPROPERTY()
+    FSTActorHitInfo HitInfo;
 };
 
-template<>
+template <>
 struct TStructOpsTypeTraits<FSTGameplayEffectContext_Shooter> : public TStructOpsTypeTraitsBase2<FSTGameplayEffectContext_Shooter>
 {
     enum
     {
         WithNetSerializer = true,
-        WithCopy = true // necessary so that TSharedPtr<FHitResult> Data is copied around
+        WithCopy = true
     };
 };

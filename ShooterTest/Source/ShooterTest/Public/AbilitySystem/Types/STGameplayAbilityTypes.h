@@ -3,55 +3,56 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Types/ASSGameplayAbilityTypes.h"
+#include "Abilities/GameplayAbilityTypes.h"
 
 #include "STGameplayAbilityTypes.generated.h"
 
-
+class UAbilitySystemComponent;
 class ASTCharacter;
 class ASTPlayerController;
 class ASTPlayerState;
 class USTCharacterMovementComponent;
 
-
-
 /**
- * Game's base GameplayAbilityActorInfo.
- * Put non-game-specific data in here - like base classes and stuff
+ * @brief Game's gameplay ability actor info class.
  */
 USTRUCT()
-struct SHOOTERTEST_API FSTGameplayAbilityActorInfo : public FASSGameplayAbilityActorInfo
+struct SHOOTERTEST_API FSTGameplayAbilityActorInfo : public FGameplayAbilityActorInfo
 {
     GENERATED_BODY()
 
-    UPROPERTY(BlueprintReadOnly, Category = "STActorInfo")
-        TWeakObjectPtr<ASTCharacter> STCharacter;
+public:
 
-    UPROPERTY(BlueprintReadOnly, Category = "STActorInfo")
-        TWeakObjectPtr<ASTPlayerController> STPlayerController;
-
-    UPROPERTY(BlueprintReadOnly, Category = "STActorInfo")
-        TWeakObjectPtr<ASTPlayerState> STPlayerState;
-
-    UPROPERTY(BlueprintReadOnly, Category = "STActorInfo")
-        TWeakObjectPtr<USTCharacterMovementComponent> STCharacterMovementComponent;
-
-
-    virtual void InitFromActor(AActor* OwnerActor, AActor* AvatarActor, UAbilitySystemComponent* InAbilitySystemComponent) override;
+    // ~ FGameplayAbilityActorInfo overrides.
+    virtual void InitFromActor(
+        AActor* inOwnerActor,
+        AActor* inAvatarActor,
+        UAbilitySystemComponent* inAbilitySystemComponent) override;
     virtual void ClearActorInfo() override;
+    // ~ FGameplayAbilityActorInfo overrides.
+
+public:
+
+    UPROPERTY(BlueprintReadOnly, Category = "STActorInfo")
+    TWeakObjectPtr<ASTCharacter> STCharacter;
+
+    UPROPERTY(BlueprintReadOnly, Category = "STActorInfo")
+    TWeakObjectPtr<ASTPlayerController> STPlayerController;
+
+    UPROPERTY(BlueprintReadOnly, Category = "STActorInfo")
+    TWeakObjectPtr<ASTPlayerState> STPlayerState;
+
+    UPROPERTY(BlueprintReadOnly, Category = "STActorInfo")
+    TWeakObjectPtr<USTCharacterMovementComponent> STCharacterMovementComponent;
 };
-
-
 
 ////////////////////////////////////////////////////////////////
 /// FSTGameplayAbilityActorInfo_Shooter
 ////////////////////////////////////////////////////////////////
 
-
 class USTAbilitySystemComponent_Shooter;
 class ASTCharacter_Shooter;
 class UArcInventoryComponent_Modular;
-
 
 /**
  *
@@ -61,19 +62,27 @@ struct SHOOTERTEST_API FSTGameplayAbilityActorInfo_Shooter : public FSTGameplayA
 {
     GENERATED_BODY()
 
-        // Our Shooter specific ASC
-        UPROPERTY(BlueprintReadOnly, Category = "ShooterActorInfo")
-        TWeakObjectPtr<USTAbilitySystemComponent_Shooter> ShooterAbilitySystemComponent;
+public:
 
-    // Our ShooterCharacter
-    UPROPERTY(BlueprintReadOnly, Category = "ShooterActorInfo")
-        TWeakObjectPtr<ASTCharacter_Shooter> ShooterCharacter;
-
-    // Our Inventory Component
-    UPROPERTY(BlueprintReadOnly, Category = "ShooterActorInfo")
-        TWeakObjectPtr<UArcInventoryComponent_Modular> InventoryComponent;
-
-
-    virtual void InitFromActor(AActor* OwnerActor, AActor* AvatarActor, UAbilitySystemComponent* InAbilitySystemComponent) override;
+    // ~ FGameplayAbilityActorInfo overrides.
+    virtual void InitFromActor(
+        AActor* inOwnerActor,
+        AActor* inAvatarActor,
+        UAbilitySystemComponent* inAbilitySystemComponent) override;
     virtual void ClearActorInfo() override;
+    // ~ FGameplayAbilityActorInfo overrides.
+
+public:
+
+    // Our shooter-specific ASC.
+    UPROPERTY(BlueprintReadOnly, Category = "STActorInfo")
+    TWeakObjectPtr<USTAbilitySystemComponent_Shooter> ShooterAbilitySystemComponent;
+
+    // Our shooter-specific character.
+    UPROPERTY(BlueprintReadOnly, Category = "STActorInfo")
+    TWeakObjectPtr<ASTCharacter_Shooter> ShooterCharacter;
+
+    // Our inventory component.
+    UPROPERTY(BlueprintReadOnly, Category = "STActorInfo")
+    TWeakObjectPtr<UArcInventoryComponent_Modular> InventoryComponent;
 };

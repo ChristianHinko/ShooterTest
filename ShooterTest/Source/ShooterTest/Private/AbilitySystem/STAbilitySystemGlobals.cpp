@@ -12,10 +12,10 @@ USTAbilitySystemGlobals::USTAbilitySystemGlobals(const FObjectInitializer& objec
 
 FGameplayAbilityActorInfo* USTAbilitySystemGlobals::AllocAbilityActorInfo() const
 {
-    return new FSTGameplayAbilityActorInfo();
+    return new FSTGameplayAbilityActorInfo_Shooter();
 }
 
 FGameplayEffectContext* USTAbilitySystemGlobals::AllocGameplayEffectContext() const
 {
-    return new FSTGameplayEffectContext();
+    return new FSTGameplayEffectContext_Shooter();
 }

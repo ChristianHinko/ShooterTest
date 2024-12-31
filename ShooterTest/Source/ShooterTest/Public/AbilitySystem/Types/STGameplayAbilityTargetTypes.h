@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Types/ASSGameplayAbilityTargetTypes.h"
+#include "Abilities/GameplayAbilityTargetTypes.h"
 
 #include "STGameplayAbilityTargetTypes.generated.h"
 
@@ -11,7 +11,7 @@
  * @brief Game's base gameplay ability target data class.
  */
 USTRUCT()
-struct SHOOTERTEST_API FSTGameplayAbilityTargetData : public FASSGameplayAbilityTargetData
+struct SHOOTERTEST_API FSTGameplayAbilityTargetData : public FGameplayAbilityTargetData
 {
     GENERATED_BODY()
 

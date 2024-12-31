@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Character/STCharacter_Shooter.h"
 
 #include "Net/UnrealNetwork.h"
@@ -13,14 +12,10 @@
 #include "Modular/ArcInventoryComponent_Modular.h"
 #include "AttributeSets/ASSEAttributeSet_Health.h"
 #include "AbilitySystem/AttributeSets/STAttributeSet_Stamina.h"
-
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
 #include "InputTriggers.h"
-#include "Subsystems/ISEngineSubsystem_ObjectReferenceLibrary.h"
-
-
-
+#include "ISEngineSubsystem_ObjectReferenceLibrary.h"
 
 const FName ASTCharacter_Shooter::InventoryComponentName = TEXT("InventoryComponent");
 
@@ -50,7 +45,6 @@ void ASTCharacter_Shooter::BeginPlay()
     ShooterInventoryProcessor = InventoryComponent->FindFirstProcessor<USTInventoryProcessor_Shooter>();
 }
 
-
 #include "Kismet/KismetSystemLibrary.h"
 #include "AttributeSets/ASSEAttributeSet_Health.h"
 #include "Inventory/Item/STAttributeSet_Ammo.h"
@@ -60,7 +54,7 @@ void ASTCharacter_Shooter::BeginPlay()
 #include "ArcItemBPFunctionLibrary.h"
 #include "Character/STCharacterMovementComponent.h"
 #include "AbilitySystem/AbilitySystemComponents/STAbilitySystemComponent_Shooter.h"
-#include "AbilitySystem/ASSAbilitySystemComponent.h"
+#include "ASSAbilitySystemComponent.h"
 #include "AbilitySystem/AttributeSets/STAttributeSet_Stamina.h"
 #include "Modular/ArcItemStackModular.h"
 #include "Inventory/Item/Fragments/STItemFragment_BulletSpread.h"
@@ -211,22 +205,23 @@ void ASTCharacter_Shooter::Tick(float DeltaSeconds)
     //}
 }
 
-void ASTCharacter_Shooter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ASTCharacter_Shooter::SetupPlayerInputComponent(UInputComponent* inPlayerInputComponent)
 {
-    Super::SetupPlayerInputComponent(PlayerInputComponent);
+    check(inPlayerInputComponent);
+    Super::SetupPlayerInputComponent(inPlayerInputComponent);
 
-    UEnhancedInputComponent* PlayerEnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
-    if (IsValid(PlayerEnhancedInputComponent))
+    UEnhancedInputComponent* playerEnhancedInputComponent = Cast<UEnhancedInputComponent>(inPlayerInputComponent);
+    if (ensure(playerEnhancedInputComponent))
     {
-        const UISEngineSubsystem_ObjectReferenceLibrary* InputSetupObjectReferenceLibrary = GEngine->GetEngineSubsystem<UISEngineSubsystem_ObjectReferenceLibrary>();
-        if (IsValid(InputSetupObjectReferenceLibrary))
-        {
-            const UInputAction* InputActionInteract = InputSetupObjectReferenceLibrary->GetInputAction(STNativeGameplayTags::InputAction_Interact);
-            if (IsValid(InputActionInteract))
-            {
-                PlayerEnhancedInputComponent->BindAction(InputActionInteract, ETriggerEvent::Started, this, &ThisClass::OnPressedInteract);
-            }
-        }
+        return;
+    }
+
+    check(GEngine);
+    const UISEngineSubsystem_ObjectReferenceLibrary& inputSetupAssetReferenceSubsystem = UISEngineSubsystem_ObjectReferenceLibrary::GetChecked(*GEngine);
+
+    if (const UInputAction* inputActionInteract = inputSetupAssetReferenceSubsystem.GetInputAction(STNativeGameplayTags::InputAction_Interact))
+    {
+        playerEnhancedInputComponent->BindAction(inputActionInteract, ETriggerEvent::Started, this, &ThisClass::OnPressedInteract);
     }
 }
 

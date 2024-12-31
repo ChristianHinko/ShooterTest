@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/ASSGameplayAbility.h"
+#include "ASSGameplayAbility.h"
 
 #include "STGameplayAbility_CharacterJumpStatic.generated.h"
 
@@ -40,4 +40,3 @@ protected:
     virtual void ASSEndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
     //  END UGameplayAbility Interface
 };
-

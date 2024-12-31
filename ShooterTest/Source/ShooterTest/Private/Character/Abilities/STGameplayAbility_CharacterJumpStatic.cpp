@@ -1,9 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Character/Abilities/STGameplayAbility_CharacterJumpStatic.h"
 
-#include "Utilities/ASSNativeGameplayTags.h"
+#include "ASSNativeGameplayTags.h"
 #include "GameFramework/Character.h"
 
 // THIS ABILITY IS WAYYYYYY OUTDATED!!!!!!!!!!!!!!!!
@@ -20,7 +19,6 @@ USTGameplayAbility_CharacterJumpStatic::USTGameplayAbility_CharacterJumpStatic(c
     AbilityTags.AddTag(ASSNativeGameplayTags::Ability_Type_DisableAutoActivationFromInput);
     AbilityTags.AddTag(STNativeGameplayTags::InputAction_Jump);
 }
-
 
 bool USTGameplayAbility_CharacterJumpStatic::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {

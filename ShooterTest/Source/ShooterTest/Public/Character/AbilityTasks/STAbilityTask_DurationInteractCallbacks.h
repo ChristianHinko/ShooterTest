@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/ASSAbilityTask.h"
+#include "Abilities/Tasks/AbilityTask.h"
 #include "Interfaces/STInteractableInterface.h"
 #include "UObject/ScriptInterface.h"
 
@@ -20,7 +20,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnNewInteractionPriorityDelegate, float);
  *
  */
 UCLASS()
-class SHOOTERTEST_API USTAbilityTask_DurationInteractCallbacks : public UASSAbilityTask
+class SHOOTERTEST_API USTAbilityTask_DurationInteractCallbacks : public UAbilityTask
 {
     GENERATED_BODY()
 

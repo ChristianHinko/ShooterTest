@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Inventory/Item/Gun/STGameplayAbility_FireGun.h"
 
 #include "AbilitySystemComponent.h"
-#include "AbilitySystem/AbilityTasks/ASSAbilityTask_WaitTargetData.h"
+#include "ASSAbilityTask_WaitTargetData.h"
 #include "AbilitySystem/TargetActors/STGameplayAbilityTargetActor_BulletTrace.h"
-#include "AbilitySystem/ASSAbilitySystemBlueprintLibrary.h"
+#include "ASSAbilitySystemBlueprintLibrary.h"
+#include "Types/ASSGameplayTargetDataFilter.h"
 #include "Utilities/STCollisionChannels.h"
 #include "Inventory/Item/Gun/STAttributeSet_Gun.h"
 #include "Inventory/Item/Fragments/STItemFragment_BulletSpread.h"
@@ -14,16 +14,11 @@
 #include "Inventory/Item/Fragments/STItemFragment_BulletBehavior.h"
 #include "Modular/ArcItemStackModular.h"
 #include "ArcInventoryItemTypes.h"
-
 #include "AbilityTasks/ASSEAbilityTask_Ticker.h"
 #include "Kismet/GameplayStatics.h"
 #include "AbilityTasks/ASSEAbilityTask_WaitInputPress.h"
 #include "AbilityTasks/ASSEAbilityTask_WaitInputRelease.h"
-
-#include "Kismet/KismetSystemLibrary.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
-
-
 
 USTGameplayAbility_FireGun::USTGameplayAbility_FireGun(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
@@ -36,7 +31,6 @@ USTGameplayAbility_FireGun::USTGameplayAbility_FireGun(const FObjectInitializer&
     ShotNumber = 0;
     bInputPressed = false;
 }
-
 
 void USTGameplayAbility_FireGun::ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
@@ -226,6 +220,7 @@ bool USTGameplayAbility_FireGun::CheckCooldown(const FGameplayAbilitySpecHandle 
 
     return true;
 }
+
 bool USTGameplayAbility_FireGun::CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
     if (!Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags))
@@ -323,7 +318,6 @@ void USTGameplayAbility_FireGun::ActivateAbility(const FGameplayAbilitySpecHandl
 
 
 }
-
 
 void USTGameplayAbility_FireGun::OnShootTick(
     const float inDeltaTime,
@@ -454,7 +448,6 @@ void USTGameplayAbility_FireGun::Shoot()
     BulletSpreadItemFragment->ApplyFireBulletSpread();
 }
 
-
 void USTGameplayAbility_FireGun::OnPress(const float inTimeWaited)
 {
     bInputPressed = true;
@@ -528,6 +521,7 @@ void USTGameplayAbility_FireGun::OnValidData(const FGameplayAbilityTargetDataHan
     }
 
 }
+
 void USTGameplayAbility_FireGun::OnCancelled(const FGameplayAbilityTargetDataHandle& Data)
 {
     UE_LOG(LogSTGameplayAbility, Warning, TEXT("%s(): Not sure how this got hit :/ Something unexpected happened"), ANSI_TO_TCHAR(__FUNCTION__));
@@ -556,15 +550,12 @@ void USTGameplayAbility_FireGun::ASSEndAbility(const FGameplayAbilitySpecHandle 
     Super::ASSEndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-
-
-
-
 //  BEGIN Attribute Set helpers
 bool USTGameplayAbility_FireGun::IsFullAuto() const
 {
     return static_cast<bool>(bFullAuto);
 }
+
 bool USTGameplayAbility_FireGun::IsBurst() const
 {
     const int32 ShotsPerBurst = NumShotsPerBurst;
@@ -577,6 +568,7 @@ float USTGameplayAbility_FireGun::GetTimeBetweenFires() const
 {
     return (TimeBetweenFiresOverride < 0) ? TimeBetweenShots : TimeBetweenFiresOverride;
 }
+
 float USTGameplayAbility_FireGun::GetTimeBetweenBursts() const
 {
     return (TimeBetweenBurstsOverride < 0) ? TimeBetweenShots : TimeBetweenBurstsOverride;
@@ -596,8 +588,6 @@ bool USTGameplayAbility_FireGun::CurrentlyBursting() const
 }
 //  END Attribute Set helpers
 
-
-
 void USTGameplayAbility_FireGun::OnTimeBetweenShotsChange(const FOnAttributeChangeData& Data)
 {
     TimeBetweenShots = Data.NewValue;
@@ -609,8 +599,6 @@ void USTGameplayAbility_FireGun::OnTimeBetweenShotsChange(const FOnAttributeChan
     }
 }
 
-
-
 void USTGameplayAbility_FireGun::OnMaxRangeChange(const FOnAttributeChangeData& Data)
 {
     MaxRange = Data.NewValue;
@@ -621,6 +609,7 @@ void USTGameplayAbility_FireGun::OnMaxRangeChange(const FOnAttributeChangeData& 
         BulletTraceTargetActor->MaxRange = MaxRange;
     }
 }
+
 void USTGameplayAbility_FireGun::OnNumberOfBulletsPerFireChange(const FOnAttributeChangeData& Data)
 {
     NumberOfBulletsPerFire = Data.NewValue;
@@ -631,6 +620,7 @@ void USTGameplayAbility_FireGun::OnNumberOfBulletsPerFireChange(const FOnAttribu
         BulletTraceTargetActor->NumOfBullets = NumberOfBulletsPerFire;
     }
 }
+
 void USTGameplayAbility_FireGun::OnPenetrationsChange(const FOnAttributeChangeData& Data)
 {
     Penetrations = Data.NewValue;
@@ -641,6 +631,7 @@ void USTGameplayAbility_FireGun::OnPenetrationsChange(const FOnAttributeChangeDa
         BulletTraceTargetActor->MaxPenetrations = Penetrations;
     }
 }
+
 void USTGameplayAbility_FireGun::OnRicochetsChange(const FOnAttributeChangeData& Data)
 {
     Ricochets = Data.NewValue;
@@ -651,6 +642,7 @@ void USTGameplayAbility_FireGun::OnRicochetsChange(const FOnAttributeChangeData&
         BulletTraceTargetActor->MaxRicochets = Ricochets;
     }
 }
+
 void USTGameplayAbility_FireGun::OnInitialBulletSpeedChange(const FOnAttributeChangeData& Data)
 {
     InitialBulletSpeed = Data.NewValue;
@@ -661,6 +653,7 @@ void USTGameplayAbility_FireGun::OnInitialBulletSpeedChange(const FOnAttributeCh
         BulletTraceTargetActor->InitialBulletSpeed = InitialBulletSpeed;
     }
 }
+
 void USTGameplayAbility_FireGun::OnBulletSpeedFalloffChange(const FOnAttributeChangeData& Data)
 {
     BulletSpeedFalloff = Data.NewValue;

@@ -3,10 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/ASSGameplayAbility.h"
+#include "ASSGameplayAbility.h"
 
 #include "STGameplayAbility_FireGun.generated.h"
-
 
 class ASTGameplayAbilityTargetActor_BulletTrace;
 class USTAttributeSet_Gun;
@@ -17,8 +16,6 @@ class USTItemFragment_BulletSpreadInstanced;
 class USTAbilityTask_WaitTargetData;
 class UASSEAbilityTask_Ticker;
 struct FOnAttributeChangeData;
-
-
 
 /**
  * Notes:

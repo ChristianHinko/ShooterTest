@@ -3,15 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/ASSGameplayAbility.h"
+#include "ASSGameplayAbility.h"
 
 #include "STGameplayAbility_CharacterRun.generated.h"
 
-
 class ASTCharacter;
 class USTCharacterMovementComponent;
-
-
 
 /**
  *

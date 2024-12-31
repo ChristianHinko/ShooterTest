@@ -1,18 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Character/AttributeSets/STAttributeSet_CharacterMovement.h"
 
 #include "Net/UnrealNetwork.h"
 
-#include "Kismet/KismetSystemLibrary.h"
-
-
-
 void USTAttributeSet_CharacterMovement::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
 
     FDoRepLifetimeParams Params;
     Params.Condition = COND_None;
@@ -24,7 +18,6 @@ void USTAttributeSet_CharacterMovement::GetLifetimeReplicatedProps(TArray<FLifet
     DOREPLIFETIME_WITH_PARAMS_FAST(USTAttributeSet_CharacterMovement, RunSpeed, Params);
     DOREPLIFETIME_WITH_PARAMS_FAST(USTAttributeSet_CharacterMovement, RunAccelaration, Params);
 }
-
 
 void USTAttributeSet_CharacterMovement::OnRep_WalkSpeed(const FGameplayAttributeData& OldValue)
 {

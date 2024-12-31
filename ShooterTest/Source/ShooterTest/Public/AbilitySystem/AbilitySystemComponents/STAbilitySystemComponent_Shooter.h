@@ -3,14 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/ASSAbilitySystemComponent.h"
+#include "ASSAbilitySystemComponent.h"
 
 #include "STAbilitySystemComponent_Shooter.generated.h"
 
-
-
 /**
- * Shooter specific ASC
+ * Shooter-specific ASC.
  */
 UCLASS()
 class SHOOTERTEST_API USTAbilitySystemComponent_Shooter : public UASSAbilitySystemComponent
@@ -18,9 +16,6 @@ class SHOOTERTEST_API USTAbilitySystemComponent_Shooter : public UASSAbilitySyst
     GENERATED_BODY()
 
 public:
-    USTAbilitySystemComponent_Shooter(const FObjectInitializer& ObjectInitializer);
 
-
-protected:
-
+    USTAbilitySystemComponent_Shooter(const FObjectInitializer& inObjectInitializer);
 };

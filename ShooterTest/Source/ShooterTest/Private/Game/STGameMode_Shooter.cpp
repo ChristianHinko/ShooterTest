@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Game/STGameMode_Shooter.h"
 
 #include "Player/STPlayerState_Shooter.h"
@@ -9,10 +8,8 @@
 #include "Generators/ArcItemGenerator.h"
 #include "Inventory/AIEInventoryProcessor_Active.h"
 #include "Modular/ArcInventoryComponent_Modular.h"
-#include "Subobjects/ASSActorComponent_AvatarActorExtension.h"
+#include "ActorComponents/ASSActorComponent_AvatarActorExtension.h"
 #include "ArcItemBPFunctionLibrary.h"
-
-
 
 ASTGameMode_Shooter::ASTGameMode_Shooter(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
@@ -21,7 +18,6 @@ ASTGameMode_Shooter::ASTGameMode_Shooter(const FObjectInitializer& ObjectInitial
     HUDClass = ASTHUD_Shooter::StaticClass();
     DefaultPawnClass = ASTCharacter_Shooter::StaticClass();
 }
-
 
 void ASTGameMode_Shooter::SetPlayerDefaults(APawn* PlayerPawn)
 {

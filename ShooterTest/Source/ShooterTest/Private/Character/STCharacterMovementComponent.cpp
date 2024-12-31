@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Character/STCharacterMovementComponent.h"
 
 #include "GameFramework/Character.h"
@@ -8,13 +7,11 @@
 #include "Character/AttributeSets/STAttributeSet_CharacterMovement.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "Subobjects/ASSActorComponent_AvatarActorExtension.h"
-#include "AbilitySystem/ASSAbilitySystemBlueprintLibrary.h"
+#include "ActorComponents/ASSActorComponent_AvatarActorExtension.h"
+#include "ASSAbilitySystemBlueprintLibrary.h"
 #include "GCUtils.h"
 
 #include "Kismet/KismetSystemLibrary.h"
-
-
 
 USTCharacterMovementComponent::USTCharacterMovementComponent(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)

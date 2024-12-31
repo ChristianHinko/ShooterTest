@@ -3,14 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/ASSGameplayAbility.h"
+#include "ASSGameplayAbility.h"
 
 #include "STGameplayAbility_Reload.generated.h"
 
-
 class USTItemFragment_ClipAmmoInstanced;
-
-
 
 /**
  *

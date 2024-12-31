@@ -1,16 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Character/Abilities/STGameplayAbility_CharacterJump.h"
 
 #include "Character/STCharacter.h"
 #include "Character/STCharacterMovementComponent.h"
 #include "AbilitySystem/Types/STGameplayAbilityTypes.h"
-#include "Utilities/ASSNativeGameplayTags.h"
-
-#include "Kismet/KismetSystemLibrary.h"
-
-
+#include "ASSNativeGameplayTags.h"
+#include "AbilitySystemComponent.h"
 
 USTGameplayAbility_CharacterJump::USTGameplayAbility_CharacterJump(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
@@ -23,7 +19,6 @@ USTGameplayAbility_CharacterJump::USTGameplayAbility_CharacterJump(const FObject
     CancelAbilitiesWithTag.AddTag(STNativeGameplayTags::Ability_Movement_Crouch);
     CancelAbilitiesWithTag.AddTag(STNativeGameplayTags::Ability_Movement_Run);
 }
-
 
 void USTGameplayAbility_CharacterJump::ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
@@ -86,8 +81,6 @@ void USTGameplayAbility_CharacterJump::ActivateAbility(const FGameplayAbilitySpe
 
     CMC->DoJump(false);
 }
-
-
 
 void USTGameplayAbility_CharacterJump::ASSEndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {

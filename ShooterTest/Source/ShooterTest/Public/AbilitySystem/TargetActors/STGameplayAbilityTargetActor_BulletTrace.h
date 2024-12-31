@@ -3,11 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/TargetActor/ASSGameplayAbilityTargetActor.h"
+#include "ASSGameplayAbilityTargetActor.h"
 
 #include "STGameplayAbilityTargetActor_BulletTrace.generated.h"
-
-
 
 /**
  *

@@ -3,18 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/ASSAttributeSet.h"
-#include "AbilitySystemComponent.h"
+#include "AttributeSet.h"
+#include "ASSAttributeSetMacros.h"
 
 #include "STAttributeSet_CharacterMovement.generated.h"
-
-
 
 /**
  * This attribute set will be on every character. Add universal character attributes here - but avoid doing so if you can, try to make Attributes into modular Attribute Sets
  */
 UCLASS()
-class SHOOTERTEST_API USTAttributeSet_CharacterMovement : public UASSAttributeSet
+class SHOOTERTEST_API USTAttributeSet_CharacterMovement : public UAttributeSet
 {
     GENERATED_BODY()
 

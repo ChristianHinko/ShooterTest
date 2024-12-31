@@ -1,16 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Character/Abilities/STGameplayAbility_CharacterCrouch.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemComponent.h"
-#include "Utilities/ASSNativeGameplayTags.h"
-
-#include "Kismet/KismetSystemLibrary.h"
-
-
+#include "ASSNativeGameplayTags.h"
 
 USTGameplayAbility_CharacterCrouch::USTGameplayAbility_CharacterCrouch(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
@@ -21,7 +16,6 @@ USTGameplayAbility_CharacterCrouch::USTGameplayAbility_CharacterCrouch(const FOb
 
     CancelAbilitiesWithTag.AddTag(STNativeGameplayTags::Ability_Movement_Run);
 }
-
 
 void USTGameplayAbility_CharacterCrouch::ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
@@ -84,10 +78,6 @@ void USTGameplayAbility_CharacterCrouch::ActivateAbility(const FGameplayAbilityS
 
     CMC->Crouch();
 }
-
-
-
-
 
 void USTGameplayAbility_CharacterCrouch::ASSEndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {

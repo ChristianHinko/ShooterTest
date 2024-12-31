@@ -3,18 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/ASSAttributeSet.h"
-#include "AbilitySystemComponent.h"
+#include "AttributeSet.h"
+#include "ASSAttributeSetMacros.h"
 
 #include "STAttributeSet_Stamina.generated.h"
-
-
 
 /**
  *
  */
 UCLASS()
-class SHOOTERTEST_API USTAttributeSet_Stamina : public UASSAttributeSet
+class SHOOTERTEST_API USTAttributeSet_Stamina : public UAttributeSet
 {
     GENERATED_BODY()
 

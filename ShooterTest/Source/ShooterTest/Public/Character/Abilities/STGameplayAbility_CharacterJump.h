@@ -3,11 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/ASSGameplayAbility.h"
+#include "ASSGameplayAbility.h"
 
 #include "STGameplayAbility_CharacterJump.generated.h"
-
-
 
 /**
  * This is a nice minimal implementation of the CMC jumping into the ability system

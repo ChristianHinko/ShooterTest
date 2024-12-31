@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Character/STCharacter.h"
 
 #include "Net/UnrealNetwork.h"
@@ -14,19 +13,15 @@
 #include "Subobjects/ActorComponents/GSActorComponent_PawnExtension.h"
 #include "Character/AttributeSets/STAttributeSet_CharacterMovement.h"
 #include "ActorComponents/PSActorComponent_PawnExtension.h"
-
 #include "ActorComponents/ISActorComponent_PawnExtension.h"
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
 #include "InputTriggers.h"
-#include "Subsystems/ISEngineSubsystem_ObjectReferenceLibrary.h"
+#include "ISEngineSubsystem_ObjectReferenceLibrary.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
-
-
 DEFINE_LOG_CATEGORY_STATIC(LogCharacter, Log, All); // for some overriden ACharacter functions
-
 
 void ASTCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -36,7 +31,6 @@ void ASTCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
     DOREPLIFETIME_CONDITION(ASTCharacter, bIsRunning, COND_SimulatedOnly);
     DOREPLIFETIME_CONDITION(ASTCharacter, RemoteViewYaw, COND_SkipOwner); // we also do a custom condition for this in PreReplication() (but we aren't using COND_Custom because we still want to COND_SkipOwner)
 }
-
 
 const FName ASTCharacter::POVMeshComponentName = TEXT("POVMesh");
 
@@ -116,6 +110,7 @@ ASTCharacter::ASTCharacter(const FObjectInitializer& ObjectInitializer)
 
     bToggleRunAlwaysRun = false;
 }
+
 void ASTCharacter::PostInitProperties()
 {
     Super::PostInitProperties();
@@ -123,6 +118,7 @@ void ASTCharacter::PostInitProperties()
     // Set our configuration for this first/third person mode
     SetFirstPerson(bFirstPerson);
 }
+
 #if WITH_EDITOR
 void ASTCharacter::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
@@ -177,7 +173,6 @@ void ASTCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTra
     DOREPLIFETIME_ACTIVE_OVERRIDE(ASTCharacter, RemoteViewYaw, (bUseControllerRotationYaw == false));
 
 }
-
 
 void ASTCharacter::SetFirstPerson(bool newFirstPerson)
 {
@@ -236,6 +231,7 @@ void ASTCharacter::SetRemoteViewYaw(float NewRemoteViewYaw)
     NewRemoteViewYaw = FRotator::ClampAxis(NewRemoteViewYaw);
     RemoteViewYaw = (uint8)(NewRemoteViewYaw * 255.f / 360.f);
 }
+
 FRotator ASTCharacter::GetBaseAimRotation() const
 {
     FRotator POVRot = Super::GetBaseAimRotation();
@@ -341,7 +337,6 @@ void ASTCharacter::ClearJumpInput(float DeltaTime)
 }
 //  END Jump overriding
 
-
 void ASTCharacter::OnRep_IsRunning()
 {
     if (STCharacterMovementComponent.IsValid())
@@ -383,6 +378,7 @@ void ASTCharacter::Crouch(bool bClientSimulation)
 #endif
     }
 }
+
 void ASTCharacter::UnCrouch(bool bClientSimulation)
 {
     if (STCharacterMovementComponent.IsValid())
@@ -454,6 +450,7 @@ void ASTCharacter::OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust)
 
     CrouchTickFunction.SetTickFunctionEnable(true);
 }
+
 void ASTCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
 {
     //Super::OnEndCrouch(HeightAdjust, ScaledHeightAdjust);
@@ -534,6 +531,7 @@ void FCrouchTickFunction::ExecuteTick(float DeltaTime, ELevelTick TickType, ENam
         Target->CrouchTick(DeltaTime);
     }
 }
+
 void ASTCharacter::CrouchTick(float DeltaTime)
 {
     const FVector CameraBoomLoc = CameraBoom->GetRelativeLocation();
@@ -609,39 +607,41 @@ void ASTCharacter::PawnClientRestart()
     ISPawnExtensionComponent->OnOwnerPawnClientRestart();
 }
 
-void ASTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ASTCharacter::SetupPlayerInputComponent(UInputComponent* inPlayerInputComponent)
 {
-    Super::SetupPlayerInputComponent(PlayerInputComponent);
+    check(inPlayerInputComponent);
+    Super::SetupPlayerInputComponent(inPlayerInputComponent);
 
-    PSPawnExtensionComponent->OnOwnerSetupPlayerInputComponent(PlayerInputComponent);
+    PSPawnExtensionComponent->OnOwnerSetupPlayerInputComponent(inPlayerInputComponent);
 
-    UEnhancedInputComponent* PlayerEnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
-    if (IsValid(PlayerEnhancedInputComponent))
+    UEnhancedInputComponent* playerEnhancedInputComponent = Cast<UEnhancedInputComponent>(inPlayerInputComponent);
+    if (!playerEnhancedInputComponent)
     {
-        const UISEngineSubsystem_ObjectReferenceLibrary* InputSetupObjectReferenceLibrary = GEngine->GetEngineSubsystem<UISEngineSubsystem_ObjectReferenceLibrary>();
-        if (IsValid(InputSetupObjectReferenceLibrary))
-        {
-            const UInputAction* InputActionRun = InputSetupObjectReferenceLibrary->GetInputAction(STNativeGameplayTags::InputAction_Run);
-            if (IsValid(InputActionRun))
-            {
-                PlayerEnhancedInputComponent->BindAction(InputActionRun, ETriggerEvent::Started, this, &ThisClass::OnPressedRun);
-                PlayerEnhancedInputComponent->BindAction(InputActionRun, ETriggerEvent::Completed, this, &ThisClass::OnReleasedRun);
-            }
+        return;
+    }
 
-            const UInputAction* InputActionJump = InputSetupObjectReferenceLibrary->GetInputAction(STNativeGameplayTags::InputAction_Jump);
-            if (IsValid(InputActionJump))
-            {
-                PlayerEnhancedInputComponent->BindAction(InputActionJump, ETriggerEvent::Started, this, &ThisClass::OnPressedJump);
-                PlayerEnhancedInputComponent->BindAction(InputActionJump, ETriggerEvent::Completed, this, &ThisClass::OnReleasedJump);
-            }
+    check(GEngine);
+    const UISEngineSubsystem_ObjectReferenceLibrary& inputSetupAssetReferenceSubsystem = UISEngineSubsystem_ObjectReferenceLibrary::GetChecked(*GEngine);
 
-            const UInputAction* InputActionCrouch = InputSetupObjectReferenceLibrary->GetInputAction(STNativeGameplayTags::InputAction_Crouch);
-            if (IsValid(InputActionCrouch))
-            {
-                PlayerEnhancedInputComponent->BindAction(InputActionCrouch, ETriggerEvent::Started, this, &ThisClass::OnPressedCrouch);
-                PlayerEnhancedInputComponent->BindAction(InputActionCrouch, ETriggerEvent::Completed, this, &ThisClass::OnReleasedCrouch);
-            }
-        }
+    const UInputAction* InputActionRun = inputSetupAssetReferenceSubsystem.GetInputAction(STNativeGameplayTags::InputAction_Run);
+    if (IsValid(InputActionRun))
+    {
+        playerEnhancedInputComponent->BindAction(InputActionRun, ETriggerEvent::Started, this, &ThisClass::OnPressedRun);
+        playerEnhancedInputComponent->BindAction(InputActionRun, ETriggerEvent::Completed, this, &ThisClass::OnReleasedRun);
+    }
+
+    const UInputAction* InputActionJump = inputSetupAssetReferenceSubsystem.GetInputAction(STNativeGameplayTags::InputAction_Jump);
+    if (IsValid(InputActionJump))
+    {
+        playerEnhancedInputComponent->BindAction(InputActionJump, ETriggerEvent::Started, this, &ThisClass::OnPressedJump);
+        playerEnhancedInputComponent->BindAction(InputActionJump, ETriggerEvent::Completed, this, &ThisClass::OnReleasedJump);
+    }
+
+    const UInputAction* InputActionCrouch = inputSetupAssetReferenceSubsystem.GetInputAction(STNativeGameplayTags::InputAction_Crouch);
+    if (IsValid(InputActionCrouch))
+    {
+        playerEnhancedInputComponent->BindAction(InputActionCrouch, ETriggerEvent::Started, this, &ThisClass::OnPressedCrouch);
+        playerEnhancedInputComponent->BindAction(InputActionCrouch, ETriggerEvent::Completed, this, &ThisClass::OnReleasedCrouch);
     }
 }
 
@@ -666,6 +666,7 @@ void ASTCharacter::OnPressedRun()
         STCharacterMovementComponent->SetWantsToRun(true);
     }
 }
+
 void ASTCharacter::OnReleasedRun()
 {
     if (STCharacterMovementComponent->GetToggleRunEnabled() == false)
@@ -678,6 +679,7 @@ void ASTCharacter::OnPressedJump()
 {
     Jump();
 }
+
 void ASTCharacter::OnReleasedJump()
 {
     StopJumping();
@@ -701,6 +703,7 @@ void ASTCharacter::OnPressedCrouch()
         Crouch();
     }
 }
+
 void ASTCharacter::OnReleasedCrouch()
 {
     if (STCharacterMovementComponent->GetToggleCrouchEnabled() == false)

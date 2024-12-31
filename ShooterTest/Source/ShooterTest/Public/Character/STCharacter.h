@@ -7,7 +7,6 @@
 
 #include "STCharacter.generated.h"
 
-
 class USkeletalMeshComponent;
 class UCameraComponent;
 class USpringArmComponent;
@@ -18,8 +17,6 @@ class UInputAction;
 class UISActorComponent_PawnExtension;
 struct FInputActionValue;
 class UPSActorComponent_PawnExtension;
-
-
 
 /**
  * Handles physical animation while crouching/uncrouching
@@ -61,7 +58,7 @@ struct FCrouchTickFunction : public FTickFunction
     }
 };
 
-template<>
+template <>
 struct TStructOpsTypeTraits<FCrouchTickFunction> : public TStructOpsTypeTraitsBase2<FCrouchTickFunction>
 {
     enum

@@ -3,14 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/ASSGameplayAbility.h"
+#include "ASSGameplayAbility.h"
 
 #include "STGameplayAbility_CharacterCrouch.generated.h"
 
-
 class UCharacterMovementComponent;
-
-
 
 /**
  *

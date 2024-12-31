@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Inventory/STInventoryProcessor_Shooter.h"
 
 #include "Modular/ArcItemStackModular.h"
@@ -9,14 +8,12 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Modular/ArcItemStackModular.h"
 #include "Inventory/Item/Fragments/STItemFragment_BulletSpread.h"
-#include "Subobjects/ASSActorComponent_AvatarActorExtension.h"
+#include "ActorComponents/ASSActorComponent_AvatarActorExtension.h"
 #include "GCUtils_ObjectTraversal.h"
 #include "Inventory/Item/Fragments/AIEItemFragment_UIData.h"
 #include "Inventory/Item/Fragments/STItemFragment_ClipAmmo.h"
 #include "Inventory/AIEBlueprintFunctionLibrary_Inventory.h"
 #include "Blueprint/UserWidget.h"
-
-
 
 USTInventoryProcessor_Shooter::USTInventoryProcessor_Shooter()
 {
@@ -34,7 +31,6 @@ void USTInventoryProcessor_Shooter::OnInventoryInit_Implementation()
         AvatarActorExtensionComponent->OnInitializeAbilitySystemComponentDelegate.AddUObject(this, &USTInventoryProcessor_Shooter::OnInitializeAbilitySystemComponent);
     }
 }
-
 
 void USTInventoryProcessor_Shooter::OnInitializeAbilitySystemComponent(UAbilitySystemComponent& ASC)
 {
@@ -76,7 +72,6 @@ void USTInventoryProcessor_Shooter::OnItemSlotChange_Implementation(const FArcIn
         }
     }
 }
-
 
 void USTInventoryProcessor_Shooter::MakeItemActive(int32 NewActiveItemSlot)
 {

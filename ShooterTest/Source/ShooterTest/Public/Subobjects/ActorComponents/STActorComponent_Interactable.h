@@ -6,10 +6,9 @@
 #include "Components/ActorComponent.h"
 #include "Interfaces/STInteractableInterface.h"
 #include "GameplayAbilitySpec.h"
-#include "AbilitySystem/ASSGameplayAbility.h"
+#include "ASSGameplayAbility.h"
 
 #include "STActorComponent_Interactable.generated.h"
-
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SHOOTERTEST_API USTActorComponent_Interactable : public UActorComponent, public ISTInteractableInterface

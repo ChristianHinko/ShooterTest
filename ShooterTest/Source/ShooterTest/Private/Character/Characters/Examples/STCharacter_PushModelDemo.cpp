@@ -1,19 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Character/Characters/Examples/STCharacter_PushModelDemo.h"
 
 #include "Net/UnrealNetwork.h"
 #include "Net/Core/PushModel/PushModel.h"
-
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
 #include "InputTriggers.h"
-#include "Subsystems/ISEngineSubsystem_ObjectReferenceLibrary.h"
-
-#include "Kismet/KismetSystemLibrary.h"
-
-
+#include "ISEngineSubsystem_ObjectReferenceLibrary.h"
+#include "GCPrintToScreen.h"
 
 void ASTCharacter_PushModelDemo::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -29,40 +24,37 @@ void ASTCharacter_PushModelDemo::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 ASTCharacter_PushModelDemo::ASTCharacter_PushModelDemo(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
-
 }
-
 
 void ASTCharacter_PushModelDemo::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
-
-    UKismetSystemLibrary::PrintString(this, "MyPushModelFloat: " + FString::SanitizeFloat(MyPushModelFloat), true, false);
+    FGCPrintToScreen(this, FString::Printf(TEXT("My push model float: `%f`."), MyPushModelFloat));
 }
 
-void ASTCharacter_PushModelDemo::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ASTCharacter_PushModelDemo::SetupPlayerInputComponent(UInputComponent* inPlayerInputComponent)
 {
-    Super::SetupPlayerInputComponent(PlayerInputComponent);
+    check(inPlayerInputComponent);
+    Super::SetupPlayerInputComponent(inPlayerInputComponent);
 
-    UEnhancedInputComponent* PlayerEnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
-    if (IsValid(PlayerEnhancedInputComponent))
+    UEnhancedInputComponent* playerEnhancedInputComponent = Cast<UEnhancedInputComponent>(inPlayerInputComponent);
+    if (!ensure(playerEnhancedInputComponent))
     {
-        const UISEngineSubsystem_ObjectReferenceLibrary* InputSetupObjectReferenceLibrary = GEngine->GetEngineSubsystem<UISEngineSubsystem_ObjectReferenceLibrary>();
-        if (IsValid(InputSetupObjectReferenceLibrary))
-        {
-            const UInputAction* InputActionPrimaryFire = InputSetupObjectReferenceLibrary->GetInputAction(STNativeGameplayTags::InputAction_PrimaryFire);
-            if (IsValid(InputActionPrimaryFire))
-            {
-                PlayerEnhancedInputComponent->BindAction(InputActionPrimaryFire, ETriggerEvent::Started, this, &ThisClass::OnPressedPrimaryFire);
-            }
+        return;
+    }
 
-            const UInputAction* InputActionSecondaryFire = InputSetupObjectReferenceLibrary->GetInputAction(STNativeGameplayTags::InputAction_SecondaryFire);
-            if (IsValid(InputActionSecondaryFire))
-            {
-                PlayerEnhancedInputComponent->BindAction(InputActionSecondaryFire, ETriggerEvent::Started, this, &ThisClass::OnPressedSecondaryFire);
-            }
-        }
+    check(GEngine);
+    const UISEngineSubsystem_ObjectReferenceLibrary& inputSetupAssetReferenceSubsystem = UISEngineSubsystem_ObjectReferenceLibrary::GetChecked(*GEngine);
+
+    if (const UInputAction* inputActionPrimaryFire = inputSetupAssetReferenceSubsystem.GetInputAction(STNativeGameplayTags::InputAction_PrimaryFire))
+    {
+        playerEnhancedInputComponent->BindAction(inputActionPrimaryFire, ETriggerEvent::Started, this, &ThisClass::OnPressedPrimaryFire);
+    }
+
+    if (const UInputAction* inputActionSecondaryFire = inputSetupAssetReferenceSubsystem.GetInputAction(STNativeGameplayTags::InputAction_SecondaryFire))
+    {
+        playerEnhancedInputComponent->BindAction(inputActionSecondaryFire, ETriggerEvent::Started, this, &ThisClass::OnPressedSecondaryFire);
     }
 }
 
@@ -70,13 +62,15 @@ void ASTCharacter_PushModelDemo::OnPressedPrimaryFire()
 {
     ServerOnPressedPrimaryFire();
 }
+
 bool ASTCharacter_PushModelDemo::ServerOnPressedPrimaryFire_Validate()
 {
     return true;
 }
+
 void ASTCharacter_PushModelDemo::ServerOnPressedPrimaryFire_Implementation()
 {
-    UKismetSystemLibrary::PrintString(this, "SET MARKED DIRTY", true, false, FLinearColor::Green);
+    FGCPrintToScreen(this, TEXT("SET MARKED DIRTY")).Color(FColor::Green);
     SetMyPushModelFloat(MyPushModelFloat + 5);
 }
 
@@ -84,13 +78,15 @@ void ASTCharacter_PushModelDemo::OnPressedSecondaryFire()
 {
     ServerOnPressedSecondaryFire();
 }
+
 bool ASTCharacter_PushModelDemo::ServerOnPressedSecondaryFire_Validate()
 {
     return true;
 }
+
 void ASTCharacter_PushModelDemo::ServerOnPressedSecondaryFire_Implementation()
 {
-    UKismetSystemLibrary::PrintString(this, "SET NO DIRTY", true, false, FLinearColor::Red);
+    FGCPrintToScreen(this, TEXT("SET NO DIRTY")).Color(FColor::Red);
     MyPushModelFloat = MyPushModelFloat + 5;
 }
 

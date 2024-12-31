@@ -1,8 +1,10 @@
-# Visual Studio
+# Visual Studio makes this sometimes.
 .vsconfig
-enc_temp_folder/* # Visual Studio debugging sometimes makes this folder
 
-##############################################################################
+# Debugging in Visual Studio creates this folder sometimes.
+enc_temp_folder/*
+
+# The rest is taken from the "UnrealEngine.gitignore" of https://github.com/github/gitignore.
 
 # Visual Studio 2015 user specific files
 .vs/
@@ -53,7 +55,7 @@ SourceArt/**/*.tga
 
 # Binary Files
 Binaries/*
-Plugins/*/Binaries/*
+Plugins/**/Binaries/*
 
 # Builds
 Build/*
@@ -74,7 +76,7 @@ Saved/*
 
 # Compiled source files for the engine to use
 Intermediate/*
-Plugins/*/Intermediate/*
+Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*

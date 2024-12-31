@@ -270,7 +270,7 @@ void USTGameplayAbility_FireGun::ActivateAbility(const FGameplayAbilitySpecHandl
         UASSEAbilityTask_WaitInputRelease& task =
             UASSEAbilityTask_WaitInputRelease::CreateTask(*this, shouldTestInitialState, canBroadcastMultibleTimes);
 
-        task.OnReleaseNativeDelegate.AddUObject(this, &ThisClass::OnRelease);
+        task.OnReleaseNativeDelegate.BindUObject(this, &ThisClass::OnRelease);
         task.ReadyForActivation();
     }
 
@@ -282,7 +282,7 @@ void USTGameplayAbility_FireGun::ActivateAbility(const FGameplayAbilitySpecHandl
         UASSEAbilityTask_WaitInputPress& task =
             UASSEAbilityTask_WaitInputPress::CreateTask(*this, shouldTestInitialState, canBroadcastMultibleTimes);
 
-        task.OnPressNativeDelegate.AddUObject(this, &ThisClass::OnPress);
+        task.OnPressNativeDelegate.BindUObject(this, &ThisClass::OnPress);
         task.ReadyForActivation();
     }
 
@@ -310,7 +310,7 @@ void USTGameplayAbility_FireGun::ActivateAbility(const FGameplayAbilitySpecHandl
     }
 
     check(TickerTask);
-    TickerTask->OnTickNativeDelegate.AddUObject(this, &USTGameplayAbility_FireGun::OnShootTick);
+    TickerTask->OnTickNativeDelegate.BindUObject(this, &USTGameplayAbility_FireGun::OnShootTick);
     TickerTask->ReadyForActivation();
 
     // If we ended ability within the above functions, return here (this is important for if we want to do further logic after)
@@ -325,7 +325,10 @@ void USTGameplayAbility_FireGun::ActivateAbility(const FGameplayAbilitySpecHandl
 }
 
 
-void USTGameplayAbility_FireGun::OnShootTick(float inDeltaTime, float inCurrentTime, float inTimeRemaining)
+void USTGameplayAbility_FireGun::OnShootTick(
+    const float inDeltaTime,
+    const float inCurrentTime,
+    const float inTimeRemaining)
 {
     // No burst
     if (IsBurst() == false)
@@ -452,12 +455,12 @@ void USTGameplayAbility_FireGun::Shoot()
 }
 
 
-void USTGameplayAbility_FireGun::OnPress(float inTimeWaited)
+void USTGameplayAbility_FireGun::OnPress(const float inTimeWaited)
 {
     bInputPressed = true;
 }
 
-void USTGameplayAbility_FireGun::OnRelease(float inTimeHeld)
+void USTGameplayAbility_FireGun::OnRelease(const float inTimeHeld)
 {
     bInputPressed = false;
 

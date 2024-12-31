@@ -3,21 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/GameplayCue/ASSGameplayCueManager.h"
+#include "GameplayCueManager.h"
 
 #include "STGameplayCueManager.generated.h"
 
-
-
 /**
- * Our custom GameplayCueManager
+ * Our custom gameplay cue manager.
  */
 UCLASS()
-class SHOOTERTEST_API USTGameplayCueManager : public UASSGameplayCueManager
+class SHOOTERTEST_API USTGameplayCueManager : public UGameplayCueManager
 {
     GENERATED_BODY()
 
 public:
-    virtual void FlushPendingCues() override;
 
+    // ~ UGameplayCueManager overrides.
+    virtual void FlushPendingCues() override;
+    // ~ UGameplayCueManager overrides.
 };

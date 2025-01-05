@@ -8,7 +8,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "ActorComponents/ASSActorComponent_AvatarActorExtension.h"
-#include "ASSAbilitySystemBlueprintLibrary.h"
+#include "ASSUtils.h"
 #include "GCUtils.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -86,7 +86,7 @@ void USTCharacterMovementComponent::OnInitializeAbilitySystemComponent(UAbilityS
 {
     OwnerASC = &asc;
 
-    CharacterMovementAttributeSet = UASSAbilitySystemBlueprintLibrary::GetAttributeSetCasted<USTAttributeSet_CharacterMovement>(&asc);
+    CharacterMovementAttributeSet = ASSUtils::GetAttributeSetCasted<USTAttributeSet_CharacterMovement>(&asc);
 
     // Bind to Tag change delegates
     asc.RegisterGameplayTagEvent(STNativeGameplayTags::Character_RunDisabled, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &USTCharacterMovementComponent::OnRunDisabledTagChanged);

@@ -15,7 +15,7 @@
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
 #include "InputTriggers.h"
-#include "ISEngineSubsystem_ObjectReferenceLibrary.h"
+#include "ISEngineSubsystem_InputActionAssetReferences.h"
 
 const FName ASTCharacter_Shooter::InventoryComponentName = TEXT("InventoryComponent");
 
@@ -217,9 +217,9 @@ void ASTCharacter_Shooter::SetupPlayerInputComponent(UInputComponent* inPlayerIn
     }
 
     check(GEngine);
-    const UISEngineSubsystem_ObjectReferenceLibrary& inputSetupAssetReferenceSubsystem = UISEngineSubsystem_ObjectReferenceLibrary::GetChecked(*GEngine);
+    const UISEngineSubsystem_InputActionAssetReferences& inputActionAssetReferenceSubsystem = UISEngineSubsystem_InputActionAssetReferences::GetChecked(*GEngine);
 
-    if (const UInputAction* inputActionInteract = inputSetupAssetReferenceSubsystem.GetInputAction(STNativeGameplayTags::InputAction_Interact))
+    if (const UInputAction* inputActionInteract = inputActionAssetReferenceSubsystem.GetInputAction(STNativeGameplayTags::InputAction_Interact))
     {
         playerEnhancedInputComponent->BindAction(inputActionInteract, ETriggerEvent::Started, this, &ThisClass::OnPressedInteract);
     }

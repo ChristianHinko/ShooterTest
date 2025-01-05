@@ -7,7 +7,7 @@
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
 #include "InputTriggers.h"
-#include "ISEngineSubsystem_ObjectReferenceLibrary.h"
+#include "ISEngineSubsystem_InputActionAssetReferences.h"
 #include "GCPrintToScreen.h"
 
 void ASTCharacter_PushModelDemo::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -45,14 +45,14 @@ void ASTCharacter_PushModelDemo::SetupPlayerInputComponent(UInputComponent* inPl
     }
 
     check(GEngine);
-    const UISEngineSubsystem_ObjectReferenceLibrary& inputSetupAssetReferenceSubsystem = UISEngineSubsystem_ObjectReferenceLibrary::GetChecked(*GEngine);
+    const UISEngineSubsystem_InputActionAssetReferences& inputActionAssetReferenceSubsystem = UISEngineSubsystem_InputActionAssetReferences::GetChecked(*GEngine);
 
-    if (const UInputAction* inputActionPrimaryFire = inputSetupAssetReferenceSubsystem.GetInputAction(STNativeGameplayTags::InputAction_PrimaryFire))
+    if (const UInputAction* inputActionPrimaryFire = inputActionAssetReferenceSubsystem.GetInputAction(STNativeGameplayTags::InputAction_PrimaryFire))
     {
         playerEnhancedInputComponent->BindAction(inputActionPrimaryFire, ETriggerEvent::Started, this, &ThisClass::OnPressedPrimaryFire);
     }
 
-    if (const UInputAction* inputActionSecondaryFire = inputSetupAssetReferenceSubsystem.GetInputAction(STNativeGameplayTags::InputAction_SecondaryFire))
+    if (const UInputAction* inputActionSecondaryFire = inputActionAssetReferenceSubsystem.GetInputAction(STNativeGameplayTags::InputAction_SecondaryFire))
     {
         playerEnhancedInputComponent->BindAction(inputActionSecondaryFire, ETriggerEvent::Started, this, &ThisClass::OnPressedSecondaryFire);
     }

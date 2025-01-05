@@ -5,7 +5,7 @@
 #include "AbilitySystemComponent.h"
 #include "ASSAbilityTask_WaitTargetData.h"
 #include "AbilitySystem/TargetActors/STGameplayAbilityTargetActor_BulletTrace.h"
-#include "ASSAbilitySystemBlueprintLibrary.h"
+#include "ASSUtils.h"
 #include "Types/ASSGameplayTargetDataFilter.h"
 #include "Utilities/STCollisionChannels.h"
 #include "Inventory/Item/Gun/STAttributeSet_Gun.h"
@@ -116,7 +116,7 @@ void USTGameplayAbility_FireGun::OnGiveAbility(const FGameplayAbilityActorInfo* 
 
     FASSGameplayTargetDataFilter_MultiFilter MultiFilter = FASSGameplayTargetDataFilter_MultiFilter();
     MultiFilter.bOnlyAcceptAbilitySystemInterfaces = true;
-    BulletTraceTargetActor->Filter = UASSAbilitySystemBlueprintLibrary::MakeMultiFilterHandle(MultiFilter, ActorInfo->AvatarActor.Get());
+    BulletTraceTargetActor->Filter = ASSUtils::MakeMultiFilterHandle(MultiFilter, ActorInfo->AvatarActor.Get());
 
     UGameplayStatics::FinishSpawningActor(BulletTraceTargetActor, FTransform());
 }

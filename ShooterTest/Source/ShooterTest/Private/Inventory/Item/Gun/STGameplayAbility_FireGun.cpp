@@ -32,9 +32,9 @@ USTGameplayAbility_FireGun::USTGameplayAbility_FireGun(const FObjectInitializer&
     bInputPressed = false;
 }
 
-void USTGameplayAbility_FireGun::ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void USTGameplayAbility_FireGun::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-    Super::ASSOnAvatarSet(ActorInfo, Spec);
+    Super::OnAvatarSet(ActorInfo, Spec);
 }
 
 // This ability is only given to the player while his Gun is active

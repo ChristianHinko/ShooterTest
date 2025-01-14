@@ -15,9 +15,9 @@ USTGameplayAbility_CharacterInstantInteract::USTGameplayAbility_CharacterInstant
     AbilityTags.AddTag(STNativeGameplayTags::Ability_Interact_InstantInteract);
 }
 
-void USTGameplayAbility_CharacterInstantInteract::ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void USTGameplayAbility_CharacterInstantInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-    Super::ASSOnAvatarSet(ActorInfo, Spec);
+    Super::OnAvatarSet(ActorInfo, Spec);
 }
 
 bool USTGameplayAbility_CharacterInstantInteract::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const

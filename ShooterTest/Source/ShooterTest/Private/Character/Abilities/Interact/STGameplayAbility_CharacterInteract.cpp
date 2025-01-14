@@ -16,9 +16,9 @@ USTGameplayAbility_CharacterInteract::USTGameplayAbility_CharacterInteract(const
     AbilityTags.AddTag(STNativeGameplayTags::InputAction_Interact);
 }
 
-void USTGameplayAbility_CharacterInteract::ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void USTGameplayAbility_CharacterInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-    Super::ASSOnAvatarSet(ActorInfo, Spec);
+    Super::OnAvatarSet(ActorInfo, Spec);
 
     // Good place to cache references so we don't have to cast every time
     if (!ActorInfo)

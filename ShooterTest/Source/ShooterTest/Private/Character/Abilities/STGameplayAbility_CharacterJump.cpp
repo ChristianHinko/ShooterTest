@@ -20,9 +20,9 @@ USTGameplayAbility_CharacterJump::USTGameplayAbility_CharacterJump(const FObject
     CancelAbilitiesWithTag.AddTag(STNativeGameplayTags::Ability_Movement_Run);
 }
 
-void USTGameplayAbility_CharacterJump::ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void USTGameplayAbility_CharacterJump::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-    Super::ASSOnAvatarSet(ActorInfo, Spec);
+    Super::OnAvatarSet(ActorInfo, Spec);
 
     // Good place to cache references so we don't have to cast every time
 }

@@ -8,6 +8,7 @@
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "Character/AbilityTasks/STAbilityTask_DurationInteractCallbacks.h"
 #include "Subobjects/ActorComponents/STActorComponent_Interactor.h"
+#include "AbilitySystemComponent.h"
 
 
 USTGameplayAbility_CharacterDurationInteract::USTGameplayAbility_CharacterDurationInteract(const FObjectInitializer& ObjectInitializer)
@@ -16,9 +17,9 @@ USTGameplayAbility_CharacterDurationInteract::USTGameplayAbility_CharacterDurati
     AbilityTags.AddTag(STNativeGameplayTags::Ability_Interact_DurationInteract);
 }
 
-void USTGameplayAbility_CharacterDurationInteract::ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void USTGameplayAbility_CharacterDurationInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-    Super::ASSOnAvatarSet(ActorInfo, Spec);
+    Super::OnAvatarSet(ActorInfo, Spec);
 }
 
 bool USTGameplayAbility_CharacterDurationInteract::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const

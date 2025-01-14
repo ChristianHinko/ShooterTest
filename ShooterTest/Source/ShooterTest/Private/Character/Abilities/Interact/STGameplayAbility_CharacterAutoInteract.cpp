@@ -37,9 +37,9 @@ USTGameplayAbility_CharacterAutoInteract::USTGameplayAbility_CharacterAutoIntera
     // Probably make this an InstancedPerActor passive ability to handle all automatic interactions. Since it will be passive the ability will never end than thus we don't need to do Durration End callbacks inside EndAbility(). We can just do them where ever
 }
 
-void USTGameplayAbility_CharacterAutoInteract::ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void USTGameplayAbility_CharacterAutoInteract::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-    Super::ASSOnAvatarSet(ActorInfo, Spec);
+    Super::OnAvatarSet(ActorInfo, Spec);
 
     // Good place to cache references so we don't have to cast every time
     if (!ActorInfo)

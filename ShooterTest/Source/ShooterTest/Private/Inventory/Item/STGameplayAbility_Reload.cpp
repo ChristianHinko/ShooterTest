@@ -17,9 +17,9 @@ USTGameplayAbility_Reload::USTGameplayAbility_Reload(const FObjectInitializer& O
     AbilityTags.AddTag(STNativeGameplayTags::Ability_Reload);
 }
 
-void USTGameplayAbility_Reload::ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void USTGameplayAbility_Reload::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-    Super::ASSOnAvatarSet(ActorInfo, Spec);
+    Super::OnAvatarSet(ActorInfo, Spec);
 
     if (!ActorInfo)
     {

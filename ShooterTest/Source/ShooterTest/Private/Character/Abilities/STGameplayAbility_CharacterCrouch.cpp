@@ -17,9 +17,9 @@ USTGameplayAbility_CharacterCrouch::USTGameplayAbility_CharacterCrouch(const FOb
     CancelAbilitiesWithTag.AddTag(STNativeGameplayTags::Ability_Movement_Run);
 }
 
-void USTGameplayAbility_CharacterCrouch::ASSOnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+void USTGameplayAbility_CharacterCrouch::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
-    Super::ASSOnAvatarSet(ActorInfo, Spec);
+    Super::OnAvatarSet(ActorInfo, Spec);
 
     // Good place to cache references so we don't have to cast every time
     if (!ActorInfo)

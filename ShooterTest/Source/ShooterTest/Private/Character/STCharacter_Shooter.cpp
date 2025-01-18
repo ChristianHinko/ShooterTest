@@ -54,7 +54,6 @@ void ASTCharacter_Shooter::BeginPlay()
 #include "ArcItemBPFunctionLibrary.h"
 #include "Character/STCharacterMovementComponent.h"
 #include "AbilitySystem/AbilitySystemComponents/STAbilitySystemComponent_Shooter.h"
-#include "ASSAbilitySystemComponent.h"
 #include "AbilitySystem/AttributeSets/STAttributeSet_Stamina.h"
 #include "Modular/ArcItemStackModular.h"
 #include "Inventory/Item/Fragments/STItemFragment_BulletSpread.h"

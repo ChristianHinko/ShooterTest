@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ASSAbilitySystemComponent.h"
+#include "ActorComponents/ASSActorComponent_AbilitySystemComponentExample.h"
 
 #include "STAbilitySystemComponent_Shooter.generated.h"
 
@@ -11,7 +11,7 @@
  * Shooter-specific ASC.
  */
 UCLASS()
-class SHOOTERTEST_API USTAbilitySystemComponent_Shooter : public UASSAbilitySystemComponent
+class SHOOTERTEST_API USTAbilitySystemComponent_Shooter : public UASSActorComponent_AbilitySystemComponentExample
 {
     GENERATED_BODY()
 

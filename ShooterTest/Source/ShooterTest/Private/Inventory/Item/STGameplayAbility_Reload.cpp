@@ -146,9 +146,14 @@ void USTGameplayAbility_Reload::ActivateAbility(const FGameplayAbilitySpecHandle
 
 
 
-void USTGameplayAbility_Reload::ASSEndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void USTGameplayAbility_Reload::ASSEndAbility(
+    const FGameplayAbilitySpecHandle& inSpecHandle,
+    const FGameplayAbilityActorInfo& inActorInfo,
+    const FGameplayAbilityActivationInfo& inActivationInfo,
+    const bool inShouldReplicateEndAbility,
+    const bool inWasCanceled)
 {
-    ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(ReloadingEffectActiveHandle);
+    inActorInfo.AbilitySystemComponent->RemoveActiveGameplayEffect(ReloadingEffectActiveHandle);
 
-    Super::ASSEndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+    Super::ASSEndAbility(inSpecHandle, inActorInfo, inActivationInfo, inShouldReplicateEndAbility, inWasCanceled);
 }

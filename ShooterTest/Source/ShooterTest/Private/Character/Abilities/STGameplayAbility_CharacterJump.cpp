@@ -82,26 +82,26 @@ void USTGameplayAbility_CharacterJump::ActivateAbility(const FGameplayAbilitySpe
     CMC->DoJump(false);
 }
 
-void USTGameplayAbility_CharacterJump::ASSEndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void USTGameplayAbility_CharacterJump::ASSEndAbility(
+    const FGameplayAbilitySpecHandle& inSpecHandle,
+    const FGameplayAbilityActorInfo& inActorInfo,
+    const FGameplayAbilityActivationInfo& inActivationInfo,
+    const bool inShouldReplicateEndAbility,
+    const bool inWasCanceled)
 {
-    if (const FSTGameplayAbilityActorInfo* STActorInfo = static_cast<const FSTGameplayAbilityActorInfo*>(ActorInfo))
+    const FSTGameplayAbilityActorInfo& STActorInfo = static_cast<const FSTGameplayAbilityActorInfo&>(inActorInfo);
+
+    if (USTCharacterMovementComponent* CMC = STActorInfo.STCharacterMovementComponent.Get())
     {
-        if (USTCharacterMovementComponent* CMC = STActorInfo->STCharacterMovementComponent.Get())
-        {
-            CMC->UnJump();
-        }
-        else
-        {
-            UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() CMC was NULL when trying to UnJump"), ANSI_TO_TCHAR(__FUNCTION__));
-        }
+        CMC->UnJump();
     }
     else
     {
-        UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() STActorInfo was NULL when trying to UnJump"), ANSI_TO_TCHAR(__FUNCTION__));
+        UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() CMC was NULL when trying to UnJump"), ANSI_TO_TCHAR(__FUNCTION__));
     }
 
-    ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(JumpEffectActiveHandle);
+    inActorInfo.AbilitySystemComponent->RemoveActiveGameplayEffect(JumpEffectActiveHandle);
 
 
-    Super::ASSEndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+    Super::ASSEndAbility(inSpecHandle, inActorInfo, inActivationInfo, inShouldReplicateEndAbility, inWasCanceled);
 }

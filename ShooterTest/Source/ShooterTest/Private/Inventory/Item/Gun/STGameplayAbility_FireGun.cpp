@@ -528,7 +528,12 @@ void USTGameplayAbility_FireGun::OnCancelled(const FGameplayAbilityTargetDataHan
     EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }
 
-void USTGameplayAbility_FireGun::ASSEndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void USTGameplayAbility_FireGun::ASSEndAbility(
+    const FGameplayAbilitySpecHandle& inSpecHandle,
+    const FGameplayAbilityActorInfo& inActorInfo,
+    const FGameplayAbilityActivationInfo& inActivationInfo,
+    const bool inShouldReplicateEndAbility,
+    const bool inWasCanceled)
 {
     // Store when this fire ended so next fire can determine fire rate
     TimestampPreviousFireEnd = GetWorld()->GetTimeSeconds();
@@ -537,9 +542,9 @@ void USTGameplayAbility_FireGun::ASSEndAbility(const FGameplayAbilitySpecHandle 
     ShotNumber = 0;
     TimesBursted = 0;
 
-    if (ActorInfo->AbilitySystemComponent.Get())
+    if (inActorInfo.AbilitySystemComponent.Get())
     {
-        ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(IsFiringGunEffectActiveHandle);
+        inActorInfo.AbilitySystemComponent->RemoveActiveGameplayEffect(IsFiringGunEffectActiveHandle);
     }
     else
     {
@@ -547,7 +552,7 @@ void USTGameplayAbility_FireGun::ASSEndAbility(const FGameplayAbilitySpecHandle 
     }
 
 
-    Super::ASSEndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+    Super::ASSEndAbility(inSpecHandle, inActorInfo, inActivationInfo, inShouldReplicateEndAbility, inWasCanceled);
 }
 
 //  BEGIN Attribute Set helpers

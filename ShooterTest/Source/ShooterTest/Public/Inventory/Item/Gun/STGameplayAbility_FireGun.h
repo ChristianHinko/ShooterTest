@@ -52,10 +52,16 @@ protected:
     virtual bool CheckCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
     virtual bool CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
     virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
-
-    virtual void ASSEndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
     //  END UGameplayAbility Interface
 
+    // ~ IASSGameplayAbilityExtensionInterface overrides.
+    virtual void ASSEndAbility(
+        const FGameplayAbilitySpecHandle& inSpecHandle,
+        const FGameplayAbilityActorInfo& inActorInfo,
+        const FGameplayAbilityActivationInfo& inActivationInfo,
+        const bool inShouldReplicateEndAbility,
+        const bool inWasCanceled) override;
+    // ~ IASSGameplayAbilityExtensionInterface overrides.
 
     /**
      * Our gun source object

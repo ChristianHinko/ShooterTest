@@ -155,13 +155,18 @@ void USTGameplayAbility_CharacterDurationInteract::OnSuccessfullInteract(float T
 
 
 
-void USTGameplayAbility_CharacterDurationInteract::ASSEndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void USTGameplayAbility_CharacterDurationInteract::ASSEndAbility(
+    const FGameplayAbilitySpecHandle& inSpecHandle,
+    const FGameplayAbilityActorInfo& inActorInfo,
+    const FGameplayAbilityActivationInfo& inActivationInfo,
+    const bool inShouldReplicateEndAbility,
+    const bool inWasCanceled)
 {
-    if (ActorInfo->AbilitySystemComponent.Get())
+    if (inActorInfo.AbilitySystemComponent.Get())
     {
         if (InteractEffectActiveHandle.IsValid())
         {
-            ActorInfo->AbilitySystemComponent.Get()->RemoveActiveGameplayEffect(InteractEffectActiveHandle);
+            inActorInfo.AbilitySystemComponent.Get()->RemoveActiveGameplayEffect(InteractEffectActiveHandle);
         }
     }
     else
@@ -206,7 +211,7 @@ void USTGameplayAbility_CharacterDurationInteract::ASSEndAbility(const FGameplay
 
 
 
-    Super::ASSEndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+    Super::ASSEndAbility(inSpecHandle, inActorInfo, inActivationInfo, inShouldReplicateEndAbility, inWasCanceled);
 
 
 

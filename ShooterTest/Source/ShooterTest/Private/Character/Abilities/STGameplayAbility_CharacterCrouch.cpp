@@ -79,7 +79,12 @@ void USTGameplayAbility_CharacterCrouch::ActivateAbility(const FGameplayAbilityS
     CMC->Crouch();
 }
 
-void USTGameplayAbility_CharacterCrouch::ASSEndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void USTGameplayAbility_CharacterCrouch::ASSEndAbility(
+    const FGameplayAbilitySpecHandle& inSpecHandle,
+    const FGameplayAbilityActorInfo& inActorInfo,
+    const FGameplayAbilityActivationInfo& inActivationInfo,
+    const bool inShouldReplicateEndAbility,
+    const bool inWasCanceled)
 {
     CMC->UnCrouch();
 
@@ -89,9 +94,9 @@ void USTGameplayAbility_CharacterCrouch::ASSEndAbility(const FGameplayAbilitySpe
         return;
     }
 
-    ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(CrouchingEffectActiveHandle);
+    inActorInfo.AbilitySystemComponent->RemoveActiveGameplayEffect(CrouchingEffectActiveHandle);
 
 
 
-    Super::ASSEndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+    Super::ASSEndAbility(inSpecHandle, inActorInfo, inActivationInfo, inShouldReplicateEndAbility, inWasCanceled);
 }

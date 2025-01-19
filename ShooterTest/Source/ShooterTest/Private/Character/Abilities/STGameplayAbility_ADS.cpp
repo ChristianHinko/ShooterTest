@@ -86,26 +86,24 @@ void USTGameplayAbility_ADS::OnRelease(float TimeHeld)
     EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);    // no need to replicate, server runs this too
 }
 
-void USTGameplayAbility_ADS::ASSEndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void USTGameplayAbility_ADS::ASSEndAbility(
+    const FGameplayAbilitySpecHandle& inSpecHandle,
+    const FGameplayAbilityActorInfo& inActorInfo,
+    const FGameplayAbilityActivationInfo& inActivationInfo,
+    const bool inShouldReplicateEndAbility,
+    const bool inWasCanceled)
 {
-    if (ActorInfo)
+    ACharacter* Character = CastChecked<ACharacter>(inActorInfo.AvatarActor.Get());
+    if (Character && inActorInfo.AbilitySystemComponent.Get())
     {
-        ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get());
-        if (Character && ActorInfo->AbilitySystemComponent.Get())
-        {
-            //Character->StopADSing();
-            ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(ADSEffectActiveHandle);
-        }
-        else
-        {
-            UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() Couldn't call Character->StopADSing() or remove ADSEffectActiveHandle because Character* was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
-        }
+        //Character->StopADSing();
+        inActorInfo.AbilitySystemComponent->RemoveActiveGameplayEffect(ADSEffectActiveHandle);
     }
     else
     {
-        UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() ActorInfo was NULL when trying to remove ADSEffectActiveHande and when trying to call StopADSing on the character"), ANSI_TO_TCHAR(__FUNCTION__));
+        UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() Couldn't call Character->StopADSing() or remove ADSEffectActiveHandle because Character* was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
     }
 
 
-    Super::ASSEndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+    Super::ASSEndAbility(inSpecHandle, inActorInfo, inActivationInfo, inShouldReplicateEndAbility, inWasCanceled);
 }

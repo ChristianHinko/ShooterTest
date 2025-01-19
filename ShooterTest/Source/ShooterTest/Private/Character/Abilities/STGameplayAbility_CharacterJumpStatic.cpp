@@ -81,24 +81,22 @@ void USTGameplayAbility_CharacterJumpStatic::InputReleased(const FGameplayAbilit
     a montage that has callbacks (meaning it's an async task) then make sure your ok with always stopping the montage every time when the ability ends, because I guess rolling
     back the montage won't work? And also weird that they are talking about doing an async task inside a Non-Instanced ability. Maybe it's not async. Idk
  */
-void USTGameplayAbility_CharacterJumpStatic::ASSEndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void USTGameplayAbility_CharacterJumpStatic::ASSEndAbility(
+    const FGameplayAbilitySpecHandle& inSpecHandle,
+    const FGameplayAbilityActorInfo& inActorInfo,
+    const FGameplayAbilityActivationInfo& inActivationInfo,
+    const bool inShouldReplicateEndAbility,
+    const bool inWasCanceled)
 {
-    if (ActorInfo)
+    if (ACharacter* Character = CastChecked<ACharacter>(inActorInfo.AvatarActor.Get()))
     {
-        if (ACharacter* Character = CastChecked<ACharacter>(ActorInfo->AvatarActor.Get()))
-        {
-            Character->StopJumping();
-        }
-        else
-        {
-            UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() Couldn't call Character->StopJumping() because Character* was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
-        }
+        Character->StopJumping();
     }
     else
     {
-        UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() ActorInfo was NULL when trying to remove when trying to call StopJumping on the character"), ANSI_TO_TCHAR(__FUNCTION__));
+        UE_LOG(LogSTGameplayAbility, Error, TEXT("%s() Couldn't call Character->StopJumping() because Character* was NULL"), ANSI_TO_TCHAR(__FUNCTION__));
     }
 
 
-    Super::ASSEndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+    Super::ASSEndAbility(inSpecHandle, inActorInfo, inActivationInfo, inShouldReplicateEndAbility, inWasCanceled);
 }

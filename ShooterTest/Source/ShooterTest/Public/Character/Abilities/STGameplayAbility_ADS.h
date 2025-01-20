@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ASSGameplayAbility.h"
+#include "AbilitySystem/STGameplayAbility.h"
 
 #include "STGameplayAbility_ADS.generated.h"
 
@@ -11,7 +11,7 @@
  *
  */
 UCLASS()
-class SHOOTERTEST_API USTGameplayAbility_ADS : public UASSGameplayAbility
+class SHOOTERTEST_API USTGameplayAbility_ADS : public USTGameplayAbility
 {
     GENERATED_BODY()
 

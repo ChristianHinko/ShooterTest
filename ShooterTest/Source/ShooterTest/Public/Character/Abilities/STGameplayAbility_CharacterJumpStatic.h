@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ASSGameplayAbility.h"
+#include "AbilitySystem/STGameplayAbility.h"
 
 #include "STGameplayAbility_CharacterJumpStatic.generated.h"
 
@@ -25,7 +25,7 @@
  *        - Another thing thats weird it that for Non-Instanced abilities, EGameplayAbilityActivationMode inside ActivationInfo is set to Confirmed on both the client and server, even thought Confirmed means your on the client.
  */
 UCLASS()
-class SHOOTERTEST_API USTGameplayAbility_CharacterJumpStatic : public UASSGameplayAbility
+class SHOOTERTEST_API USTGameplayAbility_CharacterJumpStatic : public USTGameplayAbility
 {
     GENERATED_BODY()
 

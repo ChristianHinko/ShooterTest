@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ASSGameplayAbility.h"
+#include "AbilitySystem/STGameplayAbility.h"
 #include "Interfaces/STInteractableInterface.h"
 
 #include "STGameplayAbility_CharacterInteract.generated.h"
@@ -14,7 +14,7 @@ class ASTCharacter_Shooter;
  *
  */
 UCLASS(Abstract)
-class SHOOTERTEST_API USTGameplayAbility_CharacterInteract : public UASSGameplayAbility
+class SHOOTERTEST_API USTGameplayAbility_CharacterInteract : public USTGameplayAbility
 {
     GENERATED_BODY()
 

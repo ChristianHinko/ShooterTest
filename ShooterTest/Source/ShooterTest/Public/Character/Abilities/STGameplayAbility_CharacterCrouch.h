@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ASSGameplayAbility.h"
+#include "AbilitySystem/STGameplayAbility.h"
 
 #include "STGameplayAbility_CharacterCrouch.generated.h"
 
@@ -13,7 +13,7 @@ class UCharacterMovementComponent;
  *
  */
 UCLASS()
-class SHOOTERTEST_API USTGameplayAbility_CharacterCrouch : public UASSGameplayAbility
+class SHOOTERTEST_API USTGameplayAbility_CharacterCrouch : public USTGameplayAbility
 {
     GENERATED_BODY()
 

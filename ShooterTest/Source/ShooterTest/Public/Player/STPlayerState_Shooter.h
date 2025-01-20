@@ -7,8 +7,6 @@
 
 #include "STPlayerState_Shooter.generated.h"
 
-
-
 /**
  *
  */
@@ -18,9 +16,6 @@ class SHOOTERTEST_API ASTPlayerState_Shooter : public ASTPlayerState
     GENERATED_BODY()
 
 public:
-    ASTPlayerState_Shooter(const FObjectInitializer& ObjectInitializer);
 
-
-protected:
-
+    ASTPlayerState_Shooter(const FObjectInitializer& inObjectInitializer);
 };

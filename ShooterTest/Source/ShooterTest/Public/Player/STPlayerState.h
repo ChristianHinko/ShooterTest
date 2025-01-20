@@ -7,30 +7,34 @@
 
 #include "STPlayerState.generated.h"
 
-
 class UGSActorComponent_PlayerStateExtension;
 class USTAttributeSet_PlayerState;
 
-
-
 /**
- * Game's base PlayerState class
+ * Game's base player state class.
  */
 UCLASS()
 class SHOOTERTEST_API ASTPlayerState : public AASSEPlayerState_AbilitySystemPlayerState
 {
     GENERATED_BODY()
 
-protected:
-    UPROPERTY()
-        TObjectPtr<UGSActorComponent_PlayerStateExtension> GSPlayerStateExtensionComponent;
-    UPROPERTY()
-        TObjectPtr<USTAttributeSet_PlayerState> PlayerAttributeSet;
+public:
+
+    ASTPlayerState(const FObjectInitializer& inObjectInitializer);
 
 public:
-    ASTPlayerState(const FObjectInitializer& ObjectInitializer);
 
+    FORCEINLINE USTAttributeSet_PlayerState& GetAttributeSetChecked() const
+    {
+        check(PlayerAttributeSet);
+        return *PlayerAttributeSet;
+    }
 
-    USTAttributeSet_PlayerState* GetAttributeSet() const { return PlayerAttributeSet; }
+protected:
 
+    UPROPERTY()
+    TObjectPtr<UGSActorComponent_PlayerStateExtension> GSPlayerStateExtensionComponent = nullptr;
+
+    UPROPERTY()
+    TObjectPtr<USTAttributeSet_PlayerState> PlayerAttributeSet = nullptr;
 };

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ASSGameplayAbility.h"
+#include "AbilitySystem/STGameplayAbility.h"
 
 #include "STGameplayAbility_Reload.generated.h"
 
@@ -13,7 +13,7 @@ class USTItemFragment_ClipAmmoInstanced;
  *
  */
 UCLASS()
-class SHOOTERTEST_API USTGameplayAbility_Reload : public UASSGameplayAbility
+class SHOOTERTEST_API USTGameplayAbility_Reload : public USTGameplayAbility
 {
     GENERATED_BODY()
 

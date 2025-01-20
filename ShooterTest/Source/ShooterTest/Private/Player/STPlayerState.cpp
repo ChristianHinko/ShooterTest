@@ -1,15 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Player/STPlayerState.h"
 
 #include "Subobjects/ActorComponents/GSActorComponent_PlayerStateExtension.h"
 #include "Player/STAttributeSet_PlayerState.h"
 
-
-
-ASTPlayerState::ASTPlayerState(const FObjectInitializer& ObjectInitializer)
-    : Super(ObjectInitializer)
+ASTPlayerState::ASTPlayerState(const FObjectInitializer& inObjectInitializer)
+    : Super(inObjectInitializer)
 {
     GSPlayerStateExtensionComponent = CreateDefaultSubobject<UGSActorComponent_PlayerStateExtension>(TEXT("GSPlayerStateExtensionComponent"));
 

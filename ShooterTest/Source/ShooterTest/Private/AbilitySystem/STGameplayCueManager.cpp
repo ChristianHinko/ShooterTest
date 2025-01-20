@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "AbilitySystem/GameplayCue/STGameplayCueManager.h"
+#include "AbilitySystem/STGameplayCueManager.h"
 
 void USTGameplayCueManager::FlushPendingCues()
 {

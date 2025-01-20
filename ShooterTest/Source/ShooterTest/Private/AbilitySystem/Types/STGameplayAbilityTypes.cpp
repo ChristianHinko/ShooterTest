@@ -51,7 +51,7 @@ void FSTGameplayAbilityActorInfo::ClearActorInfo()
 /// FSTGameplayAbilityActorInfo_Shooter
 ////////////////////////////////////////////////////////////////
 
-#include "AbilitySystem/AbilitySystemComponents/STAbilitySystemComponent_Shooter.h"
+#include "AbilitySystem/STAbilitySystemComponent_Shooter.h"
 #include "Character/STCharacter_Shooter.h"
 #include "ArcInventoryComponent.h"
 #include "ArcItemBPFunctionLibrary.h"

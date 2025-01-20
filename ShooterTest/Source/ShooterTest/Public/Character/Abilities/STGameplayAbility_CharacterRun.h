@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ASSGameplayAbility.h"
+#include "AbilitySystem/STGameplayAbility.h"
 
 #include "STGameplayAbility_CharacterRun.generated.h"
 
@@ -14,7 +14,7 @@ class USTCharacterMovementComponent;
  *
  */
 UCLASS()
-class SHOOTERTEST_API USTGameplayAbility_CharacterRun : public UASSGameplayAbility
+class SHOOTERTEST_API USTGameplayAbility_CharacterRun : public USTGameplayAbility
 {
     GENERATED_BODY()
 

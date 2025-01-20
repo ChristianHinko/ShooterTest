@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ASSGameplayAbility.h"
+#include "AbilitySystem/STGameplayAbility.h"
 
 #include "STGameplayAbility_FireGun.generated.h"
 
@@ -23,7 +23,7 @@ struct FOnAttributeChangeData;
  *    become a problem over the network with fast rate of fire guns such at the Vector from MW2. We could maybe optimize what we send over the network if we want to later.
  */
 UCLASS()
-class SHOOTERTEST_API USTGameplayAbility_FireGun : public UASSGameplayAbility
+class SHOOTERTEST_API USTGameplayAbility_FireGun : public USTGameplayAbility
 {
     GENERATED_BODY()
 

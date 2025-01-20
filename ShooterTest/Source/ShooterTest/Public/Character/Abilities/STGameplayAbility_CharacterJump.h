@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ASSGameplayAbility.h"
+#include "AbilitySystem/STGameplayAbility.h"
 
 #include "STGameplayAbility_CharacterJump.generated.h"
 
@@ -11,7 +11,7 @@
  * This is a nice minimal implementation of the CMC jumping into the ability system
  */
 UCLASS()
-class SHOOTERTEST_API USTGameplayAbility_CharacterJump : public UASSGameplayAbility
+class SHOOTERTEST_API USTGameplayAbility_CharacterJump : public USTGameplayAbility
 {
     GENERATED_BODY()
 

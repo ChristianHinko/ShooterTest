@@ -8,12 +8,13 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Modular/ArcItemStackModular.h"
 #include "Inventory/Item/Fragments/STItemFragment_BulletSpread.h"
-#include "ActorComponents/ASSActorComponent_AvatarActorExtension.h"
+#include "ASSAvatarActorExtensionStruct.h"
 #include "GCUtils_ObjectTraversal.h"
 #include "Inventory/Item/Fragments/AIEItemFragment_UIData.h"
 #include "Inventory/Item/Fragments/STItemFragment_ClipAmmo.h"
 #include "Inventory/AIEBlueprintFunctionLibrary_Inventory.h"
 #include "Blueprint/UserWidget.h"
+#include "ASSAvatarActorExtentionInterface.h"
 
 USTInventoryProcessor_Shooter::USTInventoryProcessor_Shooter()
 {
@@ -24,11 +25,10 @@ void USTInventoryProcessor_Shooter::OnInventoryInit_Implementation()
 {
     Super::OnInventoryInit_Implementation();
 
-
-    UASSActorComponent_AvatarActorExtension* AvatarActorExtensionComponent = GetOwningActor()->FindComponentByClass<UASSActorComponent_AvatarActorExtension>();
-    if (IsValid(AvatarActorExtensionComponent))
+    
+    if (IASSAvatarActorExtentionInterface* AvatarActorExtensionComponent = Cast<IASSAvatarActorExtentionInterface>(GetOwningActor()))
     {
-        AvatarActorExtensionComponent->OnInitializeAbilitySystemComponentDelegate.AddUObject(this, &USTInventoryProcessor_Shooter::OnInitializeAbilitySystemComponent);
+        AvatarActorExtensionComponent->GetASSAvatarActorExtension().OnInitializeAbilitySystemComponentDelegate.AddUObject(this, &USTInventoryProcessor_Shooter::OnInitializeAbilitySystemComponent);
     }
 }
 

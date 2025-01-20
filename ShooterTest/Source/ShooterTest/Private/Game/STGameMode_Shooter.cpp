@@ -8,7 +8,8 @@
 #include "Generators/ArcItemGenerator.h"
 #include "Inventory/AIEInventoryProcessor_Active.h"
 #include "Modular/ArcInventoryComponent_Modular.h"
-#include "ActorComponents/ASSActorComponent_AvatarActorExtension.h"
+#include "ASSAvatarActorExtensionStruct.h"
+#include "ASSAvatarActorExtentionInterface.h"
 #include "ArcItemBPFunctionLibrary.h"
 
 ASTGameMode_Shooter::ASTGameMode_Shooter(const FObjectInitializer& ObjectInitializer)
@@ -30,10 +31,9 @@ void ASTGameMode_Shooter::SetPlayerDefaults(APawn* PlayerPawn)
         UAIEInventoryProcessor_Active* AIEInventoryProcessorActive = AIEInventoryComponentModular->FindFirstProcessor<UAIEInventoryProcessor_Active>();
         if (IsValid(AIEInventoryProcessorActive))
         {
-            UASSActorComponent_AvatarActorExtension* AvatarActorExtensionComponent = PlayerPawn->FindComponentByClass<UASSActorComponent_AvatarActorExtension>();
-            if (IsValid(AvatarActorExtensionComponent))
+            if (IASSAvatarActorExtentionInterface* AvatarActorExtensionComponent = Cast<IASSAvatarActorExtentionInterface>(PlayerPawn))
             {
-                if (AvatarActorExtensionComponent->IsInitializedWithASC())
+                if (AvatarActorExtensionComponent->GetASSAvatarActorExtension().IsInitializedWithASC())
                 {
                     // The Pawn is ready to recieve the startup items
                     AIEInventoryProcessorActive->GiveInventoryStartupItems();

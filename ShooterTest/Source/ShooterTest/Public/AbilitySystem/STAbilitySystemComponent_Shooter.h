@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ActorComponents/ASSActorComponent_AbilitySystemComponentExample.h"
+#include "Examples/ASSActorComponent_AbilitySystemComponentExample.h"
 
 #include "STAbilitySystemComponent_Shooter.generated.h"
 

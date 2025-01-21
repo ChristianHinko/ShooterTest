@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ASSGameplayAbility_Example.h"
+#include "Examples/ASSGameplayAbility_Example.h"
 
 #include "STGameplayAbility.generated.h"
 
